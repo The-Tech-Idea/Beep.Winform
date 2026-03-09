@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Title text
             var titleTextRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
                 ctx.HeaderRect.Width - iconRect.Width - 16, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleTextBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 {
                     var titleTextRect = new Rectangle(iconRect.Right + 6, headerRect.Y, 
                         headerRect.Width - iconRect.Width - 6, headerRect.Height);
-                    using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f,FontStyle.Bold);
+                    using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f,FontStyle.Bold);
                     using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                     var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                     g.DrawString(metric.Title, titleFont, titleBrush, titleTextRect, format);
@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 if (!string.IsNullOrEmpty(metric.Value))
                 {
                     var valueRect = new Rectangle(cellRect.X + 8, headerRect.Bottom + 4, cellRect.Width - 16, 18);
-                    using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+                    using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
                     using var valueBrush = new SolidBrush(cellColor);
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                     g.DrawString(metric.Value, valueFont, valueBrush, valueRect, valueFormat);

@@ -44,8 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private int _tabMaxWidth = 200;
         private int _scrollOffset = 0;
         private bool _needsScrolling = false;
+        private bool _keyboardFocusActive = false;
+        private bool _emptyStateButtonHovered = false;
         private Rectangle _scrollLeftButton;
         private Rectangle _scrollRightButton;
+        private Rectangle _overflowButton;
         private Rectangle _newTabButton;
 
         // Helper classes
@@ -106,6 +109,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         // Color.Empty = auto-derive a slightly darker shade from _tabBackColor.
         private Color _tabStripGradientEndColor = Color.Empty;
 
+        // ---- Tooltip hover card ----
+        private System.Windows.Forms.Timer? _tooltipTimer;
+        private AddinTab? _tooltipTab;   // tab whose tooltip is currently visible
+        private bool _showTooltip = false;
+
         private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
 
         /// <summary>
@@ -125,6 +133,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     // Update helpers immediately — do NOT rely on PropertyChanged which fires late.
                     UpdateTabPainterStyle();
                     ApplyThemeColorsToTabs();
+                    
+                    // Crucial: border/shadow bounds changed, recompute areas
+                    RecalculateLayout();
+                    
                     // Propagation happens inside ApplyTheme() (called by the base class after the
                     // setter) with a fully-refreshed _currentTheme.  Calling it here would push the
                     // OLD theme to addins because _currentTheme has not been updated yet for the
@@ -167,6 +179,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// Occurs when a key combination is pressed.
         /// </summary>
         public event EventHandler<KeyCombination>? KeyPressed;
+        /// <summary>
+        /// Occurs when the tab-strip requests creating a new tab.
+        /// </summary>
+        public event EventHandler<ContainerEvents>? NewTabRequested;
 
         #endregion
 
@@ -183,6 +199,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void InitializeComponent()
         {
+            // Prevent hosted UserControls with AutoScaleMode.Font from triggering
+            // PerformAutoScale() cascades that reset their Bounds and cover the tab header.
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+
             // Follow BaseControl patterns for painting setup
             SetStyle(ControlStyles.SupportsTransparentBackColor | 
                      ControlStyles.ResizeRedraw | 
@@ -211,6 +231,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 ControlStyle = BeepControlStyle.Modern;
             }
+            
+            // Disable BaseControl splash/ripple effects for this container
+            EnableSplashEffect = false;
             
             // Transparent background support (like BeepMenuBar)
             IsTransparentBackground = false; // Default to opaque for containers
@@ -415,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 try
                 {
-                    var tabFont = BeepThemesManager.ToFont(tabTypography);
+                    var tabFont = FontListHelper.GetFont(tabTypography.FontFamily, tabTypography.FontSize, tabTypography.FontStyle);
                     if (tabFont != null)
                         TextFont = tabFont;
                 }

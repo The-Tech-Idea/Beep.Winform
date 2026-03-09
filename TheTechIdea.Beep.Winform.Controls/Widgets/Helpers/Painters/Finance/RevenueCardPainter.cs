@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
             var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y,
                 ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush, titleRect, format);
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 double totalRevenue = (double)totalRevenueDecimal;
 
                 bool amountHovered = IsAreaHovered("Revenue_Amount");
-                using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, amountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+                using var amountFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, amountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
                 using var amountBrush = new SolidBrush(GetRevenueColor(ctx, totalRevenue));
 
                 string amountText = showCurrency ?
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
                 int revenueCount = financeItems.Count(item => item.Amount > 0);
                 bool countHovered = IsAreaHovered("Revenue_Count");
-                using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, countHovered ? FontStyle.Underline : FontStyle.Regular);
+                using var countFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, countHovered ? FontStyle.Underline : FontStyle.Regular);
                 using var countBrush = new SolidBrush(countHovered ? Theme?.PrimaryColor ?? Color.Green : Color.FromArgb(150, Color.Black));
 
                 string countText = $"{revenueCount} revenue transaction{(revenueCount != 1 ? "s" : "")}";
@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 var lastUpdated = ctx.LastUpdated;
                 if (lastUpdated != null)
                 {
-                    using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                    using var periodFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                     using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                     string periodText = $"Updated {lastUpdated}";
                     var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);
@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 string trend = ctx.Trend;
                 if (!string.IsNullOrEmpty(trend))
                 {
-                    using var trendFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
+                    using var trendFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
                     Color trendColor = trend.Contains("+") || trend.Contains("↑") ? Color.Green : Color.Red;
                     bool trendHovered = IsAreaHovered("Revenue_Trend");
                     if (trendHovered)
@@ -210,17 +210,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawSampleRevenueData(Graphics g, WidgetContext ctx, string currencySymbol, bool showCurrency)
         {
-            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
+            using var amountFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
             using var amountBrush = new SolidBrush(Color.FromArgb(34, 139, 34));
             string amountText = showCurrency ? $"{currencySymbol}45,230" : "45230";
             g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-            using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var countFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var countBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
             string countText = "28 transactions";
             g.DrawString(countText, countFont, countBrush, _countRect);
 
-            using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var periodFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
             using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
             string periodText = "This month";
             var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);

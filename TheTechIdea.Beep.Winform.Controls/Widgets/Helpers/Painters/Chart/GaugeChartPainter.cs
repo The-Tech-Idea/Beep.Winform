@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
         {
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
                 using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             
             if (ctx.Values?.Any() == true)
             {
-                using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+                using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
                 using var valueBrush = new SolidBrush(ctx.AccentColor);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Values.First().ToString("F1"), valueFont, valueBrush, ctx.ValueRect, format);

@@ -64,13 +64,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             // Draw address icon
             using var iconBrush = new SolidBrush(ctx.AccentColor);
             g.FillEllipse(iconBrush, ctx.IconRect);
-            using var iconFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var iconFont = FontListHelper.GetFont(Owner.Font.FontFamily.Name, 12f, FontStyle.Bold);
             using var iconTextBrush = new SolidBrush(Color.White);
             var iconFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString("??", iconFont, iconTextBrush, ctx.IconRect, iconFormat);
 
             // Draw address title
-            using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
+            using var titleFont = FontListHelper.GetFont(Owner.Font.FontFamily.Name, 10f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
             g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
 
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             int y = ctx.ContentRect.Y;
             int lineHeight = 18;
             
-            using var addressFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var addressFont = FontListHelper.GetFont(Owner.Font.FontFamily.Name, 9f, FontStyle.Regular);
             using var addressBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
             
             if (!string.IsNullOrEmpty(address))
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             
             if (latitude != 0.0 || longitude != 0.0)
             {
-                using var coordFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var coordFont = FontListHelper.GetFont(Owner.Font.FontFamily.Name, 8f, FontStyle.Regular);
                 using var coordBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                 string coordText = $"Coordinates: {latitude:F4}, {longitude:F4}";
                 g.DrawString(coordText, coordFont, coordBrush, ctx.ContentRect.X, ctx.ContentRect.Bottom - 16);

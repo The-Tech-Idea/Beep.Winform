@@ -82,8 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             var date = ctx.ScheduleDate;
             var headerRect = ctx.HeaderRect;
 
-            using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
-            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var dateFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var dayFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var dateBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
             using var dayBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
 
@@ -144,8 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int padding = 12;
             int startY = ctx.ContentRect.Y;
 
-            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var timeFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Theme?.AccentColor ?? Color.Blue);
             using var titleBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
 
@@ -180,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
                 // Type (subtitle)
                 var typeRect = new Rectangle(eventRect.Left + 60, eventRect.Top + 20, eventRect.Width - 80, 12);
-                using (var typeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Italic))
+                using (var typeFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Italic))
                 using (var typeBrush = new SolidBrush(Color.FromArgb(100, Theme?.ForeColor ?? Color.Black)))
                 {
                     g.DrawString(evt.Type, typeFont, typeBrush, typeRect);
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int total = ctx.Total > 0 ? ctx.Total : _eventRects.Count;
             total = Math.Max(total, completed);
 
-            using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+            using var statusFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
             using var statusBrush = new SolidBrush(Color.FromArgb(76, 175, 80));
 
             g.DrawString($"{completed}/{total}", statusFont, statusBrush, _statusRectCache,

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         {
             _owner = owner;
             _theme = theme;
-var fontSize = owner?.Font?.Size ?? 10f;
+var fontSize = _owner?.TextFont?.Size ?? 10f;
 _titleFont = titleFont;
             _messageFont = bodyFont;
         }

@@ -55,8 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int padding = 8;
             int startY = ctx.DrawingRect.Top + padding;
 
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
-            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+            using var timeFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var titleBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
             using var timeBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
 

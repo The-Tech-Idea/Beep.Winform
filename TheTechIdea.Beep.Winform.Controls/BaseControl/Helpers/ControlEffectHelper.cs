@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -132,11 +132,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (!_showRipple) return;
 
+            float diameter = _rippleSize * 2;
+            if (diameter <= 0f) return;
+
             using (var brush = new SolidBrush(Color.FromArgb(
                 (int)(_rippleOpacity * 64),
                 _owner.ForeColor)))
             {
-                float diameter = _rippleSize * 2;
                 g.FillEllipse(brush,
                     _rippleCenter.X - _rippleSize,
                     _rippleCenter.Y - _rippleSize,
@@ -182,11 +184,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (!_showMaterialRipple) return;
 
+            float diameter = _rippleRadius * 2;
+            if (diameter <= 0f) return;
+
             using (var rippleBrush = new SolidBrush(Color.FromArgb(
                 (int)(_rippleOpacity * 64),
                 _owner.Focused ? Color.RoyalBlue : _owner.ForeColor)))
             {
-                float diameter = _rippleRadius * 2;
                 g.FillEllipse(rippleBrush,
                     _rippleOrigin.X - _rippleRadius,
                     _rippleOrigin.Y - _rippleRadius,

@@ -35,11 +35,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private bool _isLoading;
 
         // ── Backing fields ──────────────────────────────────────────────────────
-        private ImportExportDirection _direction       = ImportExportDirection.Import;
-        private string _sourceDataSourceName           = string.Empty;
-        private string _sourceEntityName               = string.Empty;
-        private string _destinationDataSourceName      = string.Empty;
-        private string _destinationEntityName          = string.Empty;
+        private ImportExportDirection _direction = ImportExportDirection.Import;
+        private string _sourceDataSourceName = string.Empty;
+        private string _sourceEntityName = string.Empty;
+        private string _destinationDataSourceName = string.Empty;
+        private string _destinationEntityName = string.Empty;
 
         // ── Phase 4: history + last summary ────────────────────────────────────
         private readonly List<(DateTime When, string Src, string Dst, int Rows, bool Success)>
@@ -122,34 +122,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         // ── Constructor ─────────────────────────────────────────────────────────
         public uc_ImportExportWizardLauncher(IServiceProvider services) : base(services)
         {
-            _services         = services;
+            _services = services;
             Details.AddinName = "Import / Export Wizard";
 
             InitializeComponent();
 
-            // Default option values
-            chkCreateIfNotExists.CurrentValue = true;
-            chkAddMissing.CurrentValue        = true;
-
-            // Wire events
-            cmbDirection.SelectedItemChanged   += (_, _) => SyncDirectionFromCombo();
-            cmbSourceDS.SelectedItemChanged    += (_, _) => LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity);
-            cmbDestDS.SelectedItemChanged      += (_, _) => LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity);
-            btnLaunch.Click                    += (_, _) => LaunchWizard();
-            btnClearLog.Click                  += (_, _) => txtLog.Clear();
-            btnSwap.Click                      += (_, _) => SwapSourceDest();
-            btnQuickImport.Click               += (_, _) => QuickImport_Click();
-            btnViewLastSummary.Click           += (_, _) => ViewLastSummary_Click();
-
-            // Seed direction combo
-            var dirItems = new BindingList<SimpleItem>
-            {
-                new SimpleItem { Text = "Import", Item = ImportExportDirection.Import },
-                new SimpleItem { Text = "Export", Item = ImportExportDirection.Export }
-            };
-            cmbDirection.ListItems = dirItems;
-            cmbDirection.SelectItemByText("Import");
-            SyncDirectionUI();
         }
 
         // ── Programmatic launch overloads ───────────────────────────────────────
@@ -158,15 +135,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         /// <summary>Pre-fill source and destination, then immediately launch.</summary>
         public void LaunchWithSelection(string srcDs, string srcEntity,
-                                        string destDs    = null,
+                                        string destDs = null,
                                         string destEntity = null,
                                         ImportExportDirection direction = ImportExportDirection.Import)
         {
-            Direction                 = direction;
-            SourceDataSourceName      = srcDs;
-            SourceEntityName          = srcEntity;
-            if (destDs     != null) DestinationDataSourceName = destDs;
-            if (destEntity != null) DestinationEntityName     = destEntity;
+            Direction = direction;
+            SourceDataSourceName = srcDs;
+            SourceEntityName = srcEntity;
+            if (destDs != null) DestinationDataSourceName = destDs;
+            if (destEntity != null) DestinationEntityName = destEntity;
             LaunchWizard();
         }
 
@@ -188,6 +165,30 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
+
+            // Default option values
+            chkCreateIfNotExists.CurrentValue = true;
+            chkAddMissing.CurrentValue = true;
+
+            // Wire events
+            cmbDirection.SelectedItemChanged += (_, _) => SyncDirectionFromCombo();
+            cmbSourceDS.SelectedItemChanged += (_, _) => LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity);
+            cmbDestDS.SelectedItemChanged += (_, _) => LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity);
+            btnLaunch.Click += (_, _) => LaunchWizard();
+            btnClearLog.Click += (_, _) => txtLog.Clear();
+            btnSwap.Click += (_, _) => SwapSourceDest();
+            btnQuickImport.Click += (_, _) => QuickImport_Click();
+            btnViewLastSummary.Click += (_, _) => ViewLastSummary_Click();
+
+            // Seed direction combo
+            var dirItems = new BindingList<SimpleItem>
+            {
+                new SimpleItem { Text = "Import", Item = ImportExportDirection.Import },
+                new SimpleItem { Text = "Export", Item = ImportExportDirection.Export }
+            };
+            cmbDirection.ListItems = dirItems;
+            cmbDirection.SelectItemByText("Import");
+            SyncDirectionUI();
             LoadDataSources();
             InitHistoryGrid();
             LoadRecentTemplates();
@@ -199,29 +200,29 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             var config = BuildInitialConfig();
 
             // ── 5-step wizard ────────────────────────────────────────────────
-            var selectStep  = new uc_Import_SelectDSandEntity(_services);
-            var colStep     = new uc_Import_ColumnSelection(_services);
-            var mapStep     = new uc_Import_MapFields(_services);
+            var selectStep = new uc_Import_SelectDSandEntity(_services);
+            var colStep = new uc_Import_ColumnSelection(_services);
+            var mapStep = new uc_Import_MapFields(_services);
             var optionsStep = new uc_Import_Options(_services);
-            var runStep     = new uc_Import_Run(_services);
+            var runStep = new uc_Import_Run(_services);
 
-            bool isExport  = _direction == ImportExportDirection.Export;
-            string title   = isExport ? "Export Wizard" : "Import Wizard";
-            string desc    = isExport
+            bool isExport = _direction == ImportExportDirection.Export;
+            string title = isExport ? "Export Wizard" : "Import Wizard";
+            string desc = isExport
                 ? "Select source to export from and destination to export to, choose columns, map fields, set options, then run."
                 : "Select source/destination, choose columns, map fields, set options, then run import.";
 
             var wizardConfig = new WizardConfig
             {
-                Key             = $"ImportExportWizard_{Guid.NewGuid():N}",
-                Title           = title,
-                Description     = desc,
-                Style           = WizardStyle.HorizontalStepper,
+                Key = $"ImportExportWizard_{Guid.NewGuid():N}",
+                Title = title,
+                Description = desc,
+                Style = WizardStyle.HorizontalStepper,
                 ShowProgressBar = true,
-                ShowStepList    = true,
-                AllowBack       = true,
-                AllowCancel     = true,
-                ShowInlineErrors= true,
+                ShowStepList = true,
+                AllowBack = true,
+                AllowCancel = true,
+                ShowInlineErrors = true,
                 Steps = new List<WizardStep>
                 {
                     new WizardStep { Key = "select",  Title = "Configure",              Description = "Choose data sources, entities, and import mode.",     Content = selectStep  },
@@ -234,14 +235,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             wizardConfig.OnProgress = (cur, tot, t) => AppendLog($"[{cur}/{tot}] {t}");
             wizardConfig.OnComplete = RunImportFromWizardContext;
-            wizardConfig.OnCancel   = _ => AppendLog("Wizard cancelled.");
+            wizardConfig.OnCancel = _ => AppendLog("Wizard cancelled.");
 
             // Pre-inject the config so Step 1 restores from it
             var wizardInstance = WizardManager.CreateWizard(wizardConfig);
             wizardInstance.Context.SetValue(WizardKeys.ImportConfig, config);
 
             AppendLog($"Launching {title}…");
-            var owner  = FindForm();
+            var owner = FindForm();
             var result = owner == null
                 ? wizardInstance.ShowDialog()
                 : wizardInstance.ShowDialog(owner);
@@ -270,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // Capture any summary the Run step may have stored
             _lastSummary = context.GetValue<ImportRunSummary?>(WizardKeys.RunSummary, null);
 
-            var manager  = new DataImportManager(Editor);
+            var manager = new DataImportManager(Editor);
             var progress = new Progress<IPassedArgs>(args =>
             {
                 if (!string.IsNullOrWhiteSpace(args?.Messege)) AppendLog(args.Messege);
@@ -289,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                                 MessageBoxButtons.OK, MessageBoxIcon.Error));
                         return;
                     }
-                    var info    = t.Result;
+                    var info = t.Result;
                     var success = info?.Flag == Errors.Ok;
                     AppendLog(info?.Message ?? "Completed.");
                     // Capture summary from context if available (Run step may have set it)
@@ -309,12 +310,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             return new DataImportConfiguration
             {
-                SourceDataSourceName         = cmbSourceDS.SelectedItem?.Text     ?? string.Empty,
-                SourceEntityName             = cmbSourceEntity.SelectedItem?.Text  ?? string.Empty,
-                DestDataSourceName           = cmbDestDS.SelectedItem?.Text        ?? string.Empty,
-                DestEntityName               = cmbDestEntity.SelectedItem?.Text    ?? string.Empty,
+                SourceDataSourceName = cmbSourceDS.SelectedItem?.Text ?? string.Empty,
+                SourceEntityName = cmbSourceEntity.SelectedItem?.Text ?? string.Empty,
+                DestDataSourceName = cmbDestDS.SelectedItem?.Text ?? string.Empty,
+                DestEntityName = cmbDestEntity.SelectedItem?.Text ?? string.Empty,
                 CreateDestinationIfNotExists = chkCreateIfNotExists.CurrentValue,
-                AddMissingColumns            = chkAddMissing.CurrentValue
+                AddMissingColumns = chkAddMissing.CurrentValue
             };
         }
 
@@ -333,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
                 var list = new BindingList<SimpleItem>(names);
                 cmbSourceDS.ListItems = list;
-                cmbDestDS.ListItems   = new BindingList<SimpleItem>(names);
+                cmbDestDS.ListItems = new BindingList<SimpleItem>(names);
 
                 if (!string.IsNullOrWhiteSpace(_sourceDataSourceName))
                     cmbSourceDS.SelectItemByText(_sourceDataSourceName);
@@ -344,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             // Cascade entity combos
             LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity, _sourceEntityName);
-            LoadEntities(cmbDestDS.SelectedItem?.Text,   cmbDestEntity,   _destinationEntityName);
+            LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity, _destinationEntityName);
         }
 
         private void LoadEntities(string dataSourceName, BeepComboBox combo, string restoreValue = null)
@@ -378,10 +379,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private void SwapSourceDest()
         {
-            var srcDs     = cmbSourceDS.SelectedItem?.Text     ?? string.Empty;
-            var srcEntity = cmbSourceEntity.SelectedItem?.Text  ?? string.Empty;
-            var dstDs     = cmbDestDS.SelectedItem?.Text        ?? string.Empty;
-            var dstEntity = cmbDestEntity.SelectedItem?.Text    ?? string.Empty;
+            var srcDs = cmbSourceDS.SelectedItem?.Text ?? string.Empty;
+            var srcEntity = cmbSourceEntity.SelectedItem?.Text ?? string.Empty;
+            var dstDs = cmbDestDS.SelectedItem?.Text ?? string.Empty;
+            var dstEntity = cmbDestEntity.SelectedItem?.Text ?? string.Empty;
 
             cmbSourceDS.SelectItemByText(dstDs);
             cmbSourceEntity.SelectItemByText(dstEntity);
@@ -399,10 +400,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private void SyncDirectionUI()
         {
-            bool isExport       = _direction == ImportExportDirection.Export;
-            lblSourceDS.Text    = isExport ? "Export From:" : "Source:";
-            lblDestDS.Text      = isExport ? "Export To:"   : "Destination:";
-            btnLaunch.Text      = isExport ? "Launch Export Wizard" : "Launch Import Wizard";
+            bool isExport = _direction == ImportExportDirection.Export;
+            lblSourceDS.Text = isExport ? "Export From:" : "Source:";
+            lblDestDS.Text = isExport ? "Export To:" : "Destination:";
+            btnLaunch.Text = isExport ? "Launch Export Wizard" : "Launch Import Wizard";
         }
 
         private void AppendLog(string message)
@@ -419,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             try
             {
-                var all   = ImportTemplateManager.ListAll() ?? Array.Empty<string>();
+                var all = ImportTemplateManager.ListAll() ?? Array.Empty<string>();
                 var items = new System.ComponentModel.BindingList<Controls.Models.SimpleItem>(
                     all.Take(5)
                        .Select(n => new Controls.Models.SimpleItem { Text = n, Item = n })
@@ -456,7 +457,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
                 AppendLog($"Quick Import using template '{templateName}'…");
                 var importManager = new DataImportManager(Editor);
-                var progress      = new Progress<IPassedArgs>(a =>
+                var progress = new Progress<IPassedArgs>(a =>
                 { if (!string.IsNullOrWhiteSpace(a?.Messege)) AppendLog(a.Messege); });
 
                 _ = importManager.RunImportAsync(config, progress, default)
@@ -511,19 +512,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             // Build the backing DataTable
             _historyDt = new DataTable("RunHistory");
-            _historyDt.Columns.Add("When",   typeof(string));
+            _historyDt.Columns.Add("When", typeof(string));
             _historyDt.Columns.Add("Source", typeof(string));
-            _historyDt.Columns.Add("Dest",   typeof(string));
-            _historyDt.Columns.Add("Rows",   typeof(string));
+            _historyDt.Columns.Add("Dest", typeof(string));
+            _historyDt.Columns.Add("Rows", typeof(string));
             _historyDt.Columns.Add("Status", typeof(string));
 
             // Configure BeepGridPro columns
             historyGrid.Columns.Clear();
-            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "When",   ColumnCaption = "Time",   Width = 80  });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "When", ColumnCaption = "Time", Width = 80 });
             historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Source", ColumnCaption = "Source", Width = 130 });
-            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Dest",   ColumnCaption = "Dest",   Width = 130 });
-            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Rows",   ColumnCaption = "Rows",   Width = 60  });
-            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Status", ColumnCaption = "Status", Width = 70  });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Dest", ColumnCaption = "Dest", Width = 130 });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Rows", ColumnCaption = "Rows", Width = 60 });
+            historyGrid.Columns.Add(new BeepColumnConfig { ColumnName = "Status", ColumnCaption = "Status", Width = 70 });
 
             historyGrid.DataSource = _historyDt;
         }
@@ -531,11 +532,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
         {
             var entry = (
-                When    : DateTime.Now,
-                Src     : $"{config.SourceDataSourceName}/{config.SourceEntityName}",
-                Dst     : $"{config.DestDataSourceName}/{config.DestEntityName}",
-                Rows    : rowCount,
-                Success : success
+                When: DateTime.Now,
+                Src: $"{config.SourceDataSourceName}/{config.SourceEntityName}",
+                Dst: $"{config.DestDataSourceName}/{config.DestEntityName}",
+                Rows: rowCount,
+                Success: success
             );
             _runHistory.Insert(0, entry);
             if (_runHistory.Count > 50) _runHistory.RemoveAt(_runHistory.Count - 1);
@@ -559,5 +560,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                     h.Rows.ToString("N0"),
                     h.Success ? "✓ OK" : "✕ Failed");
             }
-        }    }
+        }
+
+        private void beepImage1_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

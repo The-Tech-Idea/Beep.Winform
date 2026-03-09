@@ -483,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Ensure min updates on font changes
         protected override void OnFontChanged(EventArgs e)
         {
-            base.OnFontChanged(e);
+            //base.OnFontChanged(e);
             _textFont = Font;
 
            

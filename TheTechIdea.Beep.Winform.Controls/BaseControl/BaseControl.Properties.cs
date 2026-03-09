@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
                 _textFont = value;
 
-                SafeApplyFont(_textFont);
+                //SafeApplyFont(_textFont);
                 UseThemeFont = false;
                 InvalidateOnce();
 

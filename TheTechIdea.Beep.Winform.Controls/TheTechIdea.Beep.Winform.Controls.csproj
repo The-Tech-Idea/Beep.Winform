@@ -64,8 +64,7 @@
   <ItemGroup>
 
 	  <EmbeddedResource Include="GFX\Icons\Datasources\*.*" />
-	  <EmbeddedResource Include="GFX\Icons\UI\*.*" />
-
+	  <EmbeddedResource Include="GFX\Icons\tablerfilled\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\INFO\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\NAV\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\*.*" />

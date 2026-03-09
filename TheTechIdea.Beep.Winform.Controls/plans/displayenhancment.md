@@ -6,6 +6,14 @@ Refresh `BeepDisplayContainer2` so its tab header and overall display-container 
 
 This plan focuses especially on the **tab header** because that is the main visual and interaction anchor of the control. The goal is to keep the existing Beep architecture, but raise the quality of spacing, typography, interaction states, layout consistency, and visual polish.
 
+The resulting UI must **not** become a disconnected skin. It must stay rooted in the Beep styling pipeline and be derived from:
+
+1. The active Beep theme (`_currentTheme`)
+2. The current `FormStyle` from `BeepThemesManager.CurrentStyle`
+3. The control's own `ControlStyle`
+
+Figma/commercial references are inputs for hierarchy, state design, spacing discipline, and product polish only. The final rendering language must remain native to your theme/style system.
+
 ## Design Direction
 
 The target UI should follow these product-level principles:
@@ -22,6 +30,30 @@ The target UI should follow these product-level principles:
    The tab strip, content area, utility buttons, and empty state should feel like one coordinated control surface.
 6. **DPI-safe rendering**
    All dimensions, hit targets, spacing, and adornments must remain crisp and correctly sized across DPI scales.
+7. **Theme/style fidelity**
+   Color, chrome, density, emphasis, and corner treatment must be driven by the active theme, `FormStyle`, and `ControlStyle`, not by a fixed aesthetic imported from references.
+
+## Theme Authority and Styling Model
+
+The enhancement must explicitly follow the existing Beep style authority chain.
+
+### Authoritative Inputs
+
+1. **Theme**
+   `_currentTheme` remains the primary source for color, typography, selected-state contrast, hover-state tone, and content/tab surface behavior.
+2. **FormStyle**
+   `BeepThemesManager.CurrentStyle` defines the broader application shell language and should influence how bold, soft, flat, segmented, or elevated the tab strip feels.
+3. **ControlStyle**
+   `ControlStyle` remains the local visual variant selector for `BeepDisplayContainer2` and should be the last-mile modifier for radius, border treatment, gradients, shadows, and interaction density.
+
+### Practical Rule
+
+When the plan says "modernize" or "commercialize" the tab header, that means:
+
+1. Improve the quality of the current Beep look.
+2. Use the active theme/style combination as the actual rendering source.
+3. Never hardcode a single visual language that ignores `FormStyle` or `ControlStyle`.
+4. Make the control look like a higher-quality version of the current Beep product family, not a foreign component.
 
 ## Visual Benchmark Guidance
 
@@ -36,12 +68,21 @@ The intended visual language should take inspiration from these sources without 
 4. **Attached visual references in the plans folder**
    The visual references suggest segmented surfaces, angled or directional accents, compact banners, and strong label contrast. These should be interpreted as inspiration for hierarchy and state contrast, not as a direct skin.
 
+### Constraint
+
+These references must be filtered through your existing theme/style model:
+
+1. Theme decides the colors and typography family.
+2. `FormStyle` decides the broader surface language.
+3. `ControlStyle` decides the local rendering flavor.
+4. The plan should improve polish and UX, not replace Beep identity.
+
 ## Current Architecture to Preserve
 
 The current split is correct and should be preserved:
 
 1. `BeepDisplayContainer2.cs`
-   Owns control orchestration, theme application, `TextFont`, and helper coordination.
+   Owns control orchestration, theme application, `TextFont`, `FormStyle`/theme-driven setup, and helper coordination.
 2. `BeepDisplayContainer2.Layout.cs`
    Owns strip/content layout and tab placement.
 3. `BeepDisplayContainer2.Painting.cs`
@@ -58,6 +99,8 @@ The enhancement should not collapse these responsibilities back into one file.
 ### Required Rule
 
 All tab-header typography must use the font resolved from theme typography through `BeepThemesManager.ToFont(...)`.
+
+All visual decisions around the font must also respect the active theme/style context rather than introducing separate painter-local typography opinions.
 
 ### Authoritative Flow
 
@@ -76,6 +119,7 @@ TextFont = tabFont;
 3. `TabPaintHelper` must render tab text using the same resolved font assumptions used during measurement.
 4. Active-tab emphasis must be derived from the same theme family and size, not an unrelated ad-hoc font path.
 5. Empty-state text should also be reviewed so it is visually consistent with the tab/header typography system.
+6. Any visual distinction between tab states should come from weight, color, opacity, and spacing choices that still belong to the current theme and style family.
 
 ## Major UX Gaps to Address
 
@@ -89,6 +133,7 @@ Required improvements:
 2. Better relationship between tab fill, border, and indicator.
 3. Quieter inactive tabs so the eye naturally lands on the active one.
 4. Better visual separation between hovered inactive and selected active states.
+5. Active/inactive hierarchy must adapt cleanly to different theme palettes and `FormStyle` moods instead of assuming one universal light-theme treatment.
 
 ### 2. Measurement Consistency
 
@@ -112,6 +157,7 @@ Required improvements:
 2. Distinct hover/pressed/focus states.
 3. Larger, DPI-safe hit targets.
 4. Better alignment with the strip baseline and edge padding.
+5. Styling that matches the active theme and control style instead of looking like separate utility widgets.
 
 ### 4. Interaction States
 
@@ -140,6 +186,7 @@ Required improvements:
 1. The tab strip remains visually anchored.
 2. Empty-state text and icon align with the theme typography and spacing system.
 3. Background relationships between strip and content remain intentional.
+4. The empty state should visually reflect the same `FormStyle` and `ControlStyle` language as the tab header.
 
 ## Proposed Enhancement Model
 
@@ -158,6 +205,7 @@ Work:
 3. Introduce a shared internal metric model for:
    text padding, close slot width, utility-button spacing, indicator thickness, vertical insets, and minimum hit sizes.
 4. Ensure `TextRenderer.MeasureText(...)` and painted text share the same font expectations.
+5. Document how `FormStyle` and `ControlStyle` influence metrics or rendering decisions so helper behavior is deterministic rather than implicit.
 
 Outcome:
 
@@ -177,6 +225,7 @@ Work:
 4. Introduce clearer hover and pressed overlays.
 5. Improve close-button affordance and balance.
 6. Align rounded-corner logic with the strip and content surfaces more cleanly.
+7. Make style-specific rendering branches feel like members of the same Beep family, with `FormStyle` and `ControlStyle` deciding how soft, sharp, flat, elevated, or segmented the result should be.
 
 Outcome:
 
@@ -196,6 +245,7 @@ Work:
 3. Align scroll buttons and new-tab button with the refined strip metrics.
 4. Revisit vertical tab-strip spacing for `Left` and `Right` positions.
 5. Keep `AutoTabHeight` driven by text metrics plus scaled padding.
+6. Ensure layout still reads correctly across different `ControlStyle` density expectations.
 
 Outcome:
 
@@ -215,6 +265,7 @@ Work:
 2. Make drag-reorder feedback more explicit.
 3. Ensure all interactive elements preserve large enough click/touch targets after DPI scaling.
 4. Review contrast and visibility across light, dark, and high-contrast themes.
+5. Validate that state rendering remains coherent across multiple `FormStyle` values, not just across theme color palettes.
 
 Outcome:
 
@@ -232,6 +283,7 @@ Work:
 1. Rework empty-state typography and spacing to align with the theme-resolved font system.
 2. Improve the relationship between tab-strip background and content background.
 3. Make the no-tab view feel like a finished control state, not just a placeholder.
+4. Ensure the surface treatment still reflects the current `FormStyle` and `ControlStyle` combination.
 
 Outcome:
 
@@ -255,13 +307,19 @@ Add an internal metrics model used by both `TabLayoutHelper` and `TabPaintHelper
 
 This avoids paint/layout divergence.
 
+The metrics model should also allow style-sensitive tuning so compact, modern, classic, or segmented looks can differ without fragmenting the helper contract.
+
 ### B. Centralize Active Font Emphasis
 
 If active tabs remain bold or semi-bold, derive that emphasis from the already resolved theme font family and size. The theme font should remain visually authoritative.
 
+That emphasis should also remain compatible with the active `FormStyle` and `ControlStyle`, so boldness and contrast are not overused in styles that need a softer appearance.
+
 ### C. Replace Helper Fallbacks Gradually
 
 `TabLayoutHelper` currently carries hardcoded font fallback behavior. That should be converted from the normal path into a defensive last-resort path only.
+
+The same principle should apply to visual defaults: style/theme fallbacks may exist, but they must be clearly below theme + `FormStyle` + `ControlStyle` in precedence.
 
 ### D. Use DPI Scaling Everywhere for Header Chrome
 
@@ -285,6 +343,7 @@ All of the following must remain scaled:
 4. Close buttons feel aligned and intentional.
 5. Utility buttons belong visually to the strip.
 6. Empty state feels integrated.
+7. The control still looks like a Beep control themed by the current application, not a pasted-in third-party widget.
 
 ### Typography Validation
 
@@ -292,6 +351,7 @@ All of the following must remain scaled:
 2. `TextFont` is used consistently in layout and paint.
 3. No new hardcoded font family is introduced for tab headers.
 4. Active emphasis does not break measurement.
+5. Typography behavior remains consistent across different theme, `FormStyle`, and `ControlStyle` combinations.
 
 ### Behavior Validation
 
@@ -314,6 +374,12 @@ All of the following must remain scaled:
 6. 150% DPI
 7. 200% DPI
 
+### Style Validation
+
+1. Multiple `FormStyle` values
+2. Multiple `ControlStyle` values
+3. Theme + `FormStyle` + `ControlStyle` combinations that intentionally produce different moods
+
 ## Success Criteria
 
 This enhancement is complete when:
@@ -324,6 +390,19 @@ This enhancement is complete when:
 4. Interaction states are explicit and polished.
 5. The strip, content area, and utility actions feel visually unified.
 6. The control holds up across themes, DPI scales, and tab positions.
+7. The final appearance is clearly derived from your theme, `FormStyle`, and `ControlStyle`, with commercial references only improving execution quality.
+
+## Implementation Status
+
+| Phase | Status | Files Changed |
+|-------|--------|---------------|
+| Phase 1: Typography & Metrics Foundation | ✅ Complete | `TabHeaderMetrics.cs` (new), `TabLayoutHelper.cs`, `TabPaintHelper.cs`, `BeepDisplayContainer2.Layout.cs`, `BeepDisplayContainer2.Painting.cs` |
+| Phase 2: Tab Header Visual Refresh | ✅ Complete | `TabPaintHelper.cs` — semantic `ActiveTabBackColor`/`InactiveTabBackColor` in `GetTabColors()`, removed alpha-dimming hack in `DrawCapsuleBackground`, removed hardcoded gray in `DrawSegmentBackground`, theme-aware `DrawCloseButton` |
+| Phase 3: Layout / Overflow Polish | ✅ Complete | `TabLayoutHelper.cs` — `CalculateScrollingLayout` and `CalculateFixedLayout` now include `TabGap` in stride |
+| Phase 4: Interaction State Polish | ✅ Complete | `BeepDisplayContainer2.Theme.cs` — `ApplyThemeColorsToTabs()` uses semantic active/inactive colors with `ResolveColor` helper |
+| Phase 5: Empty State Cohesion | ✅ Complete | `BeepDisplayContainer2.Painting.cs` — empty-state font uses `FontListHelper.GetFont()` with guard; color derived from `DisabledForeColor` blended with background |
+
+---
 
 ## Recommended Next Implementation Order
 

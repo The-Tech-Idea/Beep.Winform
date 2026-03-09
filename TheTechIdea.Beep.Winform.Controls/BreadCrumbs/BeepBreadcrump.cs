@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_textFont != value)
                 {
                     _textFont = value ?? new Font("Segoe UI", 9);
-                    SafeApplyFont(_textFont);
+                    //SafeApplyFont(_textFont);
                     UseThemeFont = false;
                     Invalidate();
                 }

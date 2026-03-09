@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
@@ -9,16 +10,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void ActivateTab(AddinTab tab)
         {
+            if (tab == null) return;
             if (tab == _activeTab) return;
 
             var oldTab = _activeTab;
             var oldControl = oldTab?.Addin as Control;
             
             // CRITICAL: Hide and invalidate old control FIRST before changing active tab
-            if (oldControl != null)
+            if (oldControl != null && !oldControl.IsDisposed)
             {
-                oldControl.Visible = false;
-                oldControl.Invalidate(true);
+                try { oldControl.Visible = false; } catch { /* ignore */ }
+                try { oldControl.Invalidate(true); } catch { /* ignore */ }
             }
 
             _indicatorProgress = 1f; // no animation — prevent timer from invalidating only _tabArea
@@ -46,10 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Ensure active control is visible and properly positioned
             var activeControl = tab?.Addin as Control;
-            if (activeControl != null)
+            if (activeControl != null && !activeControl.IsDisposed)
             {
-                activeControl.Visible = true;
-                activeControl.Invalidate(true);
+                try { activeControl.Visible = true; } catch { /* ignore */ }
+                try { activeControl.Invalidate(true); } catch { /* ignore */ }
             }
             
             OnAddinChanged(new ContainerEvents 
@@ -67,18 +69,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private void RemoveTab(AddinTab tab)
         {
             if (tab == null || !tab.CanClose) return;
+            // Pinned tabs cannot be closed
+            if (tab.IsPinned) return;
 
             var wasActive = (tab == _activeTab);
             var control = tab.Addin as Control;
             
-            // Hide control but KEEP it in Controls collection (controls should persist)
+            // Remove the associated control from the container
             if (control != null)
             {
                 control.Visible = false;
-                // DO NOT remove from Controls collection - controls should persist
+                if (Controls.Contains(control))
+                {
+                    Controls.Remove(control);
+                }
             }
 
-            // Remove from tab collections (removes tab header, but control stays in Controls)
+            // Remove from tab collections
             _tabs.Remove(tab);
             _addins.Remove(tab.Id);
             
@@ -89,10 +96,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // DO NOT dispose the addin - controls should persist
-            // if (tab.Addin is IDisposable disposable)
-            // {
-            //     disposable.Dispose();
-            // }
 
             // Raise event before activating another tab
             OnAddinRemoved(new ContainerEvents 
@@ -106,17 +109,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // If this was the active tab, activate another
             if (wasActive)
             {
-                _activeTab = _tabs.FirstOrDefault();
-                if (_activeTab != null)
+                var nextTab = _tabs.FirstOrDefault();
+                if (nextTab != null)
                 {
-                    ActivateTab(_activeTab);
+                    ActivateTab(nextTab);
                 }
                 else
                 {
-                    // No more tabs - clear active tab
-                    _activeTab = null;
+                    // No more tabs - clear active state and reset strip interaction state.
+                    ResetTabHeaderStateForEmpty();
                     PositionActiveAddin();
                 }
+            }
+            else if (_tabs.Count == 0)
+            {
+                // Defensive path: tab list became empty while removing a non-active tab.
+                ResetTabHeaderStateForEmpty();
+                PositionActiveAddin();
             }
 
             // Recalculate layout to update tab positions and remove the tab header
@@ -130,6 +139,69 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Invalidate entire control to ensure everything is redrawn
             Invalidate(true);
+        }
+
+        private void ResetTabHeaderStateForEmpty()
+        {
+            _activeTab = null;
+            _hoveredTab = null;
+            _previousTab = null;
+
+            _scrollOffset = 0;
+            _needsScrolling = false;
+            _scrollLeftButton = Rectangle.Empty;
+            _scrollRightButton = Rectangle.Empty;
+            _newTabButton = Rectangle.Empty;
+
+            _hoveredScrollButton = 0;
+            _pressedScrollButton = 0;
+
+            _dragTab = null;
+            _isDragging = false;
+            _dropInsertIndex = -1;
+            _dragGhostLoc = Point.Empty;
+
+            _indicatorFrom = Rectangle.Empty;
+            _indicatorTo = Rectangle.Empty;
+            _indicatorProgress = 1f;
+        }
+
+        /// <summary>
+        /// Pins a tab — makes it compact (icon-only), grouped to the left, and non-closable.
+        /// </summary>
+        public void PinTab(AddinTab tab)
+        {
+            if (tab == null || tab.IsPinned) return;
+            tab.IsPinned = true;
+            // Move pinned tabs to the front of the list
+            SortPinnedTabsFirst();
+            RecalculateLayout();
+            Invalidate(true);
+        }
+
+        /// <summary>
+        /// Unpins a previously-pinned tab, restoring its full title and close button.
+        /// </summary>
+        public void UnpinTab(AddinTab tab)
+        {
+            if (tab == null || !tab.IsPinned) return;
+            tab.IsPinned = false;
+            SortPinnedTabsFirst();
+            RecalculateLayout();
+            Invalidate(true);
+        }
+
+        /// <summary>
+        /// Re-orders the tab list so that all pinned tabs precede unpinned tabs,
+        /// preserving the relative order within each group.
+        /// </summary>
+        private void SortPinnedTabsFirst()
+        {
+            var pinned = _tabs.Where(t => t.IsPinned).ToList();
+            var unpinned = _tabs.Where(t => !t.IsPinned).ToList();
+            _tabs.Clear();
+            _tabs.AddRange(pinned);
+            _tabs.AddRange(unpinned);
         }
 
         #endregion

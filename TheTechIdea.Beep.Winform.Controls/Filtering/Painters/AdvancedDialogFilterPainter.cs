@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 9f, isActive ? FontStyle.Bold : FontStyle.Regular))
+            using (var font =FontListHelper.GetFont("Segoe UI", 9f, isActive ? FontStyle.Bold : FontStyle.Regular))
             {
                 TextRenderer.DrawText(g, text, font, rect, textColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -302,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             int contentWidth = layout.ContentRect.Width - Padding * 2;
 
             // Saved filters list placeholder
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Italic))
+            using (var font = FontListHelper.GetFont("Segoe UI", 9f, FontStyle.Italic))
             {
                 string message = "No saved filters yet.\nClick 'Save Current' to save this filter configuration.";
                 Rectangle messageRect = new Rectangle(
@@ -378,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 8.5f))
+            using (var font = FontListHelper.GetFont("Segoe UI", 8.5f))
             {
                 Rectangle textRect = new Rectangle(rect.X + 8, rect.Y, rect.Width - 24, rect.Height);
                 TextRenderer.DrawText(g, text, font, textRect, colors.text,
@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 8.5f))
+            using (var font = FontListHelper.GetFont("Segoe UI", 8.5f))
             {
                 string displayText = string.IsNullOrEmpty(text) ? "Enter value..." : text;
                 Color textColor = string.IsNullOrEmpty(text) ? Color.FromArgb(150, colors.text) : colors.text;
@@ -484,7 +484,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             // Title
-            using (var font = new Font("Segoe UI", 8f, FontStyle.Bold))
+            using (var font = FontListHelper.GetFont("Segoe UI", 8f, FontStyle.Bold))
             {
                 Rectangle titleRect = new Rectangle(rect.X + 12, rect.Y + 8, rect.Width - 24, 20);
                 TextRenderer.DrawText(g, "Filter Preview", font, titleRect, colors.text,
@@ -497,7 +497,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
                 ? $"{filterCount} filter{(filterCount != 1 ? "s" : "")} active"
                 : "No filters applied";
 
-            using (var font = new Font("Segoe UI", 8.5f))
+            using (var font = FontListHelper.GetFont("Segoe UI", 8.5f))
             {
                 Rectangle previewRect = new Rectangle(rect.X + 12, rect.Y + 30, rect.Width - 24, 24);
                 TextRenderer.DrawText(g, previewText, font, previewRect, Color.FromArgb(150, colors.text),
@@ -573,7 +573,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering.Painters
             }
 
             // Text
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Regular))
+            using (var font = FontListHelper.GetFont("Segoe UI", 9f, FontStyle.Regular))
             {
                 TextRenderer.DrawText(g, text, font, rect, textColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

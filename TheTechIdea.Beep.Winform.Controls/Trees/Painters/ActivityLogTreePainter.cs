@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
-                    using (var renderFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
+                    using (var renderFont = FontListHelper.GetFont(_owner.TextFont.FontFamily.Name, _owner.TextFont.Size, FontStyle.Regular))
                     {
                         TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     string timestamp = node.Item.IsExpanded ? "2m ago" : "1h ago";
                     Color timestampColor = Color.FromArgb(150, _theme.TreeForeColor);
 
-                    using (var timestampFont = new Font("Segoe UI", 7.5f, FontStyle.Regular))
+                    using (var timestampFont = FontListHelper.GetFont("Segoe UI", 7.5f, FontStyle.Regular))
                     {
                         TextRenderer.DrawText(g, timestamp, timestampFont, timestampRect, timestampColor,
                             TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (timestampRect.Width <= 0 || timestampRect.Height <= 0) return;
 
             Color timestampColor = Color.FromArgb(150, _theme.TreeForeColor);
-            using (var font = new Font("Segoe UI", 7.5f, FontStyle.Regular))
+            using (var font = FontListHelper.GetFont("Segoe UI", 7.5f, FontStyle.Regular))
             {
                 TextRenderer.DrawText(g, timestamp, font, timestampRect, timestampColor,
                     TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

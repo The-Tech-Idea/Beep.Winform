@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Artboard = $"{BaseNamespace}.artboard.svg";
         public static readonly string Article = $"{BaseNamespace}.article.svg";
         public static readonly string AspectRatio = $"{BaseNamespace}.aspect-ratio.svg";
-        public static readonly string Assembly = $"{BaseNamespace}.assembly.svg";
+        public static readonly string Assemblies = $"{BaseNamespace}.assembly.svg";
         public static readonly string Asset = $"{BaseNamespace}.asset.svg";
         public static readonly string AtomN2 = $"{BaseNamespace}.atom-2.svg";
         public static readonly string AutomaticGearbox = $"{BaseNamespace}.automatic-gearbox.svg";
@@ -500,6 +500,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string ExternalLink = $"{BaseNamespace}.external-link.svg";
         public static readonly string EyeTable = $"{BaseNamespace}.eye-table.svg";
         public static readonly string Eye = $"{BaseNamespace}.eye.svg";
+        public static readonly string EyeOff = $"{BaseNamespace}.eye-slash-fill.svg";
         public static readonly string EyeglassN2 = $"{BaseNamespace}.eyeglass-2.svg";
         public static readonly string Eyeglass = $"{BaseNamespace}.eyeglass.svg";
         public static readonly string FaceMask = $"{BaseNamespace}.face-mask.svg";
@@ -581,12 +582,14 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Golf = $"{BaseNamespace}.golf.svg";
         public static readonly string Gps = $"{BaseNamespace}.gps.svg";
         public static readonly string Graph = $"{BaseNamespace}.graph.svg";
+        public static readonly string Grid = $"{BaseNamespace}.layout-grid.svg";
         public static readonly string GridPattern = $"{BaseNamespace}.grid-pattern.svg";
         public static readonly string GuitarPick = $"{BaseNamespace}.guitar-pick.svg";
         public static readonly string HangerN2 = $"{BaseNamespace}.hanger-2.svg";
         public static readonly string Headphones = $"{BaseNamespace}.headphones.svg";
         public static readonly string Headset = $"{BaseNamespace}.headset.svg";
         public static readonly string HeartBroken = $"{BaseNamespace}.heart-broken.svg";
+        public static readonly string HeartOff = $"{BaseNamespace}.heart-broken.svg";
         public static readonly string Heart = $"{BaseNamespace}.heart.svg";
         public static readonly string HelicopterLanding = $"{BaseNamespace}.helicopter-landing.svg";
         public static readonly string Helicopter = $"{BaseNamespace}.helicopter.svg";
@@ -732,6 +735,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string MedicalCross = $"{BaseNamespace}.medical-cross.svg";
         public static readonly string Meeple = $"{BaseNamespace}.meeple.svg";
         public static readonly string Melon = $"{BaseNamespace}.melon.svg";
+        public static readonly string Menu = $"{BaseNamespace}.menu-2.svg";
         public static readonly string MenuN2 = $"{BaseNamespace}.menu-2.svg";
         public static readonly string MessageN2 = $"{BaseNamespace}.message-2.svg";
         public static readonly string MessageChatbot = $"{BaseNamespace}.message-chatbot.svg";
@@ -747,6 +751,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Microwave = $"{BaseNamespace}.microwave.svg";
         public static readonly string MilitaryRank = $"{BaseNamespace}.military-rank.svg";
         public static readonly string Milk = $"{BaseNamespace}.milk.svg";
+        public static readonly string Minus = $"{BaseNamespace}.minus.svg";
         public static readonly string MoodAngry = $"{BaseNamespace}.mood-angry.svg";
         public static readonly string MoodConfuzed = $"{BaseNamespace}.mood-confuzed.svg";
         public static readonly string MoodCrazyHappy = $"{BaseNamespace}.mood-crazy-happy.svg";
@@ -825,10 +830,12 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string PlayerTrackPrev = $"{BaseNamespace}.player-track-prev.svg";
         public static readonly string Playlist = $"{BaseNamespace}.playlist.svg";
         public static readonly string Plus = $"{BaseNamespace}.plus.svg";
+        public static readonly string PlusCircle = $"{BaseNamespace}.circle-plus.svg";
         public static readonly string Point = $"{BaseNamespace}.point.svg";
         public static readonly string Pointer = $"{BaseNamespace}.pointer.svg";
         public static readonly string Polaroid = $"{BaseNamespace}.polaroid.svg";
         public static readonly string Poo = $"{BaseNamespace}.poo.svg";
+        public static readonly string Power = $"{BaseNamespace}.power-fill.svg";
         public static readonly string PresentationAnalytics = $"{BaseNamespace}.presentation-analytics.svg";
         public static readonly string Presentation = $"{BaseNamespace}.presentation.svg";
         public static readonly string Puzzle = $"{BaseNamespace}.puzzle.svg";
@@ -857,6 +864,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Rosette = $"{BaseNamespace}.rosette.svg";
         public static readonly string Salad = $"{BaseNamespace}.salad.svg";
         public static readonly string Satellite = $"{BaseNamespace}.satellite.svg";
+        public static readonly string Save = $"{BaseNamespace}.floppy-disk-fill.svg";
         public static readonly string Scale = $"{BaseNamespace}.scale.svg";
         public static readonly string School = $"{BaseNamespace}.school.svg";
         public static readonly string ScubaDivingTank = $"{BaseNamespace}.scuba-diving-tank.svg";
@@ -1053,6 +1061,7 @@ namespace TheTechIdea.Beep.Icons
         public static readonly string Truck = $"{BaseNamespace}.truck.svg";
         public static readonly string Ufo = $"{BaseNamespace}.ufo.svg";
         public static readonly string Umbrella = $"{BaseNamespace}.umbrella.svg";
+        public static readonly string Unlock = $"{BaseNamespace}.lock-open.svg";
         public static readonly string User = $"{BaseNamespace}.user.svg";
         public static readonly string Versions = $"{BaseNamespace}.versions.svg";
         public static readonly string VideoMinus = $"{BaseNamespace}.video-minus.svg";

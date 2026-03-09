@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillRectangle(legendBgBrush, legendBgRect);
 
             // Draw legend text
-            using var legendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+            using var legendFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
             using var legendBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.Empty);
             g.DrawString(title, legendFont, legendBrush, legendRect);
         }
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (fields == null || fields.Count == 0)
             {
                 // Draw placeholder content
-                using var placeholderFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+                using var placeholderFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
                 using var placeholderBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Theme?.SecondaryTextColor ?? Color.Empty));
                 g.DrawString("No fields defined", placeholderFont, placeholderBrush, ctx.ContentRect);
                 return;
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 var fieldRect = new Rectangle(ctx.ContentRect.Left, currentY, ctx.ContentRect.Width, fieldHeight);
 
                 // Draw field label
-                using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var labelBrush = new SolidBrush(Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Black);
                 g.DrawString(field.Label, labelFont, labelBrush, fieldRect.Left, fieldRect.Top + 2);
 
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     displayValue = field.Placeholder;
                 }
 
-                using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 Color valueColor = string.IsNullOrEmpty(field.Value?.ToString()) ?
                     Theme?.SecondaryTextColor ?? Color.Empty : (Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Empty);
                 using var valueBrush = new SolidBrush(valueColor);

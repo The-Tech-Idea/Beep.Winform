@@ -198,6 +198,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         //        Invalidate();
         //    }
         //}
+        // --- Empty State Properties ---
+        private string _emptyStateActionText = "+ New Tab";
+        [Category("Appearance")]
+        [DefaultValue("+ New Tab")]
+        [Description("The text shown on the action button in the empty state.")]
+        public string EmptyStateActionText
+        {
+            get => _emptyStateActionText;
+            set { _emptyStateActionText = value; Invalidate(); }
+        }
+
+        private bool _showEmptyStateActionButton = true;
+        [Category("Appearance")]
+        [DefaultValue(true)]
+        [Description("Whether to show an action button in the empty state.")]
+        public bool ShowEmptyStateActionButton
+        {
+            get => _showEmptyStateActionButton;
+            set { _showEmptyStateActionButton = value; Invalidate(); }
+        }
     }
 }
 

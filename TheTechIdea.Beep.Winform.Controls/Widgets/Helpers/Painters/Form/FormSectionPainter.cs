@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var description = ctx.Description;
             if (!string.IsNullOrEmpty(description))
             {
-                using var descFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var descFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var descBrush = new SolidBrush(Color.FromArgb(120, Theme?.CardTextForeColor ?? Color.Empty));
                 var descRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Bottom - 20,
                                            ctx.ContentRect.Width, 16);
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (validationResults != null && validationResults.Any(v => !v.IsValid))
             {
                 int errorCount = validationResults.Count(v => !v.IsValid);
-                using var errorFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                using var errorFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                 using var errorBrush = new SolidBrush(Color.Red);
 
                 string errorText = $"{errorCount} field{(errorCount != 1 ? "s" : "")} need attention";

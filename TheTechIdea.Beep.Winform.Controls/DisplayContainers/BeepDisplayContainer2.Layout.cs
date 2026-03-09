@@ -1,7 +1,11 @@
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 {
@@ -33,9 +37,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // Tabbed mode: calculate tab and content areas
-            // Ensure tab height is at least 24 pixels (DPI-scaled)
-            int minTabHeight = DpiScalingHelper.ScaleValue(24, this);
-            int effectiveTabHeight = Math.Max(minTabHeight, DpiScalingHelper.ScaleValue(_tabHeight, this));
+            // Derive tab strip thickness purely from font metrics when AutoTabHeight is on.
+            int effectiveTabHeight;
+            if (_autoTabHeight)
+            {
+                // Measure full rendered line height (GDI includes leading/ascent/descent)
+                var textSize = TextRenderer.MeasureText("Ag", TextFont,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.SingleLine);
+
+                // Compute vertical chrome: border + tab-specific small inner pad + shadow zone.
+                // Do NOT use BeepStyling.GetPadding here — those values (8-20px) are designed
+                // for full controls (buttons/input fields), not compact tab header strips.
+                float borderW   = BeepStyling.GetBorderThickness(ControlStyle);
+                int shadowDepth = StyleShadows.HasShadow(ControlStyle)
+                    ? Math.Max(2, StyleShadows.GetShadowBlur(ControlStyle) / 2)
+                    : 0;
+                // Use the tab-specific VerticalPadding (≈2px at 96 DPI) for a compact strip.
+                int tabVPad     = TabHeaderMetrics.VerticalPadding(this);
+                int verticalChrome = (int)Math.Ceiling(borderW) * 2   // top + bottom border
+                                   + tabVPad * 2                       // top + bottom tab inner pad
+                                   + shadowDepth * 2;                  // top + bottom shadow zone
+
+                // Indicator bar needs its own row below the text
+                int indicatorRoom = TabHeaderMetrics.IndicatorThickness(this);
+
+                effectiveTabHeight = textSize.Height + verticalChrome + indicatorRoom;
+            }
+            else
+            {
+                effectiveTabHeight = Math.Max(1, DpiScalingHelper.ScaleValue(_tabHeight, this));
+            }
             
             switch (_tabPosition)
             {
@@ -65,21 +97,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void CalculateTabLayout()
         {
-            if (_tabs.Count == 0 || _layoutHelper == null) return;
+            if (_layoutHelper == null) return;
             
             // If tab area is empty, we can't layout tabs
             if (_tabArea.IsEmpty)
             {
+                _needsScrolling = false;
+                _scrollOffset = 0;
+                _scrollLeftButton = Rectangle.Empty;
+                _scrollRightButton = Rectangle.Empty;
+                _overflowButton = Rectangle.Empty;
+                _newTabButton = Rectangle.Empty;
+
                 // Mark all tabs as not visible if tab area is empty
                 foreach (var tab in _tabs)
                 {
                     tab.IsVisible = false;
+                    tab.Bounds = Rectangle.Empty;
                 }
+                return;
+            }
+
+            if (_tabs.Count == 0)
+            {
+                _scrollOffset = 0;
+                var utilityLayout = _layoutHelper.CalculateUtilityButtonLayout(_tabArea, _tabPosition, false);
+                _needsScrolling = utilityLayout.NeedsScrolling;
+                _scrollLeftButton = utilityLayout.ScrollLeftButton;
+                _scrollRightButton = utilityLayout.ScrollRightButton;
+                _overflowButton = utilityLayout.OverflowButton;
+                _newTabButton = utilityLayout.NewTabButton;
                 return;
             }
             
             // Update layout helper with current style and font before calculating layout
-            _layoutHelper.UpdateStyle(ControlStyle, Font);
+            _layoutHelper.UpdateStyle(ControlStyle, TextFont);
 
             int scaledMinWidth = DpiScalingHelper.ScaleValue(_tabMinWidth, this);
             int scaledMaxWidth = DpiScalingHelper.ScaleValue(_tabMaxWidth, this);
@@ -89,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _needsScrolling = result.NeedsScrolling;
             _scrollLeftButton = result.ScrollLeftButton;
             _scrollRightButton = result.ScrollRightButton;
+            _overflowButton = result.OverflowButton;
             _newTabButton = result.NewTabButton;
             
             // Ensure all tabs have valid bounds and visibility after layout calculation
@@ -102,16 +155,49 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
         }
 
+        private Rectangle GetEmptyStateButtonRect()
+        {
+            var area = _contentArea.IsEmpty ? ClientRectangle : _contentArea;
+            if (area.Width < 40 || area.Height < 40) return Rectangle.Empty;
+
+            // Base sizes from DrawEmptyState
+            int iconSize = Math.Min(DpiScalingHelper.ScaleValue(48, this), Math.Min(area.Width, area.Height) / 3);
+            iconSize = Math.Max(16, iconSize);
+            int iconY = area.Y + (area.Height - iconSize) / 2 - DpiScalingHelper.ScaleValue(12, this);
+            int textY = iconY + iconSize + DpiScalingHelper.ScaleValue(30, this); // Account for text
+
+            // Button sizes
+            int btnWidth = DpiScalingHelper.ScaleValue(120, this);
+            int btnHeight = DpiScalingHelper.ScaleValue(36, this);
+            int btnX = area.X + (area.Width - btnWidth) / 2;
+            int btnY = textY + DpiScalingHelper.ScaleValue(16, this);
+
+            return new Rectangle(btnX, btnY, btnWidth, btnHeight);
+        }
+
         private void PositionActiveAddin()
         {
             // Skip if in batch mode
             if (_batchMode) return;
+
+            // When all tabs are closed, hide every child except controls that are part
+            // of the container itself (e.g. scrollbars added by WinForms or designer).
+            if (_tabs.Count == 0)
+            {
+                foreach (Control child in Controls)
+                {
+                    if (child.Visible)
+                        child.Visible = false;
+                }
+                return;
+            }
             
             // Ensure all tab controls are in the Controls collection and properly positioned
             foreach (var tab in _tabs)
             {
                 var control = tab.Addin as Control;
-                if (control != null)
+                if (control == null || control.IsDisposed) continue;
+                try
                 {
                     // Ensure control is always in Controls collection
                     if (!Controls.Contains(control))
@@ -158,6 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     
                     // Don't invalidate during positioning - let caller handle it
                 }
+                catch { /* skip controls that fail positioning */ }
             }
         }
 
@@ -169,6 +256,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (!_batchMode && IsHandleCreated)
             {
                 Invalidate();
+            }
+        }
+
+        protected override void OnLayout(LayoutEventArgs levent)
+        {
+            base.OnLayout(levent);
+            // When a hosted addin (e.g. a UserControl with AutoScaleMode.Font) triggers a layout
+            // by self-resizing after PerformAutoScale(), re-clamp all addin bounds back to the
+            // content area so the tab header strip remains visible.
+            if (!_batchMode && !_contentArea.IsEmpty
+                && levent.AffectedControl != null && levent.AffectedControl != this
+                && _tabs != null && _tabs.Count > 0)
+            {
+                if (_tabs.Any(t => t.Addin as Control == levent.AffectedControl))
+                    PositionActiveAddin();
             }
         }
 

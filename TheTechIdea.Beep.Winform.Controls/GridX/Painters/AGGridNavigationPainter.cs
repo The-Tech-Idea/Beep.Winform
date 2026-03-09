@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Draw icon/text
             string content = buttonType == NavigationButtonType.Previous ? "◀" : "▶";
-            using (var font = new Font("Segoe UI", 10, FontStyle.Regular))
+            using (var font = FontListHelper.GetFont("Segoe UI", 10, FontStyle.Regular))
             {
                 DrawCenteredText(g, content, font, textColor, bounds);
             }
@@ -99,8 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
         private void PaintShowText(Graphics g, Rectangle bounds, IBeepTheme theme)
         {
-            string text = "Show 10";
-            using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
+            string text = "Show 10" ;
+            using (var font = FontListHelper.GetFont("Segoe UI", 9, FontStyle.Regular))
             using (var brush = new SolidBrush(theme.GridHeaderForeColor))
             using (var format = new StringFormat
             {
@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
                 }
             }
 
-            using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
+            using (var font = FontListHelper.GetFont("Segoe UI", 9, FontStyle.Regular))
             {
                 DrawCenteredText(g, pageNumber.ToString(), font, textColor, bounds);
             }
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Draw text
             string text = "Per Page";
-            using (var font = new Font("Segoe UI", 9, FontStyle.Regular))
+            using (var font = FontListHelper.GetFont("Segoe UI", 9, FontStyle.Regular))
             using (var brush = new SolidBrush(theme.GridHeaderForeColor))
             using (var format = new StringFormat
             {

@@ -60,8 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Draw each label and textbox-like area
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f, FontStyle.Bold);
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f, FontStyle.Bold);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
             using var borderPen = new Pen(Theme?.TextBoxBorderColor ?? Theme?.BorderColor ?? Color.Gray, 1);
 

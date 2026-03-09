@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls; // TabStyle enum
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -84,6 +86,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool isFirst = false, bool isLast = false,
             TabPosition tabPosition = TabPosition.Top)
         {
+            // Delegate to the extended overload with no icon, no badge, not pinned.
+            DrawProfessionalTab(g, bounds, title, font, isActive, isHovered, showCloseButton,
+                isCloseHovered, animationProgress, isFirst, isLast, tabPosition,
+                iconPath: null, badgeText: null, badgeColor: Color.Empty, isPinned: false);
+        }
+
+        /// <summary>
+        /// Extended overload that also renders an optional icon (via StyledImagePainter),
+        /// a notification badge pill, and supports pinned (compact) tabs.
+        /// </summary>
+        public void DrawProfessionalTab(Graphics g, Rectangle bounds, string title, Font font,
+            bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered,
+            float animationProgress,
+            bool isFirst, bool isLast,
+            TabPosition tabPosition,
+            string iconPath, string badgeText, Color badgeColor, bool isPinned)
+        {
             // Validate input parameters
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0 || font == null)
                 return;
@@ -91,6 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             // Ensure title is not null
             if (string.IsNullOrEmpty(title))
                 title = "Tab";
+
+            // Pinned tabs never show the close button
+            if (isPinned) showCloseButton = false;
+
+            bool hasIcon = !string.IsNullOrEmpty(iconPath);
 
             // Clamp animation progress
             animationProgress = Math.Max(0f, Math.Min(1f, animationProgress));
@@ -126,6 +150,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Draw tab border
                 DrawTabBorder(g, bounds, colors.BorderColor, isActive);
 
+                // ── Phase 6: Hover shadow lift ───────────────────────────────
+                // For non-active tabs, draw a subtle drop shadow that fades in
+                // with the animation progress for a modern elevation effect.
+                if (!isActive && animationProgress > 0.01f)
+                {
+                    int shadowAlpha = (int)(animationProgress * 22);
+                    var shadowRect = new Rectangle(bounds.X + 1, bounds.Bottom - 1,
+                        bounds.Width - 2, 2);
+                    using (var sb = new SolidBrush(Color.FromArgb(shadowAlpha, Color.Black)))
+                        g.FillRectangle(sb, shadowRect);
+                }
+
                 // Active indicator line — drawn for styles that don't already rely solely
                 // on background fill to indicate selection.
                 if (isActive)
@@ -140,26 +176,46 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                             break;
                     }
                 }
-                
-                // Calculate text bounds with proper margins
-                var textBounds = showCloseButton ? 
-                    new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(0, bounds.Width - 36), Math.Max(0, bounds.Height - 4)) :
-                    new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(0, bounds.Width - 16), Math.Max(0, bounds.Height - 4));
-                
-                // Draw tab text only if there's space
-                if (textBounds.Width > 10 && textBounds.Height > 10)
+
+                // ── Icon ──────────────────────────────────────────────────────
+                if (hasIcon)
                 {
-                    DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+                    DrawTabIcon(g, bounds, iconPath, colors.TextColor);
+                }
+
+                // ── Title text ────────────────────────────────────────────────
+                // Pinned tabs are icon-only — skip the title.
+                if (!isPinned)
+                {
+                    var textBounds = TabHeaderMetrics.GetTextBounds(bounds, showCloseButton, hasIcon, OwnerControl);
+                    if (textBounds.Width > 10 && textBounds.Height > 10)
+                    {
+                        DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+                    }
                 }
                 
-                // Draw close button if needed and there's space
-                int closeW = DpiScalingHelper.ScaleValue(20, OwnerControl);
-                int closeSize = DpiScalingHelper.ScaleValue(12, OwnerControl);
+                // ── Close button (fade-in with animation) ────────────────────
+                int closeW = TabHeaderMetrics.CloseButtonSlotWidth(OwnerControl);
+                int closeSize = TabHeaderMetrics.CloseButtonSize(OwnerControl);
                 if (showCloseButton && bounds.Width > closeW + 10 && bounds.Height > closeSize + 4)
                 {
-                    var closeRect = new Rectangle(bounds.Right - closeW, bounds.Y + (bounds.Height - closeSize) / 2, closeSize, closeSize);
-                    DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
+                    // Phase 6: Fade-in close button with animation progress
+                    // Active tabs always show the close button; hovered tabs fade it in.
+                    float closeAlpha = isActive ? 1f : animationProgress;
+                    if (closeAlpha > 0.05f)
+                    {
+                        var closeRect = TabHeaderMetrics.GetCloseButtonBounds(bounds, OwnerControl);
+                        Color closeTint = Color.FromArgb((int)(closeAlpha * 160), colors.TextColor);
+                        DrawCloseButton(g, closeRect, isCloseHovered, closeTint);
+                    }
                 }
+
+                // ── Badge pill ────────────────────────────────────────────────
+                if (!string.IsNullOrEmpty(badgeText))
+                {
+                    DrawBadge(g, bounds, badgeText, badgeColor, font);
+                }
+
                 // If style is underline or minimal and active, draw underline accent
                 if ((_tabStyle == TabStyle.Underline || _tabStyle == TabStyle.Minimal) && isActive)
                 {
@@ -196,24 +252,82 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             }
         }
 
+        // ── Icon rendering via StyledImagePainter ─────────────────────────────
+        private void DrawTabIcon(Graphics g, Rectangle tabBounds, string iconPath, Color tintColor)
+        {
+            var iconRect = TabHeaderMetrics.GetIconBounds(tabBounds, OwnerControl);
+            if (iconRect.Width <= 0 || iconRect.Height <= 0) return;
+
+            try
+            {
+                StyledImagePainter.PaintWithTint(g, iconRect, iconPath, tintColor, 1f, 0);
+            }
+            catch
+            {
+                // If StyledImagePainter cannot resolve the path, silently skip.
+            }
+        }
+
+        // ── Notification badge pill ───────────────────────────────────────────
+        private void DrawBadge(Graphics g, Rectangle tabBounds, string badgeText, Color badgeColor, Font baseFont)
+        {
+            if (string.IsNullOrEmpty(badgeText)) return;
+
+            // Resolve badge colour: provided → theme accent → fallback red
+            Color bg = badgeColor;
+            if (bg == Color.Empty || bg.A == 0)
+                bg = _theme?.ActiveBorderColor ?? Color.FromArgb(220, 60, 60);
+
+            // Measure badge text at a smaller font size
+            float badgeFontSize = Math.Max(7f, baseFont.Size * 0.72f);
+            var badgeFont = FontListHelper.GetFont(baseFont.FontFamily.Name, badgeFontSize, FontStyle.Bold) ?? baseFont;
+            try
+            {
+                int textWidth = TextRenderer.MeasureText(badgeText, badgeFont,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding | TextFormatFlags.SingleLine).Width;
+
+                var badgeRect = TabHeaderMetrics.GetBadgeBounds(tabBounds, textWidth, OwnerControl);
+                if (badgeRect.Width <= 0 || badgeRect.Height <= 0) return;
+
+                int radius = badgeRect.Height / 2;
+                using (var path = CreateRoundedPath(badgeRect, radius))
+                using (var brush = new SolidBrush(bg))
+                {
+                    g.FillPath(brush, path);
+                }
+
+                // White text on the badge for contrast
+                TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, Color.White,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter |
+                    TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+            }
+            finally
+            {
+                if (badgeFont != baseFont) badgeFont?.Dispose();
+            }
+        }
+
         private void DrawUnderline(Graphics g, Rectangle bounds, TabColors colors, TabPosition tabPosition = TabPosition.Top)
         {
             // Draw a thin accent line on the content-facing edge of the tab.
             int thickness = Math.Max(2, bounds.Height / 8);
+            int hPad = TabHeaderMetrics.HorizontalPadding(OwnerControl);
+            int vPad = TabHeaderMetrics.VerticalPadding(OwnerControl);
             Rectangle r;
             switch (tabPosition)
             {
                 case TabPosition.Bottom:
-                    r = new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(10, bounds.Width - 16), thickness);
+                    r = new Rectangle(bounds.X + hPad, bounds.Y + vPad, Math.Max(10, bounds.Width - (hPad * 2)), thickness);
                     break;
                 case TabPosition.Left:
-                    r = new Rectangle(bounds.Right - thickness - 2, bounds.Y + 8, thickness, Math.Max(10, bounds.Height - 16));
+                    r = new Rectangle(bounds.Right - thickness - vPad, bounds.Y + hPad, thickness, Math.Max(10, bounds.Height - (hPad * 2)));
                     break;
                 case TabPosition.Right:
-                    r = new Rectangle(bounds.X + 2, bounds.Y + 8, thickness, Math.Max(10, bounds.Height - 16));
+                    r = new Rectangle(bounds.X + vPad, bounds.Y + hPad, thickness, Math.Max(10, bounds.Height - (hPad * 2)));
                     break;
                 default: // Top
-                    r = new Rectangle(bounds.X + 8, bounds.Bottom - thickness - 2, Math.Max(10, bounds.Width - 16), thickness);
+                    r = new Rectangle(bounds.X + hPad, bounds.Bottom - thickness - vPad, Math.Max(10, bounds.Width - (hPad * 2)), thickness);
                     break;
             }
             using (var brush = new SolidBrush(IndicatorColor()))
@@ -228,13 +342,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         /// </summary>
         private void DrawActiveIndicator(Graphics g, Rectangle bounds, TabPosition tabPosition)
         {
-            int thickness = DpiScalingHelper.ScaleValue(3, OwnerControl);
-            thickness = Math.Max(2, thickness);
+            int thickness = TabHeaderMetrics.IndicatorThickness(OwnerControl);
 
             Color color = IndicatorColor();
 
             // Inset the bar slightly from the tab edges so it sits within the tab bounds.
-            int inset = Math.Max(0, DpiScalingHelper.ScaleValue(4, OwnerControl));
+            int inset = TabHeaderMetrics.IndicatorInset(OwnerControl);
 
             Rectangle bar;
             switch (tabPosition)
@@ -310,43 +423,51 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
             bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
         {
-            // Normal capsule radius (half-height)
+            // Normal capsule radius (half-height).
             int radius = Math.Max(6, bounds.Height / 2);
 
-            // For the outer corners of first/last tabs use the container radius so they
-            // align with the container's overall rounded outline.
-            if (ContainerBorderRadius > 0)
+            // BackgroundColor already contains the correct active/inactive/hover color from
+            // GetTabColors() — no additional alpha dimming needed here.
+            using (var brush = new SolidBrush(colors.BackgroundColor))
             {
-                var path = CreateTabCornerPath(bounds, radius, ContainerBorderRadius, isFirst, isLast, tabPosition);
-                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
+                GraphicsPath path = ContainerBorderRadius > 0
+                    ? CreateTabCornerPath(bounds, radius, ContainerBorderRadius, isFirst, isLast, tabPosition)
+                    : CreateRoundedPath(bounds, radius);
+                using (path)
                     g.FillPath(brush, path);
-                DrawTabBorder(g, bounds, colors.BorderColor, isActive);
-                path.Dispose();
             }
-            else
+
+            // Draw a light border on the ACTIVE tab so it reads as a lifted surface
+            // standing out from the strip background. Inactive tabs blend in.
+            if (isActive)
             {
-                var path = CreateRoundedPath(bounds, radius);
-                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(240, colors.BackgroundColor)))
-                    g.FillPath(brush, path);
-                DrawTabBorder(g, bounds, colors.BorderColor, isActive);
-                path.Dispose();
+                GraphicsPath borderPath = ContainerBorderRadius > 0
+                    ? CreateTabCornerPath(bounds, radius, ContainerBorderRadius, isFirst, isLast, tabPosition)
+                    : CreateRoundedPath(bounds, radius);
+                using (borderPath)
+                using (var pen = new Pen(colors.BorderColor, 1f) { Alignment = PenAlignment.Inset })
+                    g.DrawPath(pen, borderPath);
             }
         }
 
         private void DrawSegmentBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
             bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
         {
-            int radius = ContainerBorderRadius > 0 ? 0 : 6; // Segmented style uses minimal rounding
             GraphicsPath path = ContainerBorderRadius > 0
                 ? CreateTabCornerPath(bounds, 6, ContainerBorderRadius, isFirst, isLast, tabPosition)
                 : CreateRoundedPath(bounds, 6);
 
             using (path)
             {
-                using (var brush = new SolidBrush(isActive ? colors.BackgroundColor : Color.FromArgb(245, 245, 245)))
+                // BackgroundColor already encodes active/inactive/hover from GetTabColors().
+                using (var brush = new SolidBrush(colors.BackgroundColor))
                     g.FillPath(brush, path);
-                using (var pen = new Pen(colors.BorderColor, 1f))
-                    g.DrawPath(pen, path);
+                // Draw border only on the active tab for visual prominence.
+                if (isActive)
+                {
+                    using (var pen = new Pen(colors.BorderColor, 1f) { Alignment = PenAlignment.Inset })
+                        g.DrawPath(pen, path);
+                }
             }
         }
 
@@ -356,33 +477,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
             if (isActive)
             {
-                backColor = _theme?.TabSelectedBackColor ?? Color.White;
-                textColor = _theme?.TabSelectedForeColor ?? Color.FromArgb(32, 32, 32);
-                borderColor = _theme?.TabSelectedBorderColor ?? Color.FromArgb(120, 120, 120);
+                // Prefer semantic active-tab colors; fall back through the less-specific chain.
+                backColor = ResolveNonEmpty(_theme?.ActiveTabBackColor, _theme?.TabSelectedBackColor, Color.White);
+                textColor = ResolveNonEmpty(_theme?.ActiveTabForeColor, _theme?.TabSelectedForeColor, Color.FromArgb(32, 32, 32));
+                borderColor = ResolveNonEmpty(_theme?.TabSelectedBorderColor, _theme?.ActiveBorderColor, Color.FromArgb(120, 120, 120));
             }
             else if (isHovered)
             {
-                var baseColor = _theme?.TabBackColor ?? Color.FromArgb(245, 245, 245);
-                var hoverColor = _theme?.TabHoverBackColor ?? Color.FromArgb(235, 235, 235);
-                
+                // Inactive base is the InactiveTabBackColor if available.
+                var baseColor = ResolveNonEmpty(_theme?.InactiveTabBackColor, _theme?.TabBackColor, Color.FromArgb(240, 240, 240));
+                var hoverColor = ResolveNonEmpty(_theme?.TabHoverBackColor, Color.FromArgb(225, 225, 225));
+
                 backColor = InterpolateColor(baseColor, hoverColor, animationProgress);
-                textColor = _theme?.TabHoverForeColor ?? _theme?.TabForeColor ?? Color.FromArgb(64, 64, 64);
-                borderColor = _theme?.TabHoverBorderColor ?? Color.FromArgb(150, 150, 150);
+                textColor = ResolveNonEmpty(_theme?.TabHoverForeColor, _theme?.InactiveTabForeColor, _theme?.TabForeColor, Color.FromArgb(64, 64, 64));
+                borderColor = ResolveNonEmpty(_theme?.TabHoverBorderColor, _theme?.InactiveBorderColor, Color.FromArgb(150, 150, 150));
             }
             else
             {
-                backColor = _theme?.TabBackColor ?? Color.FromArgb(245, 245, 245);
-                textColor = _theme?.TabForeColor ?? Color.FromArgb(64, 64, 64);
-                borderColor = _theme?.TabBorderColor ?? Color.FromArgb(180, 180, 180);
+                backColor = ResolveNonEmpty(_theme?.InactiveTabBackColor, _theme?.TabBackColor, Color.FromArgb(240, 240, 240));
+                textColor = ResolveNonEmpty(_theme?.InactiveTabForeColor, _theme?.TabForeColor, Color.FromArgb(96, 96, 96));
+                borderColor = ResolveNonEmpty(_theme?.TabBorderColor, _theme?.InactiveBorderColor, Color.FromArgb(200, 200, 200));
             }
-            
-            // In transparent mode, background is not painted, but we keep colors for borders/text
-            // Border and text colors can optionally be adjusted for better visibility on transparent backgrounds
+
             if (_isTransparent)
             {
-                // Make borders more visible on transparent backgrounds
                 borderColor = Color.FromArgb(Math.Min(255, borderColor.A + 50), borderColor);
-                // Text stays fully opaque for readability
             }
 
             return new TabColors
@@ -393,47 +512,56 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             };
         }
 
+        /// <summary>Returns the first colour value that is not null, not Empty, and has non-zero alpha.</summary>
+        private static Color ResolveNonEmpty(params Color?[] candidates)
+        {
+            Color last = Color.Empty;
+            foreach (var c in candidates)
+            {
+                if (!c.HasValue) continue;
+                last = c.Value;
+                if (last != Color.Empty && last.A > 0) return last;
+            }
+            return last;
+        }
+
         private void DrawTabBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,
             bool isFirst = false, bool isLast = false, TabPosition tabPosition = TabPosition.Top)
         {
-            // In transparent mode, skip background painting entirely - let parent show through
-            if (_isTransparent)
-            {
-                return;
-            }
-            
-            // Use BeepStyling for consistent appearance with ControlStyle
-            var tabPath = BeepStyling.CreateControlStylePath(bounds, _controlStyle);
-            
+            if (_isTransparent) return;
+
+            // Inset the drawing path by the shadow depth so BeepStyling.PaintControl's
+            // drop-shadow fills WITHIN the declared bounds rather than bleeding into the
+            // adjacent tab.  RecalculateLayout adds shadowDepth*2 to effectiveTabHeight,
+            // and CalculateTabContentWidth adds shadowDepth*2 to tab width, so the
+            // inset path sits centred inside bounds with exactly shadowDepth of space
+            // on every side for the shadow halo.
+            int shadowDepth = StyleShadows.HasShadow(_controlStyle)
+                ? Math.Max(2, StyleShadows.GetShadowBlur(_controlStyle) / 2)
+                : 0;
+
+            Rectangle insetBounds = shadowDepth > 0
+                ? new Rectangle(
+                    bounds.X      + shadowDepth,
+                    bounds.Y      + shadowDepth,
+                    Math.Max(1, bounds.Width  - shadowDepth * 2),
+                    Math.Max(1, bounds.Height - shadowDepth * 2))
+                : bounds;
+
+            var tabPath = BeepStyling.CreateControlStylePath(insetBounds, _controlStyle);
             try
             {
-                // Determine control state based on tab state
-                ControlState state = ControlState.Normal;
-                if (isActive)
-                    state = ControlState.Selected;
-                else if (isHovered)
-                    state = ControlState.Hovered;
-                
-                // Use BeepStyling.PaintControl for consistent rendering
-                var contentPath = BeepStyling.PaintControl(
-                    g,
-                    tabPath,
-                    _controlStyle,
-                    _theme,
-                    true, // useThemeColors
-                    state,
-                    _isTransparent
-                );
-                
-                contentPath?.Dispose();
+                ControlState state = isActive  ? ControlState.Selected
+                                   : isHovered ? ControlState.Hovered
+                                               : ControlState.Normal;
+                var content = BeepStyling.PaintControl(g, tabPath, _controlStyle, _theme,
+                    useThemeColors: true, state: state, IsTransparentBackground: _isTransparent);
+                content?.Dispose();
             }
             catch
             {
-                // Ultimate fallback - simple rectangle fill
-                using (var brush = new SolidBrush(colors.BackgroundColor))
-                {
-                    g.FillRectangle(brush, bounds);
-                }
+                using var brush = new SolidBrush(colors.BackgroundColor);
+                g.FillRectangle(brush, insetBounds);
             }
             finally
             {
@@ -464,7 +592,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 {
                     try
                     {
-                        textFont =FontListHelper.GetFont(font.FontFamily.Name, font.Size, FontStyle.Bold);
+                        textFont = FontListHelper.GetFont(font.FontFamily.Name, font.Size, FontStyle.Bold) ?? font;
                     }
                     catch
                     {
@@ -472,17 +600,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     }
                 }
                 
-                // Use TextRenderer for safe, high-quality text rendering
-                var flags = TextFormatFlags.Left | 
-                           TextFormatFlags.VerticalCenter | 
-                           TextFormatFlags.EndEllipsis | 
+                // Left-align matches commercial tab bars (VS Code, DevExpress, Chrome).
+                // The textBounds already has close-button and padding margins applied.
+                var flags = TextFormatFlags.Left |
+                           TextFormatFlags.VerticalCenter |
+                           TextFormatFlags.EndEllipsis |
                            TextFormatFlags.SingleLine |
                            TextFormatFlags.NoPadding;
-                
+
                 TextRenderer.DrawText(g, title, textFont, textBounds, textColor, flags);
                 
                 // Dispose font if we created it
-                if (textFont != font && textFont != null)
+                if (!ReferenceEquals(textFont, font) && textFont != null)
                 {
                     textFont.Dispose();
                 }
@@ -505,41 +634,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private void DrawCloseButton(Graphics g, Rectangle closeRect, bool isHovered, Color baseColor)
         {
-            // Draw close button background on hover with modern rounded appearance
+            // Resolve hover background from theme — ButtonErrorBackColor gives a theme-aware
+            // destructive colour (typically a muted red/coral) rather than a hardcoded red.
+            Color hoverBg = ResolveNonEmpty(
+                _theme?.ButtonErrorBackColor ?? Color.Empty,
+                Color.FromArgb(196, 64, 64));
+
             if (isHovered)
             {
-                // Use more modern hover color with better visibility
-                using (var bgBrush = new SolidBrush(Color.FromArgb(200, Color.Red)))
-                using (var path = CreateRoundedPath(closeRect, Math.Min(3, closeRect.Width / 4)))
-                {
+                using (var bgBrush = new SolidBrush(Color.FromArgb(220, hoverBg)))
+                using (var path = CreateRoundedPath(closeRect, Math.Min(4, closeRect.Width / 4)))
                     g.FillPath(bgBrush, path);
-                }
             }
             else
             {
-                // Subtle background on non-hover for better visibility
-                using (var bgBrush = new SolidBrush(Color.FromArgb(30, baseColor)))
-                using (var path = CreateRoundedPath(closeRect, Math.Min(3, closeRect.Width / 4)))
-                {
+                // Very subtle tint so the hit-target is still discoverable on hover proximity.
+                using (var bgBrush = new SolidBrush(Color.FromArgb(25, baseColor)))
+                using (var path = CreateRoundedPath(closeRect, Math.Min(4, closeRect.Width / 4)))
                     g.FillPath(bgBrush, path);
-                }
             }
 
-            // Draw the X with modern styling
-            var color = isHovered ? Color.White : Color.FromArgb(180, baseColor);
-            using (var pen = new Pen(color, 2f))
+            // X glyph – white on hover, muted baseColor otherwise.
+            Color xColor = isHovered
+                ? ResolveNonEmpty(_theme?.ButtonErrorForeColor ?? Color.Empty, Color.White)
+                : Color.FromArgb(160, baseColor);
+
+            using (var pen = new Pen(xColor, 1.5f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
-                pen.LineJoin = LineJoin.Round;
 
-                var centerX = closeRect.X + closeRect.Width / 2f;
-                var centerY = closeRect.Y + closeRect.Height / 2f;
-                var size = Math.Min(closeRect.Width, closeRect.Height) / 3.5f;
+                float cx = closeRect.X + closeRect.Width / 2f;
+                float cy = closeRect.Y + closeRect.Height / 2f;
+                float sz = Math.Min(closeRect.Width, closeRect.Height) / 3.5f;
 
-                // Draw X with smooth lines
-                g.DrawLine(pen, centerX - size, centerY - size, centerX + size, centerY + size);
-                g.DrawLine(pen, centerX + size, centerY - size, centerX - size, centerY + size);
+                g.DrawLine(pen, cx - sz, cy - sz, cx + sz, cy + sz);
+                g.DrawLine(pen, cx + sz, cy - sz, cx - sz, cy + sz);
             }
         }
 

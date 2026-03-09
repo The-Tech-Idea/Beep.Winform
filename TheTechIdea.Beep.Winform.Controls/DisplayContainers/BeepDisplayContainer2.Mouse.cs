@@ -8,6 +8,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     {
         #region Mouse Handling
 
+        private bool HasUtilityButtons() =>
+            !_newTabButton.IsEmpty || (!_scrollLeftButton.IsEmpty && !_scrollRightButton.IsEmpty);
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -15,6 +18,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Skip tab hover handling in Single mode
             if (_displayMode == ContainerDisplayMode.Single)
             {
+                return;
+            }
+
+            // Skip when there are no tabs — nothing to hover or drag.
+            if (_tabs == null || _tabs.Count == 0)
+            {
+                if (ShowEmptyStateActionButton)
+                {
+                    var btnRect = GetEmptyStateButtonRect();
+                    bool isHovered = !btnRect.IsEmpty && btnRect.Contains(e.Location);
+                    if (_emptyStateButtonHovered != isHovered)
+                    {
+                        _emptyStateButtonHovered = isHovered;
+                        Cursor = isHovered ? Cursors.Hand : Cursors.Default;
+                        Invalidate(btnRect);
+                    }
+                }
                 return;
             }
 
@@ -54,6 +74,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     StartAnimation(_hoveredTab, 1f);
                 }
 
+                // ── Tooltip timer management ──────────────────────────
+                HideTabTooltip();
+                if (hitTab != null && !string.IsNullOrEmpty(hitTab.TooltipText))
+                    StartTooltipTimer(hitTab);
+
                 Invalidate();
             }
 
@@ -76,13 +101,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // --- Scroll / utility button hover ---
-            if (_needsScrolling)
+            if (HasUtilityButtons())
             {
                 int prev = _hoveredScrollButton;
-                if (_scrollLeftButton.Contains(e.Location))
+                if (_needsScrolling && _scrollLeftButton.Contains(e.Location))
                     _hoveredScrollButton = 1;
-                else if (_scrollRightButton.Contains(e.Location))
+                else if (_needsScrolling && _scrollRightButton.Contains(e.Location))
                     _hoveredScrollButton = 2;
+                else if (_needsScrolling && _overflowButton.Contains(e.Location))
+                    _hoveredScrollButton = 4;
                 else if (_newTabButton.Contains(e.Location))
                     _hoveredScrollButton = 3;
                 else
@@ -113,6 +140,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _hoveredTab = null;
             }
 
+            // ── Cancel tooltip ─────────────────────────────────────
+            HideTabTooltip();
+
             bool changed = (_hoveredScrollButton != 0 || _pressedScrollButton != 0);
             _hoveredScrollButton = 0;
             _pressedScrollButton = 0;
@@ -142,13 +172,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (e.Button != MouseButtons.Left || _displayMode == ContainerDisplayMode.Single)
                 return;
 
+            // Skip when there are no tabs.
+            if (_tabs == null || _tabs.Count == 0)
+                return;
+
             // Track pressed state on scroll / utility buttons.
-            if (_needsScrolling)
+            if (HasUtilityButtons())
             {
-                if (_scrollLeftButton.Contains(e.Location))
+                if (_needsScrolling && _scrollLeftButton.Contains(e.Location))
                     _pressedScrollButton = 1;
-                else if (_scrollRightButton.Contains(e.Location))
+                else if (_needsScrolling && _scrollRightButton.Contains(e.Location))
                     _pressedScrollButton = 2;
+                else if (_needsScrolling && _overflowButton.Contains(e.Location))
+                    _pressedScrollButton = 4;
                 else if (_newTabButton.Contains(e.Location))
                     _pressedScrollButton = 3;
                 else
@@ -174,6 +210,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+
+            // Skip when there are no tabs.
+            if (_tabs == null || _tabs.Count == 0)
+                return;
 
             if (_pressedScrollButton != 0)
             {
@@ -217,6 +257,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 return;
             }
 
+            // Check if clicking the empty state action button
+            if (_tabs == null || _tabs.Count == 0)
+            {
+                if (ShowEmptyStateActionButton && e.Button == MouseButtons.Left)
+                {
+                    var btnRect = GetEmptyStateButtonRect();
+                    if (!btnRect.IsEmpty && btnRect.Contains(e.Location))
+                    {
+                        NewTabRequested?.Invoke(this, new ContainerEvents { TitleText = "NewTabRequested" });
+                    }
+                }
+                return;
+            }
+
             if (e.Button == MouseButtons.Left)
             {
                 var hitTab = GetTabAt(e.Location);
@@ -239,15 +293,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 else
                 {
                     // Check scroll buttons
-                    if (_needsScrolling)
+                    if (HasUtilityButtons())
                     {
-                        if (_scrollLeftButton.Contains(e.Location))
+                        if (_needsScrolling && _scrollLeftButton.Contains(e.Location))
                         {
                             ScrollTabs(-1);
                         }
-                        else if (_scrollRightButton.Contains(e.Location))
+                        else if (_needsScrolling && _scrollRightButton.Contains(e.Location))
                         {
                             ScrollTabs(1);
+                        }
+                        else if (_needsScrolling && _overflowButton.Contains(e.Location))
+                        {
+                            ShowOverflowDropdown(new Point(_overflowButton.Left, _overflowButton.Bottom));
                         }
                         else if (_newTabButton.Contains(e.Location))
                         {
@@ -278,8 +336,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Create context menu items with MethodName for action handling
             var menuItems = new System.Collections.Generic.List<SimpleItem>();
 
-            // Close tab option
-            if (tab.CanClose)
+            // ── Pin / Unpin ──────────────────────────────────────────────
+            menuItems.Add(new SimpleItem
+            {
+                Text = tab.IsPinned ? "Unpin Tab" : "Pin Tab",
+                Description = tab.IsPinned ? "Restore full tab" : "Pin this tab (icon-only)",
+                ImagePath = tab.IsPinned ? "unpin" : "pin",
+                MethodName = tab.IsPinned ? "UnpinTab" : "PinTab",
+                Tag = tab
+            });
+
+            // Close tab option (not available for pinned tabs)
+            if (tab.CanClose && !tab.IsPinned)
             {
                 menuItems.Add(new SimpleItem
                 {
@@ -356,6 +424,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 case "CloseAllTabs":
                     CloseAllTabs();
                     break;
+                case "PinTab":
+                    PinTab(tab);
+                    break;
+                case "UnpinTab":
+                    UnpinTab(tab);
+                    break;
             }
         }
         
@@ -379,9 +453,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
         }
         
-        /// <summary>
-        /// Closes all tabs
-        /// </summary>
         private void CloseAllTabs()
         {
             BeginUpdate();
@@ -398,6 +469,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 EndUpdate();
             }
         }
+
+        /// <summary>
+        /// Shows a dropdown menu containing all hidden tabs, and activates the picked one.
+        /// </summary>
+        private void ShowOverflowDropdown(Point location)
+        {
+            var hiddenTabs = _tabs.Where(t => !t.IsVisible || t.Bounds.IsEmpty).ToList();
+            if (hiddenTabs.Count == 0) return;
+
+            var menuItems = new System.Collections.Generic.List<SimpleItem>();
+            foreach (var tab in hiddenTabs)
+            {
+                menuItems.Add(new SimpleItem
+                {
+                    Text = string.IsNullOrEmpty(tab.Title) ? "Unnamed Tab" : tab.Title,
+                    ImagePath = tab.IconPath,
+                    MethodName = "ActivateTab",
+                    Tag = tab
+                });
+            }
+
+            var screenLocation = this.PointToScreen(location);
+            var selectedItem = base.ShowContextMenu(menuItems, screenLocation, false, FormStyle.Modern);
+
+            if (selectedItem != null && selectedItem.MethodName == "ActivateTab")
+            {
+                AddinTab targetTab = selectedItem.Tag as AddinTab;
+                if (targetTab != null)
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        ActivateTab(targetTab);
+                    }));
+                }
+            }
+        }
+        
 
         private void ScrollTabs(int direction)
         {
@@ -417,11 +525,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Any tab that is marked not-visible and lies beyond the scroll offset
             // means we can still scroll further.
             return _tabs.Skip(_scrollOffset).Any(t => !t.IsVisible);
-        }
-
-        private void OnNewTabRequested()
-        {
-            // Override in derived classes or handle via events
         }
 
         #endregion
@@ -554,6 +657,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     return i;
             }
             return _tabs.Count; // append to end
+        }
+
+        // ── Tooltip hover card helpers ────────────────────────────────────
+        private void StartTooltipTimer(AddinTab tab)
+        {
+            if (_tooltipTimer == null)
+            {
+                _tooltipTimer = new System.Windows.Forms.Timer { Interval = 400 };
+                _tooltipTimer.Tick += TooltipTimerTick;
+            }
+            _tooltipTab = tab;
+            _showTooltip = false;
+            _tooltipTimer.Stop();
+            _tooltipTimer.Start();
+        }
+
+        private void HideTabTooltip()
+        {
+            _tooltipTimer?.Stop();
+            if (_showTooltip)
+            {
+                _showTooltip = false;
+                _tooltipTab = null;
+                Invalidate();
+            }
+            else
+            {
+                _tooltipTab = null;
+            }
+        }
+
+        private void TooltipTimerTick(object? sender, EventArgs e)
+        {
+            _tooltipTimer?.Stop();
+            if (_tooltipTab != null && _hoveredTab == _tooltipTab)
+            {
+                _showTooltip = true;
+                Invalidate();
+            }
         }
 
         #endregion

@@ -97,12 +97,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int totalFields = validationResults.Count;
             
             // Draw title
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(200, Theme?.ForeColor ?? Color.Black));
             g.DrawString(title, titleFont, titleBrush, rect.X, rect.Y);
             
             // Draw validation status
-            using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var statusFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             Color statusColor = errorCount == 0 ? accentColor : errorColor;
             using var statusBrush = new SolidBrush(statusColor);
             
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 return;
             }
             
-            using var messageFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var messageFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             int y = rect.Y;
             int lineHeight = 18;
             
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var iconRect = new Rectangle(rect.X, y + 2, 12, 12);
                 g.FillEllipse(iconBrush, iconRect);
                 
-                using var iconFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+                using var iconFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
                 using var iconTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                 var iconFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("!", iconFont, iconTextBrush, iconRect, iconFormat);
@@ -184,13 +184,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             var iconRect = new Rectangle(rect.X, rect.Y + 2, 16, 16);
             g.FillEllipse(iconBrush, iconRect);
             
-            using var iconFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+            using var iconFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
             using var iconTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
             var iconFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString("✓", iconFont, iconTextBrush, iconRect, iconFormat);
             
             // Draw success message
-            using var messageFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var messageFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var messageBrush = new SolidBrush(Color.FromArgb(100, 150, 100));
             g.DrawString("All fields are valid and ready for submission", messageFont, messageBrush, rect.X + 22, rect.Y + 2);
         }
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int fieldHeight = 30;
             int maxFields = Math.Min(fields.Count, rect.Height / fieldHeight);
             
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             
             for (int i = 0; i < maxFields; i++)
@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var statusRect = new Rectangle(fieldRect.X, fieldRect.Y + 6, 12, 12);
                 g.FillEllipse(statusBrush, statusRect);
                 
-                using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+                using var statusFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
                 using var statusTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                 var statusFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(statusIcon, statusFont, statusTextBrush, statusRect, statusFormat);

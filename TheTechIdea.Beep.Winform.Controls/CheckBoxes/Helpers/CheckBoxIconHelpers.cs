@@ -21,9 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         /// </summary>
         public static string GetCheckIconPath()
         {
-            return ResolveIconPath(
-                new[] { "Check", "CheckCircle", "CircleCheck" },
-                SvgsUI.Check ?? SvgsUI.CircleCheck ?? SvgsUI.Circle);
+            return SvgsUI.Check;
         }
 
         /// <summary>
@@ -31,33 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         /// </summary>
         public static string GetIndeterminateIconPath()
         {
-            return ResolveIconPath(
-                new[] { "Minus", "Subtract", "Dash" },
-                SvgsUI.SquareMinus ?? SvgsUI.Circle);
-        }
-
-        private static string ResolveIconPath(string[] iconNames, string fallback)
-        {
-            foreach (var iconName in iconNames)
-            {
-                var uiProperty = typeof(SvgsUI).GetProperty(
-                    iconName,
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-                if (uiProperty?.GetValue(null) is string uiPath && !string.IsNullOrWhiteSpace(uiPath))
-                {
-                    return uiPath;
-                }
-
-                var coreProperty = typeof(Svgs).GetProperty(
-                    iconName,
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-                if (coreProperty?.GetValue(null) is string corePath && !string.IsNullOrWhiteSpace(corePath))
-                {
-                    return corePath;
-                }
-            }
-
-            return fallback;
+            return SvgsUI.Minus;
         }
 
         /// <summary>

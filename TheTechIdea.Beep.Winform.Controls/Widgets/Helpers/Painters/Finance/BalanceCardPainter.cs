@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.DrawSvg(g, "credit-card", iconRect, iconColor, 0.9f);
 
             var titleRect = new Rectangle(logoRect.Right + 8, logoRect.Y, 150, logoRect.Height);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(220, Color.White));
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             string accountType = ctx.AccountType ?? "Checking Account";
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void DrawBalanceComponent(Graphics g, WidgetContext ctx, decimal balance, string currencySymbol, bool isHovered)
         {
             string balanceText = $"{currencySymbol}{balance:N2}";
-            using var balanceFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 24f, isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var balanceFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 24f, isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             Color balanceColor = isHovered ? Color.FromArgb(255, 255, 255, 200) : Color.White;
             using var balanceBrush = new SolidBrush(balanceColor);
             var balanceFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.DrawSvg(g, "hash", accountIconRect, iconColor, 0.8f);
 
             var accountTextRect = new Rectangle(accountIconRect.Right + 4, accountRect.Y, accountRect.Width - accountIconRect.Width - 4, accountRect.Height);
-            using var accountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
+            using var accountFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
             Color textColor = isHovered ? Color.FromArgb(220, Color.White) : Color.FromArgb(180, Color.White);
             using var accountBrush = new SolidBrush(textColor);
             var accountFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 using var tooltipBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
                 using var tooltipPath = CreateRoundedPath(tooltipRect, 4);
                 g.FillPath(tooltipBrush, tooltipPath);
-                using var tooltipFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                using var tooltipFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                 using var tooltipTextBrush = new SolidBrush(Color.White);
                 var tooltipFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("Security Options", tooltipFont, tooltipTextBrush, tooltipRect, tooltipFormat);

@@ -14,6 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _animationTimer?.Stop();
                 _animationTimer?.Dispose();
                 _animationHelper?.Dispose();
+                _tooltipTimer?.Stop();
+                _tooltipTimer?.Dispose();
                 
                 // Dispose all addins
                 foreach (var addin in _addins.Values)

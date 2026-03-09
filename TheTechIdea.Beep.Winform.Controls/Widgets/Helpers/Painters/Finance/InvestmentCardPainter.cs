@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
                     ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
                 
-                using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, 
+                using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, 
                     isTitleHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
                 
                 Color titleColor = isTitleHovered 
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             // Current value with hover effects
             bool isValueHovered = IsAreaHovered("Investment_CurrentValue");
             
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 18f, 
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 18f, 
                 isValueHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             
             Color valueColor = isValueHovered
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             
             // Gain/Loss text with hover enhancement
             var gainLossTextRect = new Rectangle(iconRect.Right + 4, _gainLossAreaRect.Y, 100, _gainLossAreaRect.Height);
-            using var gainLossFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, 
+            using var gainLossFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, 
                 isGainLossHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             
             using var gainLossBrush = new SolidBrush(gainLossColor);
@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                     using var tooltipPath = CreateRoundedPath(tooltipRect, 4);
                     g.FillPath(tooltipBrush, tooltipPath);
                     
-                    using var tooltipFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                    using var tooltipFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                     using var tooltipTextBrush = new SolidBrush(Color.White);
                     var tooltipFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString("View Portfolio", tooltipFont, tooltipTextBrush, tooltipRect, tooltipFormat);

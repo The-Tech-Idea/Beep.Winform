@@ -63,14 +63,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         private void DrawFormHeader(Graphics g, Rectangle rect, string title, string subtitle, Color accentColor)
         {
             // Draw title
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(200, Color.Black));
             g.DrawString(title, titleFont, titleBrush, rect.X, rect.Y);
             
             // Draw subtitle if provided
             if (!string.IsNullOrEmpty(subtitle))
             {
-                using var subtitleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+                using var subtitleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
                 using var subtitleBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
                 g.DrawString(subtitle, subtitleFont, subtitleBrush, rect.X, rect.Y + 16);
             }

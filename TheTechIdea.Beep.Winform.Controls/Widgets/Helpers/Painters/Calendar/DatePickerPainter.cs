@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             var selectedDate = ctx.SelectedDate;
 
             // Draw selected date
-            using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Regular);
+            using var dateFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Regular);
             using var dateBrush = new SolidBrush(Theme?.ForeColor ?? Color.FromArgb(200, Color.Black));
             string dateText = selectedDate.ToString("dddd, MMMM dd, yyyy");
             
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             DrawCalendarIcon(g, ctx.IconRect, ctx.AccentColor);
             
             // Draw format/info
-            using var infoFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var infoFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var infoBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             string infoText = !string.IsNullOrEmpty(ctx.FooterText) ? ctx.FooterText : "Click to select a different date";
             g.DrawString(infoText, infoFont, infoBrush, ctx.FooterRect);

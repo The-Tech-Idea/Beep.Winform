@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             set
             {
                 _textFont = value;
-                SafeApplyFont(_textFont);
+                //SafeApplyFont(_textFont);
                 UseThemeFont = false;
                 ClearGraphicsCaches();
                 RequestVisualRefresh(includeText: true);
@@ -503,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             
             // Apply font theme based on ControlStyle
             _textFont = CheckBoxFontHelpers.GetCheckBoxFont(_currentTheme, ControlStyle, this);
-            SafeApplyFont(_textFont);
+          //  SafeApplyFont(_textFont);
             ClearGraphicsCaches();
 
             if (_currentTheme != null)

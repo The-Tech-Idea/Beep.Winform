@@ -109,16 +109,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             var nameIconRect = new Rectangle(_nameRect.X, _nameRect.Y, 16, 16);
             _imagePainter.DrawSvg(g, "circle", nameIconRect, Theme?.AccentColor ?? Color.Gray, 0.6f);
             var nameTextRect = new Rectangle(nameIconRect.Right + 4, _nameRect.Y, _nameRect.Width - nameIconRect.Width - 4, 16);
-            using var nameFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var nameFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var nameBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             g.DrawString(cryptoName, nameFont, nameBrush, nameTextRect.X, nameTextRect.Y);
-            using var symbolFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var symbolFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var symbolBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             g.DrawString(cryptoSymbol, symbolFont, symbolBrush, nameTextRect.X, nameTextRect.Y + 16);
 
             // Current price
             bool priceHovered = IsAreaHovered("Crypto_Price");
-            using var priceFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 16f, priceHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var priceFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 16f, priceHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var priceBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             string priceText = $"{currencySymbol}{value:N2}" + (priceHovered ? " - Click to view orderbook" : string.Empty);
             g.DrawString(priceText, priceFont, priceBrush, _priceRect);
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             string trendIconName = trend == FinanceTrend.Up ? "trending-up" : trend == FinanceTrend.Down ? "trending-down" : "minus";
             _imagePainter.DrawSvg(g, trendIconName, trendIconRect, trendColor, 0.8f);
             var changeTextRect = new Rectangle(trendIconRect.Right + 4, _changeRect.Y, _changeRect.Width - trendIconRect.Width - 4, _changeRect.Height);
-            using var changeFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
+            using var changeFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
             using var changeBrush = new SolidBrush(trendColor);
             string changeText = $"{percentage:+0.00;-0.00;0.00}%";
             var changeFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };

@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Title text
             var titleTextRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
                 ctx.HeaderRect.Width - iconRect.Width - 24, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush2 = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush2, titleTextRect, format);
@@ -154,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
             var titleRect = new Rectangle(iconRect.Right + 8, headerRect.Y, 
                 headerRect.Width - iconRect.Width - 8, headerRect.Height);
-            using var chartTitleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f,FontStyle.Bold);
+            using var chartTitleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f,FontStyle.Bold);
             using var chartTitleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString("Analytics Overview", chartTitleFont, chartTitleBrush, titleRect, format);
@@ -180,8 +180,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Limit to 4 metrics like web dashboards
             int count = Math.Min(metrics.Count, 4);
             int metricWidth = rect.Width / count;
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
 
             string[] defaultIcons = { "dollar-sign", "users", "bar-chart", "trending-up" };
 

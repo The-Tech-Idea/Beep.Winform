@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         {
             if (string.IsNullOrEmpty(ctx.Title)) return;
 
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
             using var titleBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         {
             if (string.IsNullOrEmpty(ctx.Value)) return;
 
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 24f, FontStyle.Bold);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 24f, FontStyle.Bold);
             using var valueBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             // Trend text
             var textRect = new Rectangle(trendIconRect.Right + 4, trendRect.Y, 
                 trendRect.Width - iconSize - 4, trendRect.Height);
-            using var trendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var trendFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var trendBrush = new SolidBrush(ctx.TrendColor);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.TrendValue, trendFont, trendBrush, textRect, format);
@@ -179,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             // Draw trend
             if (ctx.ShowTrend && !string.IsNullOrEmpty(ctx.TrendValue))
             {
-                using var trendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var trendFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var trendBrush = new SolidBrush(ctx.TrendColor);
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.TrendValue, trendFont, trendBrush, ctx.TrendRect, format);

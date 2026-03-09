@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
 
             // Draw message
-            using var messageFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
+            using var messageFont = FontListHelper.GetFont(Owner?.TextFont?.FontFamily.Name, 10f, FontStyle.Regular);
             using var messageBrush = new SolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
 
             var format = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisWord };

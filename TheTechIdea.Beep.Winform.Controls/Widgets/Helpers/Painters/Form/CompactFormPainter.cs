@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             var fields = ctx.Fields;
             if (fields == null) return;
 
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100));
             using var valueBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.Black);
             using var requiredBrush = new SolidBrush(Color.Red);

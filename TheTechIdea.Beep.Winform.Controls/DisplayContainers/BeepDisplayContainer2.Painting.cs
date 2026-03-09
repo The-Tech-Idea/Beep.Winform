@@ -202,52 +202,80 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// </summary>
         private void DrawTabsDirectlyInOnPaint(Graphics g)
         {
-            if (g == null || _tabs == null || _tabs.Count == 0 || _tabArea.IsEmpty) return;
+            if (g == null || _tabArea.IsEmpty) return;
             
             // Ensure paint helper exists and is configured
             EnsurePaintHelper();
-            
-            // Draw tab strip background first
-            DrawTabAreaBackground(g);
-            
-            // Draw each visible tab — skip the tab being dragged (it is drawn as a ghost below).
-            foreach (var tab in _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty))
-            {
-                if (_isDragging && tab == _dragTab) continue;
-                DrawTab(g, tab);
-            }
 
-            // ---- Enhancement 5: drag-to-reorder visuals ----
-            if (_isDragging)
+            // Clip all tab-area drawing so individual tabs cannot bleed into the content area.
+            var savedClip = g.Clip?.Clone() as Region;
+            try
             {
-                DrawDropIndicator(g);
-                if (_dragTab != null)
-                    DrawDragGhost(g, _dragTab);
-            }
+                g.SetClip(_tabArea, System.Drawing.Drawing2D.CombineMode.Intersect);
 
-            // Draw scroll buttons if needed
-            if (_needsScrolling)
+                // Draw tab strip background first
+                DrawTabAreaBackground(g);
+                
+                // Draw each visible tab — skip the tab being dragged (it is drawn as a ghost below).
+                foreach (var tab in _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty))
+                {
+                    if (_isDragging && tab == _dragTab) continue;
+                    DrawTab(g, tab);
+                }
+
+                // ---- Enhancement 5: drag-to-reorder visuals ----
+                if (_isDragging)
+                {
+                    DrawDropIndicator(g);
+                    if (_dragTab != null)
+                        DrawDragGhost(g, _dragTab);
+                }
+
+                // Draw scroll buttons if needed
+                if (_needsScrolling)
+                {
+                    bool horiz = _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom;
+                    DrawModernButton(g, _scrollLeftButton,
+                        horiz ? ArrowDirection.Left : ArrowDirection.Up,
+                        ControlStyle,
+                        isHovered:  _hoveredScrollButton == 1,
+                        isPressed:  _pressedScrollButton == 1,
+                        isDisabled: _scrollOffset <= 0);
+                    DrawModernButton(g, _scrollRightButton,
+                        horiz ? ArrowDirection.Right : ArrowDirection.Down,
+                        ControlStyle,
+                        isHovered:  _hoveredScrollButton == 2,
+                        isPressed:  _pressedScrollButton == 2,
+                        isDisabled: !CanScrollRight());
+                    
+                    // Enhancement 5: Overflow Dropdown chevron button
+                    DrawModernButton(g, _overflowButton,
+                        ArrowDirection.Down,
+                        ControlStyle,
+                        isHovered:  _hoveredScrollButton == 4,
+                        isPressed:  _pressedScrollButton == 4,
+                        isDisabled: false);
+
+                    DrawModernButton(g, _newTabButton, null, ControlStyle,
+                        isPlusButton: true,
+                        isHovered:   _hoveredScrollButton == 3,
+                        isPressed:   _pressedScrollButton == 3);
+                }
+                else if (!_newTabButton.IsEmpty)
+                {
+                    DrawModernButton(g, _newTabButton, null, ControlStyle,
+                        isPlusButton: true,
+                        isHovered:   _hoveredScrollButton == 3,
+                        isPressed:   _pressedScrollButton == 3);
+                }
+            }
+            finally
             {
-                bool horiz = _tabPosition == TabPosition.Top || _tabPosition == TabPosition.Bottom;
-                DrawModernButton(g, _scrollLeftButton,
-                    horiz ? ArrowDirection.Left : ArrowDirection.Up,
-                    ControlStyle,
-                    isHovered:  _hoveredScrollButton == 1,
-                    isPressed:  _pressedScrollButton == 1,
-                    isDisabled: _scrollOffset <= 0);
-                DrawModernButton(g, _scrollRightButton,
-                    horiz ? ArrowDirection.Right : ArrowDirection.Down,
-                    ControlStyle,
-                    isHovered:  _hoveredScrollButton == 2,
-                    isPressed:  _pressedScrollButton == 2,
-                    isDisabled: !CanScrollRight());
-                DrawModernButton(g, _newTabButton, null, ControlStyle,
-                    isPlusButton: true,
-                    isHovered:   _hoveredScrollButton == 3,
-                    isPressed:   _pressedScrollButton == 3);
+                if (savedClip != null) { g.Clip = savedClip; savedClip.Dispose(); }
+                else g.ResetClip();
             }
             
-            // Draw separator line between tabs and content
+            // Draw separator line between tabs and content (outside clip — sits on the boundary)
             DrawTabContentSeparator(g);
         }
         
@@ -304,22 +332,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             try
             {
-                DrawContentAreaBackground(g);
+                try { DrawContentAreaBackground(g); } catch { }
 
                 if (_displayMode == ContainerDisplayMode.Tabbed && !_tabArea.IsEmpty && _tabs != null && _tabs.Count > 0)
                 {
-                    var visibleTabs = _tabs.Where(t => t.IsVisible && !t.Bounds.IsEmpty).ToList();
-                    if (visibleTabs.Count > 0)
-                        DrawTabsDirectlyInOnPaint(g);
+                    try { DrawTabsDirectlyInOnPaint(g); } catch { }
+
+                    // ── Tooltip hover card (drawn outside tab clip) ─────────
+                    if (_showTooltip && _tooltipTab != null && !_tooltipTab.Bounds.IsEmpty)
+                        try { DrawTabTooltip(g, _tooltipTab); } catch { }
                 }
-                else if (_displayMode == ContainerDisplayMode.Tabbed
+                if (_displayMode == ContainerDisplayMode.Tabbed
                          && (_tabs == null || _tabs.Count == 0)
                          && _showEmptyState)
                 {
-                    DrawEmptyState(g);
+                    try { DrawEmptyState(g); } catch { }
                 }
 
-                HandleTabTransition(g);
+                try { HandleTabTransition(g); } catch { }
             }
             finally
             {
@@ -428,10 +458,69 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         FormatFlags   = StringFormatFlags.LineLimit
                     };
                     using (var brush = new SolidBrush(textColor))
-                    using (var font  = new Font(TextFont.FontFamily, Math.Max(6f, TextFont.Size * 0.9f), FontStyle.Regular))
                     {
-                        g.DrawString(_emptyStateText, font, brush, textRect, fmt);
+                        var emptyStateFont = FontListHelper.GetFont(TextFont.FontFamily.Name, Math.Max(6f, TextFont.Size * 0.9f), FontStyle.Regular);
+                        try
+                        {
+                            g.DrawString(_emptyStateText, emptyStateFont ?? TextFont, brush, textRect, fmt);
+                        }
+                        finally
+                        {
+                            if (emptyStateFont != null && !ReferenceEquals(emptyStateFont, TextFont))
+                            {
+                                emptyStateFont.Dispose();
+                            }
+                        }
                     }
+                }
+            }
+
+            // ---------- action button ----------
+            if (ShowEmptyStateActionButton && !string.IsNullOrWhiteSpace(EmptyStateActionText))
+            {
+                var btnRect = GetEmptyStateButtonRect();
+                if (!btnRect.IsEmpty && btnRect.Width > 0 && btnRect.Height > 0)
+                {
+                    var btnRadius = Math.Min(btnRect.Height / 2, DpiScalingHelper.ScaleValue(18, this));
+                    
+                    // Use accent color logic, slightly muted
+                    Color btnBgColor = _currentTheme?.AccentColor ?? Color.RoyalBlue;
+                    Color btnHoverColor = Color.FromArgb(
+                        Math.Min(255, btnBgColor.R + 20),
+                        Math.Min(255, btnBgColor.G + 20),
+                        Math.Min(255, btnBgColor.B + 20));
+                    
+                    if (_emptyStateButtonHovered)
+                    {
+                        btnBgColor = btnHoverColor;
+                    }
+
+                    try
+                    {
+                        using (var path = GraphicsExtensions.GetRoundedRectPath(btnRect, btnRadius))
+                        {
+                            if (path != null)
+                            {
+                                using (var brush = new SolidBrush(btnBgColor))
+                                {
+                                    g.FillPath(brush, path);
+                                }
+                            }
+                        }
+                        
+                        var fmt = new StringFormat
+                        {
+                            Alignment = StringAlignment.Center,
+                            LineAlignment = StringAlignment.Center,
+                            Trimming = StringTrimming.EllipsisCharacter
+                        };
+                        
+                        using (var textBrush = new SolidBrush(Color.White))
+                        {
+                            g.DrawString(EmptyStateActionText, TextFont, textBrush, btnRect, fmt);
+                        }
+                    }
+                    catch { /* Ignore empty path or parameter errors and just let it skip drawing */ }
                 }
             }
         }
@@ -574,9 +663,87 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _paintHelper.DrawProfessionalTab(
                 g, tab.Bounds, tab.Title,
                 TextFont,
-                isActive, isHovered, _showCloseButtons,
+                isActive, isHovered,
+                _showCloseButtons && !tab.IsPinned,
                 tab.IsCloseHovered, tab.AnimationProgress,
-                isFirst, isLast, _tabPosition);
+                isFirst, isLast, _tabPosition,
+                tab.IconPath, tab.BadgeText, tab.BadgeColor, tab.IsPinned);
+        }
+
+        // ── Tooltip hover card ──────────────────────────────────────────────────
+        private void DrawTabTooltip(Graphics g, AddinTab tab)
+        {
+            if (tab == null || string.IsNullOrEmpty(tab.TooltipText)) return;
+
+            var titleFont = TextFont;
+            var descFont  = FontListHelper.GetFont(titleFont.FontFamily.Name, Math.Max(7f, titleFont.Size * 0.85f), FontStyle.Regular) ?? titleFont;
+
+            try
+            {
+                string title = tab.Title ?? "Tab";
+                string desc  = tab.TooltipText;
+
+                // Measure
+                var titleSize = TextRenderer.MeasureText(title, titleFont, new Size(300, int.MaxValue),
+                    TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+                var descSize  = TextRenderer.MeasureText(desc, descFont, new Size(300, int.MaxValue),
+                    TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+
+                int pad    = DpiScalingHelper.ScaleValue(10, this);
+                int gap    = DpiScalingHelper.ScaleValue(4, this);
+                int cardW  = Math.Max(titleSize.Width, descSize.Width) + pad * 2;
+                int cardH  = titleSize.Height + gap + descSize.Height + pad * 2;
+
+                // Position below the tab (or above if near the bottom)
+                int cardX = tab.Bounds.X;
+                int cardY = tab.Bounds.Bottom + DpiScalingHelper.ScaleValue(4, this);
+                if (cardY + cardH > ClientRectangle.Bottom)
+                    cardY = tab.Bounds.Top - cardH - DpiScalingHelper.ScaleValue(4, this);
+                // Keep within control bounds horizontally
+                if (cardX + cardW > ClientRectangle.Right - 4)
+                    cardX = ClientRectangle.Right - cardW - 4;
+
+                var cardRect = new Rectangle(cardX, cardY, cardW, cardH);
+
+                // Shadow
+                var shadowRect = Rectangle.Inflate(cardRect, 2, 2);
+                shadowRect.Offset(1, 1);
+                using (var shadowBrush = new SolidBrush(Color.FromArgb(30, Color.Black)))
+                    g.FillRectangle(shadowBrush, shadowRect);
+
+                // Card background
+                Color cardBg  = _currentTheme?.BackColor ?? SystemColors.Info;
+                Color cardFg  = _currentTheme?.ForeColor ?? SystemColors.InfoText;
+                Color borderC = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
+
+                using (var bgBrush = new SolidBrush(cardBg))
+                    g.FillRectangle(bgBrush, cardRect);
+                using (var borderPen = new Pen(borderC))
+                    g.DrawRectangle(borderPen, cardRect);
+
+                // Title (bold)
+                var titleRect = new Rectangle(cardRect.X + pad, cardRect.Y + pad, cardRect.Width - pad * 2, titleSize.Height);
+                var boldFont = FontListHelper.GetFont(titleFont.FontFamily.Name, titleFont.Size, FontStyle.Bold) ?? titleFont;
+                try
+                {
+                    TextRenderer.DrawText(g, title, boldFont, titleRect, cardFg,
+                        TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+                }
+                finally
+                {
+                    if (boldFont != titleFont) boldFont?.Dispose();
+                }
+
+                // Description
+                var descRect = new Rectangle(cardRect.X + pad, titleRect.Bottom + gap, cardRect.Width - pad * 2, descSize.Height);
+                TextRenderer.DrawText(g, desc, descFont, descRect, Color.FromArgb(180, cardFg),
+                    TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
+            }
+            catch { /* tooltip drawing is non-fatal */ }
+            finally
+            {
+                if (descFont != null && descFont != titleFont) descFont.Dispose();
+            }
         }
 
         private void DrawScrollButtons(Graphics g)

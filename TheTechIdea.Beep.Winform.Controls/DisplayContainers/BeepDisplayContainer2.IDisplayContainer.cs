@@ -106,107 +106,115 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         public bool AddControl(string titleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {
-            try
+            // Guard: control must be a non-disposed Control
+            var addinControl = control as Control;
+            if (control == null) return false;
+            if (addinControl != null && addinControl.IsDisposed) return false;
+
+            var id = Guid.NewGuid().ToString();
+            var tab = new AddinTab
             {
-                var id = Guid.NewGuid().ToString();
-                var tab = new AddinTab
-                {
-                    Id = id,
-                    Title = titleText,
-                    Addin = control,
-                    CanClose = true,
-                    IsVisible = true
-                };
+                Id = id,
+                Title = titleText ?? string.Empty,
+                Addin = control,
+                CanClose = true,
+                IsVisible = true
+            };
 
-                _tabs.Add(tab);
-                _addins[id] = control;
+            // --- Step 1: register in collections ---
+            _tabs.Add(tab);
+            _addins[id] = control;
 
-                // Add control to Controls collection immediately to preserve it
-                var addinControl = control as Control;
-                if (addinControl != null && !Controls.Contains(addinControl))
-                {
-                    Controls.Add(addinControl);
-                }
-
-                // Handle activation based on display mode
-                if (_displayMode == ContainerDisplayMode.Single)
-                {
-                    // In Single mode, always activate the newly added control
-                    _activeTab = tab;
-                    // Hide all other tabs
-                    foreach (var existingTab in _tabs.Where(t => t != tab))
-                    {
-                        var ctrl = existingTab.Addin as Control;
-                        if (ctrl != null)
-                        {
-                            ctrl.Visible = false;
-                        }
-                        existingTab.IsVisible = false;
-                    }
-                    // Ensure new tab is visible
-                    tab.IsVisible = true;
-                }
-                else
-                {
-                    // Tabbed mode: Always activate the newly added tab automatically
-                    // This ensures the new tab is shown and navigated to
-                    // In Tabbed mode, ensure tab is visible (layout will set proper bounds)
-                    tab.IsVisible = true;
-                    
-                    // Don't set _activeTab here - let ActivateTab handle it
-                }
-
-                // Activate the tab to ensure proper positioning and visibility
-                // This will set _activeTab and handle all activation logic
-                // ActivateTab will call RecalculateLayout internally
-                ActivateTab(tab);
-
-                // Apply current theme AND ControlStyle to the newly added addin immediately
-                // so it fully inherits the container's active style without a second trigger.
-                //
-                // For the FIRST tab we must call ApplyTheme() — not just PropagateThemeToAddins()
-                // — because _currentTheme and _paintHelper may still hold their constructor-time
-                // defaults (null / BeepControlStyle.None) at the moment AddControl is first invoked.
-                // PropagateThemeToAddins() silently no-ops when _currentTheme is null, leaving the
-                // tab strip painted with wrong colours until the user pokes ControlStyle a second
-                // time.  ApplyTheme() refreshes _currentTheme, rebuilds paint-helper colours and
-                // then calls PropagateThemeToAddins() internally — guaranteeing a correct first paint.
-                // For subsequent tabs the lighter PropagateThemeToAddins() path remains sufficient.
+            // --- Step 2: add WinForms control to Controls collection ---
+            if (addinControl != null && !Controls.Contains(addinControl))
+            {
                 try
                 {
-                    if (_tabs.Count == 1)
-                        ApplyTheme();       // full refresh — ensures _currentTheme + helpers are live
-                    else
+                    // Reparent: if the control already has a parent, remove it first
+                    // so Controls.Add doesn't throw an InvalidOperationException.
+                    if (addinControl.Parent != null && addinControl.Parent != this)
                     {
-                        PropagateThemeToAddins();
-                        // PropagateThemeToAddins() pushes ControlStyle into addins which can
-                        // trigger their internal PerformLayout and reset their bounds.
-                        // Re-position all controls so the active addin stays inside _contentArea.
-                        PositionActiveAddin();
+                        addinControl.Parent.Controls.Remove(addinControl);
                     }
+                    Controls.Add(addinControl);
                 }
-                catch { /* non-fatal */ }
-                
-                OnAddinAdded(new ContainerEvents 
-                { 
-                    TitleText = titleText, 
-                    Control = control, 
-                    ContainerType = pcontainerType, 
-                    Guidid = control?.GuidID 
-                });
-                
-                // Only invalidate once if we're not in batch mode
-                if (!_batchMode && IsHandleCreated)
+                catch
                 {
-                    Invalidate();
+                    // Failed to host the control — roll back and report failure
+                    _tabs.Remove(tab);
+                    _addins.Remove(id);
+                    return false;
                 }
+            }
 
-                return true;
+            // --- Step 3: mode-specific pre-activation bookkeeping ---
+            if (_displayMode == ContainerDisplayMode.Single)
+            {
+                _activeTab = tab;
+                foreach (var existingTab in _tabs.Where(t => t != tab))
+                {
+                    var ctrl = existingTab.Addin as Control;
+                    if (ctrl != null) ctrl.Visible = false;
+                    existingTab.IsVisible = false;
+                }
+                tab.IsVisible = true;
+            }
+            else
+            {
+                tab.IsVisible = true;
+            }
+
+            // --- Step 4: activate (layout + position + visibility) ---
+            try
+            {
+                ActivateTab(tab);
             }
             catch
             {
-                return false;
+                // Layout/activation failed — the tab is registered but mark it hidden
+                // so the container stays usable with existing tabs.
+                tab.IsVisible = false;
+                if (addinControl != null) addinControl.Visible = false;
             }
+
+            // --- Step 5: theme propagation ---
+            try
+            {
+                if (_tabs.Count == 1)
+                {
+                    ApplyTheme();
+                    // ApplyTheme/PropagateThemeToAddins may trigger UserControl.PerformAutoScale()
+                    // on hosted controls with AutoScaleMode.Font, resetting their Bounds back to
+                    // design-time size and covering the tab header.  Re-clamp after theme propagation.
+                    PositionActiveAddin();
+                }
+                else
+                {
+                    PropagateThemeToAddins();
+                    PositionActiveAddin();
+                }
+            }
+            catch { /* non-fatal */ }
+
+            // --- Step 6: notify and repaint ---
+            try
+            {
+                OnAddinAdded(new ContainerEvents
+                {
+                    TitleText = titleText,
+                    Control = control,
+                    ContainerType = pcontainerType,
+                    Guidid = control?.GuidID
+                });
+            }
+            catch { /* non-fatal */ }
+
+            if (!_batchMode && IsHandleCreated)
+            {
+                try { Invalidate(); } catch { /* non-fatal */ }
+            }
+
+            return true;
         }
 
         public void Clear()

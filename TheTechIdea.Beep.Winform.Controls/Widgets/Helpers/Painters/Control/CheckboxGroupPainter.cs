@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             if (!string.IsNullOrEmpty(ctx.Title))
             {
                 var titleColor = Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.FromArgb(70, 70, 70);
-                using (var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9.5f, FontStyle.Bold))
+                using (var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9.5f, FontStyle.Bold))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
                     g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, 
@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             
             // Draw text
             var textColor =  Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.FromArgb(70, 70, 70);
-            using (var textFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f))
+            using (var textFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f))
             using (var textBrush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };

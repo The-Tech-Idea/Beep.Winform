@@ -33,6 +33,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             AddinChanged?.Invoke(this, e);
         }
 
+        protected virtual void OnNewTabRequested()
+        {
+            NewTabRequested?.Invoke(this, new ContainerEvents
+            {
+                ContainerType = _containerType,
+                TitleText = "NewTabRequest"
+            });
+        }
+
         #endregion
     }
 }

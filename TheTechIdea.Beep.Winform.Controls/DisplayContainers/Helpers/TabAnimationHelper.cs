@@ -60,21 +60,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool needsUpdate = false;
             float animSpeed = GetAnimationSpeed(speed);
 
-            // Update tab hover animations
+            // Update tab hover animations with eased curve
             foreach (var tab in tabs)
             {
                 if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) > 0.01f)
                 {
-                    if (tab.AnimationProgress < tab.TargetAnimationProgress)
-                    {
-                        tab.AnimationProgress = Math.Min(tab.TargetAnimationProgress, 
-                            tab.AnimationProgress + animSpeed);
-                    }
-                    else
-                    {
-                        tab.AnimationProgress = Math.Max(tab.TargetAnimationProgress, 
-                            tab.AnimationProgress - animSpeed);
-                    }
+                    // Cubic ease-out for smoother hover transitions
+                    float diff = tab.TargetAnimationProgress - tab.AnimationProgress;
+                    float step = diff * Math.Min(1f, animSpeed * 3f); // proportional step
+                    if (Math.Abs(step) < animSpeed * 0.5f)
+                        step = Math.Sign(diff) * animSpeed; // ensure minimum step
+
+                    tab.AnimationProgress = Math.Max(0f, Math.Min(1f,
+                        tab.AnimationProgress + step));
+
+                    // Snap to target if close enough
+                    if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) < 0.02f)
+                        tab.AnimationProgress = tab.TargetAnimationProgress;
+
                     needsUpdate = true;
                 }
             }

@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
             // Title text
             var titleRect = new Rectangle(iconRect.Right + 8, rect.Y, rect.Width - iconRect.Width - 8, rect.Height);
-            using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
+            using var titleFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 11f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(title, titleFont, titleBrush, titleRect, format);
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             if (activityCount > 0)
             {
                 string countText = $"({activityCount})";
-                using var countFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+                using var countFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name,  9f, FontStyle.Regular);
                 using var countBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                 var countSize = TextUtils.MeasureText(g,countText, countFont);
                 g.DrawString(countText, countFont, countBrush, rect.Right - countSize.Width, rect.Y + 4);
@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             if (activities.Count > maxVisibleItems)
             {
                 var moreRect = new Rectangle(rect.X, rect.Bottom - 20, rect.Width, 20);
-                using var moreFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Italic);
+                using var moreFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 8f, FontStyle.Italic);
                 using var moreBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString($"and {activities.Count - maxVisibleItems} more activities...", 
@@ -175,13 +175,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
 
             // Activity text
-            using var activityFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var activityFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 9f, FontStyle.Regular);
             using var activityBrush = new SolidBrush(Color.FromArgb(160, Color.Black));
             string activityText = FormatActivityText(activity);
             g.DrawString(activityText, activityFont, activityBrush, contentRect.X, contentRect.Y + 2);
 
             // Timestamp
-            using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            using var timeFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 8f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
             string timeText = FormatTimeAgo(activity.Timestamp);
             var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             // Activity details (if any)
             if (!string.IsNullOrEmpty(activity.Details))
             {
-                using var detailFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var detailFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 8f, FontStyle.Regular);
                 using var detailBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
                 g.DrawString(activity.Details, detailFont, detailBrush, 
                     contentRect.X, contentRect.Y + 18);
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             {
                 // Draw initials as fallback
                 string initials = GetUserInitials(userName);
-                using var initialFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+                using var initialFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 8f, FontStyle.Bold);
                 using var initialBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(initials, initialFont, initialBrush, rect, format);
@@ -243,13 +243,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             _imagePainter.DrawSvg(g, "activity-empty", illustrationRect, Color.FromArgb(150, Color.Gray), 0.6f);
 
             // Empty state text
-            using var emptyFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
+            using var emptyFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 10f, FontStyle.Regular);
             using var emptyBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
             var textRect = new Rectangle(rect.X, illustrationRect.Bottom + 16, rect.Width, 40);
             var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString("No recent activity", emptyFont, emptyBrush, textRect, format);
 
-            using var subFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var subFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 9f, FontStyle.Regular);
             using var subBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
             var subTextRect = new Rectangle(rect.X, textRect.Bottom, rect.Width, 20);
             g.DrawString("Activities will appear here when users interact with the system", 
@@ -362,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 using var livePath = CreateRoundedPath(liveRect, 6);
                 g.FillPath(liveBrush, livePath);
 
-                using var liveFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
+                using var liveFont = FontListHelper.GetFont(Owner.TextFont.FontFamily.Name, 7f, FontStyle.Bold);
                 using var liveTextBrush = new SolidBrush(Color.White);
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("LIVE", liveFont, liveTextBrush, liveRect, format);

@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private void DrawCalendarHeader(Graphics g, Rectangle rect, DateTime month, Color accentColor)
         {
-            using var headerFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
+            using var headerFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
             using var headerBrush = new SolidBrush(Color.FromArgb(200, Theme?.ForeColor ?? Color.Black));
             
             string monthYear = month.ToString("MMMM yyyy", CultureInfo.CurrentCulture);
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private void DrawDayNames(Graphics g, Rectangle rect)
         {
-            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+            using var dayFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
             using var dayBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             
             string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             float cellWidth = rect.Width / 7f;
             float cellHeight = rect.Height / 6f; // 6 weeks max
             
-            using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
+            using var dateFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
             using var dateBrush = new SolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
             using var otherMonthBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             using var todayBrush = new SolidBrush(todayColor);
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             
             if (dayEvents.Count > 3)
             {
-                using var overflowFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
+                using var overflowFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
                 using var overflowBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
                 var overflowRect = new Rectangle(startX + 3 * (dotSize + 2), startY - 2, 20, 10);
                 g.DrawString($"+{dayEvents.Count - 3}", overflowFont, overflowBrush, overflowRect);

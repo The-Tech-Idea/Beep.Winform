@@ -16,6 +16,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         public bool IsCloseHovered { get; set; }
         public float AnimationProgress { get; set; }
         public float TargetAnimationProgress { get; set; }
+
+        /// <summary>
+        /// Optional SVG/image resource path rendered via StyledImagePainter left of the title.
+        /// Use SvgsUI constants, e.g. SvgsUI.File, SvgsUI.Database.
+        /// </summary>
+        public string IconPath { get; set; }
+
+        /// <summary>
+        /// Short notification badge text (e.g. "3", "!", "NEW") rendered as a pill on the tab.
+        /// Null or empty to hide the badge.
+        /// </summary>
+        public string BadgeText { get; set; }
+
+        /// <summary>
+        /// Badge pill background colour.  When not set (Color.Empty), the theme accent colour is used.
+        /// </summary>
+        public Color BadgeColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Optional tooltip description shown in a hover card after a short delay.
+        /// </summary>
+        public string TooltipText { get; set; }
+
+        /// <summary>
+        /// When true the tab is rendered compactly (icon-only), grouped to the left,
+        /// and the close button is hidden.
+        /// </summary>
+        public bool IsPinned { get; set; }
     }
 
     public enum ContainerDisplayMode

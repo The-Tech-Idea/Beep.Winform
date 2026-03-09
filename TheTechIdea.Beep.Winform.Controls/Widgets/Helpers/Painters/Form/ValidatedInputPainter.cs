@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+                using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
                 using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
                 g.DrawString(ctx.Title, labelFont, labelBrush, ctx.HeaderRect,
                            new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             bool isRequired = field.IsRequired;
 
             // Draw placeholder or value
-            using var textFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var textFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             Color textColor = string.IsNullOrEmpty(displayValue) ?
                 (Theme?.TextBoxPlaceholderColor ?? Color.Gray) :
                 (Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             if (validation != null && !validation.IsValid)
             {
-                using var validationFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var validationFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var validationBrush = new SolidBrush(GetValidationColor(ctx, validation.Severity));
                 g.DrawString(validation.Message, validationFont, validationBrush, ctx.FooterRect,
                            new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });

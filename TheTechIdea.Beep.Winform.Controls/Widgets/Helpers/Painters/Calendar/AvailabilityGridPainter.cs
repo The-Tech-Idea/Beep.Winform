@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int slotHeight = 30;
             int slotsCount = Math.Max(1, ctx.DrawingRect.Height / slotHeight);
 
-            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var timeFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
 
             for (int i = 0; i < slotsCount; i++)
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                             _ => "N/A"
                         };
 
-                        using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                        using var statusFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                         using var statusBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                         g.DrawString(statusText, statusFont, statusBrush, slotRect,
                                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int slotWidth = Math.Max(40, (ctx.DrawingRect.Width - 70) / 7);
             string[] dayNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
-            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+            using var dayFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
             using var dayBrush = new SolidBrush(Theme?.AccentColor ?? Color.Blue);
 
             _dayHeaderRects.Clear();

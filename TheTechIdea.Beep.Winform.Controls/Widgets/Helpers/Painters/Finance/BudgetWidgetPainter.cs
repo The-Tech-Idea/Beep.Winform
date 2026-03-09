@@ -97,21 +97,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawBudgetHeader(Graphics g, Rectangle rect, string title, string subtitle, decimal budgetAmount, string currencySymbol, Color accentColor)
         {
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Color.FromArgb(200, Theme?.ForeColor ?? Color.Black));
             g.DrawString(title, titleFont, titleBrush, rect.X, rect.Y);
             if (!string.IsNullOrEmpty(subtitle))
             {
-                using var subtitleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+                using var subtitleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
                 using var subtitleBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
                 g.DrawString(subtitle, subtitleFont, subtitleBrush, rect.X, rect.Y + 16);
             }
-            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
+            using var amountFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
             using var amountBrush = new SolidBrush(accentColor);
             string budgetText = $"{currencySymbol}{budgetAmount:N0}";
             var amountSize = TextUtils.MeasureText(g,budgetText, amountFont);
             g.DrawString(budgetText, amountFont, amountBrush, rect.Right - amountSize.Width, rect.Y);
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             string labelText = "Total Budget";
             var labelSize = TextUtils.MeasureText(g,labelText, labelFont);
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 using var progressPath = CreateRoundedPath(progressRect, 16);
                 g.FillPath(progressBrush, progressPath);
             }
-            using var progressFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+            using var progressFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
             using var progressTextBrush = new SolidBrush(Theme?.ProgressBarForeColor ?? Color.White);
             string progressText = $"{usagePercentage:F1}%";
             var textFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 {
                     using var milestonePen = new Pen(milestoneColors[i], 2);
                     g.DrawLine(milestonePen, milestoneX, rect.Y - 2, milestoneX, rect.Bottom + 2);
-                    using var milestoneFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                    using var milestoneFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                     using var milestoneBrush = new SolidBrush(milestoneColors[i]);
                     g.DrawString($"{milestones[i]:F0}%", milestoneFont, milestoneBrush, milestoneX - 8, rect.Bottom + 4);
                 }
@@ -173,11 +173,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawBudgetMetric(Graphics g, Rectangle rect, string label, string value, Color color)
         {
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
             using var valueBrush = new SolidBrush(color);
             var valueFormat = new StringFormat { Alignment = StringAlignment.Center };
             g.DrawString(value, valueFont, valueBrush, rect, valueFormat);
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             var labelRect = new Rectangle(rect.X, rect.Y + 20, rect.Width, rect.Height - 20);
             g.DrawString(label, labelFont, labelBrush, labelRect, valueFormat);
@@ -190,16 +190,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             else if (usagePercentage <= 90) { statusText = "Monitor - Approaching budget limit"; statusColor = warningColor; statusIcon = "!"; }
             else if (usagePercentage <= 100) { statusText = "Alert - Near budget exhaustion"; statusColor = errorColor; statusIcon = "!"; }
             else { statusText = "Over Budget - Immediate attention required"; statusColor = errorColor; statusIcon = "!"; }
-            using var iconFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var iconFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var iconBrush = new SolidBrush(statusColor);
             g.DrawString(statusIcon, iconFont, iconBrush, rect.X, rect.Y);
-            using var statusFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var statusFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var statusBrush = new SolidBrush(Color.FromArgb(160, Theme?.ForeColor ?? Color.Black));
             g.DrawString(statusText, statusFont, statusBrush, rect.X + 20, rect.Y + 2);
             if (remainingAmount > 0)
             {
                 var daysRemaining = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - DateTime.Now.Day;
-                using var daysFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var daysFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var daysBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 string daysText = $"{daysRemaining} days left in period";
                 g.DrawString(daysText, daysFont, daysBrush, rect.X + 20, rect.Y + 16);

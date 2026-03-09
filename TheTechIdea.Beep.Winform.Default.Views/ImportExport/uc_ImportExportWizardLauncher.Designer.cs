@@ -2392,7 +2392,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             typographyStyle156.TextColor = Color.FromArgb(236, 240, 241);
             defaultTheme1.TextBoxSelectedFont = typographyStyle156;
             defaultTheme1.TextBoxSelectedForeColor = Color.Black;
-            defaultTheme1.ThemeGuid = "23e199f0-34f1-448c-bcbf-6e8ec3568b95";
+            defaultTheme1.ThemeGuid = "82d79b1b-1770-4d31-ae14-9f1e2640cef7";
             typographyStyle157.FontFamily = "Segoe UI";
             typographyStyle157.FontSize = 16F;
             typographyStyle157.FontStyle = FontStyle.Regular;
@@ -4522,7 +4522,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.CanBeSelected = true;
             chkAddMissing.Category = DbFieldCategory.String;
             chkAddMissing.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
-            chkAddMissing.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.check.svg";
+            chkAddMissing.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkAddMissing.ComponentName = "BaseControl";
             chkAddMissing.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath32.FillMode = FillMode.Alternate;
@@ -4574,7 +4574,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.Id = -1;
             chkAddMissing.ImagePath = null;
             chkAddMissing.InactiveBorderColor = Color.Gray;
-            chkAddMissing.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.minus.svg";
+            chkAddMissing.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             graphicsPath33.FillMode = FillMode.Alternate;
             chkAddMissing.InnerShape = graphicsPath33;
             chkAddMissing.IsAcceptButton = false;
@@ -4696,7 +4696,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.CanBeSelected = true;
             chkCreateIfNotExists.Category = DbFieldCategory.String;
             chkCreateIfNotExists.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
-            chkCreateIfNotExists.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.check.svg";
+            chkCreateIfNotExists.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkCreateIfNotExists.ComponentName = "BaseControl";
             chkCreateIfNotExists.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath35.FillMode = FillMode.Alternate;
@@ -4748,7 +4748,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.Id = -1;
             chkCreateIfNotExists.ImagePath = null;
             chkCreateIfNotExists.InactiveBorderColor = Color.Gray;
-            chkCreateIfNotExists.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.minus.svg";
+            chkCreateIfNotExists.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             graphicsPath36.FillMode = FillMode.Alternate;
             chkCreateIfNotExists.InnerShape = graphicsPath36;
             chkCreateIfNotExists.IsAcceptButton = false;
@@ -5548,7 +5548,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.ImageAlign = ContentAlignment.MiddleLeft;
             btnClearLog.ImageClicked = null;
             btnClearLog.ImageEmbededin = ImageEmbededin.Button;
-            btnClearLog.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.minus.svg";
+            btnClearLog.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             btnClearLog.InactiveBorderColor = Color.Gray;
             graphicsPath48.FillMode = FillMode.Alternate;
             btnClearLog.InnerShape = graphicsPath48;
@@ -6626,7 +6626,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath60.FillMode = FillMode.Alternate;
             beepImage1.BorderPath = graphicsPath60;
             beepImage1.BorderRadius = 8;
-            beepImage1.BorderRect = new Rectangle(0, 0, 58, 52);
+            beepImage1.BorderRect = new Rectangle(0, 0, 61, 56);
             beepImage1.BorderStyle = BorderStyle.FixedSingle;
             beepImage1.BorderThickness = 1;
             beepImage1.BottomoffsetForDrawingRect = 0;
@@ -6649,7 +6649,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepImage1.DisabledBorderColor = Color.LightGray;
             beepImage1.DisabledForeColor = Color.Gray;
-            beepImage1.DrawingRect = new Rectangle(0, 0, 58, 52);
+            beepImage1.DrawingRect = new Rectangle(0, 0, 61, 56);
             beepImage1.Easing = EasingType.Linear;
             beepImage1.EnableHighQualityRendering = true;
             beepImage1.EnableMaterialStyle = false;
@@ -6691,7 +6691,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.Id = -1;
             beepImage1.Image = null;
             beepImage1.ImageEmbededin = ImageEmbededin.Button;
-            beepImage1.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.apps.svg";
+            beepImage1.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             beepImage1.InactiveBorderColor = Color.Gray;
             graphicsPath62.FillMode = FillMode.Alternate;
             beepImage1.InnerShape = graphicsPath62;
@@ -6771,7 +6771,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.ShowRightBorder = false;
             beepImage1.ShowShadow = false;
             beepImage1.ShowTopBorder = false;
-            beepImage1.Size = new Size(58, 52);
+            beepImage1.Size = new Size(61, 56);
             beepImage1.SlideFrom = SlideDirection.Left;
             beepImage1.SpinSpeed = 5F;
             beepImage1.StaticNotMoving = false;
@@ -6795,6 +6795,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.UseRichToolTip = true;
             beepImage1.UseThemeFont = true;
             beepImage1.Velocity = 0F;
+            beepImage1.Click += beepImage1_Click;
             // 
             // txtLog
             // 
@@ -6810,8 +6811,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // uc_ImportExportWizardLauncher
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+        
+            AutoScaleMode = AutoScaleMode.Inherit;
             Controls.Add(txtLog);
             Controls.Add(historyPanel);
             Controls.Add(buttonPanel);

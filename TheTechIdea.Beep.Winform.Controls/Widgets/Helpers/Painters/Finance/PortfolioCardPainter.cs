@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             _imagePainter.DrawSvg(g, "pie-chart", iconRect, Theme?.PrimaryColor ?? Color.Empty, 0.9f);
 
             var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             string titleText = ctx.Title ?? "Portfolio Value";
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawPortfolioValue(Graphics g, WidgetContext ctx, decimal totalValue, string currencySymbol)
         {
             bool hovered = IsAreaHovered("Portfolio_Value");
-            using var valueFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 20f, hovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var valueFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 20f, hovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var valueBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             string valueText = $"{currencySymbol}{totalValue:N0}" + (hovered ? " - Click to drilldown" : string.Empty);
             var valueFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -121,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             var iconRect = new Rectangle(perfRect.X, perfRect.Y + 2, 20, 20);
             _imagePainter.DrawSvg(g, trendIcon, iconRect, trendColor, 0.9f);
             var textRect = new Rectangle(iconRect.Right + 8, perfRect.Y, perfRect.Width - iconRect.Width - 8, perfRect.Height);
-            using var perfFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var perfFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var perfBrush = new SolidBrush(trendColor);
             string perfText = $"{(percentage >= 0 ? "+" : "")}{percentage:F2}%";
             var perfFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 decimal allocation = totalValue > 0 ? (item.Value / totalValue) * 100 : 0;
                 using var categoryBrush = new SolidBrush(Color.FromArgb(100 + i * 50, accentColor));
                 g.FillEllipse(categoryBrush, rect.X, y, 8, 8);
-                using var categoryFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var categoryFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var categoryBrush2 = new SolidBrush(Color.FromArgb(140, Color.Black));
                 string categoryText = $"{item.Symbol} ({allocation:F1}%)";
                 g.DrawString(categoryText, categoryFont, categoryBrush2, rect.X + 12, y - 2);

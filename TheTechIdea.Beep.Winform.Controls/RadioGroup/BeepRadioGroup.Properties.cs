@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             set
             {
                 _textFont = value;
-                SafeApplyFont(_textFont);
+                //SafeApplyFont(_textFont);
                 if (!_isApplyingThemeFont)
                 {
                     UseThemeFont = false;

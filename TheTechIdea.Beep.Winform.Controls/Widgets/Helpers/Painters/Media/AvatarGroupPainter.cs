@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             // Draw title
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
             {
-                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
                 using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
             }
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 {
                     // Draw initials
                     string initials = GetInitials(avatar.Title);
-                    using var initialsFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, avatarSize / 4, FontStyle.Bold);
+                    using var initialsFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, avatarSize / 4, FontStyle.Bold);
                     using var initialsBrush = new SolidBrush(accentColor);
 
                     var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
                 using var extraBrush = new SolidBrush(Color.FromArgb(100, Color.Gray));
                 using var extraTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
-                using var extraFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, avatarSize / 5, FontStyle.Bold);
+                using var extraFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, avatarSize / 5, FontStyle.Bold);
 
                 g.FillEllipse(extraBrush, extraRect);
 

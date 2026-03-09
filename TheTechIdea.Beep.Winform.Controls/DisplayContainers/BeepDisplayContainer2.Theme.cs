@@ -26,25 +26,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             // Use theme colors if available, otherwise use style defaults
             if (UseThemeColors && _currentTheme != null)
             {
-                // Tab area colors from theme
-                _tabBackColor = _currentTheme.TabBackColor != Color.Empty 
-                    ? _currentTheme.TabBackColor 
-                    : _currentTheme.PanelBackColor;
-                _tabForeColor = _currentTheme.TabForeColor != Color.Empty 
-                    ? _currentTheme.TabForeColor 
-                    : _currentTheme.ForeColor;
-                _activeTabBackColor = _currentTheme.TabSelectedBackColor != Color.Empty 
-                    ? _currentTheme.TabSelectedBackColor 
-                    : _currentTheme.ButtonBackColor;
-                _activeTabForeColor = _currentTheme.TabSelectedForeColor != Color.Empty 
-                    ? _currentTheme.TabSelectedForeColor 
-                    : _currentTheme.ButtonForeColor;
-                _hoverTabBackColor = _currentTheme.TabHoverBackColor != Color.Empty 
-                    ? _currentTheme.TabHoverBackColor 
-                    : ControlPaint.Light(_currentTheme.ButtonBackColor, 0.2f);
-                _borderColor = _currentTheme.TabBorderColor != Color.Empty 
-                    ? _currentTheme.TabBorderColor 
-                    : _currentTheme.BorderColor;
+                // Tab area colors from theme — prefer semantic active/inactive properties where available.
+                _tabBackColor = ResolveColor(_currentTheme.InactiveTabBackColor,
+                                             _currentTheme.TabBackColor,
+                                             _currentTheme.PanelBackColor);
+                _tabForeColor = ResolveColor(_currentTheme.InactiveTabForeColor,
+                                             _currentTheme.TabForeColor,
+                                             _currentTheme.ForeColor);
+                _activeTabBackColor = ResolveColor(_currentTheme.ActiveTabBackColor,
+                                                   _currentTheme.TabSelectedBackColor,
+                                                   _currentTheme.ButtonBackColor);
+                _activeTabForeColor = ResolveColor(_currentTheme.ActiveTabForeColor,
+                                                   _currentTheme.TabSelectedForeColor,
+                                                   _currentTheme.ButtonForeColor);
+                _hoverTabBackColor = ResolveColor(_currentTheme.TabHoverBackColor,
+                                                  ControlPaint.Light(_activeTabBackColor, 0.2f));
+                _borderColor = ResolveColor(_currentTheme.TabBorderColor,
+                                            _currentTheme.InactiveBorderColor,
+                                            _currentTheme.BorderColor);
                 _contentBackColor = _currentTheme.BackColor;
             }
             else
@@ -95,13 +94,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// </summary>
         private Color GetEffectiveContentBackColor()
         {
-            if (IsTransparentBackground)
-                return Color.Transparent;
+           
                 
             if (UseThemeColors && _currentTheme != null)
                 return _currentTheme.BackColor;
                 
             return _contentBackColor;
+        }
+
+        /// <summary>Returns the first colour that is not <see cref="Color.Empty"/> and has non-zero alpha.</summary>
+        private static Color ResolveColor(params Color[] candidates)
+        {
+            foreach (var c in candidates)
+                if (c != Color.Empty && c.A > 0) return c;
+            return candidates[candidates.Length - 1];
         }
 
         #endregion

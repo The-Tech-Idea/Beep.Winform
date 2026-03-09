@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
                 // Payment method title
                 var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
-                using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+                using var titleFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
                 using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title ?? paymentMethod, titleFont, titleBrush, titleRect, format);
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 displayNumber += " - Click to reveal";
             }
             
-            using var cardFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, 
+            using var cardFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, 
                 isHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
             
             Color textColor = isHovered 
@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void DrawBalanceComponent(Graphics g, WidgetContext ctx, decimal balance, string currencySymbol, bool isHovered)
         {
             // Enhanced balance area with hover effects - BeepAppBar pattern
-            using var balanceFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 16f, 
+            using var balanceFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 16f, 
                 isHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             
             Color balanceColor = isHovered
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void DrawExpiryComponent(Graphics g, WidgetContext ctx, string expiryDate, bool isHovered)
         {
             if (string.IsNullOrEmpty(expiryDate)) return;
-            using var expiryFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, 
+            using var expiryFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, 
                 isHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
             
             Color expiryColor = isHovered ? Theme?.PrimaryColor ?? Color.Blue : Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray);

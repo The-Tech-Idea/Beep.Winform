@@ -75,8 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int dayWidth = ctx.DrawingRect.Width / 7;
             int headerHeight = 30;
 
-            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
-            using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var dayFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+            using var dateFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
             using var dayBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
             using var dateBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
 
@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 ctx.DrawingRect.Height - 30
             );
 
-            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var timeFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(100, Theme?.ForeColor ?? Color.Black));
 
             for (int hour = startHour; hour <= endHour; hour++)
@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int hourHeight = 40;
             int startHour = 8;
 
-            using var eventFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
+            using var eventFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
             using var eventTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
 
             _eventRects.Clear();

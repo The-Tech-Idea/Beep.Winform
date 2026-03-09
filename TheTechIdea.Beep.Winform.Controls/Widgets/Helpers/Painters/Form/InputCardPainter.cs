@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             // Field label
             var labelRect = _headerLabelRect;
-            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Regular);
+            using var labelFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(field.Label, labelFont, labelBrush, labelRect, format);
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             
             if (!string.IsNullOrEmpty(displayText))
             {
-                using var contentFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
+                using var contentFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
                 using var contentBrush = new SolidBrush(textColor);
                 var contentFormat = new StringFormat { LineAlignment = StringAlignment.Center };
                 
@@ -257,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillEllipse(indicatorBrush, indicatorRect);
             
             // Draw indicator symbol
-            using var symbolFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+            using var symbolFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
             using var symbolBrush = new SolidBrush(Color.White);
             var symbolFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString(indicatorText, symbolFont, symbolBrush, indicatorRect, symbolFormat);
@@ -266,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         private void DrawCardFooter(Graphics g, Rectangle rect, FormField field, ValidationResult validation, Color errorColor)
         {
             int y = rect.Y;
-            using var footerFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var footerFont = new Font(Owner?.TextFont?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             
             // Draw help text
             if (!string.IsNullOrEmpty(field.HelpText))

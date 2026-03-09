@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // AG-Grid typography (clear, readable)
             var font = (theme?.GridHeaderFont != null ? BeepThemesManager.ToFont(theme.GridHeaderFont) : null) 
-                ?? new Font("Arial", 9f, FontStyle.Bold);
+                ??          FontListHelper.GetFont("Arial", 9f, FontStyle.Bold);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
             var textColor = theme?.GridHeaderForeColor ?? Color.Empty;
             PaintHeaderText(g, textRect, text, font, column.HeaderTextAlignment, theme);

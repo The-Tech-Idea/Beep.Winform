@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             chkSharedContext.CanBeSelected = true;
             chkSharedContext.Category = DbFieldCategory.String;
             chkSharedContext.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
-            chkSharedContext.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.check.svg";
+            chkSharedContext.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkSharedContext.ComponentName = "BaseControl";
             chkSharedContext.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath2.FillMode = FillMode.Alternate;
@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             chkSharedContext.Id = -1;
             chkSharedContext.ImagePath = null;
             chkSharedContext.InactiveBorderColor = Color.Gray;
-            chkSharedContext.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.minus.svg";
+            chkSharedContext.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             graphicsPath3.FillMode = FillMode.Alternate;
             chkSharedContext.InnerShape = graphicsPath3;
             chkSharedContext.IsAcceptButton = false;
@@ -455,7 +455,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             chkLoadNow.CanBeSelected = true;
             chkLoadNow.Category = DbFieldCategory.String;
             chkLoadNow.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
-            chkLoadNow.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.check.svg";
+            chkLoadNow.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkLoadNow.ComponentName = "BaseControl";
             chkLoadNow.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath5.FillMode = FillMode.Alternate;
@@ -507,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             chkLoadNow.Id = -1;
             chkLoadNow.ImagePath = null;
             chkLoadNow.InactiveBorderColor = Color.Gray;
-            chkLoadNow.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.minus.svg";
+            chkLoadNow.IndeterminateIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             graphicsPath6.FillMode = FillMode.Alternate;
             chkLoadNow.InnerShape = graphicsPath6;
             chkLoadNow.IsAcceptButton = false;
@@ -4352,8 +4352,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             // 
             // uc_NuggetsManageWizardLauncher
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+          
+            AutoScaleMode = AutoScaleMode.Inherit   ;
             Controls.Add(txtLog);
             Controls.Add(historyPanel);
             Controls.Add(actionsPanel);

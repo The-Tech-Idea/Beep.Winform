@@ -619,8 +619,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Label
             if (hasLabel)
             {
-                float labelSize = Math.Max(8f, Font.Size - 1f);
-                using var lf = new Font(Font.FontFamily, labelSize, FontStyle.Regular);
+                float labelSize = Math.Max(8f, TextFont.Size - 1f);
+                using var lf = BeepFontManager.GetFont(TextFont.FontFamily.Name, labelSize, FontStyle.Regular);
                 int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                 var labelRect = new Rectangle(border.Left + 6, Math.Max(0, border.Top - labelHeight - 2), Math.Max(10, border.Width - 12), labelHeight);
                 Color labelColor = string.IsNullOrEmpty(ErrorText) ? ForeColor : ErrorColor;

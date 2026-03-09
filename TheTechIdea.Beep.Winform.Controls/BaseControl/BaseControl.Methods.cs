@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public virtual void SafeApplyFont(Font newFont, bool preserveLocation = true)
         {
-            Font = newFont;
+            TextFont = newFont;
             if (!preserveLocation)
             {
                 // Allow control to reposition if needed

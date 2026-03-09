@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             _imagePainter.DrawSvg(g, iconName, iconRect, iconColor, 0.8f);
 
             var merchantRect = new Rectangle(iconRect.Right + 6, ctx.HeaderRect.Y, _categoryAreaRect.Width - iconRect.Width - 6, ctx.HeaderRect.Height);
-            using var merchantFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isCategoryHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var merchantFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isCategoryHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             Color merchantColor = isCategoryHovered ? Theme?.PrimaryColor ?? Color.Blue : Theme?.ForeColor ?? Color.Black;
             using var merchantBrush = new SolidBrush(merchantColor);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             bool isCredit = amount > 0;
             Color amountColor = isCredit ? Color.FromArgb(76, 175, 80) : Color.FromArgb(244, 67, 54);
             if (isAmountHovered) amountColor = Color.FromArgb(Math.Min(255, amountColor.R + 40), Math.Min(255, amountColor.G + 40), Math.Min(255, amountColor.B + 40));
-            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, isAmountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            using var amountFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, isAmountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var amountBrush = new SolidBrush(amountColor);
             string amountText = $"{(isCredit ? "+" : "")}{currency}{Math.Abs(amount):N2}";
             if (isAmountHovered) amountText += " - View details";
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             g.DrawString(amountText, amountFont, amountBrush, _amountAreaRect, amountFormat);
 
             bool isDetailsHovered = IsAreaHovered("Transaction_Details");
-            using var detailsFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isDetailsHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
+            using var detailsFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isDetailsHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
             Color detailsColor = isDetailsHovered ? Theme?.PrimaryColor ?? Color.Blue : Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray);
             using var detailsBrush = new SolidBrush(detailsColor);
             string detailsText = isDetailsHovered ? $"{date:MMM dd} � {status} - Click for full details" : $"{date:MMM dd} � {status}";
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 using var tooltipBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
                 using var tooltipPath = CreateRoundedPath(tooltipRect, 4);
                 g.FillPath(tooltipBrush, tooltipPath);
-                using var tooltipFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                using var tooltipFont = new Font(Owner?.TextFont?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                 using var tooltipTextBrush = new SolidBrush(Color.White);
                 var tooltipFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString($"Status: {status}", tooltipFont, tooltipTextBrush, tooltipRect, tooltipFormat);

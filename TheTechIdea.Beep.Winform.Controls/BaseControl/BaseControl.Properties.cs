@@ -1252,7 +1252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     catch { /* design-time safe */ }
                     // CRITICAL: Synchronize BorderPainter with ControlStyle
                     // This ensures border style, color, and width update when ControlStyle changes
-                    if (_borderPainterStyle != value && _currentTheme!=null)
+                    if (_borderPainterStyle != value)
                     {
                         _borderPainterStyle = value;
                         UpdateBorderPainter();

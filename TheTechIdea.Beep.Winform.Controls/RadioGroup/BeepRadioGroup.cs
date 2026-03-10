@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
@@ -40,6 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _isApplyingThemeFont;
         private bool _layoutDirty = true;
         private bool _eventHandlersRegistered;
+        private bool _suppressAccessibilityNotifications;
+        private string _lastAccessibilityStatus = string.Empty;
         #endregion
 
         #region Constructor
@@ -86,6 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 // Initialize MaxImageSize for all renderers
                 foreach (var renderer in _renderers.Values)
                 {
+                    renderer.AllowMultipleSelection = _allowMultipleSelection;
                     if (renderer is IImageAwareRenderer imageRenderer)
                     {
                         imageRenderer.MaxImageSize = _maxImageSize;
@@ -103,6 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper.ItemSpacing = 8;
             _layoutHelper.ItemPadding = new Padding(8);
             _layoutHelper.AutoSize = true;
+            ApplyStyleProfile(_styleProfile);
+            ApplyColorProfile(_colorProfile);
 
             // Apply theme only at runtime
             if (!DesignMode)
@@ -126,6 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _hitTestHelper.ItemHoverLeave += OnItemHoverLeave;
             _hitTestHelper.HoveredIndexChanged += OnHoveredIndexChanged;
             _hitTestHelper.FocusedIndexChanged += OnFocusedIndexChanged;
+            _hitTestHelper.PressedIndexChanged += OnPressedIndexChanged;
 
             // State events
             _stateHelper.SelectionChanged += OnSelectionChanged;
@@ -145,6 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _hitTestHelper.ItemHoverLeave -= OnItemHoverLeave;
             _hitTestHelper.HoveredIndexChanged -= OnHoveredIndexChanged;
             _hitTestHelper.FocusedIndexChanged -= OnFocusedIndexChanged;
+            _hitTestHelper.PressedIndexChanged -= OnPressedIndexChanged;
 
             _stateHelper.SelectionChanged -= OnSelectionChanged;
             _stateHelper.ItemSelectionChanged -= OnItemSelectionChanged;
@@ -250,6 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_renderStyle == style)
                 {
                     _currentRenderer = renderer;
+                    _currentRenderer.AllowMultipleSelection = _allowMultipleSelection;
                     _currentRenderer.Initialize(this, _currentTheme);
                     UpdateItemsAndLayout();
                 }
@@ -378,6 +387,53 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
         }
 
+        private void ApplyStyleProfile(RadioGroupStyleConfig profile)
+        {
+            if (profile == null)
+            {
+                return;
+            }
+
+            if (profile.RecommendedItemHeight > 0)
+            {
+                _layoutHelper.ItemSize = new Size(_layoutHelper.ItemSize.Width, profile.RecommendedItemHeight);
+            }
+
+            if (profile.RecommendedItemSpacing >= 0)
+            {
+                _layoutHelper.ItemSpacing = profile.RecommendedItemSpacing;
+            }
+
+            _layoutHelper.ItemPadding = profile.RecommendedPadding;
+
+            if (profile.ControlStyle != Style)
+            {
+                _style = profile.ControlStyle;
+                foreach (var renderer in _renderers.Values)
+                {
+                    renderer.ControlStyle = _style;
+                }
+            }
+
+            RequestVisualRefresh(resetLayout: true);
+        }
+
+        private void ApplyColorProfile(RadioGroupColorConfig profile)
+        {
+            if (profile == null)
+            {
+                return;
+            }
+
+            if (!UseThemeColors)
+            {
+                BackColor = profile.GroupBackgroundColor;
+                ForeColor = profile.TextColor;
+            }
+
+            RequestVisualRefresh();
+        }
+
         protected override void OnEnabledChanged(EventArgs e)
         {
             base.OnEnabledChanged(e);
@@ -483,11 +539,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 ? "Toggle item selection"
                 : "Select item";
 
-            if (IsHandleCreated)
+            if (IsHandleCreated && !_suppressAccessibilityNotifications && !string.Equals(_lastAccessibilityStatus, status, StringComparison.Ordinal))
             {
                 AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, -1);
                 AccessibilityNotifyClients(AccessibleEvents.ValueChange, -1);
             }
+
+            _lastAccessibilityStatus = status;
         }
 
         private int GetItemIndexAt(Point clientPoint)

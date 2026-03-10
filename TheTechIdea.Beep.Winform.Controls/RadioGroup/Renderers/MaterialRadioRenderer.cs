@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Material";
         public string DisplayName => "Material Design 3";
         public bool SupportsMultipleSelection => true;
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {
@@ -53,6 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private const int ItemPadding = 16;
         private const int ComponentSpacing = 12;
         private const int StateLayerSize = 40;
+        private int S(int value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
+        private float SF(float value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
         #endregion
 
         #region Initialization
@@ -118,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             using (var brush = new SolidBrush(stateColor))
             {
                 // Create rounded rectangle for state layer
-                using (var path = CreateRoundedRectanglePath(rectangle, 4))
+                using (var path = CreateRoundedRectanglePath(rectangle, S(4)))
                 {
                     graphics.FillPath(brush, path);
                 }
@@ -133,9 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             );
 
             // Check if multiple selection is enabled
-            bool isMultipleSelection = _owner.GetType().GetProperty("AllowMultipleSelection")?.GetValue(_owner) as bool? == true;
-
-            if (isMultipleSelection)
+            if (AllowMultipleSelection)
             {
                 // Draw Material checkbox
                 DrawMaterialCheckbox(graphics, radioArea, state, colors);
@@ -149,15 +151,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawMaterialRadio(Graphics graphics, Point center, RadioItemState state, MaterialColors colors)
         {
-            int outerRadius = RadioSize / 2;
-            int innerRadius = outerRadius - 2;
+            int outerRadius = S(RadioSize) / 2;
+            int innerRadius = Math.Max(2, outerRadius - S(2));
 
             // Outer circle
             Color borderColor = state.IsEnabled
                 ? (state.IsSelected ? colors.Primary : colors.Outline)
                 : colors.Disabled;
 
-            using (var pen = new Pen(borderColor, 2f))
+            using (var pen = new Pen(borderColor, SF(2f)))
             {
                 var outerRect = new Rectangle(
                     center.X - outerRadius,
@@ -174,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 var fillColor = state.IsEnabled ? colors.Primary : colors.Disabled;
                 using (var brush = new SolidBrush(fillColor))
                 {
-                    int fillRadius = innerRadius - 4;
+                    int fillRadius = Math.Max(2, innerRadius - S(4));
                     var innerRect = new Rectangle(
                         center.X - fillRadius,
                         center.Y - fillRadius,
@@ -189,10 +191,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawMaterialCheckbox(Graphics graphics, Rectangle checkboxArea, RadioItemState state, MaterialColors colors)
         {
             var checkboxRect = new Rectangle(
-                checkboxArea.X + 2,
-                checkboxArea.Y + 2,
-                checkboxArea.Width - 4,
-                checkboxArea.Height - 4
+                checkboxArea.X + S(2),
+                checkboxArea.Y + S(2),
+                checkboxArea.Width - S(4),
+                checkboxArea.Height - S(4)
             );
 
             if (state.IsSelected)
@@ -210,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             else
             {
                 // Outlined checkbox
-                using (var pen = new Pen(colors.Outline, 2f))
+                using (var pen = new Pen(colors.Outline, SF(2f)))
                 {
                     graphics.DrawRectangle(pen, checkboxRect);
                 }
@@ -219,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawMaterialCheckmark(Graphics graphics, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2f))
+            using (var pen = new Pen(color, SF(2f)))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
@@ -286,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             Color rippleColor = Color.FromArgb(24, colors.Primary);
             
             using (var brush = new SolidBrush(rippleColor))
-            using (var path = CreateRoundedRectanglePath(rectangle, StateLayerSize))
+            using (var path = CreateRoundedRectanglePath(rectangle, S(StateLayerSize)))
             {
                 graphics.FillPath(brush, path);
             }
@@ -295,8 +297,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawFocusIndicator(Graphics graphics, Rectangle rectangle, MaterialColors colors)
         {
             var focusRect = Rectangle.Inflate(rectangle, -1, -1);
-            using (var path = CreateRoundedRectanglePath(focusRect, 6))
-            using (var pen = new Pen(colors.Primary, 2f))
+            using (var path = CreateRoundedRectanglePath(focusRect, S(6)))
+            using (var pen = new Pen(colors.Primary, SF(2f)))
             {
                 graphics.DrawPath(pen, path);
             }
@@ -308,18 +310,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             if (item == null) return new Size(120, MinItemHeight);
 
-            int width = ItemPadding; // Left padding
-            int height = MinItemHeight;
+            int width = S(ItemPadding); // Left padding
+            int height = S(MinItemHeight);
 
             // Radio button width (includes state layer)
-            width += StateLayerSize + ComponentSpacing;
+            width += S(StateLayerSize) + S(ComponentSpacing);
 
             // Icon width - account for image if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 width += IconSize + ComponentSpacing;
                 // Ensure minimum height accommodates the image
-                height = Math.Max(height, IconSize + ItemPadding);
+                height = Math.Max(height, IconSize + S(ItemPadding));
             }
 
             // Text width
@@ -327,20 +329,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 var textSize =  TextUtils.MeasureText(graphics,item.Text, _textFont);
                 width += (int)Math.Ceiling(textSize.Width);
-                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + ItemPadding);
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(ItemPadding));
             }
 
-            width += ItemPadding; // Right padding
+            width += S(ItemPadding); // Right padding
 
             return new Size(width, height);
         }
 
         public Rectangle GetContentArea(Rectangle itemRectangle)
         {
-            var left = itemRectangle.X + Math.Max(4, ItemPadding / 2);
-            var top = itemRectangle.Y + Math.Max(2, ItemPadding / 2);
-            var width = Math.Max(0, itemRectangle.Width - Math.Max(8, ItemPadding));
-            var height = Math.Max(0, itemRectangle.Height - Math.Max(4, ItemPadding));
+            var left = itemRectangle.X + Math.Max(S(4), S(ItemPadding) / 2);
+            var top = itemRectangle.Y + Math.Max(S(2), S(ItemPadding) / 2);
+            var width = Math.Max(0, itemRectangle.Width - Math.Max(S(8), S(ItemPadding)));
+            var height = Math.Max(0, itemRectangle.Height - Math.Max(S(4), S(ItemPadding)));
             return new Rectangle(left, top, width, height);
         }
 
@@ -349,9 +351,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var contentArea = GetContentArea(itemRectangle);
             return new Rectangle(
                 contentArea.X,
-                contentArea.Y + (contentArea.Height - RadioSize) / 2,
-                RadioSize,
-                RadioSize
+                contentArea.Y + (contentArea.Height - S(RadioSize)) / 2,
+                S(RadioSize),
+                S(RadioSize)
             );
         }
         
@@ -360,9 +362,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             var contentArea = GetContentArea(itemRectangle);
             return new Rectangle(
                 contentArea.X,
-                contentArea.Y + (contentArea.Height - StateLayerSize) / 2,
-                StateLayerSize,
-                StateLayerSize
+                contentArea.Y + (contentArea.Height - S(StateLayerSize)) / 2,
+                S(StateLayerSize),
+                S(StateLayerSize)
             );
         }
         #endregion

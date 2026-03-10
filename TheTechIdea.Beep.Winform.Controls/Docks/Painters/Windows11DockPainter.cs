@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Docks;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -197,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
 
             // Badge text
-            using (var font = new Font("Segoe UI", 8, FontStyle.Bold))
+            using (var font = DockFontHelpers.GetBadgeFont(TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3))
             using (var textBrush = new SolidBrush(Color.White))
             {
                 var sf = new StringFormat

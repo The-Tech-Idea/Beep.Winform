@@ -16,16 +16,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Draw background (transparent or subtle on hover)
-            Color bgColor = context.State == Enums.AdvancedButtonState.Hover
-                ? Color.FromArgb(20, context.BorderColor)
-                : Color.Transparent;
+            Color bgColor = context.State switch
+            {
+                Enums.AdvancedButtonState.Hover => Color.FromArgb(24, context.BorderColor),
+                Enums.AdvancedButtonState.Pressed => Color.FromArgb(40, context.BorderColor),
+                _ => Color.Transparent
+            };
             
             using (Brush bgBrush = new SolidBrush(bgColor))
             {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, context.BorderRadius);
+                FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
             }
 
             // Draw border
@@ -33,15 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 ? context.DisabledForeground
                 : context.BorderColor;
                 
-            using (Pen borderPen = new Pen(borderColor, context.BorderWidth))
+            using (Pen borderPen = new Pen(borderColor, Math.Max(1, context.BorderWidth)))
             {
+                int borderInset = Math.Max(1, (int)Math.Round(borderPen.Width)) / 2;
                 Rectangle borderBounds = new Rectangle(
-                    buttonBounds.X + context.BorderWidth / 2,
-                    buttonBounds.Y + context.BorderWidth / 2,
-                    buttonBounds.Width - context.BorderWidth,
-                    buttonBounds.Height - context.BorderWidth
+                    buttonBounds.X + borderInset,
+                    buttonBounds.Y + borderInset,
+                    buttonBounds.Width - (borderInset * 2),
+                    buttonBounds.Height - (borderInset * 2)
                 );
-                DrawRoundedRectangle(g, borderPen, borderBounds, context.BorderRadius);
+                DrawRoundedRectangle(g, borderPen, borderBounds, tokens.BorderRadius);
             }
 
             // Draw ripple effect
@@ -61,6 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 // Draw icon and text centered
                 DrawCenteredContent(g, context, metrics, contentColor);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context, 

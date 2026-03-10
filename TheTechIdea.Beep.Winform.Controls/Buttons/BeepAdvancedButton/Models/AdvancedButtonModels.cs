@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
 {
@@ -45,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public NewsBannerStyle? NewsBannerStyle { get; set; }
         public ContactButtonLayout? ContactLayout { get; set; }
         public Graphics Graphics { get; set; }
+        public Control? OwnerControl { get; set; }
         public Rectangle Bounds { get; set; }
         public AdvancedButtonState State { get; set; }
         public string Text { get; set; }
@@ -163,9 +166,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         /// <summary>
         /// Get metrics based on button size
         /// </summary>
-        public static AdvancedButtonMetrics GetMetrics(AdvancedButtonSize size)
+        public static AdvancedButtonMetrics GetMetrics(AdvancedButtonSize size, Control? ownerControl = null)
         {
-            return size switch
+            AdvancedButtonMetrics baseMetrics = size switch
             {
                 AdvancedButtonSize.Small => new AdvancedButtonMetrics
                 {
@@ -198,6 +201,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
                     BorderRadius = 10
                 },
                 _ => GetMetrics(AdvancedButtonSize.Medium)
+            };
+
+            if (ownerControl == null)
+            {
+                return baseMetrics;
+            }
+
+            return new AdvancedButtonMetrics
+            {
+                PaddingHorizontal = DpiScalingHelper.ScaleValue(baseMetrics.PaddingHorizontal, ownerControl),
+                PaddingVertical = DpiScalingHelper.ScaleValue(baseMetrics.PaddingVertical, ownerControl),
+                IconSize = DpiScalingHelper.ScaleValue(baseMetrics.IconSize, ownerControl),
+                IconTextGap = DpiScalingHelper.ScaleValue(baseMetrics.IconTextGap, ownerControl),
+                MinWidth = DpiScalingHelper.ScaleValue(baseMetrics.MinWidth, ownerControl),
+                Height = DpiScalingHelper.ScaleValue(baseMetrics.Height, ownerControl),
+                BorderRadius = DpiScalingHelper.ScaleValue(baseMetrics.BorderRadius, ownerControl)
             };
         }
     }

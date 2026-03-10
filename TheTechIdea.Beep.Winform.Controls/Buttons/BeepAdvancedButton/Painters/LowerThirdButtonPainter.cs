@@ -57,6 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
 
             DrawRippleEffect(g, context);
+            DrawFocusRingPrimitive(g, context);
         }
 
         private static LowerThirdVariant DetermineVariant(AdvancedButtonPaintContext context)

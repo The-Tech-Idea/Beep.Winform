@@ -1,11 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Drawing.Design;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
-using TheTechIdea.Beep.Winform.Controls;
+using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
@@ -19,32 +17,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
-            var owningControl = ExtractControl(context?.Instance);
-            var serviceProvider = provider ?? owningControl?.Site;
-            var resourceAssembly = owningControl?.GetType().Assembly ?? context?.PropertyDescriptor?.ComponentType?.Assembly;
-
-            using var dialog = new BeepImagePickerDialog(null, embed: false, serviceProvider, resourceAssembly);
-
-            // Don't use IUIService - just show the dialog directly
+            string? currentPath = value as string;
+            var ownerControl = ExtractControl(context?.Instance);
+            var ownerImage = ownerControl as BeepImage;
+            var resourceAssembly = ownerControl?.GetType().Assembly ?? context?.PropertyDescriptor?.ComponentType?.Assembly;
+            using var dialog = new BeepImagePickerDialog(ownerImage, embed: false, provider, resourceAssembly, currentPath);
             var result = dialog.ShowDialog();
-
             if (result == DialogResult.OK)
             {
-                if (!string.IsNullOrWhiteSpace(dialog.SelectedResourcePath))
+                if (!dialog.SelectionResult.IsCancelled && !string.IsNullOrWhiteSpace(dialog.SelectionResult.SelectedPath))
                 {
-                    return dialog.SelectedResourcePath;
-                }
-
-                if (!string.IsNullOrWhiteSpace(dialog.SelectedFilePath))
-                {
-                    return dialog.SelectedFilePath;
+                    return dialog.SelectionResult.SelectedPath;
                 }
             }
 
             return value;
         }
 
-        private static Control ExtractControl(object instance)
+        private static Control? ExtractControl(object? instance)
         {
             return instance switch
             {
@@ -54,5 +44,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 _ => null
             };
         }
+
     }
 }

@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Segmented";
         public string DisplayName => "iOS Segmented Control";
         public bool SupportsMultipleSelection => false; // Segmented controls are single-selection
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {

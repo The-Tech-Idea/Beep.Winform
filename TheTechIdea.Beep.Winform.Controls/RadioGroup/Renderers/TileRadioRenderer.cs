@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Tile";
         public string DisplayName => "Large Tiles";
         public bool SupportsMultipleSelection => true;
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {

@@ -127,6 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Image path editors
             AddImagePathEditor(typeof(BaseControl));
             AddImagePathEditor(typeof(BeepControl));
+            AddImagePathEditor(typeof(BeepImage));
         }
 
         private static void RegisterControl(Type controlType, Type designerType)

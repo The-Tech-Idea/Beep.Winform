@@ -22,18 +22,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-
-            if (_hoveredIndex >= 0)
-            {
-                foreach (var state in _itemStates)
-                {
-                    state.IsHovered = false;
-                }
-
-                _hoveredIndex = -1;
-                UpdateItemBounds();
-                Invalidate();
-            }
+            SetHoveredIndex(-1);
+            SetPressedIndex(-1);
+            UpdateItemBounds();
+            Invalidate();
         }
 
         /// <summary>
@@ -50,6 +42,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (clickedIndex >= 0 && clickedIndex < _itemStates.Count)
             {
+                if (_itemStates[clickedIndex].IsDisabled)
+                {
+                    return;
+                }
+
                 var clickedItem = _itemStates[clickedIndex].Item;
                 SelectedItem = clickedItem;
                 ItemClicked?.Invoke(this, new DockItemEventArgs(clickedItem, clickedIndex));

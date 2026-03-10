@@ -4,11 +4,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    internal sealed class ArrowHeadAnimatedPainter : IProgressPainter
+    internal sealed class ArrowHeadAnimatedPainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.ArrowHeadAnimated);
 
@@ -26,26 +28,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             _container = owner;
             _owner = owner;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var rect = bounds; rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
+            var rect = bounds;
 
             // baseline
-            using var basePen = new Pen(Color.FromArgb(80, theme.BorderColor), 3) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+            using var basePen = new Pen(Color.FromArgb(80, theme.BorderColor), ProgressBarDpiHelpers.Scale(owner, 3)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             int midY = rect.Top + rect.Height / 2;
             g.DrawLine(basePen, rect.Left, midY, rect.Right, midY);
 
             // config
             _durationMs = GetDouble(p, "HeadDuration", 1000);      // used only for loop mode
-            string easing = GetString(p, "HeadEasing", "ease-in-out");
-            int headWidth = GetInt(p, "HeadWidth", 18);
-            int headHeight = GetInt(p, "HeadHeight", 8);
+            string easing = ProgressPainterParameterContracts.GetString(p, "HeadEasing", "ease-in-out");
+            int headWidth = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "HeadWidth", 18));
+            int headHeight = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "HeadHeight", 8));
             Color headColor = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
             if (!owner.Enabled)
             {
                 headColor = Color.FromArgb(120, headColor);
             }
-            bool followValue = !GetBool(p, "HeadLoop", false);      // default: follow actual Value
-            bool breathing = GetBool(p, "HeadBreathing", true);
-            float breathAmp = GetFloat(p, "HeadBreathingAmp", 0.2f); // +/- 20% size
+            bool followValue = !ProgressPainterParameterContracts.GetBool(p, "HeadLoop", false);      // default: follow actual Value
+            bool breathing = ProgressPainterParameterContracts.GetBool(p, "HeadBreathing", true);
+            float breathAmp = ProgressPainterParameterContracts.GetFloat(p, "HeadBreathingAmp", 0.2f); // +/- 20% size
             _breathSpeed = GetDouble(p, "HeadBreathingSpeed", 1.0); // approx Hz
             if (!owner.Enabled)
             {
@@ -70,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int cx = rect.Left + (int)(te * rect.Width);
 
             // draw filled line up to head
-            using (var fillPen = new Pen(Color.FromArgb(owner.Enabled ? 160 : 110, headColor), 4) { StartCap = LineCap.Round, EndCap = LineCap.Round })
+            using (var fillPen = new Pen(Color.FromArgb(owner.Enabled ? 160 : 110, headColor), ProgressBarDpiHelpers.Scale(owner, 4)) { StartCap = LineCap.Round, EndCap = LineCap.Round })
                 g.DrawLine(fillPen, rect.Left, midY, cx, midY);
 
             // Breathing scale
@@ -94,6 +96,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         }
 
         public void UpdateHitAreas(BeepProgressBar owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> p, Action<string, Rectangle> register) { }
+
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
+        }
 
         private void EnsureTimer(int interval)
         {
@@ -144,14 +166,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
         private static double GetDouble(IReadOnlyDictionary<string, object> p, string key, double fallback)
             => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToDouble(v) : fallback;
-        private static string GetString(IReadOnlyDictionary<string, object> p, string key, string fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is string s ? s : fallback;
-        private static int GetInt(IReadOnlyDictionary<string, object> p, string key, int fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToInt32(v) : fallback;
-        private static bool GetBool(IReadOnlyDictionary<string, object> p, string key, bool fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is bool b ? b : fallback;
-        private static float GetFloat(IReadOnlyDictionary<string, object> p, string key, float fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToSingle(v) : fallback;
         private static float ApplyEasing(float t, string easing)
         {
             t = Math.Max(0f, Math.Min(1f, t));

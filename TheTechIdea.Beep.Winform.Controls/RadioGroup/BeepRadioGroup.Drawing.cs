@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using Point = System.Drawing.Point;
@@ -79,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutDirty = false;
         }
 
-        private void UpdateItemStates()
+        private void UpdateItemStates(bool notifyAccessibility = true)
         {
             _itemStates.Clear();
             
@@ -89,8 +90,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 var state = new RadioItemState
                 {
                     IsSelected = _stateHelper.IsSelected(item),
-                    IsHovered = _hitTestHelper.HoveredIndex == i,
+                    IsHovered = _hitTestHelper.HoveredIndex == i || _hitTestHelper.PressedIndex == i,
                     IsFocused = _hitTestHelper.FocusedIndex == i,
+                    IsPressed = _hitTestHelper.PressedIndex == i,
                     IsEnabled = !IsItemDisabled(item.Text), // Per-item disabled state
                     Index = i
                 };
@@ -98,7 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 _itemStates.Add(state);
             }
 
-            UpdateAccessibilityMetadata();
+            if (notifyAccessibility)
+            {
+                UpdateAccessibilityMetadata();
+            }
         }
 
         protected override void OnResize(EventArgs e)
@@ -127,7 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 return;
 
             // Update states before drawing
-            UpdateItemStates();
+            _suppressAccessibilityNotifications = true;
+            UpdateItemStates(notifyAccessibility: false);
             if (UseThemeColors && _currentTheme != null)
             {
                 g.Clear(_currentTheme.SideMenuBackColor);
@@ -162,6 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     _currentRenderer.RenderItem(g, _items[i], adjustedRect, _itemStates[i]);
                 }
             }
+            _suppressAccessibilityNotifications = false;
         }
         
         /// <summary>
@@ -174,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
             }
-            using (var font = new Font("Segoe UI", 10))
+            using (var font = RadioGroupFontHelpers.GetItemFont(Style, false, _currentTheme))
             using (var brush = new SolidBrush(Color.FromArgb(100, 100, 100)))
             {
                 g.DrawString("BeepRadioGroup (Design Mode)", font, brush, 10, 10);

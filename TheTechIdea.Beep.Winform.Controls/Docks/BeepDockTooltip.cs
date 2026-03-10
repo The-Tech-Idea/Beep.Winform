@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks
 {
@@ -68,9 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         {
             using (var g = CreateGraphics())
             {
-                var titleFont = new Font("Segoe UI Semibold", 10f);
-                var bodyFont = new Font("Segoe UI", 9f);
-                var shortcutFont = new Font("Segoe UI", 8.5f);
+                using var titleFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3, isHovered: true);
+                using var bodyFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3);
+                using var shortcutFont = DockFontHelpers.GetBadgeFont(BeepControlStyle.Material3);
 
                 // Measure text
                 var titleSize = g.MeasureString(_title, titleFont, MaxWidth - TooltipPadding * 2);
@@ -249,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             var textColor = _theme?.ForeColor ?? Color.FromArgb(240, 240, 240);
 
             // Title
-            using (var titleFont = new Font("Segoe UI Semibold", 10f))
+            using (var titleFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3, isHovered: true))
             using (var titleBrush = new SolidBrush(textColor))
             {
                 var titleRect = new RectangleF(x, y, contentWidth, bounds.Height);
@@ -263,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             if (!string.IsNullOrEmpty(_description))
             {
                 y += 4;
-                using (var bodyFont = new Font("Segoe UI", 9f))
+                using (var bodyFont = DockFontHelpers.GetDockItemFont(BeepControlStyle.Material3))
                 using (var bodyBrush = new SolidBrush(Color.FromArgb(200, textColor)))
                 {
                     var descRect = new RectangleF(x, y, contentWidth, bounds.Height - y);
@@ -278,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             if (!string.IsNullOrEmpty(_shortcut))
             {
                 y += 8;
-                using (var shortcutFont = new Font("Segoe UI", 8.5f))
+                using (var shortcutFont = DockFontHelpers.GetBadgeFont(BeepControlStyle.Material3))
                 {
                     var shortcutSize = g.MeasureString(_shortcut, shortcutFont);
                     var shortcutRect = new RectangleF(

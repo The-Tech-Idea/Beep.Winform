@@ -7,8 +7,10 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
@@ -38,6 +40,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _showExpanderButtons = true;
         private int _indentSize = 20;
         private Size _maxImageSize = new Size(24, 24);
+        private bool _eventHandlersRegistered;
+        private bool _suppressAccessibilityNotifications;
+        private string _lastAccessibilityStatus = string.Empty;
+        private RadioGroupStyleConfig _styleProfile = new RadioGroupStyleConfig();
+        private RadioGroupColorConfig _colorProfile = new RadioGroupColorConfig();
         #endregion
 
         #region Constructor
@@ -47,6 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper = new RadioGroupLayoutHelper(this);
             _hitTestHelper = new RadioGroupHitTestHelper(this);
             _stateHelper = new RadioGroupStateHelper(this);
+            _hitTestHelper.IsItemInteractive = index =>
+                Enabled &&
+                index >= 0 &&
+                index < _flattenedItems.Count &&
+                _flattenedItems[index]?.IsEnabled == true;
 
             // Initialize renderers
             _renderers = new Dictionary<RadioGroupRenderStyle, IRadioGroupRenderer>
@@ -65,6 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // Initialize MaxImageSize for all renderers
             foreach (var renderer in _renderers.Values)
             {
+                renderer.AllowMultipleSelection = _allowMultipleSelection;
                 if (renderer is IImageAwareRenderer imageRenderer)
                 {
                     imageRenderer.MaxImageSize = _maxImageSize;
@@ -85,23 +98,51 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _layoutHelper.ItemSpacing = 4; // Smaller spacing for hierarchy
             _layoutHelper.ItemPadding = new Padding(8);
             _layoutHelper.AutoSize = true;
+            ApplyStyleProfile(_styleProfile);
+            ApplyColorProfile(_colorProfile);
 
             // Apply theme
             ApplyTheme();
+            UpdateAccessibilityMetadata();
         }
 
         private void SetupEventHandlers()
         {
+            if (_eventHandlersRegistered)
+            {
+                return;
+            }
+
             // Hit test events
             _hitTestHelper.ItemClicked += OnItemClicked;
             _hitTestHelper.ItemHoverEnter += OnItemHoverEnter;
             _hitTestHelper.ItemHoverLeave += OnItemHoverLeave;
             _hitTestHelper.HoveredIndexChanged += OnHoveredIndexChanged;
             _hitTestHelper.FocusedIndexChanged += OnFocusedIndexChanged;
+            _hitTestHelper.PressedIndexChanged += OnPressedIndexChanged;
 
             // State events
             _stateHelper.SelectionChanged += OnSelectionChanged;
             _stateHelper.ItemSelectionChanged += OnItemSelectionChanged;
+            _eventHandlersRegistered = true;
+        }
+
+        private void TeardownEventHandlers()
+        {
+            if (!_eventHandlersRegistered)
+            {
+                return;
+            }
+
+            _hitTestHelper.ItemClicked -= OnItemClicked;
+            _hitTestHelper.ItemHoverEnter -= OnItemHoverEnter;
+            _hitTestHelper.ItemHoverLeave -= OnItemHoverLeave;
+            _hitTestHelper.HoveredIndexChanged -= OnHoveredIndexChanged;
+            _hitTestHelper.FocusedIndexChanged -= OnFocusedIndexChanged;
+            _hitTestHelper.PressedIndexChanged -= OnPressedIndexChanged;
+            _stateHelper.SelectionChanged -= OnSelectionChanged;
+            _stateHelper.ItemSelectionChanged -= OnItemSelectionChanged;
+            _eventHandlersRegistered = false;
         }
         #endregion
 
@@ -136,9 +177,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _allowMultipleSelection = value;
                     _stateHelper.AllowMultipleSelection = value;
+                    foreach (var renderer in _renderers.Values)
+                    {
+                        renderer.AllowMultipleSelection = value;
+                    }
                     
                     UpdateItemStates();
-                    Invalidate();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -189,7 +234,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _stateHelper.SelectedValue = value;
                     UpdateItemStates();
-                    Invalidate();
+                    UpdateAccessibilityMetadata();
+                    RequestVisualRefresh();
                 }
             }
         }
@@ -219,8 +265,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 if (_renderStyle != value && _renderers.ContainsKey(value))
                 {
+                    _hitTestHelper.ResetInteractionState();
                     _renderStyle = value;
                     _currentRenderer = _renderers[value];
+                    _currentRenderer.AllowMultipleSelection = _allowMultipleSelection;
                     _currentRenderer.Initialize(this, _currentTheme);
                     
                     UpdateHierarchy();
@@ -289,6 +337,34 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 }
             }
         }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Runtime style profile for hierarchical radio group defaults.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public RadioGroupStyleConfig StyleProfile
+        {
+            get => _styleProfile;
+            set
+            {
+                _styleProfile = value ?? new RadioGroupStyleConfig();
+                ApplyStyleProfile(_styleProfile);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Runtime color profile used when UseThemeColors is false.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public RadioGroupColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                _colorProfile = value ?? new RadioGroupColorConfig();
+                ApplyColorProfile(_colorProfile);
+            }
+        }
         #endregion
 
         #endregion
@@ -320,6 +396,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #endregion
 
         #region Hierarchy Management
+        private int S(int value) => DpiScalingHelper.ScaleValue(value, this);
+        private float SF(float value) => DpiScalingHelper.ScaleValue(value, this);
+
+        private int GetIndentOffset(SimpleItem item)
+        {
+            int indentLevel = _itemIndentLevels.TryGetValue(item, out var level) ? level : 0;
+            return indentLevel * S(_indentSize);
+        }
+
+        private int GetExpanderSlotWidth(SimpleItem item)
+            => (_showExpanderButtons && item?.Children != null && item.Children.Count > 0) ? S(20) : 0;
+
         private void UpdateHierarchy()
         {
             // Flatten the hierarchy for rendering
@@ -346,8 +434,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 var totalSize = CalculateHierarchicalSize();
                 Size = totalSize;
             }
-            
-            Invalidate();
+
+            UpdateAccessibilityMetadata();
+            RequestVisualRefresh();
         }
 
         private void FlattenHierarchy(List<SimpleItem> items, int level)
@@ -371,26 +460,28 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private Size CalculateHierarchicalSize()
         {
             if (_flattenedItems.Count == 0)
-                return new Size(200, 100);
+                return new Size(S(200), S(100));
 
-            int totalHeight = 20; // Top padding
-            int maxWidth = 200;
+            int topPadding = S(20);
+            int bottomPadding = S(20);
+            int horizontalPadding = S(40);
+            int totalHeight = topPadding;
+            int maxWidth = S(200);
 
             using (var g = CreateGraphics())
             {
                 foreach (var item in _flattenedItems)
                 {
                     var itemSize = _currentRenderer.MeasureItem(item, g);
-                    int indentLevel = _itemIndentLevels.ContainsKey(item) ? _itemIndentLevels[item] : 0;
-                    int itemWidth = itemSize.Width + (indentLevel * _indentSize) + (_showExpanderButtons ? 20 : 0);
+                    int itemWidth = itemSize.Width + GetIndentOffset(item) + GetExpanderSlotWidth(item);
                     
                     maxWidth = Math.Max(maxWidth, itemWidth);
-                    totalHeight += itemSize.Height + _layoutHelper.ItemSpacing;
+                    totalHeight += itemSize.Height + S(_layoutHelper.ItemSpacing);
                 }
             }
 
-            totalHeight += 20; // Bottom padding
-            return new Size(maxWidth + 40, totalHeight); // Add some horizontal padding
+            totalHeight += bottomPadding;
+            return new Size(maxWidth + horizontalPadding, totalHeight);
         }
 
         private void UpdateLayout()
@@ -402,26 +493,28 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
 
             _itemRectangles.Clear();
-            int currentY = 10; // Top padding
+            int currentY = S(10); // Top padding
+            int leftPadding = S(10);
+            int rightPadding = S(20);
 
             using (var g = CreateGraphics())
             {
                 foreach (var item in _flattenedItems)
                 {
                     var itemSize = _currentRenderer.MeasureItem(item, g);
-                    int indentLevel = _itemIndentLevels.ContainsKey(item) ? _itemIndentLevels[item] : 0;
-                    int indentOffset = indentLevel * _indentSize;
-                    int expanderOffset = _showExpanderButtons ? 20 : 0;
+                    int indentOffset = GetIndentOffset(item);
+                    int expanderOffset = GetExpanderSlotWidth(item);
+                    int itemWidth = Math.Max(S(48), Width - rightPadding - indentOffset - expanderOffset);
 
                     Rectangle itemRect = new Rectangle(
-                        10 + indentOffset + expanderOffset, // Left padding + indent + expander space
+                        leftPadding + indentOffset + expanderOffset,
                         currentY,
-                        Width - 20 - indentOffset - expanderOffset, // Account for padding and indent
+                        itemWidth,
                         itemSize.Height
                     );
 
                     _itemRectangles.Add(itemRect);
-                    currentY += itemSize.Height + _layoutHelper.ItemSpacing;
+                    currentY += itemSize.Height + S(_layoutHelper.ItemSpacing);
                 }
             }
         }
@@ -436,8 +529,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 var state = new RadioItemState
                 {
                     IsSelected = _stateHelper.IsSelected(item),
-                    IsHovered = _hitTestHelper.HoveredIndex == i,
+                    IsHovered = _hitTestHelper.HoveredIndex == i || _hitTestHelper.PressedIndex == i,
                     IsFocused = _hitTestHelper.FocusedIndex == i,
+                    IsPressed = _hitTestHelper.PressedIndex == i,
                     IsEnabled = item.IsEnabled,
                     Index = i
                 };
@@ -450,6 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Drawing
         protected override void DrawContent(Graphics g)
         {
+            base.DrawContent(g);
             if (_currentRenderer == null || _flattenedItems == null || _flattenedItems.Count == 0)
                 return;
 
@@ -487,14 +582,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             int indentLevel = _itemIndentLevels[item];
             Color lineColor = Color.FromArgb(128, _currentTheme?.BorderColor ?? Color.Gray);
 
-            using (var pen = new Pen(lineColor, 1f))
+            using (var pen = new Pen(lineColor, SF(1f)))
             {
                 pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
 
                 // Draw vertical line from parent
                 for (int level = 1; level <= indentLevel; level++)
                 {
-                    int x = 10 + (level - 1) * _indentSize + 10; // Center of expander button area
+                    int x = S(10) + (level - 1) * S(_indentSize) + S(10);
                     
                     // Check if this level continues down
                     bool hasLowerSibling = HasLowerSiblingAtLevel(itemIndex, level);
@@ -506,9 +601,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 }
 
                 // Draw horizontal line to item
-                int parentX = 10 + (indentLevel - 1) * _indentSize + 10;
+                int parentX = S(10) + (indentLevel - 1) * S(_indentSize) + S(10);
                 int itemY = itemRect.Top + itemRect.Height / 2;
-                g.DrawLine(pen, parentX, itemY, parentX + _indentSize - 5, itemY);
+                g.DrawLine(pen, parentX, itemY, parentX + S(_indentSize) - S(5), itemY);
             }
         }
 
@@ -528,18 +623,38 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             return false;
         }
 
+        private int FindVisibleParentIndex(int childIndex)
+        {
+            if (childIndex <= 0 || childIndex >= _flattenedItems.Count)
+            {
+                return -1;
+            }
+
+            var child = _flattenedItems[childIndex];
+            var parent = child?.ParentItem;
+            if (parent == null)
+            {
+                return -1;
+            }
+
+            for (int i = childIndex - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(_flattenedItems[i], parent))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         private void DrawExpanderButton(Graphics g, SimpleItem item, Rectangle itemRect)
         {
-            Rectangle expanderRect = new Rectangle(
-                10 + (_itemIndentLevels.ContainsKey(item) ? _itemIndentLevels[item] * _indentSize : 0),
-                itemRect.Y + (itemRect.Height - 16) / 2,
-                16,
-                16
-            );
+            Rectangle expanderRect = GetExpanderBounds(item, itemRect);
 
             Color expanderColor = _currentTheme?.ForeColor ?? Color.Black;
             using (var brush = new SolidBrush(Color.FromArgb(240, expanderColor)))
-            using (var pen = new Pen(expanderColor, 1f))
+            using (var pen = new Pen(expanderColor, SF(1f)))
             {
                 // Draw expander background
                 g.FillEllipse(brush, expanderRect);
@@ -550,17 +665,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 int centerY = expanderRect.Y + expanderRect.Height / 2;
                 
                 // Horizontal line (always present)
-                g.DrawLine(pen, centerX - 4, centerY, centerX + 4, centerY);
+                g.DrawLine(pen, centerX - S(4), centerY, centerX + S(4), centerY);
                 
                 // Vertical line (only if collapsed)
                 if (!item.IsExpanded)
                 {
-                    g.DrawLine(pen, centerX, centerY - 4, centerX, centerY + 4);
+                    g.DrawLine(pen, centerX, centerY - S(4), centerX, centerY + S(4));
                 }
             }
-
-            // Add hit area for expander
-            AddHitArea($"Expander_{item.GuidId}", expanderRect, null, () => ToggleItemExpansion(item));
         }
 
         private void ToggleItemExpansion(SimpleItem item)
@@ -572,24 +684,84 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 UpdateHierarchy();
             }
         }
+
+        private Rectangle GetExpanderBounds(SimpleItem item, Rectangle itemRect)
+        {
+            int buttonSize = S(16);
+            return new Rectangle(
+                S(10) + GetIndentOffset(item),
+                itemRect.Y + (itemRect.Height - buttonSize) / 2,
+                buttonSize,
+                buttonSize);
+        }
+
+        private bool TryHandleExpanderClick(Point location)
+        {
+            if (!_showExpanderButtons || _flattenedItems.Count == 0 || _itemRectangles.Count == 0)
+            {
+                return false;
+            }
+
+            int count = Math.Min(_flattenedItems.Count, _itemRectangles.Count);
+            for (int i = 0; i < count; i++)
+            {
+                var item = _flattenedItems[i];
+                if (item?.Children == null || item.Children.Count == 0)
+                {
+                    continue;
+                }
+
+                var expanderRect = GetExpanderBounds(item, _itemRectangles[i]);
+                if (expanderRect.Contains(location))
+                {
+                    ToggleItemExpansion(item);
+                    return true;
+                }
+            }
+
+            return false;
+        }
         #endregion
 
         #region Mouse Handling
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            if (DesignMode || !Enabled) return;
             _hitTestHelper.HandleMouseMove(e.Location);
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (DesignMode || !Enabled) return;
+            _hitTestHelper.HandleMouseDown(e.Location, e.Button);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (DesignMode || !Enabled) return;
+            _hitTestHelper.HandleMouseUp(e.Location, e.Button);
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            if (DesignMode) return;
             _hitTestHelper.HandleMouseLeave();
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            if (DesignMode || !Enabled) return;
+
+            if (e.Button == MouseButtons.Left && TryHandleExpanderClick(e.Location))
+            {
+                return;
+            }
+
             _hitTestHelper.HandleMouseClick(e.Location, e.Button);
         }
         #endregion
@@ -598,6 +770,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+            if (DesignMode || !Enabled) return;
             
             // Handle expand/collapse with keyboard
             if (e.KeyCode == Keys.Right && _hitTestHelper.FocusedIndex >= 0 && _hitTestHelper.FocusedIndex < _flattenedItems.Count)
@@ -617,8 +790,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     ToggleItemExpansion(item);
                     e.Handled = true;
                 }
+                else
+                {
+                    int parentIndex = FindVisibleParentIndex(_hitTestHelper.FocusedIndex);
+                    if (parentIndex >= 0)
+                    {
+                        _hitTestHelper.FocusedIndex = parentIndex;
+                        UpdateItemStates();
+                        UpdateAccessibilityMetadata();
+                        RequestVisualRefresh();
+                        e.Handled = true;
+                    }
+                }
             }
-            else if (_hitTestHelper.HandleKeyDown(e.KeyCode, RadioGroupOrientation.Vertical))
+            else if (_hitTestHelper.HandleKeyDown(e.KeyCode, RadioGroupOrientation.Vertical, 1))
             {
                 e.Handled = true;
             }
@@ -655,25 +840,34 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private void OnHoveredIndexChanged(object sender, IndexChangedEventArgs e)
         {
             UpdateItemStates();
-            Invalidate();
+            RequestVisualRefresh();
         }
 
         private void OnFocusedIndexChanged(object sender, IndexChangedEventArgs e)
         {
             UpdateItemStates();
-            Invalidate();
+            UpdateAccessibilityMetadata();
+            RequestVisualRefresh();
+        }
+
+        private void OnPressedIndexChanged(object sender, IndexChangedEventArgs e)
+        {
+            UpdateItemStates();
+            RequestVisualRefresh();
         }
 
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectionChanged?.Invoke(this, e);
             UpdateItemStates();
-            Invalidate();
+            UpdateAccessibilityMetadata();
+            RequestVisualRefresh();
         }
 
         private void OnItemSelectionChanged(object sender, ItemSelectionChangedEventArgs e)
         {
             ItemSelectionChanged?.Invoke(this, e);
+            UpdateAccessibilityMetadata();
         }
         #endregion
 
@@ -793,8 +987,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 renderer.UpdateTheme(_currentTheme);
             }
-            
-            Invalidate();
+
+            if (!UseThemeColors)
+            {
+                ApplyColorProfile(_colorProfile);
+            }
+
+            RequestVisualRefresh();
         }
 
         public override void SetValue(object value)
@@ -807,7 +1006,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _stateHelper.SetMultipleSelection(stringList);
                 UpdateItemStates();
-                Invalidate();
+                RequestVisualRefresh();
             }
             else if (value is SimpleItem item)
             {
@@ -825,6 +1024,117 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 return SelectedItems.FirstOrDefault();
             }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateLayout();
+            _hitTestHelper.UpdateItems(_flattenedItems, _itemRectangles);
+            RequestVisualRefresh();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                TeardownEventHandlers();
+                _hitTestHelper?.Dispose();
+                _stateHelper?.ResetCallbacks();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        private void RequestVisualRefresh(bool resetLayout = false)
+        {
+            if (resetLayout)
+            {
+                UpdateLayout();
+            }
+
+            Invalidate();
+        }
+
+        private void ApplyStyleProfile(RadioGroupStyleConfig profile)
+        {
+            if (profile == null)
+            {
+                return;
+            }
+
+            if (profile.RecommendedItemHeight > 0)
+            {
+                _layoutHelper.ItemSize = new Size(_layoutHelper.ItemSize.Width, profile.RecommendedItemHeight);
+            }
+
+            if (profile.RecommendedItemSpacing >= 0)
+            {
+                _layoutHelper.ItemSpacing = profile.RecommendedItemSpacing;
+            }
+
+            _layoutHelper.ItemPadding = profile.RecommendedPadding;
+            if (profile.ControlStyle != ControlStyle)
+            {
+                ControlStyle = profile.ControlStyle;
+            }
+
+            RequestVisualRefresh(resetLayout: true);
+        }
+
+        private void ApplyColorProfile(RadioGroupColorConfig profile)
+        {
+            if (profile == null)
+            {
+                return;
+            }
+
+            if (!UseThemeColors)
+            {
+                BackColor = profile.GroupBackgroundColor;
+                ForeColor = profile.TextColor;
+            }
+
+            RequestVisualRefresh();
+        }
+
+        private void UpdateAccessibilityMetadata()
+        {
+            if (string.IsNullOrWhiteSpace(AccessibleName))
+            {
+                AccessibleName = Name;
+            }
+
+            if (AccessibleRole == AccessibleRole.Default || AccessibleRole == AccessibleRole.None)
+            {
+                AccessibleRole = AccessibleRole.Outline;
+            }
+
+            int totalCount = _flattenedItems?.Count ?? 0;
+            int selectedCount = _stateHelper?.SelectedCount ?? 0;
+            int expandedCount = _flattenedItems?.Count(i => i?.Children != null && i.Children.Count > 0 && i.IsExpanded) ?? 0;
+            int focusedIndex = _hitTestHelper?.FocusedIndex ?? -1;
+            string focusedText = focusedIndex >= 0 && focusedIndex < totalCount ? _flattenedItems[focusedIndex]?.Text : null;
+
+            string status = $"HierarchicalRadioGroup status: {selectedCount} selected of {totalCount}. " +
+                            $"{expandedCount} expanded groups. " +
+                            (Enabled ? "Control enabled." : "Control disabled.");
+            if (!string.IsNullOrWhiteSpace(focusedText))
+            {
+                status += $" Focused item: {focusedText}.";
+            }
+
+            AccessibleDescription = status;
+            AccessibleDefaultActionDescription = AllowMultipleSelection ? "Toggle item selection" : "Select item";
+
+            if (!_suppressAccessibilityNotifications && IsHandleCreated &&
+                !string.Equals(_lastAccessibilityStatus, status, StringComparison.Ordinal))
+            {
+                AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, -1);
+                AccessibilityNotifyClients(AccessibleEvents.ValueChange, -1);
+            }
+
+            _lastAccessibilityStatus = status;
         }
         #endregion
     }

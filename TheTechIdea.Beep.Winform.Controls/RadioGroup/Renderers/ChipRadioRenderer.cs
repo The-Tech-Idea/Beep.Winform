@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Chip";
         public string DisplayName => "Chip/Pill Style";
         public bool SupportsMultipleSelection => true;
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {
@@ -53,6 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private const int ComponentSpacing = 8;
         private const int ChipRadius = 16;
         private const int CloseButtonSize = 12;
+        private int S(int value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
+        private float SF(float value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
         #endregion
 
         #region Initialization
@@ -179,17 +183,17 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 chipRect.Height
             );
 
-            int reserveRight = (state.IsSelected && AllowsDeselection()) ? (CloseButtonSize + 6) : 0;
+            int reserveRight = (state.IsSelected && AllowsDeselection()) ? (S(CloseButtonSize) + S(6)) : 0;
             var contentClip = new Rectangle(contentRect.X, contentRect.Y, Math.Max(0, contentRect.Width - reserveRight), contentRect.Height);
             DrawContent(graphics, item, contentClip, state, colors);
 
             if (state.IsSelected && AllowsDeselection())
             {
                 var closeRect = new Rectangle(
-                    contentRect.Right - CloseButtonSize,
-                    contentRect.Y + (contentRect.Height - CloseButtonSize) / 2,
-                    CloseButtonSize,
-                    CloseButtonSize
+                    contentRect.Right - S(CloseButtonSize),
+                    contentRect.Y + (contentRect.Height - S(CloseButtonSize)) / 2,
+                    S(CloseButtonSize),
+                    S(CloseButtonSize)
                 );
                 DrawCloseButton(graphics, closeRect, colors.SelectedText);
             }
@@ -207,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
                 var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
                 RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
-                currentX += sz + ComponentSpacing;
+                currentX += sz + S(ComponentSpacing);
             }
 
             if (!string.IsNullOrEmpty(item.Text))
@@ -222,18 +226,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawCloseButton(Graphics graphics, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 1.5f))
+            using (var pen = new Pen(color, SF(1.5f)))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
 
                 // Draw X
                 graphics.DrawLine(pen, 
-                    rect.X + 4, rect.Y + 4, 
-                    rect.Right - 4, rect.Bottom - 4);
+                    rect.X + S(4), rect.Y + S(4), 
+                    rect.Right - S(4), rect.Bottom - S(4));
                 graphics.DrawLine(pen, 
-                    rect.Right - 4, rect.Y + 4, 
-                    rect.X + 4, rect.Bottom - 4);
+                    rect.Right - S(4), rect.Y + S(4), 
+                    rect.X + S(4), rect.Bottom - S(4));
             }
         }
 
@@ -265,8 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private bool AllowsDeselection()
         {
-            // Check if multiple selection is enabled
-            return _owner.GetType().GetProperty("AllowMultipleSelection")?.GetValue(_owner) as bool? == true;
+            return AllowMultipleSelection;
         }
         #endregion
 
@@ -275,15 +278,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             if (item == null) return new Size(80, MinItemHeight);
 
-            int width = ItemPadding * 2; // Left and right padding
-            int height = MinItemHeight;
+            int width = S(ItemPadding) * 2; // Left and right padding
+            int height = S(MinItemHeight);
 
             // Icon width - account for image if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                width += IconSize + ComponentSpacing;
+                width += IconSize + S(ComponentSpacing);
                 // Ensure minimum height accommodates the image
-                height = Math.Max(height, IconSize + 8); // 8px padding around icon
+                height = Math.Max(height, IconSize + S(8)); // 8px padding around icon
             }
 
             // Text width
@@ -291,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 var textSize = TextUtils.MeasureText(graphics,item.Text, _textFont);
                 width += (int)Math.Ceiling(textSize.Width);
-                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + 8);
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(8));
             }
 
             return new Size(width, height);
@@ -301,9 +304,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             var chipRect = GetChipRectangle(itemRectangle);
             return new Rectangle(
-                chipRect.X + ItemPadding,
+                chipRect.X + S(ItemPadding),
                 chipRect.Y,
-                Math.Max(0, chipRect.Width - (ItemPadding * 2)),
+                Math.Max(0, chipRect.Width - (S(ItemPadding) * 2)),
                 chipRect.Height
             );
         }

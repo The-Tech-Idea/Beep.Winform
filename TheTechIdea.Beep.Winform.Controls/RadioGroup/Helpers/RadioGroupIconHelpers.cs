@@ -1,9 +1,11 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -114,13 +116,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// </summary>
         public static Size GetItemIconSize(
             int itemHeight,
-            Size maxImageSize)
+            Size maxImageSize,
+            Control ownerControl = null)
         {
             // Icon size as percentage of item height, but respect max size
             int iconSize = (int)(itemHeight * 0.6f);
             
             // Ensure minimum and maximum sizes
-            iconSize = Math.Max(16, Math.Min(iconSize, Math.Min(maxImageSize.Width, maxImageSize.Height)));
+            int minSize = ownerControl != null ? DpiScalingHelper.ScaleValue(16, ownerControl) : 16;
+            iconSize = Math.Max(minSize, Math.Min(iconSize, Math.Min(maxImageSize.Width, maxImageSize.Height)));
             
             return new Size(iconSize, iconSize);
         }
@@ -194,14 +198,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             Rectangle itemBounds,
             int itemHeight,
             Size maxImageSize,
+            Control ownerControl = null,
             int padding = 8)
         {
             if (itemBounds.IsEmpty)
                 return Rectangle.Empty;
 
-            Size iconSize = GetItemIconSize(itemHeight, maxImageSize);
+            Size iconSize = GetItemIconSize(itemHeight, maxImageSize, ownerControl);
+            int scaledPadding = ownerControl != null ? DpiScalingHelper.ScaleValue(padding, ownerControl) : padding;
             
-            int x = itemBounds.X + padding;
+            int x = itemBounds.X + scaledPadding;
             int y = itemBounds.Y + (itemBounds.Height - iconSize.Height) / 2;
             
             return new Rectangle(x, y, iconSize.Width, iconSize.Height);

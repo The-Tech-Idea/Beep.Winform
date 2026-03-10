@@ -1,15 +1,20 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Containers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Containers.Models;
+using TheTechIdea.Beep.Winform.Controls.Containers.Painters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Icons;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -38,6 +43,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private GraphicsPath _customShapePath;
         private Region _panelRegion;
         private bool _isUpdatingRegion = false; // Prevent recursive region updates
+        private BeepPanelState _panelState = new BeepPanelState();
+        private BeepPanelLayoutContext _panelLayoutContext = new BeepPanelLayoutContext();
+        private PanelColorConfig _colorProfile = new PanelColorConfig();
+        private bool _showTitleIcon;
+        private int _titleIconSize = 16;
+        private int _titleIconGap = 6;
+        private bool _titleIconTintWithForeColor = true;
 
         int padding = 2; // Adjusted padding for top, left, etc.
 
@@ -57,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region "Public Properties"
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont = SystemFonts.MessageBoxFont;
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -70,6 +82,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Panel color profile for runtime color overrides.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public PanelColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                _colorProfile = value ?? new PanelColorConfig();
+                ApplyColorProfile();
                 Invalidate();
             }
         }
@@ -96,12 +122,95 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Browsable(true)]
         [Category("Appearance")]
+        [Description("Icon key/path for the panel header title area.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue("")]
+        public string IconPath
+        {
+            get => IconKey ?? string.Empty;
+            set
+            {
+                string normalized = value ?? string.Empty;
+                if (!string.Equals(IconKey ?? string.Empty, normalized, System.StringComparison.Ordinal))
+                {
+                    IconKey = normalized;
+                }
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Determines whether to render an icon near the title.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(false)]
+        public bool ShowTitleIcon
+        {
+            get => _showTitleIcon;
+            set
+            {
+                _showTitleIcon = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Header icon size in pixels before DPI scaling.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(16)]
+        public int TitleIconSize
+        {
+            get => _titleIconSize;
+            set
+            {
+                _titleIconSize = Math.Max(12, value);
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Spacing between header icon and title text before DPI scaling.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(6)]
+        public int TitleIconGap
+        {
+            get => _titleIconGap;
+            set
+            {
+                _titleIconGap = Math.Max(2, value);
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Tint header icon with title foreground color.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DefaultValue(true)]
+        public bool TitleIconTintWithForeColor
+        {
+            get => _titleIconTintWithForeColor;
+            set
+            {
+                _titleIconTintWithForeColor = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
         [Description("Config a line below the title.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShowTitleLine
         {
             get => _showTitleLine;
-            set { _showTitleLine = value; Invalidate(); }
+            set
+            {
+                _showTitleLine = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
@@ -121,7 +230,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int TitleLineThickness
         {
             get => _titleLineThickness;
-            set { _titleLineThickness = value; Invalidate(); }
+            set
+            {
+                _titleLineThickness = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
@@ -131,7 +244,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowTitle
         {
             get => _showTitle;
-            set { _showTitle = value; Invalidate(); }
+            set
+            {
+                _showTitle = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
@@ -141,7 +258,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment TitleAlignment
         {
             get => _titleAlignment;
-            set { _titleAlignment = value; Invalidate(); }
+            set
+            {
+                _titleAlignment = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
@@ -151,7 +272,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ShowTitleLineinFullWidth
         {
             get => _titleLineFullWidth;
-            set { _titleLineFullWidth = value; Invalidate(); }
+            set
+            {
+                _titleLineFullWidth = value;
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
@@ -356,6 +481,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return cp;
             }
         }
+
+        public override Rectangle DisplayRectangle
+        {
+            get
+            {
+                var rect = base.DisplayRectangle;
+                var content = _panelLayoutContext?.ContentBounds ?? Rectangle.Empty;
+                if (content.IsEmpty)
+                {
+                    return rect;
+                }
+
+                return Rectangle.Intersect(rect, content);
+            }
+        }
         
 
         /// <summary>
@@ -448,106 +588,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private GraphicsPath CreateGroupBoxBorderPath(Rectangle bounds)
         {
-            if (string.IsNullOrEmpty(_titleText) || _textFont == null)
+            RefreshPanelLayoutContext(bounds);
+            if (!_panelLayoutContext.HasTitle)
             {
                 return GetShapePath(bounds);
             }
-            
-            var titleSize = TextRenderer.MeasureText(_titleText, _textFont);
-            int titleX = 0;
-            
-            // Calculate title position
-            switch (_titleAlignment)
-            {
-                case ContentAlignment.TopLeft:
-                    titleX = bounds.Left + _titleGap;
-                    break;
-                case ContentAlignment.TopCenter:
-                    titleX = bounds.Left + (bounds.Width - titleSize.Width) / 2;
-                    break;
-                case ContentAlignment.TopRight:
-                    titleX = bounds.Right - titleSize.Width - _titleGap;
-                    break;
-            }
-            
-            int titleY = bounds.Top;
-            int titleWidth = titleSize.Width + (_titleGap * 2);
-            int borderThickness = BorderThickness;
-            
-            GraphicsPath path = new GraphicsPath();
-            
-            // Create border path with gap for title
-            if (_panelShape == PanelShape.RoundedRectangle)
-            {
-                // For rounded rectangle, create path with gap
-                int radius = BorderRadius;
-                int diameter = radius * 2;
-                
-                // Top border - left segment (before title)
-                if (titleX - _titleGap > bounds.Left + radius)
-                {
-                    // Left arc
-                    path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
-                    // Top line before gap
-                    path.AddLine(bounds.Left + radius, bounds.Top, titleX - _titleGap, bounds.Top);
-                }
-                else
-                {
-                    // Start from left arc
-                    path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
-                }
-                
-                // Top border - right segment (after title)
-                if (titleX + titleSize.Width + _titleGap < bounds.Right - radius)
-                {
-                    // Top line after gap
-                    path.AddLine(titleX + titleSize.Width + _titleGap, bounds.Top, bounds.Right - radius, bounds.Top);
-                    // Top-right arc
-                    path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
-                }
-                else
-                {
-                    // Just the arc
-                    path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
-                }
-                
-                // Right border
-                path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
-                
-                // Bottom border
-                path.AddLine(bounds.Right - radius, bounds.Bottom, bounds.Left + radius, bounds.Bottom);
-                
-                // Left border
-                path.AddArc(bounds.Left, bounds.Bottom - diameter, diameter, diameter, 90, 90);
-                path.CloseFigure();
-            }
-            else
-            {
-                // For rectangle or other shapes, create simple border with gap
-                // Top border - left segment
-                if (titleX - _titleGap > bounds.Left)
-                {
-                    path.AddLine(bounds.Left, bounds.Top, titleX - _titleGap, bounds.Top);
-                }
-                
-                // Top border - right segment
-                if (titleX + titleSize.Width + _titleGap < bounds.Right)
-                {
-                    path.AddLine(titleX + titleSize.Width + _titleGap, bounds.Top, bounds.Right, bounds.Top);
-                }
-                
-                // Right border
-                path.AddLine(bounds.Right, bounds.Top, bounds.Right, bounds.Bottom);
-                
-                // Bottom border
-                path.AddLine(bounds.Right, bounds.Bottom, bounds.Left, bounds.Bottom);
-                
-                // Left border
-                path.AddLine(bounds.Left, bounds.Bottom, bounds.Left, bounds.Top);
-                path.CloseFigure();
-            }
-            
-            return path;
+            return BeepPanelPainter.BuildGroupBoxBorderPath(_panelState, _panelLayoutContext);
         }
 
         /// <summary>
@@ -622,6 +668,122 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void ApplyColorProfile()
+        {
+            if (_colorProfile == null)
+            {
+                return;
+            }
+
+            if (_colorProfile.BackgroundColor != Color.Empty)
+            {
+                BackColor = _colorProfile.BackgroundColor;
+            }
+            if (_colorProfile.ForegroundColor != Color.Empty)
+            {
+                ForeColor = _colorProfile.ForegroundColor;
+            }
+            if (_colorProfile.BorderColor != Color.Empty)
+            {
+                BorderColor = _colorProfile.BorderColor;
+            }
+            if (_colorProfile.TitleLineColor != Color.Empty)
+            {
+                _titleLineColor = _colorProfile.TitleLineColor;
+            }
+        }
+
+        private void RefreshPanelLayoutContext(Rectangle bounds)
+        {
+            string headerIconInput = GetHeaderIconInput();
+            string resolvedIconPath = ResolveIconPath(headerIconInput);
+            bool hasHeaderIconInput = !string.IsNullOrWhiteSpace(headerIconInput);
+            _panelState = new BeepPanelState
+            {
+                TitleText = _titleText ?? string.Empty,
+                ShowTitle = _showTitle,
+                ShowTitleLine = _showTitleLine,
+                ShowTitleLineFullWidth = _titleLineFullWidth,
+                TitleAlignment = _titleAlignment,
+                TitleStyle = _titleStyle,
+                PanelShape = _panelShape,
+                TitleGap = _titleGap,
+                TitleLineThickness = _titleLineThickness,
+                BorderThickness = BorderThickness,
+                BorderRadius = BorderRadius,
+                Padding = Padding,
+                UseThemeColors = UseThemeColors,
+                IsEnabled = Enabled,
+                ShowTitleIcon = _showTitleIcon || hasHeaderIconInput,
+                IconPath = headerIconInput,
+                ResolvedIconPath = resolvedIconPath,
+                TitleIconSize = _titleIconSize,
+                TitleIconGap = _titleIconGap,
+                TitleIconTintWithForeColor = _titleIconTintWithForeColor
+            };
+
+            _textFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
+            _panelLayoutContext = BeepPanelLayoutHelper.BuildLayout(this, bounds, _panelState, _textFont);
+            _titleBottomY = _panelLayoutContext.HeaderBounds.Bottom;
+        }
+
+        private static string ResolveIconPath(string iconPath)
+        {
+            if (string.IsNullOrWhiteSpace(iconPath))
+            {
+                return string.Empty;
+            }
+
+            string input = iconPath.Trim();
+            if (input.Contains("\\") || input.Contains("/") || input.StartsWith("<svg", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return input;
+            }
+
+            var svgUiProperty = typeof(SvgsUI).GetProperty(input);
+            if (svgUiProperty?.PropertyType == typeof(string))
+            {
+                var svgUiValue = svgUiProperty.GetValue(null) as string;
+                if (!string.IsNullOrWhiteSpace(svgUiValue))
+                {
+                    return svgUiValue;
+                }
+            }
+
+            var svgProperty = typeof(Svgs).GetProperty(input);
+            if (svgProperty?.PropertyType == typeof(string))
+            {
+                var svgValue = svgProperty.GetValue(null) as string;
+                if (!string.IsNullOrWhiteSpace(svgValue))
+                {
+                    return svgValue;
+                }
+            }
+
+            var catalogPath = IconCatalog.GetPathByKey(input);
+            if (!string.IsNullOrWhiteSpace(catalogPath))
+            {
+                return catalogPath;
+            }
+
+            return input;
+        }
+
+        private string GetHeaderIconInput()
+        {
+            if (!string.IsNullOrWhiteSpace(IconKey))
+            {
+                return IconKey;
+            }
+
+            if (!string.IsNullOrWhiteSpace(LeadingImagePath))
+            {
+                return LeadingImagePath;
+            }
+
+            return string.Empty;
+        }
+
         #endregion
 
         #region "Constructor"
@@ -661,6 +823,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ControlStyle = BeepControlStyle.Material3;
             }
+
+            ApplyColorProfile();
             
             // Initialize panel region after size is set
             if (IsHandleCreated)
@@ -1152,16 +1316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (UseThemeFont)
                 {
-                    try
-                    {
-                        if (_currentTheme.TitleSmall != null)
-                            _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
-                        else if (_currentTheme.CardHeaderStyle != null)
-                            _textFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
-                        else
-                            _textFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeBlockHeader, FontStyle.Regular);
-                    }
-                    catch { _textFont = new Font("Arial", 10); }
+                    _textFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
                 }
                 if (_currentTheme.BorderRadius > 0)
                 {
@@ -1172,6 +1327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 ShadowColor = _currentTheme.ShadowColor;
                 ShadowOpacity = _currentTheme.ShadowOpacity;
+                ApplyColorProfile();
                 
                 // Update region when theme changes (only if shape requires it)
                 if (IsHandleCreated && (_panelShape == PanelShape.RoundedRectangle || _panelShape == PanelShape.Ellipse))
@@ -1195,31 +1351,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private Rectangle GetTitleArea()
         {
-            if (!_showTitle || string.IsNullOrEmpty(_titleText) || _textFont == null)
-                return Rectangle.Empty;
-
-            UpdateDrawingRect();
-            var titleSize = TextRenderer.MeasureText(_titleText, _textFont);
-            int titleHeight = titleSize.Height + padding;
-            
-            if (_showTitleLine)
-            {
-                titleHeight += _titleLineThickness + padding;
-            }
-            
-            // Return the title area at the top of the control
-            return new Rectangle(
-                DrawingRect.Left,
-                DrawingRect.Top,
-                DrawingRect.Width,
-                titleHeight + padding * 2
-            );
+            RefreshPanelLayoutContext(DrawingRect);
+            return _panelLayoutContext?.HeaderBounds ?? Rectangle.Empty;
         }
 
         protected override void DrawContent(Graphics g)
         {
             if (_isDisposing || IsDisposed || !IsHandleCreated) return;
-              base.DrawContent(g);
+            base.DrawContent(g);
             // Draw GroupBox-style title text (border is already drawn in OnPaintBackground)
            /*  if (_titleStyle == PanelTitleStyle.GroupBox && _showTitle && !string.IsNullOrEmpty(_titleText))
             {
@@ -1234,6 +1373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showTitle && !string.IsNullOrEmpty(_titleText))
                 {
                     UpdateDrawingRect();
+                    RefreshPanelLayoutContext(DrawingRect);
                     DrawTitle(g, DrawingRect);
                 }
                 
@@ -1272,129 +1412,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             try
             {
-                // GroupBox style is handled separately in DrawGroupBoxBorder
-                if (_titleStyle == PanelTitleStyle.GroupBox)
-                {
-                    DrawGroupBoxTitle(g, rectangle);
-                    return;
-                }
-
-                var titleSize = System.Windows.Forms.TextRenderer.MeasureText(_titleText, _textFont);
-                float textTop = 0;
-                float textLeft = 0;
-                Rectangle titleRect = Rectangle.Empty;
-
-                // Calculate position based on title style
-                switch (_titleStyle)
-                {
-                    case PanelTitleStyle.Above:
-                        textTop = this.ContentRect.Top + padding;
-                        switch (_titleAlignment)
-                        {
-                            case ContentAlignment.TopLeft:
-                                textLeft = DrawingRect.Left + padding;
-                                break;
-                            case ContentAlignment.TopCenter:
-                                textLeft = DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2f;
-                                break;
-                            case ContentAlignment.TopRight:
-                                textLeft = DrawingRect.Right - titleSize.Width - padding;
-                                break;
-                        }
-                        break;
-
-                    case PanelTitleStyle.Below:
-                        textTop = DrawingRect.Bottom - titleSize.Height - padding;
-                        switch (_titleAlignment)
-                        {
-                            case ContentAlignment.TopLeft:
-                                textLeft = DrawingRect.Left + padding;
-                                break;
-                            case ContentAlignment.TopCenter:
-                                textLeft = DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2f;
-                                break;
-                            case ContentAlignment.TopRight:
-                                textLeft = DrawingRect.Right - titleSize.Width - padding;
-                                break;
-                        }
-                        break;
-
-                    case PanelTitleStyle.Left:
-                        textTop = DrawingRect.Top + (DrawingRect.Height - titleSize.Width) / 2f;
-                        textLeft = DrawingRect.Left + padding;
-                        // Rotate text for vertical display
-                        titleRect = new Rectangle((int)textLeft, (int)textTop, titleSize.Height, titleSize.Width);
-                        break;
-
-                    case PanelTitleStyle.Right:
-                        textTop = DrawingRect.Top + (DrawingRect.Height - titleSize.Width) / 2f;
-                        textLeft = DrawingRect.Right - titleSize.Height - padding;
-                        titleRect = new Rectangle((int)textLeft, (int)textTop, titleSize.Height, titleSize.Width);
-                        break;
-
-                    case PanelTitleStyle.Overlay:
-                        textTop = DrawingRect.Top + padding;
-                        switch (_titleAlignment)
-                        {
-                            case ContentAlignment.TopLeft:
-                                textLeft = DrawingRect.Left + padding;
-                                break;
-                            case ContentAlignment.TopCenter:
-                                textLeft = DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2f;
-                                break;
-                            case ContentAlignment.TopRight:
-                                textLeft = DrawingRect.Right - titleSize.Width - padding;
-                                break;
-                        }
-                        // Draw background for overlay
-                        using (var brush = new SolidBrush(Color.FromArgb(200, BackColor)))
-                        {
-                            g.FillRectangle(brush, (int)textLeft - 4, (int)textTop - 2, titleSize.Width + 8, titleSize.Height + 4);
-                        }
-                        break;
-                }
-
-                // Use theme-aware color based on ControlStyle
                 Color textColor = ForeColor;
                 if (UseThemeColors && _currentTheme != null)
                 {
                     textColor = _currentTheme.PrimaryTextColor;
                 }
-
-                // Draw text
-                if (titleRect.IsEmpty)
-                {
-                    TextRenderer.DrawText(g, _titleText, _textFont, new Point((int)textLeft, (int)textTop), textColor);
-                }
-                else
-                {
-                    // Rotated text for Left/Right styles
-                    var state = g.Save();
-                    g.TranslateTransform(titleRect.Left + titleRect.Width / 2f, titleRect.Top + titleRect.Height / 2f);
-                    g.RotateTransform(_titleStyle == PanelTitleStyle.Left ? -90 : 90);
-                    TextRenderer.DrawText(g, _titleText, _textFont, new Point(-titleSize.Width / 2, -titleSize.Height / 2), textColor);
-                    g.Restore(state);
-                }
-
-                // Draw title line for Above style
-                if (_showTitleLine && _titleStyle == PanelTitleStyle.Above)
-                {
-                    float textBottomY = textTop + titleSize.Height;
-                    int lineY = (int)(textBottomY + 2);
-                    int lineStartX = ShowTitleLineinFullWidth ? (DrawingRect.Left + BorderThickness) : (int)textLeft;
-                    int lineEndX = ShowTitleLineinFullWidth ? (DrawingRect.Right - BorderThickness) : (int)(textLeft + titleSize.Width);
-
-                    using (var pen = new Pen(_titleLineColor, _titleLineThickness))
-                    {
-                        g.DrawLine(pen, lineStartX, lineY, lineEndX, lineY);
-                    }
-
-                    _titleBottomY = lineY + _titleLineThickness + padding;
-                }
-                else
-                {
-                    _titleBottomY = (int)(textTop + titleSize.Height + padding);
-                }
+                RefreshPanelLayoutContext(rectangle);
+                BeepPanelPainter.DrawTitleOverlay(
+                    g,
+                    _panelState,
+                    _panelLayoutContext,
+                    _textFont,
+                    textColor,
+                    BackColor,
+                    _titleLineColor);
             }
             catch { }
         }
@@ -1405,48 +1436,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void DrawGroupBoxTitle(Graphics g, Rectangle rectangle)
         {
-            if (string.IsNullOrEmpty(_titleText) || _textFont == null) return;
-
-            try
-            {
-                var titleSize = TextRenderer.MeasureText(_titleText, _textFont);
-                int titleY = DrawingRect.Top;
-                int titleX = 0;
-
-                // Calculate title position based on alignment
-                switch (_titleAlignment)
-                {
-                    case ContentAlignment.TopLeft:
-                        titleX = DrawingRect.Left + _titleGap;
-                        break;
-                    case ContentAlignment.TopCenter:
-                        titleX = DrawingRect.Left + (DrawingRect.Width - titleSize.Width) / 2;
-                        break;
-                    case ContentAlignment.TopRight:
-                        titleX = DrawingRect.Right - titleSize.Width - _titleGap;
-                        break;
-                }
-
-                // Use theme-aware color
-                Color textColor = ForeColor;
-                if (UseThemeColors && _currentTheme != null)
-                {
-                    textColor = _currentTheme.PrimaryTextColor;
-                }
-
-                // Draw text with background to break the border
-                Rectangle textRect = new Rectangle(titleX - 4, titleY - titleSize.Height / 2, titleSize.Width + 8, titleSize.Height);
-                
-                // Fill background to create gap in border
-                using (var brush = new SolidBrush(BackColor))
-                {
-                    g.FillRectangle(brush, textRect);
-                }
-
-                // Draw the title text
-                TextRenderer.DrawText(g, _titleText, _textFont, new Point(titleX, titleY - titleSize.Height / 2), textColor);
-            }
-            catch { }
+            DrawTitle(g, rectangle);
         }
 
         public override void Draw(Graphics graphics, Rectangle rectangle)
@@ -1454,6 +1444,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_isDisposing || IsDisposed ) return;
             try
             {
+                RefreshPanelLayoutContext(rectangle);
                 DrawTitle(graphics, rectangle);
                 // var children = Controls.Cast<Control>().ToArray();
                 // foreach (Control ctrl in children)

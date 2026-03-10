@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (value >= -1 && value < _items.Count)
                 {
-                    _focusedIndex = value;
+                    SetFocusedIndex(value);
                     Invalidate();
                 }
             }
@@ -111,9 +111,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_items.Count == 0) return;
 
             if (_focusedIndex <= 0)
-                _focusedIndex = _items.Count - 1;
+                SetFocusedIndex(_items.Count - 1);
             else
-                _focusedIndex--;
+                SetFocusedIndex(_focusedIndex - 1);
 
             UpdateFocusVisuals();
         }
@@ -123,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_items.Count == 0) return;
 
             if (_focusedIndex >= _items.Count - 1)
-                _focusedIndex = 0;
+                SetFocusedIndex(0);
             else
-                _focusedIndex++;
+                SetFocusedIndex(_focusedIndex + 1);
 
             UpdateFocusVisuals();
         }
@@ -133,14 +133,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void NavigateFirst()
         {
             if (_items.Count == 0) return;
-            _focusedIndex = 0;
+            SetFocusedIndex(0);
             UpdateFocusVisuals();
         }
 
         private void NavigateLast()
         {
             if (_items.Count == 0) return;
-            _focusedIndex = _items.Count - 1;
+            SetFocusedIndex(_items.Count - 1);
             UpdateFocusVisuals();
         }
 
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ClearFocus()
         {
-            _focusedIndex = -1;
+            SetFocusedIndex(-1);
             Invalidate();
         }
 
@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (index >= 0 && index < _items.Count)
             {
-                _focusedIndex = index;
+                SetFocusedIndex(index);
                 ActivateFocusedItem();
             }
         }
@@ -175,6 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < _itemStates.Count; i++)
             {
                 _itemStates[i].IsHovered = (i == _focusedIndex);
+                _itemStates[i].IsFocused = (i == _focusedIndex);
             }
 
             // Scroll focused item into view if needed
@@ -288,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Start keyboard navigation at first item if nothing is focused
             if (_focusedIndex < 0 && _items.Count > 0)
             {
-                _focusedIndex = 0;
+                SetFocusedIndex(0);
                 UpdateFocusVisuals();
             }
         }
@@ -304,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < _itemStates.Count; i++)
             {
                 _itemStates[i].IsHovered = false;
+                _itemStates[i].IsFocused = false;
             }
             Invalidate();
         }

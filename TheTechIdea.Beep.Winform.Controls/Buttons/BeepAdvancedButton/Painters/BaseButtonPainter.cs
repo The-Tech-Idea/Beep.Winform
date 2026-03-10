@@ -284,10 +284,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
         protected AdvancedButtonMetrics GetMetrics(AdvancedButtonPaintContext context)
         {
-            return AdvancedButtonMetrics.GetMetrics(context.ButtonSize);
+            return AdvancedButtonMetrics.GetMetrics(context.ButtonSize, context.OwnerControl);
         }
 
-        private static Color Blend(Color from, Color to, float amount)
+        protected void DrawFocusRingPrimitive(Graphics g, AdvancedButtonPaintContext context)
+        {
+            if (!context.ShowFocusRing || context.State != AdvancedButtonState.Focused || context.Bounds.Width <= 0 || context.Bounds.Height <= 0)
+            {
+                return;
+            }
+
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
+            Rectangle ringBounds = context.Bounds;
+            ringBounds.Inflate(-tokens.FocusRingOffset, -tokens.FocusRingOffset);
+            if (ringBounds.Width <= 0 || ringBounds.Height <= 0)
+            {
+                return;
+            }
+
+            using GraphicsPath ringPath = ButtonShapeHelper.CreateShapePath(context.Shape == ButtonShape.Split ? ButtonShape.RoundedRectangle : context.Shape, ringBounds, Math.Max(0, tokens.BorderRadius + tokens.FocusRingRadiusDelta));
+            using Pen focusPen = new Pen(context.FocusRingColor, tokens.FocusRingThickness)
+            {
+                Alignment = PenAlignment.Inset
+            };
+            g.DrawPath(focusPen, ringPath);
+        }
+
+        protected static Color Blend(Color from, Color to, float amount)
         {
             float t = Math.Clamp(amount, 0f, 1f);
             int a = (int)(from.A + (to.A - from.A) * t);

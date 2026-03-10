@@ -3,29 +3,31 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    internal sealed class ArrowStripePainter : IProgressPainter
+    internal sealed class ArrowStripePainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.ArrowStripe);
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var rect = bounds; rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
+            var rect = bounds;
 
             using var back = new SolidBrush(owner.BackColor);
             g.FillRectangle(back, rect);
 
-            int gap = GetInt(p, "ArrowGap", 2);
-            int skew = GetInt(p, "ArrowSkew", 8);
+            int gap = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "ArrowGap", 2));
+            int skew = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "ArrowSkew", 8));
             Color baseColor = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
             if (!owner.Enabled)
             {
                 baseColor = Color.FromArgb(120, baseColor);
             }
-            var gradient = GetBool(p, "ArrowGradient", true);
+            var gradient = ProgressPainterParameterContracts.GetBool(p, "ArrowGradient", true);
 
             float pct = owner.DisplayProgressPercentageAccessor;
             int filledW = (int)(pct * rect.Width);
@@ -58,15 +60,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             {
                 borderColor = Color.FromArgb(120, borderColor);
             }
-            using var borderPen = new Pen(borderColor, 1);
+            using var borderPen = new Pen(borderColor, ProgressBarDpiHelpers.Scale(owner, 1));
             g.DrawRectangle(borderPen, rect);
         }
 
         public void UpdateHitAreas(BeepProgressBar owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> p, Action<string, Rectangle> register) { }
 
-        private static int GetInt(IReadOnlyDictionary<string, object> p, string key, int fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToInt32(v) : fallback;
-        private static bool GetBool(IReadOnlyDictionary<string, object> p, string key, bool fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is bool b ? b : fallback;
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
+        }
     }
 }

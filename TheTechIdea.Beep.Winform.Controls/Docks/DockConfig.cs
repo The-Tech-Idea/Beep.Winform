@@ -28,6 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         public float MaxScale { get; set; } = 1.5f;
         public float SelectedScale { get; set; } = 1.1f;
         public int HoverOffset { get; set; } = 20;
+        public int HoverEnterDelay { get; set; } = 120;
+        public float PressedScale { get; set; } = 0.95f;
+        public int DragHysteresis { get; set; } = 8;
 
         // Visual Effects
         public bool ShowShadow { get; set; } = true;
@@ -58,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         public bool EnableContextMenu { get; set; } = true;
         public bool AutoHide { get; set; } = false;
         public int AutoHideDelay { get; set; } = 2000;
+        public bool EnableOverflow { get; set; } = true;
 
         // Colors (nullable for theme override)
         public Color? BackgroundColor { get; set; }
@@ -81,6 +85,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         public float CurrentRotation { get; set; } = 0f;
         public float CurrentOpacity { get; set; } = 1.0f;
         public bool IsHovered { get; set; }
+        public bool IsPressed { get; set; }
+        public bool IsFocused { get; set; }
+        public bool IsDisabled { get; set; }
         public bool IsSelected { get; set; }
         public bool IsRunning { get; set; }
         public bool IsDragging { get; set; }

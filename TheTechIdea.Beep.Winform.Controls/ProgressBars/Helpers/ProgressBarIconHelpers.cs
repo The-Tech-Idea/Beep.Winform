@@ -106,7 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             int iconSize = (int)(Math.Min(bounds.Width, bounds.Height) * iconRatio * sizeMultiplier);
             
             // Ensure minimum and maximum sizes
-            iconSize = Math.Max(12, Math.Min(iconSize, 64));
+            int minSize = ProgressBarDpiHelpers.Scale(progressBar, 12);
+            int maxSize = ProgressBarDpiHelpers.Scale(progressBar, 64);
+            iconSize = Math.Max(minSize, Math.Min(iconSize, maxSize));
             
             return new Size(iconSize, iconSize);
         }

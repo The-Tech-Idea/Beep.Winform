@@ -5,10 +5,11 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    internal sealed class LinearTrackerIconPainter : IProgressPainter
+    internal sealed class LinearTrackerIconPainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.LinearTrackerIcon);
 
@@ -22,16 +23,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             linear.Paint(g, bounds, theme, owner, p);
 
             // tracker icon parameters
-            string iconPath = GetString(p, "TrackerIconPath", string.Empty);
-            int iconSize = GetInt(p, "TrackerIconSize", Math.Max(14, bounds.Height));
-            string easing = GetString(p, "TrackerEasing", "linear");
+            string iconPath = ProgressPainterParameterContracts.GetString(p, "TrackerIconPath", string.Empty);
+            int iconSize = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "TrackerIconSize", Math.Max(14, bounds.Height)));
+            string easing = ProgressPainterParameterContracts.GetString(p, "TrackerEasing", "linear");
 
             float pct = owner.DisplayProgressPercentageAccessor;
             float te = ApplyEasing(pct, easing);
 
-            var rect = bounds; rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
+            var rect = bounds;
             int cx = rect.Left + (int)(te * rect.Width);
-            var iconRect = new Rectangle(cx - iconSize/2, rect.Top - iconSize - 4, iconSize, iconSize);
+            var iconRect = new Rectangle(cx - iconSize/2, rect.Top - iconSize - ProgressBarDpiHelpers.Scale(owner, 4), iconSize, iconSize);
 
             if (!string.IsNullOrEmpty(iconPath))
             {
@@ -53,17 +54,33 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 {
                     markerColor = Color.FromArgb(120, markerColor);
                 }
-                using var pen = new Pen(markerColor, 2) { StartCap = LineCap.Round, EndCap = LineCap.Round };
-                g.DrawLine(pen, cx, rect.Top - 8, cx, rect.Bottom + 8);
+                using var pen = new Pen(markerColor, ProgressBarDpiHelpers.Scale(owner, 2)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+                int ext = ProgressBarDpiHelpers.Scale(owner, 8);
+                g.DrawLine(pen, cx, rect.Top - ext, cx, rect.Bottom + ext);
             }
         }
 
         public void UpdateHitAreas(BeepProgressBar owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> p, Action<string, Rectangle> register) { }
 
-        private static int GetInt(IReadOnlyDictionary<string, object> p, string key, int fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToInt32(v) : fallback;
-        private static string GetString(IReadOnlyDictionary<string, object> p, string key, string fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is string s ? s : fallback;
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
+        }
         private static float ApplyEasing(float t, string easing)
         {
             t = Math.Max(0f, Math.Min(1f, t));

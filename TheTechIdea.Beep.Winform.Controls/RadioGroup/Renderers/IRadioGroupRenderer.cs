@@ -26,6 +26,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// Gets whether this renderer supports multiple selection
         /// </summary>
         bool SupportsMultipleSelection { get; }
+
+        /// <summary>
+        /// Gets or sets the active selection mode contract from owner control.
+        /// Renderers must use this value instead of runtime reflection.
+        /// </summary>
+        bool AllowMultipleSelection { get; set; }
         
         /// <summary>
         /// Gets or sets the BeepControlStyle for this renderer

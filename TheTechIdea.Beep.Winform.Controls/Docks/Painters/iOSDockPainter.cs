@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
@@ -176,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             int badgeHeight = Math.Max(20, iconBounds.Height / 4);
             int minWidth = badgeHeight;
             
-            using (var font = new Font("Segoe UI", badgeHeight * 0.55f, FontStyle.Bold))
+            using (var font = DockFontHelpers.GetBadgeFont(TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3))
             {
                 var textSize = g.MeasureString(text, font);
                 int badgeWidth = Math.Max(minWidth, (int)textSize.Width + 8);

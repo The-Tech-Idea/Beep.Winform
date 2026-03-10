@@ -5,11 +5,14 @@ using System.Drawing.Text;
 using System.Drawing;
   
   
+using TheTechIdea.Beep.Winform.Controls.Labels.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Labels.Models;
+using TheTechIdea.Beep.Winform.Controls.Labels.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -25,7 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int WM_SETREDRAW = 0x000B;
 
         #region "Fields"
-        private BeepImage beepImage;
+        private string _imagePath = string.Empty;
+        private Size _resolvedImageSize = Size.Empty;
+        private bool _hasResolvedImage;
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private Size _maxImageSize = new Size(16, 16);
@@ -39,6 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _wordWrap = false;
         private Rectangle contentRect;
         private Font _textFont;
+        private readonly BeepLabelState _state = new BeepLabelState();
+        private BeepLabelLayoutContext _layoutContext = new BeepLabelLayoutContext();
+        private string _lastAccessibilitySnapshot = string.Empty;
+        private LabelStyleConfig _styleProfile = new LabelStyleConfig();
+        private LabelColorConfig _colorProfile = new LabelColorConfig();
         // Add subheader field
         private string _subHeaderText = string.Empty;
         // Add spacing between header and subheader
@@ -57,6 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _subHeaderText = value;
+                UpdateAccessibilitySnapshot();
                 Invalidate();
                 UpdateMinimumSize();
                 if (AutoSize)
@@ -95,11 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_subHeaderFont == null && _textFont != null)
                 {
-                    // Default to a slightly smaller font than header (scale subtraction for DPI)
-                    float subSize = _textFont.Size - DpiScalingHelper.ScaleValue(2, this);
-                    _subHeaderFont = new Font(_textFont.FontFamily,
-                                            Math.Max(6f, subSize),
-                                            FontStyle.Regular);
+                    _subHeaderFont = _currentTheme?.SmallText != null
+                        ? BeepThemesManager.ToFont(_currentTheme.SmallText)
+                        : _textFont;
                 }
                 return _subHeaderFont;
             }
@@ -162,6 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _hideText = value;
+                UpdateAccessibilitySnapshot();
                 Invalidate();
             }
         }
@@ -202,12 +212,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
-                beepImage.ApplyThemeOnImage = value;
-                if (value)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyThemeToSvg();
-                }
                 Invalidate();
             }
         }
@@ -231,25 +235,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
-            get => beepImage?.ImagePath;
+            get => _imagePath;
             set
             {
-                if (beepImage == null)
-                {
-                    beepImage = new BeepImage();
-                }
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    if (ApplyThemeOnImage)
-                    {
-                        beepImage.Theme = Theme;
-                        beepImage.ApplyThemeOnImage = true;
-                        beepImage.ApplyThemeToSvg();
-                        beepImage.ApplyTheme();
-                    }
-                    Invalidate();
-                }
+                _imagePath = value ?? string.Empty;
+                _hasResolvedImage = false;
+                _resolvedImageSize = Size.Empty;
+                UpdateAccessibilitySnapshot();
+                Invalidate();
             }
         }
 
@@ -262,6 +255,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _maxImageSize = value;
+                _resolvedImageSize = Size.Empty;
+                _hasResolvedImage = false;
                 Invalidate();
             }
         }
@@ -277,7 +272,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
-                // Font = value;
+                Invalidate();
+            }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public LabelStyleConfig StyleProfile
+        {
+            get => _styleProfile;
+            set
+            {
+                _styleProfile = value ?? new LabelStyleConfig();
+                ApplyStyleProfile();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public LabelColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                _colorProfile = value ?? new LabelColorConfig();
+                ApplyColorProfile();
                 Invalidate();
             }
         }
@@ -391,9 +412,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // 3) Image size (if any) limited by MaxImageSize
                 Size imgSize = Size.Empty;
-                if (beepImage?.HasImage == true)
+                if (HasImage)
                 {
-                    imgSize = beepImage.GetImageSize();
+                    imgSize = GetResolvedImageSize();
                     var maxSz = MaxImageSize;
                     if (imgSize.Width > maxSz.Width || imgSize.Height > maxSz.Height)
                     {
@@ -462,16 +483,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             DoubleBuffered = true;
             SetStyle(ControlStyles.Selectable, false);
             InitializeComponents();
-            beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
-
-         
+            ApplyStyleProfile();
+            UpdateAccessibilitySnapshot();
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             _maxImageSize = DpiScalingHelper.ScaleSize(new Size(16, 16), this);
+            _hasResolvedImage = false;
         }
 
         protected override void InitLayout()
@@ -523,20 +544,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnTextChanged(e);
             UpdateMinimumSize();
+            UpdateAccessibilitySnapshot();
             Invalidate();
         }
      
         private void InitializeComponents()
         {
-            beepImage = new BeepImage
-            {
-                IsChild = true,
-                Visible = false,
-                Dock = DockStyle.None,
-                Margin = new Padding(0),
-                Location = new Point(0, 0),
-                Size = _maxImageSize
-            };
             Padding = new Padding(1);
             Margin = new Padding(0);
         }
@@ -570,119 +583,115 @@ namespace TheTechIdea.Beep.Winform.Controls
             var rect = bounds;
             rect.Inflate(-inset, -inset);
             contentRect = rect;
-            DrawImageAndText(g);
+            DrawImageAndText(g, rect);
         }
-        private void DrawImageAndText(Graphics g)
+        private void DrawImageAndText(Graphics g, Rectangle bounds)
         {
+            _state.HeaderText = Text ?? string.Empty;
+            _state.SubHeaderText = SubHeaderText ?? string.Empty;
+            _state.HasImage = HasImage;
+            _state.ImagePath = ImagePath;
+            _state.HideText = HideText;
+            _state.IsEnabled = Enabled;
+            _state.Multiline = Multiline;
+            _state.WordWrap = WordWrap;
+            _state.AutoEllipsis = AutoEllipsis;
+            _state.TextImageRelation = TextImageRelation;
+            _state.TextAlign = TextAlign;
+            _state.ImageAlign = ImageAlign;
+            _state.MaxImageSize = MaxImageSize;
 
+            Font headerFont = BeepLabelFontHelpers.GetHeaderFont(this, _currentTheme);
+            Font subHeaderFont = BeepLabelFontHelpers.GetSubHeaderFont(this, _currentTheme, headerFont);
+            Size imageSize = HasImage ? GetResolvedImageSize() : Size.Empty;
+            bool hasSubHeader = !string.IsNullOrEmpty(_state.SubHeaderText);
+            bool wrapText = _state.Multiline || _state.WordWrap;
+            Size headerTextSize = wrapText
+                ? TextRenderer.MeasureText(g, _state.HeaderText, headerFont, new Size(contentRect.Width, int.MaxValue), BeepLabelLayoutHelper.GetTextFormatFlags(_state))
+                : TextRenderer.MeasureText(g, _state.HeaderText, headerFont, new Size(int.MaxValue, int.MaxValue), BeepLabelLayoutHelper.GetTextFormatFlags(_state));
 
-
-            bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
-
-            // Framework handles DPI scaling automatically - use fonts directly
-            Font scaledFont = _textFont;
-            Font scaledSubHeaderFont = hasSubHeader ? SubHeaderFont : null;
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                var maxSz = MaxImageSize;
-                float scaleFactor = Math.Min(
-                    (float)maxSz.Width / Math.Max(1, imageSize.Width),
-                    (float)maxSz.Height / Math.Max(1, imageSize.Height));
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            // Measure header text (use bounded width when wrapping)
-            bool wrapText = _multiline || _wordWrap;
-            Size headerTextSize;
-            if (wrapText)
-            {
-                headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(contentRect.Width, int.MaxValue),
-                    GetTextFormatFlags(TextAlign));
-            }
-            else
-            {
-                headerTextSize = TextRenderer.MeasureText(g, Text, scaledFont, new Size(int.MaxValue, int.MaxValue),
-                    GetTextFormatFlags(TextAlign));
-            }
-
-            // Measure subheader text if present
             Size subHeaderTextSize = Size.Empty;
             if (hasSubHeader)
             {
-                if (wrapText)
-                {
-                    subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
-                        new Size(contentRect.Width, int.MaxValue),
-                        GetTextFormatFlags(TextAlign));
-                }
-                else
-                {
-                    subHeaderTextSize = TextRenderer.MeasureText(g, SubHeaderText, scaledSubHeaderFont,
-                        new Size(int.MaxValue, int.MaxValue),
-                        GetTextFormatFlags(TextAlign));
-                }
+                subHeaderTextSize = wrapText
+                    ? TextRenderer.MeasureText(g, _state.SubHeaderText, subHeaderFont, new Size(contentRect.Width, int.MaxValue), BeepLabelLayoutHelper.GetTextFormatFlags(_state))
+                    : TextRenderer.MeasureText(g, _state.SubHeaderText, subHeaderFont, new Size(int.MaxValue, int.MaxValue), BeepLabelLayoutHelper.GetTextFormatFlags(_state));
             }
 
-            // Calculate combined text height (include scaled spacing between header and subheader)
-            int combinedTextHeight = headerTextSize.Height;
-            if (hasSubHeader)
+            int spacing = DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this);
+            int combinedTextHeight = headerTextSize.Height + (hasSubHeader ? spacing + subHeaderTextSize.Height : 0);
+            Size combinedTextSize = new Size(System.Math.Max(headerTextSize.Width, subHeaderTextSize.Width), combinedTextHeight);
+
+            Rectangle imageRect;
+            Rectangle textAreaRect;
+            BeepLabelLayoutHelper.CalculateLayout(this, _state, bounds, imageSize, combinedTextSize, out imageRect, out textAreaRect);
+
+            _layoutContext = new BeepLabelLayoutContext
             {
-                combinedTextHeight += DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subHeaderTextSize.Height;
+                Bounds = bounds,
+                ContentBounds = bounds,
+                ImageBounds = imageRect,
+                TextBounds = textAreaRect,
+                HeaderSize = headerTextSize,
+                SubHeaderSize = subHeaderTextSize,
+                ImageSize = imageSize,
+                TextSize = combinedTextSize,
+                HasSubHeader = hasSubHeader
+            };
+            _layoutContext.HeaderBounds = new Rectangle(textAreaRect.X, textAreaRect.Y, textAreaRect.Width, headerTextSize.Height);
+            _layoutContext.SubHeaderBounds = hasSubHeader
+                ? new Rectangle(textAreaRect.X, _layoutContext.HeaderBounds.Bottom + spacing, textAreaRect.Width, subHeaderTextSize.Height)
+                : Rectangle.Empty;
+
+            Color headerColor = Enabled ? ForeColor : DisabledForeColor;
+            Color subHeaderColor = Enabled ? SubHeaderForeColor : DisabledForeColor;
+            headerColor = BeepLabelAccessibilityHelpers.EnsureContrast(headerColor, BackColor);
+            subHeaderColor = BeepLabelAccessibilityHelpers.EnsureContrast(subHeaderColor, BackColor);
+
+            BeepLabelPainter.Paint(g, this, _state, _layoutContext, headerFont, subHeaderFont, headerColor, subHeaderColor, ApplyThemeOnImage);
+        }
+
+        private bool HasImage => !string.IsNullOrWhiteSpace(_imagePath);
+
+        private Size GetResolvedImageSize()
+        {
+            if (!HasImage)
+            {
+                return Size.Empty;
             }
 
-            // Define text area rect (total area needed for all text)
-            Size combinedTextSize = new Size(
-                Math.Max(headerTextSize.Width, hasSubHeader ? subHeaderTextSize.Width : 0),
-                combinedTextHeight);
-
-            Rectangle imageRect, textAreaRect;
-            CalculateLayout(contentRect, imageSize, combinedTextSize, out imageRect, out textAreaRect);
-
-            if (beepImage != null && beepImage.HasImage)
+            if (_hasResolvedImage && _resolvedImageSize != Size.Empty)
             {
-                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
-                {
-                    imageSize = this.Size;
-                }
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageRect.Size;
-                beepImage.DrawImage(g, imageRect);
+                return _resolvedImageSize;
             }
 
-            // Calculate individual text rectangles within the text area
-            if (!string.IsNullOrEmpty(Text) && !HideText)
+            Size resolved = _maxImageSize;
+            try
             {
-                Rectangle headerTextRect = new Rectangle(
-                    textAreaRect.X,
-                    textAreaRect.Y,
-                    textAreaRect.Width,
-                    headerTextSize.Height);
-
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
-                // Draw header text
-                TextRenderer.DrawText(g, Text, scaledFont, headerTextRect, ForeColor, flags);
-
-                // Draw subheader text if present
-                if (hasSubHeader)
+                using var painter = new ImagePainter(_imagePath);
+                if (painter.HasImage)
                 {
-                    int spacing = DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this);
-                    Rectangle subHeaderTextRect = new Rectangle(
-                        textAreaRect.X,
-                        headerTextRect.Bottom + spacing,
-                        textAreaRect.Width,
-                        subHeaderTextSize.Height);
-
-                    TextRenderer.DrawText(g, SubHeaderText, scaledSubHeaderFont,
-                        subHeaderTextRect, SubHeaderForeColor, flags);
+                    resolved = painter.ImageSize;
                 }
             }
+            catch
+            {
+                resolved = _maxImageSize;
+            }
 
+            if (resolved.Width > _maxImageSize.Width || resolved.Height > _maxImageSize.Height)
+            {
+                float scaleFactor = System.Math.Min(
+                    (float)_maxImageSize.Width / System.Math.Max(1, resolved.Width),
+                    (float)_maxImageSize.Height / System.Math.Max(1, resolved.Height));
+                resolved = new Size(
+                    System.Math.Max(1, (int)(resolved.Width * scaleFactor)),
+                    System.Math.Max(1, (int)(resolved.Height * scaleFactor)));
+            }
+
+            _resolvedImageSize = resolved;
+            _hasResolvedImage = true;
+            return _resolvedImageSize;
         }
 
 
@@ -717,17 +726,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (UseThemeFont)
                 {
                     _textFont = BeepFontManager.ToFont(_currentTheme.LabelFont);
-
-                    // Create a smaller font for subheader if not explicitly set
-                    if (_subHeaderFont == null)
-                    {
-                        _subHeaderFont = new Font(_textFont.FontFamily,
-                                               _textFont.Size - 2,
-                                               FontStyle.Regular);
-                    }
+                    _subHeaderFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
                 }
                 // SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
+                ApplyStyleProfile();
+                ApplyColorProfile();
+                UpdateAccessibilitySnapshot();
                 //Invalidate();
                 //Refresh();
             }
@@ -736,23 +741,73 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public void ApplyThemeToSvg()
         {
-            if (beepImage != null)
+            Invalidate();
+        }
+
+        private void ApplyStyleProfile()
+        {
+            if (_styleProfile == null)
             {
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.BackColor = BackColor;
-                    if (IsChild)
-                    {
-                        beepImage.ForeColor = _currentTheme.LabelForeColor;
-                    }
-                    else
-                    {
-                        beepImage.ForeColor = _currentTheme.LabelForeColor;
-                    }
-                    beepImage.ApplyThemeToSvg();
-                }
+                return;
             }
+
+            textImageRelation = _styleProfile.TextImageRelation;
+            _textAlign = _styleProfile.TextAlign;
+            imageAlign = _styleProfile.ImageAlign;
+            _headerSubheaderSpacing = _styleProfile.HeaderSubheaderSpacing;
+            _multiline = _styleProfile.Multiline;
+            _wordWrap = _styleProfile.WordWrap;
+            _autoEllipsis = _styleProfile.AutoEllipsis;
+        }
+
+        private void ApplyColorProfile()
+        {
+            if (_colorProfile == null)
+            {
+                return;
+            }
+
+            if (_colorProfile.BackColor != Color.Empty)
+            {
+                BackColor = _colorProfile.BackColor;
+            }
+
+            if (_colorProfile.ForeColor != Color.Empty)
+            {
+                ForeColor = _colorProfile.ForeColor;
+            }
+
+            if (_colorProfile.SubHeaderForeColor != Color.Empty)
+            {
+                _subHeaderForeColor = _colorProfile.SubHeaderForeColor;
+            }
+
+            if (_colorProfile.DisabledBackColor != Color.Empty)
+            {
+                DisabledBackColor = _colorProfile.DisabledBackColor;
+            }
+
+            if (_colorProfile.DisabledForeColor != Color.Empty)
+            {
+                DisabledForeColor = _colorProfile.DisabledForeColor;
+            }
+
+            if (_colorProfile.BorderColor != Color.Empty)
+            {
+                BorderColor = _colorProfile.BorderColor;
+            }
+        }
+
+        private void UpdateAccessibilitySnapshot()
+        {
+            string snapshot = $"{Text}|{_subHeaderText}|{_imagePath}|{Enabled}";
+            if (snapshot == _lastAccessibilitySnapshot)
+            {
+                return;
+            }
+
+            BeepLabelAccessibilityHelpers.ApplyAccessibility(this, _subHeaderText, HasImage);
+            _lastAccessibilitySnapshot = snapshot;
         }
         #endregion "Theme"
 
@@ -801,8 +856,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!SetFont() && UseThemeFont)
             {
-                _textFont = BeepFontManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepFontManager.ToFont(_currentTheme.LabelFont);
             }
+
+            _state.HeaderText = Text ?? string.Empty;
+            _state.SubHeaderText = SubHeaderText ?? string.Empty;
+            _state.HideText = HideText;
+            _state.HasImage = HasImage;
+            _state.Multiline = _multiline;
+            _state.WordWrap = _wordWrap;
+            _state.AutoEllipsis = _autoEllipsis;
+            _state.TextAlign = TextAlign;
+            _state.ImageAlign = ImageAlign;
+            _state.TextImageRelation = TextImageRelation;
 
             // Use the control's current width as the constraint when wrapping
             bool wrapText = _multiline || _wordWrap;
@@ -814,12 +880,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (wrapText)
             {
                 headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue),
-                    GetTextFormatFlags(TextAlign));
+                    BeepLabelLayoutHelper.GetTextFormatFlags(_state));
             }
             else
             {
                 headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue),
-                    GetTextFormatFlags(TextAlign));
+                    BeepLabelLayoutHelper.GetTextFormatFlags(_state));
             }
 
             // Measure subheader text size
@@ -832,13 +898,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
                         new Size(maxWidth, int.MaxValue),
-                        GetTextFormatFlags(TextAlign));
+                        BeepLabelLayoutHelper.GetTextFormatFlags(_state));
                 }
                 else
                 {
                     subHeaderTextSize = TextRenderer.MeasureText(SubHeaderText, SubHeaderFont,
                         new Size(int.MaxValue, int.MaxValue),
-                        GetTextFormatFlags(TextAlign));
+                        BeepLabelLayoutHelper.GetTextFormatFlags(_state));
                 }
             }
 
@@ -851,7 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textHeight += DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subHeaderTextSize.Height;
             }
 
-            Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
+            Size imageSize = HasImage ? GetResolvedImageSize() : Size.Empty;
 
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
@@ -866,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate layout without depending on DrawingRect
             Rectangle contentRect = new Rectangle(0, 0, maxWidth, textHeight);
             Rectangle textRect, imageRect;
-            CalculateLayout(contentRect, imageSize, new Size(textWidth, textHeight), out imageRect, out textRect);
+            BeepLabelLayoutHelper.CalculateLayout(this, _state, contentRect, imageSize, new Size(textWidth, textHeight), out imageRect, out textRect);
 
             Rectangle bounds = Rectangle.Union(imageRect, textRect);
             int width = bounds.Width + Padding.Left + Padding.Right;
@@ -888,219 +954,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region"Text and Alignment"
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
-            imageRect = Rectangle.Empty;
-            textRect = Rectangle.Empty;
-
-            bool hasImage = imageSize != Size.Empty;
-            bool hasText = !string.IsNullOrEmpty(Text) && !HideText;
-
-            int inflateVal = DpiScalingHelper.ScaleValue(2, this);
-            contentRect.Inflate(-inflateVal, -inflateVal);
-
-            if (hasImage && !hasText)
-            {
-                imageRect = AlignRectangle(contentRect, imageSize, ContentAlignment.MiddleCenter);
-            }
-            else if (hasText && !hasImage)
-            {
-                if (_multiline)
-                {
-                    textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
-                }
-                textRect = AlignRectangle(contentRect, textSize, TextAlign);
-            }
-            else if (hasImage && hasText)
-            {
-                if (_multiline)
-                {
-                    textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
-                }
-                // Calculate the total width required for text, image, and spacing
-                int totalWidth = textSize.Width + imageSize.Width;
-                int totalHeight = Math.Max(textSize.Height, imageSize.Height);
-
-                // Adjust contentRect to fit the total content
-                contentRect.Width = Math.Min(contentRect.Width, totalWidth);
-                contentRect.Height = Math.Min(contentRect.Height, totalHeight);
-                switch (this.TextImageRelation)
-                {
-                    case TextImageRelation.Overlay:
-                        imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
-                        textRect = AlignRectangle(contentRect, textSize, TextAlign);
-                        break;
-
-                    case TextImageRelation.ImageBeforeText:
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width, contentRect.Top, contentRect.Width - imageSize.Width, contentRect.Height), textSize, TextAlign);
-                        break;
-
-                    case TextImageRelation.TextBeforeImage:
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width, contentRect.Top, contentRect.Width - textSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        break;
-
-                    case TextImageRelation.ImageAboveText:
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height, contentRect.Width, contentRect.Height - imageSize.Height), textSize, TextAlign);
-                        break;
-
-                    case TextImageRelation.TextAboveImage:
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height, contentRect.Width, contentRect.Height - textSize.Height), imageSize, ImageAlign);
-                        break;
-                }
-                // Adjust positions based on TextAlign and ImageAlign within the contentRect
-                if (TextImageRelation == TextImageRelation.TextBeforeImage)
-                {
-                    // Recalculate the total content width and adjust positions
-                    int contentWidth = textRect.Width + imageRect.Width;
-                    int contentHeight = Math.Max(textRect.Height, imageRect.Height);
-
-                    // Center the entire content (text + image) within the contentRect based on TextAlign
-                    int contentX = contentRect.Left;
-                    int contentY = contentRect.Top;
-
-                    switch (TextAlign)
-                    {
-                        case ContentAlignment.TopLeft:
-                        case ContentAlignment.MiddleLeft:
-                        case ContentAlignment.BottomLeft:
-                            contentX = contentRect.Left;
-                            break;
-                        case ContentAlignment.TopCenter:
-                        case ContentAlignment.MiddleCenter:
-                        case ContentAlignment.BottomCenter:
-                            contentX = contentRect.Left + (contentRect.Width - contentWidth) / 2;
-                            break;
-                        case ContentAlignment.TopRight:
-                        case ContentAlignment.MiddleRight:
-                        case ContentAlignment.BottomRight:
-                            contentX = contentRect.Right - contentWidth;
-                            break;
-                    }
-
-                    switch (TextAlign)
-                    {
-                        case ContentAlignment.TopLeft:
-                        case ContentAlignment.TopCenter:
-                        case ContentAlignment.TopRight:
-                            contentY = contentRect.Top;
-                            break;
-                        case ContentAlignment.MiddleLeft:
-                        case ContentAlignment.MiddleCenter:
-                        case ContentAlignment.MiddleRight:
-                            contentY = contentRect.Top + (contentRect.Height - contentHeight) / 2;
-                            break;
-                        case ContentAlignment.BottomLeft:
-                        case ContentAlignment.BottomCenter:
-                        case ContentAlignment.BottomRight:
-                            contentY = contentRect.Bottom - contentHeight;
-                            break;
-                    }
-
-                    // Adjust text and image positions within the content area
-                    textRect = new Rectangle(contentX, contentY + (contentHeight - textRect.Height) / 2, textRect.Width, textRect.Height);
-                    imageRect = new Rectangle(contentX + textRect.Width, contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
-                }
-            }
+            _state.HeaderText = Text ?? string.Empty;
+            _state.HideText = HideText;
+            _state.HasImage = HasImage;
+            _state.TextImageRelation = TextImageRelation;
+            _state.TextAlign = TextAlign;
+            _state.ImageAlign = ImageAlign;
+            BeepLabelLayoutHelper.CalculateLayout(this, _state, contentRect, imageSize, textSize, out imageRect, out textRect);
         }
 
         private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
-            int x = 0;
-            int y = 0;
-
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                case ContentAlignment.MiddleLeft:
-                case ContentAlignment.BottomLeft:
-                    x = container.X;
-                    break;
-                case ContentAlignment.TopCenter:
-                case ContentAlignment.MiddleCenter:
-                case ContentAlignment.BottomCenter:
-                    x = container.X + (container.Width - size.Width) / 2;
-                    break;
-                case ContentAlignment.TopRight:
-                case ContentAlignment.MiddleRight:
-                case ContentAlignment.BottomRight:
-                    x = container.Right - size.Width;
-                    break;
-            }
-
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                case ContentAlignment.TopCenter:
-                case ContentAlignment.TopRight:
-                    y = container.Y;
-                    break;
-                case ContentAlignment.MiddleLeft:
-                case ContentAlignment.MiddleCenter:
-                case ContentAlignment.MiddleRight:
-                    y = container.Y + (container.Height - size.Height) / 2;
-                    break;
-                case ContentAlignment.BottomLeft:
-                case ContentAlignment.BottomCenter:
-                case ContentAlignment.BottomRight:
-                    y = container.Bottom - size.Height;
-                    break;
-            }
-
-            return new Rectangle(new Point(x, y), size);
+            return BeepLabelLayoutHelper.AlignRectangle(container, size, alignment);
         }
 
         private TextFormatFlags GetTextFormatFlags(ContentAlignment alignment)
         {
-            TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping;
-
-            if (_multiline || _wordWrap)
-            {
-                flags |= TextFormatFlags.WordBreak;
-            }
-            else
-            {
-                flags |= TextFormatFlags.SingleLine;
-            }
-
-            if (_autoEllipsis)
-            {
-                flags |= TextFormatFlags.EndEllipsis;
-            }
-
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.TopCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.TopRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.Top;
-                    break;
-                case ContentAlignment.MiddleLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.MiddleCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.MiddleRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.VerticalCenter;
-                    break;
-                case ContentAlignment.BottomLeft:
-                    flags |= TextFormatFlags.Left | TextFormatFlags.Bottom;
-                    break;
-                case ContentAlignment.BottomCenter:
-                    flags |= TextFormatFlags.HorizontalCenter | TextFormatFlags.Bottom;
-                    break;
-                case ContentAlignment.BottomRight:
-                    flags |= TextFormatFlags.Right | TextFormatFlags.Bottom;
-                    break;
-            }
-
-            return flags;
+            _state.Multiline = _multiline;
+            _state.WordWrap = _wordWrap;
+            _state.AutoEllipsis = _autoEllipsis;
+            _state.TextAlign = alignment;
+            return BeepLabelLayoutHelper.GetTextFormatFlags(_state);
         }
         #endregion "Text and Alignment"
 

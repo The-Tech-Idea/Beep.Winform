@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Docks;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
 {
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintDockBackground(Graphics g, Rectangle bounds, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var metrics = GetMetrics(config, theme, false);
+            var metrics = GetScaledMetrics(config, theme, g);
 
             // Paint shadow first
             if (metrics.ShowShadow)
@@ -138,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var metrics = GetMetrics(config, theme, false);
+            var metrics = GetScaledMetrics(config, theme, g);
 
             var bounds = itemState.Bounds;
 
@@ -149,15 +150,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
 
             // Main icon
-            if (!string.IsNullOrEmpty(itemState.Item.ImagePath))
-            {
-                PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, theme, itemState.CurrentOpacity);
-            }
+            PaintItemIcon(g, itemState, config, theme, itemState.CurrentOpacity);
 
             // Reflection effect
             if (metrics.ShowReflection && (itemState.IsHovered || itemState.IsSelected))
             {
-                PaintReflection(g, bounds, itemState, metrics);
+                PaintReflection(g, bounds, itemState, metrics, config, theme);
             }
 
             // Badge (notification count)
@@ -192,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        private void PaintReflection(Graphics g, Rectangle bounds, DockItemState itemState, DockPainterMetrics metrics)
+        private void PaintReflection(Graphics g, Rectangle bounds, DockItemState itemState, DockPainterMetrics metrics, DockConfig config, IBeepTheme theme)
         {
             if (string.IsNullOrEmpty(itemState.Item.ImagePath))
                 return;
@@ -221,8 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 using (var fadePath = CreateRoundedPath(bounds, metrics.CornerRadius / 2))
                 {
                     // Paint icon with reduced opacity for reflection
-                    var config = new DockConfig(); // Temporary for PaintItemIcon signature
-                    PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, null!, 0.3f);
+                    PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, theme, 0.3f);
                 }
 
                 g.ResetTransform();
@@ -265,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
 
             // Badge text
-            using (var font = new Font("Segoe UI", 9, FontStyle.Bold))
+            using (var font = DockFontHelpers.GetBadgeFont(TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3))
             using (var textBrush = new SolidBrush(metrics.BadgeForegroundColor))
             {
                 var sf = new StringFormat

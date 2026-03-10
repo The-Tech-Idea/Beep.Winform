@@ -45,15 +45,36 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         {
             if (state.IsDisabled)
             {
-                return (ControlPaint.Light(background, 0.15f), ControlPaint.Light(border, 0.25f));
+                return (ControlPaint.Light(background, 0.18f), ControlPaint.Light(border, 0.30f));
             }
 
             if (state.IsHovered)
             {
-                return (ControlPaint.Light(background, 0.08f), ControlPaint.Light(border, 0.06f));
+                return (ControlPaint.Light(background, 0.08f), ControlPaint.Light(border, 0.10f));
             }
 
             return (background, border);
+        }
+
+        protected Rectangle GetFocusRingBounds(Rectangle bounds)
+        {
+            var ringRect = Rectangle.Inflate(bounds, 3, 3);
+            ringRect.Width = Math.Max(1, ringRect.Width);
+            ringRect.Height = Math.Max(1, ringRect.Height);
+            return ringRect;
+        }
+
+        protected Rectangle GetGlyphBounds(Rectangle bounds, CheckBoxRenderOptions options)
+        {
+            int checkSize = options.CheckBoxSize > 0 ? options.CheckBoxSize : Math.Min(bounds.Width, bounds.Height);
+            return CheckBoxIconHelpers.CalculateCheckBoxIconBounds(bounds, checkSize, options.GlyphSizeRatio);
+        }
+
+        protected Rectangle GetIndeterminateBarBounds(Rectangle glyphBounds)
+        {
+            int barHeight = Math.Max(2, glyphBounds.Height / 6);
+            int y = glyphBounds.Y + (glyphBounds.Height - barHeight) / 2;
+            return new Rectangle(glyphBounds.X, y, glyphBounds.Width, barHeight);
         }
 
         protected void PaintFocusRing(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
@@ -66,11 +87,11 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             Color focusColor = options.Theme?.PrimaryColor != Color.Empty
                 ? options.Theme.PrimaryColor
                 : Color.FromArgb(46, 110, 240);
-            Rectangle ringRect = Rectangle.Inflate(bounds, 2, 2);
+            Rectangle ringRect = GetFocusRingBounds(bounds);
 
             using var ringPen = new Pen(Color.FromArgb(150, focusColor), 2f);
             ringPen.DashStyle = DashStyle.Solid;
-            using var ringPath = CreateRoundedPath(ringRect, Math.Max(2, options.BorderRadius + 1));
+            using var ringPath = CreateRoundedPath(ringRect, Math.Max(2, options.BorderRadius + 2));
             g.DrawPath(ringPen, ringPath);
         }
 
@@ -113,10 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             string iconPath = string.IsNullOrWhiteSpace(options.CheckIconPath)
                 ? CheckBoxIconHelpers.GetCheckIconPath()
                 : options.CheckIconPath;
-            Rectangle iconBounds = CheckBoxIconHelpers.CalculateCheckBoxIconBounds(
-                bounds,
-                options.CheckBoxSize > 0 ? options.CheckBoxSize : bounds.Width,
-                options.GlyphSizeRatio);
+            Rectangle iconBounds = GetGlyphBounds(bounds, options);
 
             if (!string.IsNullOrWhiteSpace(iconPath))
             {
@@ -140,9 +158,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 
                 PointF[] checkMarkPoints = new PointF[]
                 {
-                    new PointF(bounds.X + bounds.Width * 0.25f, bounds.Y + bounds.Height * 0.5f),
-                    new PointF(bounds.X + bounds.Width * 0.5f, bounds.Y + bounds.Height * 0.75f),
-                    new PointF(bounds.X + bounds.Width * 0.75f, bounds.Y + bounds.Height * 0.25f)
+                    new PointF(iconBounds.X + iconBounds.Width * 0.15f, iconBounds.Y + iconBounds.Height * 0.55f),
+                    new PointF(iconBounds.X + iconBounds.Width * 0.42f, iconBounds.Y + iconBounds.Height * 0.82f),
+                    new PointF(iconBounds.X + iconBounds.Width * 0.86f, iconBounds.Y + iconBounds.Height * 0.20f)
                 };
 
                 g.DrawLines(pen, checkMarkPoints);
@@ -165,10 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             string iconPath = string.IsNullOrWhiteSpace(options.IndeterminateIconPath)
                 ? CheckBoxIconHelpers.GetIndeterminateIconPath()
                 : options.IndeterminateIconPath;
-            Rectangle iconBounds = CheckBoxIconHelpers.CalculateCheckBoxIconBounds(
-                bounds,
-                options.CheckBoxSize > 0 ? options.CheckBoxSize : bounds.Width,
-                options.GlyphSizeRatio);
+            Rectangle iconBounds = GetGlyphBounds(bounds, options);
 
             if (!string.IsNullOrWhiteSpace(iconPath))
             {
@@ -186,11 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 
             using (var brush = new SolidBrush(indeterminateColor))
             {
-                Rectangle indeterminateRect = new Rectangle(
-                    bounds.X + bounds.Width / 4,
-                    bounds.Y + bounds.Height / 4,
-                    bounds.Width / 2,
-                    bounds.Height / 2);
+                Rectangle indeterminateRect = GetIndeterminateBarBounds(iconBounds);
 
                 g.FillRectangle(brush, indeterminateRect);
             }
@@ -222,9 +233,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             TextFormatFlags flags = TextFormatFlags.VerticalCenter |
                                     TextFormatFlags.EndEllipsis |
                                     TextFormatFlags.NoPrefix;
-            flags |= options.TextAlignment == TextAlignment.Left
-                ? TextFormatFlags.Right
-                : TextFormatFlags.Left;
+            flags |= options.TextAlignment switch
+            {
+                TextAlignment.Left => TextFormatFlags.Right,
+                TextAlignment.Above => TextFormatFlags.HorizontalCenter,
+                TextAlignment.Below => TextFormatFlags.HorizontalCenter,
+                _ => TextFormatFlags.Left
+            };
 
             if (bounds.Width > 0 && bounds.Height > 0)
             {

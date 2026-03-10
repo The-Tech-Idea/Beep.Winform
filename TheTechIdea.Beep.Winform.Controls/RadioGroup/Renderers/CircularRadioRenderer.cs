@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Circular";
         public string DisplayName => "Traditional Circular";
         public bool SupportsMultipleSelection => false; // Traditional radio buttons are single-selection
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {

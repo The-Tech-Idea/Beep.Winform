@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Docks;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,6 +16,20 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private readonly Dictionary<string, DockItemNotification> _notifications = new Dictionary<string, DockItemNotification>();
         private readonly Dictionary<string, DockItemProgress> _progressIndicators = new Dictionary<string, DockItemProgress>();
+        private static string GetItemKey(SimpleItem item)
+        {
+            if (!string.IsNullOrWhiteSpace(item?.GuidId))
+            {
+                return item.GuidId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(item?.Name))
+            {
+                return item.Name;
+            }
+
+            return item?.Text ?? string.Empty;
+        }
 
         /// <summary>
         /// Sets a badge count for an item
@@ -57,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Timestamp = DateTime.Now
             };
 
-            _notifications[item.Text] = notification;
+            _notifications[GetItemKey(item)] = notification;
 
             // Also set badge count
             SetBadgeCount(item, GetBadgeCount(item) + 1);
@@ -75,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return;
 
-            _notifications.Remove(item.Text);
+            _notifications.Remove(GetItemKey(item));
             SetBadgeCount(item, 0);
 
             Invalidate();
@@ -88,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return null;
 
-            _notifications.TryGetValue(item.Text, out var notification);
+            _notifications.TryGetValue(GetItemKey(item), out var notification);
             return notification;
         }
 
@@ -108,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsIndeterminate = false
             };
 
-            _progressIndicators[item.Text] = progress;
+            _progressIndicators[GetItemKey(item)] = progress;
             Invalidate();
 
             OnProgressUpdated(item, percentage);
@@ -128,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsIndeterminate = true
             };
 
-            _progressIndicators[item.Text] = progress;
+            _progressIndicators[GetItemKey(item)] = progress;
             Invalidate();
         }
 
@@ -139,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return;
 
-            _progressIndicators.Remove(item.Text);
+            _progressIndicators.Remove(GetItemKey(item));
             Invalidate();
         }
 
@@ -150,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return null;
 
-            _progressIndicators.TryGetValue(item.Text, out var progress);
+            _progressIndicators.TryGetValue(GetItemKey(item), out var progress);
             return progress;
         }
 
@@ -190,7 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             int badgeHeight = Math.Max(18, itemBounds.Height / 4);
             int minWidth = badgeHeight;
 
-            using (var font = new Font("Segoe UI", badgeHeight * 0.55f, FontStyle.Bold))
+            using (var baseBadgeFont = DockFontHelpers.GetBadgeFont(DockStyleHelpers.GetControlStyleForDock(_config.Style)))
+            using (var font = Helpers.DpiScalingHelper.ScaleFont(baseBadgeFont, Helpers.DpiScalingHelper.GetDpiScaleFactor(this)))
             {
                 var textSize = g.MeasureString(text, font);
                 int badgeWidth = Math.Max(minWidth, (int)textSize.Width + 8);
@@ -203,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Check if there's a notification to determine badge color
-                var notification = _notifications.Values.FirstOrDefault();
+                var notification = GetNotification(itemState.Item);
                 Color badgeColor = GetBadgeColor(notification?.Type ?? NotificationType.Info);
 
                 using (var path = CreateRoundedRectPath(badgeBounds, badgeHeight / 2))
@@ -239,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void PaintProgressIndicator(Graphics g, DockItemState itemState, Rectangle itemBounds)
         {
-            if (!_progressIndicators.TryGetValue(itemState.Item.Text, out var progress))
+            if (!_progressIndicators.TryGetValue(GetItemKey(itemState.Item), out var progress))
                 return;
 
             int thickness = 3;

@@ -28,8 +28,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
             for (int i = 0; i < itemStates.Count; i++)
             {
                 var state = itemStates[i];
+                if (state.IsDisabled)
+                {
+                    state.TargetScale = 1.0f;
+                    state.IsHovered = false;
+                    continue;
+                }
 
-                if (i == hoveredIndex)
+                if (state.IsPressed)
+                {
+                    state.TargetScale = Math.Max(0.85f, config.PressedScale);
+                    state.IsHovered = false;
+                }
+                else if (i == hoveredIndex)
                 {
                     // Maximum scale for hovered item
                     state.TargetScale = config.MaxScale;
@@ -79,6 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
         public static bool UpdateAnimations(List<DockItemState> itemStates, float animationSpeed)
         {
             bool needsRedraw = false;
+            animationSpeed = Math.Max(0.01f, animationSpeed);
 
             foreach (var state in itemStates)
             {
@@ -90,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 }
 
                 // Opacity animation
-                float targetOpacity = state.IsHovered || state.IsSelected ? 1.0f : 0.9f;
+                float targetOpacity = state.IsDisabled ? 0.45f : (state.IsHovered || state.IsSelected ? 1.0f : 0.9f);
                 if (Math.Abs(targetOpacity - state.CurrentOpacity) > 0.001f)
                 {
                     state.CurrentOpacity = Lerp(state.CurrentOpacity, targetOpacity, animationSpeed * 0.5f);

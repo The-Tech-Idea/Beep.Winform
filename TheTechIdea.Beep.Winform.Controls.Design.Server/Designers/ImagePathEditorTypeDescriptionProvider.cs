@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
@@ -94,11 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     if (_attributes == null)
                     {
                         var editorAttribute = new EditorAttribute(typeof(BeepImagePathEditor), typeof(UITypeEditor));
-                        var list = new List<Attribute>(_inner.Attributes.Count + 1);
+                        var converterAttribute = new TypeConverterAttribute(typeof(BeepImagesPathConverter));
+                        var list = new List<Attribute>(_inner.Attributes.Count + 2);
 
                         foreach (Attribute attribute in _inner.Attributes)
                         {
-                            if (attribute is EditorAttribute)
+                            if (attribute is EditorAttribute || attribute is TypeConverterAttribute)
                             {
                                 continue;
                             }
@@ -107,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         }
 
                         list.Add(editorAttribute);
+                        list.Add(converterAttribute);
                         _attributes = list.ToArray();
                     }
 

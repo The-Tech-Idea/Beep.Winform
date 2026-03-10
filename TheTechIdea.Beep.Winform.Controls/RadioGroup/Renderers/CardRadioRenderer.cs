@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Card";
         public string DisplayName => "Material Card Style";
         public bool SupportsMultipleSelection => true;
+        public bool AllowMultipleSelection { get; set; }
         
         public BeepControlStyle ControlStyle
         {
@@ -54,6 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private const int ComponentSpacing = 12;
         private const int CornerRadius = 8;
         private const int CardElevation = 2;
+        private int S(int value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
+        private float SF(float value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
         #endregion
 
         #region Initialization
@@ -116,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawCardShadow(Graphics graphics, Rectangle cardRect, RadioItemState state)
         {
-            int shadowIntensity = state.IsSelected ? 8 : (state.IsHovered ? 4 : 2);
+            int shadowIntensity = state.IsSelected ? S(8) : (state.IsHovered ? S(4) : S(2));
             Color shadowColor = Color.FromArgb(20, Color.Black);
 
             for (int i = 0; i < shadowIntensity; i++)
@@ -129,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 );
 
                 using (var brush = new SolidBrush(Color.FromArgb(shadowIntensity - i, shadowColor)))
-                using (var path = CreateRoundedRectanglePath(shadowRect, CornerRadius))
+                using (var path = CreateRoundedRectanglePath(shadowRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
                 }
@@ -164,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                                    Math.Max(0, backgroundColor.G - 20), 
                                    Math.Max(0, backgroundColor.B - 20)), 
                     LinearGradientMode.Vertical))
-                using (var path = CreateRoundedRectanglePath(cardRect, CornerRadius))
+                using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
                 }
@@ -172,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             else
             {
                 using (var brush = new SolidBrush(backgroundColor))
-                using (var path = CreateRoundedRectanglePath(cardRect, CornerRadius))
+                using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
                 }
@@ -186,31 +190,31 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             if (!state.IsEnabled)
             {
                 borderColor = colors.DisabledBorder;
-                borderWidth = 1f;
+                borderWidth = SF(1f);
             }
             else if (state.IsSelected)
             {
                 borderColor = colors.SelectedBorder;
-                borderWidth = 2f;
+                borderWidth = SF(2f);
             }
             else if (state.IsFocused)
             {
                 borderColor = colors.FocusBorder;
-                borderWidth = 2f;
+                borderWidth = SF(2f);
             }
             else if (state.IsHovered)
             {
                 borderColor = colors.HoverBorder;
-                borderWidth = 1.5f;
+                borderWidth = SF(1.5f);
             }
             else
             {
                 borderColor = colors.Border;
-                borderWidth = 1f;
+                borderWidth = SF(1f);
             }
 
             using (var pen = new Pen(borderColor, borderWidth))
-            using (var path = CreateRoundedRectanglePath(cardRect, CornerRadius))
+            using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
             {
                 graphics.DrawPath(pen, path);
             }
@@ -218,8 +222,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle selectorArea, RadioItemState state, CardColors colors)
         {
-            int left = contentArea.X + ItemPadding;
-            int rightCap = Math.Max(left, selectorArea.X - ComponentSpacing);
+            int left = contentArea.X + S(ItemPadding);
+            int rightCap = Math.Max(left, selectorArea.X - S(ComponentSpacing));
             int currentX = left;
 
             if (!string.IsNullOrEmpty(item.ImagePath))
@@ -229,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
                 var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
                 RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
-                currentX += sz + ComponentSpacing;
+                currentX += sz + S(ComponentSpacing);
             }
 
             if (!string.IsNullOrEmpty(item.Text))
@@ -243,9 +247,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawCardSelector(Graphics graphics, Rectangle cardRect, RadioItemState state, CardColors colors)
         {
-            int selectorSize = Math.Min(SelectorSize, Math.Max(0, cardRect.Height - (ItemPadding * 2)));
+            int selectorSize = Math.Min(S(SelectorSize), Math.Max(0, cardRect.Height - (S(ItemPadding) * 2)));
             var selectorRect = new Rectangle(
-                Math.Max(cardRect.X + ItemPadding, cardRect.Right - ItemPadding - selectorSize),
+                Math.Max(cardRect.X + S(ItemPadding), cardRect.Right - S(ItemPadding) - selectorSize),
                 cardRect.Y + (cardRect.Height - selectorSize) / 2,
                 selectorSize,
                 selectorSize
@@ -257,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 selectorRect.Y + selectorRect.Height / 2
             );
 
-            if (_owner.GetType().GetProperty("AllowMultipleSelection")?.GetValue(_owner) as bool? == true)
+            if (AllowMultipleSelection)
             {
                 // Draw checkbox
                 DrawCardCheckbox(graphics, selectorRect, state, colors);
@@ -271,13 +275,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawCardRadio(Graphics graphics, Point center, RadioItemState state, CardColors colors)
         {
-            int radius = SelectorSize / 2 - 1;
+            int radius = Math.Max(2, S(SelectorSize) / 2 - S(1));
 
             // Outer circle
             Color borderColor = !state.IsEnabled
                 ? colors.DisabledBorder
                 : (state.IsSelected ? colors.SelectedBorder : colors.Border);
-            using (var pen = new Pen(borderColor, 2f))
+            using (var pen = new Pen(borderColor, SF(2f)))
             {
                 var outerRect = new Rectangle(
                     center.X - radius,
@@ -291,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             // Inner filled circle (when selected)
             if (state.IsSelected)
             {
-                int fillRadius = radius - 4;
+                int fillRadius = Math.Max(2, radius - S(4));
                 var fillColor = state.IsEnabled ? colors.SelectedBorder : colors.DisabledBorder;
                 using (var brush = new SolidBrush(fillColor))
                 {
@@ -309,10 +313,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawCardCheckbox(Graphics graphics, Rectangle selectorRect, RadioItemState state, CardColors colors)
         {
             var checkboxRect = new Rectangle(
-                selectorRect.X + 2,
-                selectorRect.Y + 2,
-                selectorRect.Width - 4,
-                selectorRect.Height - 4
+                selectorRect.X + S(2),
+                selectorRect.Y + S(2),
+                selectorRect.Width - S(4),
+                selectorRect.Height - S(4)
             );
 
             if (state.IsSelected)
@@ -320,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 // Filled checkbox
                 var fillColor = state.IsEnabled ? colors.SelectedBorder : colors.DisabledBorder;
                 using (var brush = new SolidBrush(fillColor))
-                using (var path = CreateRoundedRectanglePath(checkboxRect, 3))
+                using (var path = CreateRoundedRectanglePath(checkboxRect, S(3)))
                 {
                     graphics.FillPath(brush, path);
                 }
@@ -332,8 +336,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 // Outlined checkbox
                 var borderColor = state.IsEnabled ? colors.Border : colors.DisabledBorder;
-                using (var pen = new Pen(borderColor, 2f))
-                using (var path = CreateRoundedRectanglePath(checkboxRect, 3))
+                using (var pen = new Pen(borderColor, SF(2f)))
+                using (var path = CreateRoundedRectanglePath(checkboxRect, S(3)))
                 {
                     graphics.DrawPath(pen, path);
                 }
@@ -342,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawCheckmark(Graphics graphics, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2f))
+            using (var pen = new Pen(color, SF(2f)))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
@@ -364,18 +368,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             if (item == null) return new Size(150, MinItemHeight);
 
-            int width = ItemPadding; // Left padding
-            int height = MinItemHeight;
+            int width = S(ItemPadding); // Left padding
+            int height = S(MinItemHeight);
 
             // Selector width
-            width += SelectorSize + ComponentSpacing;
+            width += S(SelectorSize) + S(ComponentSpacing);
 
             // Icon width - account for image if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 width += IconSize + ComponentSpacing;
                 // Ensure minimum height accommodates the image
-                height = Math.Max(height, IconSize + ItemPadding);
+                height = Math.Max(height, IconSize + S(ItemPadding));
             }
 
             // Text width
@@ -383,10 +387,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             {
                 var textSize = TextUtils.MeasureText(graphics,item.Text, _textFont);
                 width += (int)Math.Ceiling(textSize.Width);
-                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + ItemPadding);
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(ItemPadding));
             }
 
-            width += ItemPadding; // Right padding
+            width += S(ItemPadding); // Right padding
 
             return new Size(width, height);
         }
@@ -395,20 +399,20 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             var cardRect = GetCardRectangle(itemRectangle);
             return new Rectangle(
-                cardRect.X + ItemPadding,
-                cardRect.Y + ItemPadding,
-                Math.Max(0, cardRect.Width - (ItemPadding * 2)),
-                Math.Max(0, cardRect.Height - (ItemPadding * 2))
+                cardRect.X + S(ItemPadding),
+                cardRect.Y + S(ItemPadding),
+                Math.Max(0, cardRect.Width - (S(ItemPadding) * 2)),
+                Math.Max(0, cardRect.Height - (S(ItemPadding) * 2))
             );
         }
 
         public Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
             var cardRect = GetCardRectangle(itemRectangle);
-            int selectorSize = Math.Min(SelectorSize, Math.Max(0, cardRect.Height - (ItemPadding * 2)));
+            int selectorSize = Math.Min(S(SelectorSize), Math.Max(0, cardRect.Height - (S(ItemPadding) * 2)));
             int selectorY = cardRect.Y + (cardRect.Height - selectorSize) / 2;
             return new Rectangle(
-                Math.Max(cardRect.X + ItemPadding, cardRect.Right - ItemPadding - selectorSize),
+                Math.Max(cardRect.X + S(ItemPadding), cardRect.Right - S(ItemPadding) - selectorSize),
                 selectorY,
                 selectorSize,
                 selectorSize

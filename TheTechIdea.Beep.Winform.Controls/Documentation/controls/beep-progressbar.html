@@ -815,6 +815,48 @@ progressBar.TextColor = Color.White;</code></pre>
                     </div>
                 </section>
 
+                <section id="painter-api-update" class="section">
+                    <h2>2026 Painter API Update</h2>
+
+                    <p>The progress bar pipeline now supports typed painter context, capability metadata, and runtime style/color profiles for deterministic rendering across painter kinds.</p>
+
+                    <div class="code-example">
+                        <h3>Modern Runtime Configuration</h3>
+                        <pre><code class="language-csharp">var progress = new BeepProgressBar
+{
+    PainterKind = ProgressPainterKind.StepperCircles,
+    UseThemeColors = false,
+    StyleProfile =
+    {
+        ControlStyle = BeepControlStyle.Material3,
+        BorderRadius = 8,
+        AnimateValueChanges = true
+    },
+    ColorProfile =
+    {
+        BackgroundColor = Color.FromArgb(245, 247, 250),
+        ProgressColor = Color.FromArgb(63, 81, 181),
+        TextColor = Color.White
+    }
+};
+
+progress.Parameters = new Dictionary&lt;string, object&gt;
+{
+    ["Steps"] = 5,
+    ["Current"] = 2,
+    ["Labels"] = new[] { "Draft", "Review", "QA", "UAT", "Done" }
+};</code></pre>
+                    </div>
+
+                    <ul>
+                        <li><strong>Typed state/context:</strong> Painters receive normalized progress state through the control pipeline.</li>
+                        <li><strong>Capability metadata:</strong> Interactive painters advertise hit-area and keyboard behavior for consistent UX.</li>
+                        <li><strong>DPI-first geometry:</strong> Core layout and step/chevron painters scale using shared helpers.</li>
+                        <li><strong>Tokenized typography/icons:</strong> Font and icon helpers are used for consistent rendering.</li>
+                        <li><strong>Accessibility semantics:</strong> Step-based and animated variants expose richer screen-reader summaries.</li>
+                    </ul>
+                </section>
+
                 <!-- Best Practices -->
                 <section id="best-practices" class="section">
                     <h2>Best Practices</h2>

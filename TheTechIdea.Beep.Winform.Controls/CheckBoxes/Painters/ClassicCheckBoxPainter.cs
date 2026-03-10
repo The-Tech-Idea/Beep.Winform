@@ -13,8 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.None;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
+            float borderWidth = Math.Max(1f, options.BorderWidth);
 
             // Paint background with square corners
             using (var brush = new SolidBrush(bgColor))
@@ -23,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             }
 
             // Paint border with square corners
-            using (var pen = new Pen(borderColor, options.BorderWidth))
+            using (var pen = new Pen(borderColor, borderWidth))
             {
                 Rectangle borderRect = Rectangle.Inflate(bounds, -1, -1);
                 g.DrawRectangle(pen, borderRect);

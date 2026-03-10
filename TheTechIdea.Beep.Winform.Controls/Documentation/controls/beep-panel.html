@@ -133,6 +133,7 @@
                         <li><a href="#properties">Properties</a></li>
                         <li><a href="#examples">Examples</a></li>
                         <li><a href="#theming">Theming</a></li>
+                        <li><a href="#panel-pipeline-2026">2026 Header/Border Pipeline</a></li>
                         <li><a href="#best-practices">Best Practices</a></li>
                     </ul>
                 </div>
@@ -640,6 +641,60 @@ ApplyThemeToPanels(this, "DarkTheme");</code></pre>
                         <li><strong>Title bar styling</strong> - Use theme colors for title text and buttons</li>
                         <li><strong>Shadow effects</strong> - Adjust shadow colors based on theme</li>
                     </ul>
+                </section>
+
+                <section id="panel-pipeline-2026" class="section">
+                    <h2>2026 Header/Border Pipeline</h2>
+                    <p>
+                        BeepPanel now uses a typed layout pipeline for title and border rendering to provide stable
+                        GroupBox/card header alignment across DPI scales and border styles.
+                    </p>
+                    <ul>
+                        <li><strong>Typed contracts:</strong> panel rendering uses internal state and layout context models.</li>
+                        <li><strong>Deterministic GroupBox gap:</strong> the border reserves a precise title gap segment before text paint.</li>
+                        <li><strong>Final title overlay pass:</strong> title text is painted after base background and border for clean layering.</li>
+                        <li><strong>Header-safe content bounds:</strong> child controls are constrained to content insets below header regions.</li>
+                        <li><strong>DPI-safe geometry:</strong> title gap, line thickness, and offsets are scaled through DPI helpers.</li>
+                        <li><strong>Designer presets:</strong> quick verbs are available for GroupBox, Card, Flat, and Header Hidden modes.</li>
+                    </ul>
+                    <div class="tip">
+                        <strong>Migration Note</strong>
+                        <p>
+                            <code>StyleProfile</code> has been removed from <code>BeepPanel</code>. Configure header behavior directly using
+                            panel properties such as <code>ShowTitle</code>, <code>ShowTitleLine</code>, <code>ShowTitleLineinFullWidth</code>,
+                            <code>TitleStyle</code>, <code>TitleAlignment</code>, <code>TitleGap</code>, and <code>TitleLineThickness</code>.
+                        </p>
+                    </div>
+                    <h3>Icon + TitleLine (2026 update)</h3>
+                    <p>
+                        BeepPanel header now supports icon-aware title composition and deterministic title-line anchoring.
+                        This makes card/groupbox headers behave consistently across left/center/right alignment and DPI scales.
+                    </p>
+                    <ul>
+                        <li><strong>IconPath:</strong> set icon key or resource/path directly for header icon rendering.</li>
+                        <li><strong>ShowTitleIcon:</strong> enables/disables icon rendering without clearing icon path.</li>
+                        <li><strong>TitleIconSize / TitleIconGap:</strong> defines icon sizing and spacing before DPI scaling.</li>
+                        <li><strong>TitleIconTintWithForeColor:</strong> toggles icon tint behavior using current title foreground color.</li>
+                        <li><strong>Compact TitleLine:</strong> when full-width is off, line follows icon+title cluster width.</li>
+                        <li><strong>Full-width TitleLine:</strong> when full-width is on, line spans the header rail inside border insets.</li>
+                    </ul>
+                    <div class="code-example">
+                        <h3>Professional Card Header Recipe</h3>
+                        <pre><code class="language-csharp">var cardPanel = new BeepPanel
+{
+    ShowTitle = true,
+    TitleText = "Orders",
+    TitleStyle = PanelTitleStyle.TopHeader,
+    TitleAlignment = ContentAlignment.TopLeft,
+    ShowTitleIcon = true,
+    IconPath = "AlertCircle",   // SvgsUI/Svgs key or resource/path
+    TitleIconSize = 16,
+    TitleIconGap = 6,
+    TitleIconTintWithForeColor = true,
+    ShowTitleLine = true,
+    ShowTitleLineinFullWidth = false
+};</code></pre>
+                    </div>
                 </section>
 
                 <!-- Best Practices -->

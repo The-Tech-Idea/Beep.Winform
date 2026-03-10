@@ -14,11 +14,15 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
             Color effectiveBackground = state.IsChecked || state.IsIndeterminate
                 ? bgColor
                 : ControlPaint.Light(CheckBoxThemeHelpers.GetUncheckedBackgroundColor(options.Theme, options.UseThemeColors), 0.04f);
+            float borderWidth = state.IsChecked || state.IsIndeterminate
+                ? Math.Max(1.4f, options.BorderWidth)
+                : Math.Max(1f, options.BorderWidth);
 
             // Paint background with rounded corners
             using (var path = CreateRoundedPath(bounds, options.BorderRadius))
@@ -29,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 }
 
                 // Paint border with slightly thicker line
-                using (var pen = new Pen(borderColor, options.BorderWidth))
+                using (var pen = new Pen(borderColor, borderWidth))
                 {
                     g.DrawPath(pen, path);
                 }

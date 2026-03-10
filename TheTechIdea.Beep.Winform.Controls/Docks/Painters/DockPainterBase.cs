@@ -28,6 +28,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             return DockPainterMetrics.DefaultFor(config.Style, theme, useThemeColors);
         }
 
+        protected DockPainterMetrics GetScaledMetrics(DockConfig config, IBeepTheme theme, Graphics g, bool useThemeColors = true)
+        {
+            var metrics = GetMetrics(config, theme, useThemeColors);
+            var dpiScale = DpiScalingHelper.GetDpiScaleFactor(g);
+            if (!DpiScalingHelper.AreScaleFactorsEqual(dpiScale, 1.0f))
+            {
+                metrics.ItemSize = DpiScalingHelper.ScaleValue(metrics.ItemSize, dpiScale);
+                metrics.ItemSpacing = DpiScalingHelper.ScaleValue(metrics.ItemSpacing, dpiScale);
+                metrics.ItemPadding = DpiScalingHelper.ScaleValue(metrics.ItemPadding, dpiScale);
+                metrics.CornerRadius = DpiScalingHelper.ScaleValue(metrics.CornerRadius, dpiScale);
+                metrics.ItemCornerRadius = DpiScalingHelper.ScaleValue(metrics.ItemCornerRadius, dpiScale);
+                metrics.BorderWidth = DpiScalingHelper.ScaleValue(metrics.BorderWidth, dpiScale);
+                metrics.IndicatorSize = DpiScalingHelper.ScaleValue(metrics.IndicatorSize, dpiScale);
+                metrics.IndicatorOffset = DpiScalingHelper.ScaleValue(metrics.IndicatorOffset, dpiScale);
+                metrics.ShadowBlur = DpiScalingHelper.ScaleValue(metrics.ShadowBlur, dpiScale);
+                metrics.GlowBlur = DpiScalingHelper.ScaleValue(metrics.GlowBlur, dpiScale);
+                metrics.SeparatorWidth = DpiScalingHelper.ScaleValue(metrics.SeparatorWidth, dpiScale);
+            }
+
+            return metrics;
+        }
+
         #endregion
 
         #region Abstract Methods
@@ -232,6 +254,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
 
         #region Helper Methods
 
+        protected DockInteractionState GetInteractionState(DockItemState itemState)
+        {
+            if (itemState == null)
+            {
+                return DockInteractionState.Normal;
+            }
+
+            if (itemState.IsDragging) return DockInteractionState.Dragging;
+            if (itemState.IsDisabled) return DockInteractionState.Disabled;
+            if (itemState.IsPressed) return DockInteractionState.Pressed;
+            if (itemState.IsFocused) return DockInteractionState.Focused;
+            if (itemState.IsHovered) return DockInteractionState.Hovered;
+            if (itemState.IsSelected) return DockInteractionState.Selected;
+            if (itemState.IsRunning) return DockInteractionState.Running;
+            return DockInteractionState.Normal;
+        }
+
         protected GraphicsPath CreateRoundedPath(Rectangle bounds, int radius)
         {
             var path = new GraphicsPath();
@@ -297,6 +336,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 config.ApplyThemeToIcons,
                 TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3,
                 opacity,
+                config.CornerRadius / 2);
+        }
+
+        protected void PaintItemIcon(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme, float opacity = 1f)
+        {
+            if (itemState?.Item == null || string.IsNullOrEmpty(itemState.Item.ImagePath))
+            {
+                return;
+            }
+
+            var iconColor = DockIconHelpers.GetIconColor(
+                theme,
+                theme != null,
+                config.ApplyThemeToIcons,
+                itemState.IsHovered || itemState.IsFocused,
+                itemState.IsSelected);
+
+            DockIconHelpers.PaintIcon(
+                g,
+                itemState.Bounds,
+                itemState.Item.ImagePath,
+                iconColor,
+                theme,
+                theme != null,
+                config.ApplyThemeToIcons,
+                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3,
+                itemState.IsDisabled ? Math.Min(0.4f, opacity) : opacity,
                 config.CornerRadius / 2);
         }
 

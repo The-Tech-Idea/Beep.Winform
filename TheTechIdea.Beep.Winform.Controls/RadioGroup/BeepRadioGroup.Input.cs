@@ -43,6 +43,32 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _hitTestHelper.HandleMouseClick(adjustedLocation, e.Button);
         }
 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (DesignMode || !Enabled) return;
+
+            var adjustedLocation = new Point(
+                e.Location.X - DrawingRect.X,
+                e.Location.Y - DrawingRect.Y
+            );
+
+            _hitTestHelper.HandleMouseDown(adjustedLocation, e.Button);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (DesignMode || !Enabled) return;
+
+            var adjustedLocation = new Point(
+                e.Location.X - DrawingRect.X,
+                e.Location.Y - DrawingRect.Y
+            );
+
+            _hitTestHelper.HandleMouseUp(adjustedLocation, e.Button);
+        }
+
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
             base.OnMouseDoubleClick(e);
@@ -64,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnKeyDown(e);
             if (DesignMode || !Enabled) return;
             
-            if (_hitTestHelper.HandleKeyDown(e.KeyCode, Orientation))
+            if (_hitTestHelper.HandleKeyDown(e.KeyCode, Orientation, ColumnCount))
             {
                 e.Handled = true;
                 e.SuppressKeyPress = true;

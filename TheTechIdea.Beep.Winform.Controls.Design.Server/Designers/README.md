@@ -4,6 +4,9 @@ This directory contains the design-time support for Beep WinForms controls. Desi
 
 ## Latest Updates
 
-- Added `BeepImageDesigner` with Select/Clear image verbs and registration via `DesignRegistration`.
-- `BeepImagePathEditor` is now registered on the shared `BaseControl`/`BeepControl` types so every derived control with an `ImagePath` (or `EmbeddedImagePath`) automatically uses the picker.
-- Introduced shared smart-tag support (`ImagePathDesignerActionList`) so `BeepButton`, `BeepLabel`, `BeepPanel`, and `BeepImage` expose Select/Clear actions directly in the designer actions panel.
+- `BeepImagePathEditor` now launches `BeepImagePickerDialog` as the unified image-selection entry point.
+- `BeepImagePickerDialog` now supports explicit source modes (embedded resources and icon catalog), search/filter, explicit embed action, and status feedback.
+- Picker output is standardized as a path-string selection contract, preserving designer serialization compatibility.
+- `BeepImageDesigner` smart-tags now include source-focused actions (Select image, Clear image, embedded context quick actions) in addition to clipping/effects controls.
+- `BeepImagePickerDialog` designer initialization was trimmed to reduce generated noise and keep required preview wiring only.
+- `DesignRegistration` now explicitly registers image path editor coverage for `BeepImage` in addition to base control types.

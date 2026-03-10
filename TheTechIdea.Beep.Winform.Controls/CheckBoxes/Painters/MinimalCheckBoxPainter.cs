@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
 
@@ -21,15 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             {
                 using (var brush = new SolidBrush(state.IsIndeterminate ? Color.FromArgb(80, bgColor) : bgColor))
                 {
-                    g.FillRectangle(brush, bounds);
+                    using var path = CreateRoundedPath(bounds, Math.Max(2, options.BorderRadius));
+                    g.FillPath(brush, path);
                 }
             }
 
             // Paint thin border
-            using (var pen = new Pen(borderColor, 1))
+            using (var pen = new Pen(borderColor, Math.Max(1f, options.BorderWidth - 0.5f)))
             {
                 Rectangle borderRect = Rectangle.Inflate(bounds, -1, -1);
-                g.DrawRectangle(pen, borderRect);
+                using var borderPath = CreateRoundedPath(borderRect, Math.Max(2, options.BorderRadius));
+                g.DrawPath(pen, borderPath);
             }
 
             // Paint check mark or indeterminate mark

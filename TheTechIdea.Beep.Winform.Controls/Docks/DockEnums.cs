@@ -333,4 +333,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
         /// </summary>
         Badge
     }
+
+    /// <summary>
+    /// Canonical interaction state used by dock painters.
+    /// </summary>
+    public enum DockInteractionState
+    {
+        Normal,
+        Hovered,
+        Pressed,
+        Focused,
+        Disabled,
+        Selected,
+        Running,
+        Dragging
+    }
 }

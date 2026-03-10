@@ -1,10 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
 using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
@@ -13,6 +12,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
     /// </summary>
     public class BeepImagesPathConverter : StringConverter
     {
+        private static readonly StringComparer Cmp = StringComparer.OrdinalIgnoreCase;
+        private static Dictionary<string, string> BuildLabelToPathMap()
+        {
+            return IconCatalog.GetAllEntries()
+                .GroupBy(e => e.Path, Cmp)
+                .Select(g => g.First())
+                .ToDictionary(
+                    e => $"[{e.Source}/{e.Category}] {e.Name}",
+                    e => e.Path,
+                    Cmp);
+        }
+
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
             return true;
@@ -20,42 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var paths = new System.Collections.Generic.List<string> { "(None)" };
-            string[] exts = new[] { ".svg", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp" };
-            try
-            {
-                // Search all loaded assemblies for icon/image classes
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var iconTypes = assemblies
-                    .SelectMany(a => {
-                        try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
-                    })
-                    .Where(t => t.IsClass && t.IsPublic && t.IsAbstract && t.IsSealed && t.Namespace == "TheTechIdea.Beep.Icons");
-
-                foreach (var type in iconTypes)
-                {
-                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
-                    foreach (var field in fields)
-                    {
-                        if (field.FieldType == typeof(string) && !field.IsLiteral && field.IsInitOnly)
-                        {
-                            var value = field.GetValue(null) as string;
-                            if (!string.IsNullOrEmpty(value) && exts.Any(ext => value.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                paths.Add(value);
-                            }
-                        }
-                    }
-                }
-                // Remove duplicates and sort
-                paths = paths.Distinct().ToList();
-                paths.Sort();
-            }
-            catch (Exception)
-            {
-                // If there's an error, just return the basic list
-            }
-            return new StandardValuesCollection(paths.ToArray());
+            var labels = new List<string> { "(None)" };
+            labels.AddRange(BuildLabelToPathMap().Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase));
+            return new StandardValuesCollection(labels.ToArray());
         }
 
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
@@ -69,6 +47,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
             {
                 if (stringValue == "(None)")
                     return string.Empty;
+
+                var map = BuildLabelToPathMap();
+                if (map.TryGetValue(stringValue, out var path))
+                {
+                    return path;
+                }
+
                 return stringValue;
             }
             return base.ConvertFrom(context, culture, value);
@@ -80,7 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
             {
                 if (string.IsNullOrEmpty(stringValue))
                     return "(None)";
-                return stringValue;
+
+                var map = BuildLabelToPathMap();
+                var label = map.FirstOrDefault(kvp => Cmp.Equals(kvp.Value, stringValue)).Key;
+                return string.IsNullOrEmpty(label) ? stringValue : label;
             }
             return base.ConvertTo(context, culture, value, destinationType);
         }

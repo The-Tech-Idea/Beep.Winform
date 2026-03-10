@@ -54,6 +54,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             RequestVisualRefresh();
         }
 
+        private void OnPressedIndexChanged(object sender, IndexChangedEventArgs e)
+        {
+            UpdateItemStates();
+            RequestVisualRefresh();
+        }
+
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var newValue = GetValue();
@@ -67,6 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             SelectionChanged?.Invoke(this, e);
             UpdateItemStates();
             RequestVisualRefresh();
+            UpdateAccessibilityMetadata();
         }
 
         private void OnItemSelectionChanged(object sender, ItemSelectionChangedEventArgs e)
@@ -79,6 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
 
             ItemSelectionChanged?.Invoke(this, e);
+            UpdateAccessibilityMetadata();
         }
         #endregion
     }

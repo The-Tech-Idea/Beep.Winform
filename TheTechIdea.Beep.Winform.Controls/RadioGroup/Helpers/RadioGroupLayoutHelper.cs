@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
@@ -67,8 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<Rectangle> CalculateVerticalLayout(List<SimpleItem> items, Rectangle containerRect)
         {
             var rectangles = new List<Rectangle>();
-            int currentY = containerRect.Y + ItemPadding.Top;
-            int itemWidth = containerRect.Width - ItemPadding.Horizontal;
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            int currentY = containerRect.Y + scaledPadding.Top;
+            int itemWidth = containerRect.Width - scaledPadding.Horizontal;
 
             using (Graphics g = _owner.CreateGraphics())
             {
@@ -82,18 +85,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     }
                     else
                     {
-                        itemHeight = ItemSize.Height;
+                        itemHeight = DpiScalingHelper.ScaleValue(ItemSize.Height, _owner);
                     }
                     
                     Rectangle itemRect = new Rectangle(
-                        containerRect.X + ItemPadding.Left,
+                        containerRect.X + scaledPadding.Left,
                         currentY,
                         itemWidth,
                         itemHeight
                     );
 
                     rectangles.Add(itemRect);
-                    currentY += itemHeight + ItemSpacing;
+                    currentY += itemHeight + spacing;
                 }
             }
 
@@ -103,8 +106,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<Rectangle> CalculateHorizontalLayout(List<SimpleItem> items, Rectangle containerRect)
         {
             var rectangles = new List<Rectangle>();
-            int currentX = containerRect.X + ItemPadding.Left;
-            int itemHeight = containerRect.Height - ItemPadding.Vertical;
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            int currentX = containerRect.X + scaledPadding.Left;
+            int itemHeight = containerRect.Height - scaledPadding.Vertical;
 
             using (Graphics g = _owner.CreateGraphics())
             {
@@ -118,18 +123,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     }
                     else
                     {
-                        itemWidth = ItemSize.Width;
+                        itemWidth = DpiScalingHelper.ScaleValue(ItemSize.Width, _owner);
                     }
                     
                     Rectangle itemRect = new Rectangle(
                         currentX,
-                        containerRect.Y + ItemPadding.Top,
+                        containerRect.Y + scaledPadding.Top,
                         itemWidth,
                         itemHeight
                     );
 
                     rectangles.Add(itemRect);
-                    currentX += itemWidth + ItemSpacing;
+                    currentX += itemWidth + spacing;
                 }
             }
 
@@ -140,10 +145,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             var rectangles = new List<Rectangle>();
             int columns = Math.Max(1, ColumnCount);
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
             int rows = (int)Math.Ceiling((double)items.Count / columns);
             
-            int availableWidth = containerRect.Width - ItemPadding.Horizontal;
-            int availableHeight = containerRect.Height - ItemPadding.Vertical;
+            int availableWidth = containerRect.Width - scaledPadding.Horizontal;
+            int availableHeight = containerRect.Height - scaledPadding.Vertical;
             
             int itemWidth;
             int itemHeight;
@@ -165,8 +172,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
                 else
                 {
-                    itemWidth = ItemSize.Width;
-                    itemHeight = ItemSize.Height;
+                    itemWidth = DpiScalingHelper.ScaleValue(ItemSize.Width, _owner);
+                    itemHeight = DpiScalingHelper.ScaleValue(ItemSize.Height, _owner);
                 }
             }
 
@@ -176,8 +183,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 int row = i / columns;
                 
                 Rectangle itemRect = new Rectangle(
-                    containerRect.X + ItemPadding.Left + col * (itemWidth + ItemSpacing),
-                    containerRect.Y + ItemPadding.Top + row * (itemHeight + ItemSpacing),
+                    containerRect.X + scaledPadding.Left + col * (itemWidth + spacing),
+                    containerRect.Y + scaledPadding.Top + row * (itemHeight + spacing),
                     itemWidth,
                     itemHeight
                 );
@@ -191,9 +198,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<Rectangle> CalculateFlowLayout(List<SimpleItem> items, Rectangle containerRect)
         {
             var rectangles = new List<Rectangle>();
-            int currentX = containerRect.X + ItemPadding.Left;
-            int currentY = containerRect.Y + ItemPadding.Top;
-            int maxWidth = containerRect.Width - ItemPadding.Horizontal;
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            int currentX = containerRect.X + scaledPadding.Left;
+            int currentY = containerRect.Y + scaledPadding.Top;
+            int maxWidth = containerRect.Width - scaledPadding.Horizontal;
             int lineHeight = 0;
 
             using (Graphics g = _owner.CreateGraphics())
@@ -204,17 +213,17 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
 
                     // Check if we need to wrap to next line
-                    if (currentX + itemWidth > containerRect.X + maxWidth && currentX > containerRect.X + ItemPadding.Left)
+                    if (currentX + itemWidth > containerRect.X + maxWidth && currentX > containerRect.X + scaledPadding.Left)
                     {
-                        currentX = containerRect.X + ItemPadding.Left;
-                        currentY += lineHeight + ItemSpacing;
+                        currentX = containerRect.X + scaledPadding.Left;
+                        currentY += lineHeight + spacing;
                         lineHeight = 0;
                     }
 
                     Rectangle itemRect = new Rectangle(currentX, currentY, itemWidth, itemHeight);
                     rectangles.Add(itemRect);
 
-                    currentX += itemWidth + ItemSpacing;
+                    currentX += itemWidth + spacing;
                     lineHeight = Math.Max(lineHeight, itemHeight);
                 }
             }
@@ -226,11 +235,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         #region Size Calculation (fallbacks)
         private int CalculateItemWidth_Fallback(SimpleItem item, Graphics g)
         {
-            if (item == null) return ItemSize.Width;
+            if (item == null) return DpiScalingHelper.ScaleValue(ItemSize.Width, _owner);
 
             // Base width for selector (radio button or checkbox)
-            int selectorWidth = 24; // Standard size for radio/checkbox
-            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? 24 : 0;
+            int selectorWidth = DpiScalingHelper.ScaleValue(24, _owner); // Standard size for radio/checkbox
+            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? DpiScalingHelper.ScaleValue(24, _owner) : 0;
             int textWidth = 0;
 
             // Calculate text width if text exists
@@ -241,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             // Add spacing between components
-            int spacing = 8;
+            int spacing = DpiScalingHelper.ScaleValue(8, _owner);
             int components = 1; // Always have selector
             if (imageWidth > 0) components++;
             if (textWidth > 0) components++;
@@ -250,16 +259,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int contentWidth = selectorWidth + imageWidth + textWidth + totalSpacing;
 
             // Add padding
-            return contentWidth + ItemPadding.Horizontal;
+            return contentWidth + DpiScalingHelper.ScalePadding(ItemPadding, _owner).Horizontal;
         }
 
         private int CalculateItemHeight_Fallback(SimpleItem item, Graphics g)
         {
-            if (item == null) return ItemSize.Height;
+            if (item == null) return DpiScalingHelper.ScaleValue(ItemSize.Height, _owner);
 
             int textHeight = 0;
-            int imageHeight = !string.IsNullOrEmpty(item.ImagePath) ? 24 : 0;
-            int selectorHeight = 24; // Standard size for radio/checkbox
+            int imageHeight = !string.IsNullOrEmpty(item.ImagePath) ? DpiScalingHelper.ScaleValue(24, _owner) : 0;
+            int selectorHeight = DpiScalingHelper.ScaleValue(24, _owner); // Standard size for radio/checkbox
 
             // Calculate text height if text exists
             if (!string.IsNullOrEmpty(item.Text))
@@ -272,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int contentHeight = Math.Max(Math.Max(textHeight, imageHeight), selectorHeight);
 
             // Add padding
-            return contentHeight + ItemPadding.Vertical;
+            return contentHeight + DpiScalingHelper.ScalePadding(ItemPadding, _owner).Vertical;
         }
         #endregion
 
@@ -308,6 +317,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         {
             int totalHeight = ItemPadding.Vertical;
             int maxWidth = 0;
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
 
             using (Graphics g = _owner.CreateGraphics())
             {
@@ -316,19 +327,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
                     int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
                     
-                    totalHeight += itemHeight + ItemSpacing;
+                    totalHeight += itemHeight + spacing;
                     maxWidth = Math.Max(maxWidth, itemWidth);
                 }
             }
 
-            totalHeight -= ItemSpacing; // Remove last spacing
-            return new Size(maxWidth + ItemPadding.Horizontal, Math.Min(totalHeight, maxSize.Height));
+            totalHeight -= spacing; // Remove last spacing
+            return new Size(maxWidth + scaledPadding.Horizontal, Math.Min(totalHeight, maxSize.Height));
         }
 
         private Size CalculateHorizontalTotalSize(List<SimpleItem> items, Size maxSize)
         {
             int totalWidth = ItemPadding.Horizontal;
             int maxHeight = 0;
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
 
             using (Graphics g = _owner.CreateGraphics())
             {
@@ -337,19 +350,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
                     int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
                     
-                    totalWidth += itemWidth + ItemSpacing;
+                    totalWidth += itemWidth + spacing;
                     maxHeight = Math.Max(maxHeight, itemHeight);
                 }
             }
 
-            totalWidth -= ItemSpacing; // Remove last spacing
-            return new Size(Math.Min(totalWidth, maxSize.Width), maxHeight + ItemPadding.Vertical);
+            totalWidth -= spacing; // Remove last spacing
+            return new Size(Math.Min(totalWidth, maxSize.Width), maxHeight + scaledPadding.Vertical);
         }
 
         private Size CalculateGridTotalSize(List<SimpleItem> items, Size maxSize)
         {
             int columns = Math.Max(1, ColumnCount);
             int rows = (int)Math.Ceiling((double)items.Count / columns);
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
             
             int itemWidth;
             int itemHeight;
@@ -371,13 +386,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
                 else
                 {
-                    itemWidth = ItemSize.Width;
-                    itemHeight = ItemSize.Height;
+                    itemWidth = DpiScalingHelper.ScaleValue(ItemSize.Width, _owner);
+                    itemHeight = DpiScalingHelper.ScaleValue(ItemSize.Height, _owner);
                 }
             }
             
-            int totalWidth = ItemPadding.Horizontal + (columns * itemWidth) + ((columns - 1) * ItemSpacing);
-            int totalHeight = ItemPadding.Vertical + (rows * itemHeight) + ((rows - 1) * ItemSpacing);
+            int totalWidth = scaledPadding.Horizontal + (columns * itemWidth) + ((columns - 1) * spacing);
+            int totalHeight = scaledPadding.Vertical + (rows * itemHeight) + ((rows - 1) * spacing);
             
             return new Size(
                 Math.Min(totalWidth, maxSize.Width),
@@ -388,9 +403,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private Size CalculateFlowTotalSize(List<SimpleItem> items, Size maxSize)
         {
             // Simulate flow layout to calculate size
-            int currentX = ItemPadding.Left;
-            int currentY = ItemPadding.Top;
-            int maxWidth = maxSize.Width - ItemPadding.Horizontal;
+            int currentX = DpiScalingHelper.ScalePadding(ItemPadding, _owner).Left;
+            int currentY = DpiScalingHelper.ScalePadding(ItemPadding, _owner).Top;
+            int spacing = DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+            var scaledPadding = DpiScalingHelper.ScalePadding(ItemPadding, _owner);
+            int maxWidth = maxSize.Width - scaledPadding.Horizontal;
             int lineHeight = 0;
             int totalWidth = 0;
 
@@ -402,23 +419,23 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                     int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
 
                     // Check if we need to wrap
-                    if (currentX + itemWidth > maxWidth && currentX > ItemPadding.Left)
+                    if (currentX + itemWidth > maxWidth && currentX > scaledPadding.Left)
                     {
-                        totalWidth = Math.Max(totalWidth, currentX - ItemSpacing);
-                        currentX = ItemPadding.Left;
-                        currentY += lineHeight + ItemSpacing;
+                        totalWidth = Math.Max(totalWidth, currentX - spacing);
+                        currentX = scaledPadding.Left;
+                        currentY += lineHeight + spacing;
                         lineHeight = 0;
                     }
 
-                    currentX += itemWidth + ItemSpacing;
+                    currentX += itemWidth + spacing;
                     lineHeight = Math.Max(lineHeight, itemHeight);
                 }
             }
 
-            totalWidth = Math.Max(totalWidth, currentX - ItemSpacing);
-            int totalHeight = currentY + lineHeight + ItemPadding.Bottom;
+            totalWidth = Math.Max(totalWidth, currentX - spacing);
+            int totalHeight = currentY + lineHeight + scaledPadding.Bottom;
 
-            return new Size(totalWidth + ItemPadding.Horizontal, totalHeight);
+            return new Size(totalWidth + scaledPadding.Horizontal, totalHeight);
         }
         #endregion
 

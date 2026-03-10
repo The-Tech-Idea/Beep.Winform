@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Make it circular
@@ -60,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
             else if (HasPrimaryIcon(context))
             {
-                int iconSize = size / 2;
+                int iconSize = Math.Max(tokens.IconSize, size / 2);
                 Rectangle iconBounds = new Rectangle(
                     circleBounds.X + (circleBounds.Width - iconSize) / 2,
                     circleBounds.Y + (circleBounds.Height - iconSize) / 2,
@@ -69,6 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 );
                 DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         private void DrawCircleShadow(Graphics g, Rectangle bounds, int shadowBlur, Color shadowColor)

@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Very subtle background on hover/pressed
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 using (Brush bgBrush = new SolidBrush(bgColor))
                 {
-                    FillRoundedRectangle(g, bgBrush, buttonBounds, context.BorderRadius);
+                    FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
                 }
             }
 
@@ -47,6 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 DrawCenteredContent(g, context, metrics, contentColor);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context,

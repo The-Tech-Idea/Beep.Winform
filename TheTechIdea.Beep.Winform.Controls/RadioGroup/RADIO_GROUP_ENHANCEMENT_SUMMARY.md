@@ -231,3 +231,36 @@ var iconSize = RadioGroupIconHelpers.GetItemIconSize(
 - Helpers provide sensible defaults when theme is not available
 - Renderers already have good theme integration; helpers provide additional consistency
 - MaterialRadioRenderer serves as a reference implementation for theme integration
+
+## 2026 UX Modernization Pass (Latest)
+
+- Added a deterministic interaction-state pipeline: hover/focus/pressed now originates from input and hit-test helpers and is consumed by renderers through `RadioItemState`.
+- Removed reflection-based renderer branching for selection mode by introducing explicit `AllowMultipleSelection` in `IRadioGroupRenderer`, propagated by `BeepRadioGroup`.
+- Hardened keyboard navigation in grid orientation using row/column-aware movement and synchronized pressed/focus transitions.
+- Reduced accessibility noise by suppressing repetitive accessibility notifications during paint-driven state refreshes and only notifying on meaningful status changes.
+- Activated runtime profile models:
+  - `StyleProfile` now applies item height, spacing, padding, and control style defaults.
+  - `ColorProfile` now participates at runtime when `UseThemeColors` is disabled.
+- Improved DPI behavior:
+  - `RadioGroupLayoutHelper` now scales spacing/padding/item metrics via `DpiScalingHelper`.
+  - Core renderers (`Material`, `Flat`, `Card`, `Chip`) now scale key geometry and stroke metrics.
+  - Icon/font helper APIs now support owner-control-aware scaling paths.
+- Refreshed design-time smart tags with additional presets (`Toggle`, `Tile`, `Pill`, `Circular`) and a real recommended-layout action that applies `StyleProfile`.
+
+## 2026 Hierarchical Modernization Pass (Latest)
+
+- `BeepHierarchicalRadioGroup` now uses the same interaction-state contract as `BeepRadioGroup`:
+  - input-driven pressed/hover/focus state via `RadioGroupHitTestHelper`
+  - deterministic renderer state projection using `RadioItemState`
+- Hierarchical renderers now receive explicit selection-mode contract (`AllowMultipleSelection`) instead of implicit runtime assumptions.
+- Hierarchy layout and drawing metrics now use `DpiScalingHelper` for:
+  - indent offsets
+  - expander geometry and glyph lines
+  - hierarchy connector line geometry
+  - spacing and auto-size calculations
+- Expander interaction is now explicit and stable through click hit-testing instead of dynamic paint-time hit-area registration.
+- Keyboard behavior is hardened with parent-focus fallback on left-arrow when the focused node is already collapsed.
+- Runtime profile parity added:
+  - `StyleProfile` and `ColorProfile` now apply to hierarchical control runtime behavior
+  - color profile is respected when `UseThemeColors` is disabled
+- Accessibility metadata now reports hierarchical status (selected/total/expanded/focused) with throttled notification behavior.

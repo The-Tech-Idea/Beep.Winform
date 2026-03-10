@@ -4,11 +4,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    internal sealed class LinearBadgePainter : IProgressPainter
+    internal sealed class LinearBadgePainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.LinearBadge);
 
@@ -23,12 +25,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
             // compute badge position along the progress line
             float pct = owner.DisplayProgressPercentageAccessor;
-            var rect = bounds; rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
-            int badgeRadius = GetInt(p, "BadgeRadius", Math.Max(10, rect.Height));
-            int offsetY = GetInt(p, "BadgeOffsetY", -badgeRadius - 6);
-            string text = GetString(p, "BadgeText", $"{(int)(pct * 100)}%");
-            var back = GetColor(p, "BadgeBackColor", theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor);
-            var fore = GetColor(p, "BadgeForeColor", theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor);
+            var rect = bounds;
+            int badgeRadius = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "BadgeRadius", Math.Max(10, rect.Height)));
+            int offsetY = ProgressBarDpiHelpers.Scale(owner, ProgressPainterParameterContracts.GetInt(p, "BadgeOffsetY", -badgeRadius - 6));
+            string text = ProgressPainterParameterContracts.GetString(p, "BadgeText", $"{(int)(pct * 100)}%");
+            var back = ProgressPainterParameterContracts.GetColor(p, "BadgeBackColor", theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor);
+            var fore = ProgressPainterParameterContracts.GetColor(p, "BadgeForeColor", theme.OnPrimaryColor.IsEmpty ? Color.White : theme.OnPrimaryColor);
             if (!owner.Enabled)
             {
                 back = Color.FromArgb(120, back);
@@ -39,13 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             cx = Math.Max(rect.Left + badgeRadius, Math.Min(rect.Right - badgeRadius, cx));
             int cy = rect.Top + offsetY;
             var ellipse = new Rectangle(cx - badgeRadius, cy - badgeRadius, badgeRadius * 2, badgeRadius * 2);
-            using (var shadow = new SolidBrush(Color.FromArgb(40, 0, 0, 0))) g.FillEllipse(shadow, ellipse.X + 2, ellipse.Y + 3, ellipse.Width, ellipse.Height);
+            using (var shadow = new SolidBrush(Color.FromArgb(40, 0, 0, 0))) g.FillEllipse(shadow, ellipse.X + ProgressBarDpiHelpers.Scale(owner, 2), ellipse.Y + ProgressBarDpiHelpers.Scale(owner, 3), ellipse.Width, ellipse.Height);
             using (var b = new SolidBrush(back)) g.FillEllipse(b, ellipse);
-            using (var f = BeepThemesManager.ToFont(
-                theme.ProgressBarFont?.FontFamily ?? owner.TextFont?.FontFamily?.Name ?? theme.FontFamily,
-                Math.Max(8, badgeRadius / 2f),
-                FontWeight.Bold,
-                FontStyle.Bold))
+            using (var f = ProgressBarFontHelpers.GetBoldFont(owner, owner.ControlStyle))
             using (var tb = new SolidBrush(fore))
             {
                 var sz = TextUtils.MeasureText(g, text, f);
@@ -58,11 +56,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             // no clickable areas
         }
 
-        private static int GetInt(IReadOnlyDictionary<string, object> p, string key, int fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToInt32(v) : fallback;
-        private static string GetString(IReadOnlyDictionary<string, object> p, string key, string fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is string s ? s : fallback;
-        private static Color GetColor(IReadOnlyDictionary<string, object> p, string key, Color fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is Color c ? c : fallback;
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
+        }
     }
 }

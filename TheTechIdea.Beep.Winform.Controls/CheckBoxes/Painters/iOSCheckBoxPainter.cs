@@ -13,9 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
-            int radius = Math.Max(6, bounds.Height / 4);
+            int radius = Math.Max(8, bounds.Height / 3);
 
             // Paint background with rounded corners (iOS style - more rounded)
             using (var path = CreateRoundedPath(bounds, radius))
@@ -60,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         {
             // iOS style - thicker check mark
             var optionsThick = options;
-            optionsThick.CheckMarkThickness = 3;
+            optionsThick.CheckMarkThickness = Math.Max(2, options.CheckMarkThickness + 1);
             PaintStandardCheckMark(g, bounds, optionsThick);
         }
 

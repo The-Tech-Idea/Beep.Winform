@@ -30,6 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         protected virtual void OnSelectedItemChanged(SimpleItem? selectedItem)
         {
+            if (selectedItem != null)
+            {
+                AccessibleDescription = $"Dock selected item: {selectedItem.Text}";
+            }
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
         #endregion

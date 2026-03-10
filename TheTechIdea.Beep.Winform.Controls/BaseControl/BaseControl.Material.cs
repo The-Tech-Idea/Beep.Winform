@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -53,6 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private string _bcTrailingIconPath = string.Empty;
         private string _bcLeadingImagePath = string.Empty;
         private string _bcTrailingImagePath = string.Empty;
+        private string _iconKey = string.Empty;
         private int _bcIconSize = 20;
         private int _bcIconPadding = 8;
         private bool _bcShowClearButton = false;
@@ -90,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcTrailingIconPath = value ?? string.Empty;
-                UpdateMaterialLayout();
+             //   UpdateMaterialLayout();
                 Invalidate();
             }
         }
@@ -100,7 +102,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string LeadingImagePath
         {
             get => _bcLeadingImagePath;
-            set { _bcLeadingImagePath = value ?? string.Empty; UpdateMaterialLayout(); Invalidate(); }
+            set
+            {
+                _bcLeadingImagePath = value ?? string.Empty;
+               // UpdateMaterialLayout();
+                Invalidate();
+            }
         }
 
         [Browsable(true), Category("Icons")]
@@ -108,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string TrailingImagePath
         {
             get => _bcTrailingImagePath;
-            set { _bcTrailingImagePath = value ?? string.Empty; UpdateMaterialLayout(); Invalidate(); }
+            set { _bcTrailingImagePath = value ?? string.Empty;  Invalidate(); }
         }
 
         [Browsable(true), Category("Icons")]
@@ -117,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool ShowClearButton
         {
             get => _bcShowClearButton;
-            set { _bcShowClearButton = value; UpdateMaterialLayout(); Invalidate(); }
+            set { _bcShowClearButton = value; Invalidate(); }
         }
 
         [Browsable(true), Category("Icons")]
@@ -136,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public int IconSize
         {
             get => _bcIconSize;
-            set { _bcIconSize = Math.Max(12, value); UpdateMaterialLayout(); Invalidate(); }
+            set { _bcIconSize = Math.Max(12, value);  Invalidate(); }
         }
 
         [Browsable(true), Category("Icons")]
@@ -145,7 +152,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public int IconPadding
         {
             get => _bcIconPadding;
-            set { _bcIconPadding = Math.Max(0, value); UpdateMaterialLayout(); Invalidate(); }
+            set { _bcIconPadding = Math.Max(0, value); ; Invalidate(); }
+        }
+
+        [Browsable(true), Category("Icons")]
+        [Description("Optional icon key from the shared icon catalog. Kept independent from leading/trailing image paths.")]
+        [TypeConverter(typeof(IconCatalogKeyConverter))]
+        public string IconKey
+        {
+            get => _iconKey;
+            set
+            {
+                var normalized = value ?? string.Empty;
+                if (string.Equals(_iconKey, normalized, StringComparison.Ordinal))
+                {
+                    return;
+                }
+
+                _iconKey = normalized;
+               // UpdateMaterialLayout();
+                Invalidate();
+            }
         }
 
      

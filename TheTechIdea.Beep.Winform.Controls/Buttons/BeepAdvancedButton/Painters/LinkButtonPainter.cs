@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             Rectangle buttonBounds = context.Bounds;
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
 
             // No background - just text with underline
 
@@ -44,9 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 if (context.State == Enums.AdvancedButtonState.Hover || context.State == Enums.AdvancedButtonState.Focused)
                 {
                     int textWidth = MeasureContextTextWidth(context);
-                    int y = buttonBounds.Y + (buttonBounds.Height / 2) + (int)(context.TextFont.Size * 0.45f);
+                    int y = buttonBounds.Y + (buttonBounds.Height / 2) + Math.Max(1, tokens.BorderThickness);
                     int x = buttonBounds.X + (buttonBounds.Width - textWidth) / 2;
-                    using Pen underlinePen = new Pen(textColor, 1);
+                    using Pen underlinePen = new Pen(textColor, Math.Max(1, tokens.BorderThickness));
                     g.DrawLine(underlinePen, x, y, x + textWidth, y);
                 }
             }
@@ -54,6 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 DrawLoadingSpinner(g, context, buttonBounds, textColor);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
     }
 }

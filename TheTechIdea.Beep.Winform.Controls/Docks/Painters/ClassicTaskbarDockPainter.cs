@@ -66,18 +66,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             var bounds = itemState.Bounds;
+            var interactionState = GetInteractionState(itemState);
 
             // Flat rectangular highlight on hover/selection
-            if (itemState.IsHovered || itemState.IsSelected)
+            if (interactionState == DockInteractionState.Hovered ||
+                interactionState == DockInteractionState.Selected ||
+                interactionState == DockInteractionState.Focused ||
+                interactionState == DockInteractionState.Pressed)
             {
                 PaintItemBackground(g, bounds, itemState, config, theme);
             }
 
             // Paint icon
-            if (!string.IsNullOrEmpty(itemState.Item.ImagePath))
-            {
-                PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, theme, itemState.CurrentOpacity);
-            }
+            PaintItemIcon(g, itemState, config, theme, itemState.CurrentOpacity);
         }
 
         private void PaintItemBackground(Graphics g, Rectangle bounds, DockItemState itemState, DockConfig config, IBeepTheme theme)

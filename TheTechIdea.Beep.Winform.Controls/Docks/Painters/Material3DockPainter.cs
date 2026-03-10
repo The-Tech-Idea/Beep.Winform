@@ -25,14 +25,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintDockBackground(Graphics g, Rectangle bounds, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            var metrics = GetScaledMetrics(config, theme, g);
 
             // Material elevation shadow
             if (config.ShowShadow)
             {
-                PaintMaterialShadow(g, bounds, config);
+                PaintMaterialShadow(g, bounds, metrics);
             }
 
-            using (var path = CreateRoundedPath(bounds, config.CornerRadius))
+            using (var path = CreateRoundedPath(bounds, metrics.CornerRadius))
             {
                 // Surface background
                 var bgColor = GetColor(
@@ -51,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
                 {
                     using (var pen = new Pen(
                         GetColor(config.BorderColor, theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f),
-                        1f))
+                        metrics.BorderWidth))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -59,19 +60,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             }
         }
 
-        private void PaintMaterialShadow(Graphics g, Rectangle bounds, DockConfig config)
+        private void PaintMaterialShadow(Graphics g, Rectangle bounds, DockPainterMetrics metrics)
         {
             // Material elevation shadow (simulated blur)
             var shadowBounds = bounds;
-            shadowBounds.Inflate(ElevationShadowBlur, ElevationShadowBlur);
-            shadowBounds.Offset(0, 2);
+            shadowBounds.Inflate(metrics.ShadowBlur, metrics.ShadowBlur);
+            shadowBounds.Offset(0, DpiScalingHelper.ScaleValue(2, DpiScalingHelper.GetDpiScaleFactor(g)));
 
-            using (var shadowPath = CreateRoundedPath(shadowBounds, config.CornerRadius))
+            using (var shadowPath = CreateRoundedPath(shadowBounds, metrics.CornerRadius))
             {
                 // Umbra (darkest shadow)
-                for (int i = ElevationShadowBlur; i > 0; i--)
+                for (int i = metrics.ShadowBlur; i > 0; i--)
                 {
-                    int alpha = (int)(40 * (i / (float)ElevationShadowBlur));
+                    int alpha = (int)(40 * (i / (float)Math.Max(1, metrics.ShadowBlur)));
                     using (var pen = new Pen(Color.FromArgb(alpha, Color.Black), i / 3f))
                     {
                         g.DrawPath(pen, shadowPath);
@@ -83,27 +84,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
         public override void PaintDockItem(Graphics g, DockItemState itemState, DockConfig config, IBeepTheme theme)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            var metrics = GetScaledMetrics(config, theme, g);
             var bounds = itemState.Bounds;
 
             // Ripple effect for hover/selection
             if (itemState.IsHovered || itemState.IsSelected)
             {
-                PaintRippleEffect(g, bounds, itemState, config, theme);
+                PaintRippleEffect(g, bounds, itemState, config, theme, metrics);
             }
 
             // Paint icon
-            if (!string.IsNullOrEmpty(itemState.Item.ImagePath))
-            {
-                PaintItemIcon(g, bounds, itemState.Item.ImagePath, config, theme, itemState.CurrentOpacity);
-            }
+            PaintItemIcon(g, itemState, config, theme, itemState.CurrentOpacity);
         }
 
-        private void PaintRippleEffect(Graphics g, Rectangle bounds, DockItemState itemState, DockConfig config, IBeepTheme theme)
+        private void PaintRippleEffect(Graphics g, Rectangle bounds, DockItemState itemState, DockConfig config, IBeepTheme theme, DockPainterMetrics metrics)
         {
             var rippleBounds = bounds;
-            rippleBounds.Inflate(6, 6);
+            var rippleInflate = DpiScalingHelper.ScaleValue(6, DpiScalingHelper.GetDpiScaleFactor(g));
+            rippleBounds.Inflate(rippleInflate, rippleInflate);
 
-            using (var path = CreateRoundedPath(rippleBounds, ItemRippleRadius))
+            using (var path = CreateRoundedPath(rippleBounds, metrics.ItemCornerRadius))
             {
                 Color rippleColor;
                 if (itemState.IsSelected)

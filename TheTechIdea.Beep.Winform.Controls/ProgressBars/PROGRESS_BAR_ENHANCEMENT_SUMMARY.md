@@ -1,0 +1,35 @@
+## 2026 ProgressBar Modernization Pass
+
+- Added typed paint models:
+  - `Models/ProgressPainterState.cs`
+  - `Models/ProgressPainterContext.cs`
+- Added runtime profiles:
+  - `Models/ProgressBarStyleConfig.cs`
+  - `Models/ProgressBarColorConfig.cs`
+- Modernized painter pipeline in `BeepProgressBar`:
+  - Context assembly + backward-compatible parameter bridge.
+  - Optional `IProgressPainterV2` support while preserving `IProgressPainter`.
+  - Capability registry for hit areas, keyboard support, animation/focus semantics.
+- Added shared geometry scaling:
+  - `Helpers/ProgressBarDpiHelpers.cs`
+  - `Helpers/ProgressBarLayoutHelper.cs`
+- Added shared painter parameter contracts:
+  - `Painters/ProgressPainterParameterContracts.cs`
+- Improved core accessibility:
+  - Snapshot-based accessibility update suppression (no redundant announcements).
+  - Painter-aware accessible action descriptions for step and loader variants.
+- Refreshed interactive painter ergonomics:
+  - DPI/token updates in `StepperCirclesPainter` and `ChevronStepsPainter`.
+  - Typography routed through `ProgressBarFontHelpers`.
+- Expanded painter implementation coverage:
+  - All active painter classes now also implement `IProgressPainterV2` typed-context entry points.
+  - DPI/token consistency updated across stripe, loader, segmented, ring, radial, badge, tracker, and arrow-head animated variants.
+- Refined linear painter consistency:
+  - Removed duplicate inset handling.
+  - Switched fallback typography to centralized font helper.
+  - Contrast logic now compares text with progress surface for in-fill readability.
+- Updated design-time smart tags:
+  - Added `PainterKind` property.
+  - Added presets for ring, stepper, and chevron painter variants.
+- Updated user docs:
+  - `Documentation/controls/beep-progressbar.html` now includes 2026 typed-pipeline/profile usage section.

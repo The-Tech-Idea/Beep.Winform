@@ -77,6 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     DrawGlowingIcon(g, context, iconBounds, iconPath, glowColor, glowIntensity);
                 }
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         /// <summary>
@@ -312,15 +314,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawGlowingIcon(Graphics g, AdvancedButtonPaintContext context, Rectangle iconBounds, 
             string iconPath, Color glowColor, int intensity)
         {
-            // For now, draw a simple glowing icon representation
-            // In production, this would load and tint the actual icon
-            
-            // Icon glow layers
+            // Glow halo around the shared icon renderer.
             for (int i = 2; i > 0; i--)
             {
                 int offset = i * 2;
                 int alpha = (intensity / 2) / (i + 1);
-
                 Rectangle glowIconBounds = new Rectangle(
                     iconBounds.X - offset,
                     iconBounds.Y - offset,
@@ -330,16 +328,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 using (Brush glowBrush = new SolidBrush(Color.FromArgb(alpha, glowColor)))
                 {
-                    // Draw icon representation (would be actual icon in production)
-                    DrawIconShape(g, glowBrush, glowIconBounds, iconPath);
+                    g.FillEllipse(glowBrush, glowIconBounds);
                 }
             }
 
-            // Draw main icon
-            using (Brush iconBrush = new SolidBrush(Color.FromArgb(intensity, Color.White)))
-            {
-                DrawIconShape(g, iconBrush, iconBounds, iconPath);
-            }
+            DrawIcon(g, context, iconBounds, iconPath);
         }
 
         /// <summary>

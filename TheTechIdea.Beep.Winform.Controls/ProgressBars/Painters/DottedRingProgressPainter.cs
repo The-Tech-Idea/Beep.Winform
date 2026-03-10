@@ -3,35 +3,41 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
-    internal sealed class DottedRingProgressPainter : IProgressPainter
+    internal sealed class DottedRingProgressPainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.DottedRing);
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            int dots = GetInt(p, "Dots", 24);
-            int pad = 6;
-            var rect = new Rectangle(bounds.X + pad, bounds.Y + pad, bounds.Width - pad*2, bounds.Height - pad*2);
+            int dots = ProgressPainterParameterContracts.GetInt(p, "Dots", 24);
+            int pad = ProgressBarDpiHelpers.Scale(owner, 6);
+            var rect = ProgressRingVisualHelpers.GetSquareRingRect(bounds, pad);
             var center = new PointF(rect.X + rect.Width/2f, rect.Y + rect.Height/2f);
-            float radius = Math.Min(rect.Width, rect.Height)/2f - 6;
+            float radius = Math.Min(rect.Width, rect.Height)/2f - ProgressBarDpiHelpers.Scale(owner, 6);
+            int shadowOffset = ProgressRingVisualHelpers.GetShadowOffset(owner);
             float pct = owner.DisplayProgressPercentageAccessor;
             int active = (int)(dots * pct + 0.5f);
             var on = theme.PrimaryColor.IsEmpty ? Color.SeaGreen : theme.PrimaryColor;
             if (!owner.Enabled)
             {
-                on = Color.FromArgb(120, on);
+                on = Color.FromArgb(ProgressRingVisualHelpers.GetDisabledAccentAlpha(p), on);
             }
-            var off = Color.FromArgb(owner.Enabled ? 100 : 70, theme.CardTextForeColor);
+            int offAlpha = ProgressRingVisualHelpers.GetTrackAlpha(p, owner.Enabled, 100, 70, 122, 92);
+            var off = Color.FromArgb(offAlpha, theme.CardTextForeColor);
             for (int i = 0; i < dots; i++)
             {
                 double angle = -Math.PI/2 + i * (2*Math.PI / dots);
                 float x = center.X + (float)(radius * Math.Cos(angle));
                 float y = center.Y + (float)(radius * Math.Sin(angle));
-                int size = Math.Max(4, (int)(radius*0.08f));
+                int size = Math.Max(ProgressBarDpiHelpers.Scale(owner, 4), (int)(radius*0.08f));
+                using var sb = new SolidBrush(Color.FromArgb(ProgressRingVisualHelpers.GetDotShadowAlpha(p, owner.Enabled), Color.Black));
+                g.FillEllipse(sb, x - size/2f + shadowOffset, y - size/2f + shadowOffset, size, size);
                 using var b = new SolidBrush(i < active ? on : off);
                 g.FillEllipse(b, x - size/2f, y - size/2f, size, size);
             }
@@ -42,7 +48,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             register("RingDots", bounds);
         }
 
-        private static int GetInt(IReadOnlyDictionary<string, object> p, string key, int fallback)
-            => p != null && p.TryGetValue(key, out var v) && v is IConvertible ? Convert.ToInt32(v) : fallback;
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
+        }
     }
 }

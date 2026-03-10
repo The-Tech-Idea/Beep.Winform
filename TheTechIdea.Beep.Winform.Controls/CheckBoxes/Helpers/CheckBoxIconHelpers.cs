@@ -73,7 +73,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
             int iconSize = (int)(checkBoxSize * sizeRatio);
             
             // Ensure minimum and maximum sizes
-            iconSize = Math.Max(8, Math.Min(iconSize, 16));
+            int maxSize = Math.Max(12, checkBoxSize - 4);
+            iconSize = Math.Max(8, Math.Min(iconSize, maxSize));
             
             return new Size(iconSize, iconSize);
         }
@@ -166,7 +167,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
             if (checkBoxBounds.IsEmpty)
                 return Rectangle.Empty;
 
-            Size iconSize = GetIconSize(checkBoxSize, sizeRatio);
+            int effectiveSize = Math.Min(checkBoxSize, Math.Min(checkBoxBounds.Width, checkBoxBounds.Height));
+            Size iconSize = GetIconSize(effectiveSize, sizeRatio);
             
             int x = checkBoxBounds.Left + (checkBoxBounds.Width - iconSize.Width) / 2;
             int y = checkBoxBounds.Top + (checkBoxBounds.Height - iconSize.Height) / 2;

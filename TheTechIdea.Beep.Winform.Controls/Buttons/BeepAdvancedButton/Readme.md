@@ -351,6 +351,24 @@ Shared hover/press transition pipeline is applied to all styles.
 ### Focus-Visible
 Focus ring is shown only for keyboard-origin focus.
 
+## Validation Matrix
+
+| Area | Coverage | Notes |
+|---|---|---|
+| Core interaction states | Normal, Hover, Pressed, Disabled, Focused | Focus ring primitive is now shared in base painter and applied in refreshed families. |
+| DPI sizing | Small/Medium/Large metrics | `AdvancedButtonMetrics.GetMetrics(..., ownerControl)` scales spacing/icon/radius with `DpiScalingHelper`. |
+| Typography | Theme-driven font rendering | Painters use `context.TextFont` + derived variants; no painter-local `new Font(...)`. |
+| Token/layout foundation | Shared contract | `AdvancedButtonPaintContract` provides token and normalized layout slices for painter consistency. |
+| Accessibility | Keyboard + focus-visible + loading suppression | `Tab`, `Space`, `Enter`, split toggle keyboard flow, and `SuppressClickWhileLoading` are active. |
+| Icon rendering | Shared icon pipeline | Core and neon painters now use shared icon drawing path through base icon helpers. |
+
+## Icon Picker Integration
+
+- `ImagePath` and `EmbeddedImagePath` now use category/source-aware standard values through the shared icon catalog.
+- Design-time modal picker uses category grouping with source filtering via `IconPickerDialog`.
+- `BaseControl.IconKey` can be set from a dropdown key (`Source.FieldName`) and auto-syncs `LeadingImagePath`.
+- Selecting icon keys or paths stays backward-compatible because serialized designer values remain image paths.
+
 ## Extending with Custom Painters
 
 Create a custom painter by implementing `IAdvancedButtonPainter`:

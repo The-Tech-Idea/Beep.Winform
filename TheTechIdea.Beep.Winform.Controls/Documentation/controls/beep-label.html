@@ -131,6 +131,7 @@
                         <li><a href="#events">Events</a></li>
                         <li><a href="#examples">Examples</a></li>
                         <li><a href="#theming">Theming</a></li>
+                        <li><a href="#painter-pipeline-2026">2026 Painter Pipeline Update</a></li>
                         <li><a href="#best-practices">Best Practices</a></li>
                     </ul>
                 </div>
@@ -742,6 +743,22 @@ themedLabel.ApplyTheme(); // SVG now uses dark theme colors</code></pre>
                         <strong>🎨 Theming Tip</strong>
                         <p>Use <code>ApplyThemeOnImage = true</code> to automatically color SVG icons based on the current theme's foreground color, ensuring consistent visual integration.</p>
                     </div>
+                </section>
+
+                <section id="painter-pipeline-2026" class="section">
+                    <h2>2026 Painter Pipeline Update</h2>
+                    <p>
+                        BeepLabel now uses a typed render pipeline (`BeepLabelState` + `BeepLabelLayoutContext`) with dedicated
+                        layout and painter helpers for more stable spacing, DPI behavior, and rendering consistency.
+                    </p>
+                    <ul>
+                        <li><strong>Typed render contract:</strong> internal state/context objects drive measurement and painting.</li>
+                        <li><strong>DPI-first geometry:</strong> spacing and image/text composition are normalized through helper logic.</li>
+                        <li><strong>Image rendering:</strong> image painting is now routed through <code>StyledImagePainter</code> for tint/opacity consistency.</li>
+                        <li><strong>Profiles:</strong> <code>StyleProfile</code> and <code>ColorProfile</code> provide runtime UX customization.</li>
+                        <li><strong>Accessibility:</strong> accessible name/description and contrast-safe text color updates are deduplicated.</li>
+                        <li><strong>Designer presets:</strong> quick presets are available for text-only, image-left, image-top, and title+subheader patterns.</li>
+                    </ul>
                 </section>
 
                 <!-- Best Practices -->

@@ -340,6 +340,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks
             return m;
         }
 
+        /// <summary>
+        /// Gets default metrics for a specific style and applies DPI scaling.
+        /// </summary>
+        public static DockPainterMetrics DefaultFor(DockStyle style, IBeepTheme? theme, bool useThemeColors, float dpiScale)
+        {
+            var metrics = DefaultFor(style, theme, useThemeColors);
+            if (!DpiScalingHelper.AreScaleFactorsEqual(dpiScale, 1.0f))
+            {
+                metrics.ItemSize = DpiScalingHelper.ScaleValue(metrics.ItemSize, dpiScale);
+                metrics.ItemSpacing = DpiScalingHelper.ScaleValue(metrics.ItemSpacing, dpiScale);
+                metrics.ItemPadding = DpiScalingHelper.ScaleValue(metrics.ItemPadding, dpiScale);
+                metrics.CornerRadius = DpiScalingHelper.ScaleValue(metrics.CornerRadius, dpiScale);
+                metrics.ItemCornerRadius = DpiScalingHelper.ScaleValue(metrics.ItemCornerRadius, dpiScale);
+                metrics.BorderWidth = DpiScalingHelper.ScaleValue(metrics.BorderWidth, dpiScale);
+                metrics.IndicatorSize = DpiScalingHelper.ScaleValue(metrics.IndicatorSize, dpiScale);
+                metrics.IndicatorOffset = DpiScalingHelper.ScaleValue(metrics.IndicatorOffset, dpiScale);
+                metrics.ShadowBlur = DpiScalingHelper.ScaleValue(metrics.ShadowBlur, dpiScale);
+                metrics.GlowBlur = DpiScalingHelper.ScaleValue(metrics.GlowBlur, dpiScale);
+                metrics.SeparatorWidth = DpiScalingHelper.ScaleValue(metrics.SeparatorWidth, dpiScale);
+            }
+
+            return metrics;
+        }
+
         // Note: DPI-aware metrics method commented out until BeepDock has CurrentTheme and UseThemeColors properties
         /*
         /// <summary>

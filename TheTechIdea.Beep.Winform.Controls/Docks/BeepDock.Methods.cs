@@ -1,6 +1,7 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Docks.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -87,13 +88,52 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Maintain frameless appearance
             IsChild = true;
-            if (Parent != null)
+            // Respect explicit dock background styles when set.
+            if (Parent != null && !_config.ShowBackground && !_config.BackgroundColor.HasValue)
                 BackColor = Parent.BackColor;
             
             IsFrameless = true;
             ShowAllBorders = false;
             IsBorderAffectedByTheme = false;
 
+            Invalidate();
+        }
+
+        internal void ApplyStyleProfile(DockStyleConfig? styleProfile)
+        {
+            if (styleProfile == null)
+            {
+                return;
+            }
+
+            _config.Style = styleProfile.DockStyle;
+            _config.ItemSize = styleProfile.RecommendedItemSize;
+            _config.DockHeight = styleProfile.RecommendedDockHeight;
+            _config.Spacing = styleProfile.RecommendedSpacing;
+            _config.Padding = styleProfile.RecommendedPadding;
+            _config.MaxScale = styleProfile.RecommendedMaxScale;
+            _config.BackgroundOpacity = styleProfile.RecommendedBackgroundOpacity;
+            _config.ShowShadow = styleProfile.ShowShadow;
+            _dockPainter = Docks.Painters.DockPainterFactory.GetPainter(_config.Style);
+            ControlStyle = styleProfile.ControlStyle;
+            UpdateItemBounds();
+            Invalidate();
+        }
+
+        internal void ApplyColorProfile(DockColorConfig? colorProfile)
+        {
+            if (colorProfile == null)
+            {
+                return;
+            }
+
+            _config.BackgroundColor = colorProfile.BackgroundColor;
+            _config.ForegroundColor = colorProfile.ForegroundColor;
+            _config.BorderColor = colorProfile.BorderColor;
+            _config.HoverColor = colorProfile.ItemHoverColor;
+            _config.SelectedColor = colorProfile.ItemSelectedColor;
+            _config.IndicatorColor = colorProfile.IndicatorColor;
+            _config.SeparatorColor = colorProfile.SeparatorColor;
             Invalidate();
         }
         #endregion

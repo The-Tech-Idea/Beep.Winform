@@ -99,6 +99,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("DockOrientationType", value);
         }
 
+        [Category("Beep Dock")]
+        [Description("Alignment of items inside the dock container")]
+        public DockAlignment DockAlignmentType
+        {
+            get => _designer.GetProperty<DockAlignment>("DockAlignmentType");
+            set => _designer.SetProperty("DockAlignmentType", value);
+        }
+
+        [Category("Beep Dock")]
+        [Description("Indicator style for running/selected items")]
+        public DockIndicatorStyle IndicatorStyle
+        {
+            get => _designer.GetProperty<DockIndicatorStyle>("IndicatorStyle");
+            set => _designer.SetProperty("IndicatorStyle", value);
+        }
+
         #endregion
 
         #region Quick Configuration Actions
@@ -181,6 +197,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             MaxScale = 1.2f;
         }
 
+        public void ConfigureAsCyberpunkDock()
+        {
+            DockStyleType = DockStyle.CyberpunkDock;
+            DockPositionType = DockPosition.Bottom;
+            DockOrientationType = DockOrientation.Horizontal;
+            ItemSize = 54;
+            DockHeight = 74;
+            MaxScale = 1.45f;
+        }
+
+        public void ConfigureAsDraculaDock()
+        {
+            DockStyleType = DockStyle.DraculaDock;
+            DockPositionType = DockPosition.Bottom;
+            DockOrientationType = DockOrientation.Horizontal;
+            ItemSize = 52;
+            DockHeight = 70;
+            MaxScale = 1.35f;
+        }
+
         /// <summary>
         /// Position dock at bottom
         /// </summary>
@@ -255,6 +291,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsGlassmorphismDock", "Glassmorphism", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsiOSDock", "iOS Dock", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsMinimalDock", "Minimal", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsCyberpunkDock", "Cyberpunk", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsDraculaDock", "Dracula", "Style Presets", true));
 
             // Position presets
             items.Add(new DesignerActionHeaderItem("Position Presets"));
@@ -274,10 +312,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("DockStyleType", "Dock Style", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockPositionType", "Dock Position", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockOrientationType", "Dock Orientation", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("DockAlignmentType", "Dock Alignment", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("ItemSize", "Item Size", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockHeight", "Dock Height", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("ItemSpacing", "Item Spacing", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("MaxScale", "Max Scale", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("IndicatorStyle", "Indicator Style", "Dock Properties"));
 
             return items;
         }

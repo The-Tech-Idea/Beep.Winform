@@ -1,5 +1,7 @@
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Vis.Modules;
@@ -19,7 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public static Font GetItemFont(
             BeepControlStyle controlStyle,
             bool isSelected = false,
-            IBeepTheme theme = null)
+            IBeepTheme theme = null,
+            Control ownerControl = null)
         {
             var textTypography = theme?.BodyMedium ?? theme?.LabelMedium;
             if (textTypography != null)
@@ -32,6 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
+            if (ownerControl != null)
+            {
+                baseSize = DpiScalingHelper.ScaleValue(baseSize, ownerControl);
+            }
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
             return BeepThemesManager.ToFont(
@@ -46,7 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// </summary>
         public static Font GetSubtextFont(
             BeepControlStyle controlStyle,
-            IBeepTheme theme = null)
+            IBeepTheme theme = null,
+            Control ownerControl = null)
         {
             var subTypography = theme?.BodySmall ?? theme?.LabelSmall;
             if (subTypography != null)
@@ -59,6 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
+            if (ownerControl != null)
+            {
+                baseSize = DpiScalingHelper.ScaleValue(baseSize, ownerControl);
+            }
             float subtextSize = Math.Max(8f, baseSize - 2f); // Smaller for subtext
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
@@ -70,7 +82,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// </summary>
         public static Font GetLabelFont(
             BeepControlStyle controlStyle,
-            IBeepTheme theme = null)
+            IBeepTheme theme = null,
+            Control ownerControl = null)
         {
             var labelTypography = theme?.LabelLarge ?? theme?.TitleSmall;
             if (labelTypography != null)
@@ -83,6 +96,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             float baseSize = StyleTypography.GetFontSize(controlStyle);
+            if (ownerControl != null)
+            {
+                baseSize = DpiScalingHelper.ScaleValue(baseSize, ownerControl);
+            }
             float labelSize = baseSize + 1f; // Slightly larger for labels
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();

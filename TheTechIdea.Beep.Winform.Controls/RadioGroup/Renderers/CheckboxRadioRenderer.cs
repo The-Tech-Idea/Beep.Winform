@@ -18,6 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public string StyleName => "Checkbox";
         public string DisplayName => "Checkbox Style";
         public bool SupportsMultipleSelection => true;
+        public bool AllowMultipleSelection
+        {
+            get => _inner.AllowMultipleSelection;
+            set => _inner.AllowMultipleSelection = value;
+        }
         
         public BeepControlStyle ControlStyle
         {

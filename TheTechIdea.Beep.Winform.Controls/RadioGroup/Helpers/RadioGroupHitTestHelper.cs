@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         private List<Rectangle> _itemRectangles = new List<Rectangle>();
         private int _hoveredIndex = -1;
         private int _focusedIndex = -1;
+        private int _pressedIndex = -1;
         public Func<int, bool> IsItemInteractive { get; set; }
 
         public RadioGroupHitTestHelper(BaseControl owner)
@@ -62,6 +63,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
 
         public SimpleItem HoveredItem => _hoveredIndex >= 0 && _hoveredIndex < _items.Count ? _items[_hoveredIndex] : null;
         public SimpleItem FocusedItem => _focusedIndex >= 0 && _focusedIndex < _items.Count ? _items[_focusedIndex] : null;
+        public int PressedIndex
+        {
+            get => _pressedIndex;
+            private set
+            {
+                if (_pressedIndex != value)
+                {
+                    _pressedIndex = value;
+                    PressedIndexChanged?.Invoke(this, new IndexChangedEventArgs(_pressedIndex));
+                }
+            }
+        }
         #endregion
 
         #region Events
@@ -71,6 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public event EventHandler<ItemClickEventArgs> ItemDoubleClicked;
         public event EventHandler<ItemHoverEventArgs> ItemHoverEnter;
         public event EventHandler<ItemHoverEventArgs> ItemHoverLeave;
+        public event EventHandler<IndexChangedEventArgs> PressedIndexChanged;
         #endregion
 
         #region Setup Methods
@@ -119,6 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             _hitTestHelper.ClearHitList();
             HoveredIndex = -1;
             FocusedIndex = -1;
+            PressedIndex = -1;
         }
 
         public void ResetInteractionState(bool notifyHoverLeave = true)
@@ -134,6 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
 
             HoveredIndex = -1;
             FocusedIndex = -1;
+            PressedIndex = -1;
         }
         #endregion
 
@@ -193,6 +209,47 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
             
             HoveredIndex = -1;
+            PressedIndex = -1;
+            RedrawOwner();
+        }
+
+        public void HandleMouseDown(Point location, MouseButtons button)
+        {
+            if (button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            int pressedCandidate = FindItemAt(location);
+            if (pressedCandidate >= 0 && (IsItemInteractive == null || IsItemInteractive(pressedCandidate)))
+            {
+                PressedIndex = pressedCandidate;
+                FocusedIndex = pressedCandidate;
+            }
+            else
+            {
+                PressedIndex = -1;
+            }
+
+            RedrawOwner();
+        }
+
+        public void HandleMouseUp(Point location, MouseButtons button)
+        {
+            if (button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            int releasedIndex = FindItemAt(location);
+            if (releasedIndex != PressedIndex)
+            {
+                PressedIndex = -1;
+                RedrawOwner();
+                return;
+            }
+
+            PressedIndex = -1;
             RedrawOwner();
         }
 
@@ -248,6 +305,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// Handles keyboard navigation
         /// </summary>
         public bool HandleKeyDown(Keys keyCode, RadioGroupOrientation orientation)
+            => HandleKeyDown(keyCode, orientation, 1);
+
+        public bool HandleKeyDown(Keys keyCode, RadioGroupOrientation orientation, int columnCount)
         {
             if (_items.Count == 0) return false;
 
@@ -259,26 +319,40 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 case Keys.Up:
                     if (orientation == RadioGroupOrientation.Vertical || orientation == RadioGroupOrientation.Grid)
                     {
-                        newFocusIndex = FindNextInteractiveIndex(currentFocus, -1);
+                        if (orientation == RadioGroupOrientation.Grid)
+                        {
+                            newFocusIndex = FindNextGridInteractiveIndex(currentFocus, -Math.Max(1, columnCount));
+                        }
+                        else
+                        {
+                            newFocusIndex = FindNextInteractiveIndex(currentFocus, -1);
+                        }
                     }
                     break;
 
                 case Keys.Down:
                     if (orientation == RadioGroupOrientation.Vertical || orientation == RadioGroupOrientation.Grid)
                     {
-                        newFocusIndex = FindNextInteractiveIndex(currentFocus, 1);
+                        if (orientation == RadioGroupOrientation.Grid)
+                        {
+                            newFocusIndex = FindNextGridInteractiveIndex(currentFocus, Math.Max(1, columnCount));
+                        }
+                        else
+                        {
+                            newFocusIndex = FindNextInteractiveIndex(currentFocus, 1);
+                        }
                     }
                     break;
 
                 case Keys.Left:
-                    if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow)
+                    if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow || orientation == RadioGroupOrientation.Grid)
                     {
                         newFocusIndex = FindNextInteractiveIndex(currentFocus, -1);
                     }
                     break;
 
                 case Keys.Right:
-                    if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow)
+                    if (orientation == RadioGroupOrientation.Horizontal || orientation == RadioGroupOrientation.Flow || orientation == RadioGroupOrientation.Grid)
                     {
                         newFocusIndex = FindNextInteractiveIndex(currentFocus, 1);
                     }
@@ -424,6 +498,29 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             return startIndex;
         }
 
+        private int FindNextGridInteractiveIndex(int startIndex, int rowStep)
+        {
+            if (_items.Count == 0)
+            {
+                return -1;
+            }
+
+            int baseIndex = startIndex >= 0 ? startIndex : FindFirstInteractiveIndex();
+            if (baseIndex < 0)
+            {
+                return -1;
+            }
+
+            int targetIndex = baseIndex + rowStep;
+            targetIndex = Math.Max(0, Math.Min(_items.Count - 1, targetIndex));
+            if (IsItemInteractive == null || IsItemInteractive(targetIndex))
+            {
+                return targetIndex;
+            }
+
+            return FindNextInteractiveIndex(targetIndex, rowStep > 0 ? 1 : -1);
+        }
+
         /// <summary>
         /// Gets the rectangle for a specific item index
         /// </summary>
@@ -489,6 +586,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             IsItemInteractive = null;
             HoveredIndexChanged = null;
             FocusedIndexChanged = null;
+            PressedIndexChanged = null;
             ItemClicked = null;
             ItemDoubleClicked = null;
             ItemHoverEnter = null;

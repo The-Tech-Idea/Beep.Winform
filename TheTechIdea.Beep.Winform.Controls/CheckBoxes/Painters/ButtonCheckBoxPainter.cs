@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
 
@@ -24,6 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             {
                 effectiveBackground = ControlPaint.Light(effectiveBackground, 0.06f);
             }
+            float borderWidth = state.IsChecked || state.IsIndeterminate
+                ? Math.Max(1.5f, options.BorderWidth)
+                : Math.Max(1f, options.BorderWidth);
 
             using (var path = CreateRoundedPath(bounds, options.BorderRadius))
             {
@@ -34,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 }
 
                 // Paint border
-                using (var pen = new Pen(borderColor, options.BorderWidth))
+                using (var pen = new Pen(borderColor, borderWidth))
                 {
                     g.DrawPath(pen, path);
                 }
@@ -66,13 +70,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 
         public override void PaintCheckMark(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
         {
-            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(3, bounds.Width / 5), -Math.Max(3, bounds.Height / 5));
+            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(2, bounds.Width / 6), -Math.Max(2, bounds.Height / 6));
             PaintStandardCheckMark(g, iconBounds, options);
         }
 
         public override void PaintIndeterminateMark(Graphics g, Rectangle bounds, CheckBoxRenderOptions options)
         {
-            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(3, bounds.Width / 5), -Math.Max(3, bounds.Height / 5));
+            Rectangle iconBounds = Rectangle.Inflate(bounds, -Math.Max(2, bounds.Width / 6), -Math.Max(2, bounds.Height / 6));
             PaintStandardIndeterminateMark(g, iconBounds, options);
         }
 

@@ -35,15 +35,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Get DPI Scale - Use Control.DeviceDpi (Microsoft recommended approach)
-            float scale = DpiScalingHelper.GetDpiScaleFactor(this);
-
             // Scale dimensions
             int baseCheckBoxSize = CheckBoxSize;
-            int scaledCheckBoxSize = DpiScalingHelper.ScaleValue(baseCheckBoxSize, scale);
-            int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, scale);
-            int scaledPaddingLeft = DpiScalingHelper.ScaleValue(Padding.Left, scale);
-            int scaledPaddingTop = DpiScalingHelper.ScaleValue(Padding.Top, scale);
+            int scaledCheckBoxSize = DpiScalingHelper.ScaleValue(baseCheckBoxSize, this);
+            int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
+            int scaledPaddingLeft = DpiScalingHelper.ScaleValue(Padding.Left, this);
+            int scaledPaddingTop = DpiScalingHelper.ScaleValue(Padding.Top, this);
 
             int checkBoxSize = Math.Min(scaledCheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
             Rectangle checkBoxRect;
@@ -126,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 CheckBoxSize = checkBoxSize,
                 Spacing = scaledSpacing,
                 Padding = scaledPaddingLeft,
-                BorderRadius = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderRadius(_checkBoxStyle, ControlStyle), scale),
-                BorderWidth = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderWidth(_checkBoxStyle), scale),
-                CheckMarkThickness = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedCheckMarkThickness(_checkBoxStyle), scale),
+                BorderRadius = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderRadius(_checkBoxStyle, ControlStyle), this),
+                BorderWidth = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderWidth(_checkBoxStyle), this),
+                CheckMarkThickness = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedCheckMarkThickness(_checkBoxStyle), this),
                 GlyphSizeRatio = _checkBoxStyle == CheckBoxStyle.Switch ? 0.5f : 0.62f,
                 CheckIconPath = string.IsNullOrWhiteSpace(ImagePath) ? CheckIconPath : ImagePath,
                 IndeterminateIconPath = IndeterminateIconPath,
@@ -344,7 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             bool hasText = !HideText && !string.IsNullOrEmpty(Text);
             Size textSize = hasText ? TextRenderer.MeasureText(Text, TextFont) : Size.Empty;
             int checkBoxSize = CheckBoxSize;
-            int minimumTarget = DpiScalingHelper.ScaleValue(_minimumHitTargetSize, DpiScalingHelper.GetDpiScaleFactor(this));
+            int minimumTarget = DpiScalingHelper.ScaleValue(_minimumHitTargetSize, this);
 
             int width, height;
 

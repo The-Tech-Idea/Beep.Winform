@@ -31,6 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 DrawRegularToggleButton(context);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 // Lighten or darken left area on hover
                 leftBg = context.IsToggled 
                     ? context.HoverBackground 
-                    : Color.FromArgb(230, 232, 235); // Slightly darker inactive hover
+                    : Blend(GetInactiveSideColor(context), context.HoverBackground, 0.25f);
             }
             
             if (context.RightAreaHovered && !context.RightAreaPressed)
@@ -73,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 // Lighten or darken right area on hover
                 rightBg = !context.IsToggled 
                     ? context.HoverBackground 
-                    : Color.FromArgb(230, 232, 235); // Slightly darker inactive hover
+                    : Blend(GetInactiveSideColor(context), context.HoverBackground, 0.25f);
             }
 
             // Apply pressed effect from BaseControl's input helper
@@ -132,8 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         /// </summary>
         private Color GetInactiveSideColor(AdvancedButtonPaintContext context)
         {
-            // Light transparent background for inactive side
-            return Color.FromArgb(240, 242, 245); // Very light gray
+            return Blend(context.SolidBackground, Color.White, 0.82f);
         }
 
         /// <summary>
@@ -142,6 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         private void DrawSplitContent(Graphics g, AdvancedButtonPaintContext context,
             Rectangle leftArea, Rectangle rightArea, Color leftColor, Color rightColor)
         {
+            var metrics = GetMetrics(context);
             // For split buttons, we'll use the main text split by "|" delimiter
             // Or default to "ON" | "OFF" if no delimiter found
             string leftText = "A to Z";
@@ -184,9 +186,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
                 Rectangle iconBounds = new Rectangle(
-                    leftArea.X + 8,
-                    leftArea.Y + (leftArea.Height - 16) / 2,
-                    16, 16
+                    leftArea.X + metrics.PaddingHorizontal / 2,
+                    leftArea.Y + (leftArea.Height - metrics.IconSize) / 2,
+                    metrics.IconSize, metrics.IconSize
                 );
                 DrawIcon(g, context, iconBounds, context.IconLeft);
             }
@@ -194,9 +196,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!string.IsNullOrEmpty(context.IconRight))
             {
                 Rectangle iconBounds = new Rectangle(
-                    rightArea.Right - 24,
-                    rightArea.Y + (rightArea.Height - 16) / 2,
-                    16, 16
+                    rightArea.Right - metrics.IconSize - (metrics.PaddingHorizontal / 2),
+                    rightArea.Y + (rightArea.Height - metrics.IconSize) / 2,
+                    metrics.IconSize, metrics.IconSize
                 );
                 DrawIcon(g, context, iconBounds, context.IconRight);
             }

@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers
         /// </summary>
         public int CalculateIdealWidth(string text, bool hasIcon, AdvancedButtonSize size)
         {
-            var metrics = AdvancedButtonMetrics.GetMetrics(size);
+            var metrics = AdvancedButtonMetrics.GetMetrics(size, _button);
             int width = metrics.PaddingHorizontal * 2;
 
             if (hasIcon)
@@ -56,6 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers
             out Rectangle textBounds)
         {
             var metrics = AdvancedButtonMetrics.GetMetrics(size);
+            metrics = AdvancedButtonMetrics.GetMetrics(size, _button);
             
             if (hasIcon && !string.IsNullOrEmpty(text))
             {

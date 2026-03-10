@@ -17,7 +17,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _draggedIndex = -1;
         private Point _dragStartPoint;
         private Point _currentDragPoint;
-        private const int DragThreshold = 8;
 
         /// <summary>
         /// Initializes drag-drop functionality
@@ -39,6 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (e.Button == MouseButtons.Left)
             {
+                if (_overflowStartIndex >= 0 && _overflowBounds.Contains(e.Location))
+                {
+                    ShowOverflowPopup();
+                    return;
+                }
+
                 _dragStartPoint = e.Location;
                 
                 // Find which item was clicked
@@ -47,6 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_itemStates[i].HitBounds.Contains(e.Location))
                     {
                         _draggedIndex = i;
+                        SetPressedIndex(i);
                         break;
                     }
                 }
@@ -64,20 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (newHoveredIndex != _hoveredIndex)
             {
-                // Update hover states
-                for (int i = 0; i < _itemStates.Count; i++)
-                {
-                    _itemStates[i].IsHovered = (i == newHoveredIndex);
-                }
-
-                _hoveredIndex = newHoveredIndex;
-
-                // Fire hover event
-                if (_hoveredIndex >= 0 && _hoveredIndex < _itemStates.Count)
-                {
-                    ItemHovered?.Invoke(this, new DockItemEventArgs(_itemStates[_hoveredIndex].Item, _hoveredIndex));
-                }
-
+                SetHoveredIndex(newHoveredIndex);
                 UpdateItemBounds();
                 Invalidate();
             }
@@ -87,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int dx = Math.Abs(e.X - _dragStartPoint.X);
                 int dy = Math.Abs(e.Y - _dragStartPoint.Y);
 
-                if (dx > DragThreshold || dy > DragThreshold)
+                if (dx > _config.DragHysteresis || dy > _config.DragHysteresis)
                 {
                     StartDrag();
                 }
@@ -117,6 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CompleteDrag(e.Location);
             }
 
+            SetPressedIndex(-1);
             _isDragging = false;
             _draggedIndex = -1;
             Invalidate();
@@ -129,6 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _isDragging = true;
             _itemStates[_draggedIndex].IsDragging = true;
+            _itemStates[_draggedIndex].IsPressed = false;
 
             Cursor = Cursors.Hand;
 
@@ -210,6 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             _itemStates[_draggedIndex].IsDragging = false;
+            _itemStates[_draggedIndex].IsPressed = false;
             Cursor = Cursors.Default;
         }
 
@@ -340,6 +336,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void PaintDropIndicator(Graphics g)
         {
+            if (_itemStates.Count == 0)
+            {
+                return;
+            }
+
             int dropIndex = FindDropIndex(_currentDragPoint);
             
             if (dropIndex < 0 || dropIndex > _itemStates.Count)
@@ -432,6 +433,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.FillPolygon(brush, points);
             }
+        }
+
+        private void ShowOverflowPopup()
+        {
+            if (_overflowStartIndex < 0 || _overflowStartIndex >= _items.Count)
+            {
+                return;
+            }
+
+            var popup = new Docks.BeepDockPopup(_config);
+            for (int i = _overflowStartIndex; i < _items.Count; i++)
+            {
+                popup.AddItem(_items[i]);
+            }
+
+            popup.ItemClicked += (_, args) =>
+            {
+                SelectedItem = args.Item;
+                ItemClicked?.Invoke(this, new DockItemEventArgs(args.Item, _items.IndexOf(args.Item)));
+                popup.Close();
+            };
+
+            var screenPoint = PointToScreen(new Point(_overflowBounds.Left, _overflowBounds.Top - _config.DockHeight - 8));
+            popup.ShowAtPosition(screenPoint);
         }
 
         #region Events

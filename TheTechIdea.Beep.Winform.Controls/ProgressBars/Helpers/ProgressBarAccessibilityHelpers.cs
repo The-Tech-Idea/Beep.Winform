@@ -146,7 +146,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
         public static void ApplyAccessibilitySettings(
             BeepProgressBar progressBar,
             string accessibleName = null,
-            string accessibleDescription = null)
+            string accessibleDescription = null,
+            ProgressPainterKind painterKind = ProgressPainterKind.Linear,
+            System.Collections.Generic.IReadOnlyDictionary<string, object> parameters = null)
         {
             if (progressBar == null)
                 return;
@@ -155,7 +157,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
             progressBar.AccessibleName = GenerateAccessibleName(progressBar, accessibleName);
             progressBar.AccessibleDescription = GenerateAccessibleDescription(progressBar, accessibleDescription);
             progressBar.AccessibleRole = AccessibleRole.ProgressBar;
-           
+            progressBar.AccessibleDefaultActionDescription = GeneratePainterSemanticSummary(progressBar, painterKind, parameters);
+        }
+
+        public static string GeneratePainterSemanticSummary(
+            BeepProgressBar progressBar,
+            ProgressPainterKind painterKind,
+            System.Collections.Generic.IReadOnlyDictionary<string, object> parameters)
+        {
+            int percentage = (int)((float)(progressBar.Value - progressBar.Minimum) /
+                Math.Max(1, progressBar.Maximum - progressBar.Minimum) * 100);
+
+            if (painterKind == ProgressPainterKind.StepperCircles || painterKind == ProgressPainterKind.ChevronSteps)
+            {
+                int steps = parameters != null && parameters.TryGetValue("Steps", out var stepsObj) && stepsObj is IConvertible
+                    ? Convert.ToInt32(stepsObj)
+                    : 4;
+                int current = parameters != null && parameters.TryGetValue("Current", out var currentObj) && currentObj is IConvertible
+                    ? Convert.ToInt32(currentObj)
+                    : Math.Max(0, (int)Math.Round((steps - 1) * percentage / 100f));
+                return $"Step {Math.Min(steps, current + 1)} of {steps}, {percentage}% complete";
+            }
+
+            if (painterKind == ProgressPainterKind.DotsLoader || painterKind == ProgressPainterKind.ArrowHeadAnimated)
+            {
+                return $"Loading indicator, {percentage}% complete";
+            }
+
+            return $"{percentage}% complete";
         }
 
         #endregion

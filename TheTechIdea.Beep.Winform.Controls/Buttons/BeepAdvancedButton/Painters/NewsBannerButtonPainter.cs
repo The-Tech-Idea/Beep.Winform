@@ -77,6 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     DrawRectangleBadgeLeft(g, context, metrics, buttonBounds);
                     break;
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         /// <summary>

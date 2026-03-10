@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
@@ -16,6 +17,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     public partial class BeepRadioGroup
     {
         private bool _useThemeColors = true;
+        private RadioGroupStyleConfig _styleProfile = new RadioGroupStyleConfig();
+        private RadioGroupColorConfig _colorProfile = new RadioGroupColorConfig();
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Use theme colors instead of style-based colors.")]
@@ -39,6 +42,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     foreach (var renderer in _renderers.Values)
                     {
                         renderer.UseThemeColors = value;
+                    }
+
+                    if (!value)
+                    {
+                        ApplyColorProfile(_colorProfile);
                     }
                     
                     RequestVisualRefresh();
@@ -139,6 +147,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _allowMultipleSelection = value;
                     _stateHelper.AllowMultipleSelection = value;
+                    foreach (var renderer in _renderers.Values)
+                    {
+                        renderer.AllowMultipleSelection = value;
+                    }
                     
                     // Update renderer if it doesn't support the new mode
                     if (!_currentRenderer.SupportsMultipleSelection && value)
@@ -196,6 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     _hitTestHelper.ResetInteractionState();
                     _renderStyle = value;
                     _currentRenderer = _renderers[value];
+                    _currentRenderer.AllowMultipleSelection = _allowMultipleSelection;
                     _currentRenderer.Initialize(this, _currentTheme);
 
                     // Update measurer to the new renderer
@@ -345,6 +358,34 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     UpdateLayout();
                     RequestVisualRefresh();
                 }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Runtime style profile for layout and rendering defaults.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public RadioGroupStyleConfig StyleProfile
+        {
+            get => _styleProfile;
+            set
+            {
+                _styleProfile = value ?? new RadioGroupStyleConfig();
+                ApplyStyleProfile(_styleProfile);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Runtime color profile used when UseThemeColors is false.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public RadioGroupColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                _colorProfile = value ?? new RadioGroupColorConfig();
+                ApplyColorProfile(_colorProfile);
             }
         }
         #endregion

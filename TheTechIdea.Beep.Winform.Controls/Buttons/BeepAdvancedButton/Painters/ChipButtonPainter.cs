@@ -83,6 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     DrawBadgeIndicator(g, buttonBounds, context.BadgeText, context.BadgeColor, context.TextFont);
                 }
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         /// <summary>

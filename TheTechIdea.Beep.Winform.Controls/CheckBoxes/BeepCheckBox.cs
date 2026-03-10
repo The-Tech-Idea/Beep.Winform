@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private bool _keyboardFocusVisible;
         private int _minimumHitTargetSize = 32;
         private bool _hideText = false;
-        private Font _textFont = new Font("Arial", 10);
+        private Font _textFont = SystemFonts.MessageBoxFont;
         private int checkboxsize = 15;
         private int _spacing = 5;
         private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;

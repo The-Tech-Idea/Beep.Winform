@@ -18,6 +18,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     {
         public BeepImage? Image => Component as BeepImage;
 
+        internal bool OpenImagePicker()
+        {
+            if (Image == null)
+            {
+                return false;
+            }
+
+            string currentPath = GetProperty<string>("ImagePath") ?? string.Empty;
+            var assembly = Image.GetType().Assembly;
+            using var dialog = new BeepImagePickerDialog(Image, embed: false, this, assembly, currentPath);
+            if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK ||
+                dialog.SelectionResult.IsCancelled ||
+                string.IsNullOrWhiteSpace(dialog.SelectionResult.SelectedPath))
+            {
+                return false;
+            }
+
+            SetProperty("ImagePath", dialog.SelectionResult.SelectedPath);
+            return true;
+        }
+
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
@@ -171,6 +192,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
+        public void SelectImageSource()
+        {
+            _designer.OpenImagePicker();
+        }
+
+        public void ClearImageSource()
+        {
+            _designer.SetProperty("ImagePath", string.Empty);
+        }
+
+        public void SetEmbeddedContextToButton()
+        {
+            _designer.SetProperty("ImageEmbededin", ImageEmbededin.Button);
+        }
+
+        public void SetEmbeddedContextToLabel()
+        {
+            _designer.SetProperty("ImageEmbededin", ImageEmbededin.Label);
+        }
+
         #endregion
 
         #region DesignerActionItemCollection
@@ -178,6 +219,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public override DesignerActionItemCollection GetSortedActionItems()
         {
             var items = new DesignerActionItemCollection();
+
+            // Source selection
+            items.Add(new DesignerActionHeaderItem("Image Source"));
+            items.Add(new DesignerActionMethodItem(this, "SelectImageSource", "Select Image...", "Image Source", "Open image picker"));
+            items.Add(new DesignerActionMethodItem(this, "ClearImageSource", "Clear Image", "Image Source", "Clear selected image"));
+            items.Add(new DesignerActionMethodItem(this, "SetEmbeddedContextToButton", "Embedded Context: Button", "Image Source", "Set ImageEmbededin to Button"));
+            items.Add(new DesignerActionMethodItem(this, "SetEmbeddedContextToLabel", "Embedded Context: Label", "Image Source", "Set ImageEmbededin to Label"));
 
             // Header
             items.Add(new DesignerActionHeaderItem("Clipping"));

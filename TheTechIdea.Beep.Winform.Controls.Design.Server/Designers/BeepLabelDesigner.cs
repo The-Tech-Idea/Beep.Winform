@@ -28,7 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             => _verbs ??= new DesignerVerbCollection
             {
                 new DesignerVerb("Select Image...", OnSelectImage),
-                new DesignerVerb("Clear Image", OnClearImage)
+                new DesignerVerb("Clear Image", OnClearImage),
+                new DesignerVerb("Preset: Text Only", (s, e) => ApplyPreset(textOnly: true, imageTop: false, titleCard: false)),
+                new DesignerVerb("Preset: Image Left", (s, e) => ApplyPreset(textOnly: false, imageTop: false, titleCard: false)),
+                new DesignerVerb("Preset: Image Top", (s, e) => ApplyPreset(textOnly: false, imageTop: true, titleCard: false)),
+                new DesignerVerb("Preset: Title + Subheader", (s, e) => ApplyPreset(textOnly: true, imageTop: false, titleCard: true)),
+                new DesignerVerb("Toggle Theme Image Tint", (s, e) => ToggleApplyThemeOnImage())
             };
 
         public override DesignerActionListCollection ActionLists
@@ -109,6 +114,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _changeService?.OnComponentChanging(Component, property);
             property.SetValue(Component, value);
             _changeService?.OnComponentChanged(Component, property, current, value);
+        }
+
+        private void ApplyPreset(bool textOnly, bool imageTop, bool titleCard)
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            var properties = TypeDescriptor.GetProperties(Component);
+            SetProperty(properties, "HideText", false);
+            SetProperty(properties, "TextImageRelation", textOnly
+                ? TextImageRelation.Overlay
+                : (imageTop ? TextImageRelation.ImageAboveText : TextImageRelation.ImageBeforeText));
+            SetProperty(properties, "TextAlign", titleCard ? ContentAlignment.TopLeft : ContentAlignment.MiddleLeft);
+            SetProperty(properties, "ImageAlign", imageTop ? ContentAlignment.TopCenter : ContentAlignment.MiddleLeft);
+            SetProperty(properties, "HeaderSubheaderSpacing", titleCard ? 4 : 2);
+            SetProperty(properties, "Multiline", titleCard);
+        }
+
+        private void ToggleApplyThemeOnImage()
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            var properties = TypeDescriptor.GetProperties(Component);
+            var property = properties["ApplyThemeOnImage"];
+            if (property == null)
+            {
+                return;
+            }
+
+            bool current = property.GetValue(Component) is bool value && value;
+            SetProperty(properties, "ApplyThemeOnImage", !current);
+        }
+
+        private void SetProperty(PropertyDescriptorCollection properties, string propertyName, object value)
+        {
+            var property = properties[propertyName];
+            if (property == null || property.IsReadOnly)
+            {
+                return;
+            }
+
+            var oldValue = property.GetValue(Component);
+            if (Equals(oldValue, value))
+            {
+                return;
+            }
+
+            _changeService?.OnComponentChanging(Component, property);
+            property.SetValue(Component, value);
+            _changeService?.OnComponentChanged(Component, property, oldValue, value);
         }
     }
 }

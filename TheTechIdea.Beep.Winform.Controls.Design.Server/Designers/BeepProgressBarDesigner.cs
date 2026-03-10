@@ -84,6 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("ProgressBarStyle", value);
         }
 
+        [Category("Appearance")]
+        [Description("Painter kind for visual rendering")]
+        public ProgressPainterKind PainterKind
+        {
+            get => _designer.GetProperty<ProgressPainterKind>("PainterKind");
+            set => _designer.SetProperty("PainterKind", value);
+        }
+
         [Category("Animation")]
         [Description("Animate value changes")]
         public bool AnimateValueChanges
@@ -153,6 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public void ConfigureAsLinear()
         {
             ProgressBarStyle = BeepProgressBarStyle.Gradient;
+            PainterKind = ProgressPainterKind.Linear;
             AnimateValueChanges = true;
         }
 
@@ -161,9 +170,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsCircular()
         {
-            // Note: This would require checking if BeepProgressBar supports circular style
-            // For now, just set a modern style
             _designer.SetProperty("Style", BeepControlStyle.Material3);
+            PainterKind = ProgressPainterKind.Ring;
+        }
+
+        public void ConfigureAsStepper()
+        {
+            _designer.SetProperty("Style", BeepControlStyle.Material3);
+            PainterKind = ProgressPainterKind.StepperCircles;
+        }
+
+        public void ConfigureAsChevronSteps()
+        {
+            _designer.SetProperty("Style", BeepControlStyle.Material3);
+            PainterKind = ProgressPainterKind.ChevronSteps;
         }
 
         /// <summary>
@@ -201,6 +221,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Style configuration
             items.Add(new DesignerActionHeaderItem("Style Configuration"));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsLinear", "Linear Style", "Style Configuration", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsCircular", "Ring Style", "Style Configuration", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsStepper", "Stepper Style", "Style Configuration", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsChevronSteps", "Chevron Steps Style", "Style Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "EnableAnimation", "Enable Animation", "Style Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "DisableAnimation", "Disable Animation", "Style Configuration", true));
 
@@ -214,6 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Appearance properties
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem("ProgressBarStyle", "Progress Bar Style", "Appearance"));
+            items.Add(new DesignerActionPropertyItem("PainterKind", "Painter Kind", "Appearance"));
 
             // Animation properties
             items.Add(new DesignerActionHeaderItem("Animation"));

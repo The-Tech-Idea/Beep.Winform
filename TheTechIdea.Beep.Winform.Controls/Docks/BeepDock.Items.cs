@@ -32,6 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TargetScale = 1.0f,
                     CurrentOpacity = 1.0f,
                     IsHovered = false,
+                    IsPressed = false,
+                    IsFocused = false,
+                    IsDisabled = !item.IsVisible || !item.IsEnabled,
                     IsSelected = item == _selectedItem,
                     Bounds = Rectangle.Empty,
                     HitBounds = Rectangle.Empty
@@ -39,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _itemStates.Add(state);
             }
 
+            UpdateDisabledStates();
             UpdateItemBounds();
             Invalidate();
         }
@@ -49,6 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 state.IsSelected = state.Item == _selectedItem;
             }
+
+            UpdateDisabledStates();
         }
 
         private void UpdateItemBounds()
@@ -73,6 +79,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _itemStates[i].Bounds = bounds[i];
                 _itemStates[i].HitBounds = DockHitTestHelper.CalculateHitBounds(bounds[i], 4);
+            }
+
+            // Basic overflow affordance for narrow layouts.
+            _overflowStartIndex = -1;
+            _overflowBounds = Rectangle.Empty;
+            if (_config.EnableOverflow && _itemStates.Count > 0)
+            {
+                var maxExtent = _config.Orientation == Docks.DockOrientation.Horizontal
+                    ? ClientRectangle.Width
+                    : ClientRectangle.Height;
+                var reserved = _config.ItemSize + _config.Spacing;
+                var consumed = 0;
+                for (int i = 0; i < _itemStates.Count; i++)
+                {
+                    var s = _itemStates[i];
+                    var extent = _config.Orientation == Docks.DockOrientation.Horizontal ? s.Bounds.Width : s.Bounds.Height;
+                    consumed += extent + _config.Spacing;
+                    if (consumed + reserved > maxExtent)
+                    {
+                        _overflowStartIndex = i;
+                        break;
+                    }
+                }
+
+                if (_overflowStartIndex >= 0)
+                {
+                    var lastVisible = _overflowStartIndex - 1;
+                    if (lastVisible >= 0 && lastVisible < _itemStates.Count)
+                    {
+                        var anchor = _itemStates[lastVisible].Bounds;
+                        _overflowBounds = _config.Orientation == Docks.DockOrientation.Horizontal
+                            ? new Rectangle(anchor.Right + _config.Spacing, anchor.Y, _config.ItemSize, anchor.Height)
+                            : new Rectangle(anchor.X, anchor.Bottom + _config.Spacing, anchor.Width, _config.ItemSize);
+                    }
+                }
             }
 
             UpdateDockSize();

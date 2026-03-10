@@ -13,9 +13,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     {
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             var (bgColor, borderColor, checkMarkColor, fgColor) = GetCheckBoxColors(state, options);
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
             int effectiveRadius = Math.Max(3, options.BorderRadius);
+            float borderWidth = state.IsChecked || state.IsIndeterminate
+                ? Math.Max(1.5f, options.BorderWidth)
+                : Math.Max(1.1f, options.BorderWidth);
 
             // Paint background with rounded corners
             using (var path = CreateRoundedPath(bounds, effectiveRadius))
@@ -26,14 +30,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 }
 
                 // Paint border
-                using (var pen = new Pen(borderColor, options.BorderWidth))
+                using (var pen = new Pen(borderColor, borderWidth))
                 {
                     g.DrawPath(pen, path);
                 }
 
                 if (!state.IsDisabled)
                 {
-                    using var innerPen = new Pen(Color.FromArgb(70, Color.White), 1f);
+                    using var innerPen = new Pen(Color.FromArgb(55, Color.White), 1f);
                     Rectangle inner = Rectangle.Inflate(bounds, -1, -1);
                     using var innerPath = CreateRoundedPath(inner, Math.Max(2, effectiveRadius - 1));
                     g.DrawPath(innerPen, innerPath);

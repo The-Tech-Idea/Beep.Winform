@@ -15,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Subtle background on hover/pressed
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     
                 using (Brush bgBrush = new SolidBrush(bgColor))
                 {
-                    FillRoundedRectangle(g, bgBrush, buttonBounds, context.BorderRadius);
+                    FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
                 }
             }
 
@@ -57,6 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
     }
 }

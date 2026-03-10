@@ -103,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             // Draw ripple effect
             DrawRippleEffect(g, context);
+            DrawFocusRingPrimitive(g, context);
         }
 
         /// <summary>

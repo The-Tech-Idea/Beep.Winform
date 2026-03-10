@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
@@ -101,12 +102,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             RadioGroupStyle = RadioGroupRenderStyle.Segmented;
         }
 
+        public void ApplyToggleStyle()
+        {
+            RadioGroupStyle = RadioGroupRenderStyle.Toggle;
+        }
+
+        public void ApplyTileStyle()
+        {
+            RadioGroupStyle = RadioGroupRenderStyle.Tile;
+        }
+
+        public void ApplyPillStyle()
+        {
+            RadioGroupStyle = RadioGroupRenderStyle.Pill;
+        }
+
+        public void ApplyCircularStyle()
+        {
+            RadioGroupStyle = RadioGroupRenderStyle.Circular;
+        }
+
         public void UseRecommendedLayout()
         {
             if (RadioGroup != null)
             {
                 var style = RadioGroup.RadioGroupStyle;
-                // Could set recommended spacing, padding, etc. based on style
+                RadioGroup.StyleProfile = new RadioGroupStyleConfig
+                {
+                    ControlStyle = RadioGroup.Style,
+                    RecommendedItemHeight = style == RadioGroupRenderStyle.Tile ? 100 : 40,
+                    RecommendedItemSpacing = style == RadioGroupRenderStyle.Segmented ? 0 : 8,
+                    RecommendedPadding = style == RadioGroupRenderStyle.Tile ? new System.Windows.Forms.Padding(12) : new System.Windows.Forms.Padding(8)
+                };
             }
         }
 
@@ -130,6 +157,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ApplyChipStyle", "Chip Style", "Style Presets", false));
             items.Add(new DesignerActionMethodItem(this, "ApplyButtonStyle", "Button Style", "Style Presets", false));
             items.Add(new DesignerActionMethodItem(this, "ApplySegmentedStyle", "Segmented Style", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "ApplyToggleStyle", "Toggle Style", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "ApplyTileStyle", "Tile Style", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "ApplyPillStyle", "Pill Style", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "ApplyCircularStyle", "Circular Style", "Style Presets", false));
 
             items.Add(new DesignerActionHeaderItem("Layout"));
             items.Add(new DesignerActionMethodItem(this, "UseRecommendedLayout", "Use Recommended Layout", "Layout", true));

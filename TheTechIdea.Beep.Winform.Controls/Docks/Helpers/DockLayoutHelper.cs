@@ -64,15 +64,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
 
             // Calculate total width needed
             float totalWidth = 0;
+            float totalItemWidth = 0;
             for (int i = 0; i < items.Count; i++)
             {
-                totalWidth += baseSize * scales[i];
+                var currentItemWidth = baseSize * scales[i];
+                totalWidth += currentItemWidth;
+                totalItemWidth += currentItemWidth;
                 if (i < items.Count - 1)
                     totalWidth += spacing;
             }
 
             // Calculate starting X position based on alignment
             float startX = CalculateStartPosition(dockBounds.Width, totalWidth, config.Alignment, config.Padding);
+            float effectiveSpacing = spacing;
+            if (config.Alignment == DockAlignment.SpaceBetween ||
+                config.Alignment == DockAlignment.SpaceAround ||
+                config.Alignment == DockAlignment.SpaceEvenly)
+            {
+                effectiveSpacing = Math.Max(spacing, CalculateFlexSpacing(dockBounds.Width, totalItemWidth, items.Count, config.Alignment, config.Padding));
+                if (config.Alignment == DockAlignment.SpaceAround)
+                {
+                    startX = config.Padding + (effectiveSpacing * 0.5f);
+                }
+                else if (config.Alignment == DockAlignment.SpaceEvenly)
+                {
+                    startX = config.Padding + effectiveSpacing;
+                }
+                else
+                {
+                    startX = config.Padding;
+                }
+            }
             float currentX = dockBounds.X + startX;
 
             // Position each item
@@ -85,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 int h = (int)itemSize;
 
                 bounds[i] = new Rectangle(x, y, w, h);
-                currentX += itemSize + spacing;
+                currentX += itemSize + effectiveSpacing;
             }
         }
 
@@ -109,15 +131,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
 
             // Calculate total height needed
             float totalHeight = 0;
+            float totalItemHeight = 0;
             for (int i = 0; i < items.Count; i++)
             {
-                totalHeight += baseSize * scales[i];
+                var currentItemHeight = baseSize * scales[i];
+                totalHeight += currentItemHeight;
+                totalItemHeight += currentItemHeight;
                 if (i < items.Count - 1)
                     totalHeight += spacing;
             }
 
             // Calculate starting Y position based on alignment
             float startY = CalculateStartPosition(dockBounds.Height, totalHeight, config.Alignment, config.Padding);
+            float effectiveSpacing = spacing;
+            if (config.Alignment == DockAlignment.SpaceBetween ||
+                config.Alignment == DockAlignment.SpaceAround ||
+                config.Alignment == DockAlignment.SpaceEvenly)
+            {
+                effectiveSpacing = Math.Max(spacing, CalculateFlexSpacing(dockBounds.Height, totalItemHeight, items.Count, config.Alignment, config.Padding));
+                if (config.Alignment == DockAlignment.SpaceAround)
+                {
+                    startY = config.Padding + (effectiveSpacing * 0.5f);
+                }
+                else if (config.Alignment == DockAlignment.SpaceEvenly)
+                {
+                    startY = config.Padding + effectiveSpacing;
+                }
+                else
+                {
+                    startY = config.Padding;
+                }
+            }
             float currentY = dockBounds.Y + startY;
 
             // Position each item
@@ -130,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 int h = (int)itemSize;
 
                 bounds[i] = new Rectangle(x, y, w, h);
-                currentY += itemSize + spacing;
+                currentY += itemSize + effectiveSpacing;
             }
         }
 

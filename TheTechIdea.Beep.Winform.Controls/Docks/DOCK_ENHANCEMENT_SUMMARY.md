@@ -1,5 +1,44 @@
 # Dock Enhancement Summary
 
+## 2026 Refresh Pass (Latest)
+
+### State and Interaction Contract
+- Added explicit item interaction flags in `DockItemState`: `IsPressed`, `IsFocused`, `IsDisabled`.
+- Added canonical `DockInteractionState` enum and base resolver in `DockPainterBase`.
+- Unified hover/press/focus transitions through `BeepDock.InteractionState.cs` and wired into mouse/keyboard/drag logic.
+
+### Runtime UX Wiring
+- Wired tooltip lifecycle to hover intent (`HoverEnterDelay`) with reusable `BeepDockTooltip` instance management.
+- Added overflow affordance and popup path (`EnableOverflow`) when item count exceeds available space.
+- Enabled separator rendering pipeline in `DrawContent` through `IDockPainter.PaintSeparator`.
+
+### Config Surface Expansion
+- Expanded `BeepDock` properties to expose modern dock behavior:
+  - alignment, animation style, icon mode, indicator style
+  - show tooltips/badges/shadow/border
+  - separator style/color
+  - drag/reorder/auto-hide/overflow flags
+- Added active profile application with `StyleProfile` (`DockStyleConfig`) and `ColorProfile` (`DockColorConfig`).
+
+### Painter and Style Modernization
+- Added dedicated painters for previously fallback-only styles:
+  - `CyberpunkDockPainter`
+  - `TerminalDockPainter`
+  - `BubbleDockPainter`
+  - `ArcDockPainter`
+  - `DraculaDockPainter`
+- Updated `DockPainterFactory` to map these styles to dedicated painter classes.
+- Improved painter base with DPI-aware metrics helper and icon rendering overload that respects item state.
+
+### Typography and Token Consistency
+- Removed hardcoded badge fonts from key painters and switched to `DockFontHelpers`.
+- Updated dock notifications and tooltip rendering to use dock font helpers instead of inline font creation.
+
+### Responsive Layout and Accessibility
+- Enabled flex alignment spacing (`SpaceBetween`, `SpaceAround`, `SpaceEvenly`) in `DockLayoutHelper`.
+- Strengthened focus semantics by syncing focused state into item state and draw pipeline.
+- Updated accessibility description on selection change.
+
 ## Overview
 
 This document summarizes the enhancements made to the Docks directory. The dock control system has been significantly improved with better theme integration, helper architecture, model classes, and enhanced design-time support.

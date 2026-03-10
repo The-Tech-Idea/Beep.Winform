@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Docks;
 using TheTechIdea.Beep.Winform.Controls.Docks.Painters;
+using TheTechIdea.Beep.Winform.Controls.Docks.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -11,6 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls
     /// </summary>
     public partial class BeepDock
     {
+        private DockStyleConfig _styleProfile = new DockStyleConfig();
+        private DockColorConfig _colorProfile = new DockColorConfig();
+
         #region Properties
         /// <summary>
         /// Gets the dock configuration
@@ -34,6 +39,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _config.Style = value;
                     _dockPainter = DockPainterFactory.GetPainter(value);
+                    _config.ItemSize = Docks.Helpers.DockStyleHelpers.GetRecommendedItemSize(value);
+                    _config.DockHeight = Docks.Helpers.DockStyleHelpers.GetRecommendedDockHeight(value);
+                    _config.Spacing = Docks.Helpers.DockStyleHelpers.GetRecommendedSpacing(value);
+                    _config.Padding = Docks.Helpers.DockStyleHelpers.GetRecommendedPadding(value);
+                    _config.MaxScale = Docks.Helpers.DockStyleHelpers.GetRecommendedMaxScale(value);
+                    _config.ShowShadow = Docks.Helpers.DockStyleHelpers.ShouldShowShadow(value);
+                    _config.BackgroundOpacity = Docks.Helpers.DockStyleHelpers.GetRecommendedBackgroundOpacity(value);
                     Invalidate();
                 }
             }
@@ -154,6 +166,246 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _config.Orientation = value;
                     UpdateItemBounds();
                     Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Alignment of dock items within the control.")]
+        [DefaultValue(Docks.DockAlignment.Center)]
+        public Docks.DockAlignment DockAlignmentType
+        {
+            get => _config.Alignment;
+            set
+            {
+                if (_config.Alignment != value)
+                {
+                    _config.Alignment = value;
+                    UpdateItemBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Animation style used for item interactions.")]
+        [DefaultValue(Docks.DockAnimationStyle.Spring)]
+        public Docks.DockAnimationStyle AnimationStyle
+        {
+            get => _config.AnimationStyle;
+            set
+            {
+                if (_config.AnimationStyle != value)
+                {
+                    _config.AnimationStyle = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Controls dock icon rendering mode.")]
+        [DefaultValue(Docks.DockIconMode.IconOnly)]
+        public Docks.DockIconMode IconMode
+        {
+            get => _config.IconMode;
+            set
+            {
+                if (_config.IconMode != value)
+                {
+                    _config.IconMode = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Indicator visual style for selected/running items.")]
+        [DefaultValue(Docks.DockIndicatorStyle.Dot)]
+        public Docks.DockIndicatorStyle IndicatorStyle
+        {
+            get => _config.IndicatorStyle;
+            set
+            {
+                if (_config.IndicatorStyle != value)
+                {
+                    _config.IndicatorStyle = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show per-item tooltips on hover.")]
+        [DefaultValue(true)]
+        public bool ShowTooltips
+        {
+            get => _config.ShowTooltips;
+            set
+            {
+                if (_config.ShowTooltips != value)
+                {
+                    _config.ShowTooltips = value;
+                    if (!value)
+                    {
+                        HideDockTooltip();
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show notification badges on items.")]
+        [DefaultValue(false)]
+        public bool ShowBadges
+        {
+            get => _config.ShowBadges;
+            set
+            {
+                if (_config.ShowBadges != value)
+                {
+                    _config.ShowBadges = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show dock border.")]
+        [DefaultValue(true)]
+        public bool ShowBorder
+        {
+            get => _config.ShowBorder;
+            set
+            {
+                if (_config.ShowBorder != value)
+                {
+                    _config.ShowBorder = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show dock shadow.")]
+        [DefaultValue(true)]
+        public bool ShowShadow
+        {
+            get => _config.ShowShadow;
+            set
+            {
+                if (_config.ShowShadow != value)
+                {
+                    _config.ShowShadow = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show separators between dock items.")]
+        [DefaultValue(Docks.DockSeparatorStyle.None)]
+        public Docks.DockSeparatorStyle SeparatorStyle
+        {
+            get => _config.SeparatorStyle;
+            set
+            {
+                if (_config.SeparatorStyle != value)
+                {
+                    _config.SeparatorStyle = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Color for separators between items.")]
+        public Color SeparatorColor
+        {
+            get => _config.SeparatorColor;
+            set
+            {
+                if (_config.SeparatorColor != value)
+                {
+                    _config.SeparatorColor = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Enable item dragging.")]
+        [DefaultValue(false)]
+        public bool EnableDrag
+        {
+            get => _config.EnableDrag;
+            set => _config.EnableDrag = value;
+        }
+
+        [Category("Beep Dock")]
+        [Description("Enable item reordering.")]
+        [DefaultValue(false)]
+        public bool EnableReorder
+        {
+            get => _config.EnableReorder;
+            set => _config.EnableReorder = value;
+        }
+
+        [Category("Beep Dock")]
+        [Description("Automatically hide dock when idle.")]
+        [DefaultValue(false)]
+        public bool AutoHide
+        {
+            get => _config.AutoHide;
+            set => _config.AutoHide = value;
+        }
+
+        [Category("Beep Dock")]
+        [Description("Enable overflow affordance when item count exceeds available space.")]
+        [DefaultValue(true)]
+        public bool EnableOverflow
+        {
+            get => _config.EnableOverflow;
+            set
+            {
+                if (_config.EnableOverflow != value)
+                {
+                    _config.EnableOverflow = value;
+                    UpdateItemBounds();
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Style profile used to apply recommended dock metrics and style behavior.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public DockStyleConfig StyleProfile
+        {
+            get => _styleProfile;
+            set
+            {
+                if (value != null)
+                {
+                    _styleProfile = value;
+                    ApplyStyleProfile(_styleProfile);
+                }
+            }
+        }
+
+        [Category("Beep Dock")]
+        [Description("Color profile used for dock background, indicator, and separators.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public DockColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                if (value != null)
+                {
+                    _colorProfile = value;
+                    ApplyColorProfile(_colorProfile);
                 }
             }
         }

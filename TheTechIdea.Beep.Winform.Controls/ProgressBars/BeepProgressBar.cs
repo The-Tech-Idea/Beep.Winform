@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
  
 
@@ -79,6 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private string _hoverArea;
         private string _pressedArea;
         private bool _keyboardFocusVisible;
+        private string _lastAccessibilitySnapshot;
+        private ProgressBarStyleConfig _styleProfile = new ProgressBarStyleConfig();
+        private ProgressBarColorConfig _colorProfile = new ProgressBarColorConfig();
 
         // Common events
         public event EventHandler ValueChanged;
@@ -103,6 +107,44 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             set
             {
                 _useThemeColors = value;
+                if (!_useThemeColors)
+                {
+                    ApplyColorProfile();
+                }
+                else
+                {
+                    ApplyTheme();
+                }
+                RequestVisualRefresh();
+            }
+        }
+
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public ProgressBarStyleConfig StyleProfile
+        {
+            get => _styleProfile;
+            set
+            {
+                _styleProfile = value ?? new ProgressBarStyleConfig();
+                ApplyStyleProfile();
+                RequestVisualRefresh(resetLayoutCache: true);
+            }
+        }
+
+        [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public ProgressBarColorConfig ColorProfile
+        {
+            get => _colorProfile;
+            set
+            {
+                _colorProfile = value ?? new ProgressBarColorConfig();
+                if (!UseThemeColors)
+                {
+                    ApplyColorProfile();
+                }
+
                 RequestVisualRefresh();
             }
         }
@@ -447,7 +489,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             {
                 UpdateProgressTooltip();
             }
-            
+
+            ApplyStyleProfile();
+            EnsurePreferredHeightForPainter();
             ApplyTheme();
             AddChildExternalDrawing(this, DrawHoverPressedOverlay, DrawingLayer.AfterAll);
         }
@@ -457,7 +501,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         /// </summary>
         private void ApplyAccessibilitySettings()
         {
-            ProgressBarAccessibilityHelpers.ApplyAccessibilitySettings(this);
+            string snapshot = $"{PainterKind}|{Value}|{Minimum}|{Maximum}|{CompletedTasks}|{TotalTasks}|{ShowTaskCount}|{Enabled}";
+            if (snapshot == _lastAccessibilitySnapshot)
+            {
+                return;
+            }
+
+            ProgressBarAccessibilityHelpers.ApplyAccessibilitySettings(this, painterKind: PainterKind, parameters: Parameters);
+            _lastAccessibilitySnapshot = snapshot;
         }
 
         /// <summary>
@@ -471,7 +522,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             }
         }
 
-        private int GetHeightForSize(ProgressBarSize size) => size switch { ProgressBarSize.Thin => 4, ProgressBarSize.Small => 8, ProgressBarSize.Medium => 12, ProgressBarSize.Large => 20, ProgressBarSize.ExtraLarge => 30, _ => 12 };
+        private int GetHeightForSize(ProgressBarSize size)
+        {
+            int baseHeight = ProgressBarAccessibilityHelpers.GetAccessibleBarHeight(size);
+            int scaledHeight = ProgressBarDpiHelpers.Scale(this, baseHeight);
+            int preferredPainterHeight = ProgressPainterRegistry.GetPreferredMinimumHeight(this, PainterKind);
+            return Math.Max(scaledHeight, preferredPainterHeight > 0 ? preferredPainterHeight : scaledHeight);
+        }
         protected override void OnResize(EventArgs e)
         {
             // Do not mutate Width/Height here to avoid re-entrant layout and designer issues.
@@ -519,7 +576,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             if (_barSize != ProgressBarSize.Medium || _style == ProgressBarStyle.Segmented)
             {
-                int newHeight = GetHeightForSize(_barSize); if (_style == ProgressBarStyle.Segmented) newHeight = Math.Max(newHeight, 16); if (Height != newHeight) Height = newHeight;
+                int newHeight = GetHeightForSize(_barSize);
+                if (_style == ProgressBarStyle.Segmented)
+                {
+                    newHeight = Math.Max(newHeight, ProgressBarDpiHelpers.Scale(this, 16));
+                }
+
+                if (Height != newHeight)
+                {
+                    Height = newHeight;
+                }
             }
         }
 
@@ -537,6 +603,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 if (UseThemeColors)
                 {
                     ProgressBarThemeHelpers.ApplyThemeColors(this, _currentTheme, UseThemeColors);
+                }
+                else
+                {
+                    ApplyColorProfile();
                 }
                 
                 // Apply border color using theme helpers
@@ -573,6 +643,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 {
                     Style = ControlStyle;
                 }
+
+                ApplyStyleProfile();
                 
                 // Apply accessibility adjustments (high contrast, reduced motion)
                 ApplyAccessibilityAdjustments(_currentTheme, UseThemeColors);
@@ -585,8 +657,49 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             }
         }
 
+        private void ApplyStyleProfile()
+        {
+            if (_styleProfile == null)
+            {
+                return;
+            }
+
+            if (Style != _styleProfile.ControlStyle)
+            {
+                Style = _styleProfile.ControlStyle;
+            }
+
+            BorderRadius = _styleProfile.BorderRadius;
+            BorderThickness = _styleProfile.BorderThickness;
+            Segments = _styleProfile.SegmentCount;
+            StripeWidth = _styleProfile.StripeWidth;
+            AnimateValueChanges = _styleProfile.AnimateValueChanges;
+            ShowGlowEffect = _styleProfile.ShowGlowEffect;
+        }
+
+        private void ApplyColorProfile()
+        {
+            if (_colorProfile == null)
+            {
+                return;
+            }
+
+            BackColor = _colorProfile.BackgroundColor;
+            ProgressColor = _colorProfile.ProgressColor;
+            TextColor = _colorProfile.TextColor;
+            SecondaryProgressColor = _colorProfile.SecondaryProgressColor;
+            SuccessColor = _colorProfile.SuccessColor;
+            WarningColor = _colorProfile.WarningColor;
+            ErrorColor = _colorProfile.ErrorColor;
+
+            _borderPen?.Dispose();
+            _borderPen = new Pen(_colorProfile.BorderColor, 1);
+        }
+
         private void RequestVisualRefresh(bool resetLayoutCache = false)
         {
+            _cachedPainterContext = null;
+            _cachedPainterParameters = null;
             if (resetLayoutCache)
             {
                 InvalidateLayoutCache();
@@ -673,8 +786,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         protected override bool ProcessDialogKey(Keys keyData)
         {
             // Handle arrow keys for step-based painters (StepperCircles, ChevronSteps)
-            if (PainterKind == ProgressPainterKind.StepperCircles || 
-                PainterKind == ProgressPainterKind.ChevronSteps)
+            if (ProgressPainterRegistry.GetMetadata(PainterKind).SupportsKeyboard)
             {
                 if (keyData == Keys.Left || keyData == Keys.Up)
                 {
@@ -688,6 +800,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                             newParams["Current"] = current - 1;
                             Parameters = newParams;
                             _keyboardFocusVisible = true;
+                            ApplyAccessibilitySettings();
                             RequestVisualRefresh();
                             return true;
                         }
@@ -711,6 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                             newParams["Current"] = current + 1;
                             Parameters = newParams;
                             _keyboardFocusVisible = true;
+                            ApplyAccessibilitySettings();
                             RequestVisualRefresh();
                             return true;
                         }
@@ -738,7 +852,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         private void DrawFocusIndicator(Graphics g, Rectangle bounds)
         {
-            if (Focused && _keyboardFocusVisible)
+            if (Focused && _keyboardFocusVisible && ProgressPainterRegistry.GetMetadata(PainterKind).SupportsFocusVisual)
             {
                 using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
                 {
@@ -768,22 +882,33 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 if (rect.Width <= 0 || rect.Height <= 0)
                     return;
 
-                int shrink = Math.Max(0, BorderThickness);
-                int maxShrink = Math.Min(rect.Width / 2, rect.Height / 2);
-                if (shrink > maxShrink) shrink = maxShrink;
-                rect.Inflate(-shrink, -shrink);
+                rect = ProgressBarLayoutHelper.GetPaintBounds(this, rect);
                 if (rect.Width <= 0 || rect.Height <= 0)
                     return;
 
                 try
                 {
-                    activePainter.Paint(g, rect, _currentTheme, this, Parameters);
+                    var painterContext = BuildPainterContext(rect);
+                    if (activePainter is IProgressPainterV2 v2Painter)
+                    {
+                        v2Painter.Paint(g, painterContext, this);
+                    }
+                    else
+                    {
+                        activePainter.Paint(g, rect, _currentTheme, this, ActivePainterParameters);
+                    }
                 }
                 catch (ArgumentException)
                 {
                     // Safety in designer when GDI receives invalid params
                     if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
                     return;
+                }
+
+                if (!Enabled)
+                {
+                    using var disabledOverlay = new SolidBrush(Color.FromArgb(72, BackColor));
+                    g.FillRectangle(disabledOverlay, rect);
                 }
 
                 // Draw focus indicator after painter rendering
@@ -794,22 +919,47 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
                 try
                 {
-                    activePainter.UpdateHitAreas(this, rect, _currentTheme, Parameters, (name, r) =>
+                    if (ProgressPainterRegistry.GetMetadata(PainterKind).SupportsHitAreas)
                     {
-                        // Avoid registering invalid rectangles
-                        if (r.Width <= 0 || r.Height <= 0) return;
-                        _areaRects[name] = r;
-                        AddHitArea(name, r, this, () =>
+                        if (activePainter is IProgressPainterV2 v2Painter)
                         {
-                            if (name.StartsWith("Step:"))
+                            v2Painter.UpdateHitAreas(ActivePainterContext, this, (name, r) =>
                             {
-                                StepClicked?.Invoke(this, System.EventArgs.Empty);
-                                if (int.TryParse(name.Substring(5), out var sIdx)) { StepIndexClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); if (PainterKind == ProgressPainterKind.ChevronSteps) ChevronStepClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); }
-                            }
-                            else if (name.StartsWith("Dot:")) { if (int.TryParse(name.Substring(4), out var dIdx)) DotClicked?.Invoke(this, new ProgressDotEventArgs(dIdx)); }
-                            else if (name == "Ring" || name == "RingDots") { RingClicked?.Invoke(this, System.EventArgs.Empty); }
-                        });
-                    });
+                                // Avoid registering invalid rectangles
+                                if (r.Width <= 0 || r.Height <= 0) return;
+                                _areaRects[name] = r;
+                                AddHitArea(name, r, this, () =>
+                                {
+                                    if (name.StartsWith("Step:"))
+                                    {
+                                        StepClicked?.Invoke(this, System.EventArgs.Empty);
+                                        if (int.TryParse(name.Substring(5), out var sIdx)) { StepIndexClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); if (PainterKind == ProgressPainterKind.ChevronSteps) ChevronStepClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); }
+                                    }
+                                    else if (name.StartsWith("Dot:")) { if (int.TryParse(name.Substring(4), out var dIdx)) DotClicked?.Invoke(this, new ProgressDotEventArgs(dIdx)); }
+                                    else if (name == "Ring" || name == "RingDots") { RingClicked?.Invoke(this, System.EventArgs.Empty); }
+                                });
+                            });
+                        }
+                        else
+                        {
+                            activePainter.UpdateHitAreas(this, rect, _currentTheme, ActivePainterParameters, (name, r) =>
+                            {
+                                // Avoid registering invalid rectangles
+                                if (r.Width <= 0 || r.Height <= 0) return;
+                                _areaRects[name] = r;
+                                AddHitArea(name, r, this, () =>
+                                {
+                                    if (name.StartsWith("Step:"))
+                                    {
+                                        StepClicked?.Invoke(this, System.EventArgs.Empty);
+                                        if (int.TryParse(name.Substring(5), out var sIdx)) { StepIndexClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); if (PainterKind == ProgressPainterKind.ChevronSteps) ChevronStepClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); }
+                                    }
+                                    else if (name.StartsWith("Dot:")) { if (int.TryParse(name.Substring(4), out var dIdx)) DotClicked?.Invoke(this, new ProgressDotEventArgs(dIdx)); }
+                                    else if (name == "Ring" || name == "RingDots") { RingClicked?.Invoke(this, System.EventArgs.Empty); }
+                                });
+                            });
+                        }
+                    }
                 }
                 catch (ArgumentException)
                 {

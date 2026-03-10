@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -64,6 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
             // Ensure minimum readable size
             textSize = Math.Max(7f, textSize);
+            textSize = DpiScalingHelper.ScaleValue(textSize, progressBar);
 
             // Font style: Regular for most cases, can be customized
             FontStyle fontStyle = FontStyle.Regular;
@@ -106,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
             // Adjust for bar size
             percentageSize = AdjustSizeForBarSize(percentageSize, progressBar.BarSize);
+            percentageSize = DpiScalingHelper.ScaleValue(percentageSize, progressBar);
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
@@ -141,6 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
             // Adjust for bar size
             labelSize = AdjustSizeForBarSize(labelSize, progressBar.BarSize);
+            labelSize = DpiScalingHelper.ScaleValue(labelSize, progressBar);
 
             string fontFamily = StyleTypography.GetFontFamily(controlStyle);
             string primaryFont = fontFamily.Split(',')[0].Trim();
@@ -180,6 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers
 
             // Adjust for bar size
             fontSize = AdjustSizeForBarSize(fontSize, progressBar.BarSize);
+            fontSize = DpiScalingHelper.ScaleValue(fontSize, progressBar);
 
             return BeepThemesManager.ToFont(primaryFont, fontSize, FontWeight.Regular, fontStyle);
         }

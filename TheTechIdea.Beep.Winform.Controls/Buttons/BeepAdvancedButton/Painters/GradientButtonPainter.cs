@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Draw shadow
@@ -28,11 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Color startColor = GetBackgroundColor(context);
             Color endColor = context.State == Enums.AdvancedButtonState.Disabled
                 ? context.DisabledBackground
-                : Color.FromArgb(
-                    Math.Max(0, startColor.R - 30),
-                    Math.Max(0, startColor.G - 30),
-                    Math.Max(0, startColor.B - 30)
-                );
+                : Blend(startColor, context.PressedBackground, 0.35f);
 
             using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
                 buttonBounds,
@@ -40,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 endColor,
                 LinearGradientMode.Vertical))
             {
-                FillRoundedRectangle(g, gradientBrush, buttonBounds, context.BorderRadius);
+                FillRoundedRectangle(g, gradientBrush, buttonBounds, tokens.BorderRadius);
             }
 
             // Draw ripple effect
@@ -57,6 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 DrawCenteredContent(g, context, metrics, contentColor);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context,

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
@@ -268,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             string text = count > 99 ? "99+" : count.ToString();
             
             int badgeSize = 20;
-            using (var font = new Font("Segoe UI", 8.5f, FontStyle.Bold))
+            using (var font = DockFontHelpers.GetBadgeFont(TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3))
             {
                 var badgeBounds = new Rectangle(
                     iconBounds.Right - badgeSize / 2,

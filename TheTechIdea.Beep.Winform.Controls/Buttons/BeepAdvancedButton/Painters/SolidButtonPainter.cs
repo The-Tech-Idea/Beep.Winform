@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
+            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
             Rectangle buttonBounds = context.Bounds;
 
             // Draw shadow
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Color bgColor = GetBackgroundColor(context);
             using (Brush bgBrush = new SolidBrush(bgColor))
             {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, context.BorderRadius);
+                FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
             }
 
             // Draw ripple effect
@@ -54,6 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 Color textColor = GetForegroundColor(context);
                 DrawText(g, context, textBounds, textColor);
             }
+
+            DrawFocusRingPrimitive(g, context);
         }
 
         private void CalculateLayout(AdvancedButtonPaintContext context, AdvancedButtonMetrics metrics,

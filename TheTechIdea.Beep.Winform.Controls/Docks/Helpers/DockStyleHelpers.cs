@@ -32,6 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => BeepControlStyle.Minimal,
                 DockStyle.NeonDock => BeepControlStyle.Material3,
                 DockStyle.NordDock => BeepControlStyle.Material3,
+                DockStyle.CyberpunkDock => BeepControlStyle.GlassAcrylic,
+                DockStyle.TerminalDock => BeepControlStyle.Minimal,
+                DockStyle.BubbleDock => BeepControlStyle.iOS15,
+                DockStyle.ArcDock => BeepControlStyle.Minimal,
+                DockStyle.DraculaDock => BeepControlStyle.GlassAcrylic,
                 _ => BeepControlStyle.Material3
             };
         }
@@ -63,6 +68,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 40,
                 DockStyle.NeonDock => 56,
                 DockStyle.NordDock => 56,
+                DockStyle.CyberpunkDock => 54,
+                DockStyle.TerminalDock => 48,
+                DockStyle.BubbleDock => 58,
+                DockStyle.ArcDock => 48,
+                DockStyle.DraculaDock => 52,
                 _ => 56
             };
         }
@@ -86,6 +96,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 48,
                 DockStyle.NeonDock => 72,
                 DockStyle.NordDock => 72,
+                DockStyle.CyberpunkDock => 74,
+                DockStyle.TerminalDock => 64,
+                DockStyle.BubbleDock => 76,
+                DockStyle.ArcDock => 60,
+                DockStyle.DraculaDock => 70,
                 _ => 72
             };
         }
@@ -109,6 +124,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 4,
                 DockStyle.NeonDock => 8,
                 DockStyle.NordDock => 8,
+                DockStyle.CyberpunkDock => 10,
+                DockStyle.TerminalDock => 6,
+                DockStyle.BubbleDock => 12,
+                DockStyle.ArcDock => 8,
+                DockStyle.DraculaDock => 8,
                 _ => 8
             };
         }
@@ -132,6 +152,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 8,
                 DockStyle.NeonDock => 12,
                 DockStyle.NordDock => 12,
+                DockStyle.CyberpunkDock => 12,
+                DockStyle.TerminalDock => 10,
+                DockStyle.BubbleDock => 14,
+                DockStyle.ArcDock => 10,
+                DockStyle.DraculaDock => 12,
                 _ => 12
             };
         }
@@ -155,6 +180,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 1.2f,
                 DockStyle.NeonDock => 1.5f,
                 DockStyle.NordDock => 1.4f,
+                DockStyle.CyberpunkDock => 1.45f,
+                DockStyle.TerminalDock => 1.25f,
+                DockStyle.BubbleDock => 1.55f,
+                DockStyle.ArcDock => 1.25f,
+                DockStyle.DraculaDock => 1.35f,
                 _ => 1.5f
             };
         }
@@ -178,6 +208,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 0.9f,
                 DockStyle.NeonDock => 0.8f,
                 DockStyle.NordDock => 0.8f,
+                DockStyle.CyberpunkDock => 0.78f,
+                DockStyle.TerminalDock => 0.82f,
+                DockStyle.BubbleDock => 0.86f,
+                DockStyle.ArcDock => 0.8f,
+                DockStyle.DraculaDock => 0.8f,
                 _ => 0.8f
             };
         }
@@ -201,6 +236,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => false,
                 DockStyle.NeonDock => true,
                 DockStyle.NordDock => false,
+                DockStyle.CyberpunkDock => true,
+                DockStyle.TerminalDock => false,
+                DockStyle.BubbleDock => true,
+                DockStyle.ArcDock => false,
+                DockStyle.DraculaDock => true,
                 _ => true
             };
         }
@@ -224,6 +264,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
                 DockStyle.PlankDock => 1.0f,
                 DockStyle.NeonDock => 0.8f,
                 DockStyle.NordDock => 0.85f,
+                DockStyle.CyberpunkDock => 0.9f,
+                DockStyle.TerminalDock => 0.95f,
+                DockStyle.BubbleDock => 0.88f,
+                DockStyle.ArcDock => 0.95f,
+                DockStyle.DraculaDock => 0.9f,
                 _ => 0.85f
             };
         }

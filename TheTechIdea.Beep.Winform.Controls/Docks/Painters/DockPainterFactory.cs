@@ -36,13 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Painters
             // Theme-based styles
             _painters[DockStyle.NordDock] = new NordDockPainter();
             
-            // Use Classic Taskbar as fallback for unimplemented styles
-            var classicPainter = new ClassicTaskbarDockPainter();
-            _painters[DockStyle.CyberpunkDock] = classicPainter;
-            _painters[DockStyle.TerminalDock] = classicPainter;
-            _painters[DockStyle.BubbleDock] = classicPainter;
-            _painters[DockStyle.ArcDock] = classicPainter;
-            _painters[DockStyle.DraculaDock] = classicPainter;
+            // Style-specific painters for previously fallback styles
+            _painters[DockStyle.CyberpunkDock] = new CyberpunkDockPainter();
+            _painters[DockStyle.TerminalDock] = new TerminalDockPainter();
+            _painters[DockStyle.BubbleDock] = new BubbleDockPainter();
+            _painters[DockStyle.ArcDock] = new ArcDockPainter();
+            _painters[DockStyle.DraculaDock] = new DraculaDockPainter();
         }
 
         /// <summary>

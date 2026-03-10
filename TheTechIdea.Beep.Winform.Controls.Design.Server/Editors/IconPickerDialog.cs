@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 
@@ -19,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         private ListView _iconList;
         private Panel _previewPanel;
         private TextBox _searchBox;
+        private ComboBox _sourceFilter;
         private Button _okButton;
         private Button _cancelButton;
         private Label _iconNameLabel;
@@ -80,10 +80,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             _searchBox = new TextBox
             {
                 Location = new Point(12, 44),
-                Size = new Size(876, 24),
+                Size = new Size(680, 24),
                 PlaceholderText = "Search icons... (e.g., 'check', 'arrow', 'user')"
             };
             _searchBox.TextChanged += SearchBox_TextChanged;
+
+            _sourceFilter = new ComboBox
+            {
+                Location = new Point(700, 44),
+                Size = new Size(188, 24),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            _sourceFilter.Items.AddRange(new object[] { "All Sources", "UI", "General", "DataSources" });
+            _sourceFilter.SelectedIndex = 0;
+            _sourceFilter.SelectedIndexChanged += (s, e) =>
+            {
+                if (_tabControl.SelectedIndex < 3)
+                {
+                    LoadCategories();
+                }
+            };
 
             // Show recent checkbox
             _showRecentCheckBox = new CheckBox
@@ -170,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
                 Size = new Size(75, 32)
             };
 
-            Controls.AddRange(new Control[] { _tabControl, _searchBox, _showRecentCheckBox, 
+            Controls.AddRange(new Control[] { _tabControl, _searchBox, _sourceFilter, _showRecentCheckBox, 
                 _categoryList, _iconList, _previewPanel, _iconNameLabel, _iconPathLabel, 
                 _okButton, _cancelButton });
 
@@ -180,85 +196,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
 
         private void LoadAllIcons()
         {
-            _allIcons = new List<IconInfo>();
-
-            // Load from SvgsUI
-            LoadIconsFromType(typeof(SvgsUI), "UI");
-
-            // Load from Svgs
-            LoadIconsFromType(typeof(Svgs), "General");
-
-            // Load from SvgsDatasources
-            LoadIconsFromType(typeof(SvgsDatasources), "DataSources");
-        }
-
-        private void LoadIconsFromType(Type type, string source)
-        {
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
-            
-            foreach (var field in fields)
-            {
-                if (field.FieldType == typeof(string))
+            _allIcons = IconCatalog.GetAllEntries()
+                .Select(e => new IconInfo
                 {
-                    var path = field.GetValue(null) as string;
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        var icon = new IconInfo
-                        {
-                            Name = FormatIconName(field.Name),
-                            Path = path,
-                            Category = InferCategory(field.Name),
-                            Source = source
-                        };
-                        _allIcons.Add(icon);
-                    }
-                }
-            }
-        }
-
-        private string FormatIconName(string fieldName)
-        {
-            // Convert CamelCase to "Camel Case"
-            var result = System.Text.RegularExpressions.Regex.Replace(fieldName, "(\\B[A-Z])", " $1");
-            return result;
-        }
-
-        private string InferCategory(string name)
-        {
-            var lower = name.ToLowerInvariant();
-            
-            if (lower.Contains("alert") || lower.Contains("bell") || lower.Contains("info") || lower.Contains("warning"))
-                return "Alerts";
-            if (lower.Contains("arrow") || lower.Contains("chevron") || lower.Contains("navigation"))
-                return "Arrows";
-            if (lower.Contains("check") || lower.Contains("plus") || lower.Contains("minus") || lower.Contains("x"))
-                return "Actions";
-            if (lower.Contains("user") || lower.Contains("users") || lower.Contains("person"))
-                return "People";
-            if (lower.Contains("file") || lower.Contains("folder") || lower.Contains("document"))
-                return "Files";
-            if (lower.Contains("calendar") || lower.Contains("clock") || lower.Contains("time"))
-                return "Time";
-            if (lower.Contains("mail") || lower.Contains("message") || lower.Contains("chat"))
-                return "Communication";
-            if (lower.Contains("settings") || lower.Contains("tool") || lower.Contains("wrench"))
-                return "Settings";
-            if (lower.Contains("home") || lower.Contains("building") || lower.Contains("map"))
-                return "Places";
-            if (lower.Contains("heart") || lower.Contains("star") || lower.Contains("bookmark"))
-                return "Favorites";
-            if (lower.Contains("database") || lower.Contains("server") || lower.Contains("cloud"))
-                return "Data";
-            if (lower.Contains("edit") || lower.Contains("pen") || lower.Contains("pencil"))
-                return "Editing";
-            if (lower.Contains("trash") || lower.Contains("delete") || lower.Contains("remove"))
-                return "Delete";
-            if (lower.Contains("copy") || lower.Contains("clipboard") || lower.Contains("paste"))
-                return "Clipboard";
-            if (lower.Contains("lock") || lower.Contains("key") || lower.Contains("shield"))
-                return "Security";
-            
-            return "Other";
+                    Name = e.Name,
+                    Path = e.Path,
+                    Category = e.Category,
+                    Source = e.Source
+                })
+                .ToList();
         }
 
         private void LoadCategories()
@@ -266,15 +212,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             _categoryList.Items.Clear();
             
             var currentSource = GetCurrentSource();
-            var icons = _allIcons.Where(i => i.Source == currentSource).ToList();
+            var selectedSource = _sourceFilter.SelectedItem as string;
+            var icons = _allIcons.AsEnumerable();
+
+            if (!string.Equals(selectedSource, "All Sources", StringComparison.OrdinalIgnoreCase))
+            {
+                icons = icons.Where(i => string.Equals(i.Source, selectedSource, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (!string.IsNullOrWhiteSpace(currentSource))
+            {
+                icons = icons.Where(i => i.Source == currentSource);
+            }
+
+            var materialized = icons.ToList();
             
-            var categories = icons.Select(i => i.Category).Distinct().OrderBy(c => c).ToList();
+            var categories = materialized.Select(i => i.Category).Distinct().OrderBy(c => c).ToList();
             
             _categoryList.Items.Add(new ListViewItem("All") { Tag = "All" });
             
             foreach (var category in categories)
             {
-                _categoryList.Items.Add(new ListViewItem($"{category} ({icons.Count(i => i.Category == category)})") 
+                _categoryList.Items.Add(new ListViewItem($"{category} ({materialized.Count(i => i.Category == category)})") 
                     { Tag = category });
             }
 
@@ -286,13 +244,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
 
         private string GetCurrentSource()
         {
-            return _tabControl.SelectedIndex switch
+            var source = _tabControl.SelectedIndex switch
             {
                 0 => "UI",
                 1 => "General",
                 2 => "DataSources",
-                _ => "UI"
+                _ => string.Empty
             };
+
+            return source;
         }
 
         private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
@@ -326,7 +286,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             _iconList.Items.Clear();
 
             var currentSource = GetCurrentSource();
-            var icons = _allIcons.Where(i => i.Source == currentSource);
+            var selectedSource = _sourceFilter.SelectedItem as string;
+            IEnumerable<IconInfo> icons = _allIcons;
+
+            if (!string.Equals(selectedSource, "All Sources", StringComparison.OrdinalIgnoreCase))
+            {
+                icons = icons.Where(i => string.Equals(i.Source, selectedSource, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (!string.IsNullOrWhiteSpace(currentSource))
+            {
+                icons = icons.Where(i => i.Source == currentSource);
+            }
 
             if (category != null && category != "All")
             {
@@ -410,6 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             var icon = _allIcons.FirstOrDefault(i => i.Path == iconPath);
             if (icon != null)
             {
+                _sourceFilter.SelectedItem = icon.Source;
                 // Select the appropriate tab
                 _tabControl.SelectedIndex = icon.Source switch
                 {

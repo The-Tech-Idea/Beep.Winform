@@ -4,13 +4,14 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
     // Painter now renders the linear Style directly; owner no longer draws.
-    internal sealed class LinearProgressPainter : IProgressPainter
+    internal sealed class LinearProgressPainter : IProgressPainter, IProgressPainterV2
     {
         public string Key => nameof(ProgressPainterKind.Linear);
 
@@ -20,9 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-            // Apply owner border thickness inset
             var rect = bounds;
-            rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             // Helper to clamp radius by the rectangle size
@@ -175,12 +174,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             {
                 int crb = ClampCorner(rect, owner.BorderRadius);
                 using var borderPath = ControlPaintHelper.GetRoundedRectPath(rect, crb);
-                using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, 1);
+                using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, ProgressBarDpiHelpers.Scale(owner, 1));
                 g.DrawPath(borderPen, borderPath);
             }
             else
             {
-                using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, 1);
+                using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, ProgressBarDpiHelpers.Scale(owner, 1));
                 g.DrawRectangle(borderPen, rect);
             }
 
@@ -190,11 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 var text = owner.TextToDrawAccessor;
                 if (!string.IsNullOrEmpty(text))
                 {
-                    var font = owner.TextFont ?? BeepThemesManager.ToFont(
-                        theme.FontFamily,
-                        10f,
-                        FontWeight.Regular,
-                        System.Drawing.FontStyle.Regular);
+                    var font = owner.TextFont ?? ProgressBarFontHelpers.GetProgressBarTextFont(owner, owner.VisualMode, owner.ControlStyle, theme);
                     var sz = TextUtils.MeasureText(g, text, font);
                     if (sz.Width <= rect.Width - 4 && sz.Height <= rect.Height - 2)
                     {
@@ -206,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                         {
                             textColor = ProgressBarAccessibilityHelpers.AdjustForContrast(
                                 textColor, 
-                                owner.BackColor, 
+                                owner.ProgressColor, 
                                 4.5); // WCAG AA minimum
                         }
                         
@@ -232,6 +227,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
         public void UpdateHitAreas(BeepProgressBar owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> parameters, System.Action<string, Rectangle> register)
         {
             // No interactive parts by default
+        }
+
+        public void Paint(Graphics g, ProgressPainterContext context, BeepProgressBar owner)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            Paint(g, context.Bounds, context.Theme, owner, context.Parameters);
+        }
+
+        public void UpdateHitAreas(ProgressPainterContext context, BeepProgressBar owner, System.Action<string, Rectangle> register)
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
         }
 
         private static Color GetContrastColor(Color color)

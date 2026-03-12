@@ -3,6 +3,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,133 +19,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ShowDropdown()
         {
-            if (_isDropdownOpen || BeepContextMenu == null || _isLoading)
+            if (_isDropdownOpen || _isLoading)
                 return;
 
             _isDropdownOpen = true;
+            _popupSearchText = string.Empty;
             TriggerChevronAnimation(true);
-            SyncDropdownMetrics();
 
-            // Clear and populate context menu with list items
-            BeepContextMenu.ClearItems();
-
-            if (_listItems.Count == 0)
+            if (AllowMultipleSelection && UseApplyCancelFooter)
             {
-                // ENH-07: show a disabled placeholder row instead of silently doing nothing
-                var placeholder = new SimpleItem
-                {
-                    Text        = EmptyStateText,
-                    IsEnabled   = false,
-                    IsVisible   = true
-                };
-                BeepContextMenu.AddItem(placeholder);
-            }
-            else
-            {
-                // ENH-18: Select-all / Clear-all row pinned at the top of multi-select lists
-                if (AllowMultipleSelection && ShowSelectAll)
-                {
-                    bool allSelected = _listItems.Count > 0 &&
-                                       (_selectedItems?.Count ?? 0) >= _listItems.Count;
-                    var selectAllItem = new SimpleItem
-                    {
-                        Name      = "_selectall",
-                        Text      = allSelected ? "Clear all" : "Select all",
-                        IsEnabled = true,
-                        IsVisible = true
-                    };
-                    BeepContextMenu.AddItem(selectAllItem);
-                    // Add visual separator after the select-all row
-                    BeepContextMenu.AddSeparator();
-                }
-
-                // ENH-06: Group items by GroupName, inserting disabled header rows
-                // ENH-17: IsSeparator items become separator lines
-                string lastGroup = null;
-                foreach (var item in _listItems)
-                {
-                    // ENH-17: separator item
-                    if (item.IsSeparator)
-                    {
-                        BeepContextMenu.AddSeparator();
-                        continue;
-                    }
-
-                    // ENH-06: new group header
-                    string group = item.GroupName;
-                    if (!string.IsNullOrEmpty(group) && group != lastGroup)
-                    {
-                        lastGroup = group;
-                        var header = new SimpleItem
-                        {
-                            Name      = "_grp_" + group,
-                            Text      = group,
-                            IsEnabled = false,
-                            IsVisible = true
-                        };
-                        BeepContextMenu.AddItem(header);
-                    }
-
-                    // ENH-16: create a stripped copy when ShowOptionDescription is false
-                    SimpleItem addItem = item;
-                    if (!ShowOptionDescription && !string.IsNullOrEmpty(item.SubText))
-                    {
-                        addItem = new SimpleItem
-                        {
-                            ID          = item.ID,
-                            GuidId      = item.GuidId,
-                            Text        = item.Text,
-                            Name        = item.Name,
-                            ImagePath   = item.ImagePath,
-                            IsEnabled   = item.IsEnabled,
-                            IsVisible   = item.IsVisible,
-                            IsCheckable = item.IsCheckable,
-                            IsChecked   = item.IsChecked,
-                            GroupName   = item.GroupName,
-                            SubText     = null   // suppress description line
-                        };
-                    }
-                    BeepContextMenu.AddItem(addItem);
-                }
+                _popupSelectionSnapshot = new System.Collections.Generic.List<SimpleItem>(
+                    SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
             }
 
-            // Set multi-select behavior based on property
-            BeepContextMenu.MultiSelect  = AllowMultipleSelection;
-            BeepContextMenu.ShowCheckBox = AllowMultipleSelection;
-
-            // ENH-08: propagate icon visibility setting
-            BeepContextMenu.ShowImage = ShowStatusIcons;
-
-            // ENH-13: honour MinDropdownWidth
-            BeepContextMenu.MenuWidth = Math.Max(Width, Math.Max(ScaleLogicalX(160), MinDropdownWidth));
-
-            // Multi-select behaviours
-            BeepContextMenu.CloseOnItemClick = !AllowMultipleSelection;
-
-            // Ensure searchbox state is up to date
-            BeepContextMenu.ShowSearchBox = (ComboBoxType == ComboBoxes.ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
-
-            // ENH-11: Auto-flip — open upward when not enough screen space below
-            Point dropLocation;
-            if (AutoFlip)
+            if (_popupHost == null)
             {
-                System.Drawing.Rectangle workingArea = System.Windows.Forms.Screen.FromControl(this).WorkingArea;
-                Point below   = PointToScreen(new Point(0, Height));
-                int   dropH   = Math.Min(BeepContextMenu.MaxHeight, (_listItems.Count + 1) * BeepContextMenu.MenuItemHeight + 20);
-                bool  fitsBelow = (below.Y + dropH) <= workingArea.Bottom;
-                dropLocation = fitsBelow
-                    ? below
-                    : PointToScreen(new Point(0, -dropH));
-            }
-            else
-            {
-                dropLocation = PointToScreen(new Point(0, Height));
+                _popupHost = CreatePopupHostForType(ComboBoxType);
+                _popupHost.RowCommitted += OnPopupHostRowCommitted;
+                _popupHost.PopupClosed += OnPopupHostClosed;
+                _popupHost.SearchTextChanged += OnPopupHostSearchTextChanged;
+                _popupHost.KeyboardFocusChanged += OnPopupHostKeyboardFocusChanged;
             }
 
-            // Show the context menu
-            BeepContextMenu.Show(dropLocation, this);
+            var model = ComboBoxPopupModelBuilder.Build(
+                _listItems,
+                SelectedItems,
+                SelectedItem,
+                _popupSearchText,
+                ComboBoxType,
+                AllowMultipleSelection,
+                ShowSelectAll,
+                AllowMultipleSelection && UseApplyCancelFooter
+            );
 
-            // ENH-12: notify accessibility clients that the control's state changed
+            _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
+
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.StateChange, -1);
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.SystemMenuPopupStart, -1);
 
@@ -154,15 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void CloseDropdown()
         {
-            if (!_isDropdownOpen || BeepContextMenu == null)
+            if (!_isDropdownOpen)
                 return;
             
-            // Use Hide() directly instead of Close().
-            // With DestroyOnClose=false, Close() goes through OnFormClosing
-            // which fires MenuClosing, cancels the close, then calls Hide()
-            // anyway — causing duplicate events and leaving the parent form
-            // in an inconsistent activation state.
-            BeepContextMenu.Hide();
+            _popupHost?.ClosePopup(false);
             _isDropdownOpen = false;
             TriggerChevronAnimation(false);
 
@@ -173,16 +80,85 @@ namespace TheTechIdea.Beep.Winform.Controls
             PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
+
+        private void OnPopupHostRowCommitted(object sender, ComboBoxRowCommittedEventArgs e)
+        {
+            if (e.Row != null && e.Row.SourceItem != null)
+            {
+                if (AllowMultipleSelection)
+                {
+                    // Multi-select handling
+                    var item = e.Row.SourceItem;
+                    var current = new System.Collections.Generic.List<SimpleItem>(SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
+
+                    if (e.Row.IsChecked)
+                    {
+                        if (!current.Exists(x => IsSameSimpleItem(x, item)))
+                        {
+                            current.Add(item);
+                        }
+                    }
+                    else
+                    {
+                        int idx = current.FindIndex(x => IsSameSimpleItem(x, item));
+                        if (idx >= 0) current.RemoveAt(idx);
+                    }
+                    SelectedItems = current;
+
+                    if (_popupHost != null)
+                    {
+                        var model = ComboBoxPopupModelBuilder.Build(
+                            _listItems,
+                            SelectedItems,
+                            SelectedItem,
+                            _popupSearchText,
+                            ComboBoxType,
+                            true,
+                            ShowSelectAll,
+                            AllowMultipleSelection && UseApplyCancelFooter);
+                        _popupHost.UpdateModel(model);
+                        return; // do not close
+                    }
+                }
+                else
+                {
+                    // Single-select
+                    _inputText = string.Empty;
+                    SelectedItem = e.Row.SourceItem;
+                }
+            }
+            CloseDropdown();
+        }
+
+        private void OnPopupHostClosed(object sender, ComboBoxPopupClosedEventArgs e)
+        {
+            if (_popupHost != null)
+            {
+                _popupHost.RowCommitted -= OnPopupHostRowCommitted;
+                _popupHost.PopupClosed -= OnPopupHostClosed;
+                _popupHost.SearchTextChanged -= OnPopupHostSearchTextChanged;
+                _popupHost.KeyboardFocusChanged -= OnPopupHostKeyboardFocusChanged;
+                _popupHost = null;
+            }
+            _isDropdownOpen = false;
+            TriggerChevronAnimation(false);
+
+            if (AllowMultipleSelection && UseApplyCancelFooter && !e.Committed && _popupSelectionSnapshot != null)
+            {
+                SelectedItems = new System.Collections.Generic.List<SimpleItem>(_popupSelectionSnapshot);
+            }
+            _popupSelectionSnapshot = null;
+            _popupSearchText = string.Empty;
+            Invalidate();
+        }
         
         /// <summary>
         /// Toggles the dropdown menu
         /// </summary>
         public void ToggleDropdown()
         {
-            // Sync state with actual menu visibility. The context menu may have closed
-            // itself (e.g. Deactivate when user clicked elsewhere) without raising
-            // MenuClosed, leaving _isDropdownOpen stuck at true.
-            if (_isDropdownOpen && (BeepContextMenu == null || !BeepContextMenu.Visible))
+            // Sync state with actual menu visibility.
+            if (_isDropdownOpen && (_popupHost == null || !_popupHost.IsVisible))
             {
                 _isDropdownOpen = false;
             }
@@ -221,9 +197,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return;
             var current = SelectedItems ?? new System.Collections.Generic.List<SimpleItem>();
-            if (!current.Contains(item)) return;
+            if (!current.Exists(x => IsSameSimpleItem(x, item))) return;
             var updated = new System.Collections.Generic.List<SimpleItem>(current);
-            updated.Remove(item);
+            int idx = updated.FindIndex(x => IsSameSimpleItem(x, item));
+            if (idx >= 0)
+            {
+                updated.RemoveAt(idx);
+            }
             SelectedItems = updated;
         }
 
@@ -290,6 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders          = false,
                 IsBorderAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
+                ControlStyle            = Common.BeepControlStyle.None,
                 TabStop                 = false,
                 Visible                 = false
             };
@@ -361,45 +342,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Try exact/partial match — highlight but don’t commit yet
             if (!string.IsNullOrEmpty(typed))
             {
-                // ENH-21: scored fuzzy filter — prefix=100, contains=50, subsequence=10
-                var scoredMatches = new System.Collections.Generic.List<(int Score, SimpleItem Item)>();
-                foreach (var item in _listItems)
+                if (!_isDropdownOpen)
                 {
-                    if (string.IsNullOrEmpty(item.Text)) continue;
-                    int score = FuzzySearchScore(item.Text, typed);
-                    if (score > 0)
-                        scoredMatches.Add((score, item));
+                    ShowDropdown();
                 }
-                scoredMatches.Sort((a, b) => b.Score.CompareTo(a.Score));
-                var matches = scoredMatches.ConvertAll(t => t.Item);
 
-                if (matches.Count > 0)
+                if (_popupHost != null)
                 {
-                    // Open (or refresh) the dropdown with filtered items
-                    if (BeepContextMenu != null)
-                    {
-                        BeepContextMenu.ClearItems();
-                        foreach (var m in matches)
-                            BeepContextMenu.AddItem(m);
-
-                        BeepContextMenu.MenuWidth = Math.Max(Width, ScaleLogicalX(160));
-                        BeepContextMenu.ShowSearchBox  = false;
-                        BeepContextMenu.CloseOnItemClick = true;
-                        BeepContextMenu.MultiSelect      = false;
-
-                        if (!_isDropdownOpen)
-                        {
-                            Point screenLoc = PointToScreen(new Point(0, Height));
-                            BeepContextMenu.Show(screenLoc, this);
-                            _isDropdownOpen = true;
-                            PopupOpened?.Invoke(this, EventArgs.Empty);
-                        }
-                    }
-                }
-                else if (_isDropdownOpen)
-                {
-                    // Nothing matched — close the dropdown
-                    CloseDropdown();
+                    var model = ComboBoxPopupModelBuilder.Build(
+                        _listItems,
+                        SelectedItems,
+                        SelectedItem,
+                        typed, // Filter by the typed text
+                        ComboBoxType,
+                        AllowMultipleSelection,
+                        ShowSelectAll,
+                        false);
+                    _popupHost.UpdateModel(model);
                 }
             }
             else if (_isDropdownOpen)
@@ -442,6 +401,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ShowInlineEditor()
         {
+            if (!IsInlineEditorAllowed()) return;
+
             // Close dropdown if open
             if (_isDropdownOpen) CloseDropdown();
 
@@ -625,10 +586,140 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Invalidate();
         }
+
+        private void ApplyComboBoxTypeFromControlStyleIfNeeded()
+        {
+            if (_comboBoxTypeWasExplicitlySet)
+            {
+                return;
+            }
+
+            ComboBoxType mapped = ComboBoxVisualTokenCatalog.MapFromControlStyle(ControlStyle);
+            if (_comboBoxType == mapped)
+            {
+                return;
+            }
+
+            _suppressComboBoxTypeExplicitTracking = true;
+            try
+            {
+                ComboBoxType = mapped;
+            }
+            finally
+            {
+                _suppressComboBoxTypeExplicitTracking = false;
+            }
+        }
         
         internal void UpdateLayoutAndInvalidate()
         {
             InvalidateLayout();
+        }
+
+        internal static string GetSimpleItemIdentity(SimpleItem item)
+        {
+            if (item == null) return string.Empty;
+            if (!string.IsNullOrWhiteSpace(item.GuidId))
+            {
+                return item.GuidId;
+            }
+
+            if (item.ID != 0)
+            {
+                return item.ID.ToString();
+            }
+
+            return !string.IsNullOrWhiteSpace(item.Text) ? item.Text : (item.Name ?? string.Empty);
+        }
+
+        internal static bool IsSameSimpleItem(SimpleItem left, SimpleItem right)
+            => string.Equals(GetSimpleItemIdentity(left), GetSimpleItemIdentity(right), StringComparison.OrdinalIgnoreCase);
+
+        private static IComboBoxPopupHost CreatePopupHostForType(ComboBoxType type)
+        {
+            return type switch
+            {
+                ComboBoxType.OutlineDefault => new OutlineDefaultPopupHostForm(),
+                ComboBoxType.OutlineSearchable => new OutlineSearchablePopupHostForm(),
+                ComboBoxType.FilledSoft => new FilledSoftPopupHostForm(),
+                ComboBoxType.RoundedPill => new RoundedPillPopupHostForm(),
+                ComboBoxType.SegmentedTrigger => new SegmentedTriggerPopupHostForm(),
+                ComboBoxType.MultiChipCompact => new MultiChipCompactPopupHostForm(),
+                ComboBoxType.MultiChipSearch => new MultiChipSearchPopupHostForm(),
+                ComboBoxType.DenseList => new DenseListPopupHostForm(),
+                ComboBoxType.MinimalBorderless => new MinimalBorderlessPopupHostForm(),
+                _ => new OutlineDefaultPopupHostForm()
+            };
+        }
+
+        private bool IsInlineEditorAllowed()
+            => IsEditable || AllowFreeText || ComboBoxVisualTokenCatalog.SupportsInlineEditor(ComboBoxType);
+
+        private void OnPopupHostSearchTextChanged(object sender, ComboBoxSearchChangedEventArgs e)
+        {
+            if (_popupHost == null)
+            {
+                return;
+            }
+
+            string searchText = e?.SearchText ?? string.Empty;
+            _popupSearchText = searchText;
+            var model = ComboBoxPopupModelBuilder.Build(
+                _listItems,
+                SelectedItems,
+                SelectedItem,
+                searchText,
+                ComboBoxType,
+                AllowMultipleSelection,
+                ShowSelectAll,
+                AllowMultipleSelection && UseApplyCancelFooter);
+
+            _popupHost.UpdateModel(model);
+        }
+
+        private void OnPopupHostKeyboardFocusChanged(object sender, ComboBoxKeyboardFocusChangedEventArgs e)
+        {
+            // Hook point for preview-on-focus behavior; currently only triggers repaint.
+            Invalidate();
+        }
+
+        private void HandleSelectOnlyTypeAhead(char typedChar)
+        {
+            if (char.IsControl(typedChar) || _listItems == null || _listItems.Count == 0)
+            {
+                return;
+            }
+
+            if (_typeAheadTimer == null)
+            {
+                return;
+            }
+
+            _typeAheadTimer.Stop();
+            _typeAheadBuffer = (_typeAheadBuffer ?? string.Empty) + typedChar;
+            _typeAheadTimer.Start();
+
+            SimpleItem best = null;
+            int bestScore = 0;
+            foreach (var item in _listItems)
+            {
+                if (item == null || string.IsNullOrWhiteSpace(item.Text))
+                {
+                    continue;
+                }
+
+                int score = FuzzySearchScore(item.Text, _typeAheadBuffer);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = item;
+                }
+            }
+
+            if (best != null)
+            {
+                SelectedItem = best;
+            }
         }
 
         /// <summary>

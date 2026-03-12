@@ -172,7 +172,6 @@
     <Folder Include="BeepDateTimePicker\" />
     <Folder Include="Buttons\BeepAdvancedButton\Samples\" />
     <Folder Include="ComboBoxes\Helpers\" />
-    <Folder Include="ComboBoxes\Painters\" />
     <Folder Include="ContextMenus\Helpers\" />
     <Folder Include="Dates\Internal\DaysPainters\" />
     <Folder Include="DialogsManagers\Forms\" />

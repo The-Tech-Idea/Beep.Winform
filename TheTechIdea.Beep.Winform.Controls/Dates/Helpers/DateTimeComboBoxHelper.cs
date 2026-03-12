@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
         {
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 120,
                 Height = 32
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
         {
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 150,
                 Height = 32
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
         {
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 80,
                 Height = 32
@@ -179,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
 
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 80,
                 Height = 32
@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
 
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 120,
                 Height = 32
@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Helpers
         {
             var comboBox = new BeepComboBox
             {
-                ComboBoxType = ComboBoxType.Standard,
+                ComboBoxType = ComboBoxType.OutlineDefault,
                 IsEditable = false,
                 Width = 120,
                 Height = 32

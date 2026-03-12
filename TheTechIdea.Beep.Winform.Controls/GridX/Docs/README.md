@@ -1,73 +1,41 @@
 # BeepGridPro Documentation
 
-This folder documents BeepGridPro, a modern, helper-driven WinForms grid control in TheTechIdea.Beep.Winform.Controls. It provides an overview, class reference, and usage guidance for developers.
+This folder documents the current `BeepGridPro` implementation in `GridX`.
 
-Contents
-- Overview and concepts
-- Quick start
-- Class map (what each class does)
-- Data binding, columns, selection, editing
-- Sorting and filtering (Excel-style)
-- Styling and theming
-- Extensibility and adapters
+## Read This First
+- `BeepGridPro` uses a helper-based architecture. Public API lives on the control; most behavior lives in helper classes.
+- Filtering is split between the public `ActiveFilter` path and the internal `SortFilter` helper path.
+- `GridLayoutPreset` and `BeepGridStyle` enums contain values that are ahead of the currently wired runtime switch logic.
 
-Overview
-BeepGridPro is a composable grid built from small helper components:
-- Rendering, layout, scrolling, selection, editing, navigation, sizing, sorting/filtering, dialogs, and theming are separated into dedicated helpers under `GridX/Helpers`.
-- Optional Excel-style filter UI is provided under `GridX/Filters` and helper extensions.
-- A thin adapter interface (`BeepSimpleGridLike`) enables non-invasive integration of filter popups.
+## Document Map
+- [Usage.md](./Usage.md): binding, columns, selection, editing, navigator, clipboard
+- [Classes.md](./Classes.md): class and helper map
+- [FilteringSorting.md](./FilteringSorting.md): quick filter, advanced filter, Excel-style popup filtering, and sort behavior
+- [Styling.md](./Styling.md): grid style, navigation style, focus styling, layout presets, and current gaps
+- [Events.md](./Events.md): events and what actually raises them
+- [Extensibility.md](./Extensibility.md): adapters, custom layouts, painters, and UOW integration
 
-Key features
-- Data binding: BindingSource, IEnumerable<T>, DataTable/DataView, DataSet + DataMember
-- Auto-generate columns or design-time columns; includes system columns (checkbox, row number, row ID)
-- Custom drawing with sticky columns and custom scrollbars
-- Selection via header/row checkboxes and active cell highlighting
-- Editing via modeless overlay editor or in-place editor helper
-- Sorting/filtering (including Excel-style filter popup)
-- Styling via `GridStyle` presets and themes (`BeepThemesManager`)
-- Owner-drawn navigator with CRUD and record navigation
-
-Quick start
+## Minimal Example
 ```csharp
 var grid = new BeepGridPro
 {
     Dock = DockStyle.Fill,
-    GridStyle = BeepGridStyle.Clean,
-    GridTitle = "Customers",
+    GridStyle = BeepGridStyle.Bootstrap,
     ShowNavigator = true,
+    ShowTopFilterPanel = true,
+    GridTitle = "Customers"
 };
 
-// Bind any list, BindingSource, DataTable/DataView or DataSet + DataMember
-grid.DataSource = myBindingSource;      // or a List<T>, DataTable, DataView
-grid.DataMember = "Customers";          // only when needed (DataSet/DataViewManager/root object)
-
-// Auto-generate columns from entity/schema
+grid.DataSource = customersBindingSource;
 grid.AutoGenerateColumns();
-
-// Optional: ensure system columns (Sel, RowNum, RowID)
-grid.EnsureSystemColumns();
-
-// Optional: Excel-like filter icons in headers (hover shows icons)
 grid.EnableExcelFilter();
-
-// Top filter panel is shown by default; use ShowTopFilterPanel to toggle visibility
-// and GridTitle to customize the toolbar title.
-
-// Optional: auto-size columns/rows
-grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-grid.AutoResizeColumnsToFitContent();
 ```
 
-Events
-- `RowSelectionChanged`: raised when row checkbox selection changes
-- `CellValueChanged`: raised after an editor commits a value
-- `SaveCalled`: raised when Save action is invoked from navigator
+At runtime the constructor already hooks `EnableExcelFilter()`, so the explicit call is optional.
 
-Where to go next
-- See `Classes.md` for a detailed class-by-class breakdown
-- See `Usage.md` for binding, columns, selection, editing
-- See `FilteringSorting.md` for sort/filter and Excel filter popup
-- See `Styling.md` for appearance presets and theme integration
-- See `Extensibility.md` for custom drawers, adapters, and UoW binder
-- See `Events.md` for events and integration tips
-```
+## Current Behavior Highlights
+- `ShowTopFilterPanel` defaults to `true`.
+- `UseInlineQuickSearch` defaults to `true`.
+- `FilterIconVisibility` defaults to `Hidden`.
+- `Uow` currently expects `IUnitofWork` or `IUnitOfWorkWrapper`.
+- `GridLayoutPreset` property support is narrower than the enum itself.

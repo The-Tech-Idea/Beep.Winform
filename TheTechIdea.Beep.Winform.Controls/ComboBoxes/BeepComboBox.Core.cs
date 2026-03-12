@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -49,8 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal float ChevronAngle         => _chevronAngle;
         internal float LoadingRotationAngle => _loadingRotationAngle;
         internal float SkeletonOffset       => _skeletonOffset;
+        internal bool  IsEditingInline        => _isEditing;
 
-        // ENH-19: map SimpleItem.ID → chip-close button rect (populated by MultiSelectChipsPainter)
+        // maps SimpleItem identity → chip-close button rect (populated by design-system chip painters)
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipCloseRects
             = new System.Collections.Generic.Dictionary<string, Rectangle>();
 
@@ -63,15 +65,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Core Fields
         
         // Visual Style
-        private ComboBoxType _comboBoxType = ComboBoxType.Standard;
+        private ComboBoxType _comboBoxType = ComboBoxType.OutlineDefault;
+        private bool _comboBoxTypeWasExplicitlySet = false;
+        private bool _suppressComboBoxTypeExplicitTracking = false;
         
         // List management
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private SimpleItem _selectedItem;
         private int _selectedItemIndex = -1;
         
-        // Dropdown state (uses inherited BeepContextMenu from BaseControl)
+        // Dropdown state
         private bool _isDropdownOpen = false;
+        private IComboBoxPopupHost _popupHost;
+        private List<SimpleItem> _popupSelectionSnapshot;
+        private string _popupSearchText = string.Empty;
         
         // Text and editing
         private string _inputText = string.Empty;
@@ -131,6 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Auto-complete debouncing
         private Timer _autoCompleteDelayTimer;
+
+        // Select-only typeahead buffer
+        private string _typeAheadBuffer = string.Empty;
+        private Timer _typeAheadTimer;
         
         #endregion
         
@@ -203,6 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Apply theme
             ApplyTheme();
+            ApplyComboBoxTypeFromControlStyleIfNeeded();
             
             // Wire up events
             GotFocus += OnControlGotFocus;
@@ -241,6 +253,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 if (any || _chipProgress.Count > 0) Invalidate();
             };
+
+            _typeAheadTimer = new Timer { Interval = 700 };
+            _typeAheadTimer.Tick += (s, e) =>
+            {
+                _typeAheadTimer.Stop();
+                _typeAheadBuffer = string.Empty;
+            };
         }
         
         #endregion
@@ -259,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepContextMenu.ShowImage = true;
             BeepContextMenu.ShowCheckBox = AllowMultipleSelection;
             // If this combo box type is searchable, show the search box in the dropdown
-            BeepContextMenu.ShowSearchBox = (ComboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
+            BeepContextMenu.ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(ComboBoxType) || ShowSearchInDropdown;
             BeepContextMenu.ShowSeparators = false;
             BeepContextMenu.ContextMenuType = FormStyle.Modern;
             // Ensure theme and lifecycle are aligned with the control
@@ -346,9 +365,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Toggle selection in selected items
                 var selectedList = SelectedItems ?? new System.Collections.Generic.List<SimpleItem>();
-                if (selectedList.Contains(e.Item))
+                int existingIndex = selectedList.FindIndex(item => IsSameSimpleItem(item, e.Item));
+                if (existingIndex >= 0)
                 {
-                    selectedList.Remove(e.Item);
+                    selectedList.RemoveAt(existingIndex);
                 }
                 else
                 {

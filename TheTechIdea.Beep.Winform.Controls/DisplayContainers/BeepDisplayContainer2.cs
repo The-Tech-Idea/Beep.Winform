@@ -234,7 +234,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             // Disable BaseControl splash/ripple effects for this container
             EnableSplashEffect = false;
-            
             // Transparent background support (like BeepMenuBar)
             IsTransparentBackground = false; // Default to opaque for containers
             

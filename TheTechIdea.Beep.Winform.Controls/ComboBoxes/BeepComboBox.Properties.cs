@@ -2,9 +2,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -138,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(ComboBoxType.Standard)]
+        [DefaultValue(ComboBoxType.OutlineDefault)]
         [Description("The visual Style/variant of the combo box.")]
         public ComboBoxType ComboBoxType
         {
@@ -146,8 +148,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (_comboBoxType == value) return;
+
+                // Hide inline editor before switching — the new type may not support it
+                HideInlineEditor(false);
+
+                if (!_suppressComboBoxTypeExplicitTracking)
+                {
+                    _comboBoxTypeWasExplicitlySet = true;
+                }
                 _comboBoxType = value;
                 _comboBoxPainter = null; // Force painter recreation
+
+                if (_comboBoxType == ComboBoxType.MultiChipCompact || _comboBoxType == ComboBoxType.MultiChipSearch)
+                {
+                    _allowMultipleSelection = true;
+                }
+                if (ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType))
+                {
+                    _showSearchInDropdown = true;
+                }
                 
                 // Force re-application of painter defaults for new type
                 _layoutDefaultsInitialized = false;
@@ -157,8 +176,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Update dropdown properties
                 if (BeepContextMenu != null)
                 {
-                    BeepContextMenu.ShowSearchBox = (_comboBoxType == ComboBoxType.SearchableDropdown) || ShowSearchInDropdown;
+                    BeepContextMenu.ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType) || ShowSearchInDropdown;
                 }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Maps Beep ControlStyle to ComboBoxType unless ComboBoxType was set manually.")]
+        public new BeepControlStyle ControlStyle
+        {
+            get => base.ControlStyle;
+            set
+            {
+                if (base.ControlStyle == value) return;
+                base.ControlStyle = value;
+                ApplyComboBoxTypeFromControlStyleIfNeeded();
             }
         }
         
@@ -274,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _showSearchInDropdown = value;
                 if (BeepContextMenu != null)
                 {
-                    BeepContextMenu.ShowSearchBox = (_comboBoxType == ComboBoxType.SearchableDropdown) || _showSearchInDropdown;
+                    BeepContextMenu.ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType) || _showSearchInDropdown;
                 }
                 Invalidate();
             }
@@ -417,11 +450,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var removed = new System.Collections.Generic.List<SimpleItem>();
                 foreach (var it in newList)
                 {
-                    if (!_selectedItems.Contains(it)) added.Add(it);
+                    bool exists = _selectedItems.Exists(existing => IsSameSimpleItem(existing, it));
+                    if (!exists) added.Add(it);
                 }
                 foreach (var it in _selectedItems)
                 {
-                    if (!newList.Contains(it)) removed.Add(it);
+                    bool stillSelected = newList.Exists(updated => IsSameSimpleItem(updated, it));
+                    if (!stillSelected) removed.Add(it);
                 }
                 _selectedItems = newList;
                 // Start appearing animations for added items
@@ -614,6 +649,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("When true and AllowMultipleSelection is enabled, a 'Select all / Clear all' row is pinned at the top of the dropdown.")]
         [DefaultValue(true)]
         public bool ShowSelectAll { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true in multi-select mode, selection changes stay pending until Apply is pressed; Cancel restores snapshot.")]
+        [DefaultValue(false)]
+        public bool UseApplyCancelFooter { get; set; } = false;
 
         // ── ENH-16 ──────────────────────────────────────────────────────────
         [Browsable(true)]

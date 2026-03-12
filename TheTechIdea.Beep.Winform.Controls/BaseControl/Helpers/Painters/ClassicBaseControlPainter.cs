@@ -94,8 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             Rectangle borderRect = new Rectangle(
                 shadow,
                 shadow,
-                Math.Max(1, width - (shadow * 2)),
-                Math.Max(1, height - (shadow * 2))
+                Math.Max(1, width - (shadow * 2) - 1),
+                Math.Max(1, height - (shadow * 2) - 1)
             );
             
             // **CRITICAL**: Apply CustomPadding to shrink borderRect BEFORE creating paths

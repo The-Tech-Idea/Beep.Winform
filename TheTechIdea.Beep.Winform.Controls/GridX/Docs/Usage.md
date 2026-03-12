@@ -1,76 +1,202 @@
 # Using BeepGridPro
 
-Quick binding
-- Set `DataSource` to a `BindingSource`, any `IEnumerable<T>`, `DataTable`/`DataView`, or a root object with a property indicated by `DataMember`.
-- Optionally set `DataMember` when using `DataSet` or a root object containing the actual list.
-- Call `AutoGenerateColumns()` or configure `Columns` at design-time.
+## Binding
 
-Example
+### Standard sources
+`BeepGridPro` can bind to:
+- `BindingSource`
+- `DataTable`
+- `DataView`
+- `DataSet` with `DataMember`
+- `DataViewManager` with `DataMember`
+- `IEnumerable<T>`
+- a root object whose property named by `DataMember` returns a collection
+
 ```csharp
-beepGridPro1.DataSource = customersBindingSource; // or a List<Customer>
-beepGridPro1.DataMember = "Customers";          // optional
-beepGridPro1.AutoGenerateColumns();
-beepGridPro1.EnableExcelFilter();
+grid.DataSource = customersBindingSource;
+grid.DataMember = "";
+grid.AutoGenerateColumns();
 ```
 
-Columns
-- Columns live in `beepGridPro1.Columns` (`BeepGridColumnConfigCollection`).
-- System columns are auto-inserted:
-  - `Sel` (selection checkbox, sticked, width from `Layout.CheckBoxColumnWidth`)
-  - `RowNum` (#, sticked, readonly)
-  - `RowID` (hidden)
-- To ensure they exist: `beepGridPro1.EnsureSystemColumns()`.
-- To toggle selection column: set `beepGridPro1.ShowCheckBox`.
-- To auto-generate from entity/schema: `beepGridPro1.AutoGenerateColumns()`.
+### DataMember resolution
+`GridDataHelper.ResolveDataForBinding()` does this in order:
+1. unwrap `BindingSource`
+2. resolve `DataSet`/`DataViewManager` tables by `DataMember`
+3. reflect a property on the root object using `DataMember`
+4. fall back to the original object
 
-Selection
-- Row selection is checkbox-based. Header checkbox toggles all when `MultiSelect` is true.
-- Active cell is highlighted separately and does not alter row selection.
-- Programmatic select: `beepGridPro1.SelectCell(rowIndex, colIndex)`.
-- Events: `RowSelectionChanged` receives row index and row object.
+### Clearing data
+```csharp
+grid.DataSource = null;
+```
+This clears rows, removes non-system columns, unbinds the navigator, recalculates layout, and clears selection.
 
-Editing
-- Call `beepGridPro1.ShowCellEditor()` to start editing the active cell.
-- Enter/F2 starts edit via keyboard when cell editable and not a checkbox.
-- Editors are chosen from column `CellEditor` (Text, ComboBox, DateTime, CheckBox*, NumericUpDown, Image, Radio, ListBox, ListOfValue, ProgressBar, Button).
-- Values from list editors (`SimpleItem`) are normalized to target property type automatically.
-- After commit, `CellValueChanged` fires.
+## UOW Mode
 
-Sorting and filtering
-- Click header text or sort icon to toggle sort direction (if `AllowSort`).
-- Excel-style filter popup: `beepGridPro1.EnableExcelFilter()`. Hover header shows icons; click filter icon to open.
-- Programmatic sort: `SortFilter.Sort(columnName, direction)`.
-- Programmatic simple filter: `SortFilter.Filter(columnName, contains)`.
+Assign `Uow` when the screen uses Beep's unit-of-work contracts:
+```csharp
+grid.Uow = myUnitOfWork;
+```
 
-Scrolling
-- Custom scrollbars with drag-to-scroll and paging clicks.
-- Mouse wheel scrolling supported. Variable row heights are respected.
+Important:
+- `Uow` currently expects `IUnitofWork` or `IUnitOfWorkWrapper`.
+- `BeepGridPro` does not auto-wrap arbitrary runtime `UnitOfWork<T>` instances.
+- While `Uow` is active, `DataSource` is retained only as fallback state.
 
-Styling and theming
-- `GridStyle` presets change stripes, grid lines, gradients, header text weight, and padding.
-- Themes via `Theme` property (name) from `BeepThemesManager` affect colors and fonts.
-- Adjust row/header heights via `RowHeight`, `ColumnHeaderHeight`.
+CRUD behavior in UOW mode:
+- `InsertNew()` -> `New()`
+- `DeleteCurrent()` -> `Delete(...)`
+- `Save()` -> `Commit()`
+- `Cancel()` -> `Rollback()`
 
-Navigator
-- Owner-drawn navigator area (footer) with CRUD and record navigation.
-- Attach an external `BeepBindingNavigator` via `AttachNavigator(navigator, dataSource)` or use no visual navigator (owner drawn only).
-- Use actions: `MoveFirst/Prev/Next/Last`, `InsertNew`, `DeleteCurrent`, `Save`, `Cancel`.
+## Columns
 
-UOW mode
-- Assign `Uow` to either `IUnitofWork` or `IUnitOfWorkWrapper`.
-- If a runtime `UnitofWork<T>` instance is assigned, grid wraps it in `UnitOfWorkWrapper` automatically.
-- `Uow` mode is authoritative; `DataSource` value is retained and applied automatically when `Uow` is cleared.
-- Grid UOW binding/events use typed contracts only (no reflection in `BeepGridPro` UOW path).
-- Navigator actions map to UOW lifecycle (`Move*`, add/delete, `Commit`/`Rollback`) and refresh from `Units`.
-- Wrapper-only mode forwards navigator lifecycle actions as `UnitofWorkParams` events to the grid binder (`PreCreate/Delete/Commit/Rollback` and matching `Post*`).
+### Auto-generated columns
+`AutoGenerateColumns()`:
+- clears current columns
+- re-adds system columns
+- inspects a `DataTable` schema or item properties
+- assigns default editor types and data categories
 
-Auto-sizing
-- `AutoSizeColumnsMode` supports the standard `DataGridViewAutoSizeColumnsMode` values.
-- `AutoResizeColumnsToFitContent()` applies the chosen mode.
-- `AutoSizeRowsToContent=true` enables row height recalculation; also triggered for AllCells modes.
+### System columns
+`EnsureSystemColumns()` maintains:
+- `Sel`: sticky checkbox column
+- `RowNum`: sticky row-number column
+- `RowID`: sticky hidden identity column
 
-Advanced
-- Sticky columns: set `BeepColumnConfig.Sticked=true` to pin to the left side.
-- Column width: `SetColumnWidth(columnName, width)`.
-- Programmatic measurement: `GetColumnWidth(column, includeHeader, allRows)`.
-- Dialog helpers: `ShowFilterDialog()`, `ShowSearchDialog()`, `ShowColumnConfigDialog()`.
+### Common column settings
+```csharp
+var nameColumn = grid.GetColumnByName("Name");
+nameColumn.Width = 180;
+nameColumn.MinWidth = 100;
+nameColumn.MaxWidth = 260;
+nameColumn.AllowAutoSize = true;
+nameColumn.FillWeight = 2f;
+nameColumn.Sticked = true;
+nameColumn.AllowReorder = false;
+```
+
+Useful `BeepColumnConfig` members:
+- `ColumnName`, `ColumnCaption`
+- `Width`, `MinWidth`, `MaxWidth`, `FillWeight`, `AllowAutoSize`
+- `Visible`, `ReadOnly`, `AllowSort`, `AllowFilter`
+- `DisplayOrder`, `AllowReorder`, `Sticked`
+- `CellEditor`, `Items`, `EnumSourceType`
+
+## Selection
+
+There are two distinct selection concepts:
+- active-cell focus, tracked by `GridSelectionHelper`
+- row checkbox selection, tracked through `BeepRowConfig.IsSelected`
+
+Programmatic selection:
+```csharp
+grid.SelectCell(3, 1);
+```
+
+Useful properties:
+- `CurrentRow`
+- `CurrentRowIndex`
+- `SelectedRows`
+- `SelectedRowIndices`
+
+Example:
+```csharp
+var city = grid.CurrentRow?.Cells["City"]?.Value?.ToString();
+```
+
+## Editing
+
+### Start editing
+```csharp
+grid.ShowCellEditor();
+```
+
+Keyboard shortcuts:
+- `F2` starts editing the active editable cell
+- `Enter` also starts editing when the cell is editable
+
+### Cell editor mapping
+The grid uses `BeepColumnConfig.CellEditor` to decide which editor or renderer to use. Common values include:
+- `Text`
+- `NumericUpDown`
+- `DateTime`
+- `CheckBoxBool`
+- `ComboBox`
+- `Button`
+- `ListBox`
+- `ListOfValue`
+- `ProgressBar`
+- `Custom`
+
+Value commits flow through `GridDataHelper.UpdateCellValue()` so both the grid cell and the underlying row object are updated.
+
+## Navigation and CRUD
+
+```csharp
+grid.MoveFirst();
+grid.MovePrevious();
+grid.MoveNext();
+grid.MoveLast();
+grid.InsertNew();
+grid.DeleteCurrent();
+grid.Save();
+grid.Cancel();
+```
+
+External navigator support:
+```csharp
+grid.AttachNavigator(beepBindingNavigator1, customersBindingSource);
+```
+
+The grid can also run with only its owner-drawn navigator.
+
+## Clipboard
+
+```csharp
+grid.CopyToClipboard();
+grid.CopyToClipboard(includeHeaders: true, visibleColumnsOnly: true);
+grid.CutToClipboard();
+grid.PasteFromClipboard();
+grid.CopyCellToClipboard();
+```
+
+Keyboard shortcuts:
+- `Ctrl+C`
+- `Ctrl+X`
+- `Ctrl+V`
+
+## Auto-size and best-fit
+
+### Main API
+```csharp
+grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+grid.AutoSizeTriggerMode = AutoSizeTriggerMode.OnSortFilter;
+grid.AutoResizeColumnsToFitContent();
+grid.AutoSizeRowsToContent = true;
+grid.AutoSizeRowsToFitContent();
+grid.BestFitColumn(2);
+grid.BestFitVisibleColumns();
+```
+
+### Trigger modes
+- `Manual`
+- `OnDataBind`
+- `OnEditCommit`
+- `OnSortFilter`
+- `AlwaysDebounced`
+
+### User gestures
+- double-click a column border to best-fit one column
+- `Ctrl` + double-click a column border to best-fit all visible columns
+
+## Context Menu
+Right-click opens built-in commands for:
+- copy / copy with headers / cut / paste
+- select all / clear selection
+- insert / delete
+- auto-size columns
+- reset column order
+- export placeholders for Excel / CSV
+
+`GridContextMenuItemSelected` lets callers cancel the built-in action or request a grid refresh.

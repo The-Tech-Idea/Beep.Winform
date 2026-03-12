@@ -1,0 +1,270 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
+
+namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
+{
+    internal class ComboBoxPopupHostForm : IComboBoxPopupHost
+    {
+        private BeepPopupForm _form;
+        private IPopupContentPanel _contentPanel;
+        private ComboBoxPopupHostProfile _profile = ComboBoxPopupHostProfile.OutlineDefault();
+        private bool _closeRaised;
+        
+        public bool IsVisible => _form != null && _form.Visible;
+
+        public event EventHandler<ComboBoxRowCommittedEventArgs> RowCommitted;
+        public event EventHandler<ComboBoxPopupClosedEventArgs> PopupClosed;
+        public event EventHandler<ComboBoxSearchChangedEventArgs> SearchTextChanged;
+        public event EventHandler<ComboBoxKeyboardFocusChangedEventArgs> KeyboardFocusChanged;
+
+        public void ShowPopup(Control owner, ComboBoxPopupModel model, Rectangle triggerBounds)
+        {
+            if (_form != null) ClosePopup(false);
+
+            _closeRaised = false;
+            _profile = CreateProfile(owner, model) ?? ComboBoxPopupHostProfile.OutlineDefault();
+            ComboBoxPopupModel effectiveModel = NormalizeModel(model, _profile);
+            ComboBoxThemeTokens themeTokens = ResolveThemeTokens(owner, _profile, effectiveModel);
+
+            _form = new BeepPopupForm { AutoClose = true, ShowCaptionBar = false, FormStyle = _profile.FormStyle };
+            _form.FormClosed += OnFormClosed;
+
+            // Each variant creates its own content panel with distinct layout and behavior.
+            _contentPanel = CreateContentPanel(_profile, themeTokens);
+            var contentControl = (Control)_contentPanel;
+            contentControl.Dock = DockStyle.Fill;
+
+            _contentPanel.RowCommitted += (s, e) => RowCommitted?.Invoke(this, e);
+            _contentPanel.SearchTextChanged += (s, e) => SearchTextChanged?.Invoke(this, e);
+            _contentPanel.KeyboardFocusChanged += (s, e) => KeyboardFocusChanged?.Invoke(this, e);
+            _contentPanel.ApplyClicked += (s, e) => ClosePopup(true);
+            _contentPanel.CancelClicked += (s, e) => ClosePopup(false);
+
+            _form.Controls.Add(contentControl);
+
+            int targetHeight = CalculatePopupHeight(effectiveModel, _profile);
+            var placement = ComboBoxPopupPlacementHelper.Calculate(owner, triggerBounds.Width, targetHeight);
+            _form.Size = new Size(Math.Max(triggerBounds.Width, _profile.MinWidth), placement.Height);
+            
+            _contentPanel.UpdateModel(effectiveModel);
+
+            if (owner is BeepComboBox beepOwner)
+            {
+                _form.Theme = beepOwner.Theme;
+            }
+
+            ConfigurePopupForm(_form, _profile, themeTokens);
+            _form.ShowPopup(owner, BeepPopupFormPosition.Bottom, _form.Width, _form.Height);
+
+            if (_contentPanel != null && (effectiveModel.ShowSearchBox || _profile.ForceSearchVisible))
+            {
+                contentControl.BeginInvoke(new Action(() => _contentPanel.FocusSearchBox()));
+            }
+        }
+
+        public void ClosePopup(bool commit)
+        {
+            if (_form != null)
+            {
+                _form.FormClosed -= OnFormClosed;
+                _form.CloseCascade();
+                _form = null;
+                if (!_closeRaised)
+                {
+                    _closeRaised = true;
+                    PopupClosed?.Invoke(this, new ComboBoxPopupClosedEventArgs(commit));
+                }
+            }
+        }
+
+        public void UpdateModel(ComboBoxPopupModel model)
+        {
+            _contentPanel?.UpdateModel(model);
+        }
+
+        public void UpdateSearchText(string text)
+        {
+            _contentPanel?.UpdateSearchText(text);
+        }
+
+        public void SetKeyboardFocusIndex(int index)
+        {
+            _contentPanel?.SetKeyboardFocusIndex(index);
+        }
+
+        public void Dispose()
+        {
+            ClosePopup(false);
+        }
+
+        private void OnFormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (_closeRaised)
+            {
+                return;
+            }
+
+            _closeRaised = true;
+            PopupClosed?.Invoke(this, new ComboBoxPopupClosedEventArgs(false));
+        }
+
+        protected virtual ComboBoxPopupHostProfile CreateProfile(Control owner, ComboBoxPopupModel model)
+        {
+            return ComboBoxPopupHostProfile.OutlineDefault();
+        }
+
+        /// <summary>
+        /// Creates the content panel for this popup variant.
+        /// Override in subclasses to return a different content type
+        /// (e.g. <see cref="PillGridPopupContent"/>, <see cref="ChipHeaderPopupContent"/>).
+        /// </summary>
+        protected virtual IPopupContentPanel CreateContentPanel(ComboBoxPopupHostProfile profile, ComboBoxThemeTokens tokens)
+        {
+            var content = new ComboBoxPopupContent();
+            content.ApplyProfile(profile);
+            content.ApplyThemeTokens(tokens);
+            return content;
+        }
+
+        /// <summary>
+        /// Calculates the ideal popup height. Override for variants with
+        /// non-standard content (pill grid, chip header, etc.).
+        /// </summary>
+        protected virtual int CalculatePopupHeight(ComboBoxPopupModel model, ComboBoxPopupHostProfile profile)
+        {
+            int count = model.FilteredRows?.Count ?? 1;
+            int contentHeight = count * profile.BaseRowHeight;
+            if (model.ShowSearchBox || profile.ForceSearchVisible) contentHeight += profile.SearchBoxHeight;
+            if (model.ShowFooter || profile.ForceFooterVisible) contentHeight += profile.FooterHeight;
+            return Math.Min(contentHeight, profile.MaxHeight);
+        }
+
+        /// <summary>
+        /// Hook for subclasses to customize the popup form itself
+        /// (e.g. remove border for MinimalBorderless).
+        /// </summary>
+        protected virtual void ConfigurePopupForm(BeepPopupForm form, ComboBoxPopupHostProfile profile, ComboBoxThemeTokens tokens)
+        {
+            // Default: no extra configuration
+        }
+
+        private static ComboBoxPopupModel NormalizeModel(ComboBoxPopupModel model, ComboBoxPopupHostProfile profile)
+        {
+            if (model == null)
+            {
+                return new ComboBoxPopupModel
+                {
+                    FilteredRows = System.Array.Empty<ComboBoxPopupRowModel>(),
+                    SearchText = string.Empty
+                };
+            }
+
+            bool showSearch = model.ShowSearchBox || profile.ForceSearchVisible;
+            bool showFooter = model.ShowFooter || profile.ForceFooterVisible;
+
+            if (showSearch == model.ShowSearchBox && showFooter == model.ShowFooter)
+            {
+                return model;
+            }
+
+            return new ComboBoxPopupModel
+            {
+                FilteredRows = model.FilteredRows,
+                KeyboardFocusIndex = model.KeyboardFocusIndex,
+                ShowSearchBox = showSearch,
+                ShowFooter = showFooter,
+                ShowApplyCancel = model.ShowApplyCancel,
+                ShowSelectAll = model.ShowSelectAll,
+                SearchText = model.SearchText,
+                IsLoading = model.IsLoading,
+                IsMultiSelect = model.IsMultiSelect
+            };
+        }
+
+        protected virtual ComboBoxThemeTokens ResolveThemeTokens(Control owner, ComboBoxPopupHostProfile profile, ComboBoxPopupModel model)
+        {
+            if (owner is BeepComboBox combo)
+            {
+                return ComboBoxStateFactory.Build(combo).ThemeTokens ?? ComboBoxThemeTokens.Fallback();
+            }
+
+            return ComboBoxThemeTokens.Fallback();
+        }
+
+        protected static Color Blend(Color a, Color b, float t)
+        {
+            if (t <= 0f) return a;
+            if (t >= 1f) return b;
+
+            int r = (int)(a.R + ((b.R - a.R) * t));
+            int g = (int)(a.G + ((b.G - a.G) * t));
+            int bl = (int)(a.B + ((b.B - a.B) * t));
+            int alpha = (int)(a.A + ((b.A - a.A) * t));
+            return Color.FromArgb(alpha, r, g, bl);
+        }
+
+        protected static Color WithAlpha(Color c, int alpha)
+            => Color.FromArgb(Math.Max(0, Math.Min(255, alpha)), c.R, c.G, c.B);
+
+        protected static ComboBoxThemeTokens DeriveTokens(
+            ComboBoxThemeTokens source,
+            Color? popupBack = null,
+            Color? popupBorder = null,
+            Color? rowHover = null,
+            Color? rowSelected = null,
+            Color? rowFocus = null,
+            Color? groupBack = null,
+            Color? groupFore = null,
+            Color? separator = null,
+            Color? subText = null,
+            Color? hoverBorder = null,
+            Color? focusBorder = null,
+            Color? openBorder = null,
+            Color? selectedFore = null)
+        {
+            if (source == null)
+            {
+                source = ComboBoxThemeTokens.Fallback();
+            }
+
+            return new ComboBoxThemeTokens
+            {
+                BackColor = source.BackColor,
+                ForeColor = source.ForeColor,
+                BorderColor = source.BorderColor,
+                HoverBorderColor = hoverBorder ?? source.HoverBorderColor,
+                FocusBorderColor = focusBorder ?? source.FocusBorderColor,
+                OpenBorderColor = openBorder ?? source.OpenBorderColor,
+                DisabledBackColor = source.DisabledBackColor,
+                DisabledForeColor = source.DisabledForeColor,
+                ErrorBorderColor = source.ErrorBorderColor,
+                WarningBorderColor = source.WarningBorderColor,
+                SuccessBorderColor = source.SuccessBorderColor,
+                ErrorForeColor = source.ErrorForeColor,
+                PlaceholderColor = source.PlaceholderColor,
+                ChevronColor = source.ChevronColor,
+                ClearButtonColor = source.ClearButtonColor,
+                SelectionHighlight = source.SelectionHighlight,
+                ButtonHoverBackground = source.ButtonHoverBackground,
+                SelectedBackColor = source.SelectedBackColor,
+                SelectedForeColor = selectedFore ?? source.SelectedForeColor,
+                SelectedBorderColor = source.SelectedBorderColor,
+                PopupBackColor = popupBack ?? source.PopupBackColor,
+                PopupBorderColor = popupBorder ?? source.PopupBorderColor,
+                PopupRowHoverColor = rowHover ?? source.PopupRowHoverColor,
+                PopupRowSelectedColor = rowSelected ?? source.PopupRowSelectedColor,
+                PopupRowFocusColor = rowFocus ?? source.PopupRowFocusColor,
+                PopupGroupHeaderBack = groupBack ?? source.PopupGroupHeaderBack,
+                PopupGroupHeaderFore = groupFore ?? source.PopupGroupHeaderFore,
+                PopupSeparatorColor = separator ?? source.PopupSeparatorColor,
+                PopupSubTextColor = subText ?? source.PopupSubTextColor,
+                LabelFont = source.LabelFont,
+                SubTextFont = source.SubTextFont,
+            };
+        }
+    }
+}

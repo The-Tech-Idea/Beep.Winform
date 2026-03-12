@@ -37,10 +37,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool wasClearHovered     = _clearButtonHovered;
             _isButtonHovered         = _dropdownButtonRect.Contains(e.Location);
             _clearButtonHovered      = !_clearButtonRect.IsEmpty && _clearButtonRect.Contains(e.Location);
-            
-            if (wasButtonHovered != _isButtonHovered || wasClearHovered != _clearButtonHovered)
+            bool chipCloseHovered    = false;
+            if (ChipCloseRects.Count > 0)
             {
-                Cursor = (_isButtonHovered || _clearButtonHovered) ? Cursors.Hand : Cursors.Default;
+                foreach (var rect in ChipCloseRects.Values)
+                {
+                    if (!rect.IsEmpty && rect.Contains(e.Location))
+                    {
+                        chipCloseHovered = true;
+                        break;
+                    }
+                }
+            }
+            
+            Cursor targetCursor = (_isButtonHovered || _clearButtonHovered || chipCloseHovered) ? Cursors.Hand : Cursors.Default;
+            if (wasButtonHovered != _isButtonHovered || wasClearHovered != _clearButtonHovered || Cursor != targetCursor)
+            {
+                Cursor = targetCursor;
                 Invalidate();
             }
 
@@ -86,6 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Must be tested before text-area so it doesn't accidentally open the editor.
             if (!_clearButtonRect.IsEmpty && _clearButtonRect.Contains(e.Location))
             {
+                HideInlineEditor(false);
                 ClearSelection();
                 return;
             }
@@ -98,9 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (!kvp.Value.IsEmpty && kvp.Value.Contains(e.Location))
                     {
                         var itemToRemove = _selectedItems?.Find(it =>
-                            it.ID.ToString() == kvp.Key || it.Text == kvp.Key);
+                            string.Equals(GetSimpleItemIdentity(it), kvp.Key, StringComparison.OrdinalIgnoreCase));
                         if (itemToRemove != null)
+                        {
+                            HideInlineEditor(false);
                             DeselectItem(itemToRemove);
+                        }
                         return;
                     }
                 }
@@ -122,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //   so the user can type a value.
             if (!_textAreaRect.IsEmpty && _textAreaRect.Contains(e.Location))
             {
-                if (IsEditable)
+                if (IsInlineEditorAllowed())
                 {
                     ShowInlineEditor();
                 }
@@ -135,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // ── Fallback: click anywhere else inside the control ─────────────
             // Treat it like clicking the dropdown button for accessibility.
-            if (!IsEditable)
+            if (!IsInlineEditorAllowed())
             {
                 ToggleDropdown();
             }
@@ -257,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
                     
                 case Keys.Space:
-                    if (!IsEditable && !_isDropdownOpen)
+                    if (!IsInlineEditorAllowed() && !_isDropdownOpen)
                     {
                         ShowDropdown();
                         e.Handled = true;
@@ -266,7 +283,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // ENH-09: Backspace removes the last chip in multi-select mode
                 case Keys.Back:
-                    if (AllowMultipleSelection && _selectedItems.Count > 0 && !IsEditable)
+                case Keys.Delete:
+                    if (AllowMultipleSelection && _selectedItems.Count > 0 && !IsInlineEditorAllowed())
                     {
                         var last = _selectedItems[_selectedItems.Count - 1];
                         var updated = new System.Collections.Generic.List<SimpleItem>(_selectedItems);
@@ -342,19 +360,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnKeyPress(e);
             
-            if (IsEditable && _isEditing)
+            if (IsInlineEditorAllowed() && _isEditing)
             {
-                // Handle text input for editable mode
-                _inputText += e.KeyChar;
-                Text = _inputText;
-                
-                // Trigger auto-complete if enabled
-                if (AutoComplete)
-                {
-                    TriggerAutoComplete();
-                }
-                
-                Invalidate();
+                // The inline BeepTextBox handles its own text input and fires
+                // InlineEditor_TextChanged — nothing extra needed here.
+                return;
+            }
+            else if (!IsInlineEditorAllowed())
+            {
+                HandleSelectOnlyTypeAhead(e.KeyChar);
             }
         }
         
@@ -367,11 +381,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnResize(e);
             InvalidateLayout();
 
-            // If inline editor is visible, reposition it to the updated text area
+            // If inline editor is visible, reposition it — or hide if current type forbids it
             if (_inlineEditor != null && _inlineEditor.Visible)
             {
-                UpdateLayout();
-                _inlineEditor.Bounds = _textAreaRect;
+                if (!IsInlineEditorAllowed())
+                {
+                    HideInlineEditor(false);
+                }
+                else
+                {
+                    UpdateLayout();
+                    _inlineEditor.Bounds = _textAreaRect;
+                }
             }
         }
         

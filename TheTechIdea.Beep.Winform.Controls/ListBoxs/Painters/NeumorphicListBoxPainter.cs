@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 24, 48);
+            return Math.Max(_owner.TextFont.Height + Scale(24), Scale(48));
         }
 
         public override void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
@@ -73,10 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Subtext
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + 2, 
-                    textRect.Width, textRect.Height / 2 - 4);
+                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
+                    textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(140, textColor);
-                using (var subFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1, FontStyle.Regular))
+                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
                 }
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawNeumorphicBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            var neuRect = Rectangle.Inflate(itemRect, -4, -2);
+            var neuRect = Rectangle.Inflate(itemRect, -Scale(4), -Scale(2));
             
             // Calculate shadow colors
             Color lightShadow = LightenColor(_baseColor, 0.15f);
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
                 using (var accentBrush = new SolidBrush(accentColor))
                 {
-                    var accentRect = new Rectangle(neuRect.Left, neuRect.Top + 4, 4, neuRect.Height - 8);
+                    var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
                     using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, 2))
                     {
                         g.FillPath(accentBrush, accentPath);

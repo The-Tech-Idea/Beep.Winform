@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -16,16 +17,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Apply slight deflation for spacing
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
-            int currentX = rect.Left + 12;
+            int currentX = rect.Left + Scale(12);
             
             // Draw checkbox
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - 16) / 2, 16, 16);
+                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - Scale(16)) / 2, Scale(16), Scale(16));
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 
                 // White checkbox on blue background
@@ -37,29 +38,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     DrawCheckbox(g, checkRect, isChecked, isHovered);
                 }
-                currentX += 24;
+                currentX += Scale(24);
             }
             
             // Draw text
-            int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? 40 : 0;
-            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX - avatarSpace - 12, rect.Height);
+            int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? Scale(40) : 0;
+            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX - avatarSpace - Scale(12), rect.Height);
             Color textColor = _owner.IsItemSelected(item) ? Color.White : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
             
-            // Draw avatar circle on right
+            // Draw avatar circle on right using StyledImagePainter
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int avatarSize = 28;
-                Rectangle avatarRect = new Rectangle(rect.Right - avatarSize - 8, 
+                int avatarSize = Scale(28);
+                Rectangle avatarRect = new Rectangle(rect.Right - avatarSize - Scale(8), 
                     rect.Y + (rect.Height - avatarSize) / 2, avatarSize, avatarSize);
                 
-                using (var path = new GraphicsPath())
-                {
-                    path.AddEllipse(avatarRect);
-                    g.SetClip(path);
-                    DrawItemImage(g, avatarRect, item.ImagePath);
-                    g.ResetClip();
-                }
+                float cx = avatarRect.X + avatarRect.Width / 2f;
+                float cy = avatarRect.Y + avatarRect.Height / 2f;
+                float radius = avatarRect.Width / 2f;
+                StyledImagePainter.PaintInCircle(g, cx, cy, radius, item.ImagePath);
             }
         }
         
@@ -110,23 +108,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
         
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
-        }
-        
         public override int GetPreferredItemHeight()
         {
-            return 48;
+            return Scale(48);
         }
     }
 }

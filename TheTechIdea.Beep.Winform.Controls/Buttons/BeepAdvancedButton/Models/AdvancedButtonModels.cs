@@ -52,7 +52,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public AdvancedButtonState State { get; set; }
         public string Text { get; set; }
         public string ImagePath { get; set; } = string.Empty;
-        public ImagePainter ImagePainter { get; set; }
         public string IconLeft { get; set; }
         public string IconRight { get; set; }
         public bool IsToggled { get; set; }
@@ -61,13 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public Font TextFont { get; set; } = SystemFonts.DefaultFont;
         public ButtonIntent Intent { get; set; } = ButtonIntent.Primary;
 
-        [Obsolete("Use TextFont instead.")]
-        public Font Font
-        {
-            get => TextFont;
-            set => TextFont = value;
-        }
-        
         // Shape property - determines how painters render the button
         public ButtonShape Shape { get; set; }
         

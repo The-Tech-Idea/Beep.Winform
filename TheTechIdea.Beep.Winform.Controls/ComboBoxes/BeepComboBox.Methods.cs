@@ -49,7 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ComboBoxType,
                 AllowMultipleSelection,
                 ShowSelectAll,
-                AllowMultipleSelection && UseApplyCancelFooter
+                ShouldShowPopupFooter(),
+                AllowMultipleSelection && UseApplyCancelFooter,
+                ShouldUsePrimaryActionFooter(),
+                ResolvePrimaryActionFooterText()
             );
 
             _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
@@ -115,7 +118,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                             ComboBoxType,
                             true,
                             ShowSelectAll,
-                            AllowMultipleSelection && UseApplyCancelFooter);
+                            ShouldShowPopupFooter(),
+                            AllowMultipleSelection && UseApplyCancelFooter,
+                            ShouldUsePrimaryActionFooter(),
+                            ResolvePrimaryActionFooterText());
                         _popupHost.UpdateModel(model);
                         return; // do not close
                     }
@@ -357,7 +363,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         ComboBoxType,
                         AllowMultipleSelection,
                         ShowSelectAll,
-                        false);
+                        ShouldShowPopupFooter(),
+                        AllowMultipleSelection && UseApplyCancelFooter,
+                        ShouldUsePrimaryActionFooter(),
+                        ResolvePrimaryActionFooterText());
                     _popupHost.UpdateModel(model);
                 }
             }
@@ -648,6 +657,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ComboBoxType.MultiChipSearch => new MultiChipSearchPopupHostForm(),
                 ComboBoxType.DenseList => new DenseListPopupHostForm(),
                 ComboBoxType.MinimalBorderless => new MinimalBorderlessPopupHostForm(),
+                ComboBoxType.CommandMenu => new CommandMenuPopupHostForm(),
+                ComboBoxType.VisualDisplay => new VisualDisplayPopupHostForm(),
                 _ => new OutlineDefaultPopupHostForm()
             };
         }
@@ -672,7 +683,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ComboBoxType,
                 AllowMultipleSelection,
                 ShowSelectAll,
-                AllowMultipleSelection && UseApplyCancelFooter);
+                ShouldShowPopupFooter(),
+                AllowMultipleSelection && UseApplyCancelFooter,
+                ShouldUsePrimaryActionFooter(),
+                ResolvePrimaryActionFooterText());
 
             _popupHost.UpdateModel(model);
         }
@@ -681,6 +695,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Hook point for preview-on-focus behavior; currently only triggers repaint.
             Invalidate();
+        }
+
+        private bool ShouldUsePrimaryActionFooter()
+            => AllowMultipleSelection && UsePrimaryActionFooter && !UseApplyCancelFooter;
+
+        private bool ShouldShowPopupFooter()
+            => AllowMultipleSelection && (UseApplyCancelFooter || ShouldUsePrimaryActionFooter());
+
+        private string ResolvePrimaryActionFooterText()
+        {
+            if (!ShouldUsePrimaryActionFooter())
+            {
+                return string.Empty;
+            }
+
+            string template = string.IsNullOrWhiteSpace(PrimaryActionFooterText)
+                ? "Select {count} item(s)"
+                : PrimaryActionFooterText;
+
+            int selectedCount = SelectedItems?.Count ?? 0;
+            return template.Replace("{count}", selectedCount.ToString());
         }
 
         private void HandleSelectOnlyTypeAhead(char typedChar)

@@ -57,14 +57,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (!string.IsNullOrEmpty(shortcut))
             {
-                kbdFont = new Font(_owner.Font.FontFamily, Math.Max(7f, _owner.Font.Size - 1.5f));
+                kbdFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 1.5f));
                 shortcutWidth = DpiScalingHelper.ScaleValue(
                     (int)g.MeasureString(shortcut, kbdFont).Width + 8, _owner);
             }
 
             int nameWidth = itemRect.Right - textX - shortcutWidth - pad;
             var nameRect  = new Rectangle(textX, itemRect.Top, nameWidth, itemRect.Height);
-            DrawItemText(g, nameRect, item.Text ?? "", nameColor, TextFont ?? _owner.Font);
+            DrawItemText(g, nameRect, item.Text ?? "", nameColor, TextFont ?? _owner.TextFont);
 
             // Shortcut chip
             if (!string.IsNullOrEmpty(shortcut) && kbdFont != null)

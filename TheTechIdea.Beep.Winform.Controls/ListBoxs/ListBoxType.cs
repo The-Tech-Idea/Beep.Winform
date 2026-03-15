@@ -203,7 +203,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         /// Navigation rail — large icon above a compact label, vertical rail layout.
         /// Ideal for mobile-style nav menus inside desktop side panels.
         /// </summary>
-        NavigationRail = 34
+        NavigationRail = 34,
+
+        /// <summary>
+        /// Chat/messaging list — circular avatar, name, message preview, trailing time, unread badge.
+        /// 72 px rows with 52 px avatar. Uses ImagePath, Text, SubText, BadgeText, ShortcutText.
+        /// </summary>
+        ChatList = 35,
+
+        /// <summary>
+        /// Contact/address-book list — circular avatar, name, role/title line, email/phone line.
+        /// 72 px rows with 48 px avatar. Uses ImagePath, Text, SubText, SubText2, Description.
+        /// </summary>
+        ContactList = 36,
+
+        /// <summary>
+        /// Three-line list (Material Design 3 canonical) — optional leading image, title, and up to three sub-text lines.
+        /// 88 px rows with 48 px rounded-square image. Uses ImagePath, Text, SubText, SubText2, SubText3.
+        /// </summary>
+        ThreeLineList = 37,
+
+        /// <summary>
+        /// Notification/activity feed — icon, title + trailing time, multi-line description, optional badge.
+        /// 80 px rows with 40 px icon. Uses ImagePath, Text, Description, SubText (time), BadgeText.
+        /// </summary>
+        NotificationList = 38,
+
+        /// <summary>
+        /// Profile/social card — large centred avatar, name, subtitle, description.
+        /// Variable-height centred layout. Uses ImagePath, Text, SubText, Description.
+        /// </summary>
+        ProfileCard = 39
     }
 
     /// <summary>
@@ -225,5 +255,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         Single = 0,
         MultiSimple = 1,
         MultiExtended = 2
+    }
+
+    /// <summary>
+    /// Search filtering strategy used when SearchText is active.
+    /// </summary>
+    public enum ListSearchMode
+    {
+        Contains = 0,
+        StartsWith = 1,
+        Fuzzy = 2
+    }
+
+    /// <summary>
+    /// Row composition preset for rich list visuals.
+    /// </summary>
+    public enum ListRowPreset
+    {
+        Auto = 0,
+        TitleOnly = 1,
+        TitleSubtext = 2,
+        LeadingIconTrailingMeta = 3,
+        AvatarSecondaryAction = 4,
+        CheckboxDescription = 5
     }
 }

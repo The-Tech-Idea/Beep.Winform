@@ -15,20 +15,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             var rect = itemRect;
-            rect.Inflate(-6, -3);
+            rect.Inflate(-Scale(6), -Scale(3));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
-            int currentX = rect.Left + 12;
+            int currentX = rect.Left + Scale(12);
             
             // Draw raised checkbox
-            Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - 22) / 2, 22, 22);
+            int cbSize = Scale(22);
+            Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - cbSize) / 2, cbSize, cbSize);
             bool isChecked = _owner.SelectedItems?.Contains(item) == true;
             DrawRaisedCheckbox(g, checkRect, isChecked, item);
-            currentX += 30;
+            currentX += Scale(30);
             
             // Draw text
-            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - 12, rect.Height);
+            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - Scale(12), rect.Height);
             Color textColor = GetItemTextColor(item);
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }
@@ -122,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 52;
+            return Scale(52);
         }
     }
 }

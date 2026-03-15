@@ -10,12 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override int GetPreferredItemHeight()
         {
-            return 24; // Smaller height for compact display
+            return Scale(24);
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(6, 2, 6, 2);
+            return new System.Windows.Forms.Padding(Scale(6), Scale(2), Scale(6), Scale(2));
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (isSelected)
             {
-                var selColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.LightBlue;
+                var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
                 
                 // Filled background for selected
                 using (var brush = new SolidBrush(Color.FromArgb(40, selColor.R, selColor.G, selColor.B)))
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Selection border on left side (compact style)
                 using (var brush = new SolidBrush(selColor))
                 {
-                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, 3, itemRect.Height);
+                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, Scale(3), itemRect.Height);
                 }
 
                 // Right subtle border
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     g.FillRectangle(brush, itemRect);
                 }
 
-                using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray, 0.5f))
+                using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 0.5f))
                 {
                     g.DrawRectangle(pen, itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
                 }

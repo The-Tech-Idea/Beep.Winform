@@ -181,8 +181,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             Region = null;
                             oldRegion.Dispose();
                         }
-                        ApplyFormStyle(); // This calls UpdateWindowRegion() internally
-                        InvalidateLayout(); // Mark layout dirty - will recalculate on next paint
+                        InvalidateLayout(); // Clear cached BorderShape BEFORE recalculating regions
+                        ApplyFormStyle(); // This calls UpdateWindowRegion() + UpdateFormRegion() with fresh cache
                         DebouncedInvalidate();
                     }
                     finally
@@ -506,9 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [System.ComponentModel.Description("Enable smart invalidation to improve rendering performance")]
         public bool EnableSmartInvalidation { get; set; } = true;
 
-        private bool _showModernRenderingInDesignMode = false;
-
-       
+      
 
         /// <summary>
         /// Gets or sets the hover animation duration for micro-interactions

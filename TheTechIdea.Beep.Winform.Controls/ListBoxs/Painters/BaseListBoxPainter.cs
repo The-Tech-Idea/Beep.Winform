@@ -96,9 +96,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillEllipse(brush, iconRect);
             }
 
-            // Draw text (use TextFont from theme, fallback to _owner.Font)
+            // Draw text (use TextFont from theme, fallback to _owner.TextFont)
             var textRect = new Rectangle(rect.Left + v8, iconRect.Bottom + v8, rect.Width - v16, v36);
-            var fontToUse = TextFont ?? new Font(_owner.Font.FontFamily, Math.Max(10, _owner.Font.Size - 1f), FontStyle.Regular);
+            var fontToUse = TextFont ?? BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(10, _owner.TextFont.Size - 1f), FontStyle.Regular);
             try
             {
                 using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near })
@@ -115,12 +115,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public virtual int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 12, 36); // Minimum height of 36px
+            if (_owner == null)
+                return ListBoxTokens.ItemHeightComfortable;
+
+            int tokenHeight = _owner.Density switch
+            {
+                ListDensityMode.Dense   => ListBoxTokens.ItemHeightDense,
+                ListDensityMode.Compact => ListBoxTokens.ItemHeightCompact,
+                _                       => ListBoxTokens.ItemHeightComfortable
+            };
+            return DpiScalingHelper.ScaleValue(tokenHeight, _owner);
         }
         
         public virtual Padding GetPreferredPadding()
         {
-            return new Padding(8, 4, 8, 4);
+            if (_owner == null)
+                return new Padding(ListBoxTokens.ItemPaddingH, ListBoxTokens.ItemPaddingV,
+                                   ListBoxTokens.ItemPaddingH, ListBoxTokens.ItemPaddingV);
+
+            int h = DpiScalingHelper.ScaleValue(ListBoxTokens.ItemPaddingH, _owner);
+            int v = DpiScalingHelper.ScaleValue(ListBoxTokens.ItemPaddingV, _owner);
+            return new Padding(h, v, h, v);
         }
         
         public virtual bool SupportsSearch()
@@ -143,22 +158,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected virtual int DrawSearchArea(Graphics g, Rectangle drawingRect, int yOffset)
         {
-            int searchHeight = 32;
-            Rectangle searchRect = new Rectangle(drawingRect.X, yOffset, drawingRect.Width, searchHeight);
-            
-            // Draw search background
-            using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
-            {
-                g.FillRectangle(brush, searchRect);
-            }
-            
-            // Draw search border
-            using (var pen = new Pen(Color.FromArgb(220, 220, 220), 1f))
-            {
-                g.DrawLine(pen, searchRect.Left, searchRect.Bottom, searchRect.Right, searchRect.Bottom);
-            }
-            
-            return yOffset + searchHeight + 4;
+            // The real BeepTextBox control handles search UI rendering.
+            // This method only computes the Y offset to leave space for it.
+            int searchHeight = DpiScalingHelper.ScaleValue(ListBoxTokens.SearchBarHeight, _owner);
+            return yOffset + searchHeight + DpiScalingHelper.ScaleValue(4, _owner);
         }
         
         protected virtual void DrawItems(Graphics g, Rectangle drawingRect, System.Collections.Generic.List<SimpleItem> items, int yOffset)
@@ -177,6 +180,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var item = info.Item;
                 var rowRect = info.RowRect;
                 if (rowRect.IsEmpty) continue;
+
+                if (item is BeepListItem groupHeader && groupHeader.IsGroupHeader)
+                {
+                    bool isCollapsed = _owner.IsGroupCollapsed(groupHeader.Category ?? groupHeader.Text ?? string.Empty);
+                    int count = Math.Max(0, groupHeader.GroupItemCount);
+                    DrawGroupHeader(g, _owner, rowRect, groupHeader.Category ?? groupHeader.Text ?? string.Empty, isCollapsed, count);
+                    continue;
+                }
 
                 // ── Separator row ────────────────────────────────────────────────
                 var richItem = item as BeepListItem;
@@ -200,6 +211,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // ── Left accent bar ──────────────────────────────────────────
                     if (richItem?.ItemAccentColor != Color.Empty && richItem?.ItemAccentColor != null)
                         DrawAccentBar(g, rowRect, richItem.ItemAccentColor);
+
+                    // ── Hierarchy chevron ─────────────────────────────────────────
+                    if (info.HasChildren && !info.ChevronRect.IsEmpty)
+                        DrawChevron(g, info.ChevronRect, item.IsExpanded);
 
                     // Let concrete painter draw using the row rect
                     DrawItem(g, rowRect, item, isHovered, isSelected);
@@ -235,7 +250,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     int v26 = DpiScalingHelper.ScaleValue(26, _owner);
                     int v110 = DpiScalingHelper.ScaleValue(110, _owner);
                     int v20 = DpiScalingHelper.ScaleValue(20, _owner);
-                    var hintFont = TextFont ?? new Font(_owner.Font.FontFamily, Math.Max(8, _owner.Font.Size - 2), FontStyle.Regular);
+                    var hintFont = TextFont ?? BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(8, _owner.TextFont.Size - 2), FontStyle.Regular);
                     try
                     {
                         using (var sf = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Far })
@@ -259,12 +274,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (string.IsNullOrEmpty(text))
                 return;
-            
+
+            if (_owner.HighlightSearchMatches &&
+                _owner.ShowSearch &&
+                !string.IsNullOrWhiteSpace(_owner.SearchText))
+            {
+                Color hlBack = PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.PrimaryColor ?? Color.DodgerBlue, 45);
+                Color hlFore = _theme?.OnPrimaryColor ?? textColor;
+                _owner.DrawHighlightedText(g, text, _owner.SearchText, textRect, font, textColor, hlFore, hlBack);
+                return;
+            }
+
             TextFormatFlags flags = TextFormatFlags.Left |
-                                   TextFormatFlags.VerticalCenter |
-                                   TextFormatFlags.EndEllipsis |
-                                   TextFormatFlags.NoPrefix;
-            
+                                    TextFormatFlags.VerticalCenter |
+                                    TextFormatFlags.EndEllipsis |
+                                    TextFormatFlags.NoPrefix;
             TextRenderer.DrawText(g, text, font, textRect, textColor, flags);
         }
         
@@ -503,17 +527,69 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw image if available
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int imgSz = DpiScalingHelper.ScaleValue(32, _owner);
-                int imgGap = DpiScalingHelper.ScaleValue(36, _owner);
-                var imageRect = new Rectangle(contentRect.X, contentRect.Y, imgSz, imgSz);
+                int imgSz = DpiScalingHelper.ScaleValue(_owner.ImageSize, _owner);
+                int imgGap = imgSz + DpiScalingHelper.ScaleValue(ListBoxTokens.IconTextGap, _owner);
+                int imgY = contentRect.Y + (contentRect.Height - imgSz) / 2;
+                var imageRect = new Rectangle(contentRect.X, imgY, imgSz, imgSz);
                 DrawItemImage(g, imageRect, item.ImagePath);
-                contentRect.X += imgGap; // Adjust content rect after image
+                contentRect.X += imgGap;
                 contentRect.Width -= imgGap;
+            }
+
+            // Draw trailing metadata first (reserving right-side space)
+            int trailingReservation = 0;
+            if (item is BeepListItem rich && !string.IsNullOrWhiteSpace(rich.TrailingMeta))
+            {
+                var metricFont = new Font((TextFont ?? _owner.TextFont).FontFamily, Math.Max(8f, (TextFont ?? _owner.TextFont).Size - 1f), FontStyle.Regular);
+                try
+                {
+                    var metricSize = TextRenderer.MeasureText(rich.TrailingMeta, metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                    int metricW = metricSize.Width + DpiScalingHelper.ScaleValue(8, _owner);
+                    var metricRect = new Rectangle(
+                        contentRect.Right - metricW,
+                        contentRect.Top,
+                        metricW,
+                        contentRect.Height);
+                    TextRenderer.DrawText(
+                        g,
+                        rich.TrailingMeta,
+                        metricFont,
+                        metricRect,
+                        Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray),
+                        TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                    trailingReservation = metricW + DpiScalingHelper.ScaleValue(4, _owner);
+                }
+                finally
+                {
+                    metricFont.Dispose();
+                }
             }
 
             // Draw text (use TextFont from theme)
             Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
-            DrawItemText(g, contentRect, item.Text, textColor, TextFont ?? _owner.Font);
+            var primaryRect = new Rectangle(contentRect.Left, contentRect.Top, Math.Max(0, contentRect.Width - trailingReservation), contentRect.Height);
+
+            bool hasSubText = item is BeepListItem richItem2 &&
+                !string.IsNullOrWhiteSpace(richItem2.SubText) &&
+                (richItem2.RowPreset == ListRowPreset.TitleSubtext ||
+                 richItem2.RowPreset == ListRowPreset.CheckboxDescription ||
+                 richItem2.RowPreset == ListRowPreset.AvatarSecondaryAction ||
+                 richItem2.RowPreset == ListRowPreset.Auto);
+
+            if (hasSubText)
+            {
+                int subGap = DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner);
+                int halfHeight = primaryRect.Height / 2;
+                var titleRect = new Rectangle(primaryRect.Left, primaryRect.Top, primaryRect.Width, halfHeight);
+                DrawItemText(g, titleRect, item.Text, textColor, TextFont ?? _owner.TextFont);
+                int subTop = primaryRect.Top + halfHeight + subGap;
+                var subRect = new Rectangle(primaryRect.Left, subTop, primaryRect.Width, Math.Max(0, primaryRect.Bottom - subTop));
+                DrawSubText(g, subRect, ((BeepListItem)item).SubText, textColor, TextFont ?? _owner.TextFont);
+            }
+            else
+            {
+                DrawItemText(g, primaryRect, item.Text, textColor, TextFont ?? _owner.TextFont);
+            }
         }
 
         // ── Sprint 7: IListBoxPainter new contract members ──────────────────────
@@ -572,7 +648,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         }
 
         // The Font helper below lets DrawGroupHeader compile without a direct field ref
-        private static Font? Font => null;  // placeholders resolved via _owner.Font above
+        private static Font? Font => null;  // placeholders resolved via _owner.TextFont above
 
         // ── Sprint 7: shared decoration helpers ─────────────────────────────────
 
@@ -589,13 +665,56 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         }
 
         /// <summary>
+        /// Draws an expand/collapse chevron (▶ or ▼) for tree items.
+        /// </summary>
+        protected virtual void DrawChevron(Graphics g, Rectangle rect, bool isExpanded)
+        {
+            int cx = rect.X + rect.Width / 2;
+            int cy = rect.Y + rect.Height / 2;
+            int size = Math.Min(rect.Width, rect.Height) / 2;
+
+            var chevronColor = _helper?.GetTextColor() ?? Color.Gray;
+            using var pen = new Pen(Color.FromArgb(ListBoxTokens.SubTextAlpha, chevronColor), 1.5f);
+
+            var oldSmoothing = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            try
+            {
+                Point[] points;
+                if (isExpanded)
+                {
+                    points = new[]
+                    {
+                        new Point(cx - size, cy - size / 2),
+                        new Point(cx, cy + size / 2),
+                        new Point(cx + size, cy - size / 2)
+                    };
+                }
+                else
+                {
+                    points = new[]
+                    {
+                        new Point(cx - size / 2, cy - size),
+                        new Point(cx + size / 2, cy),
+                        new Point(cx - size / 2, cy + size)
+                    };
+                }
+                g.DrawLines(pen, points);
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+            }
+        }
+
+        /// <summary>
         /// Draws a badge/count pill in the top-right corner of the item row.
         /// </summary>
         protected void DrawBadgePill(Graphics g, Rectangle rowRect, string badgeText, Color badgeColor)
         {
             if (string.IsNullOrEmpty(badgeText)) return;
 
-            using var badgeFont = new Font(_owner.Font.FontFamily, Math.Max(7f, _owner.Font.Size - 3f), FontStyle.Bold);
+            using var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 3f), FontStyle.Bold);
             var textSize = TextRenderer.MeasureText(badgeText, badgeFont);
             int r = DpiScalingHelper.ScaleValue(ListBoxTokens.BadgePillRadius, _owner);
             int pad = DpiScalingHelper.ScaleValue(6, _owner);
@@ -626,8 +745,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (string.IsNullOrEmpty(subText) || subRect.IsEmpty) return;
             using var subFont = new Font(
-                (ownerFont ?? _owner.Font).FontFamily,
-                Math.Max(7f, (ownerFont ?? _owner.Font).Size - 1.5f),
+                (ownerFont ?? _owner.TextFont).FontFamily,
+                Math.Max(7f, (ownerFont ?? _owner.TextFont).Size - 1.5f),
                 FontStyle.Regular);
             TextRenderer.DrawText(g, subText, subFont, subRect,
                 Color.FromArgb(ListBoxTokens.SubTextAlpha, color),
@@ -649,7 +768,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else
             {
-                using var lFont = new Font(_owner.Font.FontFamily, Math.Max(7f, _owner.Font.Size - 2f), FontStyle.Regular);
+                using var lFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 2f), FontStyle.Regular);
                 var lSize  = TextRenderer.MeasureText(label, lFont);
                 int lX     = rowRect.Left + (rowRect.Width - lSize.Width) / 2;
                 int gapPad = DpiScalingHelper.ScaleValue(4, _owner);
@@ -689,6 +808,74 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             g.DrawRectangle(pen,
                 rowRect.X + thickness, rowRect.Y + thickness,
                 rowRect.Width - thickness * 2 - 1, rowRect.Height - thickness * 2 - 1);
+        }
+
+        // ── Rich list shared helpers (Phase 7) ──────────────────────────────────
+
+        /// <summary>Shorthand for DPI scaling.</summary>
+        protected int Scale(int value)
+            => DpiScalingHelper.ScaleValue(value, _owner);
+
+        /// <summary>Returns 1–2 letter initials from a name string.</summary>
+        protected static string GetInitials(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "?";
+            var parts = name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 2)
+                return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+            return name.Substring(0, Math.Min(2, name.Length)).ToUpper();
+        }
+
+        /// <summary>
+        /// Draws a circular avatar from ImagePath, or coloured-initials fallback.
+        /// </summary>
+        protected void DrawCircularAvatar(Graphics g, Rectangle avatarRect, SimpleItem item)
+        {
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                float cx = avatarRect.X + avatarRect.Width / 2f;
+                float cy = avatarRect.Y + avatarRect.Height / 2f;
+                float radius = avatarRect.Width / 2f;
+                StyledImagePainter.PaintInCircle(g, cx, cy, radius, item.ImagePath);
+            }
+            else
+            {
+                DrawInitialsFallback(g, avatarRect, item.Text ?? item.DisplayField);
+            }
+
+            using var pen = new Pen(Color.FromArgb(40, 0, 0, 0), 1.5f);
+            g.DrawEllipse(pen, avatarRect);
+        }
+
+        /// <summary>
+        /// Draws a coloured circle with 1–2 letter initials (reusable fallback).
+        /// </summary>
+        protected void DrawInitialsFallback(Graphics g, Rectangle rect, string name)
+        {
+            Color[] palette =
+            {
+                Color.FromArgb(239, 83, 80),
+                Color.FromArgb(171, 71, 188),
+                Color.FromArgb(66, 165, 245),
+                Color.FromArgb(38, 166, 154),
+                Color.FromArgb(102, 187, 106),
+                Color.FromArgb(255, 167, 38),
+                Color.FromArgb(141, 110, 99),
+            };
+            int idx = Math.Abs((name ?? "").GetHashCode()) % palette.Length;
+            using var bg = new SolidBrush(palette[idx]);
+            g.FillEllipse(bg, rect);
+
+            string initials = GetInitials(name);
+            using var font = BeepFontManager.GetFont(
+                _owner.TextFont.Name, Math.Max(10f, rect.Height * 0.35f), FontStyle.Bold);
+            using var brush = new SolidBrush(Color.White);
+            using var sf = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+            g.DrawString(initials, font, brush, rect, sf);
         }
 
         #endregion

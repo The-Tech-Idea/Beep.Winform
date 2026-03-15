@@ -257,7 +257,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 textRect.Width = Math.Max(1, checkRect.Left - textRect.Left - 6);
             }
 
-            if (!string.IsNullOrEmpty(_model.SubText) && _model.RowKind == ComboBoxPopupRowKind.WithSubText)
+            if (!string.IsNullOrWhiteSpace(_model.TrailingValueText))
+            {
+                int reserved = DrawTrailingValueText(g, surfaceRect, _model.TrailingValueText);
+                textRect.Width = Math.Max(1, textRect.Width - reserved);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_model.TrailingText))
+            {
+                int reserved = DrawTrailingText(g, surfaceRect, _model.TrailingText);
+                textRect.Width = Math.Max(1, textRect.Width - reserved);
+            }
+
+            bool renderSubTextBlock = !string.IsNullOrEmpty(_model.SubText) &&
+                                      (_model.RowKind == ComboBoxPopupRowKind.WithSubText ||
+                                       _model.RowKind == ComboBoxPopupRowKind.CheckRow ||
+                                       _model.LayoutPreset == ComboBoxPopupRowLayoutPreset.ChecklistRich);
+
+            if (renderSubTextBlock)
             {
                 var labelFont = _themeTokens.LabelFont ?? Font;
                 var subFont = _themeTokens.SubTextFont ?? Font;
@@ -397,8 +414,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 RowKind = model.RowKind,
                 Text = model.Text,
                 SubText = model.SubText,
+                TrailingText = model.TrailingText,
+                TrailingValueText = model.TrailingValueText,
                 ImagePath = model.ImagePath,
                 GroupName = model.GroupName,
+                LayoutPreset = model.LayoutPreset,
                 IsSelected = !model.IsChecked,
                 IsEnabled = model.IsEnabled,
                 IsKeyboardFocused = model.IsKeyboardFocused,
@@ -418,6 +438,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             return model.RowKind switch
             {
                 ComboBoxPopupRowKind.WithSubText => 44,
+                ComboBoxPopupRowKind.CheckRow when model.LayoutPreset == ComboBoxPopupRowLayoutPreset.ChecklistRich => 44,
                 ComboBoxPopupRowKind.GroupHeader => profile?.GroupHeaderHeight ?? 28,
                 ComboBoxPopupRowKind.Separator => 14,
                 ComboBoxPopupRowKind.EmptyState => 36,
@@ -425,6 +446,66 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 ComboBoxPopupRowKind.NoResults => 36,
                 _ => profile?.BaseRowHeight ?? 32
             };
+        }
+
+        private int DrawTrailingText(Graphics g, Rectangle surfaceRect, string trailing)
+        {
+            if (string.IsNullOrWhiteSpace(trailing))
+            {
+                return 0;
+            }
+
+            var shortcutFont = _themeTokens.SubTextFont ?? Font;
+            var shortcutColor = _themeTokens.PopupSubTextColor;
+            int marginRight = 8;
+            int horizontalPadding = 8;
+            int measuredWidth = TextRenderer.MeasureText(g, trailing, shortcutFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Width;
+            int boxWidth = measuredWidth + (horizontalPadding * 2);
+            int boxHeight = Math.Max(18, shortcutFont.Height + 4);
+            var boxRect = new Rectangle(
+                surfaceRect.Right - boxWidth - marginRight,
+                surfaceRect.Top + Math.Max(1, (surfaceRect.Height - boxHeight) / 2),
+                boxWidth,
+                boxHeight);
+
+            TextRenderer.DrawText(
+                g,
+                trailing,
+                shortcutFont,
+                boxRect,
+                shortcutColor,
+                TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+
+            return boxWidth + marginRight + 4;
+        }
+
+        private int DrawTrailingValueText(Graphics g, Rectangle surfaceRect, string trailingValue)
+        {
+            if (string.IsNullOrWhiteSpace(trailingValue))
+            {
+                return 0;
+            }
+
+            var metricFont = _themeTokens.LabelFont ?? Font;
+            var metricColor = _themeTokens.PopupSubTextColor;
+            int marginRight = 8;
+            int measuredWidth = TextRenderer.MeasureText(g, trailingValue, metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Width;
+            int width = measuredWidth + 8;
+            var rect = new Rectangle(
+                surfaceRect.Right - width - marginRight,
+                surfaceRect.Top,
+                width,
+                surfaceRect.Height);
+
+            TextRenderer.DrawText(
+                g,
+                trailingValue,
+                metricFont,
+                rect,
+                metricColor,
+                TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+
+            return width + marginRight + 4;
         }
     }
 }

@@ -656,6 +656,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(false)]
         public bool UseApplyCancelFooter { get; set; } = false;
 
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true in multi-select mode, shows a single configurable CTA footer button instead of Apply/Cancel.")]
+        [DefaultValue(false)]
+        public bool UsePrimaryActionFooter { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Primary CTA footer text. Supports {count} placeholder in multi-select mode.")]
+        [DefaultValue("Select {count} item(s)")]
+        public string PrimaryActionFooterText { get; set; } = "Select {count} item(s)";
+
         // ── ENH-16 ──────────────────────────────────────────────────────────
         [Browsable(true)]
         [Category("Appearance")]

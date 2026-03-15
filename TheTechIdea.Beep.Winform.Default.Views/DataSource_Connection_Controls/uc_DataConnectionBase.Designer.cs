@@ -3549,16 +3549,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton.BorderColor = Color.FromArgb(33, 150, 243);
             CancelbeepButton.BorderDashStyle = DashStyle.Solid;
             CancelbeepButton.BorderPainter = BeepControlStyle.None;
-            CancelbeepButton.BorderRadius = 8;
-            CancelbeepButton.BorderSize = 1;
-            CancelbeepButton.BorderStyle = BorderStyle.FixedSingle;
-            CancelbeepButton.BorderThickness = 1;
-            CancelbeepButton.BottomoffsetForDrawingRect = 0;
-            CancelbeepButton.BoundProperty = null;
-            CancelbeepButton.ButtonErrorText = "";
-            CancelbeepButton.ButtonHasError = false;
-            CancelbeepButton.ButtonHelperText = "";
-            CancelbeepButton.ButtonLabel = "";
+       
             CancelbeepButton.ButtonMinSize = new Size(32, 32);
             CancelbeepButton.ButtonType = ButtonType.Normal;
             CancelbeepButton.CanBeFocused = true;
@@ -3738,17 +3729,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             SavebeepButton.BorderColor = Color.FromArgb(33, 150, 243);
             SavebeepButton.BorderDashStyle = DashStyle.Solid;
             SavebeepButton.BorderPainter = BeepControlStyle.None;
-            SavebeepButton.BorderRadius = 8;
-            SavebeepButton.BorderSize = 1;
-            SavebeepButton.BorderStyle = BorderStyle.FixedSingle;
-            SavebeepButton.BorderThickness = 1;
-            SavebeepButton.BottomoffsetForDrawingRect = 0;
-            SavebeepButton.BoundProperty = null;
-            SavebeepButton.ButtonErrorText = "";
-            SavebeepButton.ButtonHasError = false;
-            SavebeepButton.ButtonHelperText = "";
-            SavebeepButton.ButtonLabel = "";
-            SavebeepButton.ButtonMinSize = new Size(32, 32);
+        
             SavebeepButton.ButtonType = ButtonType.Normal;
             SavebeepButton.CanBeFocused = true;
             SavebeepButton.CanBeHovered = true;

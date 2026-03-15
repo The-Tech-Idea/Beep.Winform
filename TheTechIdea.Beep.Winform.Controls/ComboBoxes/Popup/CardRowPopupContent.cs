@@ -24,11 +24,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private ComboBoxPopupModel _model;
         private readonly BeepTextBox _searchBox;
+        private readonly Panel _scrollContainer;
         private readonly Panel _scrollPanel;
+        private readonly BeepScrollBar _vScrollBar;
         private readonly List<CardRow> _cards = new List<CardRow>();
         private ComboBoxPopupHostProfile _profile = ComboBoxPopupHostProfile.FilledSoft();
         private ComboBoxThemeTokens _themeTokens = ComboBoxThemeTokens.Fallback();
         private int _keyboardFocusIndex = -1;
+        private int _scrollOffset = 0;
+        private int _totalContentHeight = 0;
 
         public CardRowPopupContent()
         {
@@ -46,15 +50,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 SearchTextChanged?.Invoke(this, new ComboBoxSearchChangedEventArgs(_searchBox.Text));
             _searchBox.KeyDown += OnSearchKeyDown;
 
-            _scrollPanel = new Panel
+            _scrollContainer = new Panel
             {
                 Dock = DockStyle.Fill,
-                AutoScroll = true,
                 Padding = new Padding(6, 6, 6, 6)
             };
 
+            _scrollPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = false
+            };
+            _scrollPanel.MouseWheel += OnListPanelMouseWheel;
+
+            _vScrollBar = new BeepScrollBar
+            {
+                Dock = DockStyle.Right,
+                Width = 14,
+                ScrollOrientation = Orientation.Vertical,
+                Minimum = 0,
+                Value = 0,
+                Visible = false
+            };
+            _vScrollBar.ValueChanged += OnScrollBarValueChanged;
+
+            _scrollContainer.Controls.Add(_scrollPanel);
+            _scrollContainer.Controls.Add(_vScrollBar);
+
             Controls.Add(_searchBox);
-            Controls.Add(_scrollPanel);
+            Controls.Add(_scrollContainer);
         }
 
         public void ApplyProfile(ComboBoxPopupHostProfile profile)
@@ -68,9 +92,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         {
             _themeTokens = tokens ?? ComboBoxThemeTokens.Fallback();
             BackColor = _themeTokens.PopupBackColor;
+            _scrollContainer.BackColor = _themeTokens.PopupBackColor;
             _scrollPanel.BackColor = _themeTokens.PopupBackColor;
             _searchBox.BackColor = _themeTokens.PopupBackColor;
             _searchBox.ForeColor = _themeTokens.ForeColor;
+            if (!string.IsNullOrEmpty(_themeTokens.ThemeName))
+                _vScrollBar.Theme = _themeTokens.ThemeName;
 
             foreach (var card in _cards) card.ApplyThemeTokens(_themeTokens);
         }
@@ -83,22 +110,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _scrollPanel.SuspendLayout();
             _scrollPanel.Controls.Clear();
             _cards.Clear();
+            _scrollOffset = 0;
 
             if (model.FilteredRows != null)
             {
-                int cardWidth = Math.Max(80, _scrollPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 16);
-                // Add in reverse order for proper Dock=Top stacking
-                for (int i = model.FilteredRows.Count - 1; i >= 0; i--)
+                int cardWidth = Math.Max(80, _scrollPanel.ClientSize.Width - 8);
+                int yPos = 0;
+
+                foreach (var rowModel in model.FilteredRows)
                 {
-                    var rowModel = model.FilteredRows[i];
-                    var card = new CardRow(rowModel, _themeTokens, _profile) { Width = cardWidth, Dock = DockStyle.Top };
+                    var card = new CardRow(rowModel, _themeTokens, _profile)
+                    {
+                        Width = cardWidth,
+                        Left = 0,
+                        Top = yPos
+                    };
                     card.CardClicked += OnCardClicked;
                     _scrollPanel.Controls.Add(card);
-                    _cards.Insert(0, card);
+                    _cards.Add(card);
+                    yPos += card.Height + card.Margin.Vertical;
                 }
+                _totalContentHeight = yPos;
+            }
+            else
+            {
+                _totalContentHeight = 0;
             }
 
             _scrollPanel.ResumeLayout(true);
+            UpdateScrollBar();
             SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
         }
 
@@ -143,8 +183,58 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            int w = Math.Max(80, _scrollPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 16);
+            int w = Math.Max(80, _scrollPanel.ClientSize.Width - 8);
             foreach (var c in _cards) c.Width = w;
+            UpdateScrollBar();
+            ApplyScrollOffset();
+        }
+
+        private void UpdateScrollBar()
+        {
+            int viewportHeight = _scrollPanel.ClientSize.Height;
+            if (_totalContentHeight > viewportHeight)
+            {
+                _vScrollBar.Maximum = _totalContentHeight - viewportHeight;
+                _vScrollBar.LargeChange = viewportHeight;
+                _vScrollBar.SmallChange = Math.Max(1, _profile.BaseRowHeight);
+                _vScrollBar.Value = Math.Min(_scrollOffset, _vScrollBar.Maximum);
+                _vScrollBar.Visible = true;
+            }
+            else
+            {
+                _vScrollBar.Visible = false;
+                _scrollOffset = 0;
+            }
+        }
+
+        private void OnScrollBarValueChanged(object sender, EventArgs e)
+        {
+            _scrollOffset = _vScrollBar.Value;
+            ApplyScrollOffset();
+        }
+
+        private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (!_vScrollBar.Visible) return;
+            int delta = -e.Delta / 4;
+            int newVal = Math.Max(0, Math.Min(_vScrollBar.Maximum, _scrollOffset + delta));
+            if (newVal != _scrollOffset)
+            {
+                _scrollOffset = newVal;
+                _vScrollBar.Value = newVal;
+                ApplyScrollOffset();
+            }
+            ((HandledMouseEventArgs)e).Handled = true;
+        }
+
+        private void ApplyScrollOffset()
+        {
+            int yPos = -_scrollOffset;
+            foreach (var card in _cards)
+            {
+                card.Top = yPos;
+                yPos += card.Height + card.Margin.Vertical;
+            }
         }
 
         private void OnSearchKeyDown(object sender, KeyEventArgs e) => HandleNav(e);
@@ -186,7 +276,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void EnsureVisible(int index)
         {
             if (index < 0 || index >= _cards.Count) return;
-            try { _scrollPanel.ScrollControlIntoView(_cards[index]); } catch { }
+            if (!_vScrollBar.Visible) return;
+
+            var card = _cards[index];
+            int cardTop = 0;
+            for (int i = 0; i < index; i++)
+                cardTop += _cards[i].Height + _cards[i].Margin.Vertical;
+            int cardBottom = cardTop + card.Height;
+            int viewportHeight = _scrollPanel.ClientSize.Height;
+
+            if (cardTop < _scrollOffset)
+            {
+                _scrollOffset = cardTop;
+            }
+            else if (cardBottom > _scrollOffset + viewportHeight)
+            {
+                _scrollOffset = cardBottom - viewportHeight;
+            }
+            else
+            {
+                return;
+            }
+
+            _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, _vScrollBar.Maximum));
+            _vScrollBar.Value = _scrollOffset;
+            ApplyScrollOffset();
         }
 
         // ──────────────────────────────────────────────────────────────────

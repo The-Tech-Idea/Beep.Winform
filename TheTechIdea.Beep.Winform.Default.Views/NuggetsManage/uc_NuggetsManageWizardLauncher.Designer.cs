@@ -3577,17 +3577,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             btnClearLog.BorderPainter = BeepControlStyle.None;
             graphicsPath19.FillMode = FillMode.Alternate;
             btnClearLog.BorderPath = graphicsPath19;
-            btnClearLog.BorderRadius = 8;
-            btnClearLog.BorderRect = new Rectangle(0, 0, 110, 30);
-            btnClearLog.BorderSize = 1;
-            btnClearLog.BorderStyle = BorderStyle.FixedSingle;
-            btnClearLog.BorderThickness = 1;
-            btnClearLog.BottomoffsetForDrawingRect = 0;
-            btnClearLog.BoundProperty = null;
-            btnClearLog.ButtonErrorText = "";
-            btnClearLog.ButtonHasError = false;
-            btnClearLog.ButtonHelperText = "";
-            btnClearLog.ButtonLabel = "";
+          
             btnClearLog.ButtonMinSize = new Size(32, 32);
             btnClearLog.ButtonType = ButtonType.Normal;
             btnClearLog.CanBeFocused = true;
@@ -3774,17 +3764,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             btnLaunchWizard.BorderPainter = BeepControlStyle.None;
             graphicsPath22.FillMode = FillMode.Alternate;
             btnLaunchWizard.BorderPath = graphicsPath22;
-            btnLaunchWizard.BorderRadius = 8;
-            btnLaunchWizard.BorderRect = new Rectangle(0, 0, 220, 30);
-            btnLaunchWizard.BorderSize = 1;
-            btnLaunchWizard.BorderStyle = BorderStyle.FixedSingle;
-            btnLaunchWizard.BorderThickness = 1;
-            btnLaunchWizard.BottomoffsetForDrawingRect = 0;
-            btnLaunchWizard.BoundProperty = null;
-            btnLaunchWizard.ButtonErrorText = "";
-            btnLaunchWizard.ButtonHasError = false;
-            btnLaunchWizard.ButtonHelperText = "";
-            btnLaunchWizard.ButtonLabel = "";
+        
             btnLaunchWizard.ButtonMinSize = new Size(32, 32);
             btnLaunchWizard.ButtonType = ButtonType.Normal;
             btnLaunchWizard.CanBeFocused = true;

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers;
@@ -11,6 +12,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls;
     /// <summary>
@@ -55,6 +58,28 @@ namespace TheTechIdea.Beep.Winform.Controls;
             return _menuItemHeight;
         }
     }
+
+    internal int GetItemHeightForLayout(SimpleItem item)
+    {
+        if (_listBoxPainter == null)
+        {
+            return Math.Max(1, _menuItemHeight);
+        }
+
+        if (AutoItemHeight)
+        {
+            try
+            {
+                return Math.Max(1, _listBoxPainter.GetItemHeight(this, item));
+            }
+            catch
+            {
+                // fallback to preferred item height
+            }
+        }
+
+        return Math.Max(1, _listBoxPainter.GetPreferredItemHeight());
+    }
         
         #endregion
 
@@ -85,6 +110,9 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private bool _showSearch = false;
         private string _searchText = string.Empty;
         private Rectangle _searchAreaRect;
+        private BeepTextBox _searchTextBox;
+        private bool _isUpdatingSearchText = false;
+        private readonly HashSet<string> _collapsedGroupKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         
         // Visual options
         private bool _showCheckBox = false;
@@ -154,6 +182,10 @@ namespace TheTechIdea.Beep.Winform.Controls;
         public void AddToSelection(SimpleItem item)
         {
             if (item == null) return;
+            if (item is BeepListItem rich && (rich.IsGroupHeader || rich.IsSeparator || rich.IsDisabled))
+            {
+                return;
+            }
             if (SelectionMode == SelectionModeEnum.Single || (!MultiSelect && SelectionMode == SelectionModeEnum.Single)) { SelectedItem = item; return; }
             if (!_selectedItems.Contains(item)) _selectedItems.Add(item);
             // update anchor
@@ -334,6 +366,10 @@ namespace TheTechIdea.Beep.Winform.Controls;
             // Initialize scrolling
             InitializeScrollbars();
 
+            // Initialize search text box if ShowSearch was set before constructor
+            if (_showSearch)
+                InitializeSearchTextBox();
+
             // Set default selection visuals from theme when available
             try
             {
@@ -392,6 +428,51 @@ namespace TheTechIdea.Beep.Winform.Controls;
 
             Invalidate();
         }
+
+        #region Search TextBox Management
+
+        private void InitializeSearchTextBox()
+        {
+            if (_searchTextBox != null) return;
+
+            _searchTextBox = new BeepTextBox
+            {
+                IsChild = true,
+                TabStop = false,
+                PlaceholderText = SearchPlaceholderText ?? "Search...",
+                BorderRadius = ListBoxTokens.SearchCornerRadius,
+                Visible = _showSearch
+            };
+
+            _searchTextBox.TextChanged += SearchTextBox_TextChanged;
+            Controls.Add(_searchTextBox);
+            _searchTextBox.BringToFront();
+        }
+
+        private void DisposeSearchTextBox()
+        {
+            if (_searchTextBox == null) return;
+            _searchTextBox.TextChanged -= SearchTextBox_TextChanged;
+            Controls.Remove(_searchTextBox);
+            _searchTextBox.Dispose();
+            _searchTextBox = null;
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingSearchText) return;
+            _isUpdatingSearchText = true;
+            try
+            {
+                SearchText = _searchTextBox.Text;
+            }
+            finally
+            {
+                _isUpdatingSearchText = false;
+            }
+        }
+
+        #endregion
 
         #region Scrollbar Management
         private void InitializeScrollbars()
@@ -472,8 +553,9 @@ namespace TheTechIdea.Beep.Winform.Controls;
 
             if (needsV)
             {
-                int vHeight = inner.Height - (needsH ? hBarH : 0);
-                var vBounds = new Rectangle(inner.Right - vBarW, inner.Top, vBarW, Math.Max(0, vHeight));
+                int searchH = (_showSearch && _searchTextBox != null) ? _searchAreaRect.Height : 0;
+                int vHeight = inner.Height - searchH - (needsH ? hBarH : 0);
+                var vBounds = new Rectangle(inner.Right - vBarW, inner.Top + searchH, vBarW, Math.Max(0, vHeight));
                 if (_verticalScrollBar.Bounds != vBounds) _verticalScrollBar.Bounds = vBounds;
                 _verticalScrollBar.Minimum = 0;
                 int newVMax = Math.Max(0, _virtualSize.Height);
@@ -500,7 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 _horizontalScrollBar.Minimum = 0;
                 int newHMax = Math.Max(0, _virtualSize.Width);
                 int newHLarge = Math.Max(1, clientArea.Width);
-                int newHSmall = Math.Max(1, 1);
+                int newHSmall = Math.Max(1, DpiScalingHelper.ScaleValue(20, this));
                 if (_horizontalScrollBar.Maximum != newHMax) _horizontalScrollBar.Maximum = newHMax;
                 if (_horizontalScrollBar.LargeChange != newHLarge) _horizontalScrollBar.LargeChange = newHLarge;
                 if (_horizontalScrollBar.SmallChange != newHSmall) _horizontalScrollBar.SmallChange = newHSmall;
@@ -518,6 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
         /// Current Y/vertical offset used for scrolling
         /// </summary>
         internal int YOffset => _yOffset;
+        internal IReadOnlyCollection<string> CollapsedGroupKeys => _collapsedGroupKeys;
 
         /// <summary>
         /// Update virtual size for scrollbar calculations
@@ -534,7 +617,12 @@ namespace TheTechIdea.Beep.Winform.Controls;
             if (inner.Width <= 0 || inner.Height <= 0) return Rectangle.Empty;
             int vBarW = (_verticalScrollBar?.Visible == true) ? _verticalScrollBar.Width : 0;
             int hBarH = (_horizontalScrollBar?.Visible == true) ? _horizontalScrollBar.Height : 0;
-            return new Rectangle(inner.Left, inner.Top, Math.Max(0, inner.Width - vBarW), Math.Max(0, inner.Height - hBarH));
+            int searchH = (_showSearch && _searchTextBox != null) ? _searchAreaRect.Height : 0;
+            return new Rectangle(
+                inner.Left,
+                inner.Top + searchH,
+                Math.Max(0, inner.Width - vBarW),
+                Math.Max(0, inner.Height - searchH - hBarH));
         }
 
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
@@ -568,6 +656,16 @@ namespace TheTechIdea.Beep.Winform.Controls;
         {
             _layoutHelper?.Clear();
             _needsLayoutUpdate = true;
+            // Clamp scroll offset to prevent overshoot after item removal
+            if (_virtualSize.Height > 0)
+            {
+                int maxY = Math.Max(0, _virtualSize.Height - GetClientArea().Height);
+                if (_yOffset > maxY) _yOffset = maxY;
+            }
+            else
+            {
+                _yOffset = 0;
+            }
             RequestDelayedInvalidate();
         }
         
@@ -606,17 +704,33 @@ namespace TheTechIdea.Beep.Winform.Controls;
             // Search area
             if (_showSearch && _listBoxPainter != null && _listBoxPainter.SupportsSearch())
             {
-                int searchHeight = DpiScalingHelper.ScaleValue(36, this);
+                int searchHeight = DpiScalingHelper.ScaleValue(ListBoxTokens.SearchBarHeight, this);
                 _searchAreaRect = new Rectangle(
                     clientRect.Left,
                     currentY,
                     clientRect.Width,
                     searchHeight);
                 currentY += _searchAreaRect.Height;
+
+                // Position the search text box inside the search area
+                if (_searchTextBox != null)
+                {
+                    int inset = DpiScalingHelper.ScaleValue(4, this);
+                    _searchTextBox.Bounds = new Rectangle(
+                        _searchAreaRect.Left + inset,
+                        _searchAreaRect.Top + inset,
+                        _searchAreaRect.Width - inset * 2,
+                        _searchAreaRect.Height - inset * 2
+                    );
+                    _searchTextBox.Visible = true;
+                    _searchTextBox.BringToFront();
+                }
             }
             else
             {
                 _searchAreaRect = Rectangle.Empty;
+                if (_searchTextBox != null)
+                    _searchTextBox.Visible = false;
             }
             
             // Content area
@@ -660,6 +774,8 @@ namespace TheTechIdea.Beep.Winform.Controls;
                 }
 
                 UnsubscribeHighContrastEvents();
+
+                DisposeSearchTextBox();
             }
             
             base.Dispose(disposing);

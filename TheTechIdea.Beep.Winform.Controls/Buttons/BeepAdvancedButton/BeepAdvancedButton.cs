@@ -33,7 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
         private AdvancedButtonSize _buttonSize = AdvancedButtonSize.Medium;
         private ButtonShape _buttonShape = ButtonShape.RoundedRectangle;
         private IAdvancedButtonPainter? _currentPainter;
-        private ImagePainter _imagePainter;
         
         // State tracking - use BaseControl.IsPressed and IsHovered
         private bool _isToggled = false;
@@ -108,13 +107,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
         #region "Constructor"
 
         public BeepAdvancedButton()
-        {
-            // BaseControl already sets up double buffering and control styles
-            // Just add button-specific initialization
-            
-            // Initialize painter
-            _imagePainter = new ImagePainter();
-            InitializePainter();
+         {
+             // BaseControl already sets up double buffering and control styles
+             // Just add button-specific initialization
+             
+             InitializePainter();
             
             // Set default size
             Size = _mediumSize;
@@ -329,23 +326,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Path to the image/icon for the button")]
-        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
-        public string ImagePath
-        {
-            get => LeadingImagePath; // Use BaseControl property
-            set
-            {
-                if (LeadingImagePath != value)
-                {
-                    LeadingImagePath = value; // Use BaseControl property
-                    _imagePainter.ImagePath = value;
-                    Invalidate();
-                }
-            }
-        }
+         [Browsable(true)]
+         [Category("Appearance")]
+         [Description("Path to the image/icon for the button")]
+         [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
+         public string ImagePath
+         {
+             get => LeadingImagePath; // Use BaseControl property
+             set
+             {
+                 if (LeadingImagePath != value)
+                 {
+                     LeadingImagePath = value; // Use BaseControl property
+                     Invalidate();
+                 }
+             }
+         }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -621,102 +617,101 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 var textFont = ResolveTextFont(theme);
                 var intentTokens = ResolveIntentColors(theme);
                 
-                var context = new AdvancedButtonPaintContext
-                {
-                    Graphics = g,
-                    OwnerControl = this,
-                    Bounds = ClientRectangle,
-                    State = GetCurrentState(),
-                    Text = Text,
-                    ImagePath = LeadingImagePath ?? string.Empty,
-                    ImagePainter = _imagePainter,
-                    IconLeft = _iconLeft,
-                    IconRight = _iconRight,
-                    IsToggled = _isToggled,
-                    IsLoading = _isLoading,
-                    Theme = theme!,
-                    Shape = _buttonShape,
-                    NewsBannerVariant = _newsBannerVariant,
-                    ContactVariant = _contactVariant,
-                    ChevronVariant = _chevronVariant,
-                    FlatWebVariant = _flatWebVariant,
-                    LowerThirdVariant = _lowerThirdVariant,
-                    StickerLabelVariant = _stickerLabelVariant,
-                    
-                    // Split button area states (from BaseControl input helpers)
-                    LeftAreaHovered = _leftAreaHovered,
-                    RightAreaHovered = _rightAreaHovered,
-                    LeftAreaPressed = _leftAreaPressed,
-                    RightAreaPressed = _rightAreaPressed,
-                    
-                    // Border properties from BaseControl
-                    BorderRadius = BorderRadius,
-                    BorderWidth = BorderThickness,
-                    BorderColor = BorderColor,
-                    
-                    // Core colors - fallback to theme if not explicitly set
-                    SolidBackground = _solidBackground != Color.Empty ? _solidBackground : intentTokens.Background,
-                    SolidForeground = _solidForeground != Color.Empty ? _solidForeground : intentTokens.Foreground,
-                    HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
-                    HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
-                    PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
-                    DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? Color.LightGray,
-                    DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? Color.Gray,
-                    
-                    // Additional colors from theme
-                    BackgroundColor = intentTokens.Background,
-                    TextColor = intentTokens.Foreground,
-                    IconColor = intentTokens.Foreground,
-                    SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
-                    FocusRingColor = theme?.PrimaryColor ?? SystemColors.Highlight,
-                    
-                    // Glow and effects
-                    GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                    RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                    LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                    
-                    // Toggle colors
-                    ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
-                    ToggleOffColor = theme?.ButtonBackColor ?? Color.Gray,
-                    ToggleBorderColor = theme?.ButtonBorderColor ?? Color.DarkGray,
-                    
-                    // Badge/Chip colors
-                    BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.Red,
-                    BadgeText = string.Empty,
-                    
-                    // Contact button icon background
-                    IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                    
-                    // Shadow properties from BaseControl
-                    ShowShadow = ShowShadow,
-                    ShadowBlur = ShadowOffset,
-                    ShadowColor = ShadowColor,
-                    
-                    // Animation/interaction state
-                    RippleActive = _rippleActive,
-                    RippleCenter = _rippleCenter,
-                    RippleProgress = _rippleProgress,
-                    HoverProgress = _hoverProgress,
-                    PressProgress = _pressProgress,
-                    LoadingRotationAngle = _loadingRotationAngle,
-                    ReduceMotion = _reduceMotion,
-                    
-                    // State flags
-                    IsHovered = IsHovered,
-                    IsPressed = IsPressed,
-                    ShowBorder = BorderThickness > 0,
-                    BorderThickness = BorderThickness,
-                    ShowFocusRing = _showFocusRing,
-                    FocusRingThickness = _focusRingThickness,
-                    FocusRingOffset = _focusRingOffset,
-                    FocusRingRadiusDelta = _focusRingRadiusDelta,
-                    
-                    // Typography
-                    TextFont = textFont,
-                    Intent = _intent,
-                    ButtonSize = _buttonSize,
-                    ButtonShape = _buttonShape
-                };
+                 var context = new AdvancedButtonPaintContext
+                 {
+                     Graphics = g,
+                     OwnerControl = this,
+                     Bounds = ClientRectangle,
+                     State = GetCurrentState(),
+                     Text = Text,
+                     ImagePath = LeadingImagePath ?? string.Empty,
+                     IconLeft = _iconLeft,
+                     IconRight = _iconRight,
+                     IsToggled = _isToggled,
+                     IsLoading = _isLoading,
+                     Theme = theme!,
+                     Shape = _buttonShape,
+                     NewsBannerVariant = _newsBannerVariant,
+                     ContactVariant = _contactVariant,
+                     ChevronVariant = _chevronVariant,
+                     FlatWebVariant = _flatWebVariant,
+                     LowerThirdVariant = _lowerThirdVariant,
+                     StickerLabelVariant = _stickerLabelVariant,
+                     
+                     // Split button area states (from BaseControl input helpers)
+                     LeftAreaHovered = _leftAreaHovered,
+                     RightAreaHovered = _rightAreaHovered,
+                     LeftAreaPressed = _leftAreaPressed,
+                     RightAreaPressed = _rightAreaPressed,
+                     
+                     // Border properties from BaseControl
+                     BorderRadius = BorderRadius,
+                     BorderWidth = BorderThickness,
+                     BorderColor = BorderColor,
+                     
+                     // Core colors - fallback to theme if not explicitly set
+                     SolidBackground = _solidBackground != Color.Empty ? _solidBackground : intentTokens.Background,
+                     SolidForeground = _solidForeground != Color.Empty ? _solidForeground : intentTokens.Foreground,
+                     HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
+                     HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
+                     PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
+                     DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? Color.LightGray,
+                     DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? Color.Gray,
+                     
+                     // Additional colors from theme
+                     BackgroundColor = intentTokens.Background,
+                     TextColor = intentTokens.Foreground,
+                     IconColor = intentTokens.Foreground,
+                     SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
+                     FocusRingColor = theme?.PrimaryColor ?? SystemColors.Highlight,
+                     
+                     // Glow and effects
+                     GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                     RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                     LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                     
+                     // Toggle colors
+                     ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
+                     ToggleOffColor = theme?.ButtonBackColor ?? Color.Gray,
+                     ToggleBorderColor = theme?.ButtonBorderColor ?? Color.DarkGray,
+                     
+                     // Badge/Chip colors
+                     BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.Red,
+                     BadgeText = string.Empty,
+                     
+                     // Contact button icon background
+                     IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                     
+                     // Shadow properties from BaseControl
+                     ShowShadow = ShowShadow,
+                     ShadowBlur = ShadowOffset,
+                     ShadowColor = ShadowColor,
+                     
+                     // Animation/interaction state
+                     RippleActive = _rippleActive,
+                     RippleCenter = _rippleCenter,
+                     RippleProgress = _rippleProgress,
+                     HoverProgress = _hoverProgress,
+                     PressProgress = _pressProgress,
+                     LoadingRotationAngle = _loadingRotationAngle,
+                     ReduceMotion = _reduceMotion,
+                     
+                     // State flags
+                     IsHovered = IsHovered,
+                     IsPressed = IsPressed,
+                     ShowBorder = BorderThickness > 0,
+                     BorderThickness = BorderThickness,
+                     ShowFocusRing = _showFocusRing,
+                     FocusRingThickness = _focusRingThickness,
+                     FocusRingOffset = _focusRingOffset,
+                     FocusRingRadiusDelta = _focusRingRadiusDelta,
+                     
+                     // Typography
+                     TextFont = textFont,
+                     Intent = _intent,
+                     ButtonSize = _buttonSize,
+                     ButtonShape = _buttonShape
+                 };
 
                 _currentPainter.Paint(context);
                 DrawFocusRing(g, context);
@@ -959,17 +954,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             base.OnClick(e);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _animationTimer.Stop();
-                _animationTimer.Tick -= OnAnimationTick;
-                _animationTimer.Dispose();
-                _imagePainter?.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+         protected override void Dispose(bool disposing)
+         {
+             if (disposing)
+             {
+                 _animationTimer.Stop();
+                 _animationTimer.Tick -= OnAnimationTick;
+                 _animationTimer.Dispose();
+             }
+             base.Dispose(disposing);
+         }
 
         #endregion
 
@@ -1249,13 +1243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 // In case of any issues setting colors, use defaults
             }
             
-            // Apply theme to image painter for icons
-            if (_imagePainter != null && !string.IsNullOrEmpty(LeadingImagePath))
-            {
-                _imagePainter.Theme = Theme;
-                _imagePainter.FillColor = _currentTheme.ButtonForeColor;
-                _imagePainter.StrokeColor = _currentTheme.ButtonForeColor;
-            }
+
             
             // BaseControl.ApplyTheme() already sets:
             // - HoverBackColor, HoverForeColor

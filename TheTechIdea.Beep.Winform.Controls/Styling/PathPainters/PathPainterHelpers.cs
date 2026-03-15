@@ -92,24 +92,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
 
         /// <summary>
-        /// Creates a retro-style path with pixelated, 80s aesthetic
+        /// Creates a retro Win95-style path — sharp rectangle with small 2px corner
+        /// bevels that evoke the classic beveled window chrome. The path shape is
+        /// compatible with the double-stroke bevel painting in RetroBorderPainter.
         /// </summary>
         public static GraphicsPath CreateRetroPath(Rectangle bounds)
         {
             GraphicsPath path = new GraphicsPath();
-            
-            // Create a slightly irregular shape reminiscent of retro design
-            int irregularity = Math.Min(bounds.Width, bounds.Height) / 20;
-            
-            path.AddLine(bounds.Left + irregularity, bounds.Top, bounds.Right - irregularity, bounds.Top);
-            path.AddLine(bounds.Right - irregularity, bounds.Top, bounds.Right, bounds.Top + irregularity);
-            path.AddLine(bounds.Right, bounds.Top + irregularity, bounds.Right, bounds.Bottom - irregularity);
-            path.AddLine(bounds.Right, bounds.Bottom - irregularity, bounds.Right - irregularity, bounds.Bottom);
-            path.AddLine(bounds.Right - irregularity, bounds.Bottom, bounds.Left + irregularity, bounds.Bottom);
-            path.AddLine(bounds.Left + irregularity, bounds.Bottom, bounds.Left, bounds.Bottom - irregularity);
-            path.AddLine(bounds.Left, bounds.Bottom - irregularity, bounds.Left, bounds.Top + irregularity);
-            path.AddLine(bounds.Left, bounds.Top + irregularity, bounds.Left + irregularity, bounds.Top);
-            
+
+            // Small bevel at each corner (2px or 1/40 of smallest side, whichever is larger)
+            int bevel = Math.Max(2, Math.Min(bounds.Width, bounds.Height) / 40);
+
+            path.AddLine(bounds.Left + bevel, bounds.Top, bounds.Right - bevel, bounds.Top);
+            path.AddLine(bounds.Right - bevel, bounds.Top, bounds.Right, bounds.Top + bevel);
+            path.AddLine(bounds.Right, bounds.Top + bevel, bounds.Right, bounds.Bottom - bevel);
+            path.AddLine(bounds.Right, bounds.Bottom - bevel, bounds.Right - bevel, bounds.Bottom);
+            path.AddLine(bounds.Right - bevel, bounds.Bottom, bounds.Left + bevel, bounds.Bottom);
+            path.AddLine(bounds.Left + bevel, bounds.Bottom, bounds.Left, bounds.Bottom - bevel);
+            path.AddLine(bounds.Left, bounds.Bottom - bevel, bounds.Left, bounds.Top + bevel);
+            path.AddLine(bounds.Left, bounds.Top + bevel, bounds.Left + bevel, bounds.Top);
+
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a terminal-style path — sharp rectangle with 45-degree chamfers
+        /// at each corner, evoking a CRT monitor bezel / ASCII bracket frame.
+        /// The chamfer is proportional to the control size (1/10 of smallest side,
+        /// clamped between 4px and 12px).
+        /// </summary>
+        public static GraphicsPath CreateTerminalPath(Rectangle bounds)
+        {
+            GraphicsPath path = new GraphicsPath();
+
+            int chamfer = Math.Max(4, Math.Min(12, Math.Min(bounds.Width, bounds.Height) / 10));
+
+            // Top edge (left chamfer → right chamfer)
+            path.AddLine(bounds.Left + chamfer, bounds.Top, bounds.Right - chamfer, bounds.Top);
+            // Top-right chamfer
+            path.AddLine(bounds.Right - chamfer, bounds.Top, bounds.Right, bounds.Top + chamfer);
+            // Right edge
+            path.AddLine(bounds.Right, bounds.Top + chamfer, bounds.Right, bounds.Bottom - chamfer);
+            // Bottom-right chamfer
+            path.AddLine(bounds.Right, bounds.Bottom - chamfer, bounds.Right - chamfer, bounds.Bottom);
+            // Bottom edge
+            path.AddLine(bounds.Right - chamfer, bounds.Bottom, bounds.Left + chamfer, bounds.Bottom);
+            // Bottom-left chamfer
+            path.AddLine(bounds.Left + chamfer, bounds.Bottom, bounds.Left, bounds.Bottom - chamfer);
+            // Left edge
+            path.AddLine(bounds.Left, bounds.Bottom - chamfer, bounds.Left, bounds.Top + chamfer);
+            // Top-left chamfer
+            path.AddLine(bounds.Left, bounds.Top + chamfer, bounds.Left + chamfer, bounds.Top);
+
             path.CloseFigure();
             return path;
         }

@@ -27,10 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 // Minimal padding
                 var contentBounds = new Rectangle(
-                    itemBounds.X + 4,
-                    itemBounds.Y + 2,
-                    itemBounds.Width - 8,
-                    itemBounds.Height - 4
+                    itemBounds.X + Scale(4),
+                    itemBounds.Y + Scale(2),
+                    itemBounds.Width - Scale(8),
+                    itemBounds.Height - Scale(4)
                 );
 
                 // STEP 1: Draw item background
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // STEP 2: Draw left accent bar on selected items
                 if (isSelected)
                 {
-                    var accentRect = new Rectangle(contentBounds.X, contentBounds.Y, 3, contentBounds.Height);
+                    var accentRect = new Rectangle(contentBounds.X, contentBounds.Y, Scale(3), contentBounds.Height);
                     using (var accentBrush = new SolidBrush(_theme.AccentColor))
                     {
                         g.FillRectangle(accentBrush, accentRect);
@@ -62,15 +62,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
 
                 // Calculate content areas
-                int leftOffset = contentBounds.X + (isSelected ? 10 : 8);
-                int iconSize = 18;
-                int spacing = 8;
+                int leftOffset = contentBounds.X + (isSelected ? Scale(10) : Scale(8));
+                int iconSize = Scale(18);
+                int spacing = Scale(8);
 
                 // STEP 4: Draw checkmark indicator for selected items
                 if (isSelected)
                 {
                     var checkRect = new Rectangle(
-                        contentBounds.Right - 24,
+                        contentBounds.Right - Scale(24),
                         contentBounds.Y + (contentBounds.Height - iconSize) / 2,
                         iconSize,
                         iconSize
@@ -119,14 +119,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var textRect = new Rectangle(
                     leftOffset,
                     contentBounds.Y,
-                    contentBounds.Right - leftOffset - (isSelected ? 32 : 12),
+                    contentBounds.Right - leftOffset - (isSelected ? Scale(32) : Scale(12)),
                     contentBounds.Height
                 );
 
                 Color textColor = _theme.LabelForeColor;
                 
                 using (var textBrush = new SolidBrush(textColor))
-                using (var font = new Font(_owner.Font.FontFamily, _owner.Font.Size, FontStyle.Regular))
+                using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
                 {
                     var sf = new StringFormat
                     {
@@ -144,14 +144,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     var descRect = new Rectangle(
                         leftOffset,
-                        contentBounds.Y + contentBounds.Height / 2 + 2,
+                        contentBounds.Y + contentBounds.Height / 2 + Scale(2),
                         textRect.Width,
                         contentBounds.Height / 2 - 2
                     );
 
                     Color descColor = Color.FromArgb(120, textColor);
                     using (var descBrush = new SolidBrush(descColor))
-                    using (var descFont = new Font(_owner.Font.FontFamily, _owner.Font.Size - 1.5f, FontStyle.Regular))
+                    using (var descFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1.5f, FontStyle.Regular))
                     {
                         var sf = new StringFormat
                         {
@@ -173,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return 36; // Reka UI default compact height
+            return Scale(36); // Reka UI default compact height
         }
 
         // Enhanced hover effects and selection indicators

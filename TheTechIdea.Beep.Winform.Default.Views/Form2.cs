@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
-    public partial class Form2 : Form
+    public partial class Form2 : TemplateForm
     {
         public Form2()
         {

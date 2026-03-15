@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -27,19 +28,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 // Add padding to item bounds
                 var contentBounds = new Rectangle(
-                    itemRect.X + 8,
-                    itemRect.Y + 4,
-                    itemRect.Width - 16,
-                    itemRect.Height - 8
+                    itemRect.X + Scale(8),
+                    itemRect.Y + Scale(4),
+                    itemRect.Width - Scale(16),
+                    itemRect.Height - Scale(8)
                 );
 
                 // STEP 1: Draw item background
                 DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
                 // Calculate content areas
-                int leftOffset = contentBounds.X + 12;
-                int iconSize = 20;
-                int spacing = 8;
+                int leftOffset = contentBounds.X + Scale(12);
+                int iconSize = Scale(20);
+                int spacing = Scale(8);
 
                 // STEP 4: Draw start content (icon/avatar)
                 if (!string.IsNullOrEmpty(item.ImagePath))
@@ -47,13 +48,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var iconRect = new Rectangle(leftOffset, contentBounds.Y + (contentBounds.Height - iconSize) / 2, iconSize, iconSize);
                     
                     // Draw rounded icon background
-                    using (var iconPath = CreateRoundedRectangle(iconRect, 4))
+                    using (var iconPath = GraphicsExtensions.CreateRoundedRectanglePath(iconRect, Scale(4)))
                     using (var iconBgBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
                     {
                         g.FillPath(iconBgBrush, iconPath);
                     }
 
-                    // TODO: Draw actual icon here
+                    // Draw icon using StyledImagePainter
+                    DrawItemImage(g, iconRect, item.ImagePath);
                     leftOffset += iconSize + spacing;
                 }
 
@@ -61,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var textRect = new Rectangle(
                     leftOffset,
                     contentBounds.Y,
-                    contentBounds.Right - leftOffset - 12,
+                    contentBounds.Right - leftOffset - Scale(12),
                     contentBounds.Height
                 );
 
@@ -69,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 
                 // Main text
                 using (var textBrush = new SolidBrush(textColor))
-                using (var font = new Font(_owner.Font.FontFamily, _owner.Font.Size, FontStyle.Regular))
+                using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
                 {
                     var sf = new StringFormat
                     {
@@ -86,18 +88,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (!string.IsNullOrEmpty(item.Description))
                 {
                     var badgeText = item.Description;
-                    using (var badgeFont = new Font(_owner.Font.FontFamily, _owner.Font.Size - 1, FontStyle.Regular))
+                    using (var badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                     {
                         var badgeSize = TextUtils.MeasureText(g, badgeText, badgeFont);
                         var badgeRect = new Rectangle(
-                            contentBounds.Right - (int)badgeSize.Width - 20,
+                            contentBounds.Right - (int)badgeSize.Width - Scale(20),
                             contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height) / 2,
-                            (int)badgeSize.Width + 12,
-                            (int)badgeSize.Height + 4
+                            (int)badgeSize.Width + Scale(12),
+                            (int)badgeSize.Height + Scale(4)
                         );
 
                         // Badge background
-                        using (var badgePath = CreateRoundedRectangle(badgeRect, 4))
+                        using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(4)))
                         using (var badgeBrush = new SolidBrush(Color.FromArgb(50, _theme.AccentColor)))
                         {
                             g.FillPath(badgeBrush, badgePath);
@@ -126,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return 44; // HeroUI default item height
+            return Scale(44); // HeroUI default item height
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -146,18 +148,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
 
-        private GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-
-            path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270, 90);
-            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-
-            return path;
-        }
     }
 }

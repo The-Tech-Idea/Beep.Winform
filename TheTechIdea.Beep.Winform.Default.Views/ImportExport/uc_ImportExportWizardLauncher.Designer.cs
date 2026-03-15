@@ -4872,17 +4872,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.BorderPainter = BeepControlStyle.None;
             graphicsPath37.FillMode = FillMode.Alternate;
             btnQuickImport.BorderPath = graphicsPath37;
-            btnQuickImport.BorderRadius = 8;
-            btnQuickImport.BorderRect = new Rectangle(0, 0, 120, 27);
-            btnQuickImport.BorderSize = 1;
-            btnQuickImport.BorderStyle = BorderStyle.FixedSingle;
-            btnQuickImport.BorderThickness = 1;
-            btnQuickImport.BottomoffsetForDrawingRect = 0;
-            btnQuickImport.BoundProperty = null;
-            btnQuickImport.ButtonErrorText = "";
-            btnQuickImport.ButtonHasError = false;
-            btnQuickImport.ButtonHelperText = "";
-            btnQuickImport.ButtonLabel = "";
+      
             btnQuickImport.ButtonMinSize = new Size(32, 32);
             btnQuickImport.ButtonType = ButtonType.Normal;
             btnQuickImport.CanBeFocused = true;
@@ -5477,17 +5467,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.BorderPainter = BeepControlStyle.None;
             graphicsPath46.FillMode = FillMode.Alternate;
             btnClearLog.BorderPath = graphicsPath46;
-            btnClearLog.BorderRadius = 8;
-            btnClearLog.BorderRect = new Rectangle(0, 0, 100, 30);
-            btnClearLog.BorderSize = 1;
-            btnClearLog.BorderStyle = BorderStyle.FixedSingle;
-            btnClearLog.BorderThickness = 1;
-            btnClearLog.BottomoffsetForDrawingRect = 0;
-            btnClearLog.BoundProperty = null;
-            btnClearLog.ButtonErrorText = "";
-            btnClearLog.ButtonHasError = false;
-            btnClearLog.ButtonHelperText = "";
-            btnClearLog.ButtonLabel = "";
+       
             btnClearLog.ButtonMinSize = new Size(32, 32);
             btnClearLog.ButtonType = ButtonType.Normal;
             btnClearLog.CanBeFocused = true;
@@ -5675,17 +5655,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.BorderPainter = BeepControlStyle.None;
             graphicsPath49.FillMode = FillMode.Alternate;
             btnSwap.BorderPath = graphicsPath49;
-            btnSwap.BorderRadius = 8;
-            btnSwap.BorderRect = new Rectangle(0, 0, 120, 30);
-            btnSwap.BorderSize = 1;
-            btnSwap.BorderStyle = BorderStyle.FixedSingle;
-            btnSwap.BorderThickness = 1;
-            btnSwap.BottomoffsetForDrawingRect = 0;
-            btnSwap.BoundProperty = null;
-            btnSwap.ButtonErrorText = "";
-            btnSwap.ButtonHasError = false;
-            btnSwap.ButtonHelperText = "";
-            btnSwap.ButtonLabel = "";
+         
             btnSwap.ButtonMinSize = new Size(32, 32);
             btnSwap.ButtonType = ButtonType.Normal;
             btnSwap.CanBeFocused = true;
@@ -5873,18 +5843,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.BorderPainter = BeepControlStyle.None;
             graphicsPath52.FillMode = FillMode.Alternate;
             btnLaunch.BorderPath = graphicsPath52;
-            btnLaunch.BorderRadius = 8;
-            btnLaunch.BorderRect = new Rectangle(0, 0, 190, 30);
-            btnLaunch.BorderSize = 1;
-            btnLaunch.BorderStyle = BorderStyle.FixedSingle;
-            btnLaunch.BorderThickness = 1;
-            btnLaunch.BottomoffsetForDrawingRect = 0;
-            btnLaunch.BoundProperty = null;
-            btnLaunch.ButtonErrorText = "";
-            btnLaunch.ButtonHasError = false;
-            btnLaunch.ButtonHelperText = "";
-            btnLaunch.ButtonLabel = "";
-            btnLaunch.ButtonMinSize = new Size(32, 32);
+         
             btnLaunch.ButtonType = ButtonType.Normal;
             btnLaunch.CanBeFocused = true;
             btnLaunch.CanBeHovered = true;
@@ -6071,17 +6030,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.BorderPainter = BeepControlStyle.None;
             graphicsPath55.FillMode = FillMode.Alternate;
             btnViewLastSummary.BorderPath = graphicsPath55;
-            btnViewLastSummary.BorderRadius = 8;
-            btnViewLastSummary.BorderRect = new Rectangle(0, 0, 130, 30);
-            btnViewLastSummary.BorderSize = 1;
-            btnViewLastSummary.BorderStyle = BorderStyle.FixedSingle;
-            btnViewLastSummary.BorderThickness = 1;
-            btnViewLastSummary.BottomoffsetForDrawingRect = 0;
-            btnViewLastSummary.BoundProperty = null;
-            btnViewLastSummary.ButtonErrorText = "";
-            btnViewLastSummary.ButtonHasError = false;
-            btnViewLastSummary.ButtonHelperText = "";
-            btnViewLastSummary.ButtonLabel = "";
+           
             btnViewLastSummary.ButtonMinSize = new Size(32, 32);
             btnViewLastSummary.ButtonType = ButtonType.Normal;
             btnViewLastSummary.CanBeFocused = true;

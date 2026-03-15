@@ -9,12 +9,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(16, 6, 12, 6);
+            return new System.Windows.Forms.Padding(Scale(16), Scale(6), Scale(12), Scale(6));
         }
         
         public override int GetPreferredItemHeight()
         {
-            return 40; // Taller for better icon display
+            return Scale(40);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Very subtle selection indicator on left
                 using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Empty))
                 {
-                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, 2, itemRect.Height);
+                    g.FillRectangle(brush, itemRect.Left, itemRect.Top, Scale(2), itemRect.Height);
                 }
             }
             else if (isHovered)
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 28; // Slightly smaller for minimal Style
+            return Scale(ListBoxTokens.ItemHeightDense); // 28 logical px
         }
     }
 }

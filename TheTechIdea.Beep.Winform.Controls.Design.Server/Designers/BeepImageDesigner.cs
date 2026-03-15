@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             string currentPath = GetProperty<string>("ImagePath") ?? string.Empty;
             var assembly = Image.GetType().Assembly;
-            using var dialog = new BeepImagePickerDialog(Image, embed: false, this, assembly, currentPath);
+            using var dialog = new BeepImagePickerDialog(Image, embed: false, Component?.Site as IServiceProvider, assembly, currentPath);
             if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK ||
                 dialog.SelectionResult.IsCancelled ||
                 string.IsNullOrWhiteSpace(dialog.SelectionResult.SelectedPath))

@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Use layout-provided rectangles for consistent UX
             var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
             var checkRect = info?.CheckRect ?? Rectangle.Empty;
-            var textRect = info?.TextRect ?? new Rectangle(itemRect.Left + 12, itemRect.Y, itemRect.Width - 24, itemRect.Height);
+            var textRect = info?.TextRect ?? new Rectangle(itemRect.Left + Scale(12), itemRect.Y, itemRect.Width - Scale(24), itemRect.Height);
 
             // Draw outlined checkbox inside provided rect if available
             if (!checkRect.IsEmpty)
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 50;
+            return Scale(50);
         }
     }
 }

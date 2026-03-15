@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray)))
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -65,38 +65,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawDefaultItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
-            int currentX = rect.Left + 8;
+            int currentX = rect.Left + Scale(8);
             
             // Draw checkbox if enabled
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - 16) / 2, 16, 16);
+                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - Scale(16)) / 2, Scale(16), Scale(16));
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawCheckbox(g, checkRect, isChecked, isHovered);
-                currentX += 24;
+                currentX += Scale(24);
             }
             
             // Draw image if available
             if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
             {
-                Rectangle imgRect = new Rectangle(currentX, rect.Y + (rect.Height - 24) / 2, 24, 24);
+                Rectangle imgRect = new Rectangle(currentX, rect.Y + (rect.Height - Scale(24)) / 2, Scale(24), Scale(24));
                 // ImagePath is used by ImagePainter and other framework tools
                 // DrawItemImage in base class handles the ImagePath loading
                 DrawItemImage(g, imgRect, item.ImagePath);
-                currentX += 32;
+                currentX += Scale(32);
             }
             
             // Draw text
             Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX + rect.Left, rect.Height);
             Color textColor = isSelected
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.OnPrimaryColor ?? Color.White
+                ? _theme?.OnPrimaryColor ?? Color.White
                 : Color.FromArgb(60, 60, 60);
 
-            using (var font = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
+            using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
             {
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Text, font, textRect, textColor,
                     System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 return CustomItemHeightProvider();
             }
-            return 32; // Default height
+            return Scale(32); // Default height
         }
         
         public override Padding GetPreferredPadding()
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 return CustomPaddingProvider();
             }
-            return new Padding(4);
+            return new Padding(Scale(4));
         }
     }
 }

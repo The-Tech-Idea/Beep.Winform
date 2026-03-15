@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override int GetPreferredItemHeight()
         {
-            return 60; // Taller for card appearance
+            return Scale(60); // Taller for card appearance
         }
 
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(16, 8, 16, 8);
+            return new System.Windows.Forms.Padding(Scale(16), Scale(8), Scale(16), Scale(8));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -31,18 +31,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var padding = GetPreferredPadding();
             var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
 
-            // Render icon/image using StyledImagePainter
+            // Render icon/image
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var imageBounds = new Rectangle(contentRect.X, contentRect.Y, 44, 44);
-                StyledImagePainter.Paint(g, imageBounds, item.ImagePath);
-                contentRect.X += 48;
-                contentRect.Width -= 48;
+                var imageBounds = new Rectangle(contentRect.X, contentRect.Y, Scale(44), Scale(44));
+                DrawItemImage(g, imageBounds, item.ImagePath);
+                contentRect.X += Scale(48);
+                contentRect.Width -= Scale(48);
             }
 
             // Draw text
             Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
-            DrawItemText(g, contentRect, item.Text, textColor, _owner.Font);
+            DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -50,15 +50,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (g == null || itemRect.IsEmpty) return;
 
             // Card with rounded corners
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 8))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, Scale(8)))
             {
                 if (isSelected)
                 {
-                    var selColor = BeepStyling.CurrentTheme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
 
                     // Multiple shadow layers for card elevation
                     var shadowRect1 = itemRect;
-                    shadowRect1.Offset(0, 3);
+                    shadowRect1.Offset(0, Scale(3));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect1,
                         Color.FromArgb(30, Color.Black),
                         Color.Transparent,
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Hover shadow
                     var shadowRect = itemRect;
-                    shadowRect.Offset(0, 2);
+                    shadowRect.Offset(0, Scale(2));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
                         Color.FromArgb(20, Color.Black),
                         Color.Transparent,
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new Pen(BeepStyling.CurrentTheme?.AccentColor ?? Color.Blue, 2f))
+                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Blue, 2f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Normal card style with subtle shadow
                     var shadowRect = itemRect;
-                    shadowRect.Offset(0, 1);
+                    shadowRect.Offset(0, Scale(1));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
                         Color.FromArgb(10, Color.Black),
                         Color.Transparent,

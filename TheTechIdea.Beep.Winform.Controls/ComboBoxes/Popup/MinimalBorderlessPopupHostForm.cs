@@ -29,8 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         protected override void ConfigurePopupForm(BeepPopupForm form, ComboBoxPopupHostProfile profile, ComboBoxThemeTokens tokens)
         {
             // Minimal borderless relies on form shadow for visual separation.
-            // BeepPopupForm uses BaseControl's border — set it to None so no border paints.
-          //  form.ShowBorder = false;
+            form.FormBorderStyle = FormBorderStyle.None;
         }
 
         protected override ComboBoxThemeTokens ResolveThemeTokens(System.Windows.Forms.Control owner, ComboBoxPopupHostProfile profile, ComboBoxPopupModel model)

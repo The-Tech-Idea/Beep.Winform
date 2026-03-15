@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Slight inset for this Style
             var rect = itemRect;
-            rect.Inflate(-6, -3);
+            rect.Inflate(-Scale(6), -Scale(3));
 
                 DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
 
@@ -29,11 +29,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var iconRect = info?.IconRect ?? Rectangle.Empty;
 
             // Size radio relative to row height to behave well on DPI/varied heights
-            int radioSize = Math.Min(20, Math.Max(14, rect.Height - 12));
-            var radioRect = new Rectangle(rect.Right - radioSize - 16, rect.Y + (rect.Height - radioSize) / 2, radioSize, radioSize);
+            int radioSize = Math.Min(Scale(20), Math.Max(Scale(14), rect.Height - Scale(12)));
+            var radioRect = new Rectangle(rect.Right - radioSize - Scale(16), rect.Y + (rect.Height - radioSize) / 2, radioSize, radioSize);
 
             // Shrink text area to avoid radio overlap
-            var textAvail = new Rectangle(textBase.Left, textBase.Top, Math.Max(0, radioRect.Left - 12 - textBase.Left), textBase.Height);
+            var textAvail = new Rectangle(textBase.Left, textBase.Top, Math.Max(0, radioRect.Left - Scale(12) - textBase.Left), textBase.Height);
 
             // Optional icon (left) if provided
             if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath) && !iconRect.IsEmpty)
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (hasDesc && descRect.Height > 0)
             {
-                using (var smallFont = new Font(_owner.TextFont.FontFamily, Math.Max(6, _owner.TextFont.Size - 1)))
+                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(6, _owner.TextFont.Size - 1)))
                 {
                     Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
                     Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
@@ -148,28 +148,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
         
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
-        }
-        
         public override int GetPreferredItemHeight()
         {
-            int fontH = _owner?.TextFont?.Height ?? 16;
-            int descH = Math.Max(10, fontH - 2);
-            int contentTwoLine = fontH + descH + 12; // paddings
-            int radioTarget = Math.Max(14, Math.Min(20, contentTwoLine - 12));
-            int height = Math.Max(contentTwoLine, radioTarget + 12);
-            return Math.Max(48, height);
+            int fontH = _owner?.TextFont?.Height ?? Scale(16);
+            int descH = Math.Max(Scale(10), fontH - 2);
+            int contentTwoLine = fontH + descH + Scale(12); // paddings
+            int radioTarget = Math.Max(Scale(14), Math.Min(Scale(20), contentTwoLine - Scale(12)));
+            int height = Math.Max(contentTwoLine, radioTarget + Scale(12));
+            return Math.Max(Scale(48), height);
         }
     }
 }

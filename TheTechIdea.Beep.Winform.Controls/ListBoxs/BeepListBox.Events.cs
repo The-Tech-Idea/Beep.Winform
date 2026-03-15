@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -151,6 +152,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (info.RowRect.Contains(e.Location))
                     {
+                        // Hierarchy chevron click
+                        if (_showHierarchy && info.HasChildren && !info.ChevronRect.IsEmpty
+                            && info.ChevronRect.Contains(e.Location))
+                        {
+                            info.Item.IsExpanded = !info.Item.IsExpanded;
+                            var visItems = _helper?.GetVisibleItems();
+                            int idx = visItems?.IndexOf(info.Item) ?? -1;
+                            if (info.Item.IsExpanded)
+                                OnItemExpanded(idx, info.Item);
+                            else
+                                OnItemCollapsed(idx, info.Item);
+                            InvalidateLayoutCache();
+                            return;
+                        }
+
                         HandleItemClick(info.Item, e, info.RowRect);
                         return;
                     }
@@ -168,6 +184,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void HandleItemClick(SimpleItem item, MouseEventArgs e, Rectangle itemRect)
         {
             if (item == null) return;
+
+            if (item is BeepListItem header && header.IsGroupHeader)
+            {
+                ToggleGroupCollapsed(header.Category ?? header.Text ?? string.Empty);
+                return;
+            }
 
             // If clicking checkbox area for painters that support it
             if (_showCheckBox && _listBoxPainter.SupportsCheckboxes())
@@ -327,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                Invalidate();
+                // No scrollbar visible — nothing to scroll, skip repaint
             }
         }
 
@@ -340,6 +362,35 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
+            var visible = _helper?.GetVisibleItems();
+            if (visible != null && visible.Count > 0)
+            {
+                if (FocusFirstSelectedOnFocusEnter)
+                {
+                    int idx = -1;
+                    if (SelectionMode == SelectionModeEnum.Single && SelectedItem != null)
+                    {
+                        idx = visible.IndexOf(SelectedItem);
+                    }
+                    else if ((SelectionMode != SelectionModeEnum.Single || MultiSelect) && SelectedItems != null && SelectedItems.Count > 0)
+                    {
+                        idx = visible.IndexOf(SelectedItems[0]);
+                    }
+
+                    if (idx >= 0)
+                    {
+                        _focusedIndex = idx;
+                    }
+                    else if (_focusedIndex < 0)
+                    {
+                        _focusedIndex = 0;
+                    }
+                }
+                else if (_focusedIndex < 0)
+                {
+                    _focusedIndex = 0;
+                }
+            }
             NotifyA11yFocused(_focusedIndex);
             Invalidate(); // Redraw to show focus indicator
         }

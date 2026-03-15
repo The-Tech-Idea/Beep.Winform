@@ -268,17 +268,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.BorderPainter = BeepControlStyle.Fluent2;
             graphicsPath1.FillMode = FillMode.Alternate;
             CycleBeepDataTimePickerModebeepButton.BorderPath = graphicsPath1;
-            CycleBeepDataTimePickerModebeepButton.BorderRadius = 4;
-            CycleBeepDataTimePickerModebeepButton.BorderRect = new Rectangle(8, 8, 127, 59);
-            CycleBeepDataTimePickerModebeepButton.BorderSize = 1;
-            CycleBeepDataTimePickerModebeepButton.BorderStyle = BorderStyle.Fixed3D;
-            CycleBeepDataTimePickerModebeepButton.BorderThickness = 2;
-            CycleBeepDataTimePickerModebeepButton.BottomoffsetForDrawingRect = 0;
-            CycleBeepDataTimePickerModebeepButton.BoundProperty = null;
-            CycleBeepDataTimePickerModebeepButton.ButtonErrorText = "sdsds";
-            CycleBeepDataTimePickerModebeepButton.ButtonHasError = true;
-            CycleBeepDataTimePickerModebeepButton.ButtonHelperText = "";
-            CycleBeepDataTimePickerModebeepButton.ButtonLabel = "jyuyssshjh";
+        
             CycleBeepDataTimePickerModebeepButton.ButtonMinSize = new Size(32, 32);
             CycleBeepDataTimePickerModebeepButton.ButtonType = ButtonType.Normal;
             CycleBeepDataTimePickerModebeepButton.CanBeFocused = true;
@@ -832,17 +822,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.BorderPainter = BeepControlStyle.ChakraUI;
             graphicsPath19.FillMode = FillMode.Alternate;
             beepButton1.BorderPath = graphicsPath19;
-            beepButton1.BorderRadius = 6;
-            beepButton1.BorderRect = new Rectangle(10, 10, 100, 36);
-            beepButton1.BorderSize = 1;
-            beepButton1.BorderStyle = BorderStyle.FixedSingle;
-            beepButton1.BorderThickness = 2;
-            beepButton1.BottomoffsetForDrawingRect = 0;
-            beepButton1.BoundProperty = null;
-            beepButton1.ButtonErrorText = "";
-            beepButton1.ButtonHasError = false;
-            beepButton1.ButtonHelperText = "";
-            beepButton1.ButtonLabel = "";
+           
             beepButton1.ButtonMinSize = new Size(32, 32);
             beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;

@@ -246,7 +246,7 @@
             graphicsPath1.FillMode = FillMode.Alternate;
             beepPanel1.BorderPath = graphicsPath1;
             beepPanel1.BorderRadius = 12;
-            beepPanel1.BorderRect = new Rectangle(5, 5, 508, 346);
+            beepPanel1.BorderRect = new Rectangle(5, 5, 507, 345);
             beepPanel1.BorderStyle = BorderStyle.FixedSingle;
             beepPanel1.BorderThickness = 2;
             beepPanel1.BottomoffsetForDrawingRect = 0;
@@ -272,7 +272,7 @@
             beepPanel1.DisabledBackColor = Color.FromArgb(240, 240, 240);
             beepPanel1.DisabledBorderColor = Color.LightGray;
             beepPanel1.DisabledForeColor = Color.Gray;
-            beepPanel1.DrawingRect = new Rectangle(8, 8, 502, 340);
+            beepPanel1.DrawingRect = new Rectangle(8, 8, 501, 339);
             beepPanel1.Easing = EasingType.Linear;
             beepPanel1.EmptyStateMessage = "No content to display";
             beepPanel1.EnableHighQualityRendering = true;
@@ -339,7 +339,6 @@
             beepPanel1.IsTransparentBackground = false;
             beepPanel1.IsValid = true;
             beepPanel1.IsVisible = true;
-            beepPanel1.Items = (List<object>)resources.GetObject("beepPanel1.Items");
             beepPanel1.LabelPosition = LabelPosition.Left;
             beepPanel1.LabelText = "";
             beepPanel1.LabelTextOn = false;
@@ -428,22 +427,17 @@
             beepButton1.BadgeShape = BadgeShape.Circle;
             beepButton1.BadgeText = "";
             beepButton1.BlockID = null;
-            beepButton1.BorderColor = Color.FromArgb(33, 150, 243);
+            beepButton1.BorderColor = Color.FromArgb(229, 231, 235);
             beepButton1.BorderDashStyle = DashStyle.Solid;
             beepButton1.BorderPainter = BeepControlStyle.StripeDashboard;
             graphicsPath19.FillMode = FillMode.Alternate;
             beepButton1.BorderPath = graphicsPath19;
             beepButton1.BorderRadius = 6;
-            beepButton1.BorderRect = new Rectangle(12, 12, 157, 64);
-            beepButton1.BorderSize = 1;
+            beepButton1.BorderRect = new Rectangle(12, 12, 156, 63);
             beepButton1.BorderStyle = BorderStyle.FixedSingle;
             beepButton1.BorderThickness = 2;
             beepButton1.BottomoffsetForDrawingRect = 0;
             beepButton1.BoundProperty = null;
-            beepButton1.ButtonErrorText = "";
-            beepButton1.ButtonHasError = false;
-            beepButton1.ButtonHelperText = "";
-            beepButton1.ButtonLabel = "";
             beepButton1.ButtonMinSize = new Size(32, 32);
             beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;
@@ -462,7 +456,7 @@
             beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.LightGray;
             beepButton1.DisabledForeColor = Color.Gray;
-            beepButton1.DrawingRect = new Rectangle(15, 15, 151, 58);
+            beepButton1.DrawingRect = new Rectangle(15, 15, 150, 57);
             beepButton1.Easing = EasingType.Linear;
             beepButton1.EnableHighQualityRendering = true;
             beepButton1.EnableMaterialStyle = false;
@@ -538,7 +532,6 @@
             beepButton1.IsTransparentBackground = false;
             beepButton1.IsValid = true;
             beepButton1.IsVisible = true;
-            beepButton1.Items = (List<object>)resources.GetObject("beepButton1.Items");
             beepButton1.LabelPosition = LabelPosition.Left;
             beepButton1.LabelText = "";
             beepButton1.LabelTextOn = false;
@@ -589,7 +582,7 @@
             beepButton1.Size = new Size(181, 88);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
-            beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
+            beepButton1.StandardImages = null;
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 1;
             beepButton1.Tag = this;
@@ -626,17 +619,18 @@
             beepAdvancedButton1.BadgeShape = BadgeShape.Circle;
             beepAdvancedButton1.BadgeText = "";
             beepAdvancedButton1.BlockID = null;
-            beepAdvancedButton1.BorderColor = Color.FromArgb(63, 63, 70);
+            beepAdvancedButton1.BorderColor = Color.FromArgb(209, 213, 219);
             beepAdvancedButton1.BorderDashStyle = DashStyle.Solid;
-            beepAdvancedButton1.BorderPainter = BeepControlStyle.DarkGlow;
+            beepAdvancedButton1.BorderPainter = BeepControlStyle.PillRail;
             graphicsPath16.FillMode = FillMode.Alternate;
             beepAdvancedButton1.BorderPath = graphicsPath16;
-            beepAdvancedButton1.BorderRadius = 2;
-            beepAdvancedButton1.BorderRect = new Rectangle(14, 14, 231, 54);
+            beepAdvancedButton1.BorderRadius = 6;
+            beepAdvancedButton1.BorderRect = new Rectangle(0, 0, 203, 51);
             beepAdvancedButton1.BorderStyle = BorderStyle.FixedSingle;
-            beepAdvancedButton1.BorderThickness = 2;
+            beepAdvancedButton1.BorderThickness = 0;
             beepAdvancedButton1.BottomoffsetForDrawingRect = 0;
             beepAdvancedButton1.BoundProperty = null;
+            beepAdvancedButton1.ButtonStyle = Winform.Controls.Buttons.BeepAdvancedButton.Enums.AdvancedButtonStyle.StickerLabel;
             beepAdvancedButton1.CanBeFocused = true;
             beepAdvancedButton1.CanBeHovered = true;
             beepAdvancedButton1.CanBePressed = true;
@@ -646,14 +640,14 @@
             beepAdvancedButton1.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath17.FillMode = FillMode.Alternate;
             beepAdvancedButton1.ContentShape = graphicsPath17;
-            beepAdvancedButton1.ControlStyle = BeepControlStyle.DarkGlow;
+            beepAdvancedButton1.ControlStyle = BeepControlStyle.PillRail;
             beepAdvancedButton1.CustomPadding = new Padding(0);
             beepAdvancedButton1.DataContext = null;
             beepAdvancedButton1.DataSourceProperty = null;
             beepAdvancedButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepAdvancedButton1.DisabledBorderColor = Color.LightGray;
             beepAdvancedButton1.DisabledForeColor = Color.Gray;
-            beepAdvancedButton1.DrawingRect = new Rectangle(17, 17, 225, 48);
+            beepAdvancedButton1.DrawingRect = new Rectangle(1, 1, 201, 49);
             beepAdvancedButton1.Easing = EasingType.Linear;
             beepAdvancedButton1.EnableHighQualityRendering = true;
             beepAdvancedButton1.EnableMaterialStyle = false;
@@ -689,7 +683,7 @@
             beepAdvancedButton1.HoverBorderColor = Color.Blue;
             beepAdvancedButton1.HoveredBackcolor = Color.LightBlue;
             beepAdvancedButton1.HoverForeColor = Color.Black;
-            beepAdvancedButton1.IconKey = "";
+            beepAdvancedButton1.IconKey = "DataSources.Activemq";
             beepAdvancedButton1.IconLeft = "";
             beepAdvancedButton1.IconRight = "";
             beepAdvancedButton1.IconSize = 20;
@@ -722,7 +716,6 @@
             beepAdvancedButton1.IsTransparentBackground = false;
             beepAdvancedButton1.IsValid = true;
             beepAdvancedButton1.IsVisible = true;
-            beepAdvancedButton1.Items = (List<object>)resources.GetObject("beepAdvancedButton1.Items");
             beepAdvancedButton1.LabelPosition = LabelPosition.Left;
             beepAdvancedButton1.LabelText = "";
             beepAdvancedButton1.LabelTextOn = false;
@@ -736,6 +729,7 @@
             beepAdvancedButton1.MinimumSize = new Size(80, 32);
             beepAdvancedButton1.ModernGradientType = ModernGradientType.None;
             beepAdvancedButton1.Name = "beepAdvancedButton1";
+            beepAdvancedButton1.NewsBannerVariant = Winform.Controls.Buttons.BeepAdvancedButton.Enums.NewsBannerVariant.RectangleBadgeLeft;
             beepAdvancedButton1.OuterShape = null;
             beepAdvancedButton1.OverrideFontSize = TypeStyleFontSize.None;
             beepAdvancedButton1.PainterKind = BaseControlPainterKind.Classic;
@@ -764,7 +758,7 @@
             beepAdvancedButton1.ShowRightBorder = false;
             beepAdvancedButton1.ShowShadow = false;
             beepAdvancedButton1.ShowTopBorder = false;
-            beepAdvancedButton1.Size = new Size(259, 82);
+            beepAdvancedButton1.Size = new Size(204, 52);
             beepAdvancedButton1.SlideFrom = SlideDirection.Left;
             beepAdvancedButton1.SolidBackground = Color.FromArgb(241, 246, 252);
             beepAdvancedButton1.SolidForeground = Color.FromArgb(33, 150, 243);
@@ -2857,7 +2851,7 @@
             typographyStyle156.TextColor = Color.FromArgb(32, 32, 32);
             fluentTheme1.TextBoxSelectedFont = typographyStyle156;
             fluentTheme1.TextBoxSelectedForeColor = Color.FromArgb(32, 32, 32);
-            fluentTheme1.ThemeGuid = "e14d8a24-2a6c-427f-b783-7591689700a3";
+            fluentTheme1.ThemeGuid = "949fcb0e-d447-49f4-92ca-7656ac2c9526";
             fluentTheme1.ThemeName = "FluentTheme";
             typographyStyle157.FontFamily = "Segoe UI";
             typographyStyle157.FontSize = 16F;
@@ -3004,7 +2998,7 @@
             graphicsPath13.FillMode = FillMode.Alternate;
             beepComboBox1.BorderPath = graphicsPath13;
             beepComboBox1.BorderRadius = 4;
-            beepComboBox1.BorderRect = new Rectangle(8, 8, 210, 42);
+            beepComboBox1.BorderRect = new Rectangle(8, 8, 209, 41);
             beepComboBox1.BorderStyle = BorderStyle.FixedSingle;
             beepComboBox1.BorderThickness = 2;
             beepComboBox1.BottomoffsetForDrawingRect = 0;
@@ -3025,7 +3019,7 @@
             beepComboBox1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.DisabledBorderColor = Color.FromArgb(148, 163, 184);
             beepComboBox1.DisabledForeColor = Color.FromArgb(227, 227, 227);
-            beepComboBox1.DrawingRect = new Rectangle(11, 11, 204, 36);
+            beepComboBox1.DrawingRect = new Rectangle(11, 11, 203, 35);
             beepComboBox1.DropdownButtonWidth = 34;
             beepComboBox1.DropdownIconPath = "dropdown_arrow";
             beepComboBox1.Easing = EasingType.Linear;
@@ -3092,7 +3086,6 @@
             beepComboBox1.IsTransparentBackground = false;
             beepComboBox1.IsValid = true;
             beepComboBox1.IsVisible = true;
-            beepComboBox1.Items = (List<object>)resources.GetObject("beepComboBox1.Items");
             beepComboBox1.LabelPosition = LabelPosition.Left;
             beepComboBox1.LabelText = "";
             beepComboBox1.LabelTextOn = false;
@@ -3185,7 +3178,7 @@
             graphicsPath10.FillMode = FillMode.Alternate;
             beepDatePicker1.BorderPath = graphicsPath10;
             beepDatePicker1.BorderRadius = 4;
-            beepDatePicker1.BorderRect = new Rectangle(8, 8, 203, 30);
+            beepDatePicker1.BorderRect = new Rectangle(8, 8, 202, 29);
             beepDatePicker1.BorderStyle = BorderStyle.FixedSingle;
             beepDatePicker1.BorderThickness = 2;
             beepDatePicker1.BottomoffsetForDrawingRect = 0;
@@ -3213,7 +3206,7 @@
             beepDatePicker1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepDatePicker1.DisabledBorderColor = Color.FromArgb(148, 163, 184);
             beepDatePicker1.DisabledForeColor = Color.FromArgb(227, 227, 227);
-            beepDatePicker1.DrawingRect = new Rectangle(11, 11, 197, 24);
+            beepDatePicker1.DrawingRect = new Rectangle(11, 11, 196, 23);
             beepDatePicker1.Easing = EasingType.Linear;
             beepDatePicker1.EnableHighQualityRendering = true;
             beepDatePicker1.EnableMaterialStyle = false;
@@ -3281,7 +3274,6 @@
             beepDatePicker1.IsTransparentBackground = false;
             beepDatePicker1.IsValid = true;
             beepDatePicker1.IsVisible = true;
-            beepDatePicker1.Items = (List<object>)resources.GetObject("beepDatePicker1.Items");
             beepDatePicker1.LabelPosition = LabelPosition.Left;
             beepDatePicker1.LabelText = "";
             beepDatePicker1.LabelTextOn = false;
@@ -3378,7 +3370,7 @@
             graphicsPath7.FillMode = FillMode.Alternate;
             beepLabel1.BorderPath = graphicsPath7;
             beepLabel1.BorderRadius = 4;
-            beepLabel1.BorderRect = new Rectangle(8, 8, 97, 59);
+            beepLabel1.BorderRect = new Rectangle(8, 8, 96, 14);
             beepLabel1.BorderStyle = BorderStyle.FixedSingle;
             beepLabel1.BorderThickness = 2;
             beepLabel1.BottomoffsetForDrawingRect = 0;
@@ -3405,7 +3397,7 @@
             beepLabel1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepLabel1.DisabledBorderColor = Color.Gray;
             beepLabel1.DisabledForeColor = Color.FromArgb(227, 227, 227);
-            beepLabel1.DrawingRect = new Rectangle(11, 11, 91, 53);
+            beepLabel1.DrawingRect = new Rectangle(11, 11, 90, 8);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
             beepLabel1.EnableMaterialStyle = false;
@@ -3474,7 +3466,6 @@
             beepLabel1.IsTransparentBackground = false;
             beepLabel1.IsValid = true;
             beepLabel1.IsVisible = true;
-            beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
             beepLabel1.LabelPosition = LabelPosition.Left;
             beepLabel1.LabelText = "";
@@ -3521,7 +3512,7 @@
             beepLabel1.ShowRightBorder = false;
             beepLabel1.ShowShadow = false;
             beepLabel1.ShowTopBorder = false;
-            beepLabel1.Size = new Size(113, 75);
+            beepLabel1.Size = new Size(113, 31);
             beepLabel1.SlideFrom = SlideDirection.Left;
             beepLabel1.StaticNotMoving = false;
             beepLabel1.StyleProfile.AutoEllipsis = false;
@@ -3580,7 +3571,7 @@
             graphicsPath4.FillMode = FillMode.Alternate;
             beepTextBox1.BorderPath = graphicsPath4;
             beepTextBox1.BorderRadius = 3;
-            beepTextBox1.BorderRect = new Rectangle(0, 0, 209, 44);
+            beepTextBox1.BorderRect = new Rectangle(0, 0, 208, 43);
             beepTextBox1.BorderStyle = BorderStyle.FixedSingle;
             beepTextBox1.BorderThickness = 2;
             beepTextBox1.BottomoffsetForDrawingRect = 0;
@@ -3604,7 +3595,7 @@
             beepTextBox1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepTextBox1.DisabledBorderColor = Color.LightGray;
             beepTextBox1.DisabledForeColor = Color.Gray;
-            beepTextBox1.DrawingRect = new Rectangle(3, 3, 203, 38);
+            beepTextBox1.DrawingRect = new Rectangle(3, 3, 202, 37);
             beepTextBox1.Easing = EasingType.Linear;
             beepTextBox1.EnableHighQualityRendering = true;
             beepTextBox1.EnableMaterialStyle = false;
@@ -3675,7 +3666,6 @@
             beepTextBox1.IsTransparentBackground = false;
             beepTextBox1.IsValid = true;
             beepTextBox1.IsVisible = true;
-            beepTextBox1.Items = (List<object>)resources.GetObject("beepTextBox1.Items");
             beepTextBox1.LabelPosition = LabelPosition.Left;
             beepTextBox1.LabelText = "";
             beepTextBox1.LabelTextOn = false;

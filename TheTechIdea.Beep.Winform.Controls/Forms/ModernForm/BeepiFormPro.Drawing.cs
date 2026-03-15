@@ -439,10 +439,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     oldRegion.Dispose();
                 }
                 
-                // Create a managed Region from the (still-alive, cached) border path.
-                // The Region constructor copies the path data internally, so the cached
-                // path remains valid for subsequent paints.
-                Region = new Region(borderPath);
+                // Create a managed Region from the OUTER bounds (full ClientRectangle),
+                // not from BorderShape which is inset by borderWidth/2 for stroke centering.
+                // Using the inset path clips the outer half of the border stroke on all edges,
+                // causing right/bottom borders to disappear.
+                using var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(
+                    ClientRectangle, ActivePainter.GetCornerRadius(this));
+                Region = new Region(outerPath);
             }
             catch
             {

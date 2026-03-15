@@ -88,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private IListBoxPainter CreatePainter(ListBoxType type)
         {
+            var metadata = ListBoxVariantMetadataCatalog.Resolve(type);
             IListBoxPainter painter = type switch
             {
                 ListBoxType.Standard => new StandardListBoxPainter(),
@@ -127,10 +128,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ListBoxType.InfiniteScroll => new InfiniteScrollListBoxPainter(),
                 ListBoxType.CommandList    => new CommandListBoxPainter(),
                 ListBoxType.NavigationRail => new NavigationRailListBoxPainter(),
+                ListBoxType.ChatList        => new ChatListBoxPainter(),
+                ListBoxType.ContactList     => new ContactListBoxPainter(),
+                ListBoxType.ThreeLineList   => new ThreeLineListBoxPainter(),
+                ListBoxType.NotificationList => new NotificationListBoxPainter(),
+                ListBoxType.ProfileCard     => new ProfileCardListBoxPainter(),
                 _ => new StandardListBoxPainter()
             };
             ControlStyle = BeepStyling.GetControlStyle(BeepThemesManager.CurrentStyle);
             painter.Style = ControlStyle;
+
+            // Honor distinct variant defaults without consolidating enum values.
+            if (Density == ListDensityMode.Comfortable && metadata.DensityDefault != ListDensityMode.Comfortable)
+            {
+                Density = metadata.DensityDefault;
+            }
 
             // If custom painter and we have a custom renderer, set it
             if (painter is CustomListPainter customPainter && _customItemRenderer != null)

@@ -1483,19 +1483,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.BlockID = null;
             btnExport.BorderColor = Color.FromArgb(33, 150, 243);
             btnExport.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            btnExport.BorderRadius = 4;
-            btnExport.BorderSize = 1;
+
             btnExport.BorderStyle = BorderStyle.FixedSingle;
-            btnExport.BorderThickness = 1;
+          
             btnExport.BottomoffsetForDrawingRect = 0;
             btnExport.BoundProperty = null;
-            btnExport.ButtonAutoSizeForMaterial = true;
-            btnExport.ButtonErrorText = "";
-            btnExport.ButtonHasError = false;
-            btnExport.ButtonHelperText = "";
-            btnExport.ButtonLabel = "";
-            btnExport.ButtonMinSize = new Size(75, 32);
-            btnExport.ButtonPreventAutoExpansion = false;
+          
             btnExport.ButtonType = Vis.Modules.ButtonType.Normal;
             btnExport.CanBeFocused = true;
             btnExport.CanBeHovered = true;
@@ -1670,19 +1663,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.BlockID = null;
             btnApply.BorderColor = Color.FromArgb(33, 150, 243);
             btnApply.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            btnApply.BorderRadius = 4;
-            btnApply.BorderSize = 1;
+         
             btnApply.BorderStyle = BorderStyle.FixedSingle;
             btnApply.BorderThickness = 1;
             btnApply.BottomoffsetForDrawingRect = 0;
             btnApply.BoundProperty = null;
-            btnApply.ButtonAutoSizeForMaterial = true;
-            btnApply.ButtonErrorText = "";
-            btnApply.ButtonHasError = false;
-            btnApply.ButtonHelperText = "";
-            btnApply.ButtonLabel = "";
-            btnApply.ButtonMinSize = new Size(60, 32);
-            btnApply.ButtonPreventAutoExpansion = false;
+        
             btnApply.ButtonType = Vis.Modules.ButtonType.Normal;
             btnApply.CanBeFocused = true;
             btnApply.CanBeHovered = true;
@@ -1857,20 +1843,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.BadgeText = "";
             btnReset.BlockID = null;
             btnReset.BorderColor = Color.FromArgb(33, 150, 243);
-            btnReset.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            btnReset.BorderRadius = 4;
-            btnReset.BorderSize = 1;
-            btnReset.BorderStyle = BorderStyle.FixedSingle;
-            btnReset.BorderThickness = 1;
-            btnReset.BottomoffsetForDrawingRect = 0;
-            btnReset.BoundProperty = null;
-            btnReset.ButtonAutoSizeForMaterial = true;
-            btnReset.ButtonErrorText = "";
-            btnReset.ButtonHasError = false;
-            btnReset.ButtonHelperText = "";
-            btnReset.ButtonLabel = "";
-            btnReset.ButtonMinSize = new Size(60, 32);
-            btnReset.ButtonPreventAutoExpansion = false;
+           
             btnReset.ButtonType = Vis.Modules.ButtonType.Normal;
             btnReset.CanBeFocused = true;
             btnReset.CanBeHovered = true;
@@ -2045,19 +2018,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.BlockID = null;
             btnClose.BorderColor = Color.FromArgb(33, 150, 243);
             btnClose.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            btnClose.BorderRadius = 4;
-            btnClose.BorderSize = 1;
-            btnClose.BorderStyle = BorderStyle.FixedSingle;
-            btnClose.BorderThickness = 1;
-            btnClose.BottomoffsetForDrawingRect = 0;
-            btnClose.BoundProperty = null;
-            btnClose.ButtonAutoSizeForMaterial = true;
-            btnClose.ButtonErrorText = "";
-            btnClose.ButtonHasError = false;
-            btnClose.ButtonHelperText = "";
-            btnClose.ButtonLabel = "";
-            btnClose.ButtonMinSize = new Size(60, 32);
-            btnClose.ButtonPreventAutoExpansion = false;
+          
             btnClose.ButtonType = Vis.Modules.ButtonType.Normal;
             btnClose.CanBeFocused = true;
             btnClose.CanBeHovered = true;

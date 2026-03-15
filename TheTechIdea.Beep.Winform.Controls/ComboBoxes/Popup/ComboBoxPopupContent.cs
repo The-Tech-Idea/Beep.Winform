@@ -18,7 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         
         private ComboBoxPopupModel _model;
         private readonly BeepTextBox _searchBox;
-        private readonly FlowLayoutPanel _listPanel;
+        private readonly Panel _scrollContainer;
+        private readonly Panel _listPanel;
+        private readonly BeepScrollBar _vScrollBar;
         private readonly ComboBoxPopupFooter _footer;
         private readonly List<ComboBoxPopupRow> _rows = new List<ComboBoxPopupRow>();
         private ComboBoxPopupHostProfile _profile = ComboBoxPopupHostProfile.OutlineDefault();
@@ -35,17 +37,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _searchBox.KeyDown += SearchBoxOnKeyDown;
             Controls.Add(_searchBox);
 
-            _listPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+            // Create scroll container to hold list panel and themed scrollbar
+            _scrollContainer = new Panel { Dock = DockStyle.Fill };
+            _scrollContainer.Padding = Padding.Empty;
+            _scrollContainer.Margin = Padding.Empty;
+            
+            // List panel - no AutoScroll, manual scroll via BeepScrollBar
+            _listPanel = new Panel { AutoScroll = false };
             _listPanel.Padding = Padding.Empty;
             _listPanel.Margin = Padding.Empty;
-            Controls.Add(_listPanel);
+            _scrollContainer.Controls.Add(_listPanel);
+            
+            // Themed scrollbar
+            _vScrollBar = new BeepScrollBar
+            {
+                ScrollOrientation = Orientation.Vertical,
+                Dock = DockStyle.Right,
+                Width = 12,
+                Minimum = 0,
+                Maximum = 100,
+                LargeChange = 10,
+                SmallChange = 1,
+                Visible = false
+            };
+            _vScrollBar.ValueChanged += OnScrollBarValueChanged;
+            _scrollContainer.Controls.Add(_vScrollBar);
+            
+            Controls.Add(_scrollContainer);
             
             _footer = new ComboBoxPopupFooter { Visible = false };
             _footer.ApplyClicked += (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty);
             _footer.CancelClicked += (s, e) => CancelClicked?.Invoke(this, EventArgs.Empty);
             _footer.SelectAllClicked += (s, e) => SelectAllClicked?.Invoke(this, EventArgs.Empty);
             _footer.ClearAllClicked += (s, e) => ClearAllClicked?.Invoke(this, EventArgs.Empty);
+            _footer.PrimaryActionClicked += (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty);
             Controls.Add(_footer);
+            
+            // Handle mouse wheel on list panel
+            _listPanel.MouseWheel += OnListPanelMouseWheel;
+            _scrollContainer.MouseWheel += OnListPanelMouseWheel;
         }
 
         public void UpdateModel(ComboBoxPopupModel model)
@@ -54,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             
             _searchBox.Visible = model.ShowSearchBox || _profile.ForceSearchVisible;
             _footer.Visible = model.ShowFooter || _profile.ForceFooterVisible;
-            _footer.Setup(model.ShowApplyCancel, model.ShowSelectAll);
+            _footer.Setup(model.ShowApplyCancel, model.ShowSelectAll, model.UsePrimaryActionFooter, model.PrimaryActionText);
             if (model.IsMultiSelect && model.AllRows != null)
             {
                 int count = 0;
@@ -65,20 +95,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             
             _listPanel.Controls.Clear();
             _rows.Clear();
+            
+            int scrollBarWidth = _vScrollBar.Visible ? _vScrollBar.Width : 0;
+            int rowWidth = Math.Max(100, _scrollContainer.ClientSize.Width - scrollBarWidth - 4);
+            int yOffset = 0;
+            
             if (model.FilteredRows != null)
             {
                 foreach (var rowModel in model.FilteredRows)
                 {
-                    var row = new ComboBoxPopupRow { Width = Math.Max(100, _listPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 4), Dock = DockStyle.Top };
+                    var row = new ComboBoxPopupRow { Width = rowWidth, Height = 32 };
                     row.ApplyProfile(_profile);
                     row.ApplyThemeTokens(_themeTokens);
                     row.SetModel(rowModel);
                     row.RowCommitted += OnRowCommitted;
+                    row.Location = new Point(0, yOffset);
+                    row.MouseWheel += OnListPanelMouseWheel;
                     _listPanel.Controls.Add(row);
                     _rows.Add(row);
+                    yOffset += row.Height;
                 }
             }
-
+            
+            // Set list panel size to contain all rows
+            _listPanel.Size = new Size(rowWidth, yOffset);
+            UpdateScrollBar();
             SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
         }
 
@@ -103,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 ? DockStyle.Bottom
                 : DockStyle.Top;
             _footer.ApplyProfile(_profile);
-            _listPanel.Padding = new Padding(_profile.ListHorizontalPadding, _profile.ListVerticalPadding, _profile.ListHorizontalPadding, _profile.ListVerticalPadding);
+            _scrollContainer.Padding = new Padding(_profile.ListHorizontalPadding, _profile.ListVerticalPadding, _profile.ListHorizontalPadding, _profile.ListVerticalPadding);
 
             if (_profile.SearchPlacement == ComboBoxPopupHostProfile.SearchPlacementMode.Bottom)
             {
@@ -126,11 +167,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         {
             _themeTokens = tokens ?? ComboBoxThemeTokens.Fallback();
             BackColor = _themeTokens.PopupBackColor;
+            _scrollContainer.BackColor = _themeTokens.PopupBackColor;
             _listPanel.BackColor = _themeTokens.PopupBackColor;
             _searchBox.BackColor = _themeTokens.PopupBackColor;
             _searchBox.ForeColor = _themeTokens.ForeColor;
             _footer.BackColor = _themeTokens.PopupBackColor;
             _footer.ApplyThemeTokens(_themeTokens);
+            
+            // Apply theme to scrollbar
+            if (_themeTokens.ThemeName != null)
+            {
+                _vScrollBar.Theme = _themeTokens.ThemeName;
+            }
 
             foreach (var row in _rows)
             {
@@ -226,11 +274,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            int width = Math.Max(100, _listPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 4);
+            UpdateScrollBar();
+            int scrollBarWidth = _vScrollBar.Visible ? _vScrollBar.Width : 0;
+            int width = Math.Max(100, _scrollContainer.ClientSize.Width - scrollBarWidth - 4);
+            int yOffset = 0;
             foreach (var row in _rows)
             {
                 row.Width = width;
+                row.Location = new Point(0, yOffset - _vScrollBar.Value);
+                yOffset += row.Height;
             }
+            _listPanel.Width = width;
         }
 
         private void SearchBoxOnKeyDown(object sender, KeyEventArgs e)
@@ -316,12 +370,73 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             try
             {
-                _listPanel.ScrollControlIntoView(_rows[index]);
+                var row = _rows[index];
+                int rowTop = 0;
+                for (int i = 0; i < index; i++)
+                    rowTop += _rows[i].Height;
+                int rowBottom = rowTop + row.Height;
+                
+                int visibleTop = _vScrollBar.Value;
+                int visibleBottom = visibleTop + _scrollContainer.ClientSize.Height;
+                
+                if (rowTop < visibleTop)
+                {
+                    _vScrollBar.Value = rowTop;
+                }
+                else if (rowBottom > visibleBottom)
+                {
+                    _vScrollBar.Value = Math.Max(0, rowBottom - _scrollContainer.ClientSize.Height);
+                }
             }
             catch
             {
                 // Best-effort scrolling only.
             }
+        }
+        
+        private void UpdateScrollBar()
+        {
+            int totalHeight = 0;
+            foreach (var row in _rows)
+                totalHeight += row.Height;
+            
+            int visibleHeight = _scrollContainer.ClientSize.Height;
+            bool needsScroll = totalHeight > visibleHeight;
+            
+            _vScrollBar.Visible = needsScroll;
+            if (needsScroll)
+            {
+                _vScrollBar.Maximum = totalHeight;
+                _vScrollBar.LargeChange = Math.Max(1, visibleHeight);
+                if (_vScrollBar.Value > totalHeight - visibleHeight)
+                    _vScrollBar.Value = Math.Max(0, totalHeight - visibleHeight);
+            }
+            else
+            {
+                _vScrollBar.Value = 0;
+            }
+            
+            // Reposition list panel based on scroll
+            _listPanel.Location = new Point(0, -_vScrollBar.Value);
+        }
+        
+        private void OnScrollBarValueChanged(object sender, EventArgs e)
+        {
+            _listPanel.Location = new Point(0, -_vScrollBar.Value);
+        }
+        
+        private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (!_vScrollBar.Visible) return;
+            
+            int delta = e.Delta > 0 ? -_vScrollBar.SmallChange * 3 : _vScrollBar.SmallChange * 3;
+            int newValue = _vScrollBar.Value + delta;
+            newValue = Math.Max(_vScrollBar.Minimum, Math.Min(newValue, _vScrollBar.Maximum - _vScrollBar.LargeChange));
+            _vScrollBar.Value = newValue;
+            
+            // Mark as handled
+            if (e is HandledMouseEventArgs hme)
+                hme.Handled = true;
         }
     }
 }

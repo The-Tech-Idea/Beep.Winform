@@ -114,6 +114,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     ChipHeight = 22,
                     ShowButtonSeparator = false
                 },
+                ComboBoxType.CommandMenu => new ComboBoxVisualTokens
+                {
+                    ButtonWidth = 32,
+                    InnerPadding = new Padding(10, 6, 8, 6),
+                    CornerRadius = 6,
+                    TextInset = 8,
+                    RowDensity = 32,
+                    ChipHeight = 22,
+                    ShowButtonSeparator = false
+                },
+                ComboBoxType.VisualDisplay => new ComboBoxVisualTokens
+                {
+                    ButtonWidth = 32,
+                    InnerPadding = new Padding(10, 6, 8, 6),
+                    CornerRadius = 8,
+                    TextInset = 8,
+                    RowDensity = 34,
+                    ChipHeight = 24,
+                    ShowButtonSeparator = true
+                },
                 _ => new ComboBoxVisualTokens
                 {
                     ButtonWidth = 34,
@@ -143,7 +163,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         }
 
         public static bool SupportsSearch(ComboBoxType type)
-            => type == ComboBoxType.OutlineSearchable || type == ComboBoxType.MultiChipSearch;
+            => type == ComboBoxType.OutlineSearchable
+            || type == ComboBoxType.MultiChipSearch;
 
         /// <summary>
         /// Returns true only for types that use an inline text editor in the field.

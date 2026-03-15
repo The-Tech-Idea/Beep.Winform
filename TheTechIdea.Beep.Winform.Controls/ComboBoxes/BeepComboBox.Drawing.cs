@@ -201,6 +201,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ComboBoxType.MultiChipSearch => new MultiChipSearchComboBoxPainter(),
                 ComboBoxType.DenseList => new DenseListComboBoxPainter(),
                 ComboBoxType.MinimalBorderless => new MinimalBorderlessComboBoxPainter(),
+                ComboBoxType.CommandMenu => new CommandMenuComboBoxPainter(),
+                ComboBoxType.VisualDisplay => new VisualDisplayComboBoxPainter(),
                 _ => new OutlineDefaultComboBoxPainter()
             };
         }

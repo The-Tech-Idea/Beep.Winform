@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
@@ -14,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
     internal class BeepListBoxHelper
     {
         private readonly BeepListBox _owner;
+        private readonly Dictionary<SimpleItem, int> _itemDepthMap = new();
         
         public BeepListBoxHelper(BeepListBox owner)
         {
@@ -60,17 +64,187 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             if (_owner.ListItems == null || _owner.ListItems.Count == 0)
                 return new System.Collections.Generic.List<SimpleItem>();
             
-            // Use all items by default; do not filter by ItemType to ensure popup menus work for any item type
             var items = _owner.ListItems.ToList();
+
+            // Flatten hierarchy if enabled
+            if (_owner.ShowHierarchy)
+            {
+                _itemDepthMap.Clear();
+                items = FlattenHierarchy(items);
+            }
             
             // Apply search filter if needed
             if (_owner.ShowSearch && !string.IsNullOrWhiteSpace(_owner.SearchText))
             {
-                string searchLower = _owner.SearchText.ToLower();
-                items = items.Where(i => i.Text?.ToLower().Contains(searchLower) == true).ToList();
+                items = _owner.ShowHierarchy
+                    ? FilterHierarchyBySearch(items, _owner.SearchText)
+                    : items.Where(i => IsSearchMatch(i, _owner.SearchText)).ToList();
+            }
+
+            if (_owner.ShowGroups && !_owner.ShowHierarchy)
+            {
+                return BuildGroupedRows(items);
             }
             
             return items;
+        }
+
+        private System.Collections.Generic.List<SimpleItem> BuildGroupedRows(System.Collections.Generic.List<SimpleItem> items)
+        {
+            var output = new System.Collections.Generic.List<SimpleItem>(items.Count + 16);
+            var grouped = items.GroupBy(ResolveGroupKey).OrderBy(g => g.Key);
+
+            foreach (var group in grouped)
+            {
+                string key = group.Key;
+                bool collapsed = _owner.IsGroupCollapsed(key);
+                int childCount = group.Count();
+
+                output.Add(new BeepListItem(key)
+                {
+                    Category = key,
+                    IsGroupHeader = true,
+                    GroupItemCount = childCount,
+                    IsEnabled = true,
+                    GuidId = $"group::{key}"
+                });
+
+                if (collapsed)
+                {
+                    continue;
+                }
+
+                output.AddRange(group);
+            }
+
+            return output;
+        }
+
+        private static string ResolveGroupKey(SimpleItem item)
+        {
+            if (item is BeepListItem rich && !string.IsNullOrWhiteSpace(rich.Category))
+            {
+                return rich.Category.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(item?.GroupName))
+            {
+                return item.GroupName.Trim();
+            }
+
+            return "Ungrouped";
+        }
+
+        // ── Hierarchy helpers ─────────────────────────────────────────────────────
+
+        private List<SimpleItem> FlattenHierarchy(IEnumerable<SimpleItem> items, int depth = 0)
+        {
+            var result = new List<SimpleItem>();
+            if (depth > ListBoxTokens.MaxHierarchyDepth) return result;
+
+            foreach (var item in items)
+            {
+                if (!item.IsVisible) continue;
+                _itemDepthMap[item] = depth;
+                result.Add(item);
+
+                if (item.IsExpanded && item.Children != null && item.Children.Count > 0)
+                {
+                    result.AddRange(FlattenHierarchy(item.Children, depth + 1));
+                }
+            }
+            return result;
+        }
+
+        private List<SimpleItem> FilterHierarchyBySearch(List<SimpleItem> flatItems, string query)
+        {
+            var matching = new HashSet<SimpleItem>();
+            foreach (var item in flatItems)
+            {
+                if (IsSearchMatch(item, query))
+                {
+                    matching.Add(item);
+                    var parent = item.ParentItem;
+                    while (parent != null)
+                    {
+                        matching.Add(parent);
+                        parent = parent.ParentItem;
+                    }
+                }
+            }
+            return flatItems.Where(i => matching.Contains(i)).ToList();
+        }
+
+        internal int GetItemDepth(SimpleItem item)
+            => _itemDepthMap.TryGetValue(item, out int d) ? d : 0;
+
+        internal bool ItemHasChildren(SimpleItem item)
+            => item.Children != null && item.Children.Count > 0;
+
+        // ── Search ────────────────────────────────────────────────────────────────
+
+        private bool IsSearchMatch(SimpleItem item, string query)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(query))
+            {
+                return true;
+            }
+
+            string q = query.Trim();
+            string text = item.Text ?? string.Empty;
+            string sub = (item as BeepListItem)?.SubText ?? item.SubText ?? string.Empty;
+            return IsMatchCore(text, q) || IsMatchCore(sub, q);
+        }
+
+        private bool IsMatchCore(string text, string query)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return false;
+            }
+
+            switch (_owner.SearchMode)
+            {
+                case ListSearchMode.StartsWith:
+                    return text.StartsWith(query, StringComparison.OrdinalIgnoreCase);
+                case ListSearchMode.Fuzzy:
+                    return FuzzyScore(text, query) > 0;
+                default:
+                    return text.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+        }
+
+        private static int FuzzyScore(string source, string query)
+        {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(query))
+            {
+                return 0;
+            }
+
+            if (source.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+            {
+                return 100;
+            }
+
+            if (source.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return 60;
+            }
+
+            int score = 0;
+            int qi = 0;
+            string s = source.ToLowerInvariant();
+            string q = query.ToLowerInvariant();
+            for (int i = 0; i < s.Length && qi < q.Length; i++)
+            {
+                if (s[i] == q[qi])
+                {
+                    qi++;
+                    score += 10;
+                }
+            }
+
+            return qi == q.Length ? score : 0;
         }
         
         /// <summary>

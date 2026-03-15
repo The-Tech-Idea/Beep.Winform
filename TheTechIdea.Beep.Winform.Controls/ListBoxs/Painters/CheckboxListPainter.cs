@@ -84,14 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var subRect   = new Rectangle(textRect.X,
                     textRect.Y + titleH + DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner),
                     textRect.Width, subH);
-                DrawItemText(g, titleRect, item.Text, textColor, _owner.Font);
+                DrawItemText(g, titleRect, item.Text, textColor, _owner.TextFont);
                 DrawSubText(g, subRect, rich.SubText,
                     _owner.IsHighContrast ? _owner.HCItemForeground(isSelected) : (_theme?.ListItemForeColor ?? System.Drawing.Color.Gray),
-                    _owner.Font);
+                    _owner.TextFont);
             }
             else
             {
-                DrawItemText(g, textRect, item.Text, textColor, _owner.Font);
+                DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
             }
 
             // Focus ring

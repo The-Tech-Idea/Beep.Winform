@@ -169,6 +169,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showSearch != value)
                 {
                     _showSearch = value;
+                    if (_showSearch)
+                        InitializeSearchTextBox();
+                    else
+                        DisposeSearchTextBox();
                     _needsLayoutUpdate = true;
                     RequestDelayedInvalidate();
                 }
@@ -190,11 +194,47 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_searchText != value)
                 {
                     _searchText = value ?? string.Empty;
+                    if (!PersistCollapsedGroups && _collapsedGroupKeys.Count > 0)
+                    {
+                        _collapsedGroupKeys.Clear();
+                    }
+                    // Sync to the search text box (avoid re-entrant loop)
+                    if (_searchTextBox != null && !_isUpdatingSearchText && _searchTextBox.Text != _searchText)
+                    {
+                        _isUpdatingSearchText = true;
+                        try { _searchTextBox.Text = _searchText; }
+                        finally { _isUpdatingSearchText = false; }
+                    }
                     OnSearchTextChanged();
+                    OnSearchChanged(_searchText, _helper?.GetVisibleItems()?.Count ?? 0);
                     InvalidateLayoutCache();
                 }
             }
         }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Search matching strategy used when filtering list items.")]
+        [DefaultValue(ListSearchMode.Contains)]
+        public ListSearchMode SearchMode
+        {
+            get => _searchMode;
+            set
+            {
+                if (_searchMode != value)
+                {
+                    _searchMode = value;
+                    InvalidateLayoutCache();
+                }
+            }
+        }
+        private ListSearchMode _searchMode = ListSearchMode.Contains;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Highlights search matches in item labels when SearchText is active.")]
+        [DefaultValue(true)]
+        public bool HighlightSearchMatches { get; set; } = true;
         
         #endregion
         
@@ -429,6 +469,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(SelectionModeEnum.Single)]
         public SelectionModeEnum SelectionMode { get; set; } = SelectionModeEnum.Single;
 
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, keyboard focus movement updates selection (recommended for single-select listbox behavior).")]
+        [DefaultValue(true)]
+        public bool SelectionFollowsFocus { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, Space toggles focused item selection in multi-select modes.")]
+        [DefaultValue(true)]
+        public bool SpaceTogglesSelectionInMulti { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, Enter invokes primary activation for the focused item.")]
+        [DefaultValue(true)]
+        public bool EnterInvokesPrimaryAction { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, focus enters the selected item first; otherwise first visible item is focused.")]
+        [DefaultValue(true)]
+        public bool FocusFirstSelectedOnFocusEnter { get; set; } = true;
+
         #endregion
         
         #region Font Property
@@ -520,7 +584,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("The placeholder text displayed in the search box")]
         [DefaultValue("Search...")]
-        public string SearchPlaceholderText { get; set; } = "Search...";
+        public string SearchPlaceholderText
+        {
+            get => _searchPlaceholderText;
+            set
+            {
+                _searchPlaceholderText = value ?? "Search...";
+                if (_searchTextBox != null)
+                    _searchTextBox.PlaceholderText = _searchPlaceholderText;
+            }
+        }
+        private string _searchPlaceholderText = "Search...";
 
         /// <summary>
         /// Show a friendly empty state when there are no items
@@ -598,6 +672,53 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Allow group headers to be collapsed/expanded.")]
         [DefaultValue(true)]
         public bool CollapsibleGroups { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, collapsed group state persists while filtering and refreshing.")]
+        [DefaultValue(true)]
+        public bool PersistCollapsedGroups { get; set; } = true;
+
+        #endregion
+
+        // ════════════════════════════════════════════════════════════════════════════
+        //  Hierarchy
+        // ════════════════════════════════════════════════════════════════════════════
+
+        #region Hierarchy
+
+        /// <summary>
+        /// When true, items with Children are rendered as an expandable tree.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Render items with Children as an expandable hierarchical list.")]
+        [DefaultValue(false)]
+        public bool ShowHierarchy
+        {
+            get => _showHierarchy;
+            set
+            {
+                if (_showHierarchy != value)
+                {
+                    _showHierarchy = value;
+                    InvalidateLayoutCache();
+                }
+            }
+        }
+        private bool _showHierarchy;
+
+        /// <summary>Raised when an item is expanded.</summary>
+        public event EventHandler<ListBoxItemEventArgs> ItemExpanded;
+
+        /// <summary>Raised when an item is collapsed.</summary>
+        public event EventHandler<ListBoxItemEventArgs> ItemCollapsed;
+
+        protected virtual void OnItemExpanded(int index, SimpleItem item)
+            => ItemExpanded?.Invoke(this, new ListBoxItemEventArgs(index, item));
+
+        protected virtual void OnItemCollapsed(int index, SimpleItem item)
+            => ItemCollapsed?.Invoke(this, new ListBoxItemEventArgs(index, item));
 
         #endregion
 
@@ -861,6 +982,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected virtual void OnSearchChanged(string query, int matchCount)
             => SearchChanged?.Invoke(this, new ListBoxSearchEventArgs(query, matchCount));
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public ListBoxVariantMetadata ActiveVariantMetadata => ListBoxVariantMetadataCatalog.Resolve(ListBoxType);
 
         #endregion
     }

@@ -21,14 +21,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw text
             Color textColor = isSelected ? Color.White : (_theme?.ListItemForeColor ?? Color.Black);
-            DrawItemText(g, contentRect, item.Text, textColor, _owner.Font);
+            DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
 
             // Draw selection indicator on left
             if (isSelected)
             {
                 using (var brush = new SolidBrush(_theme?.PrimaryColor ?? Color.Blue))
                 {
-                    Rectangle indicator = new Rectangle(itemRect.Left, itemRect.Top, 4, itemRect.Height);
+                    Rectangle indicator = new Rectangle(itemRect.Left, itemRect.Top, Scale(4), itemRect.Height);
                     g.FillRectangle(brush, indicator);
                 }
             }

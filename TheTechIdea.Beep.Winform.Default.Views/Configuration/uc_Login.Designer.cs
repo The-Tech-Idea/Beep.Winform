@@ -368,16 +368,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.BlockID = null;
             CancelbeepButton.BorderColor = Color.FromArgb(33, 150, 243);
             CancelbeepButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            CancelbeepButton.BorderRadius = 8;
-            CancelbeepButton.BorderSize = 1;
-            CancelbeepButton.BorderStyle = BorderStyle.FixedSingle;
-            CancelbeepButton.BorderThickness = 1;
-            CancelbeepButton.BottomoffsetForDrawingRect = 0;
-            CancelbeepButton.BoundProperty = null;
-            CancelbeepButton.ButtonErrorText = "";
-            CancelbeepButton.ButtonHasError = false;
-            CancelbeepButton.ButtonHelperText = "";
-            CancelbeepButton.ButtonLabel = "";
+          
             CancelbeepButton.ButtonType = Vis.Modules.ButtonType.Normal;
             CancelbeepButton.CanBeFocused = true;
             CancelbeepButton.CanBeHovered = true;

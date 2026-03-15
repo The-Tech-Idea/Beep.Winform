@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 32, 60);
+            return Math.Max(_owner.TextFont.Height + Scale(32), Scale(60));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -35,23 +35,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw timeline node
             var nodeRect = new Rectangle(
-                itemRect.X + 12,
-                itemRect.Y + (itemRect.Height - _nodeSize) / 2,
-                _nodeSize, _nodeSize);
+                itemRect.X + Scale(12),
+                itemRect.Y + (itemRect.Height - Scale(_nodeSize)) / 2,
+                Scale(_nodeSize), Scale(_nodeSize));
             DrawTimelineNode(g, nodeRect, item, isHovered, isSelected);
 
             // Draw content card
             var contentRect = new Rectangle(
-                itemRect.X + _contentOffset,
-                itemRect.Y + 4,
-                itemRect.Width - _contentOffset - 8,
-                itemRect.Height - 8);
+                itemRect.X + Scale(_contentOffset),
+                itemRect.Y + Scale(4),
+                itemRect.Width - Scale(_contentOffset) - Scale(8),
+                itemRect.Height - Scale(8));
             DrawContentCard(g, contentRect, item, isHovered, isSelected);
         }
 
         private void DrawTimelineConnector(Graphics g, Rectangle itemRect, bool isFirst, bool isLast, bool isSelected)
         {
-            int centerX = itemRect.X + 12 + _nodeSize / 2;
+            int centerX = itemRect.X + Scale(12) + Scale(_nodeSize) / 2;
             Color lineColor = isSelected 
                 ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
                 : (_theme?.BorderColor ?? Color.FromArgb(200, 200, 200));
@@ -61,13 +61,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw line above node (unless first item)
                 if (!isFirst)
                 {
-                    g.DrawLine(pen, centerX, itemRect.Top, centerX, itemRect.Y + (itemRect.Height - _nodeSize) / 2);
+                    g.DrawLine(pen, centerX, itemRect.Top, centerX, itemRect.Y + (itemRect.Height - Scale(_nodeSize)) / 2);
                 }
 
                 // Draw line below node (unless last item)
                 if (!isLast)
                 {
-                    int nodeBottom = itemRect.Y + (itemRect.Height + _nodeSize) / 2;
+                    int nodeBottom = itemRect.Y + (itemRect.Height + Scale(_nodeSize)) / 2;
                     g.DrawLine(pen, centerX, nodeBottom, centerX, itemRect.Bottom);
                 }
             }
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw icon inside node if available
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var iconRect = Rectangle.Inflate(nodeRect, -3, -3);
+                var iconRect = Rectangle.Inflate(nodeRect, -Scale(3), -Scale(3));
                 DrawItemImage(g, iconRect, item.ImagePath);
             }
             else if (isSelected)
@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawContentCard(Graphics g, Rectangle contentRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(contentRect, _cornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(contentRect, Scale(_cornerRadius)))
             {
                 // Background
                 Color bgColor;
@@ -170,8 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw content
-            int textX = contentRect.X + 12;
-            int textWidth = contentRect.Width - 24;
+            int textX = contentRect.X + Scale(12);
+            int textWidth = contentRect.Width - Scale(24);
 
             // Timestamp (SubText2 or top-right)
             if (!string.IsNullOrEmpty(item.SubText2))
@@ -180,24 +180,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     ? Color.FromArgb(200, 255, 255, 255) 
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(140, 140, 140));
                 
-                using (var smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 2, FontStyle.Regular))
+                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 2, FontStyle.Regular))
                 {
-                    var timeRect = new Rectangle(contentRect.Right - 80, contentRect.Y + 6, 70, 16);
+                    var timeRect = new Rectangle(contentRect.Right - Scale(80), contentRect.Y + Scale(6), Scale(70), Scale(16));
                     using (var sf = new StringFormat { Alignment = StringAlignment.Far })
                     {
                         g.DrawString(item.SubText2, smallFont, new SolidBrush(timeColor), timeRect, sf);
                     }
                 }
-                textWidth -= 80;
+                textWidth -= Scale(80);
             }
 
             // Title
-            var titleRect = new Rectangle(textX, contentRect.Y + 8, textWidth, 20);
+            var titleRect = new Rectangle(textX, contentRect.Y + Scale(8), textWidth, Scale(20));
             Color titleColor = isSelected 
                 ? Color.White 
                 : (_theme?.ListItemForeColor ?? Color.FromArgb(30, 30, 30));
             
-            using (var boldFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Bold))
+            using (var boldFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold))
             {
                 DrawItemText(g, titleRect, item.Text ?? item.DisplayField, titleColor, boldFont);
             }
@@ -205,12 +205,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Description (SubText)
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var descRect = new Rectangle(textX, contentRect.Y + 28, contentRect.Width - 24, 20);
+                var descRect = new Rectangle(textX, contentRect.Y + Scale(28), contentRect.Width - Scale(24), Scale(20));
                 Color descColor = isSelected 
                     ? Color.FromArgb(220, 255, 255, 255) 
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(100, 100, 100));
                 
-                using (var smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1, FontStyle.Regular))
+                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, descRect, item.SubText, descColor, smallFont);
                 }
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawCardArrow(Graphics g, Rectangle contentRect, bool isSelected)
         {
-            int arrowSize = 8;
+            int arrowSize = Scale(8);
             int arrowY = contentRect.Y + contentRect.Height / 2;
             
             Point[] arrowPoints = new Point[]

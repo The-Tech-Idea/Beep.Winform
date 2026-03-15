@@ -28,6 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Models
         /// <summary>Group / category key. Items sharing this value appear under the same header.</summary>
         public string? Category { get; set; }
 
+        /// <summary>Marks this item as a synthetic group header row.</summary>
+        public bool IsGroupHeader { get; set; }
+
+        /// <summary>Visible child item count for a group header row.</summary>
+        public int GroupItemCount { get; set; }
+
         // ── Pinning ───────────────────────────────────────────────────────────────
 
         /// <summary>Pinned items are promoted to the top section and never scroll away.</summary>
@@ -45,6 +51,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Models
 
         /// <summary>Optional 3 px left-edge accent colour bar. Color.Empty = none.</summary>
         public Color ItemAccentColor { get; set; } = Color.Empty;
+
+        /// <summary>Optional trailing metadata text (e.g., shortcut, count, status).</summary>
+        public string? TrailingMeta { get; set; }
+
+        /// <summary>Preferred row composition preset for this item.</summary>
+        public ListRowPreset RowPreset { get; set; } = ListRowPreset.Auto;
 
         // ── User payload ──────────────────────────────────────────────────────────
 

@@ -12,6 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
     /// </summary>
     internal sealed class ComboBoxThemeTokens
     {
+        // ── Theme name for scrollbar/child theming ──────────────────────────
+        public string ThemeName          { get; init; }
+        
         // ── Field shell ─────────────────────────────────────────────────────
         public Color BackColor           { get; init; }
         public Color ForeColor           { get; init; }
@@ -60,6 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         /// <summary>Safe fallback used when no active theme is available.</summary>
         public static ComboBoxThemeTokens Fallback() => new ComboBoxThemeTokens
         {
+            ThemeName              = BeepThemesManager.CurrentThemeName,
             BackColor              = Color.White,
             ForeColor              = Color.FromArgb(33, 33, 33),
             BorderColor            = Color.FromArgb(176, 176, 176),

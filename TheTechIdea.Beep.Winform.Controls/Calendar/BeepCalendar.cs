@@ -909,9 +909,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                // MaterialVariant = MaterialTextFieldVariant.Outlined,
                 // MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
-                ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
-                ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
-                MaterialPreserveContentArea = false  // Use full Material Design sizing
+               
             };
             b.Click += handler;
             

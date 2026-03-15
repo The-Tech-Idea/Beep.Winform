@@ -1,6 +1,7 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -11,6 +12,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
+            if (item is BeepListItem headerItem && headerItem.IsGroupHeader)
+            {
+                string key = headerItem.Category ?? headerItem.Text ?? string.Empty;
+                bool isCollapsed = _owner.IsGroupCollapsed(key);
+                DrawGroupHeader(g, _owner, itemRect, key, isCollapsed, headerItem.GroupItemCount);
+                return;
+            }
+
             // Check if this is a group header (item with children acts as group header)
             if (item.Children != null && item.Children.Count > 0)
             {
@@ -41,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
 
                 // Text (indented)
-                var indentedText = new Rectangle(textRect.X + 16, textRect.Y, Math.Max(0, textRect.Width - 16), textRect.Height);
+                var indentedText = new Rectangle(textRect.X + Scale(16), textRect.Y, Math.Max(0, textRect.Width - Scale(16)), textRect.Height);
                 Color textColor = isSelected ? Color.White : (_helper.GetTextColor());
                 DrawItemText(g, indentedText, item.Text, textColor, _owner.TextFont);
             }
@@ -59,13 +68,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw group header text
             using (Font headerFont = new Font(_owner.TextFont, FontStyle.Bold))
             {
-                Color headerColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.SecondaryTextColor ?? _helper.GetTextColor();
-                Rectangle textRect = new Rectangle(rect.X + 12, rect.Y, rect.Width - 12, rect.Height);
+                Color headerColor = _theme?.SecondaryTextColor ?? _helper.GetTextColor();
+                Rectangle textRect = new Rectangle(rect.X + Scale(12), rect.Y, rect.Width - Scale(12), rect.Height);
                 DrawItemText(g, textRect, item.Text, headerColor, headerFont);
             }
             
             // Draw divider line
-            using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
             {
                 g.DrawLine(pen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
             }
@@ -90,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return 32;
+            return Scale(32);
         }
     }
 }

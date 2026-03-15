@@ -42,10 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
 
             bool isEditable   = owner.AllowFreeText;
 
-            // Visual-display variants show a non-text rendering (image, color swatch, icon).
-            // Currently no ComboBoxType enum value maps to this — it will be added later.
-            // Keeping the flag in the state so painters can react when it is introduced.
-            bool isVisualDisplay = false;
+            // Visual-display variant can render icon/swatch-first values.
+            bool isVisualDisplay = owner.ComboBoxType == ComboBoxType.VisualDisplay;
 
             // ── Leading image path ────────────────────────────────────────────
             // Priority: LeadingImagePath on control > LeadingIconPath > selected item image
@@ -136,6 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
 
             return new ComboBoxThemeTokens
             {
+                ThemeName              = owner.Theme ?? BeepThemesManager.CurrentThemeName,
                 BackColor              = owner.BackColor,
                 ForeColor              = owner.ForeColor,
                 BorderColor            = theme.ComboBoxBorderColor != Color.Empty

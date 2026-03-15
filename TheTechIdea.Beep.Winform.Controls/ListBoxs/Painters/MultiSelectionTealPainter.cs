@@ -15,31 +15,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
-            int currentX = rect.Left + 12;
+            int currentX = rect.Left + Scale(12);
             
             // Draw teal-styled checkbox
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - 18) / 2, 18, 18);
+                int cbSize = Scale(18);
+                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - cbSize) / 2, cbSize, cbSize);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawTealCheckbox(g, checkRect, isChecked, isHovered);
-                currentX += 26;
+                currentX += Scale(26);
             }
             
             // Draw text
-            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - 12, rect.Height);
+            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - Scale(12), rect.Height);
             Color textColor = isSelected ? Color.FromArgb(20, 80, 90) : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
             
             // Draw description text if available
             if (!string.IsNullOrEmpty(item.Description))
             {
-                Font smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, rect.Y + rect.Height / 2 + 2, rect.Right - currentX - 12, rect.Height / 2 - 4);
+                Font smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                Rectangle descRect = new Rectangle(currentX, rect.Y + rect.Height / 2 + Scale(2), rect.Right - currentX - Scale(12), rect.Height / 2 - Scale(4));
                 Color descColor = Color.FromArgb(100, 120, 130);
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
                     System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
@@ -124,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 56; // Taller for description text
+            return Scale(56);
         }
     }
 }

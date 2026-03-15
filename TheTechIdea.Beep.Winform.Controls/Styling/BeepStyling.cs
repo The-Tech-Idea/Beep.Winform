@@ -935,6 +935,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case BeepControlStyle.Retro:
                     path = PathPainterHelpers.CreateRetroPath(bounds);
                     break;
+                case BeepControlStyle.Terminal:
+                    path = PathPainterHelpers.CreateTerminalPath(bounds);
+                    break;
+                case BeepControlStyle.Cyberpunk:
+                    path = PathPainterHelpers.CreateCyberpunkPath(bounds);
+                    break;
+                case BeepControlStyle.ChatBubble:
+                    path = PathPainterHelpers.CreateChatBubblePath(bounds, radius);
+                    break;
                 case BeepControlStyle.PillRail:
                     path = PathPainterHelpers.CreatePillPath(bounds);
                     break;

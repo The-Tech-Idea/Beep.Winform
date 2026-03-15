@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
 
@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (g == null || itemRect.IsEmpty) return;
 
             // Create rounded path
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 6))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, Scale(6)))
             {
                 if (isSelected)
                 {
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 44;
+            return Scale(44);
         }
     }
 }

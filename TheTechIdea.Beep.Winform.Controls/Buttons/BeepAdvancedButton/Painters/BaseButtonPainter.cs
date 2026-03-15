@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 return context.ImagePath;
             }
 
-            return context.ImagePainter?.ImagePath ?? string.Empty;
+            return context.IconLeft ?? string.Empty;
         }
 
         protected int MeasureContextTextWidth(AdvancedButtonPaintContext context, string? text = null)

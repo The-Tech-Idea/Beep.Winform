@@ -20,23 +20,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var selectedItems = _owner.SelectedItems;
             if (selectedItems != null && selectedItems.Count > 0)
             {
-                int chipY = yOffset + 8;
-                int chipX = drawingRect.X + 8;
-                int maxWidth = drawingRect.Width - 16;
+                int gap = Scale(8);
+                int chipY = yOffset + gap;
+                int chipX = drawingRect.X + gap;
+                int maxWidth = drawingRect.Width - Scale(16);
                 
                 foreach (var item in selectedItems.Take(5)) // Show max 5 chips
                 {
                     var chipSize = DrawChip(g, item.Text, chipX, chipY);
-                    chipX += chipSize.Width + 8;
+                    chipX += chipSize.Width + gap;
                     
                     if (chipX > maxWidth)
                     {
-                        chipX = drawingRect.X + 8;
-                        chipY += chipSize.Height + 8;
+                        chipX = drawingRect.X + gap;
+                        chipY += chipSize.Height + gap;
                     }
                 }
                 
-                yOffset = chipY + 32;
+                yOffset = chipY + Scale(32);
                 
                 // Draw separator line
                 using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
@@ -44,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     g.DrawLine(pen, drawingRect.Left, yOffset, drawingRect.Right, yOffset);
                 }
                 
-                yOffset += 8;
+                yOffset += gap;
             }
             
             // Draw search area if enabled
@@ -60,34 +61,40 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             SizeF textSizeF = TextUtils.MeasureText(g, text, _owner.TextFont);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-            int chipWidth = textSize.Width + 32;
-            int chipHeight = 24;
+            int chipPadH = Scale(16);
+            int chipWidth = textSize.Width + chipPadH * 2;
+            int chipHeight = Scale(24);
+            int chipRadius = Scale(12);
 
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
 
             // Improved shadow with gradient
-            var shadowRect = Rectangle.Inflate(chipRect, 2, 2);
+            var shadowRect = Rectangle.Inflate(chipRect, Scale(2), Scale(2));
             using (var shadowBrush = new LinearGradientBrush(shadowRect, Color.FromArgb(50, Color.Black), Color.Transparent, 90f))
             {
                 g.FillRectangle(shadowBrush, shadowRect);
             }
 
             // Enhanced chip background with gradient
-            Color chipBg = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Empty;
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, 12))
+            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty;
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, chipRadius))
             using (var brush = new LinearGradientBrush(chipRect, Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B), Color.FromArgb(200, chipBg.R, chipBg.G, chipBg.B), LinearGradientMode.Vertical))
             {
                 g.FillPath(brush, path);
             }
 
             // Draw text with better contrast
-            var textRect = new Rectangle(x + 12, y, chipWidth - 24, chipHeight);
+            int textPad = Scale(12);
+            var textRect = new Rectangle(x + textPad, y, chipWidth - textPad * 2, chipHeight);
             Color chipText = _theme?.OnPrimaryColor ?? Color.White;
             System.Windows.Forms.TextRenderer.DrawText(g, text, _owner.TextFont, textRect, chipText,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
 
             // Enhanced hover effect for X button
-            Rectangle xRect = new Rectangle(chipRect.Right - 20, y + 6, 12, 12);
+            int xSize = Scale(12);
+            int xInset = Scale(20);
+            int xYOff = Scale(6);
+            Rectangle xRect = new Rectangle(chipRect.Right - xInset, y + xYOff, xSize, xSize);
             using (var pen = new Pen(Color.White, 1.5f))
             {
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);
@@ -103,20 +110,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             return new Size(chipWidth, chipHeight);
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
         }
     }
 }

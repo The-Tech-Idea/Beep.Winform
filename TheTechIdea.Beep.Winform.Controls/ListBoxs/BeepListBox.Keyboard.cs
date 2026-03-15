@@ -95,6 +95,48 @@ namespace TheTechIdea.Beep.Winform.Controls
                     e.Handled = e.SuppressKeyPress = true;
                     break;
 
+                case Keys.Right:
+                    if (_showHierarchy && current >= 0 && current < count)
+                    {
+                        var rightItem = visibleItems[current];
+                        if (_helper.ItemHasChildren(rightItem))
+                        {
+                            if (!rightItem.IsExpanded)
+                            {
+                                rightItem.IsExpanded = true;
+                                OnItemExpanded(current, rightItem);
+                                InvalidateLayoutCache();
+                            }
+                            else
+                            {
+                                MoveFocus(current + 1, shift, visibleItems);
+                            }
+                            e.Handled = e.SuppressKeyPress = true;
+                        }
+                    }
+                    break;
+
+                case Keys.Left:
+                    if (_showHierarchy && current >= 0 && current < count)
+                    {
+                        var leftItem = visibleItems[current];
+                        if (leftItem.IsExpanded && _helper.ItemHasChildren(leftItem))
+                        {
+                            leftItem.IsExpanded = false;
+                            OnItemCollapsed(current, leftItem);
+                            InvalidateLayoutCache();
+                            e.Handled = e.SuppressKeyPress = true;
+                        }
+                        else if (leftItem.ParentItem != null)
+                        {
+                            int parentIdx = visibleItems.IndexOf(leftItem.ParentItem);
+                            if (parentIdx >= 0)
+                                MoveFocus(parentIdx, shift, visibleItems);
+                            e.Handled = e.SuppressKeyPress = true;
+                        }
+                    }
+                    break;
+
                 case Keys.Home:
                     MoveFocus(0, shift, visibleItems);
                     e.Handled = e.SuppressKeyPress = true;
@@ -126,8 +168,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (_focusedIndex >= 0 && _focusedIndex < count)
                     {
                         var item = visibleItems[_focusedIndex];
-                        if (_showCheckBox) ToggleItemCheckbox(item);
-                        else HandleFocusedItemSelect(item, visibleItems, shift, ctrl);
+                        if (_showCheckBox)
+                        {
+                            ToggleItemCheckbox(item);
+                        }
+                        else if ((SelectionMode == SelectionModeEnum.MultiSimple || SelectionMode == SelectionModeEnum.MultiExtended || MultiSelect))
+                        {
+                            if (SpaceTogglesSelectionInMulti)
+                            {
+                                HandleFocusedItemSelect(item, visibleItems, shift, ctrl);
+                            }
+                        }
+                        else
+                        {
+                            HandleFocusedItemSelect(item, visibleItems, shift, ctrl);
+                        }
                         e.Handled = e.SuppressKeyPress = true;
                     }
                     break;
@@ -137,7 +192,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         var item = visibleItems[_focusedIndex];
                         HandleFocusedItemSelect(item, visibleItems, shift: false, ctrl: false);
-                        OnItemActivated(_focusedIndex, item);
+                        if (EnterInvokesPrimaryAction)
+                        {
+                            OnItemActivated(_focusedIndex, item);
+                        }
                         e.Handled = e.SuppressKeyPress = true;
                     }
                     break;
@@ -173,6 +231,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     CopySelectedToClipboard();
                     e.Handled = e.SuppressKeyPress = true;
                     break;
+                case Keys.Back:
+                    if (_showSearch && _searchTextBox != null)
+                    {
+                        if (!_searchTextBox.Focused)
+                        {
+                            _searchTextBox.Focus();
+                        }
+                        // Let the text box handle backspace natively
+                        e.Handled = e.SuppressKeyPress = true;
+                    }
+                    break;
             }
         }
 
@@ -182,6 +251,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Type-ahead: printable characters only
             if (char.IsControl(e.KeyChar)) return;
+
+            if (_showSearch && _searchTextBox != null)
+            {
+                // Redirect focus to the live search text box
+                if (!_searchTextBox.Focused)
+                {
+                    _searchTextBox.Focus();
+                }
+                // Let the text box handle the character naturally
+                e.Handled = true;
+                return;
+            }
 
             EnsureTypeAheadTimer();
 
@@ -260,12 +341,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             FocusedIndex = newIndex;
 
             var item = visibleItems[newIndex];
+            if (item is ListBoxs.Models.BeepListItem groupHeader && groupHeader.IsGroupHeader)
+            {
+                return;
+            }
+
             if (SelectionMode == SelectionModeEnum.MultiExtended && shift && _anchorItem != null)
             {
                 int anchorIdx = visibleItems.IndexOf(_anchorItem);
                 if (anchorIdx >= 0) SelectRange(visibleItems, anchorIdx, newIndex);
             }
-            else
+            else if (SelectionFollowsFocus || (SelectionMode != SelectionModeEnum.Single && shift))
             {
                 HandleFocusedItemSelect(item, visibleItems, shift: false, ctrl: false);
             }
@@ -275,6 +361,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             System.Collections.Generic.List<SimpleItem> visibleItems,
             bool shift, bool ctrl)
         {
+            if (item is ListBoxs.Models.BeepListItem rich && (rich.IsGroupHeader || rich.IsSeparator || rich.IsDisabled))
+            {
+                return;
+            }
+
             if (SelectionMode == SelectionModeEnum.MultiExtended)
             {
                 if (shift && _anchorItem != null)
@@ -383,10 +474,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 int idx = (start + pass) % visible.Count;
                 var item = visible[idx];
+                if (item is ListBoxs.Models.BeepListItem gh && gh.IsGroupHeader)
+                {
+                    continue;
+                }
                 if (item.Text?.ToLowerInvariant().StartsWith(lower) == true)
                 {
                     FocusedIndex = idx;
-                    SelectedItem = item;
+                    if (SelectionFollowsFocus || SelectionMode == SelectionModeEnum.Single)
+                    {
+                        SelectedItem = item;
+                    }
                     break;
                 }
             }

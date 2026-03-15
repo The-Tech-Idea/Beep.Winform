@@ -149,5 +149,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             ListHorizontalPadding = 2,
             ListVerticalPadding = 4
         };
+
+        public static ComboBoxPopupHostProfile CommandMenu() => new ComboBoxPopupHostProfile
+        {
+            Name = "CommandMenu",
+            SearchPlaceholder = "Type a command...",
+            BaseRowHeight = 34,
+            ShowRowSeparators = false,
+            RowHorizontalInset = 4,
+            RowVerticalInset = 1,
+            ListHorizontalPadding = 4,
+            ListVerticalPadding = 4,
+            MaxHeight = 360
+        };
+
+        public static ComboBoxPopupHostProfile VisualDisplay() => new ComboBoxPopupHostProfile
+        {
+            Name = "VisualDisplay",
+            SearchPlaceholder = "Search options...",
+            BaseRowHeight = 34,
+            ShowRowSeparators = false,
+            RowHorizontalInset = 2,
+            RowVerticalInset = 1,
+            ListHorizontalPadding = 2,
+            ListVerticalPadding = 4,
+            MaxHeight = 360
+        };
     }
 }

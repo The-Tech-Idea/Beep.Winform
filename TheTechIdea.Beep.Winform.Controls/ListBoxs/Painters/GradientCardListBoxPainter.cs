@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 28, 52);
+            return Math.Max(_owner.TextFont.Height + Scale(28), Scale(52));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -72,10 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Subtext
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + 2, 
-                    textRect.Width, textRect.Height / 2 - 4);
+                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
+                    textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(200, textColor);
-                using (var subFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1, FontStyle.Regular))
+                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
                 }
@@ -84,9 +85,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawGradientCard(Graphics g, Rectangle itemRect, int itemIndex, bool isHovered, bool isSelected)
         {
-            var cardRect = Rectangle.Inflate(itemRect, -3, -2);
+            var cardRect = Rectangle.Inflate(itemRect, -Scale(3), -Scale(2));
             
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(cardRect, _cornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(cardRect, Scale(_cornerRadius)))
             {
                 if (isSelected)
                 {
@@ -144,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             for (int i = 3; i >= 1; i--)
             {
                 var glowRect = Rectangle.Inflate(cardRect, i, i);
-                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glowRect, _cornerRadius + i))
+                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glowRect, Scale(_cornerRadius) + i))
                 using (var pen = new Pen(Color.FromArgb(20 * (4 - i), glowColor), 1f))
                 {
                     g.DrawPath(pen, path);
@@ -163,9 +164,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillEllipse(brush, circleRect);
             }
 
-            // Draw icon
-            var innerRect = Rectangle.Inflate(circleRect, -4, -4);
-            DrawItemImage(g, innerRect, imagePath);
+            // Draw icon using StyledImagePainter circular rendering
+            float cx = circleRect.X + circleRect.Width / 2f;
+            float cy = circleRect.Y + circleRect.Height / 2f;
+            float radius = (circleRect.Width / 2f) - 4;
+            StyledImagePainter.PaintInCircle(g, cx, cy, radius, imagePath);
         }
 
         private void DrawGradientCheckbox(Graphics g, Rectangle checkRect, bool isChecked, int itemIndex)

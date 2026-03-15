@@ -7226,16 +7226,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.BorderColor = Color.FromArgb(33, 150, 243);
             beepButton1.BorderDashStyle = DashStyle.Solid;
             beepButton1.BorderPainter = BeepControlStyle.ChakraUI;
-            beepButton1.BorderRadius = 6;
-            beepButton1.BorderSize = 1;
-            beepButton1.BorderStyle = BorderStyle.FixedSingle;
-            beepButton1.BorderThickness = 1;
-            beepButton1.BottomoffsetForDrawingRect = 0;
-            beepButton1.BoundProperty = null;
-            beepButton1.ButtonErrorText = "";
-            beepButton1.ButtonHasError = false;
-            beepButton1.ButtonHelperText = "";
-            beepButton1.ButtonLabel = "";
+          
             beepButton1.ButtonMinSize = new Size(32, 32);
             beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;

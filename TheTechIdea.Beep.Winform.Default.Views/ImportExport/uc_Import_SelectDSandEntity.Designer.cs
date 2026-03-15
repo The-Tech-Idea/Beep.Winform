@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             SourcebeepComboBox.IsSelectedOptionOn = true;
             SourcebeepComboBox.IsShadowAffectedByTheme = true;
             SourcebeepComboBox.IsVisible = false;
-            SourcebeepComboBox.Items = (List<object>)resources.GetObject("SourcebeepComboBox.Items");
+          
             SourcebeepComboBox.LeftoffsetForDrawingRect = 0;
             SourcebeepComboBox.LinkedProperty = null;
             SourcebeepComboBox.Location = new Point(232, 269);
@@ -249,7 +249,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepLabel1.IsSelectedOptionOn = true;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsVisible = false;
-            beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
+        
             beepLabel1.LabelBackColor = Color.Empty;
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
@@ -553,11 +553,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             AddSourcebeepButton.BlockID = null;
             AddSourcebeepButton.BorderColor = Color.Black;
             AddSourcebeepButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            AddSourcebeepButton.BorderRadius = 8;
-            AddSourcebeepButton.BorderSize = 1;
-            AddSourcebeepButton.BorderStyle = BorderStyle.FixedSingle;
-            AddSourcebeepButton.BorderThickness = 1;
-            AddSourcebeepButton.BottomoffsetForDrawingRect = 0;
+          
             AddSourcebeepButton.BoundProperty = null;
             AddSourcebeepButton.CanBeFocused = true;
             AddSourcebeepButton.CanBeHovered = true;

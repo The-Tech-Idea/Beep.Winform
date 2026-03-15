@@ -109,6 +109,12 @@ Extends `SimpleItem` with:
 ```csharp
 public bool ShowGroups       { get; set; }   // group by BeepListItem.Category
 public bool CollapsibleGroups { get; set; }  // click header to collapse
+public bool PersistCollapsedGroups { get; set; } // preserve collapsed keys during filter/refresh
+```
+
+### Variant metadata (distinct variants preserved)
+```csharp
+public ListBoxVariantMetadata ActiveVariantMetadata { get; } // resolved from ListBoxType
 ```
 
 ### Density
@@ -137,6 +143,16 @@ public bool AllowItemReorder { get; set; }   // drag-to-reorder
 public bool AllowInlineEdit  { get; set; }   // F2 / double-click inline edit
 public bool ShowContextMenu  { get; set; }   // right-click menu
 public ContextMenuStrip? ItemContextMenu { get; set; }  // custom menu
+public bool SelectionFollowsFocus { get; set; }      // APG-friendly behavior toggle
+public bool SpaceTogglesSelectionInMulti { get; set; }
+public bool EnterInvokesPrimaryAction { get; set; }
+public bool FocusFirstSelectedOnFocusEnter { get; set; }
+```
+
+### Search behavior
+```csharp
+public ListSearchMode SearchMode { get; set; } // Contains, StartsWith, Fuzzy
+public bool HighlightSearchMatches { get; set; }
 ```
 
 ---
@@ -184,6 +200,8 @@ listBox.EndUpdate();     // one layout pass + one repaint
 | Delete | Raise `ItemDeleteRequested` |
 | Printable chars | Type-ahead search (800 ms buffer) |
 
+When `ShowSearch` is enabled, printable keys build `SearchText` and filter using `SearchMode`.
+
 ---
 
 ## Accessibility (Sprint 5, WCAG 2.2 AA)
@@ -211,6 +229,12 @@ owner.PaintFocusRectIfHC(g, rowRect);
 ```
 
 `UserPreferenceChanged` is automatically subscribed/unsubscribed with the handle lifetime so the control re-paints immediately when the user toggles HC mode.
+
+---
+
+## Compatibility Matrix
+
+See `ListBoxs/VARIANT_COMPATIBILITY_MATRIX.md` for the per-variant behavior parity table and regression checklist.
 
 ---
 

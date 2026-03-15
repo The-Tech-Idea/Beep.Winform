@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -321,6 +322,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RequestDelayedInvalidate();
             }
 
+            // Theme the embedded search text box
+            if (_searchTextBox != null)
+            {
+                _searchTextBox.ApplyThemeOnImage = false;
+                _searchTextBox.Theme = Theme;
+                _searchTextBox.ApplyTheme();
+            }
+
             // Apply theme defaults for selection visuals if not explicitly set
             try
             {
@@ -546,6 +555,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _selectedItems.Clear();
                 foreach (var item in visible)
                 {
+                    if (item is BeepListItem rich && (rich.IsGroupHeader || rich.IsSeparator || rich.IsDisabled))
+                    {
+                        continue;
+                    }
                     _selectedItems.Add(item);
                     if (_showCheckBox) SetItemCheckbox(item, true);
                 }
@@ -599,12 +612,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (SelectionMode == ListBoxs.SelectionModeEnum.Single) return;
             foreach (var item in visible)
             {
+                if (item is BeepListItem rich && (rich.IsGroupHeader || rich.IsSeparator || rich.IsDisabled))
+                {
+                    continue;
+                }
                 if (_selectedItems.Contains(item))
                     _selectedItems.Remove(item);
                 else
                     _selectedItems.Add(item);
             }
             RequestDelayedInvalidate();
+        }
+
+        #endregion
+
+        #region Grouping helpers
+
+        public bool IsGroupCollapsed(string groupKey)
+        {
+            if (string.IsNullOrWhiteSpace(groupKey)) return false;
+            return _collapsedGroupKeys.Contains(groupKey.Trim());
+        }
+
+        public void CollapseGroup(string groupKey)
+        {
+            if (!CollapsibleGroups || string.IsNullOrWhiteSpace(groupKey)) return;
+            string key = groupKey.Trim();
+            if (_collapsedGroupKeys.Add(key))
+            {
+                OnGroupCollapsed(key);
+                InvalidateLayoutCache();
+            }
+        }
+
+        public void ExpandGroup(string groupKey)
+        {
+            if (string.IsNullOrWhiteSpace(groupKey)) return;
+            string key = groupKey.Trim();
+            if (_collapsedGroupKeys.Remove(key))
+            {
+                OnGroupExpanded(key);
+                InvalidateLayoutCache();
+            }
+        }
+
+        public void ToggleGroupCollapsed(string groupKey)
+        {
+            if (IsGroupCollapsed(groupKey)) ExpandGroup(groupKey);
+            else CollapseGroup(groupKey);
+        }
+
+        public void ClearCollapsedGroups()
+        {
+            if (_collapsedGroupKeys.Count == 0) return;
+            _collapsedGroupKeys.Clear();
+            InvalidateLayoutCache();
         }
 
         #endregion

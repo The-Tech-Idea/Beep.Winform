@@ -472,7 +472,7 @@ if (isFocused)
 
 The BorderPainters folder provides a **complete, systematic solution** for all border rendering needs:
 
-✅ **27 specialized painters** for every design system  
+✅ **61 specialized painters** for every design system  
 ✅ **Unique focus indicators** (bars, rings, glows)  
 ✅ **Theme integration** for all colors  
 ✅ **Design system fidelity** (Fluent bars, Tailwind rings)  
@@ -480,4 +480,61 @@ The BorderPainters folder provides a **complete, systematic solution** for all b
 ✅ **Performance optimized** with GraphicsPath  
 
 **Border rendering is 100% complete and production-ready!** 🎨
+
+---
+
+## 🏗️ Architecture — Path / Painter Consistency Convention
+
+### How It Works
+
+```
+ClassicBaseControlPainter.UpdateLayout()
+  └─ BeepStyling.CreateControlStylePath(bounds, style)
+       └─ switch (style)
+            ├─ Neumorphism  → PathPainterHelpers.CreateNeumorphismPath()
+            ├─ Gaming       → PathPainterHelpers.CreateGamingPath()
+            ├─ Retro        → PathPainterHelpers.CreateRetroPath()
+            ├─ Terminal      → PathPainterHelpers.CreateTerminalPath()
+            ├─ Cyberpunk     → PathPainterHelpers.CreateCyberpunkPath()
+            ├─ ChatBubble    → PathPainterHelpers.CreateChatBubblePath()
+            ├─ PillRail      → PathPainterHelpers.CreatePillPath()
+            ├─ NeonGlow/DarkGlow → PathPainterHelpers.CreateCyberpunkPath()
+            └─ default       → PathPainterHelpers.CreateRoundedRectangle(bounds, GetRadius(style))
+```
+
+The resulting `BorderPath` is used for:
+1. **Region clip** — `Region = new Region(BorderPath)` in `UpdateControlRegion()`
+2. **Background fill** — `FillPath(brush, InnerShape)` derived from BorderPath
+3. **Border painting** — passed to `BorderPainterFactory.CreatePainter(style).Paint(g, path, ...)`
+
+### CRITICAL CONVENTION
+
+> **All border painters MUST use the passed `GraphicsPath` parameter for drawing.**
+>
+> **NEVER** extract `path.GetBounds()` and draw independent geometry (lines, rectangles).
+> This breaks the Region clip ↔ border ↔ background consistency.
+
+Approved techniques:
+- `BorderPainterHelpers.PaintSimpleBorder(g, path, ...)` — insets + draws the path
+- `BorderPainterHelpers.PaintGlowBorder(g, path, ...)` — draws glow layers on the path
+- `BorderPainterHelpers.PaintRing(g, path, ...)` — draws scaled path ring
+- `g.DrawPath(pen, path)` — direct path drawing
+- `BorderPainterHelpers.CreateStrokeInsetPath(path, width)` — to create an inset path
+
+**Additive decorations** (corner accents, focus rings, glow halos) are allowed as overlays ON TOP of the path-based border, but the primary border must follow the path.
+
+### Styles with Custom Paths
+
+| Style | Path Method | Shape |
+|-------|------------|-------|
+| Neumorphism | `CreateNeumorphismPath(bounds, radius)` | Soft-edge rounded rect |
+| Gaming | `CreateGamingPath(bounds)` | Angular chamfered octagon (1/8 cut) |
+| Retro | `CreateRetroPath(bounds)` | Win95 beveled rect (small corner bevels) |
+| Terminal | `CreateTerminalPath(bounds)` | CRT chamfered rect (4-12px 45° corners) |
+| Cyberpunk | `CreateCyberpunkPath(bounds)` | Sharp beveled octagon (1/16 cut) |
+| ChatBubble | `CreateChatBubblePath(bounds, radius)` | Rounded rect + triangular tail |
+| PillRail | `CreatePillPath(bounds)` | Full pill/stadium shape |
+| NeonGlow/DarkGlow | `CreateCyberpunkPath(bounds)` | Same as Cyberpunk |
+
+All other ~52 styles use `CreateRoundedRectangle(bounds, GetRadius(style))` — their visual identity comes from border paint effects (glow, gradient, thickness, color), not path shape.
 

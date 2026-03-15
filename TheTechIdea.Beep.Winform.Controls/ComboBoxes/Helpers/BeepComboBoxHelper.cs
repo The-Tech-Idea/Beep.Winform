@@ -219,7 +219,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         #region Color Helpers
         
         /// <summary>
-        /// Get the appropriate text color based on state
+        /// Get the appropriate text color based on state.
+        /// Uses theme colors to ensure proper visibility on dark themes.
         /// </summary>
         public Color GetTextColor()
         {
@@ -230,9 +231,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 return _owner._currentTheme?.ComboBoxErrorForeColor ?? _owner._currentTheme?.ErrorColor ?? _owner.ForeColor;
             
             if (IsShowingPlaceholder())
-                return _owner._currentTheme?.TextBoxPlaceholderColor ?? Color.FromArgb(160, _owner.ForeColor);
+            {
+                // Use theme's placeholder color with fallback to muted ForeColor from theme
+                Color themeFore = _owner._currentTheme?.ForeColor ?? _owner.ForeColor;
+                return _owner._currentTheme?.TextBoxPlaceholderColor ?? Color.FromArgb(160, themeFore);
+            }
             
-            return _owner.ForeColor;
+            // Use theme's ComboBoxForeColor or ForeColor to ensure proper contrast on dark themes
+            Color themeTextColor = _owner._currentTheme?.ComboBoxForeColor ?? Color.Empty;
+            if (themeTextColor == Color.Empty)
+                themeTextColor = _owner._currentTheme?.ForeColor ?? Color.Empty;
+            return themeTextColor != Color.Empty ? themeTextColor : _owner.ForeColor;
         }
         
         /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -20,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return _chipHeight + 4;
+            return Scale(_chipHeight) + Scale(4);
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -28,11 +29,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (g == null || itemRect.IsEmpty || item == null) return;
 
             // Calculate chip bounds (centered in row)
+            int scaledChipH = Scale(_chipHeight);
             var chipRect = new Rectangle(
-                itemRect.X + 4,
-                itemRect.Y + (itemRect.Height - _chipHeight) / 2,
-                itemRect.Width - 8,
-                _chipHeight);
+                itemRect.X + Scale(4),
+                itemRect.Y + (itemRect.Height - scaledChipH) / 2,
+                itemRect.Width - Scale(8),
+                scaledChipH);
 
             // Draw chip background
             DrawChipBackground(g, chipRect, isHovered, isSelected);
@@ -41,26 +43,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
             Rectangle iconRect = info?.IconRect ?? Rectangle.Empty;
 
-            int contentX = chipRect.X + _chipPadding;
+            int contentX = chipRect.X + Scale(_chipPadding);
 
             // Icon (if available)
             if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
             {
-                var chipIconRect = new Rectangle(contentX, chipRect.Y + (chipRect.Height - 20) / 2, 20, 20);
+                var chipIconRect = new Rectangle(contentX, chipRect.Y + (chipRect.Height - Scale(20)) / 2, Scale(20), Scale(20));
                 DrawChipIcon(g, chipIconRect, item.ImagePath, isSelected);
-                contentX += 24;
+                contentX += Scale(24);
             }
 
             // Checkbox indicator (checkmark inside chip)
             if (_owner.ShowCheckBox && _owner.IsItemSelected(item))
             {
-                var checkRect = new Rectangle(contentX, chipRect.Y + (chipRect.Height - 16) / 2, 16, 16);
+                var checkRect = new Rectangle(contentX, chipRect.Y + (chipRect.Height - Scale(16)) / 2, Scale(16), Scale(16));
                 DrawChipCheckmark(g, checkRect, isSelected);
-                contentX += 20;
+                contentX += Scale(20);
             }
 
             // Text
-            var textRect = new Rectangle(contentX, chipRect.Y, chipRect.Right - contentX - _chipPadding, chipRect.Height);
+            var textRect = new Rectangle(contentX, chipRect.Y, chipRect.Right - contentX - Scale(_chipPadding), chipRect.Height);
             Color textColor = isSelected 
                 ? Color.White 
                 : (_theme?.ListItemForeColor ?? Color.FromArgb(60, 60, 60));
@@ -73,14 +75,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Close button (X) for selected chips
             if (isSelected && _owner.SelectionMode != SelectionModeEnum.Single)
             {
-                var closeRect = new Rectangle(chipRect.Right - 24, chipRect.Y + (chipRect.Height - 16) / 2, 16, 16);
+                var closeRect = new Rectangle(chipRect.Right - Scale(24), chipRect.Y + (chipRect.Height - Scale(16)) / 2, Scale(16), Scale(16));
                 DrawCloseButton(g, closeRect, isHovered);
             }
         }
 
         private void DrawChipBackground(Graphics g, Rectangle chipRect, bool isHovered, bool isSelected)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, _chipCornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, Scale(_chipCornerRadius)))
             {
                 if (isSelected)
                 {
@@ -140,9 +142,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillEllipse(brush, iconRect);
             }
 
-            // Draw icon
-            var innerRect = Rectangle.Inflate(iconRect, -2, -2);
-            DrawItemImage(g, innerRect, imagePath);
+            // Draw icon using StyledImagePainter circular rendering
+            float cx = iconRect.X + iconRect.Width / 2f;
+            float cy = iconRect.Y + iconRect.Height / 2f;
+            float radius = (iconRect.Width / 2f) - 2;
+            StyledImagePainter.PaintInCircle(g, cx, cy, radius, imagePath);
         }
 
         private void DrawChipCheckmark(Graphics g, Rectangle checkRect, bool isSelected)

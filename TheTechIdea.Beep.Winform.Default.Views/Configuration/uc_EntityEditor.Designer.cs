@@ -5092,17 +5092,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.BorderPainter = BeepControlStyle.None;
             graphicsPath4.FillMode = FillMode.Alternate;
             ApplybeepButton.BorderPath = graphicsPath4;
-            ApplybeepButton.BorderRadius = 8;
-            ApplybeepButton.BorderRect = new Rectangle(0, 0, 100, 36);
-            ApplybeepButton.BorderSize = 1;
-            ApplybeepButton.BorderStyle = BorderStyle.FixedSingle;
-            ApplybeepButton.BorderThickness = 1;
-            ApplybeepButton.BottomoffsetForDrawingRect = 0;
-            ApplybeepButton.BoundProperty = null;
-            ApplybeepButton.ButtonErrorText = "";
-            ApplybeepButton.ButtonHasError = false;
-            ApplybeepButton.ButtonHelperText = "";
-            ApplybeepButton.ButtonLabel = "";
+         
             ApplybeepButton.ButtonMinSize = new Size(32, 32);
             ApplybeepButton.ButtonType = ButtonType.Normal;
             ApplybeepButton.CanBeFocused = true;

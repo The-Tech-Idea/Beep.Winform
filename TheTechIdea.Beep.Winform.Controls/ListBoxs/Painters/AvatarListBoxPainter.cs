@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 28, 56);
+            return Math.Max(_owner.TextFont.Height + Scale(28), Scale(56));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -29,13 +30,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             var padding = GetPreferredPadding();
             int contentX = itemRect.X + padding.Left;
-            int contentY = itemRect.Y + (itemRect.Height - _avatarSize) / 2;
+            int scaledAvatar = Scale(_avatarSize);
+            int contentY = itemRect.Y + (itemRect.Height - scaledAvatar) / 2;
 
             // Draw avatar (circular)
-            var avatarRect = new Rectangle(contentX, contentY, _avatarSize, _avatarSize);
+            var avatarRect = new Rectangle(contentX, contentY, scaledAvatar, scaledAvatar);
             DrawAvatar(g, avatarRect, item, isSelected);
 
-            contentX += _avatarSize + 12;
+            contentX += scaledAvatar + Scale(12);
 
             // Get layout info for checkbox
             var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
@@ -45,16 +47,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int textWidth = itemRect.Right - contentX - padding.Right;
             if (_owner.ShowCheckBox && !checkRect.IsEmpty)
             {
-                textWidth -= checkRect.Width + 8;
+                textWidth -= checkRect.Width + Scale(8);
             }
 
             // Primary text (name)
-            var primaryTextRect = new Rectangle(contentX, itemRect.Y + 10, textWidth, 20);
+            var primaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(10), textWidth, Scale(20));
             Color primaryColor = isSelected 
                 ? Color.White 
                 : (_theme?.ListItemForeColor ?? Color.FromArgb(30, 30, 30));
             
-            using (var boldFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Bold))
+            using (var boldFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold))
             {
                 DrawItemText(g, primaryTextRect, item.Text ?? item.DisplayField, primaryColor, boldFont);
             }
@@ -62,12 +64,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Secondary text (subtext/email/role)
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var secondaryTextRect = new Rectangle(contentX, itemRect.Y + 30, textWidth, 18);
+                var secondaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(30), textWidth, Scale(18));
                 Color secondaryColor = isSelected 
                     ? Color.FromArgb(200, 255, 255, 255) 
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(120, 120, 120));
                 
-                using (var smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1, FontStyle.Regular))
+                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, secondaryTextRect, item.SubText, secondaryColor, smallFont);
                 }
@@ -89,9 +91,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawAvatarItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            var bgRect = Rectangle.Inflate(itemRect, -2, -1);
+            var bgRect = Rectangle.Inflate(itemRect, -Scale(2), -Scale(1));
             
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(bgRect, _cornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(bgRect, Scale(_cornerRadius)))
             {
                 if (isSelected)
                 {
@@ -114,26 +116,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawAvatar(Graphics g, Rectangle avatarRect, SimpleItem item, bool isSelected)
         {
-            // Draw circular clip
-            using (var path = new GraphicsPath())
+            if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                path.AddEllipse(avatarRect);
-                
-                var state = g.Save();
-                g.SetClip(path);
-
-                if (!string.IsNullOrEmpty(item.ImagePath))
-                {
-                    // Draw actual avatar image
-                    DrawItemImage(g, avatarRect, item.ImagePath);
-                }
-                else
-                {
-                    // Draw initials avatar
-                    DrawInitialsAvatar(g, avatarRect, item.Text ?? item.DisplayField, isSelected);
-                }
-
-                g.Restore(state);
+                // Use StyledImagePainter for circular avatar rendering
+                float cx = avatarRect.X + avatarRect.Width / 2f;
+                float cy = avatarRect.Y + avatarRect.Height / 2f;
+                float radius = avatarRect.Width / 2f;
+                StyledImagePainter.PaintInCircle(g, cx, cy, radius, item.ImagePath);
+            }
+            else
+            {
+                // Draw initials avatar
+                DrawInitialsAvatar(g, avatarRect, item.Text ?? item.DisplayField, isSelected);
             }
 
             // Draw avatar border
@@ -169,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw initials
             string initials = GetInitials(name);
-            using (var font = new Font(_owner.TextFont.FontFamily, 14, FontStyle.Bold))
+            using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, 14, FontStyle.Bold))
             using (var brush = new SolidBrush(Color.White))
             using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
             {
@@ -177,25 +171,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
         }
 
-        private string GetInitials(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name)) return "?";
-            
-            var parts = name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 2)
-            {
-                return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-            }
-            return name.Substring(0, Math.Min(2, name.Length)).ToUpper();
-        }
-
         private void DrawStatusIndicator(Graphics g, Rectangle avatarRect, Color statusColor)
         {
             // Draw status dot at bottom-right of avatar
-            int dotSize = 12;
+            int dotSize = Scale(12);
             var dotRect = new Rectangle(
-                avatarRect.Right - dotSize + 2,
-                avatarRect.Bottom - dotSize + 2,
+                avatarRect.Right - dotSize + Scale(2),
+                avatarRect.Bottom - dotSize + Scale(2),
                 dotSize, dotSize);
 
             // White border

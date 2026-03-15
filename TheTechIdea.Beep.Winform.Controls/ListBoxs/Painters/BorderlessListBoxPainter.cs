@@ -1,126 +1,52 @@
-using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
-    /// Borderless list box with bottom border on selection
+    /// Borderless list box with bottom border on selection.
+    /// Extends BaseListBoxPainter for full token / DPI / theme support.
     /// </summary>
-    internal class BorderlessListBoxPainter : IListBoxPainter
+    internal class BorderlessListBoxPainter : BaseListBoxPainter
     {
-        private BeepListBox _owner;
-        private IBeepTheme _theme;
+        public override bool SupportsSearch() => false;
+        public override bool SupportsCheckboxes() => false;
 
-        public void Initialize(BeepListBox owner, IBeepTheme theme)
+        public override int GetPreferredItemHeight()
+            => Scale(ListBoxTokens.ItemHeightCompact); // 40 logical px
+
+        public override System.Windows.Forms.Padding GetPreferredPadding()
+            => new System.Windows.Forms.Padding(Scale(ListBoxTokens.ItemPaddingH), Scale(ListBoxTokens.ItemPaddingV),
+                                                 Scale(ListBoxTokens.ItemPaddingH), Scale(ListBoxTokens.ItemPaddingV));
+
+        protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
+            if (g == null || itemRect.IsEmpty || item == null) return;
+
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+
+            var padding = GetPreferredPadding();
+            var contentRect = Rectangle.Inflate(itemRect, -padding.Left, -padding.Top);
+
+            Color textColor = isSelected
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : (_theme?.ListItemForeColor ?? Color.Black);
+
+            DrawItemText(g, contentRect, item.Text, textColor, _owner.TextFont);
         }
 
-        public void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
-        {
-            if (g == null || owner == null || drawingRect.IsEmpty) return;
-
-            var items = owner.ListItems;
-            var font = owner.Font;
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                var itemRect = new Rectangle(drawingRect.X, drawingRect.Y + i * 36, drawingRect.Width, 36);
-                var item = items[i];
-                bool isHovered = itemRect.Contains(owner.PointToClient(Control.MousePosition));
-                bool isSelected = owner.IsItemSelected(item);
-
-                DrawItemBackground(g, itemRect, isHovered, isSelected);
-                DrawItemText(g, itemRect, items[i].ToString(), font, isSelected);
-            }
-        }
-
-        private void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
+        protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty) return;
 
-            // Background color
-            Color backgroundColor = Color.White;
+            // Borderless: no outline, only a bottom accent line on selection
             if (isSelected)
             {
-                backgroundColor = _theme?.PrimaryColor ?? Color.LightBlue;
+                int inset = Scale(8);
+                using var pen = new Pen(_theme?.AccentColor ?? Color.Blue, Scale(2));
+                g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - Scale(2),
+                                itemRect.Right - inset, itemRect.Bottom - Scale(2));
             }
-            else if (isHovered)
-            {
-                backgroundColor = Color.FromArgb(240, 240, 240);
-            }
-
-            using (var brush = new SolidBrush(backgroundColor))
-            {
-                g.FillRectangle(brush, itemRect);
-            }
-
-            // Bottom border for selected item
-            if (isSelected)
-            {
-                using (var pen = new Pen(_theme?.AccentColor ?? Color.Blue, 2))
-                {
-                    g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 2, itemRect.Right - 8, itemRect.Bottom - 2);
-                }
-            }
-        }
-
-        private void DrawItemText(Graphics g, Rectangle itemRect, string text, Font font, bool isSelected)
-        {
-            if (string.IsNullOrEmpty(text)) return;
-
-            var textColor = isSelected ? Color.White : Color.Black;
-            var textRect = new Rectangle(itemRect.X + 8, itemRect.Y, itemRect.Width - 16, itemRect.Height);
-
-            TextRenderer.DrawText(g, text, font, textRect, textColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-        }
-
-        // Implemented missing members of IListBoxPainter
-        public bool SupportsSearch()
-        {
-            return false; // BorderlessListBoxPainter does not support search by default
-        }
-
-        public bool SupportsCheckboxes()
-        {
-            return false; // BorderlessListBoxPainter does not support checkboxes by default
-        }
-
-        public BeepControlStyle Style
-        {
-            get { return _owner.ControlStyle; } // Default style for borderless list box
-            set { _owner.ControlStyle = value; }
-        }
-
-        public System.Windows.Forms.Padding GetPreferredPadding()
-        {
-            return new System.Windows.Forms.Padding(8, 4, 8, 4); // Default padding
-        }
-
-        public int GetPreferredItemHeight()
-        {
-            return 36; // Default item height
-        }
-
-        /// <inheritdoc/>
-        public int GetItemHeight(BeepListBox owner, object item)
-            => GetPreferredItemHeight();
-
-        /// <inheritdoc/>
-        public void DrawGroupHeader(
-            Graphics g, BeepListBox owner, Rectangle headerRect,
-            string groupKey, bool isCollapsed, int itemCount)
-        {
-            if (g == null || headerRect.IsEmpty) return;
-            using var brush = new SolidBrush(Color.FromArgb(20, Color.Gray));
-            g.FillRectangle(brush, headerRect);
-            var sf = new StringFormat { LineAlignment = StringAlignment.Center };
-            using var fb = new SolidBrush(Color.Gray);
-            using var fn = new Font(owner.Font, System.Drawing.FontStyle.Bold);
-            g.DrawString($"{groupKey} ({itemCount})", fn, fb, headerRect, sf);
         }
     }
 }

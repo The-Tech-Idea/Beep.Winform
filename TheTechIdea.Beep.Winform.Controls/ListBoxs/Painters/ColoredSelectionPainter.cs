@@ -16,19 +16,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
                 DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
-            int currentX = itemRect.Left + 16;
+            int currentX = itemRect.Left + Scale(16);
 
             // Draw checkbox
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - 18) / 2, 18, 18);
+                int cbSize = Scale(18);
+                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - cbSize) / 2, cbSize, cbSize);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawColoredCheckbox(g, checkRect, isChecked, GetSelectionColor(item), isHovered);
-                currentX += 26;
+                currentX += Scale(26);
             }
 
             // Draw main text
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y + 8, itemRect.Width - currentX - 16, itemRect.Height / 2);
+            int textPad = Scale(16);
+            Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Width - currentX - textPad, itemRect.Height / 2);
             Color textColor = _owner.IsItemSelected(item)
                 ? Color.White
                 : Color.FromArgb(40, 40, 40);
@@ -39,8 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw description
             if (!string.IsNullOrEmpty(item.Description))
             {
-                Font smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - 16, itemRect.Height / 2 - 8);
+                Font smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - textPad, itemRect.Height / 2 - Scale(8));
                 Color descColor = _owner.IsItemSelected(item)
                     ? Color.FromArgb(200, 200, 200)
                     : Color.FromArgb(120, 120, 120);
@@ -59,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray)))
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -73,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Determine checkbox color based on item
             if (item.Text?.ToLower().Contains("custom") == true)
-                return Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.FromArgb(76, 175, 80); // Green
+                return _theme?.PrimaryColor ?? Color.FromArgb(76, 175, 80); // Green
             else
                 return Color.FromArgb(120, 120, 120); // Gray
         }
@@ -131,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return 64; // Taller for two-line display
+            return Scale(64);
         }
     }
 }

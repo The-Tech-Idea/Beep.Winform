@@ -833,6 +833,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _drawingRect = newRect;
             }
         }
+
+            /// <summary>
+            /// Rebuilds painter layout and the clipping Region together.
+            /// Use this when external code changes style or size in quick succession,
+            /// so BorderPath and Region stay aligned for the next paint.
+            /// </summary>
+            public void RefreshLayoutAndRegion()
+            {
+                if (IsDisposed || Disposing)
+                    return;
+
+                UpdateDrawingRect();
+                UpdateControlRegion();
+            }
         #endregion
 
         #region React UI Helper Methods (from BeepControl)

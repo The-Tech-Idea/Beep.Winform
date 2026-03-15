@@ -63,7 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _loadingRotationAngle = 0f;
 
         private string _imagePath = string.Empty;
-        private int borderSize = 1;
         
         // Cached measurements for performance
         private Size? _cachedImageSize;
@@ -74,8 +73,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font _cachedFont;
         private bool _measurementsDirty = true;
 
-        private Color borderColor = Color.Black;
-        private Color selectedBorderColor = Color.Blue;
         private bool _isStillButton = false;
 
         private TextImageRelation textImageRelation = TextImageRelation.ImageBeforeText;
@@ -377,18 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        public int BorderSize
-        {
-            get => borderSize;
-            set
-            {
-                borderSize = value;
-                Invalidate();  // Trigger repaint
-            }
-        }
-        bool _applyThemeOnImage = false;
+              bool _applyThemeOnImage = false;
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -538,91 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private Color _originalForColor;
 
-     
 
-        // Material Design convenience properties
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("The floating label text that appears above the button.")]
-        public string ButtonLabel
-        {
-            get => LabelText;
-            set => LabelText = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Helper text that appears below the button.")]
-        public string ButtonHelperText
-        {
-            get => HelperText;
-            set => HelperText = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Error message to display when validation fails.")]
-        public string ButtonErrorText
-        {
-            get => ErrorText;
-            set => ErrorText = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Whether the button is in an error state.")]
-        public bool ButtonHasError
-        {
-            get => HasError;
-            set => HasError = value;
-        }
-
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Automatically adjust size when Material Design styling is enabled.")]
-        [DefaultValue(false)]
-        public bool ButtonAutoSizeForMaterial { get; set;}= false;
-
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Prevents automatic width/height expansion for Material Design. Default is true.")]
-        [DefaultValue(true)]
-        public bool ButtonPreventAutoExpansion { get; set; }= true;
-
-        /// <summary>
-        /// Override to provide button specific minimum dimensions
-        /// </summary>
-        /// <returns>Minimum height for Material Design button</returns>
-        protected override int GetMaterialMinimumHeight()
-        {
-            // If this is an image-only button (no text), allow much smaller height
-            if ((string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath))
-            {
-                return Math.Max(ButtonMinSize.Height, _maxImageSize.Height + 8);
-            }
-
-            // Keep buttons compact; base spec sizes are large for touch. Use compact heights.
-            return Math.Max(ButtonMinSize.Height, 28);
-        }
-
-        /// <summary>
-        /// Override to provide button specific minimum width
-        /// </summary>
-        /// <returns>Minimum width for Material Design button</returns>
-        protected override int GetMaterialMinimumWidth()
-        {
-            // Image-only compact width
-            if ((string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath))
-            {
-                return Math.Max(ButtonMinSize.Width, _maxImageSize.Width + 8);
-            }
-
-            // Compact width for text buttons
-            int baseMinWidth = 48; // compact baseline
-            var iconSpace = GetMaterialIconSpace();
-            baseMinWidth += iconSpace.Width;
-            return Math.Max(ButtonMinSize.Width, baseMinWidth);
-        }
         #endregion "Properties"
         #region "Constructor"
         // Constructor
@@ -677,6 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             Margin = new Padding(0);
             ShowAllBorders = false;
+            BorderThickness = 0;
         }
         protected override Size DefaultSize => new Size(100, 36);
         #endregion "Constructor"
@@ -815,8 +718,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.ButtonForeColor;
 
 
-            // Apply border colors
-            BorderColor = _currentTheme.ButtonBorderColor;
+            // Apply border colors only when borders are actually enabled
+            if (ShowAllBorders || ShowTopBorder || ShowBottomBorder || ShowLeftBorder || ShowRightBorder)
+            {
+                BorderColor = _currentTheme.ButtonBorderColor;
+            }
 
             // Apply gradient colors from theme if gradient is enabled
             if (UseGradientBackground)
@@ -887,7 +793,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdateDrawingRect();
             contentRect = DrawingRect;
-          //  contentRect.Inflate(-2, -2);
+            contentRect.Inflate(-2, -2);
            // DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
             DrawSplashEffect(g);    // ripple on top
@@ -1748,27 +1654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion // End Draw Button From Html source
         #region "Material Design Support"
 
-        /// <summary>
-        /// Manually triggers Material Design size compensation for testing/debugging
-        /// </summary>
-        public void ForceMaterialSizeCompensation()
-        {
-            // Temporarily enable auto size and disable expansion prevention if needed
-            bool originalAutoSize = ButtonAutoSizeForMaterial;
-            bool originalPreventExpansion = ButtonPreventAutoExpansion;
-            
-            ButtonAutoSizeForMaterial = true;
-            ButtonPreventAutoExpansion = false;
-            
-          
-            
-            // Restore original settings
-            ButtonAutoSizeForMaterial = originalAutoSize;
-            ButtonPreventAutoExpansion = originalPreventExpansion;
-            
-          
-            Invalidate();
-        }
+      
         protected override void OnClick(EventArgs e)
         {
             if (_isLoading) return; // Disable clicks when loading

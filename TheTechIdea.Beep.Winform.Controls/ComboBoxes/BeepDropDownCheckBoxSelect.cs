@@ -449,6 +449,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 ComboBoxType.MultiChipSearch => new MultiChipSearchPopupHostForm(),
                 ComboBoxType.DenseList => new DenseListPopupHostForm(),
                 ComboBoxType.MinimalBorderless => new MinimalBorderlessPopupHostForm(),
+                ComboBoxType.CommandMenu => new CommandMenuPopupHostForm(),
+                ComboBoxType.VisualDisplay => new VisualDisplayPopupHostForm(),
                 _ => new MultiChipSearchPopupHostForm(),
             };
         }

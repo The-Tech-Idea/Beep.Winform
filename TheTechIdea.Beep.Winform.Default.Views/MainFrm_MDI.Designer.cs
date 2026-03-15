@@ -3223,15 +3223,7 @@
             beepButton1.BorderPath = graphicsPath22;
             beepButton1.BorderRadius = 4;
             beepButton1.BorderRect = new Rectangle(12, 12, 178, 51);
-            beepButton1.BorderSize = 1;
-            beepButton1.BorderStyle = BorderStyle.FixedSingle;
-            beepButton1.BorderThickness = 0;
-            beepButton1.BottomoffsetForDrawingRect = 0;
-            beepButton1.BoundProperty = null;
-            beepButton1.ButtonErrorText = "";
-            beepButton1.ButtonHasError = false;
-            beepButton1.ButtonHelperText = "";
-            beepButton1.ButtonLabel = "";
+          
             beepButton1.ButtonMinSize = new Size(32, 32);
             beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;
@@ -3422,15 +3414,7 @@
             beepButton2.BorderPath = graphicsPath10;
             beepButton2.BorderRadius = 6;
             beepButton2.BorderRect = new Rectangle(6, 6, 100, 36);
-            beepButton2.BorderSize = 1;
-            beepButton2.BorderStyle = BorderStyle.FixedSingle;
-            beepButton2.BorderThickness = 2;
-            beepButton2.BottomoffsetForDrawingRect = 0;
-            beepButton2.BoundProperty = null;
-            beepButton2.ButtonErrorText = "";
-            beepButton2.ButtonHasError = false;
-            beepButton2.ButtonHelperText = "";
-            beepButton2.ButtonLabel = "";
+          
             beepButton2.ButtonMinSize = new Size(32, 32);
             beepButton2.ButtonType = ButtonType.Normal;
             beepButton2.CanBeFocused = true;

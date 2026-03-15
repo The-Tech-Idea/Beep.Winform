@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -29,12 +30,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Compute text rect starting after checkbox area and reserving space for right-side avatar
-            int leftStart = !checkRect.IsEmpty ? (checkRect.Right + 8) : (itemRect.Left + 12);
+            int leftStart = !checkRect.IsEmpty ? (checkRect.Right + Scale(8)) : (itemRect.Left + Scale(12));
 
             // Avatar space on the right
-            int baseAvatar = (_owner.ImageSize > 0 ? _owner.ImageSize : 28);
-            int avatarSize = Math.Max(20, Math.Min(40, baseAvatar));
-            int avatarPadding = 12;
+            int baseAvatar = (_owner.ImageSize > 0 ? _owner.ImageSize : Scale(28));
+            int avatarSize = Math.Max(Scale(20), Math.Min(Scale(40), baseAvatar));
+            int avatarPadding = Scale(12);
             int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? (avatarSize + avatarPadding) : 0;
 
             Rectangle textRect = new Rectangle(leftStart, itemRect.Y, Math.Max(0, itemRect.Right - leftStart - avatarSpace), itemRect.Height);
@@ -47,14 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Rectangle avatarRect = new Rectangle(itemRect.Right - avatarSize - avatarPadding,
                     itemRect.Y + (itemRect.Height - avatarSize) / 2, avatarSize, avatarSize);
 
-                var state = g.Save();
-                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-                {
-                    path.AddEllipse(avatarRect);
-                    g.SetClip(path);
-                    DrawItemImage(g, avatarRect, item.ImagePath);
-                }
-                g.Restore(state);
+                float cx = avatarRect.X + avatarRect.Width / 2f;
+                float cy = avatarRect.Y + avatarRect.Height / 2f;
+                float radius = avatarRect.Width / 2f;
+                StyledImagePainter.PaintInCircle(g, cx, cy, radius, item.ImagePath);
             }
         }
         
@@ -89,10 +86,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         public override int GetPreferredItemHeight()
         {
             // Slightly taller for avatar display
-            int baseH = 48;
+            int baseH = Scale(48);
             if (_owner != null && _owner.ImageSize > 0)
             {
-                baseH = Math.Max(baseH, _owner.ImageSize + 16);
+                baseH = Math.Max(baseH, _owner.ImageSize + Scale(16));
             }
             return baseH;
         }

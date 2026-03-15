@@ -83,5 +83,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens
         public const int EmptyStateIconSize    = 48;
         public const int EmptyStateHeadlinePt  = 13;
         public const int EmptyStateSubTextPt   = 10;
+
+        // ── Hierarchy / tree ──────────────────────────────────────────────────────
+
+        /// <summary>Horizontal indent per nesting level (px).</summary>
+        public const int IndentStepPerLevel = 24;
+
+        /// <summary>Expand/collapse chevron icon size (px).</summary>
+        public const int ChevronSize = 16;
+
+        /// <summary>Hit-target around chevron for click detection (px).</summary>
+        public const int ChevronHitTarget = 28;
+
+        /// <summary>Maximum supported nesting depth.</summary>
+        public const int MaxHierarchyDepth = 10;
+
+        // ── Rich list type tokens (Phase 7) ──────────────────────────────────────
+
+        public const int ChatRowHeight = 72;
+        public const int ChatAvatarSize = 52;
+        public const int ContactRowHeight = 72;
+        public const int ContactAvatarSize = 48;
+        public const int ThreeLineRowHeight = 88;
+        public const int ThreeLineImageSize = 48;
+        public const int ThreeLineImageRadius = 4;
+        public const int NotificationRowHeight = 80;
+        public const int NotificationIconSize = 40;
+        public const int ProfileCardRowHeight = 120;
+        public const int ProfileCardAvatarSize = 64;
+        public const int RichListHMargin = 16;
+        public const int AvatarTextGap = 16;
+        public const int ChatTrailingWidth = 64;
+        public const int NotificationTrailingWidth = 56;
     }
 }

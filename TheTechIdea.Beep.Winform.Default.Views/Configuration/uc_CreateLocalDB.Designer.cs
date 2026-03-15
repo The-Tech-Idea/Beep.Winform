@@ -256,18 +256,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.BorderPainter = BeepControlStyle.MaterialYou;
             graphicsPath1.FillMode = FillMode.Alternate;
             CancelbeepButton.BorderPath = graphicsPath1;
-            CancelbeepButton.BorderRadius = 4;
-            CancelbeepButton.BorderRect = new Rectangle(12, 12, 109, 21);
-            CancelbeepButton.BorderSize = 1;
-            CancelbeepButton.BorderStyle = BorderStyle.FixedSingle;
-            CancelbeepButton.BorderThickness = 0;
-            CancelbeepButton.BottomoffsetForDrawingRect = 0;
-            CancelbeepButton.BoundProperty = null;
-            CancelbeepButton.ButtonErrorText = "";
-            CancelbeepButton.ButtonHasError = false;
-            CancelbeepButton.ButtonHelperText = "";
-            CancelbeepButton.ButtonLabel = "";
-            CancelbeepButton.ButtonMinSize = new Size(32, 32);
+           
+         
             CancelbeepButton.ButtonType = ButtonType.Normal;
             CancelbeepButton.CanBeFocused = true;
             CancelbeepButton.CanBeHovered = true;
@@ -457,18 +447,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.BorderPainter = BeepControlStyle.None;
             graphicsPath4.FillMode = FillMode.Alternate;
             SavebeepButton.BorderPath = graphicsPath4;
-            SavebeepButton.BorderRadius = 8;
-            SavebeepButton.BorderRect = new Rectangle(0, 0, 133, 45);
-            SavebeepButton.BorderSize = 1;
-            SavebeepButton.BorderStyle = BorderStyle.FixedSingle;
-            SavebeepButton.BorderThickness = 0;
-            SavebeepButton.BottomoffsetForDrawingRect = 0;
-            SavebeepButton.BoundProperty = null;
-            SavebeepButton.ButtonErrorText = "";
-            SavebeepButton.ButtonHasError = false;
-            SavebeepButton.ButtonHelperText = "";
-            SavebeepButton.ButtonLabel = "";
-            SavebeepButton.ButtonMinSize = new Size(32, 32);
+         
             SavebeepButton.ButtonType = ButtonType.Normal;
             SavebeepButton.CanBeFocused = true;
             SavebeepButton.CanBeHovered = true;
@@ -3816,18 +3795,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.BorderPainter = BeepControlStyle.None;
             graphicsPath7.FillMode = FillMode.Alternate;
             beepButton1.BorderPath = graphicsPath7;
-            beepButton1.BorderRadius = 8;
-            beepButton1.BorderRect = new Rectangle(0, 0, 32, 28);
-            beepButton1.BorderSize = 1;
-            beepButton1.BorderStyle = BorderStyle.FixedSingle;
-            beepButton1.BorderThickness = 1;
-            beepButton1.BottomoffsetForDrawingRect = 0;
-            beepButton1.BoundProperty = null;
-            beepButton1.ButtonErrorText = "";
-            beepButton1.ButtonHasError = false;
-            beepButton1.ButtonHelperText = "";
-            beepButton1.ButtonLabel = "";
-            beepButton1.ButtonMinSize = new Size(32, 32);
+         
             beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;
             beepButton1.CanBeHovered = true;

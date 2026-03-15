@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     Color.FromArgb(120, _theme?.PrimaryColor ?? Color.DodgerBlue));
                 g.FillEllipse(circleBrush, iconRect);
                 string initials = item.Text?.Length > 0 ? item.Text.Substring(0, 1).ToUpper() : "?";
-                using var iFnt   = new Font(_owner.Font.FontFamily, 14f, FontStyle.Bold);
+                using var iFnt   = BeepFontManager.GetFont(_owner.TextFont.Name, 14f, FontStyle.Bold);
                 using var iBrush = new SolidBrush(Color.White);
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(initials, iFnt, iBrush, iconRect, sf);
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Color textColor = isSelected
                 ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
                 : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray);
-            using var lFont  = new Font(_owner.Font.FontFamily, Math.Max(7.5f, _owner.Font.Size - 1.5f),
+            using var lFont  = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7.5f, _owner.TextFont.Size - 1.5f),
                 isSelected ? FontStyle.Bold : FontStyle.Regular);
             using var lBrush = new SolidBrush(textColor);
             var lsf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near,

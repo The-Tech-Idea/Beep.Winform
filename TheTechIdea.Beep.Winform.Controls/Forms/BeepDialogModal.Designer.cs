@@ -352,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.BorderColor = Color.FromArgb(33, 150, 243);
             CloseButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             CloseButton.BorderRadius = 3;
-            CloseButton.BorderSize = 1;
+         
             CloseButton.BorderStyle = BorderStyle.FixedSingle;
             CloseButton.BorderThickness = 1;
             CloseButton.BottomoffsetForDrawingRect = 0;
@@ -777,7 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.BorderColor = Color.FromArgb(33, 150, 243);
             MiddleButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             MiddleButton.BorderRadius = 8;
-            MiddleButton.BorderSize = 1;
+          
             MiddleButton.BorderStyle = BorderStyle.FixedSingle;
             MiddleButton.BorderThickness = 1;
             MiddleButton.BottomoffsetForDrawingRect = 0;
@@ -924,7 +924,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.BorderColor = Color.FromArgb(33, 150, 243);
             RightButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             RightButton.BorderRadius = 8;
-            RightButton.BorderSize = 1;
+           
             RightButton.BorderStyle = BorderStyle.FixedSingle;
             RightButton.BorderThickness = 1;
             RightButton.BottomoffsetForDrawingRect = 0;
@@ -1071,7 +1071,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.BorderColor = Color.FromArgb(33, 150, 243);
             LeftButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             LeftButton.BorderRadius = 8;
-            LeftButton.BorderSize = 1;
+          
             LeftButton.BorderStyle = BorderStyle.FixedSingle;
             LeftButton.BorderThickness = 1;
             LeftButton.BottomoffsetForDrawingRect = 0;

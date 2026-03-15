@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Deflate slightly for spacing
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
 
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
 
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 36;
+            return Scale(36);
         }
     }
 }

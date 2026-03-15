@@ -138,21 +138,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 try
                 {
-                    var savedSize = themedCtrl.Size;
-                    themedCtrl.ControlStyle = BeepStyling.GetControlStyle(FormStyle);
-
-                    // Keep designer-authored size stable when style application adjusts chrome.
-                    if (themedCtrl.Size != savedSize)
-                    {
-                        themedCtrl.Size = savedSize;
-                    }
-
-                    themedCtrl.Invalidate();
+                    // Use ApplyControlStyle with deferred layout to avoid mid-batch repaints
+                    themedCtrl.ApplyControlStyle(BeepStyling.GetControlStyle(FormStyle), preserveSize: true);
                 }
                 catch
                 {
                     // Design-time safe: avoid blocking control add transactions.
                 }
+            }
+
+            // Also apply style recursively if the added control is a container (e.g., UserControl)
+            if (e.Control.HasChildren)
+            {
+                try
+                {
+                    var mappedStyle = BeepStyling.GetControlStyle(FormStyle);
+                    ApplyStyleRecursive(e.Control.Controls, mappedStyle);
+                }
+                catch { }
             }
 
             // Hook events for the newly added control
@@ -397,6 +400,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnShown(e);
 
+            // CRITICAL: Apply styles to all child controls (including nested ones inside UserControls)
+            // This ensures controls added after constructor but before Show() are properly styled
+            ApplyStyletoChildControls();
+
             // CRITICAL: Ensure window region is set when form is first shown
             // This prevents rectangular corners from showing through on initial display
             UpdateWindowRegion();
@@ -492,17 +499,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private void ApplyStyletoChildControls()
         {
             var mappedStyle = BeepStyling.GetControlStyle(FormStyle);
-            foreach (Control ctrl in Controls)
+            ApplyStyleRecursive(Controls, mappedStyle);
+        }
+
+        private void ApplyStyleRecursive(Control.ControlCollection controls, BeepControlStyle mappedStyle)
+        {
+            foreach (Control ctrl in controls)
             {
                 if (ctrl is BaseControl themedCtrl)
                 {
-                    var savedSize = themedCtrl.Size;
-                    themedCtrl.ControlStyle = mappedStyle;
-                    if (themedCtrl.Size != savedSize)
-                    {
-                        themedCtrl.Size = savedSize;
-                    }
-                    themedCtrl.UpdateDrawingRect();
+                    // ApplyControlStyle with preserveSize:true defers layout/invalidation
+                    // during setter, then does one synchronized refresh at the end
+                    themedCtrl.ApplyControlStyle(mappedStyle, preserveSize: true);
+                }
+                // Recurse into containers (UserControls, Panels, etc.) to style nested controls
+                if (ctrl.HasChildren)
+                {
+                    ApplyStyleRecursive(ctrl.Controls, mappedStyle);
                 }
             }
         }

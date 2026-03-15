@@ -36,7 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             ComboBoxType             type,
             bool                     isMultiSelect,
             bool                     showSelectAll = false,
-            bool                     showFooter    = false)
+            bool                     showFooter    = false,
+            bool                     showApplyCancel = true,
+            bool                     usePrimaryActionFooter = false,
+            string                   primaryActionText = null)
         {
             if (items == null)
                 return ComboBoxPopupModel.Empty(ComboBoxVisualTokenCatalog.SupportsSearch(type));
@@ -82,7 +85,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 IsMultiSelect     = isMultiSelect,
                 ShowSelectAll     = showSelectAll && isMultiSelect,
                 ShowFooter        = showFooter,
-                ShowApplyCancel   = showFooter,
+                ShowApplyCancel   = showFooter && showApplyCancel,
+                UsePrimaryActionFooter = showFooter && usePrimaryActionFooter,
+                PrimaryActionText = primaryActionText ?? string.Empty,
                 HasGroupHeaders   = hasGroups,
                 KeyboardFocusIndex = bestMatchIndex,
             };
@@ -178,14 +183,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 else
                     kind = ComboBoxPopupRowKind.Normal;
 
+                string trailingShortcut = ResolveTrailingShortcutText(item);
+                string trailingValue = ResolveTrailingValueText(item);
+                var layoutPreset = ResolveLayoutPreset(item, isMultiSelect, trailingShortcut, trailingValue);
+
                 rows.Add(new ComboBoxPopupRowModel
                 {
                     SourceItem       = item,
                     RowKind          = kind,
                     Text             = item.Text,
                     SubText          = item.SubText,
+                    TrailingText     = trailingShortcut,
+                    TrailingValueText = trailingValue,
                     ImagePath        = item.ImagePath,
                     GroupName        = item.GroupName,
+                    LayoutPreset     = layoutPreset,
                     IsSelected       = isSelected,
                     IsEnabled        = isEnabled,
                     IsCheckable      = item.IsCheckable || isMultiSelect,
@@ -195,6 +207,68 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             }
 
             return rows;
+        }
+
+        private static string ResolveTrailingShortcutText(SimpleItem item)
+        {
+            if (item == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.ShortcutText))
+            {
+                return item.ShortcutText.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Shortcut))
+            {
+                return item.Shortcut.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.KeyCombination))
+            {
+                return item.KeyCombination.Trim();
+            }
+
+            return string.Empty;
+        }
+
+        private static string ResolveTrailingValueText(SimpleItem item)
+        {
+            if (item == null)
+            {
+                return string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.BadgeText))
+            {
+                return item.BadgeText.Trim();
+            }
+
+            return string.Empty;
+        }
+
+        private static ComboBoxPopupRowLayoutPreset ResolveLayoutPreset(
+            SimpleItem item,
+            bool isMultiSelect,
+            string trailingShortcut,
+            string trailingValue)
+        {
+            if (!string.IsNullOrWhiteSpace(trailingShortcut))
+            {
+                return ComboBoxPopupRowLayoutPreset.CommandShortcut;
+            }
+
+            if (isMultiSelect && item != null &&
+                (!string.IsNullOrWhiteSpace(item.SubText) ||
+                 !string.IsNullOrWhiteSpace(item.ImagePath) ||
+                 !string.IsNullOrWhiteSpace(trailingValue)))
+            {
+                return ComboBoxPopupRowLayoutPreset.ChecklistRich;
+            }
+
+            return ComboBoxPopupRowLayoutPreset.Auto;
         }
 
     }

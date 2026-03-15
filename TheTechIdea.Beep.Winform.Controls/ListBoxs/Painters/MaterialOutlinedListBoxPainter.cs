@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw ripple effect on selected
             if (isSelected)
             {
-                using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Blue, 2f))
+                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, 2f))
                 {
                     g.DrawLine(pen, itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
                 }
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 48; // Material Design list item height
+            return Scale(48);
         }
     }
 }

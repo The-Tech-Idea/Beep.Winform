@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.Font.Height + 20, 44);
+            return Math.Max(_owner.TextFont.Height + Scale(20), Scale(44));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -57,10 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Subtext if available
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + 2, 
-                    textRect.Width, textRect.Height / 2 - 4);
+                var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
+                    textRect.Width, textRect.Height / 2 - Scale(4));
                 var subColor = Color.FromArgb(140, textColor);
-                using (var subFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1, FontStyle.Regular))
+                using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
                 }
@@ -70,9 +70,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawGlassBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             // Inset the item rect slightly
-            var glassRect = Rectangle.Inflate(itemRect, -2, -1);
+            var glassRect = Rectangle.Inflate(itemRect, -Scale(2), -Scale(1));
 
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glassRect, _itemCornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glassRect, Scale(_itemCornerRadius)))
             {
                 if (isSelected)
                 {
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Inner glow/highlight
                     var highlightRect = new Rectangle(glassRect.X, glassRect.Y, glassRect.Width, glassRect.Height / 3);
-                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, _itemCornerRadius))
+                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, Scale(_itemCornerRadius)))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
                         Color.FromArgb(80, 255, 255, 255),
                         Color.FromArgb(0, 255, 255, 255),

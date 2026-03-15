@@ -17,23 +17,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Apply slight deflation for spacing
             var rect = itemRect;
-            rect.Inflate(-4, -2);
+            rect.Inflate(-Scale(4), -Scale(2));
             
             DrawItemBackgroundEx(g, rect, item, isHovered, isSelected);
             
-            int currentX = rect.Left + 12;
+            int currentX = rect.Left + Scale(12);
             
             // Draw checkbox with custom coloring
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - 20) / 2, 20, 20);
+                int cbSize = Scale(20);
+                Rectangle checkRect = new Rectangle(currentX, rect.Y + (rect.Height - cbSize) / 2, cbSize, cbSize);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawColoredCheckbox(g, checkRect, isChecked, GetItemStateColor(item, isSelected));
-                currentX += 28;
+                currentX += Scale(28);
             }
             
             // Draw text
-            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX - 40, rect.Height);
+            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Width - currentX - Scale(40), rect.Height);
             Color textColor = GetItemTextColor(item, isSelected);
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
             
@@ -133,11 +134,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             string countText = count.ToString();
             SizeF textSizeF = TextUtils.MeasureText(g, countText, _owner.TextFont);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
-            int badgeWidth = Math.Max(textSize.Width + 8, 24);
-            int badgeHeight = 20;
+            int badgeWidth = Math.Max(textSize.Width + Scale(8), Scale(24));
+            int badgeHeight = Scale(20);
             
             Rectangle badgeRect = new Rectangle(
-                itemRect.Right - badgeWidth - 8,
+                itemRect.Right - badgeWidth - Scale(8),
                 itemRect.Y + (itemRect.Height - badgeHeight) / 2,
                 badgeWidth,
                 badgeHeight);
@@ -171,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 44;
+            return Scale(44);
         }
     }
 }

@@ -17,6 +17,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public event EventHandler CancelClicked;
         public event EventHandler SelectAllClicked;
         public event EventHandler ClearAllClicked;
+        public event EventHandler PrimaryActionClicked;
+
+        private BeepButton _primaryActionButton;
+        private bool _usePrimaryActionFooter;
+        private string _primaryActionText = string.Empty;
 
         public ComboBoxPopupFooter()
         {
@@ -44,23 +49,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             Controls.Add(_countLabel);
         }
 
-        public void Setup(bool showApplyCancel, bool showSelectAll)
+        public void Setup(bool showApplyCancel, bool showSelectAll, bool usePrimaryActionFooter = false, string primaryActionText = null)
         {
             _layout.Controls.Clear();
+            _primaryActionButton = null;
+            _usePrimaryActionFooter = usePrimaryActionFooter;
+            _primaryActionText = primaryActionText ?? string.Empty;
 
-            if (showApplyCancel)
+            if (_usePrimaryActionFooter)
             {
-                AddButton("Apply", (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty));
-                AddButton("Cancel", (s, e) => CancelClicked?.Invoke(this, EventArgs.Empty));
+                string ctaText = ResolvePrimaryActionText(0);
+                _primaryActionButton = AddButton(ctaText, (s, e) => PrimaryActionClicked?.Invoke(this, EventArgs.Empty));
             }
-
-            if (showSelectAll)
+            else
             {
-                AddButton("Clear all", (s, e) => ClearAllClicked?.Invoke(this, EventArgs.Empty));
-                AddButton("Select all", (s, e) => SelectAllClicked?.Invoke(this, EventArgs.Empty));
+                if (showApplyCancel)
+                {
+                    AddButton("Apply", (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty));
+                    AddButton("Cancel", (s, e) => CancelClicked?.Invoke(this, EventArgs.Empty));
+                }
+
+                if (showSelectAll)
+                {
+                    AddButton("Clear all", (s, e) => ClearAllClicked?.Invoke(this, EventArgs.Empty));
+                    AddButton("Select all", (s, e) => SelectAllClicked?.Invoke(this, EventArgs.Empty));
+                }
             }
 
             Visible = _layout.Controls.Count > 0;
+            _countLabel.Visible = false;
         }
 
         public void ApplyProfile(ComboBoxPopupHostProfile profile)
@@ -82,6 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void UpdateSelectedCount(int count)
         {
+            if (_usePrimaryActionFooter && _primaryActionButton != null)
+            {
+                _primaryActionButton.Text = ResolvePrimaryActionText(count);
+                _countLabel.Visible = false;
+                return;
+            }
+
             if (count > 0)
             {
                 _countLabel.Text = $"{count} selected";
@@ -100,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             e.Graphics.DrawLine(pen, 0, 0, Width - 1, 0);
         }
 
-        private void AddButton(string text, EventHandler onClick)
+        private BeepButton AddButton(string text, EventHandler onClick)
         {
             var button = new BeepButton
             {
@@ -113,6 +137,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             };
             button.Click += onClick;
             _layout.Controls.Add(button);
+            return button;
+        }
+
+        private string ResolvePrimaryActionText(int count)
+        {
+            if (string.IsNullOrWhiteSpace(_primaryActionText))
+            {
+                return count > 0 ? $"Apply ({count})" : "Apply";
+            }
+
+            if (_primaryActionText.Contains("{count}"))
+            {
+                return _primaryActionText.Replace("{count}", count.ToString());
+            }
+
+            return _primaryActionText;
         }
     }
 }

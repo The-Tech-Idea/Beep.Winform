@@ -1107,3 +1107,11 @@ The Beep WinForm Styling System is a **complete, production-ready architecture**
 - [README_HELPERS_ONLY.md](README_HELPERS_ONLY.md) - Original helper system documentation
 - [PAINTER_ARCHITECTURE.md](PAINTER_ARCHITECTURE.md) - Detailed painter architecture
 - [README_PAINTERS.md](README_PAINTERS.md) - Painter refactoring summary
+
+---
+
+## 2026 update — custom-shape controls and path consistency
+
+- `CreateControlStylePath()` now includes additional explicit custom-shape mappings where needed (`Terminal`, `Cyberpunk`, `ChatBubble`) while keeping rounded-rect default + style radius for most styles.
+- Border painter convention: primary border geometry must follow the incoming `GraphicsPath` (avoid independent `GetBounds()` geometry for the main border).
+- `BeepChevronButton` remains a control-level custom-shape exception: it owns its chevron silhouette path and region clipping, while still consuming theme/state infrastructure from `BaseControl`.

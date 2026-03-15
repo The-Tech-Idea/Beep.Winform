@@ -559,3 +559,13 @@ internal sealed class CustomBaseControlPainter : IBaseControlPainter
 ```
 
 This architecture provides a powerful, flexible, and extensible foundation for creating visually rich and consistent UI controls that can adapt to any design system or visual style.
+
+## BeepChevronButton custom-shape note (2026 update)
+
+- `BeepChevronButton` is treated as a **custom silhouette control** and keeps chevron-owned painting (`FillPath/DrawPath/Region` driven by a canonical chevron `GraphicsPath`).
+- `BaseControl` still provides shared behavior infrastructure: theming, state flags, accessibility/event lifecycle, DPI scaling helpers, hit architecture.
+- For custom-shape controls, use one canonical path generator and reuse it for:
+    - paint fill/border,
+    - ripple clipping,
+    - control `Region`.
+- This prevents mismatches between visible chrome and hit/clip behavior.

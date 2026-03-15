@@ -29,12 +29,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private readonly BeepTextBox _searchBox;
         private readonly FlowLayoutPanel _chipArea;
         private readonly DashedSeparatorPanel _separator;
-        private readonly FlowLayoutPanel _listPanel;
+        private readonly Panel _listContainer;
+        private readonly Panel _listPanel;
+        private readonly BeepScrollBar _vScrollBar;
         private readonly ComboBoxPopupFooter _footer;
 
         private readonly List<PopupChip> _chips = new List<PopupChip>();
         private readonly List<ComboBoxPopupRow> _rows = new List<ComboBoxPopupRow>();
         private int _keyboardFocusIndex = -1;
+        private int _scrollOffset = 0;
+        private int _totalContentHeight = 0;
 
         public ChipHeaderPopupContent()
         {
@@ -74,16 +78,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 Visible = false
             };
 
-            // Checkbox row list
-            _listPanel = new FlowLayoutPanel
+            // List container with scrollbar — replaces AutoScroll FlowLayoutPanel
+            _listContainer = new Panel
+            {
+                Dock = DockStyle.Fill
+            };
+
+            _listPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                AutoScroll = true,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
+                AutoScroll = false,
                 Padding = Padding.Empty,
                 Margin = Padding.Empty
             };
+            _listPanel.MouseWheel += OnListPanelMouseWheel;
+
+            _vScrollBar = new BeepScrollBar
+            {
+                Dock = DockStyle.Right,
+                Width = 14,
+                ScrollOrientation = Orientation.Vertical,
+                Minimum = 0,
+                Value = 0,
+                Visible = false
+            };
+            _vScrollBar.ValueChanged += OnScrollBarValueChanged;
+
+            _listContainer.Controls.Add(_listPanel);
+            _listContainer.Controls.Add(_vScrollBar);
 
             // Footer with Select All / Clear All or Apply / Cancel
             _footer = new ComboBoxPopupFooter { Visible = false };
@@ -91,11 +113,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _footer.CancelClicked += (s, e) => CancelClicked?.Invoke(this, EventArgs.Empty);
             _footer.SelectAllClicked += OnSelectAllClicked;
             _footer.ClearAllClicked += OnClearAllClicked;
+            _footer.PrimaryActionClicked += (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty);
 
             // Add controls in correct dock order:
-            // Footer (Bottom) → ListPanel (Fill) → Separator (Top) → ChipArea (Top) → SearchBox (Top)
+            // Footer (Bottom) → ListContainer (Fill) → Separator (Top) → ChipArea (Top) → SearchBox (Top)
             Controls.Add(_footer);
-            Controls.Add(_listPanel);
+            Controls.Add(_listContainer);
             Controls.Add(_separator);
             Controls.Add(_chipArea);
             Controls.Add(_searchBox);
@@ -108,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _searchBox.Height = _profile.SearchBoxHeight;
             _chipArea.MaximumSize = new Size(0, _profile.ChipAreaMaxHeight > 0 ? _profile.ChipAreaMaxHeight : 80);
             _footer.ApplyProfile(_profile);
-            _listPanel.Padding = new Padding(
+            _listContainer.Padding = new Padding(
                 _profile.ListHorizontalPadding, _profile.ListVerticalPadding,
                 _profile.ListHorizontalPadding, _profile.ListVerticalPadding);
         }
@@ -118,12 +141,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _themeTokens = tokens ?? ComboBoxThemeTokens.Fallback();
             BackColor = _themeTokens.PopupBackColor;
             _chipArea.BackColor = _themeTokens.PopupBackColor;
+            _listContainer.BackColor = _themeTokens.PopupBackColor;
             _listPanel.BackColor = _themeTokens.PopupBackColor;
             _searchBox.BackColor = _themeTokens.PopupBackColor;
             _searchBox.ForeColor = _themeTokens.ForeColor;
             _separator.SeparatorColor = _themeTokens.PopupSeparatorColor;
             _footer.BackColor = _themeTokens.PopupBackColor;
             _footer.ApplyThemeTokens(_themeTokens);
+            if (!string.IsNullOrEmpty(_themeTokens.ThemeName))
+                _vScrollBar.Theme = _themeTokens.ThemeName;
 
             foreach (var chip in _chips) chip.ApplyThemeTokens(_themeTokens);
             foreach (var row in _rows) row.ApplyThemeTokens(_themeTokens);
@@ -138,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             // Footer
             _footer.Visible = model.ShowFooter || _profile.ForceFooterVisible;
-            _footer.Setup(model.ShowApplyCancel, model.ShowSelectAll);
+            _footer.Setup(model.ShowApplyCancel, model.ShowSelectAll, model.UsePrimaryActionFooter, model.PrimaryActionText);
             if (model.IsMultiSelect && model.AllRows != null)
             {
                 int count = 0;
@@ -157,17 +183,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _listPanel.SuspendLayout();
             _listPanel.Controls.Clear();
             _rows.Clear();
+            _scrollOffset = 0;
 
             if (model.FilteredRows != null)
             {
-                int listWidth = Math.Max(100,
-                    _listPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 4);
+                int listWidth = Math.Max(100, _listPanel.ClientSize.Width - 4);
+                int yPos = 0;
+
                 foreach (var rowModel in model.FilteredRows)
                 {
                     var row = new ComboBoxPopupRow
                     {
                         Width = listWidth,
-                        Dock = DockStyle.Top
+                        Left = 0,
+                        Top = yPos
                     };
                     row.ApplyProfile(_profile);
                     row.ApplyThemeTokens(_themeTokens);
@@ -175,10 +204,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     row.RowCommitted += OnRowCommitted;
                     _listPanel.Controls.Add(row);
                     _rows.Add(row);
+                    yPos += row.Height;
                 }
+                _totalContentHeight = yPos;
+            }
+            else
+            {
+                _totalContentHeight = 0;
             }
 
             _listPanel.ResumeLayout(true);
+            UpdateScrollBar();
             SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
         }
 
@@ -258,8 +294,58 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            int width = Math.Max(100, _listPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 4);
+            int width = Math.Max(100, _listPanel.ClientSize.Width - 4);
             foreach (var row in _rows) row.Width = width;
+            UpdateScrollBar();
+            ApplyScrollOffset();
+        }
+
+        private void UpdateScrollBar()
+        {
+            int viewportHeight = _listPanel.ClientSize.Height;
+            if (_totalContentHeight > viewportHeight)
+            {
+                _vScrollBar.Maximum = _totalContentHeight - viewportHeight;
+                _vScrollBar.LargeChange = viewportHeight;
+                _vScrollBar.SmallChange = Math.Max(1, _profile.BaseRowHeight);
+                _vScrollBar.Value = Math.Min(_scrollOffset, _vScrollBar.Maximum);
+                _vScrollBar.Visible = true;
+            }
+            else
+            {
+                _vScrollBar.Visible = false;
+                _scrollOffset = 0;
+            }
+        }
+
+        private void OnScrollBarValueChanged(object sender, EventArgs e)
+        {
+            _scrollOffset = _vScrollBar.Value;
+            ApplyScrollOffset();
+        }
+
+        private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (!_vScrollBar.Visible) return;
+            int delta = -e.Delta / 4;
+            int newVal = Math.Max(0, Math.Min(_vScrollBar.Maximum, _scrollOffset + delta));
+            if (newVal != _scrollOffset)
+            {
+                _scrollOffset = newVal;
+                _vScrollBar.Value = newVal;
+                ApplyScrollOffset();
+            }
+            ((HandledMouseEventArgs)e).Handled = true;
+        }
+
+        private void ApplyScrollOffset()
+        {
+            int yPos = -_scrollOffset;
+            foreach (var row in _rows)
+            {
+                row.Top = yPos;
+                yPos += row.Height;
+            }
         }
 
         // ── Chip Area ─────────────────────────────────────────────────────
@@ -300,8 +386,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 RowKind = row.RowKind,
                 Text = row.Text,
                 SubText = row.SubText,
+                TrailingText = row.TrailingText,
+                TrailingValueText = row.TrailingValueText,
                 ImagePath = row.ImagePath,
                 GroupName = row.GroupName,
+                LayoutPreset = row.LayoutPreset,
                 IsSelected = false,
                 IsEnabled = row.IsEnabled,
                 IsKeyboardFocused = row.IsKeyboardFocused,
@@ -335,7 +424,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     {
                         SourceItem = row.SourceItem, RowKind = row.RowKind,
                         Text = row.Text, SubText = row.SubText,
+                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
                         ImagePath = row.ImagePath, GroupName = row.GroupName,
+                        LayoutPreset = row.LayoutPreset,
                         IsSelected = true, IsEnabled = row.IsEnabled,
                         IsCheckable = row.IsCheckable, IsChecked = true,
                         ListIndex = row.ListIndex
@@ -356,7 +447,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     {
                         SourceItem = row.SourceItem, RowKind = row.RowKind,
                         Text = row.Text, SubText = row.SubText,
+                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
                         ImagePath = row.ImagePath, GroupName = row.GroupName,
+                        LayoutPreset = row.LayoutPreset,
                         IsSelected = false, IsEnabled = row.IsEnabled,
                         IsCheckable = row.IsCheckable, IsChecked = false,
                         ListIndex = row.ListIndex
@@ -402,8 +495,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void EnsureRowVisible(int index)
         {
             if (index < 0 || index >= _rows.Count) return;
-            try { _listPanel.ScrollControlIntoView(_rows[index]); }
-            catch { /* best-effort */ }
+            if (!_vScrollBar.Visible) return;
+
+            var row = _rows[index];
+            int rowTop = 0;
+            for (int i = 0; i < index; i++)
+                rowTop += _rows[i].Height;
+            int rowBottom = rowTop + row.Height;
+            int viewportHeight = _listPanel.ClientSize.Height;
+
+            if (rowTop < _scrollOffset)
+            {
+                _scrollOffset = rowTop;
+            }
+            else if (rowBottom > _scrollOffset + viewportHeight)
+            {
+                _scrollOffset = rowBottom - viewportHeight;
+            }
+            else
+            {
+                return;
+            }
+
+            _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, _vScrollBar.Maximum));
+            _vScrollBar.Value = _scrollOffset;
+            ApplyScrollOffset();
         }
 
         // ──────────────────────────────────────────────────────────────────

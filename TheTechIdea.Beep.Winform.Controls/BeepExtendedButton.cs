@@ -320,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsFrameless = true,
-                BorderSize = 0,
+              
                 IsRounded = false,
                 UseScaledFont = true,
                 ApplyThemeOnImage = ApplyThemeOnImage,
@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 IsRounded = false,
                 IsBorderAffectedByTheme = false,
-                BorderSize = 0,
+              
                 ApplyThemeOnImage = ApplyThemeOnImage,
                 IsChild = true,
                 // Clear all borders explicitly

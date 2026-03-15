@@ -44,6 +44,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         NoResults,
     }
 
+    internal enum ComboBoxPopupRowLayoutPreset
+    {
+        Auto,
+        CommandShortcut,
+        ChecklistRich
+    }
+
     // ──────────────────────────────────────────────────────────────────────────
     // Row model
     // ──────────────────────────────────────────────────────────────────────────
@@ -64,8 +71,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         // ── Display ────────────────────────────────────────────────────────
         public string Text       { get; init; }
         public string SubText    { get; init; }
+        public string TrailingText { get; init; }
+        public string TrailingValueText { get; init; }
         public string ImagePath  { get; init; }
         public string GroupName  { get; init; }
+        public ComboBoxPopupRowLayoutPreset LayoutPreset { get; init; } = ComboBoxPopupRowLayoutPreset.Auto;
 
         // ── State ──────────────────────────────────────────────────────────
         public bool IsSelected       { get; init; }
@@ -99,8 +109,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             RowKind          = RowKind,
             Text             = Text,
             SubText          = SubText,
+            TrailingText     = TrailingText,
+            TrailingValueText = TrailingValueText,
             ImagePath        = ImagePath,
             GroupName        = GroupName,
+            LayoutPreset     = LayoutPreset,
             IsSelected       = IsSelected,
             IsEnabled        = IsEnabled,
             IsKeyboardFocused = focused,
@@ -144,6 +157,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         // ── Footer ─────────────────────────────────────────────────────────
         public bool ShowFooter      { get; init; }
         public bool ShowApplyCancel { get; init; }
+        public bool UsePrimaryActionFooter { get; init; }
+        public string PrimaryActionText { get; init; }
 
         // ── Meta ───────────────────────────────────────────────────────────
         public bool IsLoading       { get; init; }
@@ -182,6 +197,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 ShowSelectAll     = ShowSelectAll,
                 ShowFooter        = ShowFooter,
                 ShowApplyCancel   = ShowApplyCancel,
+                UsePrimaryActionFooter = UsePrimaryActionFooter,
+                PrimaryActionText = PrimaryActionText,
                 IsLoading         = IsLoading,
                 HasGroupHeaders   = HasGroupHeaders,
                 KeyboardFocusIndex = index,

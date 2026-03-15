@@ -17,20 +17,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
-            int currentX = itemRect.Left + 16;
+            int currentX = itemRect.Left + Scale(16);
 
             // Draw checkbox
             if (_owner.ShowCheckBox && SupportsCheckboxes())
             {
-                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - 20) / 2, 20, 20);
+                int cbSize = Scale(20);
+                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - cbSize) / 2, cbSize, cbSize);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 bool hasError = HasError(item);
                 DrawErrorCheckbox(g, checkRect, isChecked, hasError, isHovered);
-                currentX += 28;
+                currentX += Scale(28);
             }
 
             // Draw main text
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y + 6, itemRect.Width - currentX - 100, itemRect.Height / 2);
+            Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(6), itemRect.Width - currentX - Scale(100), itemRect.Height / 2);
             Color textColor = GetTextColor(item);
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
@@ -38,10 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.Description) || HasError(item))
             {
                 string errorText = HasError(item) ? "Option now prohibited" : item.Description;
-                Font smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - 100, itemRect.Height / 2 - 6);
+                Font smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - Scale(100), itemRect.Height / 2 - Scale(6));
                 Color descColor = HasError(item)
-                    ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.FromArgb(180, 50, 50)
+                    ? _theme?.ErrorColor ?? Color.FromArgb(180, 50, 50)
                     : Color.FromArgb(120, 120, 120);
                 System.Windows.Forms.TextRenderer.DrawText(g, errorText, smallFont, descRect, descColor,
                     System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.Gray)))
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme?.AccentColor ?? Color.Gray)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -82,14 +83,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private Color GetTextColor(SimpleItem item)
         {
             return HasError(item)
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.FromArgb(180, 60, 60)
+                ? _theme?.ErrorColor ?? Color.FromArgb(180, 60, 60)
                 : Color.FromArgb(40, 40, 40);
         }
 
         private void DrawErrorCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool hasError, bool isHovered)
         {
             Color checkColor = hasError
-                ? Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ErrorColor ?? Color.FromArgb(220, 53, 69)
+                ? _theme?.ErrorColor ?? Color.FromArgb(220, 53, 69)
                 : Color.FromArgb(108, 117, 125);
 
             using (var path = GetRoundedRectPath(checkboxRect, 4))
@@ -125,15 +126,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawErrorBadge(Graphics g, Rectangle itemRect, bool isHovered)
         {
             string badgeText = "Error state!";
-            Font badgeFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
+            Font badgeFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
             SizeF textSizeF = TextUtils.MeasureText(g, badgeText, badgeFont);
             var textSize = new Size((int)textSizeF.Width, (int)textSizeF.Height);
 
-            int badgeWidth = textSize.Width + 16;
-            int badgeHeight = 22;
+            int badgeWidth = textSize.Width + Scale(16);
+            int badgeHeight = Scale(22);
 
             Rectangle badgeRect = new Rectangle(
-                itemRect.Right - badgeWidth - 16,
+                itemRect.Right - badgeWidth - Scale(16),
                 itemRect.Y + (itemRect.Height - badgeHeight) / 2,
                 badgeWidth,
                 badgeHeight);
@@ -181,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return 64; // Taller for two-line display with badges
+            return Scale(64);
         }
     }
 }

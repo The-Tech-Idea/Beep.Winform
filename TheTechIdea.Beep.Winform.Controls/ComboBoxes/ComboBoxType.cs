@@ -31,6 +31,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         DenseList = 7,
 
         /// <summary>Low-chrome borderless/minimal shell.</summary>
-        MinimalBorderless = 8
+        MinimalBorderless = 8,
+
+        /// <summary>Command-menu style field and popup rows with shortcut metadata.</summary>
+        CommandMenu = 9,
+
+        /// <summary>Visual-forward display (icon/swatch-first) for selected values.</summary>
+        VisualDisplay = 10
     }
 }

@@ -425,10 +425,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.BlockID = null;
             _okButton.BorderColor = Color.Black;
             _okButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _okButton.BorderRadius = 1;
-            _okButton.BorderSize = 1;
+           
             _okButton.BorderStyle = BorderStyle.FixedSingle;
-            _okButton.BorderThickness = 1;
+           
             _okButton.BottomoffsetForDrawingRect = 0;
             _okButton.BoundProperty = null;
             _okButton.CanBeFocused = true;
@@ -555,8 +554,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.BlockID = null;
             _cancelButton.BorderColor = Color.Black;
             _cancelButton.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            _cancelButton.BorderRadius = 1;
-            _cancelButton.BorderSize = 1;
+           
+          
             _cancelButton.BorderStyle = BorderStyle.FixedSingle;
             _cancelButton.BorderThickness = 1;
             _cancelButton.BottomoffsetForDrawingRect = 0;

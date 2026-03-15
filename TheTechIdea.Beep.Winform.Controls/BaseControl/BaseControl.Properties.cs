@@ -302,7 +302,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string BlockID { get => _blockId; set => _blockId = value; }
         public string FieldID { get => _fieldId; set => _fieldId = value; }
         public int Id { get => _id; set => _id = value; }
-        public List<object> Items { get => _items; set => _items = value ?? new List<object>(); }
+
+        /// <summary>
+        /// Collection of items for this control. Read-only to prevent designer serialization issues.
+        /// Use Add/Remove/Clear methods to modify the collection.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public List<object> Items
+        {
+            get => _items;
+            set
+            {
+                if (value != null && value != _items)
+                {
+                    _items.Clear();
+                    _items.AddRange(value);
+                    OnItemsChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the Items collection should be serialized by the designer.
+        /// Returns false to prevent designer serialization issues.
+        /// </summary>
+        private bool ShouldSerializeItems() => false;
+
+        /// <summary>
+        /// Resets the Items collection to an empty list.
+        /// Called by the designer reset functionality.
+        /// </summary>
+        private void ResetItems()
+        {
+            _items.Clear();
+            OnItemsChanged();
+        }
+
+        /// <summary>
+        /// Called when the Items collection changes. Override in derived classes to react to changes.
+        /// </summary>
+        protected virtual void OnItemsChanged()
+        {
+            // Override in derived classes if needed
+            InvalidateOnce();
+        }
         
         public object SelectedValue 
         { 
@@ -1203,6 +1247,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Painting and Layout
         private bool _useFormStylePaint = true;
+        private bool _preserveExplicitSizeDuringStyleChange = false;
+        private bool _deferLayoutAndInvalidate = false;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Use the form's style/painter to render this control.")]
@@ -1244,7 +1290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Auto-resize to compensate chrome when style-based painting is used
                     try
                     {
-                        if (UseFormStylePaint && !IsDisposed)
+                        if (UseFormStylePaint && !_preserveExplicitSizeDuringStyleChange && !IsDisposed)
                         {
                             AdjustSizeForControlStyle(oldStyle, value);
                         }
@@ -1257,9 +1303,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         _borderPainterStyle = value;
                         UpdateBorderPainter();
                     }
-                    InvalidateParentBackgroundCache();
-                    Invalidate();
+                    // Recalculate layout + Region so borders render correctly immediately.
+                    // Skip if deferred (parent batch-applying styles will call RefreshLayoutAndRegion at end)
+                    if (!_deferLayoutAndInvalidate)
+                    {
+                        UpdateDrawingRect();
+                        UpdateControlRegion();
+                        InvalidateParentBackgroundCache();
+                        Invalidate();
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Applies a control style while optionally preserving the current control size.
+        /// When preserveSize is true, layout and invalidation are deferred until style
+        /// assignment is complete, then one synchronized refresh is performed.
+        /// This is used by container style propagation to avoid mid-batch repaints.
+        /// </summary>
+        public void ApplyControlStyle(BeepControlStyle style, bool preserveSize)
+        {
+            bool previousPreserveSize = _preserveExplicitSizeDuringStyleChange;
+            bool previousDeferLayout = _deferLayoutAndInvalidate;
+            try
+            {
+                _preserveExplicitSizeDuringStyleChange = preserveSize;
+                _deferLayoutAndInvalidate = preserveSize; // defer layout/invalidate when preserving size
+                ControlStyle = style;
+            }
+            finally
+            {
+                _preserveExplicitSizeDuringStyleChange = previousPreserveSize;
+                _deferLayoutAndInvalidate = previousDeferLayout;
+            }
+            // One synchronized refresh after style is fully applied (only if we were deferring)
+            if (preserveSize)
+            {
+                RefreshLayoutAndRegion();
+                InvalidateParentBackgroundCache();
+                Invalidate();
             }
         }
         private BeepButtonShapeType _shapeType = BeepButtonShapeType.Default;

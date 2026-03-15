@@ -48,6 +48,7 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="Buttons\BeepAdvancedButton\.plans\onpaint-override-refactor.md" />
 		<None Include="SimpleGrid\BeepSimpleGrid_bk.cs" />
 	</ItemGroup>
 
@@ -211,7 +212,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.136" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.138" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />

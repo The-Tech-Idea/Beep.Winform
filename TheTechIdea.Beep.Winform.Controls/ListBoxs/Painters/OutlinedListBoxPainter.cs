@@ -12,13 +12,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty) return;
 
+            int radius = Scale(3);
+            int inset = Scale(8);
+
             // Create rounded path
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 3))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, radius))
             {
                 // Fill with appropriate color
                 if (isSelected)
                 {
-                    var selColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor ?? Color.LightBlue;
+                    var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
                     using (var brush = new SolidBrush(Color.FromArgb(20, selColor.R, selColor.G, selColor.B)))
                     {
                         g.FillPath(brush, path);
@@ -32,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
                 else if (isHovered)
                 {
-                    var hoverColor = Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.AccentColor ?? Color.FromArgb(100, 150, 200);
+                    var hoverColor = _theme?.AccentColor ?? Color.FromArgb(100, 150, 200);
                     using (var brush = new SolidBrush(Color.FromArgb(10, hoverColor.R, hoverColor.G, hoverColor.B)))
                     {
                         g.FillPath(brush, path);
@@ -52,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         g.FillPath(brush, path);
                     }
 
-                    using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
+                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -60,15 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw subtle divider line at bottom
-            using (var pen = new Pen(Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
             {
-                g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 1, itemRect.Right - 8, itemRect.Bottom - 1);
+                g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
             }
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(12, 6, 12, 6);
+            return new System.Windows.Forms.Padding(Scale(12), Scale(6), Scale(12), Scale(6));
         }
     }
 }

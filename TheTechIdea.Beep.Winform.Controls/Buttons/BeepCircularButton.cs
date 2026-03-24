@@ -82,6 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             set
             {
                 _hidetext = value;
+                //UpdateCircleRegion();
                 Invalidate();
             }
         }
@@ -106,6 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             set
             {
                 _textLocation = value;
+             //   UpdateCircleRegion();
                 Invalidate();
             }
         }
@@ -159,19 +161,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             IsChild = true;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
-            IsCustomeBorder = true;
+            IsCustomShape = true;
             ApplyTheme();
+         //   UpdateCircleRegion();
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+
+        protected override void OnResize(EventArgs e)
         {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            base.OnPaint(e);
+            base.OnResize(e);
+           // UpdateCircleRegion();
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+           // UpdateCircleRegion();
+        }
+
+        private void UpdateCircleRegion()
+        {
+            if (Width <= 0 || Height <= 0) return;
+
+            // Get the calculated layout to know where circle and text are
+            CalculateLayout(out Rectangle textRect, out Rectangle circleBounds);
+            
+            if (circleBounds.Width <= 0 || circleBounds.Height <= 0)
+                circleBounds = ClientRectangle;
+
+            var path = new GraphicsPath();
+            
+            // If text is outside the circle, include the full control bounds
+            // so the text isn't clipped by the region
+            if (_textLocation != TextLocation.Inside && !HideText && !string.IsNullOrEmpty(Text))
+            {
+                // Use full client rectangle to ensure text is visible
+                path.AddRectangle(ClientRectangle);
+            }
+            else
+            {
+                // Text is inside or hidden - use circle only
+                path.AddEllipse(circleBounds);
+            }
+
+            BorderPath?.Dispose();
+            BorderPath = path;
+            UpdateRegionForBadge();
         }
 
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+             g.SmoothingMode = SmoothingMode.AntiAlias;
             UpdateDrawingRect();
             ClearHitList();
             Draw(g, DrawingRect);
@@ -180,10 +220,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            AdjustControlHeight();
 
-            Rectangle textRect = GetTextRectangle();
-            Rectangle circleBounds = GetCircleBounds(textRect);
+            // Calculate layout once - text has priority, circle gets remaining space
+            CalculateLayout(out Rectangle textRect, out Rectangle circleBounds);
+            
             int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
 
             // Animation: scale the circle while animating
@@ -206,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             }
 
             // Draw image inside circle using StyledImagePainter
-            if (!string.IsNullOrEmpty(_imagePath))
+            if (!string.IsNullOrEmpty(_imagePath) && diameter > 0)
             {
                 Size imageSize = GetInscribedSquareSize(diameter);
                 imageRect = new Rectangle(
@@ -232,8 +272,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 }
             }
 
-            // Draw text - measure to prevent clipping
-            if (!string.IsNullOrEmpty(Text) && !HideText)
+            // Draw text - use the pre-calculated textRect
+            if (!string.IsNullOrEmpty(Text) && !HideText && !textRect.IsEmpty)
             {
                 TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
 
@@ -273,13 +313,122 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                         break;
                 }
 
-                // Measure text to ensure it fits
-                var textSize = TextRenderer.MeasureText(graphics, Text, Font, new Size(textRect.Width, int.MaxValue), flags);
-                textRect.Width = Math.Min(textSize.Width, textRect.Width);
-                textRect.Height = Math.Min(textSize.Height, textRect.Height);
-
                 var textColor = _currentTheme.PrimaryTextColor;
                 TextRenderer.DrawText(graphics, Text, Font, textRect, textColor, flags);
+            }
+        }
+
+        /// <summary>
+        /// Unified layout calculation - text has priority, circle gets remaining space
+        /// </summary>
+        private void CalculateLayout(out Rectangle textRect, out Rectangle circleBounds)
+        {
+            int borderSpace = _showBorder ? BorderThickness : 0;
+            int margin = 2;
+            int totalMargin = borderSpace + margin;
+
+            // Content area (inside padding and margins)
+            int contentX = DrawingRect.X + Padding.Left + totalMargin;
+            int contentY = DrawingRect.Y + Padding.Top + totalMargin;
+            int contentWidth = DrawingRect.Width - Padding.Horizontal - 2 * totalMargin;
+            int contentHeight = DrawingRect.Height - Padding.Vertical - 2 * totalMargin;
+
+            // Handle no text case - circle takes all space
+            if (HideText || string.IsNullOrEmpty(Text))
+            {
+                textRect = Rectangle.Empty;
+                int diameter = Math.Min(contentWidth, contentHeight);
+                diameter = Math.Max(0, diameter);
+                int circleX = contentX + (contentWidth - diameter) / 2;
+                int circleY = contentY + (contentHeight - diameter) / 2;
+                circleBounds = new Rectangle(circleX, circleY, diameter, diameter);
+                return;
+            }
+
+            // Measure text based on location
+            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
+            Size textSize;
+            int textMaxWidth;
+            int diameter2;
+
+            switch (_textLocation)
+            {
+                case TextLocation.Above:
+                case TextLocation.Below:
+                    // Text uses full width, measure height needed
+                    textMaxWidth = Math.Max(10, contentWidth);
+                    textSize = TextRenderer.MeasureText(Text, Font, new Size(textMaxWidth, int.MaxValue), flags);
+                    
+                    // Circle gets remaining height
+                    int remainingHeightV = contentHeight - textSize.Height - TextPadding;
+                    diameter2 = Math.Min(contentWidth, remainingHeightV);
+                    diameter2 = Math.Max(0, diameter2);
+
+                    int circleXV = contentX + (contentWidth - diameter2) / 2;
+                    int textXV = contentX;
+
+                    if (_textLocation == TextLocation.Above)
+                    {
+                        textRect = new Rectangle(textXV, contentY, textMaxWidth, textSize.Height);
+                        int circleYV = contentY + textSize.Height + TextPadding;
+                        circleBounds = new Rectangle(circleXV, circleYV, diameter2, diameter2);
+                    }
+                    else // Below
+                    {
+                        int circleYV = contentY;
+                        circleBounds = new Rectangle(circleXV, circleYV, diameter2, diameter2);
+                        int textYV = circleYV + diameter2 + TextPadding;
+                        textRect = new Rectangle(textXV, textYV, textMaxWidth, textSize.Height);
+                    }
+                    return;
+
+                case TextLocation.Left:
+                case TextLocation.Right:
+                    // For left/right, circle should be square fitting in height
+                    // Text gets remaining width
+                    diameter2 = Math.Min(contentHeight, contentWidth - TextPadding - 20); // Reserve at least 20px for text
+                    diameter2 = Math.Max(10, diameter2); // Minimum circle size
+                    
+                    int remainingWidthH = contentWidth - diameter2 - TextPadding;
+                    textMaxWidth = Math.Max(10, remainingWidthH);
+                    textSize = TextRenderer.MeasureText(Text, Font, new Size(textMaxWidth, int.MaxValue), flags);
+
+                    int circleYH = contentY + (contentHeight - diameter2) / 2;
+                    int textYH = contentY + (contentHeight - textSize.Height) / 2;
+
+                    if (_textLocation == TextLocation.Left)
+                    {
+                        textRect = new Rectangle(contentX, textYH, textSize.Width, textSize.Height);
+                        int circleXH = contentX + textSize.Width + TextPadding;
+                        circleBounds = new Rectangle(circleXH, circleYH, diameter2, diameter2);
+                    }
+                    else // Right
+                    {
+                        int circleXH = contentX;
+                        circleBounds = new Rectangle(circleXH, circleYH, diameter2, diameter2);
+                        int textXH = circleXH + diameter2 + TextPadding;
+                        textRect = new Rectangle(textXH, textYH, textSize.Width, textSize.Height);
+                    }
+                    return;
+
+                case TextLocation.Inside:
+                default:
+                    // Circle takes all space, text is centered inside inscribed square
+                    diameter2 = Math.Min(contentWidth, contentHeight);
+                    diameter2 = Math.Max(0, diameter2);
+                    int circleXI = contentX + (contentWidth - diameter2) / 2;
+                    int circleYI = contentY + (contentHeight - diameter2) / 2;
+                    circleBounds = new Rectangle(circleXI, circleYI, diameter2, diameter2);
+
+                    // Inscribed square for text
+                    int inscribedSize = (int)(diameter2 / Math.Sqrt(2)) - 2 * TextPadding;
+                    inscribedSize = Math.Max(10, inscribedSize);
+                    textSize = TextRenderer.MeasureText(Text, Font, new Size(inscribedSize, int.MaxValue), flags);
+                    
+                    int textXI = circleXI + (diameter2 - textSize.Width) / 2;
+                    int textYI = circleYI + (diameter2 - textSize.Height) / 2;
+                    textRect = new Rectangle(textXI, textYI, textSize.Width, textSize.Height);
+                    return;
             }
         }
 
@@ -294,166 +443,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             return new Size(squareSideLength, squareSideLength);
         }
 
-        private Rectangle GetCircleBounds(Rectangle textRect)
-        {
-            int borderSpace = _showBorder ? BorderThickness : 0;
-            int margin = 2;
-
-            int diameter;
-            if (!circlesize.IsEmpty)
-            {
-                diameter = Math.Min(circlesize.Width, circlesize.Height);
-            }
-            else
-            {
-                int maxDiameter = Math.Min(
-                    DrawingRect.Width - Padding.Horizontal - 2 * borderSpace - 2 * margin,
-                    DrawingRect.Height - Padding.Vertical - 2 * borderSpace - 2 * margin
-                );
-
-                if (HideText || string.IsNullOrEmpty(Text))
-                {
-                    diameter = maxDiameter;
-                }
-                else
-                {
-                    diameter = _textLocation == TextLocation.Above || _textLocation == TextLocation.Below
-                        ? Math.Max(0, maxDiameter - textRect.Height - TextPadding)
-                        : maxDiameter;
-                }
-            }
-
-            diameter = Math.Max(0, diameter);
-
-            int x = DrawingRect.X + Padding.Left + borderSpace + margin + (DrawingRect.Width - Padding.Horizontal - 2 * borderSpace - 2 * margin - diameter) / 2;
-            int y = DrawingRect.Y + Padding.Top + borderSpace + margin + (DrawingRect.Height - Padding.Vertical - 2 * borderSpace - 2 * margin - diameter) / 2;
-
-            if (!HideText && !string.IsNullOrEmpty(Text))
-            {
-                y += _textLocation switch
-                {
-                    TextLocation.Above => textRect.Height / 2 + TextPadding / 2,
-                    TextLocation.Below => -textRect.Height / 2 - TextPadding / 2,
-                    _ => 0
-                };
-            }
-
-            return new Rectangle(x, y, diameter, diameter);
-        }
-
         public Rectangle GetCircleBounds()
         {
-            Rectangle textRect = GetTextRectangle();
-            return GetCircleBounds(textRect);
-        }
-
-        private void AdjustControlHeight()
-        {
-            if (HideText || string.IsNullOrEmpty(Text)) return;
-
-            int borderSpace = _showBorder ? BorderThickness : 0;
-            int margin = 2;
-
-            int maxTextWidth = Width - Padding.Horizontal - 2 * TextPadding;
-            maxTextWidth = Math.Max(10, maxTextWidth);
-            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
-            Size textSize = TextRenderer.MeasureText(Text, Font, new Size(maxTextWidth, int.MaxValue), flags);
-
-            int circleHeight = Math.Min(
-                Width - Padding.Horizontal - 2 * borderSpace - 2 * margin,
-                Height - Padding.Vertical - 2 * borderSpace - 2 * margin
-            );
-
-            int requiredHeight = circleHeight + Padding.Vertical + 2 * borderSpace + 2 * margin;
-            if (_textLocation == TextLocation.Above || _textLocation == TextLocation.Below)
-            {
-                requiredHeight += textSize.Height + TextPadding;
-            }
-
-            if (Height < requiredHeight)
-            {
-                Height = requiredHeight;
-                Invalidate();
-            }
-        }
-
-        private Rectangle GetTextRectangle()
-        {
-            if (HideText || string.IsNullOrEmpty(Text)) return Rectangle.Empty;
-
-            int maxTextWidth = DrawingRect.Width - Padding.Horizontal - 2 * TextPadding;
-            maxTextWidth = Math.Max(10, maxTextWidth);
-
-            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl | TextFormatFlags.NoPadding;
-            switch (_textAlign)
-            {
-                case ContentAlignment.TopLeft:
-                case ContentAlignment.MiddleLeft:
-                case ContentAlignment.BottomLeft:
-                    flags |= TextFormatFlags.Left;
-                    break;
-                case ContentAlignment.TopRight:
-                case ContentAlignment.MiddleRight:
-                case ContentAlignment.BottomRight:
-                    flags |= TextFormatFlags.Right;
-                    break;
-                default:
-                    flags |= TextFormatFlags.HorizontalCenter;
-                    break;
-            }
-
-            Size proposedSize = new Size(maxTextWidth, int.MaxValue);
-            Size textSize = TextRenderer.MeasureText(Text, Font, proposedSize, flags);
-
-            Rectangle textRect;
-            switch (_textLocation)
-            {
-                case TextLocation.Above:
-                    textRect = new Rectangle(
-                        DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Top + Padding.Top + TextPadding,
-                        maxTextWidth,
-                        textSize.Height
-                    );
-                    break;
-                case TextLocation.Below:
-                    textRect = new Rectangle(
-                        DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Bottom - Padding.Bottom - textSize.Height - TextPadding,
-                        maxTextWidth,
-                        textSize.Height
-                    );
-                    break;
-                case TextLocation.Left:
-                    textRect = new Rectangle(
-                        DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
-                        textSize.Width,
-                        textSize.Height
-                    );
-                    break;
-                case TextLocation.Right:
-                    textRect = new Rectangle(
-                        DrawingRect.Right - Padding.Right - textSize.Width - TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
-                        textSize.Width,
-                        textSize.Height
-                    );
-                    break;
-                case TextLocation.Inside:
-                    textRect = new Rectangle(
-                        DrawingRect.Left + Padding.Left + TextPadding,
-                        DrawingRect.Top + Padding.Top + (DrawingRect.Height - Padding.Vertical - textSize.Height) / 2,
-                        maxTextWidth,
-                        textSize.Height
-                    );
-                    break;
-                default:
-                    textRect = Rectangle.Empty;
-                    break;
-            }
-
-            return textRect;
+            CalculateLayout(out _, out Rectangle circleBounds);
+            return circleBounds;
         }
 
         public override void ApplyTheme()

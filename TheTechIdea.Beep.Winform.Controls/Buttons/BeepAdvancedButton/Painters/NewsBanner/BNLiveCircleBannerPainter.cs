@@ -42,14 +42,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.FillEllipse(circleBrush, circleBounds);
             }
 
-            // Draw badge text
+            // Draw badge text split into two lines (BN / LIVE)
+            string[] badgeLines = badgeText.Split(' ');
             using (Brush badgeTextBrush = new SolidBrush(Color.White))
-            using (Font badgeFont = GetDerivedTextFont(context, sizeScale: 0.7f, styleOverride: FontStyle.Bold))
+            using (Font badgeFont = GetDerivedTextFont(context, sizeScale: 0.65f, styleOverride: FontStyle.Bold))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(badgeText, badgeFont, badgeTextBrush, circleBounds, format);
+
+                if (badgeLines.Length >= 2)
+                {
+                    // Draw "BN" on top
+                    Rectangle line1Bounds = new Rectangle(
+                        circleBounds.X,
+                        circleBounds.Y + (int)(circleBounds.Height * 0.32),
+                        circleBounds.Width,
+                        (int)(circleBounds.Height * 0.3)
+                    );
+                    g.DrawString(badgeLines[0], badgeFont, badgeTextBrush, line1Bounds, format);
+
+                    // Draw "LIVE" below
+                    Rectangle line2Bounds = new Rectangle(
+                        circleBounds.X,
+                        circleBounds.Y + (int)(circleBounds.Height * 0.52),
+                        circleBounds.Width,
+                        (int)(circleBounds.Height * 0.3)
+                    );
+                    g.DrawString(badgeLines[1], badgeFont, badgeTextBrush, line2Bounds, format);
+                }
+                else
+                {
+                    // Single word - center it
+                    g.DrawString(badgeText, badgeFont, badgeTextBrush, circleBounds, format);
+                }
             }
 
             // Draw angled banner section (blue)

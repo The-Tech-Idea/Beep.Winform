@@ -10,6 +10,13 @@ Custom chevron-shaped button control for WinForms.
   - drawing,
   - ripple clipping,
   - control `Region`.
+- Paint flow is split into focused helpers:
+  - `DrawChevronSurface`
+  - `DrawStateOverlay`
+  - `DrawFocusRing`
+  - `DrawRipple`
+  - `DrawImageContent`
+  - `DrawTextContent`
 
 ## Direction support
 
@@ -17,6 +24,21 @@ Custom chevron-shaped button control for WinForms.
 - `Backward`
 - `Up`
 - `Down`
+
+## Variant and size support
+
+- `Variant` (`ChevronButtonVariant`)
+  - `Filled` — normal filled chevron
+  - `Outlined` — transparent fill, emphasized border
+  - `Tonal` — blended/tinted surface
+  - `Text` — transparent fill and no border
+
+- `ButtonSize` (`ChevronButtonSize`)
+  - `Small`
+  - `Medium`
+  - `Large`
+
+- Size presets are DPI-scaled and applied to minimum width/height.
 
 ## Key behavior properties
 
@@ -26,6 +48,20 @@ Custom chevron-shaped button control for WinForms.
 - `ReducedMotion` — shortens ripple timing and lowers motion.
 - `AllowArrowDirectionCycle` — arrow keys can change direction while focused.
 - `FocusVisibleOnly` — focus ring is shown only for keyboard focus.
+- `EnforceMinimumHitSize` — enforces minimum touch target (48dp equivalent).
+
+## Rendering APIs
+
+- `Variant` (`ChevronButtonVariant`)
+  - `Filled`
+  - `Outlined`
+  - `Tonal`
+  - `Text`
+
+- `ButtonSize` (`ChevronButtonSize`)
+  - `Small`
+  - `Medium`
+  - `Large`
 
 ## Accessibility defaults
 
@@ -40,6 +76,8 @@ Uses `IBeepTheme` button colors:
 - `ButtonBackColor`, `ButtonHoverBackColor`, `ButtonPressedBackColor`
 - `DisabledBackColor`, `DisabledForeColor`
 - `PrimaryTextColor`, `ButtonSelectedForeColor` (focus ring)
+
+Variant color behavior is resolved from these theme colors at paint time.
 
 ## Notes
 

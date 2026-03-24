@@ -69,6 +69,8 @@
 	  <EmbeddedResource Include="GFX\SVG\INFO\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\NAV\*.*" />
 	  <EmbeddedResource Include="GFX\SVG\*.*" />
+	  <EmbeddedResource Include="GFX\sports\*.*" />
+	  <EmbeddedResource Include="GFX\streamingsports\*.*" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="GFX\Shapes\001-semicircle-2.svg" />

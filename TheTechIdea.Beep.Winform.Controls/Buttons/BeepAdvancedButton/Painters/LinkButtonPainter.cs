@@ -31,6 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (!context.IsLoading)
             {
                 // Draw text
+                var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
                 using (StringFormat sf = new StringFormat())
                 {
                     sf.Alignment = StringAlignment.Center;
@@ -39,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                     using (Brush textBrush = new SolidBrush(textColor))
                     {
-                        g.DrawString(context.Text, context.TextFont, textBrush, buttonBounds, sf);
+                        g.DrawString(context.Text, safeFont, textBrush, buttonBounds, sf);
                     }
                 }
 

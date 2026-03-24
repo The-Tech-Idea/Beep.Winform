@@ -19,59 +19,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
     public static class RadioGroupIconHelpers
     {
         /// <summary>
-        /// Gets the icon path for a radio item
-        /// Resolves icons from SimpleItem.ImagePath or fallback icons
+        /// Gets the icon path for a radio item.
+        /// Returns the path string as-is — StyledImagePainter resolves symbolic
+        /// SVG names, file paths, and embedded SVG data transparently.
         /// </summary>
         public static string GetItemIconPath(
             string? imagePath,
             string? fallbackIcon = null)
         {
-            // Priority 1: Custom image path from SimpleItem
+            // Priority 1: Custom image path from SimpleItem (pass directly to StyledImagePainter)
             if (!string.IsNullOrEmpty(imagePath))
-                return ResolveSvgSymbolPath(imagePath);
+                return imagePath;
 
             // Priority 2: Fallback icon (if provided)
             if (!string.IsNullOrEmpty(fallbackIcon))
-                return ResolveSvgSymbolPath(fallbackIcon);
+                return fallbackIcon;
 
             // Priority 3: Default icon from SvgsUI
             return SvgsUI.Circle ?? SvgsUI.Check ?? SvgsUI.BoxMultiple;
-        }
-
-        private static string ResolveSvgSymbolPath(string iconPath)
-        {
-            if (string.IsNullOrWhiteSpace(iconPath))
-            {
-                return iconPath;
-            }
-
-            // If the value already looks like a path/data URI, keep it.
-            if (iconPath.Contains("\\") || iconPath.Contains("/") || iconPath.StartsWith("<svg", StringComparison.OrdinalIgnoreCase))
-            {
-                return iconPath;
-            }
-
-            var svgUiProperty = typeof(SvgsUI).GetProperty(iconPath);
-            if (svgUiProperty?.PropertyType == typeof(string))
-            {
-                var svgUiValue = svgUiProperty.GetValue(null) as string;
-                if (!string.IsNullOrWhiteSpace(svgUiValue))
-                {
-                    return svgUiValue;
-                }
-            }
-
-            var svgProperty = typeof(Svgs).GetProperty(iconPath);
-            if (svgProperty?.PropertyType == typeof(string))
-            {
-                var svgValue = svgProperty.GetValue(null) as string;
-                if (!string.IsNullOrWhiteSpace(svgValue))
-                {
-                    return svgValue;
-                }
-            }
-
-            return iconPath;
         }
 
         /// <summary>

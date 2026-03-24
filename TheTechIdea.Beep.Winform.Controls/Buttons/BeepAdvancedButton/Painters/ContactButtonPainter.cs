@@ -211,17 +211,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 }
             }
 
-            // Draw icon
-            if (!string.IsNullOrEmpty(context.IconLeft))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    iconSection.X + (iconSection.Width - metrics.IconSize) / 2,
-                    iconSection.Y + (iconSection.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconLeft);
-            }
+            // Draw icon (or fallback phone icon)
+            Rectangle iconBounds = new Rectangle(
+                iconSection.X + (iconSection.Width - metrics.IconSize) / 2,
+                iconSection.Y + (iconSection.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconLeft, isRightIcon: false);
 
             // Draw text
             DrawText(g, context, textSection, GetForegroundColor(context));
@@ -267,17 +264,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw text
             DrawText(g, context, textSection, GetForegroundColor(context));
 
-            // Draw icon
-            if (!string.IsNullOrEmpty(context.IconRight))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    iconSection.X + (iconSection.Width - metrics.IconSize) / 2,
-                    iconSection.Y + (iconSection.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconRight);
-            }
+            // Draw icon (or fallback arrow icon)
+            Rectangle iconBounds = new Rectangle(
+                iconSection.X + (iconSection.Width - metrics.IconSize) / 2,
+                iconSection.Y + (iconSection.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconRight, isRightIcon: true);
         }
 
         /// <summary>
@@ -317,17 +311,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 g.DrawEllipse(circlePen, circleBounds);
             }
 
-            // Draw icon in circle
-            if (!string.IsNullOrEmpty(context.IconLeft))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
-                    circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconLeft);
-            }
+            // Draw icon in circle (or fallback phone)
+            Rectangle iconBounds = new Rectangle(
+                circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
+                circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconLeft, isRightIcon: false);
 
             // Draw text (offset to avoid circle)
             Rectangle textBounds = new Rectangle(
@@ -376,17 +367,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 g.DrawEllipse(circlePen, circleBounds);
             }
 
-            // Draw icon in circle
-            if (!string.IsNullOrEmpty(context.IconRight))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
-                    circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconRight);
-            }
+            // Draw icon in circle (or fallback arrow)
+            Rectangle iconBounds = new Rectangle(
+                circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
+                circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconRight, isRightIcon: true);
 
             // Draw text (offset to avoid circle)
             Rectangle textBounds = new Rectangle(
@@ -434,17 +422,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 }
             }
 
-            // Draw icon
-            if (!string.IsNullOrEmpty(context.IconLeft))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconLeft);
-            }
+            // Draw icon (or fallback phone)
+            Rectangle iconBounds = new Rectangle(
+                bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconLeft, isRightIcon: false);
 
             // Draw text
             Rectangle textBounds = new Rectangle(
@@ -495,17 +480,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 }
             }
 
-            // Draw icon
-            if (!string.IsNullOrEmpty(context.IconLeft))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconLeft);
-            }
+            // Draw icon (or fallback phone)
+            Rectangle iconBounds = new Rectangle(
+                bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            DrawIconOrFallback(g, context, iconBounds, context.IconLeft, isRightIcon: false);
 
             // Draw text
             Rectangle textBounds = new Rectangle(
@@ -1213,6 +1195,112 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 Math.Max(0, color.G - (color.G * percent / 100)),
                 Math.Max(0, color.B - (color.B * percent / 100))
             );
+        }
+
+        /// <summary>
+        /// Get the left icon path, or fallback phone icon if none provided
+        /// </summary>
+        private string GetLeftIconOrFallback(AdvancedButtonPaintContext context)
+        {
+            if (!string.IsNullOrEmpty(context.IconLeft))
+                return context.IconLeft;
+            
+            // Fallback to phone SVG icon for contact buttons
+            return null; // Will trigger DrawFallbackPhoneIcon
+        }
+
+        /// <summary>
+        /// Get the right icon path, or fallback arrow if none provided
+        /// </summary>
+        private string GetRightIconOrFallback(AdvancedButtonPaintContext context)
+        {
+            if (!string.IsNullOrEmpty(context.IconRight))
+                return context.IconRight;
+            
+            return null; // Will trigger DrawFallbackArrowIcon
+        }
+
+        /// <summary>
+        /// Draw icon, using fallback if no icon path provided
+        /// </summary>
+        private void DrawIconOrFallback(Graphics g, AdvancedButtonPaintContext context, Rectangle iconBounds, string iconPath, bool isRightIcon = false)
+        {
+            if (!string.IsNullOrEmpty(iconPath))
+            {
+                DrawIcon(g, context, iconBounds, iconPath);
+            }
+            else
+            {
+                // Draw fallback icon
+                Color iconColor = GetForegroundColor(context);
+                if (isRightIcon)
+                    DrawFallbackArrowIcon(g, iconBounds, iconColor);
+                else
+                    DrawFallbackPhoneIcon(g, iconBounds, iconColor);
+            }
+        }
+
+        /// <summary>
+        /// Draw a fallback phone icon for contact buttons
+        /// </summary>
+        private void DrawFallbackPhoneIcon(Graphics g, Rectangle bounds, Color color)
+        {
+            int padding = bounds.Width / 5;
+            Rectangle inner = new Rectangle(
+                bounds.X + padding,
+                bounds.Y + padding,
+                bounds.Width - padding * 2,
+                bounds.Height - padding * 2
+            );
+
+            using (Pen pen = new Pen(color, 2))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+                pen.LineJoin = LineJoin.Round;
+
+                // Draw phone handset shape
+                Point[] points = new Point[]
+                {
+                    new Point(inner.X + inner.Width / 4, inner.Bottom - inner.Height / 4),
+                    new Point(inner.X, inner.Bottom - inner.Height / 3),
+                    new Point(inner.X, inner.Y + inner.Height / 3),
+                    new Point(inner.X + inner.Width / 4, inner.Y + inner.Height / 6),
+                    new Point(inner.Right - inner.Width / 4, inner.Y),
+                    new Point(inner.Right, inner.Y + inner.Height / 4),
+                    new Point(inner.Right - inner.Width / 5, inner.Y + inner.Height / 2),
+                    new Point(inner.X + inner.Width / 2, inner.Bottom),
+                    new Point(inner.X + inner.Width / 4, inner.Bottom - inner.Height / 4)
+                };
+
+                g.DrawLines(pen, points);
+            }
+        }
+
+        /// <summary>
+        /// Draw a fallback arrow icon (right arrow)
+        /// </summary>
+        private void DrawFallbackArrowIcon(Graphics g, Rectangle bounds, Color color)
+        {
+            int padding = bounds.Width / 4;
+            int size = bounds.Width - padding * 2;
+            int centerY = bounds.Y + bounds.Height / 2;
+            int startX = bounds.X + padding;
+            int endX = bounds.Right - padding;
+
+            using (Pen pen = new Pen(color, 2))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                // Draw horizontal line
+                g.DrawLine(pen, startX, centerY, endX, centerY);
+                
+                // Draw arrowhead
+                int arrowSize = size / 3;
+                g.DrawLine(pen, endX, centerY, endX - arrowSize, centerY - arrowSize);
+                g.DrawLine(pen, endX, centerY, endX - arrowSize, centerY + arrowSize);
+            }
         }
 
         #endregion

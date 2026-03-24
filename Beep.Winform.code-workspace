@@ -41,6 +41,9 @@
 		},
 		{
 			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
+		},
+		{
+			"path": "../Beep.StreamingEvents"
 		}
 	],
 	"settings": {

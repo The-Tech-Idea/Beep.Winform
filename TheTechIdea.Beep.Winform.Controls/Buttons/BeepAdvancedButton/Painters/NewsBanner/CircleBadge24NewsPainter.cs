@@ -70,17 +70,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.DrawEllipse(circlePen, circleBounds);
             }
 
-            // Extract and draw badge text (24, etc.)
+            // Extract and draw badge text (24, etc.) with "NEWS" label below
             string badgeText = ExtractBadgeNumber(context.Text);
             if (!string.IsNullOrEmpty(badgeText))
             {
+                // Draw the number (e.g., "24") in top portion
+                Rectangle numberBounds = new Rectangle(
+                    circleBounds.X,
+                    circleBounds.Y + (int)(circleBounds.Height * 0.22),
+                    circleBounds.Width,
+                    (int)(circleBounds.Height * 0.45)
+                );
+
                 using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 4f))
                 using (Brush badgeTextBrush = new SolidBrush(Color.White))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Center;
                     format.LineAlignment = StringAlignment.Center;
-                    g.DrawString(badgeText, badgeFont, badgeTextBrush, circleBounds, format);
+                    g.DrawString(badgeText, badgeFont, badgeTextBrush, numberBounds, format);
+                }
+
+                // Draw "NEWS" label below the number
+                Rectangle newsLabelBounds = new Rectangle(
+                    circleBounds.X,
+                    circleBounds.Y + (int)(circleBounds.Height * 0.55),
+                    circleBounds.Width,
+                    (int)(circleBounds.Height * 0.25)
+                );
+
+                using (Font newsFont = GetDerivedTextFont(context, sizeScale: 0.5f, styleOverride: FontStyle.Bold))
+                using (Brush newsTextBrush = new SolidBrush(Color.White))
+                using (StringFormat format = new StringFormat())
+                {
+                    format.Alignment = StringAlignment.Center;
+                    format.LineAlignment = StringAlignment.Center;
+                    g.DrawString("NEWS", newsFont, newsTextBrush, newsLabelBounds, format);
                 }
             }
 

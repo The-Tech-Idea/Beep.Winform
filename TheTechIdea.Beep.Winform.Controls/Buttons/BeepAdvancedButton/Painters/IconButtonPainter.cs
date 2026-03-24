@@ -58,8 +58,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
+            else
+            {
+                // Fallback: Draw ellipsis icon when no icon provided
+                Color iconColor = context.State == Enums.AdvancedButtonState.Disabled
+                    ? context.DisabledForeground
+                    : context.SolidBackground;
+
+                Rectangle iconBounds = new Rectangle(
+                    buttonBounds.X + (buttonBounds.Width - metrics.IconSize) / 2,
+                    buttonBounds.Y + (buttonBounds.Height - metrics.IconSize) / 2,
+                    metrics.IconSize,
+                    metrics.IconSize
+                );
+
+                DrawFallbackEllipsisIcon(g, iconBounds, iconColor);
+            }
 
             DrawFocusRingPrimitive(g, context);
+        }
+
+        /// <summary>
+        /// Draw a fallback ellipsis icon (three dots)
+        /// </summary>
+        private void DrawFallbackEllipsisIcon(Graphics g, Rectangle bounds, Color color)
+        {
+            int dotSize = Math.Max(3, bounds.Width / 5);
+            int gap = dotSize;
+            int totalWidth = dotSize * 3 + gap * 2;
+            int startX = bounds.X + (bounds.Width - totalWidth) / 2;
+            int centerY = bounds.Y + bounds.Height / 2 - dotSize / 2;
+
+            using (Brush brush = new SolidBrush(color))
+            {
+                // Draw three dots horizontally
+                g.FillEllipse(brush, startX, centerY, dotSize, dotSize);
+                g.FillEllipse(brush, startX + dotSize + gap, centerY, dotSize, dotSize);
+                g.FillEllipse(brush, startX + (dotSize + gap) * 2, centerY, dotSize, dotSize);
+            }
         }
     }
 }

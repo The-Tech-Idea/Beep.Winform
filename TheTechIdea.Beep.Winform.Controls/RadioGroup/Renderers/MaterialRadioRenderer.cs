@@ -373,7 +373,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
         {
             // Material Design groups typically don't have additional decorations
-            // Could add subtle borders or backgrounds here if needed
+        }
+
+        public void Cleanup()
+        {
+            // No cached GDI+ resources — fonts are owned by the control
         }
         #endregion
 

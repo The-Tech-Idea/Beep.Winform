@@ -108,10 +108,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
 
         public BeepAdvancedButton()
          {
-             // BaseControl already sets up double buffering and control styles
-             // Just add button-specific initialization
-             
-             InitializePainter();
+            // BaseControl already sets up double buffering and control styles
+            // Just add button-specific initialization
+
+            // CRITICAL: Safe theme initialization
+            try
+            {
+                if (_currentTheme == null)
+                {
+                    _currentTheme = BeepThemesManager.CurrentTheme;
+                }
+            }
+            catch
+            {
+                // Theme manager not available (design-time or initialization issue)
+                // Will use fallback rendering
+            }
+
+            // Apply theme if available
+            if (_currentTheme != null)
+            {
+                try
+                {
+                    ApplyTheme();
+                }
+                catch
+                {
+                    // Theme application failed - use defaults
+                }
+            }
+
+            // Initialize painter with error handling
+            try
+            {
+                InitializePainter();
+            }
+            catch
+            {
+                // Painter initialization failed - will use fallback rendering
+            }
             
             // Set default size
             Size = _mediumSize;
@@ -127,15 +162,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             // Use BaseControl's BorderThickness for consistency
             BorderThickness = 2;
 
+            // Custom shape control - manages its own BorderPath and painting
+            IsCustomShape = true;
+
             // Shared animation timer for hover/press/ripple/loading.
             _animationTimer.Interval = 16;
             _animationTimer.Tick += OnAnimationTick;
             
             // Apply initial theme
-            if (_currentTheme != null)
-            {
-                ApplyTheme();
-            }
+          
+
+            // Initialize shape region after theme
+            UpdateShapeRegion();
         }
 
         #endregion
@@ -153,14 +191,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             {
                 if (_buttonStyle != value)
                 {
+                    System.Diagnostics.Debug.WriteLine($"BeepAdvancedButton: ButtonStyle changing from {_buttonStyle} to {value}");
+
                     _buttonStyle = value;
-                    InitializePainter();
-                    // Don't auto-resize unless it's FAB style which requires square shape
+
+                    // CRITICAL: Force painter recreation
+                    InitializePainter(resetShape: true);
+
+                    System.Diagnostics.Debug.WriteLine($"BeepAdvancedButton: Painter is now {_currentPainter?.GetType().Name ?? "NULL"}");
+
+                    // Update button size for FAB or other size-dependent styles
                     if (value == AdvancedButtonStyle.FAB)
                     {
                         UpdateButtonSize();
                     }
-                    Invalidate();
+
+                    // Force shape region update
+                    UpdateShapeRegion();
+
+                    // Force immediate redraw
+                    Refresh();
                 }
             }
         }
@@ -304,6 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 {
                     _buttonShape = value;
                     RegisterSplitButtonAreas(); // Register/unregister hit areas
+                    UpdateShapeRegion();
                     Invalidate();
                 }
             }
@@ -579,20 +630,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
 
         private void InitializePainter(bool resetShape = true)
         {
-            _currentPainter = ButtonPainterFactory.CreatePainter(
-                _buttonStyle,
-                _newsBannerVariant,
-                _contactVariant,
-                _chevronVariant);
-             
-            // Set default shape based on button style
-            if (resetShape)
+            try
             {
-                _buttonShape = GetDefaultShapeForStyle(_buttonStyle);
+                System.Diagnostics.Debug.WriteLine($"InitializePainter: ButtonStyle={_buttonStyle}, NewsBanner={_newsBannerVariant}, Contact={_contactVariant}, Chevron={_chevronVariant}");
+
+                // Create new painter based on current style
+                var newPainter = ButtonPainterFactory.CreatePainter(
+                    _buttonStyle,
+                    _newsBannerVariant,
+                    _contactVariant,
+                    _chevronVariant);
+
+                if (newPainter == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"WARNING: ButtonPainterFactory returned NULL for style {_buttonStyle}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"SUCCESS: Created painter {newPainter.GetType().Name}");
+                }
+
+                _currentPainter = newPainter;
+
+                // Set default shape based on button style
+                if (resetShape)
+                {
+                    var oldShape = _buttonShape;
+                    _buttonShape = GetDefaultShapeForStyle(_buttonStyle);
+                    if (oldShape != _buttonShape)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Shape changed from {oldShape} to {_buttonShape}");
+                    }
+                }
+
+                // Register split button areas if needed
+                RegisterSplitButtonAreas();
             }
-             
-            // Register split button areas if needed
-            RegisterSplitButtonAreas();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR in InitializePainter: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                // Don't throw - allow control to continue with fallback rendering
+            }
         }
 
         // Layout and split-area behavior moved to BeepAdvancedButton.Layout.cs.
@@ -601,122 +680,320 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
 
         #region "Overrides"
 
-        protected override void DrawContent(Graphics g)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            // If UseFormStylePaint is enabled, use BaseControl's painter rendering
-            if (UseFormStylePaint)
+            // Design-time safety: check for valid dimensions
+            if (Width <= 0 || Height <= 0) return;
+
+            var g = e.Graphics;
+
+            try
             {
-                base.DrawContent(g);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+            }
+            catch
+            {
+                // Graphics state might not support antialiasing in designer
+            }
+
+            // CRITICAL: Design-time fallback rendering
+            if (DesignMode || _currentTheme == null)
+            {
+                // Try to initialize theme for design-time
+                if (_currentTheme == null)
+                {
+                    try
+                    {
+                        _currentTheme = BeepThemesManager.CurrentTheme;
+                        System.Diagnostics.Debug.WriteLine($"OnPaint: Loaded theme {_currentTheme?.ThemeName ?? "NULL"}");
+                    }
+                    catch
+                    {
+                        // Theme manager not available at design time
+                    }
+                }
+
+                // If still no theme, use simple fallback rendering
+                if (_currentTheme == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("OnPaint: Using fallback - no theme");
+                    DrawDesignTimeFallback(g);
+                    return;
+                }
+            }
+
+            // Ensure painter is initialized
+            if (_currentPainter == null)
+            {
+                System.Diagnostics.Debug.WriteLine("OnPaint: Painter is NULL, initializing...");
+                try
+                {
+                    InitializePainter();
+                }
+                catch
+                {
+                    // Painter initialization failed - use fallback
+                    System.Diagnostics.Debug.WriteLine("OnPaint: Painter initialization FAILED");
+                    DrawDesignTimeFallback(g);
+                    return;
+                }
+
+                if (_currentPainter == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("OnPaint: Painter STILL NULL after init");
+                    DrawDesignTimeFallback(g);
+                    return;
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"OnPaint: Using painter {_currentPainter.GetType().Name} for style {_buttonStyle}");
+
+            // Ensure theme is available
+            var theme = _currentTheme as BeepTheme;
+            if (theme == null)
+            {
+                System.Diagnostics.Debug.WriteLine("OnPaint: Theme is not BeepTheme type");
+                DrawDesignTimeFallback(g);
                 return;
             }
 
-            // Otherwise use custom advanced button painter rendering
-            if (_currentPainter != null)
+            // Safely get text font with fallback
+            Font textFont;
+            try
             {
-                var theme = _currentTheme as BeepTheme;
-                var textFont = ResolveTextFont(theme);
-                var intentTokens = ResolveIntentColors(theme);
-                
-                 var context = new AdvancedButtonPaintContext
-                 {
-                     Graphics = g,
-                     OwnerControl = this,
-                     Bounds = ClientRectangle,
-                     State = GetCurrentState(),
-                     Text = Text,
-                     ImagePath = LeadingImagePath ?? string.Empty,
-                     IconLeft = _iconLeft,
-                     IconRight = _iconRight,
-                     IsToggled = _isToggled,
-                     IsLoading = _isLoading,
-                     Theme = theme!,
-                     Shape = _buttonShape,
-                     NewsBannerVariant = _newsBannerVariant,
-                     ContactVariant = _contactVariant,
-                     ChevronVariant = _chevronVariant,
-                     FlatWebVariant = _flatWebVariant,
-                     LowerThirdVariant = _lowerThirdVariant,
-                     StickerLabelVariant = _stickerLabelVariant,
-                     
-                     // Split button area states (from BaseControl input helpers)
-                     LeftAreaHovered = _leftAreaHovered,
-                     RightAreaHovered = _rightAreaHovered,
-                     LeftAreaPressed = _leftAreaPressed,
-                     RightAreaPressed = _rightAreaPressed,
-                     
-                     // Border properties from BaseControl
-                     BorderRadius = BorderRadius,
-                     BorderWidth = BorderThickness,
-                     BorderColor = BorderColor,
-                     
-                     // Core colors - fallback to theme if not explicitly set
-                     SolidBackground = _solidBackground != Color.Empty ? _solidBackground : intentTokens.Background,
-                     SolidForeground = _solidForeground != Color.Empty ? _solidForeground : intentTokens.Foreground,
-                     HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
-                     HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
-                     PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
-                     DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? Color.LightGray,
-                     DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? Color.Gray,
-                     
-                     // Additional colors from theme
-                     BackgroundColor = intentTokens.Background,
-                     TextColor = intentTokens.Foreground,
-                     IconColor = intentTokens.Foreground,
-                     SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
-                     FocusRingColor = theme?.PrimaryColor ?? SystemColors.Highlight,
-                     
-                     // Glow and effects
-                     GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                     RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                     LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                     
-                     // Toggle colors
-                     ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
-                     ToggleOffColor = theme?.ButtonBackColor ?? Color.Gray,
-                     ToggleBorderColor = theme?.ButtonBorderColor ?? Color.DarkGray,
-                     
-                     // Badge/Chip colors
-                     BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.Red,
-                     BadgeText = string.Empty,
-                     
-                     // Contact button icon background
-                     IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
-                     
-                     // Shadow properties from BaseControl
-                     ShowShadow = ShowShadow,
-                     ShadowBlur = ShadowOffset,
-                     ShadowColor = ShadowColor,
-                     
-                     // Animation/interaction state
-                     RippleActive = _rippleActive,
-                     RippleCenter = _rippleCenter,
-                     RippleProgress = _rippleProgress,
-                     HoverProgress = _hoverProgress,
-                     PressProgress = _pressProgress,
-                     LoadingRotationAngle = _loadingRotationAngle,
-                     ReduceMotion = _reduceMotion,
-                     
-                     // State flags
-                     IsHovered = IsHovered,
-                     IsPressed = IsPressed,
-                     ShowBorder = BorderThickness > 0,
-                     BorderThickness = BorderThickness,
-                     ShowFocusRing = _showFocusRing,
-                     FocusRingThickness = _focusRingThickness,
-                     FocusRingOffset = _focusRingOffset,
-                     FocusRingRadiusDelta = _focusRingRadiusDelta,
-                     
-                     // Typography
-                     TextFont = textFont,
-                     Intent = _intent,
-                     ButtonSize = _buttonSize,
-                     ButtonShape = _buttonShape
-                 };
+                textFont = BeepThemesManager.ToFont(theme.ButtonFont, applyDpiScaling: true) ?? Font;
+            }
+            catch
+            {
+                textFont = Font ?? new Font("Segoe UI", 9f);
+            }
+            var intentTokens = ResolveIntentColors(theme);
 
+            try
+            {
+                var context = new AdvancedButtonPaintContext
+            {
+                Graphics = g,
+                OwnerControl = this,
+                Bounds = ClientRectangle,
+                State = GetCurrentState(),
+                Text = Text,
+                ImagePath = LeadingImagePath ?? string.Empty,
+                IconLeft = _iconLeft,
+                IconRight = _iconRight,
+                IsToggled = _isToggled,
+                IsLoading = _isLoading,
+                Theme = theme!,
+                Shape = _buttonShape,
+                NewsBannerVariant = _newsBannerVariant,
+                ContactVariant = _contactVariant,
+                ChevronVariant = _chevronVariant,
+                FlatWebVariant = _flatWebVariant,
+                LowerThirdVariant = _lowerThirdVariant,
+                StickerLabelVariant = _stickerLabelVariant,
+                     
+                // Split button area states (from BaseControl input helpers)
+                LeftAreaHovered = _leftAreaHovered,
+                RightAreaHovered = _rightAreaHovered,
+                LeftAreaPressed = _leftAreaPressed,
+                RightAreaPressed = _rightAreaPressed,
+                
+                // Border properties from BaseControl
+                BorderRadius = BorderRadius,
+                BorderWidth = BorderThickness,
+                BorderColor = BorderColor,
+                
+                // Core colors - fallback to theme if not explicitly set
+                SolidBackground = _solidBackground != Color.Empty ? _solidBackground : intentTokens.Background,
+                SolidForeground = _solidForeground != Color.Empty ? _solidForeground : intentTokens.Foreground,
+                HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
+                HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
+                PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
+                DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? Color.LightGray,
+                DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? Color.Gray,
+                
+                // Additional colors from theme
+                BackgroundColor = intentTokens.Background,
+                TextColor = intentTokens.Foreground,
+                IconColor = intentTokens.Foreground,
+                SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
+                FocusRingColor = theme?.PrimaryColor ?? SystemColors.Highlight,
+                
+                // Glow and effects
+                GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                RippleColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                
+                // Toggle colors
+                ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
+                ToggleOffColor = theme?.ButtonBackColor ?? Color.Gray,
+                ToggleBorderColor = theme?.ButtonBorderColor ?? Color.DarkGray,
+                
+                // Badge/Chip colors
+                BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.Red,
+                BadgeText = string.Empty,
+                
+                // Contact button icon background
+                IconBackgroundColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
+                
+                // Shadow properties from BaseControl
+                ShowShadow = ShowShadow,
+                ShadowBlur = ShadowOffset,
+                ShadowColor = ShadowColor,
+                
+                // Animation/interaction state
+                RippleActive = _rippleActive,
+                RippleCenter = _rippleCenter,
+                RippleProgress = _rippleProgress,
+                HoverProgress = _hoverProgress,
+                PressProgress = _pressProgress,
+                LoadingRotationAngle = _loadingRotationAngle,
+                ReduceMotion = _reduceMotion,
+                
+                // State flags
+                IsHovered = IsHovered,
+                IsPressed = IsPressed,
+                ShowBorder = BorderThickness > 0,
+                BorderThickness = BorderThickness,
+                ShowFocusRing = _showFocusRing,
+                FocusRingThickness = _focusRingThickness,
+                FocusRingOffset = _focusRingOffset,
+                FocusRingRadiusDelta = _focusRingRadiusDelta,
+                
+                // Typography
+                TextFont = textFont,
+                Intent = _intent,
+                ButtonSize = _buttonSize,
+                ButtonShape = _buttonShape
+            };
+
+            try
+            {
                 _currentPainter.Paint(context);
+            }
+            catch (Exception ex)
+            {
+                // Painter failed - show error in design mode
+                if (DesignMode)
+                {
+                    DrawDesignTimeError(g, ex.Message);
+                }
+                System.Diagnostics.Debug.WriteLine($"BeepAdvancedButton paint error: {ex.Message}");
+            }
+
+            try
+            {
                 DrawFocusRing(g, context);
             }
+            catch
+            {
+                // Focus ring drawing failed - non-critical
+            }
         }
+        catch (Exception ex)
+        {
+            // Entire paint failed - use fallback
+            System.Diagnostics.Debug.WriteLine($"BeepAdvancedButton OnPaint exception: {ex}");
+            DrawDesignTimeFallback(g);
+        }
+    }
+
+    /// <summary>
+    /// Simple fallback rendering for design-time when theme is not available
+    /// </summary>
+    private void DrawDesignTimeFallback(Graphics g)
+    {
+        try
+        {
+            Rectangle bounds = ClientRectangle;
+
+            // Background
+            Color bgColor = _solidBackground != Color.Empty ? _solidBackground : SystemColors.Control;
+            using (var bgBrush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(bgBrush, bounds);
+            }
+
+            // Border
+            using (var borderPen = new Pen(Color.Gray, 1))
+            {
+                g.DrawRectangle(borderPen, 0, 0, Width - 1, Height - 1);
+            }
+
+            // Text
+            if (!string.IsNullOrEmpty(Text))
+            {
+                Color textColor = _solidForeground != Color.Empty ? _solidForeground : SystemColors.ControlText;
+                using (var textBrush = new SolidBrush(textColor))
+                using (var textFont = new Font("Segoe UI", 9f))
+                {
+                    StringFormat sf = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(Text, textFont, textBrush, bounds, sf);
+                }
+            }
+
+            // Design-time indicator
+            if (DesignMode)
+            {
+                using (var indicatorPen = new Pen(Color.LightGray, 1))
+                {
+                    indicatorPen.DashStyle = DashStyle.Dash;
+                    g.DrawRectangle(indicatorPen, 2, 2, Width - 5, Height - 5);
+                }
+            }
+        }
+        catch
+        {
+            // Even fallback failed - just fill with background
+            try
+            {
+                g.Clear(BackColor);
+            }
+            catch { }
+        }
+    }
+
+    /// <summary>
+    /// Draw design-time error message
+    /// </summary>
+    private void DrawDesignTimeError(Graphics g, string errorMessage)
+    {
+        try
+        {
+            Rectangle bounds = ClientRectangle;
+
+            // Red background
+            using (var bgBrush = new SolidBrush(Color.FromArgb(255, 220, 220)))
+            {
+                g.FillRectangle(bgBrush, bounds);
+            }
+
+            // Border
+            using (var borderPen = new Pen(Color.Red, 2))
+            {
+                g.DrawRectangle(borderPen, 1, 1, Width - 3, Height - 3);
+            }
+
+            // Error text
+            string displayText = $"Paint Error\n{errorMessage}";
+            using (var textBrush = new SolidBrush(Color.DarkRed))
+            using (var textFont = new Font("Segoe UI", 7f))
+            {
+                StringFormat sf = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
+                g.DrawString(displayText, textFont, textBrush, bounds, sf);
+            }
+        }
+        catch { }
+    }
 
         protected override void OnMouseEnter(EventArgs e)
         {
@@ -809,6 +1086,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             base.OnResize(e);
             // Re-register hit areas when control resizes
             RegisterSplitButtonAreas();
+            UpdateShapeRegion();
+        }
+
+        private void UpdateShapeRegion()
+        {
+            if (Width <= 0 || Height <= 0) return;
+
+            try
+            {
+                Rectangle bounds = ClientRectangle;
+                if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+                int radius = ButtonShapeHelper.GetCornerRadiusForShape(_buttonShape, bounds, BorderRadius);
+                var path = ButtonShapeHelper.CreateShapePath(_buttonShape, bounds, radius);
+
+                BorderPath?.Dispose();
+                BorderPath = path;
+
+                try
+                {
+                    UpdateRegionForBadge();
+                }
+                catch
+                {
+                    // Badge region update failed - non-critical
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"UpdateShapeRegion failed: {ex.Message}");
+                // Don't throw - allow control to function without custom region
+            }
         }
 
         protected override void OnEnabledChanged(EventArgs e)
@@ -982,25 +1291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             return AdvancedButtonState.Normal;
         }
 
-        private Font ResolveTextFont(BeepTheme? theme)
-        {
-            TypographyStyle style = theme?.ButtonFont;
 
-            if (style == null)
-            {
-                var controlFont = Font ?? SystemFonts.DefaultFont;
-                style = new TypographyStyle
-                {
-                    FontFamily = controlFont.FontFamily.Name,
-                    FontSize = controlFont.Size,
-                    FontWeight = controlFont.Bold ? FontWeight.Bold : FontWeight.Regular,
-                    IsUnderlined = controlFont.Underline,
-                    IsStrikeout = controlFont.Strikeout
-                };
-            }
-
-            return BeepThemesManager.ToFont(style, applyDpiScaling: true);
-        }
 
         private void ActivateFromKeyboard()
         {
@@ -1230,21 +1521,67 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             // These are used by the painters when UseFormStylePaint = false
             _solidBackground = _currentTheme.ButtonBackColor;
             _solidForeground = _currentTheme.ButtonForeColor;
-            
-            // IMPORTANT: Also update BaseControl's BackColor and ForeColor
-            // This ensures consistency when UseFormStylePaint = true
-            try
-            {
-                BackColor = _currentTheme.ButtonBackColor;
-                ForeColor = _currentTheme.ButtonForeColor;
-            }
-            catch
-            {
-                // In case of any issues setting colors, use defaults
-            }
-            
 
-            
+
+            // Handle parent background inheritance for child controls
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
+            else
+            {
+                // Apply default button background color
+                BackColor = _currentTheme.ButtonBackColor;
+            }
+
+
+
+            // Apply all button state colors
+            HoverBackColor = _currentTheme.ButtonHoverBackColor;
+            HoverForeColor = _currentTheme.ButtonHoverForeColor;
+            SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+            SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
+            DisabledForeColor = _currentTheme.DisabledForeColor;
+            FocusBackColor = _currentTheme.ButtonSelectedBackColor;
+            FocusForeColor = _currentTheme.ButtonSelectedForeColor;
+            ForeColor = _currentTheme.ButtonForeColor;
+
+
+            // Apply border colors only when borders are actually enabled
+            if (ShowAllBorders || ShowTopBorder || ShowBottomBorder || ShowLeftBorder || ShowRightBorder)
+            {
+                BorderColor = _currentTheme.ButtonBorderColor;
+            }
+
+            // Apply gradient colors from theme if gradient is enabled
+            if (UseGradientBackground)
+            {
+                // Use standard gradient colors from theme
+                GradientStartColor = _currentTheme.GradientStartColor;
+                GradientEndColor = _currentTheme.GradientEndColor;
+
+                // Apply gradient direction if available
+                if (_currentTheme.GradientDirection != LinearGradientMode.Horizontal)
+                {
+                    GradientDirection = _currentTheme.GradientDirection;
+                }
+            }
+
+            // Apply font from theme if configured to use theme fonts
+            if (UseThemeFont)
+            {
+                // Get font from button Style or fall back to default Style
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonFont);
+
+
+            }
+            //  SafeApplyFont(TextFont ?? _textFont);
+
+           
             // BaseControl.ApplyTheme() already sets:
             // - HoverBackColor, HoverForeColor
             // - PressedBackColor  

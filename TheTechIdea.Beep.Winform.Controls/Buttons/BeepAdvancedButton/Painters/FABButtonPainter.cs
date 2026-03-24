@@ -70,6 +70,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 );
                 DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
             }
+            else
+            {
+                // Fallback: Draw "+" icon when no icon provided (standard FAB behavior)
+                DrawFallbackPlusIcon(g, circleBounds, iconColor);
+            }
 
             DrawFocusRingPrimitive(g, context);
         }
@@ -92,6 +97,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 {
                     g.FillEllipse(brush, shadowBounds);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Draw a fallback plus icon for FAB buttons without icons
+        /// </summary>
+        private void DrawFallbackPlusIcon(Graphics g, Rectangle bounds, Color color)
+        {
+            int thickness = Math.Max(3, bounds.Width / 10);
+            int size = bounds.Width / 2;
+            int centerX = bounds.X + bounds.Width / 2;
+            int centerY = bounds.Y + bounds.Height / 2;
+
+            using (Pen pen = new Pen(color, thickness))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                // Horizontal line
+                g.DrawLine(pen, centerX - size / 2, centerY, centerX + size / 2, centerY);
+                // Vertical line
+                g.DrawLine(pen, centerX, centerY - size / 2, centerX, centerY + size / 2);
             }
         }
     }

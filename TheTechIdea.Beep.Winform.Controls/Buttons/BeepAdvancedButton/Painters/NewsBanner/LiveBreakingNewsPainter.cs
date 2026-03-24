@@ -34,9 +34,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
             int angleWidth = Math.Max(12, Math.Min(26, (int)Math.Round(bounds.Height * AngleScale)));
 
             // Colors
+            // Use red for LIVE section (broadcast convention)
             Color section1Color = context.IconBackgroundColor != Color.Empty
                 ? context.IconBackgroundColor
-                : Color.FromArgb(255, 0, 120); // Magenta/pink
+                : LiveBadgeRed;
 
             Color section2Color = context.SolidBackground;
 

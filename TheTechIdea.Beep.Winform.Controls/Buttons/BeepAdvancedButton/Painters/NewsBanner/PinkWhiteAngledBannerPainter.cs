@@ -94,19 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 (int)liveHeight
             );
 
-            using (Brush liveBgBrush = new SolidBrush(Color.White))
-            {
-                g.FillRectangle(liveBgBrush, liveBounds);
-            }
-
-            using (Brush liveTextBrush = new SolidBrush(section1Color))
-            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.65f, styleOverride: FontStyle.Bold))
-            using (StringFormat format = new StringFormat())
-            {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                g.DrawString("● LIVE", liveFont, liveTextBrush, liveBounds, format);
-            }
+            // Use red background for LIVE badge (broadcast convention)
+            DrawLiveBadge(g, liveBounds, context.TextFont, useRedBackground: true);
 
             // Draw section 2 text
             if (!string.IsNullOrEmpty(section2Text))
@@ -118,13 +107,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                     section2Bounds.Height
                 );
 
+                var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
                 using (Brush textBrush = new SolidBrush(Color.FromArgb(100, 100, 100)))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Near;
                     format.LineAlignment = StringAlignment.Center;
                     format.Trimming = StringTrimming.EllipsisCharacter;
-                    g.DrawString(section2Text, context.TextFont, textBrush, textBounds, format);
+                    g.DrawString(section2Text, safeFont, textBrush, textBounds, format);
                 }
             }
         }

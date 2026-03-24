@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
@@ -163,29 +164,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             return GetDerivedTextFont(context.TextFont, sizeScale, styleOverride, sizeDelta);
         }
 
-        protected static Font GetDerivedTextFont(Font baseFont, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
+        protected static Font GetDerivedTextFont(Font? baseFont, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
         {
-            var source = baseFont ?? SystemFonts.DefaultFont;
-            FontStyle style = styleOverride ?? source.Style;
-            float targetSize = Math.Max(6f, (source.Size * sizeScale) + sizeDelta);
+            // Use BeepFontManager.DefaultFont as the safe fallback
+            var defaultFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.ButtonFont);
+
+            // Safely extract properties from baseFont, fallback to defaults
+            string fontFamily;
+            float fontSize;
+            FontStyle fontStyle;
+
+            try
+            {
+                fontFamily = baseFont?.FontFamily?.Name ?? defaultFont.FontFamily.Name;
+                fontSize = baseFont?.Size > 0 ? baseFont.Size : defaultFont.Size;
+                fontStyle = styleOverride ?? baseFont?.Style ?? defaultFont.Style;
+            }
+            catch
+            {
+                // If any property access fails, use defaults
+                fontFamily = defaultFont.FontFamily.Name;
+                fontSize = defaultFont.Size;
+                fontStyle = styleOverride ?? defaultFont.Style;
+            }
+
+            float targetSize = Math.Max(6f, (fontSize * sizeScale) + sizeDelta);
 
             var typography = new TypographyStyle
             {
-                FontFamily = source.FontFamily.Name,
+                FontFamily = fontFamily,
                 FontSize = targetSize,
-                FontStyle = style,
-                FontWeight = style.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Regular,
-                IsUnderlined = style.HasFlag(FontStyle.Underline),
-                IsStrikeout = style.HasFlag(FontStyle.Strikeout)
+                FontStyle = fontStyle,
+                FontWeight = fontStyle.HasFlag(FontStyle.Bold) ? FontWeight.Bold : FontWeight.Regular,
+                IsUnderlined = fontStyle.HasFlag(FontStyle.Underline),
+                IsStrikeout = fontStyle.HasFlag(FontStyle.Strikeout)
             };
 
-            // Base font is already resolved for control DPI in most cases, avoid double scaling here.
             return BeepThemesManager.ToFont(typography, applyDpiScaling: false);
         }
 
         protected void DrawText(Graphics g, AdvancedButtonPaintContext context, Rectangle textBounds, Color textColor)
         {
             if (string.IsNullOrEmpty(context.Text)) return;
+
+            var safeFont = context.TextFont ?? SystemFonts.DefaultFont;
 
             using (StringFormat sf = new StringFormat())
             {
@@ -196,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
                 using (Brush textBrush = new SolidBrush(textColor))
                 {
-                    g.DrawString(context.Text, context.TextFont, textBrush, textBounds, sf);
+                    g.DrawString(context.Text, safeFont, textBrush, textBounds, sf);
                 }
             }
         }
@@ -319,6 +341,241 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             int b = (int)(from.B + (to.B - from.B) * t);
             return Color.FromArgb(a, r, g, b);
         }
+
+        #endregion
+
+        #region "Fallback Icon Drawing Methods"
+
+        /// <summary>
+        /// Standard red color for LIVE badges in news banners
+        /// </summary>
+        protected static readonly Color LiveBadgeRed = Color.FromArgb(220, 30, 30);
+
+        /// <summary>
+        /// Draws a globe/world icon using the embedded SVG, or falls back to a simple circle with lines
+        /// </summary>
+        protected void DrawFallbackGlobeIcon(Graphics g, Rectangle bounds, Color iconColor)
+        {
+            // Try to draw the SVG icon first
+            try
+            {
+                using (GraphicsPath iconPathGeometry = bounds.ToGraphicsPath())
+                {
+                    StyledImagePainter.PaintWithTint(g, iconPathGeometry, SvgsUI.World, iconColor);
+                }
+            }
+            catch
+            {
+                // Fallback: draw simple globe wireframe
+                DrawSimpleGlobe(g, bounds, iconColor);
+            }
+        }
+
+        /// <summary>
+        /// Draws a lightning bolt icon using the embedded SVG, or falls back to a simple bolt shape
+        /// </summary>
+        protected void DrawFallbackLightningIcon(Graphics g, Rectangle bounds, Color iconColor)
+        {
+            try
+            {
+                using (GraphicsPath iconPathGeometry = bounds.ToGraphicsPath())
+                {
+                    StyledImagePainter.PaintWithTint(g, iconPathGeometry, SvgsUI.Bolt, iconColor);
+                }
+            }
+            catch
+            {
+                // Fallback: draw simple lightning bolt
+                DrawSimpleLightningBolt(g, bounds, iconColor);
+            }
+        }
+
+        /// <summary>
+        /// Draws a soccer ball icon for sport news using the embedded SVG
+        /// </summary>
+        protected void DrawFallbackSportIcon(Graphics g, Rectangle bounds, Color iconColor)
+        {
+            try
+            {
+                using (GraphicsPath iconPathGeometry = bounds.ToGraphicsPath())
+                {
+                    StyledImagePainter.PaintWithTint(g, iconPathGeometry, SvgsSports.SoccerBall, iconColor);
+                }
+            }
+            catch
+            {
+                // Fallback: draw simple soccer ball shape
+                DrawSimpleSoccerBall(g, bounds, iconColor);
+            }
+        }
+
+        /// <summary>
+        /// Draws a warning/alert icon for fake news using the embedded SVG
+        /// </summary>
+        protected void DrawFallbackAlertIcon(Graphics g, Rectangle bounds, Color iconColor)
+        {
+            try
+            {
+                using (GraphicsPath iconPathGeometry = bounds.ToGraphicsPath())
+                {
+                    StyledImagePainter.PaintWithTint(g, iconPathGeometry, SvgsUI.AlertTriangle, iconColor);
+                }
+            }
+            catch
+            {
+                // Fallback: draw simple warning triangle
+                DrawSimpleWarningTriangle(g, bounds, iconColor);
+            }
+        }
+
+        /// <summary>
+        /// Draws a standard red LIVE badge rectangle with text
+        /// </summary>
+        protected void DrawLiveBadge(Graphics g, Rectangle bounds, Font baseFont, bool useRedBackground = true)
+        {
+            Color bgColor = useRedBackground ? LiveBadgeRed : Color.White;
+            Color textColor = useRedBackground ? Color.White : LiveBadgeRed;
+
+            using (Brush bgBrush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(bgBrush, bounds);
+            }
+
+            using (Font liveFont = GetDerivedTextFont(baseFont, sizeScale: 0.7f, styleOverride: FontStyle.Bold))
+            using (Brush textBrush = new SolidBrush(textColor))
+            using (StringFormat format = new StringFormat())
+            {
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+                g.DrawString("LIVE", liveFont, textBrush, bounds, format);
+            }
+        }
+
+        /// <summary>
+        /// Draws a LIVE badge with a dot indicator (● LIVE)
+        /// </summary>
+        protected void DrawLiveBadgeWithDot(Graphics g, Rectangle bounds, Font baseFont, Color badgeColor, bool useWhiteBackground = true)
+        {
+            Color bgColor = useWhiteBackground ? Color.White : badgeColor;
+            Color textColor = useWhiteBackground ? badgeColor : Color.White;
+
+            using (Brush bgBrush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(bgBrush, bounds);
+            }
+
+            using (Font liveFont = GetDerivedTextFont(baseFont, sizeScale: 0.6f, styleOverride: FontStyle.Bold))
+            using (Brush textBrush = new SolidBrush(textColor))
+            using (StringFormat format = new StringFormat())
+            {
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+                g.DrawString("● LIVE", liveFont, textBrush, bounds, format);
+            }
+        }
+
+        #region "Simple Shape Fallbacks"
+
+        private void DrawSimpleGlobe(Graphics g, Rectangle bounds, Color color)
+        {
+            using (Pen pen = new Pen(color, 1.5f))
+            {
+                // Outer circle
+                g.DrawEllipse(pen, bounds);
+
+                // Horizontal line
+                int midY = bounds.Y + bounds.Height / 2;
+                g.DrawLine(pen, bounds.X, midY, bounds.Right, midY);
+
+                // Vertical ellipse (meridian)
+                int inset = bounds.Width / 4;
+                Rectangle meridian = new Rectangle(bounds.X + inset, bounds.Y, bounds.Width - inset * 2, bounds.Height);
+                g.DrawEllipse(pen, meridian);
+            }
+        }
+
+        private void DrawSimpleLightningBolt(Graphics g, Rectangle bounds, Color color)
+        {
+            using (Brush brush = new SolidBrush(color))
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                float x = bounds.X;
+                float y = bounds.Y;
+                float w = bounds.Width;
+                float h = bounds.Height;
+
+                // Lightning bolt shape
+                path.AddPolygon(new PointF[]
+                {
+                    new PointF(x + w * 0.6f, y),
+                    new PointF(x + w * 0.3f, y + h * 0.45f),
+                    new PointF(x + w * 0.55f, y + h * 0.45f),
+                    new PointF(x + w * 0.4f, y + h),
+                    new PointF(x + w * 0.7f, y + h * 0.55f),
+                    new PointF(x + w * 0.45f, y + h * 0.55f)
+                });
+                g.FillPath(brush, path);
+            }
+        }
+
+        private void DrawSimpleSoccerBall(Graphics g, Rectangle bounds, Color color)
+        {
+            using (Pen pen = new Pen(color, 1.5f))
+            using (Brush brush = new SolidBrush(color))
+            {
+                // Outer circle
+                g.DrawEllipse(pen, bounds);
+
+                // Draw pentagon pattern (simplified)
+                int cx = bounds.X + bounds.Width / 2;
+                int cy = bounds.Y + bounds.Height / 2;
+                int r = bounds.Width / 5;
+
+                // Center pentagon
+                PointF[] pentagon = new PointF[5];
+                for (int i = 0; i < 5; i++)
+                {
+                    double angle = -Math.PI / 2 + i * 2 * Math.PI / 5;
+                    pentagon[i] = new PointF(
+                        cx + (float)(r * Math.Cos(angle)),
+                        cy + (float)(r * Math.Sin(angle))
+                    );
+                }
+                g.FillPolygon(brush, pentagon);
+            }
+        }
+
+        private void DrawSimpleWarningTriangle(Graphics g, Rectangle bounds, Color color)
+        {
+            using (Brush brush = new SolidBrush(color))
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                float x = bounds.X;
+                float y = bounds.Y;
+                float w = bounds.Width;
+                float h = bounds.Height;
+
+                path.AddPolygon(new PointF[]
+                {
+                    new PointF(x + w / 2, y),
+                    new PointF(x + w, y + h),
+                    new PointF(x, y + h)
+                });
+                g.FillPath(brush, path);
+
+                // Draw exclamation mark in center
+                using (Brush whiteBrush = new SolidBrush(Color.White))
+                {
+                    Rectangle exclamation = new Rectangle((int)(x + w * 0.45), (int)(y + h * 0.35), (int)(w * 0.1), (int)(h * 0.35));
+                    g.FillRectangle(whiteBrush, exclamation);
+
+                    Rectangle dot = new Rectangle((int)(x + w * 0.45), (int)(y + h * 0.75), (int)(w * 0.1), (int)(w * 0.1));
+                    g.FillEllipse(whiteBrush, dot);
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
     }

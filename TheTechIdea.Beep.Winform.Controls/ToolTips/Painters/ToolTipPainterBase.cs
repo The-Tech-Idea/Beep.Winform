@@ -3,8 +3,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.Spacing;
+using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
@@ -126,18 +129,51 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
         #region Helper Methods - Fonts
 
+        /// <summary>
+        /// Resolves the title font from config override → StyleTypography for the active style.
+        /// Uses BeepFontManager.GetCachedFont to avoid per-paint allocations.
+        /// </summary>
         protected virtual Font GetTitleFont(ToolTipConfig config)
         {
             if (config.Font != null)
             {
-                return new Font(config.Font.FontFamily, config.Font.Size + 2, FontStyle.Bold);
+                return BeepFontManager.GetCachedFont(
+                    config.Font.FontFamily.Name, config.Font.Size + 2, FontStyle.Bold)
+                    ?? config.Font;
             }
-            return new Font("Segoe UI", 10, FontStyle.Bold);
+
+            var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
+            string family = ResolvePrimaryFontFamily(style);
+            // Title is ~1.5 pt larger than the style's body size, always bold
+            float size = StyleTypography.GetFontSize(style) - 2.5f;
+            return BeepFontManager.GetCachedFont(family, size, FontStyle.Bold)
+                   ?? new Font("Segoe UI", 10, FontStyle.Bold);
         }
 
+        /// <summary>
+        /// Resolves the body text font from config override → StyleTypography.
+        /// </summary>
         protected virtual Font GetTextFont(ToolTipConfig config)
         {
-            return config.Font ?? new Font("Segoe UI", 9, FontStyle.Regular);
+            if (config.Font != null)
+                return config.Font;
+
+            var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
+            string family = ResolvePrimaryFontFamily(style);
+            // Tooltip body is ~1 pt smaller than the style's standard body
+            float size = StyleTypography.GetFontSize(style) - 4f;
+            return BeepFontManager.GetCachedFont(family, size, FontStyle.Regular)
+                   ?? new Font("Segoe UI", 9, FontStyle.Regular);
+        }
+
+        /// <summary>
+        /// Extracts the first (primary) font family name from a comma-separated list.
+        /// </summary>
+        private static string ResolvePrimaryFontFamily(BeepControlStyle style)
+        {
+            string families = StyleTypography.GetFontFamily(style);
+            int comma = families.IndexOf(',');
+            return comma > 0 ? families.Substring(0, comma).Trim() : families.Trim();
         }
 
         #endregion
@@ -202,15 +238,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         }
 
         /// <summary>
-        /// Get content rectangle (excluding padding)
+        /// Get content rectangle (excluding padding).
+        /// Resolves padding from StyleSpacing when a config is available.
         /// </summary>
         protected Rectangle GetContentRectangle(Rectangle bounds)
         {
+            return GetContentRectangle(bounds, null);
+        }
+
+        /// <summary>
+        /// Get content rectangle with style-aware padding.
+        /// </summary>
+        protected Rectangle GetContentRectangle(Rectangle bounds, ToolTipConfig config)
+        {
+            int padding = DefaultPadding;
+            if (config != null)
+            {
+                var style = ToolTipStyleAdapter.GetBeepControlStyle(config);
+                padding = Math.Max(8, StyleSpacing.GetPadding(style));
+            }
             return new Rectangle(
-                bounds.X + DefaultPadding,
-                bounds.Y + DefaultPadding,
-                bounds.Width - DefaultPadding * 2,
-                bounds.Height - DefaultPadding * 2
+                bounds.X + padding,
+                bounds.Y + padding,
+                bounds.Width - padding * 2,
+                bounds.Height - padding * 2
             );
         }
 

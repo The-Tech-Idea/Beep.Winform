@@ -43,14 +43,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.FillEllipse(circleBrush, circleBounds);
             }
 
-            // Draw badge text
-            using (Brush badgeTextBrush = new SolidBrush(Color.White))
-            using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 2f))
-            using (StringFormat format = new StringFormat())
+            // Draw soccer ball icon if no badge text, otherwise draw text
+            if (string.IsNullOrEmpty(badgeText) || badgeText == "24")
             {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                g.DrawString(badgeText, badgeFont, badgeTextBrush, circleBounds, format);
+                // Draw soccer ball icon
+                Rectangle iconBounds = new Rectangle(
+                    circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
+                    circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
+                    metrics.IconSize,
+                    metrics.IconSize
+                );
+                DrawFallbackSportIcon(g, iconBounds, Color.White);
+            }
+            else
+            {
+                // Draw badge text
+                using (Brush badgeTextBrush = new SolidBrush(Color.White))
+                using (Font badgeFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold, sizeDelta: 2f))
+                using (StringFormat format = new StringFormat())
+                {
+                    format.Alignment = StringAlignment.Center;
+                    format.LineAlignment = StringAlignment.Center;
+                    g.DrawString(badgeText, badgeFont, badgeTextBrush, circleBounds, format);
+                }
             }
 
             // Draw main pill section (white)
@@ -90,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.DrawString(mainText, boldFont, textBrush, textBounds, format);
             }
 
-            // Draw LIVE badge
+            // Draw LIVE badge (RED for broadcast standard)
             Rectangle liveBounds = new Rectangle(
                 pillBounds.Right - radius - 60,
                 pillBounds.Y + (int)(pillBounds.Height * 0.3),
@@ -98,19 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 (int)(pillBounds.Height * 0.4)
             );
 
-            using (Brush liveBrush = new SolidBrush(badgeColor))
-            {
-                g.FillRectangle(liveBrush, liveBounds);
-            }
-
-            using (Brush liveTextBrush = new SolidBrush(Color.White))
-            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.7f, styleOverride: FontStyle.Bold))
-            using (StringFormat format = new StringFormat())
-            {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                g.DrawString("LIVE", liveFont, liveTextBrush, liveBounds, format);
-            }
+            DrawLiveBadge(g, liveBounds, context.TextFont, useRedBackground: true);
         }
 
         private string[] SplitText(string text)

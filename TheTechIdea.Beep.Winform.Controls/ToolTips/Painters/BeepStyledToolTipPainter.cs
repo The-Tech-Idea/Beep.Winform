@@ -286,21 +286,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
         #endregion
 
-        #region Content Painting
-
         /// <summary>
         /// Paint content including icons, title, and text
         /// </summary>
         public override void PaintContent(Graphics g, Rectangle bounds, 
             ToolTipConfig config, IBeepTheme theme)
         {
-            var contentRect = GetContentRectangle(bounds);
+            // If ContentItems is populated, use it as the source of truth
+            if (config.ContentItems != null && config.ContentItems.Count > 0)
+            {
+                PaintContentItems(g, bounds, config, theme);
+                return;
+            }
+
+            var contentRect = GetContentRectangle(bounds, config);
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
             Color foreColor = config.ForeColor ?? colors.foreground;
 
             int currentX = contentRect.X;
             int currentY = contentRect.Y;
             int contentWidth = contentRect.Width;
+
+            // Draw close button if closable
+            if (config.Closable)
+            {
+                int btnSize = 16;
+                var closeRect = new Rectangle(contentRect.Right - btnSize, contentRect.Y, btnSize, btnSize);
+                DrawCloseButton(g, closeRect, foreColor);
+                contentWidth -= (btnSize + 4);
+            }
 
             // Paint icon if present
             if (HasIcon(config))
@@ -334,23 +348,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 currentY += (int)Math.Ceiling(titleSize.Height) + DefaultTitleSpacing;
             }
 
-            // Paint text
+            // Paint text (with optional markup rendering)
             if (!string.IsNullOrEmpty(config.Text))
             {
                 var textFont = GetTextFont(config);
                 var textRect = new Rectangle(currentX, currentY, contentWidth, 
                     contentRect.Bottom - currentY);
 
-                using (var brush = new SolidBrush(foreColor))
+                if (config.UseMarkup)
                 {
-                    var format = new StringFormat
+                    // Parse and render markup spans
+                    DrawMarkupSpans(g, textRect, config.Text, textFont, foreColor, theme);
+                }
+                else
+                {
+                    using (var brush = new SolidBrush(foreColor))
                     {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Near,
-                        Trimming = StringTrimming.EllipsisWord
-                    };
+                        var format = new StringFormat
+                        {
+                            Alignment = config.TextHAlign,
+                            LineAlignment = config.TextVAlign,
+                            Trimming = StringTrimming.EllipsisWord
+                        };
 
-                    g.DrawString(config.Text, textFont, brush, textRect, format);
+                        g.DrawString(config.Text, textFont, brush, textRect, format);
+                    }
                 }
             }
 
@@ -365,6 +387,248 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                     int by = contentRect.Bottom - badgeSize.Height;
                     ShortcutBadgePainter.DrawShortcuts(g, config.Shortcuts, new Point(bx, by), theme);
                 }
+            }
+        }
+
+        #endregion
+
+        #region Rich Content Items Rendering
+
+        /// <summary>
+        /// Renders ToolTipContentItem[] sections (Header / Body / Divider / Footer)
+        /// as the source of truth when populated on config.
+        /// </summary>
+        private void PaintContentItems(Graphics g, Rectangle bounds,
+            ToolTipConfig config, IBeepTheme theme)
+        {
+            var contentRect = GetContentRectangle(bounds, config);
+            var colors = ToolTipStyleAdapter.GetColors(config, theme);
+            Color foreColor = config.ForeColor ?? colors.foreground;
+
+            int y = contentRect.Y;
+            int spacing = DefaultTitleSpacing;
+
+            // Draw close button if closable
+            int availableWidth = contentRect.Width;
+            if (config.Closable)
+            {
+                int btnSize = 16;
+                var closeRect = new Rectangle(contentRect.Right - btnSize, contentRect.Y, btnSize, btnSize);
+                DrawCloseButton(g, closeRect, foreColor);
+                availableWidth -= (btnSize + 4);
+            }
+
+            foreach (var item in config.ContentItems)
+            {
+                if (y >= contentRect.Bottom) break;
+                int remainingHeight = contentRect.Bottom - y;
+
+                switch (item.Section)
+                {
+                    case ToolTipSection.Header:
+                        {
+                            var headerFont = GetTitleFont(config);
+                            int iconSize = 0;
+                            int textX = contentRect.X;
+
+                            // Icon on left
+                            if (!string.IsNullOrEmpty(item.IconPath))
+                            {
+                                iconSize = DefaultIconSize;
+                                var iconRect = new Rectangle(contentRect.X, y, iconSize, iconSize);
+                                try
+                                {
+                                    var beepStyle = ToolTipStyleAdapter.GetBeepControlStyle(config);
+                                    using (var path = CreateRoundedRectangle(iconRect, Math.Min(4, iconRect.Width / 4)))
+                                    {
+                                        StyledImagePainter.PaintWithTint(g, path, item.IconPath,
+                                            foreColor, 0.8f, 4);
+                                    }
+                                }
+                                catch { /* fallback: skip icon */ }
+                                textX += iconSize + DefaultIconMargin;
+                            }
+
+                            // Title text
+                            Color itemColor = item.ForeColor ?? foreColor;
+                            FontStyle fs = FontStyle.Bold;
+                            if (item.IsItalic) fs |= FontStyle.Italic;
+                            var font = item.Font ?? headerFont;
+
+                            var headerRect = new Rectangle(textX, y, availableWidth - iconSize, Math.Min(remainingHeight, 24));
+                            using (var brush = new SolidBrush(itemColor))
+                            {
+                                var format = new StringFormat { LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                                g.DrawString(item.Text ?? "", font, brush, headerRect, format);
+                            }
+                            y += Math.Max(iconSize, headerRect.Height) + spacing;
+                        }
+                        break;
+
+                    case ToolTipSection.Body:
+                        {
+                            var bodyFont = GetTextFont(config);
+                            Color itemColor = item.ForeColor ?? foreColor;
+                            FontStyle fs = FontStyle.Regular;
+                            if (item.IsBold) fs |= FontStyle.Bold;
+                            if (item.IsItalic) fs |= FontStyle.Italic;
+
+                            Font font = item.Font ?? bodyFont;
+                            if (fs != FontStyle.Regular && item.Font == null)
+                            {
+                                font = new Font(bodyFont.FontFamily, bodyFont.Size, fs);
+                            }
+
+                            var bodyRect = new Rectangle(contentRect.X, y, availableWidth, remainingHeight);
+
+                            if (item.IsCode)
+                            {
+                                // Tinted code background
+                                var codeRect = new Rectangle(contentRect.X, y, availableWidth, (int)(bodyFont.GetHeight(g) * 1.4f));
+                                using (var codeBrush = new SolidBrush(Color.FromArgb(30, foreColor)))
+                                    g.FillRectangle(codeBrush, codeRect);
+                                var monoFont = new Font("Consolas", bodyFont.Size, fs);
+                                using (var brush = new SolidBrush(itemColor))
+                                    g.DrawString(item.Text ?? "", monoFont, brush, codeRect);
+                                y += codeRect.Height + spacing;
+                            }
+                            else if (item.IsLink)
+                            {
+                                var linkFont = new Font(bodyFont.FontFamily, bodyFont.Size, FontStyle.Underline);
+                                Color linkColor = theme?.AccentColor ?? Color.DodgerBlue;
+                                using (var brush = new SolidBrush(linkColor))
+                                    g.DrawString(item.Text ?? "", linkFont, brush, bodyRect);
+                                y += (int)(linkFont.GetHeight(g) * 1.2f) + spacing;
+                            }
+                            else
+                            {
+                                var measured = TextUtils.MeasureText(g, item.Text ?? "", font, availableWidth);
+                                using (var brush = new SolidBrush(itemColor))
+                                {
+                                    var format = new StringFormat
+                                    {
+                                        Alignment = config.TextHAlign,
+                                        LineAlignment = config.TextVAlign,
+                                        Trimming = StringTrimming.EllipsisWord
+                                    };
+                                    g.DrawString(item.Text ?? "", font, brush, bodyRect, format);
+                                }
+                                y += (int)Math.Ceiling(measured.Height) + spacing;
+                            }
+                        }
+                        break;
+
+                    case ToolTipSection.Divider:
+                        {
+                            var dividerRect = new Rectangle(contentRect.X, y + spacing / 2, availableWidth, 1);
+                            DrawDivider(g, dividerRect, foreColor, theme);
+                            y += spacing;
+                        }
+                        break;
+
+                    case ToolTipSection.Footer:
+                        {
+                            var footerFont = GetTextFont(config);
+                            Color itemColor = item.ForeColor ?? Color.FromArgb(160, foreColor);
+                            var footerRect = new Rectangle(contentRect.X, y, availableWidth, remainingHeight);
+                            using (var brush = new SolidBrush(itemColor))
+                            {
+                                var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter };
+                                g.DrawString(item.Text ?? "", footerFont, brush, footerRect, format);
+                            }
+                            y += (int)(footerFont.GetHeight(g)) + spacing;
+                        }
+                        break;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Close Button & Divider Drawing
+
+        /// <summary>
+        /// Draws a × close glyph in the specified rectangle.
+        /// Color is foreground at 60% alpha; hover state managed by CustomToolTip form.
+        /// </summary>
+        private void DrawCloseButton(Graphics g, Rectangle rect, Color foreColor)
+        {
+            Color btnColor = Color.FromArgb(153, foreColor); // 60% alpha
+            using (var pen = new Pen(btnColor, 1.5f))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+                int inset = 3;
+                g.DrawLine(pen, rect.X + inset, rect.Y + inset, rect.Right - inset, rect.Bottom - inset);
+                g.DrawLine(pen, rect.Right - inset, rect.Y + inset, rect.X + inset, rect.Bottom - inset);
+            }
+        }
+
+        /// <summary>
+        /// Draws a 1px horizontal divider line with 30% alpha border color.
+        /// </summary>
+        private void DrawDivider(Graphics g, Rectangle rect, Color foreColor, IBeepTheme theme)
+        {
+            Color dividerColor = theme != null
+                ? Color.FromArgb(77, theme.BorderColor) // 30% alpha
+                : Color.FromArgb(77, foreColor);
+            using (var pen = new Pen(dividerColor, 1f))
+            {
+                g.DrawLine(pen, rect.X, rect.Y, rect.Right, rect.Y);
+            }
+        }
+
+        #endregion
+
+        #region Markup Span Rendering
+
+        /// <summary>
+        /// Renders parsed markup spans (bold, italic, code, link) inline within the given rectangle.
+        /// </summary>
+        private void DrawMarkupSpans(Graphics g, RectangleF rect, string markup,
+            Font baseFont, Color foreColor, IBeepTheme theme)
+        {
+            var spans = ToolTipMarkupParser.Parse(markup);
+            if (spans.Count == 0) return;
+
+            float x = rect.X;
+            float y = rect.Y;
+            float lineHeight = baseFont.GetHeight(g);
+            float maxWidth = rect.Width;
+
+            foreach (var span in spans)
+            {
+                FontStyle fs = span.GetFontStyle();
+                Font spanFont = span.Kind == SpanKind.Code
+                    ? new Font("Consolas", baseFont.Size, fs)
+                    : new Font(baseFont.FontFamily, baseFont.Size, fs);
+
+                Color spanColor = span.Kind == SpanKind.Link
+                    ? (theme?.AccentColor ?? Color.DodgerBlue)
+                    : foreColor;
+
+                var measured = g.MeasureString(span.Text, spanFont);
+
+                // Word-wrap: if the span exceeds remaining width, move to next line
+                if (x + measured.Width > rect.Right && x > rect.X)
+                {
+                    x = rect.X;
+                    y += lineHeight;
+                    if (y > rect.Bottom) break;
+                }
+
+                // Draw code background
+                if (span.HasBackground)
+                {
+                    var codeBg = new RectangleF(x - 2, y, measured.Width + 4, lineHeight);
+                    using (var bgBrush = new SolidBrush(Color.FromArgb(30, foreColor)))
+                        g.FillRectangle(bgBrush, codeBg);
+                }
+
+                using (var brush = new SolidBrush(spanColor))
+                    g.DrawString(span.Text, spanFont, brush, x, y);
+
+                x += measured.Width;
             }
         }
 

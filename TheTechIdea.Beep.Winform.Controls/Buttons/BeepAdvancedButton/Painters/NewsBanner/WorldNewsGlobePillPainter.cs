@@ -43,16 +43,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.FillEllipse(circleBrush, circleBounds);
             }
 
-            // Draw globe icon
+            // Draw globe icon - always show, fallback if not provided
+            Rectangle iconBounds = new Rectangle(
+                circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
+                circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
-                Rectangle iconBounds = new Rectangle(
-                    circleBounds.X + (circleBounds.Width - metrics.IconSize) / 2,
-                    circleBounds.Y + (circleBounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
                 DrawIcon(g, context, iconBounds, context.IconLeft);
+            }
+            else
+            {
+                // Draw fallback globe icon for WORLD NEWS
+                DrawFallbackGlobeIcon(g, iconBounds, Color.White);
             }
 
             // Draw main pill section (white)

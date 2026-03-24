@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 ? context.SolidBackground
                 : Color.FromArgb(255, 220, 0); // Yellow
 
-            // Draw section 1 (LIVE NEWS) if exists
+            // Draw section 1 (warning section with alert icon) if exists
             if (section1Width > 0)
             {
                 Rectangle section1Bounds = new Rectangle(bounds.X, bounds.Y, section1Width, bounds.Height);
@@ -46,14 +46,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                     g.FillRectangle(section1Brush, section1Bounds);
                 }
 
-                // Draw section 1 text
+                // Draw warning icon at the start
+                int iconSize = Math.Min(bounds.Height - 8, metrics.IconSize);
+                Rectangle iconBounds = new Rectangle(
+                    bounds.X + 8,
+                    bounds.Y + (bounds.Height - iconSize) / 2,
+                    iconSize,
+                    iconSize
+                );
+                DrawFallbackAlertIcon(g, iconBounds, Color.Yellow);
+
+                // Draw section 1 text next to icon
+                Rectangle text1Bounds = new Rectangle(
+                    iconBounds.Right + 4,
+                    bounds.Y,
+                    section1Width - iconSize - 16,
+                    bounds.Height
+                );
                 using (Brush text1Brush = new SolidBrush(Color.White))
                 using (Font boldFont = GetDerivedTextFont(context, styleOverride: FontStyle.Bold))
                 using (StringFormat format = new StringFormat())
                 {
                     format.Alignment = StringAlignment.Center;
                     format.LineAlignment = StringAlignment.Center;
-                    g.DrawString(section1Text, boldFont, text1Brush, section1Bounds, format);
+                    g.DrawString(section1Text, boldFont, text1Brush, text1Bounds, format);
                 }
             }
 

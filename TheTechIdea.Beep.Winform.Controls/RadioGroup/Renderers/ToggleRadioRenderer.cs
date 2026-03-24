@@ -171,6 +171,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
         }
 
+        public void Cleanup()
+        {
+            // No cached GDI+ resources — fonts are owned by the control
+        }
+
         private GraphicsPath RoundedRect(Rectangle r, int radius)
         {
             var path = new GraphicsPath();

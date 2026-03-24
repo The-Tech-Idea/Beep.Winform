@@ -165,6 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
 
             // Draw left text
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
             using (StringFormat sf = new StringFormat
             {
                 Alignment = StringAlignment.Center,
@@ -173,12 +174,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             {
                 using (SolidBrush textBrush = new SolidBrush(leftColor))
                 {
-                    g.DrawString(leftText, context.TextFont, textBrush, leftArea, sf);
+                    g.DrawString(leftText, safeFont, textBrush, leftArea, sf);
                 }
 
                 using (SolidBrush textBrush = new SolidBrush(rightColor))
                 {
-                    g.DrawString(rightText, context.TextFont, textBrush, rightArea, sf);
+                    g.DrawString(rightText, safeFont, textBrush, rightArea, sf);
                 }
             }
 

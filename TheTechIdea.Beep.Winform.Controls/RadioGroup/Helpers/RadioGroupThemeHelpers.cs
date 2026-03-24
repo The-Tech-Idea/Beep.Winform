@@ -4,16 +4,41 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
 {
     /// <summary>
-    /// Centralized helper for managing radio group theme colors
-    /// Integrates with ApplyTheme() pattern from BaseControl
-    /// Maps radio item states (normal, hovered, selected, focused, disabled) to theme colors
+    /// Centralized helper for managing radio group theme colors.
+    /// Integrates with ApplyTheme() pattern from BaseControl.
+    /// Maps radio item states (normal, hovered, selected, focused, disabled) to theme colors.
+    /// Use <see cref="ResolveTokens"/> as the primary API for renderers.
     /// </summary>
     public static class RadioGroupThemeHelpers
     {
+        /// <summary>
+        /// Resolves all MD3 color tokens for a paint cycle.
+        /// Automatically applies High Contrast substitution when active.
+        /// </summary>
+        public static RadioGroupColorTokens ResolveTokens(
+            IBeepTheme theme,
+            bool useThemeColors,
+            BeepControlStyle style = BeepControlStyle.Material3)
+            => RadioGroupColorTokens.FromTheme(theme, useThemeColors, style);
+
+        /// <summary>
+        /// Gets the error color for validation borders and indicators.
+        /// </summary>
+        public static Color GetErrorColor(IBeepTheme theme, bool useThemeColors)
+        {
+            if (SystemInformation.HighContrast)
+                return SystemColors.ControlText;
+            if (useThemeColors && theme != null && theme.ErrorColor != Color.Empty)
+                return theme.ErrorColor;
+            return Color.FromArgb(179, 38, 30); // MD3 error
+        }
+
+
         /// <summary>
         /// Gets the background color for the radio group
         /// Priority: Custom color > Theme Background > Default

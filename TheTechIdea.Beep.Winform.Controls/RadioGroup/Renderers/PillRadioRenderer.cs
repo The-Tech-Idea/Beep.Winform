@@ -317,7 +317,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
         {
             // Pill buttons typically don't need group decorations
-            // They stand alone as individual pills
+        }
+
+        public void Cleanup()
+        {
+            // No cached GDI+ resources — fonts are owned by the control
         }
         #endregion
 

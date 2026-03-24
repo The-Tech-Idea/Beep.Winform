@@ -1106,6 +1106,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private bool _isCustomBorder = false;
         [Browsable(true)] public bool IsCustomeBorder { get => _isCustomBorder; set { _isCustomBorder = value; Invalidate(); } }
 
+        // Custom shape flag - when true, control manages its own BorderPath and painting
+        private bool _isCustomShape = false;
+        /// <summary>
+        /// When true, this control manages its own BorderPath and painting.
+        /// The control should override OnPaint() without calling base.OnPaint(),
+        /// set BorderPath manually, and call UpdateRegionForBadge() for Region sync.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("When true, the control manages its own custom shape and painting.")]
+        [DefaultValue(false)]
+        public bool IsCustomShape
+        {
+            get => _isCustomShape;
+            set
+            {
+                if (_isCustomShape != value)
+                {
+                    _isCustomShape = value;
+                    Invalidate();
+                }
+            }
+        }
+
         /// <summary>
         /// Updates painter layout (replaces material helper usage)
         /// </summary>

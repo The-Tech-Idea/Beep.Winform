@@ -284,6 +284,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 format.LineAlignment = StringAlignment.Center;
                 format.Trimming = StringTrimming.EllipsisCharacter;
 
+                var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
+
                 // Draw text glow layers
                 for (int i = 0; i < 3; i++)
                 {
@@ -296,14 +298,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                             textBounds.Width,
                             textBounds.Height
                         );
-                        g.DrawString(context.Text, context.TextFont, glowBrush, glowTextBounds, format);
+                        g.DrawString(context.Text, safeFont, glowBrush, glowTextBounds, format);
                     }
                 }
 
                 // Draw main text (bright)
                 using (Brush textBrush = new SolidBrush(Color.FromArgb(255, Color.White)))
                 {
-                    g.DrawString(context.Text, context.TextFont, textBrush, textBounds, format);
+                    g.DrawString(context.Text, safeFont, textBrush, textBounds, format);
                 }
             }
         }

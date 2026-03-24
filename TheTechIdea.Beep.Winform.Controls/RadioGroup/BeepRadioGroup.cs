@@ -636,7 +636,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
             public override AccessibleObject Parent => _parent;
 
-            public override AccessibleRole Role => AccessibleRole.RadioButton;
+            /// <summary>
+            /// WAI-ARIA 1.2: radio buttons in a single-select group report RadioButton role;
+            /// items in a multi-select group report CheckButton (checkbox semantic).
+            /// </summary>
+            public override AccessibleRole Role
+                => _owner.AllowMultipleSelection
+                    ? AccessibleRole.CheckButton
+                    : AccessibleRole.RadioButton;
 
             public override string Name => _owner._items[_index]?.Text ?? $"Item {_index + 1}";
 
@@ -741,6 +748,12 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 TeardownEventHandlers();
                 _hitTestHelper.Dispose();
                 _stateHelper.ResetCallbacks();
+
+                // Release renderer-owned GDI+ resources
+                foreach (var renderer in _renderers.Values)
+                {
+                    renderer.Cleanup();
+                }
             }
 
             base.Dispose(disposing);

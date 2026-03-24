@@ -251,12 +251,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
 
             // Draw badge text
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
             using (Brush badgeTextBrush = new SolidBrush(Color.White))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.TextFont, badgeTextBrush, badgeBounds, format);
+                g.DrawString(parts[0], safeFont, badgeTextBrush, badgeBounds, format);
             }
 
             // Draw main text
@@ -461,12 +462,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 flagWidth - flagPoint - sectionInset,
                 bounds.Height
             );
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
             using (Brush flagTextBrush = new SolidBrush(Color.White))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.TextFont, flagTextBrush, flagTextBounds, format);
+                g.DrawString(parts[0], safeFont, flagTextBrush, flagTextBounds, format);
             }
 
             // Main text
@@ -532,12 +534,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 section1Width - sectionInset,
                 bounds.Height
             );
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
             using (Brush text1Brush = new SolidBrush(Color.White))
             using (StringFormat format = new StringFormat())
             {
                 format.Alignment = StringAlignment.Center;
                 format.LineAlignment = StringAlignment.Center;
-                g.DrawString(parts[0], context.TextFont, text1Brush, section1TextBounds, format);
+                g.DrawString(parts[0], safeFont, text1Brush, section1TextBounds, format);
             }
 
             // Draw section 2 text
@@ -749,6 +752,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             if (string.IsNullOrEmpty(text))
                 return;
 
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
+
             using (Brush textBrush = new SolidBrush(color))
             using (StringFormat format = new StringFormat())
             {
@@ -756,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 format.LineAlignment = StringAlignment.Center;
                 format.Trimming = StringTrimming.EllipsisCharacter;
 
-                g.DrawString(text, context.TextFont, textBrush, bounds, format);
+                g.DrawString(text, safeFont, textBrush, bounds, format);
             }
         }
 

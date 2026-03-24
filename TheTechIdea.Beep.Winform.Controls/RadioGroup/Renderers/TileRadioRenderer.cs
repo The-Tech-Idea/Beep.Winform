@@ -366,7 +366,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
         {
             // Tiles typically don't need group decorations
-            // They stand alone as individual tiles in a grid
+        }
+
+        public void Cleanup()
+        {
+            // Release cached subtitle font (created in UpdateTheme)
+            _subtitleFont?.Dispose();
+            _subtitleFont = null;
         }
         #endregion
 

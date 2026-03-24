@@ -94,6 +94,26 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// <param name="states">States for all items</param>
         void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, 
             List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states);
+
+        /// <summary>
+        /// Releases any cached GDI+ resources (Fonts, Pens, Brushes).
+        /// Called by BeepRadioGroup.Dispose().
+        /// </summary>
+        void Cleanup();
+    }
+
+    /// <summary>
+    /// Optional interface for renderers that draw their own WCAG 2.2-compliant focus ring.
+    /// When a renderer implements this, BeepRadioGroup delegates focus painting to it
+    /// instead of drawing a generic focus rectangle.
+    /// </summary>
+    public interface IFocusAwareRenderer
+    {
+        /// <summary>
+        /// Draws a WCAG 2.2 SC 2.4.11 compliant focus indicator for the given item.
+        /// Minimum 2px outline, minimum 3:1 contrast against adjacent colors.
+        /// </summary>
+        void DrawFocusRing(Graphics graphics, Rectangle itemRectangle, RadioItemState state);
     }
 
     /// <summary>
@@ -127,6 +147,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public bool IsPressed { get; set; }
 
         /// <summary>
+        /// Whether the item is in a validation error state.
+        /// Renderers draw an error border / indicator when true.
+        /// </summary>
+        public bool IsError { get; set; }
+
+        /// <summary>
+        /// Animation progress for pressed/selection transitions (0.0 = start, 1.0 = complete).
+        /// Set by BeepRadioGroup's animation timer. Renderers interpolate visual properties
+        /// (overlay alpha, geometry offset) using this value.
+        /// </summary>
+        public float AnimationProgress { get; set; }
+
+        /// <summary>
         /// The index of the item in the group
         /// </summary>
         public int Index { get; set; }
@@ -155,13 +188,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             return new RadioItemState
             {
-                IsSelected = IsSelected,
-                IsHovered = IsHovered,
-                IsFocused = IsFocused,
-                IsEnabled = IsEnabled,
-                IsPressed = IsPressed,
-                Index = Index,
-                Tag = Tag
+                IsSelected        = IsSelected,
+                IsHovered         = IsHovered,
+                IsFocused         = IsFocused,
+                IsEnabled         = IsEnabled,
+                IsPressed         = IsPressed,
+                IsError           = IsError,
+                AnimationProgress = AnimationProgress,
+                Index             = Index,
+                Tag               = Tag
             };
         }
     }

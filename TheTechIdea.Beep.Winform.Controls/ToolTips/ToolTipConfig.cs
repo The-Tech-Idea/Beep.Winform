@@ -139,6 +139,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public Size? MaxSize { get; set; }
 
+        /// <summary>
+        /// Horizontal text alignment for body text (Near = left, Center, Far = right)
+        /// </summary>
+        public StringAlignment TextHAlign { get; set; } = StringAlignment.Near;
+
+        /// <summary>
+        /// Vertical text alignment for body text (Near = top, Center, Far = bottom)
+        /// </summary>
+        public StringAlignment TextVAlign { get; set; } = StringAlignment.Near;
+
         #endregion
 
         #region Appearance - Visual Elements

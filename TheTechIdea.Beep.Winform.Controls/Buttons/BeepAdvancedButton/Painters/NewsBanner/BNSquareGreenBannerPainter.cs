@@ -95,19 +95,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 (int)(bannerBounds.Height * 0.35)
             );
 
-            using (Brush liveBrush = new SolidBrush(Color.White))
-            {
-                g.FillRectangle(liveBrush, liveBounds);
-            }
-
-            using (Brush liveTextBrush = new SolidBrush(bannerColor))
-            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.6f, styleOverride: FontStyle.Bold))
-            using (StringFormat format = new StringFormat())
-            {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                g.DrawString("● LIVE", liveFont, liveTextBrush, liveBounds, format);
-            }
+            // Use red background for LIVE badge (broadcast convention)
+            DrawLiveBadge(g, liveBounds, context.TextFont, useRedBackground: true);
         }
 
         private string[] SplitText(string text)

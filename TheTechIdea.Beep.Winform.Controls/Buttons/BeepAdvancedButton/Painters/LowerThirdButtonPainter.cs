@@ -116,7 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Rectangle bodyBounds = new Rectangle(logoBounds.Right, bounds.Y, bounds.Width - logoWidth - slashWidth, bounds.Height);
             Rectangle slashBounds = new Rectangle(bodyBounds.Right, bounds.Y, slashWidth, bounds.Height);
 
-            using (Brush logoBrush = new SolidBrush(Color.FromArgb(22, 28, 40)))
+            // Use red for LIVE sections (broadcast convention)
+            using (Brush logoBrush = new SolidBrush(LiveBadgeRed))
             {
                 g.FillRectangle(logoBrush, logoBounds);
             }
@@ -158,7 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Rectangle liveBounds = new Rectangle(bounds.X, bounds.Y, liveWidth, bounds.Height);
             Rectangle bodyBounds = new Rectangle(liveBounds.Right, bounds.Y, bounds.Width - liveWidth, bounds.Height);
 
-            using (Brush liveBrush = new SolidBrush(context.SolidBackground))
+            // Use red for LIVE section (broadcast convention)
+            using (Brush liveBrush = new SolidBrush(LiveBadgeRed))
             {
                 g.FillRectangle(liveBrush, liveBounds);
             }
@@ -192,6 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 g.FillRectangle(leftBrush, leftBounds);
             }
 
+            // Use red for LIVE REPORT divider (broadcast convention)
             using (GraphicsPath divider = new GraphicsPath())
             {
                 divider.AddPolygon(new[]
@@ -201,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     new Point(leftBounds.Right + angle, leftBounds.Bottom),
                     new Point(leftBounds.Right - angle, leftBounds.Bottom)
                 });
-                using Brush dividerBrush = new SolidBrush(context.SolidBackground);
+                using Brush dividerBrush = new SolidBrush(LiveBadgeRed);
                 g.FillPath(dividerBrush, divider);
             }
 
@@ -365,7 +368,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Rectangle liveBounds = new Rectangle(bounds.X, bounds.Y, liveWidth, bounds.Height);
             Rectangle bodyBounds = new Rectangle(liveBounds.Right - slant, bounds.Y, bounds.Width - liveWidth + slant, bounds.Height);
 
-            using (Brush liveBrush = new SolidBrush(context.SolidBackground))
+            // Use red for LIVE (broadcast convention)
+            using (Brush liveBrush = new SolidBrush(LiveBadgeRed))
             {
                 g.FillRectangle(liveBrush, liveBounds);
             }
@@ -422,6 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 g.FillRectangle(topTagBrush, topTagBounds);
             }
 
+            // Red for LIVE REPORT divider (broadcast convention)
             using (GraphicsPath divider = new GraphicsPath())
             {
                 divider.AddPolygon(new[]
@@ -431,7 +436,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                     new Point(leftBounds.Right + slant, leftBounds.Bottom),
                     new Point(leftBounds.Right - slant, leftBounds.Bottom)
                 });
-                using Brush dividerBrush = new SolidBrush(context.SolidBackground);
+                using Brush dividerBrush = new SolidBrush(LiveBadgeRed);
                 g.FillPath(dividerBrush, divider);
             }
 

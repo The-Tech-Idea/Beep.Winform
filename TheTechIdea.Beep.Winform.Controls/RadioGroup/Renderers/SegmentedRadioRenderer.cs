@@ -314,6 +314,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 }
             }
         }
+        
+        public void Cleanup()
+        {
+            // No cached GDI+ resources — fonts are owned by the control
+        }
         #endregion
 
         #region Helper Methods

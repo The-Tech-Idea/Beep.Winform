@@ -45,20 +45,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 }
             }
 
-            // Draw icon if provided (globe icon)
+            // Draw icon if provided (globe icon), otherwise draw fallback globe
+            Rectangle iconBounds = new Rectangle(
+                bounds.X + chevronWidth + 10,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + chevronWidth + 10,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
                 DrawIcon(g, context, iconBounds, context.IconLeft);
             }
+            else
+            {
+                // Draw fallback globe icon for WORLD NEWS
+                DrawFallbackGlobeIcon(g, iconBounds, Color.White);
+            }
 
-            // Draw text
-            int textStartX = bounds.X + chevronWidth + (context.IconLeft != null ? metrics.IconSize + 20 : 15);
+            // Draw text (always account for icon space since we always show globe)
+            int textStartX = bounds.X + chevronWidth + metrics.IconSize + 20;
             Rectangle textBounds = new Rectangle(
                 textStartX,
                 bounds.Y,

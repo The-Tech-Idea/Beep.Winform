@@ -49,16 +49,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 }
             }
 
-            // Draw lightning icon
+            // Draw lightning icon - always show, fallback if not provided
+            Rectangle iconBounds = new Rectangle(
+                bounds.X + (iconWidth - metrics.IconSize) / 2,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (iconWidth - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
                 DrawIcon(g, context, iconBounds, context.IconLeft);
+            }
+            else
+            {
+                // Draw fallback lightning icon for BREAKING NEWS
+                DrawFallbackLightningIcon(g, iconBounds, Color.Black);
             }
 
             // Draw main pill section (orange)
@@ -103,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.DrawString(context.Text, boldFont, textBrush, textBounds, format);
             }
 
-            // Draw LIVE badge
+            // Draw LIVE badge (RED for broadcast standard)
             Rectangle liveBounds = new Rectangle(
                 pillBounds.Right - radius - 55,
                 pillBounds.Y + (int)(pillBounds.Height * 0.3),
@@ -111,19 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 (int)(pillBounds.Height * 0.4)
             );
 
-            using (Brush liveBrush = new SolidBrush(iconColor))
-            {
-                g.FillRectangle(liveBrush, liveBounds);
-            }
-
-            using (Brush liveTextBrush = new SolidBrush(Color.Black))
-            using (Font liveFont = GetDerivedTextFont(context, sizeScale: 0.7f, styleOverride: FontStyle.Bold))
-            using (StringFormat format = new StringFormat())
-            {
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-                g.DrawString("LIVE", liveFont, liveTextBrush, liveBounds, format);
-            }
+            DrawLiveBadge(g, liveBounds, context.TextFont, useRedBackground: true);
         }
     }
 }

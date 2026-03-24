@@ -70,5 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
             => _inner.RenderGroupDecorations(graphics, groupRectangle, items, itemRectangles, states);
+
+        public void Cleanup() => _inner.Cleanup();
     }
 }

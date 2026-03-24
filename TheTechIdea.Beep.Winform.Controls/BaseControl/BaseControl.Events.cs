@@ -329,7 +329,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             try
             {
-                _painter?.UpdateLayout(this);
+                // Custom-shape controls set their own BorderPath; skip painter to avoid overwrite
+                if (!IsCustomShape)
+                {
+                    _painter?.UpdateLayout(this);
+                }
 
                 Region controlRegion;
                 if (BorderPath != null)

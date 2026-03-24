@@ -62,16 +62,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters.
                 g.FillRectangle(mainBrush, mainBounds);
             }
 
-            // Draw icon (lightning bolt)
+            // Draw icon (lightning bolt) - always show, fallback if not provided
+            Rectangle iconBounds = new Rectangle(
+                bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize,
+                metrics.IconSize
+            );
+            
             if (!string.IsNullOrEmpty(context.IconLeft))
             {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (iconSectionWidth - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
                 DrawIcon(g, context, iconBounds, context.IconLeft);
+            }
+            else
+            {
+                // Draw fallback lightning icon for BREAKING NEWS
+                DrawFallbackLightningIcon(g, iconBounds, Color.Black);
             }
 
             // Draw main text

@@ -271,6 +271,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         {
             // Traditional radio buttons typically don't have group decorations
         }
+
+        public void Cleanup()
+        {
+            // No cached GDI+ resources — fonts are owned by the control
+        }
         #endregion
 
         #region Helper Methods

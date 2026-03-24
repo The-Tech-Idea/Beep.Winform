@@ -61,14 +61,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
             else
             {
-                // Draw left icon (if present)
+                // Draw left icon (if present) or fallback hashtag icon
+                Color textColor = GetForegroundColor(context);
                 if (HasPrimaryIcon(context) && !iconBounds.IsEmpty)
                 {
                     DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
                 }
+                else if (!iconBounds.IsEmpty && IsHashtagText(context.Text))
+                {
+                    // Fallback: Draw "#" icon for hashtag-style chips
+                    DrawFallbackHashtagIcon(g, iconBounds, textColor);
+                }
 
                 // Draw text (hashtag, label, count)
-                Color textColor = GetForegroundColor(context);
                 DrawChipText(g, context, textBounds, textColor);
 
                 // Draw close/remove icon (X button on right)
@@ -180,6 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         {
             if (string.IsNullOrEmpty(context.Text) || textBounds.IsEmpty) return;
 
+            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
             using (Brush textBrush = new SolidBrush(textColor))
             using (StringFormat format = new StringFormat())
             {
@@ -187,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 format.LineAlignment = StringAlignment.Center;
                 format.Trimming = StringTrimming.EllipsisCharacter;
 
-                g.DrawString(context.Text, context.TextFont, textBrush, textBounds, format);
+                g.DrawString(context.Text, safeFont, textBrush, textBounds, format);
             }
         }
 
@@ -289,6 +295,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
 
             return context.BorderColor != Color.Empty ? context.BorderColor : context.SolidForeground;
+        }
+
+        /// <summary>
+        /// Check if text represents a hashtag
+        /// </summary>
+        private bool IsHashtagText(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return false;
+            return text.TrimStart().StartsWith("#");
+        }
+
+        /// <summary>
+        /// Draw a fallback hashtag icon for chip buttons
+        /// </summary>
+        private void DrawFallbackHashtagIcon(Graphics g, Rectangle bounds, Color color)
+        {
+            int padding = 2;
+            int thickness = Math.Max(2, bounds.Width / 8);
+            int innerWidth = bounds.Width - padding * 2;
+            int innerHeight = bounds.Height - padding * 2;
+
+            using (Pen pen = new Pen(color, thickness))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                // Two vertical lines (slightly tilted for style)
+                int vx1 = bounds.X + padding + innerWidth / 3;
+                int vx2 = bounds.X + padding + (innerWidth * 2) / 3;
+                int tilt = innerWidth / 8;
+
+                g.DrawLine(pen, vx1 + tilt, bounds.Y + padding, vx1 - tilt, bounds.Bottom - padding);
+                g.DrawLine(pen, vx2 + tilt, bounds.Y + padding, vx2 - tilt, bounds.Bottom - padding);
+
+                // Two horizontal lines
+                int hy1 = bounds.Y + padding + innerHeight / 3;
+                int hy2 = bounds.Y + padding + (innerHeight * 2) / 3;
+                g.DrawLine(pen, bounds.X + padding, hy1, bounds.Right - padding, hy1);
+                g.DrawLine(pen, bounds.X + padding, hy2, bounds.Right - padding, hy2);
+            }
         }
     }
 }

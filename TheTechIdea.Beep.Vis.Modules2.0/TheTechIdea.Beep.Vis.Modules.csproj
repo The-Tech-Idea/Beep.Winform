@@ -39,7 +39,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.138" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.139" />
   </ItemGroup>
 
   <ItemGroup Condition="!Exists('..\..\BeepDM\DataManagementEngineStandard\DataManagementEngine.csproj')">

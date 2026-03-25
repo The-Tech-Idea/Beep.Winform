@@ -44,6 +44,9 @@
 		},
 		{
 			"path": "../Beep.StreamingEvents"
+		},
+		{
+			"path": "../../fahadTheTechIdea/MyWebSite"
 		}
 	],
 	"settings": {

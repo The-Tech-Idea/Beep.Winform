@@ -106,6 +106,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                // Delegate to FormsManager when coordinated
+                if (IsCoordinated && newRecord is Entity entity)
+                {
+                    return await FormManager.InsertRecordAsync(this.Name, entity);
+                }
+
                 // Check for unsaved changes if there are child blocks
                 if (ChildBlocks.Count > 0 && !await CheckAndHandleUnsavedChangesRecursiveAsync())
                     return false;
@@ -160,6 +166,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                // Delegate to FormsManager when coordinated
+                if (IsCoordinated)
+                {
+                    return await FormManager.DeleteCurrentRecordAsync(this.Name);
+                }
+
                 // Confirm delete
                 if (!ShowAlert("Confirm Delete", "Delete current record?", AlertStyle.Question, AlertButtons.YesNo).Equals(DialogResult.Yes))
                 {
@@ -207,6 +219,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                // Delegate to FormsManager when coordinated (form-level commit)
+                if (IsCoordinated)
+                {
+                    var fmResult = await FormManager.CommitFormAsync();
+                    if (fmResult.Flag == Errors.Ok)
+                    {
+                        ShowSuccessMessage("Changes saved successfully");
+                        return true;
+                    }
+                    else
+                    {
+                        HandleWarning(fmResult.Message, "CommitAsync");
+                        return false;
+                    }
+                }
+
                 if (Data?.IsDirty != true)
                     return true;
                     

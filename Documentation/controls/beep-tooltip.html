@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beep Tooltip System - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <!-- sidebar placeholder — will be replaced by update-navs.py -->
+                                                <div id="sidebar-placeholder"></div>
+
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="#">Specialized Controls</a>
+                    <span>›</span>
+                    <span>Beep Tooltip System</span>
+                </nav>
+
+                <!-- ═══════════ PAGE HEADER ═══════════ -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>Beep Tooltip System</h1>
+                        <p class="subtitle">A fully-featured tooltip and popover framework with 20 semantic types, 7 layout variants, 8 animations, 7 built-in validators, guided-tour support, pinnable popovers, and a unified painter pipeline — all integrated with the Beep theme system.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.ToolTips</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ OVERVIEW ═══════════ -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>The Beep Tooltip System is a layered, singleton-managed framework. The simplified architecture is:</p>
+                    <ul>
+                        <li><strong>ToolTipManager</strong> — singleton façade; create, attach, update, and dismiss tooltips with one call.</li>
+                        <li><strong>ToolTipConfig / PopoverConfig</strong> — immutable (or mutable) configuration objects passed to the manager.</li>
+                        <li><strong>ToolTipInstance</strong> — the runtime wrapper that owns the <code>CustomToolTip</code> window, show/hide animation, and lifetime.</li>
+                        <li><strong>CustomToolTip</strong> — the WinForms <code>Form</code> subclass rendered on screen. Delegates all drawing to an <code>IToolTipPainter</code>.</li>
+                        <li><strong>IToolTipPainter / ToolTipPainterFactory</strong> — strategy pattern; chooses the correct painter per <code>ToolTipLayoutVariant</code>.</li>
+                        <li><strong>BeepPopover / BeepPinnedTooltip</strong> — persistent non-auto-dismiss windows; extend <code>CustomToolTip</code>.</li>
+                        <li><strong>BeepTourManager / BeepTourBuilder</strong> — guided-tour engine built on top of the tooltip stack.</li>
+                        <li><strong>ToolTipExtensions / ToolTipBuilder</strong> — extension methods and fluent builder for attaching tooltips to any <code>Control</code>.</li>
+                    </ul>
+                    <div class="info-box">
+                        <strong>Primary namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.ToolTips</code><br>
+                        <strong>Painters namespace:</strong> <code>...ToolTips.Painters</code><br>
+                        <strong>Helpers namespace:</strong> <code>...ToolTips.Helpers</code><br>
+                        <strong>Entry points:</strong> <code>ToolTipManager.Instance</code> · <code>control.SetTooltip()</code> · <code>ToolTipBuilder.Create()</code>
+                    </div>
+                </section>
+
+                <!-- ═══════════ ENUMERATIONS ═══════════ -->
+                <section id="enums" class="section">
+                    <h2>Enumerations</h2>
+
+                    <h3>ToolTipType — Semantic type (20 values)</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Color Theme</th><th>Typical Use</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Default</code></td><td>Neutral</td><td>General information.</td></tr>
+                            <tr><td><code>Primary</code></td><td>Brand primary</td><td>Primary actions, brand-focused information.</td></tr>
+                            <tr><td><code>Secondary</code></td><td>Brand secondary</td><td>Supporting / secondary information.</td></tr>
+                            <tr><td><code>Accent</code></td><td>Highlight</td><td>Important but non-critical attention.</td></tr>
+                            <tr><td><code>Success</code></td><td>Green</td><td>Confirmations, completed actions.</td></tr>
+                            <tr><td><code>Warning</code></td><td>Orange / Yellow</td><td>Caution, potential issues.</td></tr>
+                            <tr><td><code>Error</code></td><td>Red</td><td>Critical errors, destructive actions.</td></tr>
+                            <tr><td><code>Info</code></td><td>Blue</td><td>Tips, documentation links.</td></tr>
+                            <tr><td><code>Help</code></td><td>Contextual help</td><td>"What is this?" explanations.</td></tr>
+                            <tr><td><code>Validation</code></td><td>Form feedback</td><td>Field validation messages.</td></tr>
+                            <tr><td><code>Interactive</code></td><td>Rich</td><td>Tooltips with buttons or links (Popover).</td></tr>
+                            <tr><td><code>Descriptive</code></td><td>Multi-paragraph</td><td>Long descriptions, feature explanations.</td></tr>
+                            <tr><td><code>Notification</code></td><td>Alert</td><td>Real-time updates anchored to element.</td></tr>
+                            <tr><td><code>Tutorial</code></td><td>Tour step</td><td>Onboarding / guided tours.</td></tr>
+                            <tr><td><code>Shortcut</code></td><td>IDE-style</td><td>Keyboard shortcut key-cap badges.</td></tr>
+                            <tr><td><code>Badge</code></td><td>Label</td><td>Supplementary context for badges.</td></tr>
+                            <tr><td><code>Preview</code></td><td>Card / image</td><td>Image/file/link preview (hover card).</td></tr>
+                            <tr><td><code>ContextMenu</code></td><td>Menu item</td><td>Context menu item explanations.</td></tr>
+                            <tr><td><code>Status</code></td><td>Health indicator</td><td>Status details (online/offline, progress).</td></tr>
+                            <tr><td><code>Hint</code></td><td>IntelliSense-style</td><td>Suggestions, auto-complete help.</td></tr>
+                            <tr><td><code>Custom</code></td><td>User-defined</td><td>Full color override via BackColor/ForeColor/BorderColor.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipPlacement — 13 positions</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Auto</code></td><td>Automatically picks the best position for available screen space.</td></tr>
+                            <tr><td><code>Top</code> / <code>TopStart</code> / <code>TopEnd</code></td><td>Above target — centred / left-aligned / right-aligned.</td></tr>
+                            <tr><td><code>Bottom</code> / <code>BottomStart</code> / <code>BottomEnd</code></td><td>Below target — centred / left / right.</td></tr>
+                            <tr><td><code>Left</code> / <code>LeftStart</code> / <code>LeftEnd</code></td><td>Left of target — centred / top / bottom.</td></tr>
+                            <tr><td><code>Right</code> / <code>RightStart</code> / <code>RightEnd</code></td><td>Right of target — centred / top / bottom.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipAnimation — 8 values</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Effect</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>None</code></td><td>Instant show/hide.</td></tr>
+                            <tr><td><code>Fade</code></td><td>Opacity 0→1 (default).</td></tr>
+                            <tr><td><code>Scale</code></td><td>Scale up from center.</td></tr>
+                            <tr><td><code>Slide</code></td><td>Slides in from the placement direction.</td></tr>
+                            <tr><td><code>Bounce</code></td><td>Entry bounce effect.</td></tr>
+                            <tr><td><code>Spring</code></td><td>Spring/elastic physics from edge.</td></tr>
+                            <tr><td><code>Zoom</code></td><td>Zoom in/out with opacity.</td></tr>
+                            <tr><td><code>Flip</code></td><td>Flip along the axis perpendicular to placement.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipLayoutVariant — 7 values</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Painter Used</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Simple</code></td><td>BeepStyledToolTipPainter</td><td>Single-line text, no title (default).</td></tr>
+                            <tr><td><code>Rich</code></td><td>BeepStyledToolTipPainter</td><td>Title + body text (Material Rich Tooltip).</td></tr>
+                            <tr><td><code>Card</code></td><td>BeepStyledToolTipPainter</td><td>Header / body / footer card (DevExpress SuperTip style).</td></tr>
+                            <tr><td><code>Preview</code></td><td>PreviewToolTipPainter</td><td>Large image on top + text below (GitHub hover card).</td></tr>
+                            <tr><td><code>Tour</code></td><td>TourToolTipPainter</td><td>Guided tour step with prev/next navigation.</td></tr>
+                            <tr><td><code>Shortcut</code></td><td>BeepStyledToolTipPainter</td><td>Compact row with key-cap shortcut badges.</td></tr>
+                            <tr><td><code>Glass</code></td><td>GlassToolTipPainter</td><td>Glassmorphism / frosted-glass semi-transparent style.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipTriggerMode</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Hover</code></td><td>Show on mouse enter, hide on mouse leave (default).</td></tr>
+                            <tr><td><code>Focus</code></td><td>Show when control receives keyboard focus.</td></tr>
+                            <tr><td><code>Click</code></td><td>Toggle on mouse click.</td></tr>
+                            <tr><td><code>Manual</code></td><td>Show/hide only via programmatic API calls.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>EasingFunction</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Curve</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Linear</code></td><td>Constant velocity.</td></tr>
+                            <tr><td><code>EaseIn</code></td><td>Accelerates at start.</td></tr>
+                            <tr><td><code>EaseOut</code></td><td>Decelerates at end (default — most natural).</td></tr>
+                            <tr><td><code>EaseInOut</code></td><td>Accelerates then decelerates.</td></tr>
+                            <tr><td><code>Spring</code></td><td>Overshoots and settles.</td></tr>
+                            <tr><td><code>Bounce</code></td><td>Elastic bounce at end.</td></tr>
+                            <tr><td><code>BackOut</code></td><td>Steps back then forward.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipArrowStyle</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Sharp</code></td><td>Flat triangle (Material Design default).</td></tr>
+                            <tr><td><code>Rounded</code></td><td>Triangle with rounded tips (iOS / Figma style).</td></tr>
+                            <tr><td><code>Hidden</code></td><td>No arrow shown.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- ═══════════ TOOLTIPCONFIG ═══════════ -->
+                <section id="config" class="section">
+                    <h2>ToolTipConfig — Complete Reference</h2>
+
+                    <h3>Identity &amp; Content</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Key</code></td><td>string</td><td>auto GUID</td><td>Unique identifier; used to update or dismiss a specific tooltip.</td></tr>
+                            <tr><td><code>Text</code></td><td>string</td><td>—</td><td>Primary body text.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>—</td><td>Optional header / title row.</td></tr>
+                            <tr><td><code>Html</code></td><td>string</td><td>—</td><td>Raw HTML for advanced rendering scenarios.</td></tr>
+                            <tr><td><code>UseMarkup</code></td><td>bool</td><td>false</td><td>Parse lightweight markup in Text: <code>**bold**</code>, <code>*italic*</code>, <code>`code`</code>, <code>[link]</code>.</td></tr>
+                            <tr><td><code>ContentItems</code></td><td>List&lt;ToolTipContentItem&gt;</td><td>null</td><td>Ordered rich content blocks. When set, overrides Text / Title / Html.</td></tr>
+                            <tr><td><code>Tag</code></td><td>object</td><td>—</td><td>Arbitrary user data attached to the config.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Positioning</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Position</code></td><td>Point</td><td>—</td><td>Explicit screen position (used when not anchored to a control).</td></tr>
+                            <tr><td><code>Placement</code></td><td>ToolTipPlacement</td><td>Auto</td><td>Preferred position relative to the target control.</td></tr>
+                            <tr><td><code>Offset</code></td><td>int</td><td>8</td><td>Pixel gap between the tooltip and its target.</td></tr>
+                            <tr><td><code>FollowCursor</code></td><td>bool</td><td>false</td><td>Tooltip tracks mouse movement while open.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Timing</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Duration</code></td><td>int (ms)</td><td>3000</td><td>Auto-dismiss after this many milliseconds. 0 = indefinite.</td></tr>
+                            <tr><td><code>ShowDelay</code></td><td>int? (ms)</td><td>500</td><td>Delay before the tooltip appears after trigger.</td></tr>
+                            <tr><td><code>HideDelay</code></td><td>int? (ms)</td><td>—</td><td>Delay before the tooltip disappears after trigger ends.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance — Theme &amp; Style</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Type</code></td><td>ToolTipType</td><td>Default</td><td>Semantic color theme (Success, Error, Info, Shortcut, etc.).</td></tr>
+                            <tr><td><code>Style</code></td><td>BeepControlStyle</td><td>Material3</td><td>Visual design system (Material3, iOS15, Fluent2, …).</td></tr>
+                            <tr><td><code>LayoutVariant</code></td><td>ToolTipLayoutVariant</td><td>Simple</td><td>Layout structure: Simple, Rich, Card, Preview, Tour, Shortcut, Glass.</td></tr>
+                            <tr><td><code>UseBeepThemeColors</code></td><td>bool</td><td>true</td><td>Derive colors from the active Beep theme instead of tooltip-specific overrides.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance — Colors</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BackColor</code></td><td>Color?</td><td>Custom background color — overrides theme.</td></tr>
+                            <tr><td><code>ForeColor</code></td><td>Color?</td><td>Custom text color — overrides theme.</td></tr>
+                            <tr><td><code>BorderColor</code></td><td>Color?</td><td>Custom border color — overrides theme.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Typography, Layout &amp; Visual Elements</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Font</code></td><td>Font</td><td>(theme)</td><td>Custom font, overrides theme font.</td></tr>
+                            <tr><td><code>MaxSize</code></td><td>Size?</td><td>—</td><td>Maximum size constraint. Tooltip wraps text to fit.</td></tr>
+                            <tr><td><code>TextHAlign</code></td><td>StringAlignment</td><td>Near</td><td>Horizontal body text alignment: Near (left), Center, Far (right).</td></tr>
+                            <tr><td><code>TextVAlign</code></td><td>StringAlignment</td><td>Near</td><td>Vertical body text alignment.</td></tr>
+                            <tr><td><code>ShowArrow</code></td><td>bool</td><td>true</td><td>Render the directional arrow pointing to the target.</td></tr>
+                            <tr><td><code>ArrowStyle</code></td><td>ToolTipArrowStyle</td><td>Sharp</td><td>Arrow caret style: Sharp, Rounded, Hidden.</td></tr>
+                            <tr><td><code>ArrowSize</code></td><td>int</td><td>8</td><td>Base pixel size of the arrow. DPI-scaled at paint time.</td></tr>
+                            <tr><td><code>ArrowOffset</code></td><td>int</td><td>0</td><td>Offset of arrow tip from tooltip edge center. Positive = toward End.</td></tr>
+                            <tr><td><code>ShowShadow</code></td><td>bool</td><td>true</td><td>Render drop shadow.</td></tr>
+                            <tr><td><code>Closable</code></td><td>bool</td><td>false</td><td>Show an × close button in the tooltip.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Icons &amp; Images</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Icon</code></td><td>Image</td><td>—</td><td>Icon image object.</td></tr>
+                            <tr><td><code>IconPath</code></td><td>string</td><td>—</td><td>Path to icon file (SVG/PNG).</td></tr>
+                            <tr><td><code>ImagePath</code></td><td>string</td><td>—</td><td>Path to main image (displayed in body).</td></tr>
+                            <tr><td><code>MaxImageSize</code></td><td>Size</td><td>24×24</td><td>Maximum icon/image display size.</td></tr>
+                            <tr><td><code>ApplyThemeOnImage</code></td><td>bool</td><td>true</td><td>Colorize SVG images using active theme colors.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Animation</code></td><td>ToolTipAnimation</td><td>Fade</td><td>Show/hide animation type.</td></tr>
+                            <tr><td><code>AnimationDuration</code></td><td>int (ms)</td><td>200</td><td>Duration of the animation.</td></tr>
+                            <tr><td><code>AnimationEasing</code></td><td>EasingFunction</td><td>EaseOut</td><td>Easing curve applied to all animations.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Trigger &amp; Interaction</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>TriggerMode</code></td><td>ToolTipTriggerMode</td><td>Hover</td><td>What user action shows the tooltip: Hover, Focus, Click, Manual.</td></tr>
+                            <tr><td><code>PersistOnHover</code></td><td>bool</td><td>true</td><td>Stay open while the mouse is over the tooltip itself (WCAG 1.4.13).</td></tr>
+                            <tr><td><code>KeyboardTriggerable</code></td><td>bool</td><td>true</td><td>Also show when the target receives keyboard focus.</td></tr>
+                            <tr><td><code>Pinnable</code></td><td>bool</td><td>false</td><td>Show a pin icon; user can click to keep tooltip on screen.</td></tr>
+                            <tr><td><code>IsPinned</code></td><td>bool</td><td>false</td><td>Current pin state (managed by ToolTipManager).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Preview Layout</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>PreviewImagePath</code></td><td>string</td><td>—</td><td>Path to image shown at top of Preview-variant tooltip.</td></tr>
+                            <tr><td><code>PreviewImageSize</code></td><td>Size</td><td>280×160</td><td>Size of the preview image area.</td></tr>
+                            <tr><td><code>PreviewSubtitle</code></td><td>string</td><td>—</td><td>Sub-title shown beneath the preview image.</td></tr>
+                            <tr><td><code>PreviewFooterText</code></td><td>string</td><td>—</td><td>Footer text at the bottom of the preview area.</td></tr>
+                            <tr><td><code>LoadPreviewAsync</code></td><td>Func&lt;Task&lt;Image&gt;&gt;</td><td>null</td><td>Async delegate for lazy-loading the preview image; shows skeleton until ready.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Shortcut Badges</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Shortcuts</code></td><td>List&lt;ShortcutKeyItem&gt;</td><td>Keyboard shortcuts rendered as key-cap badges in the tooltip footer.</td></tr>
+                        </tbody>
+                    </table>
+<pre><code class="language-csharp">// ShortcutKeyItem
+new ShortcutKeyItem { Modifiers = Keys.Control, Key = Keys.S },
+new ShortcutKeyItem { Modifiers = Keys.Control | Keys.Shift, Key = Keys.P, DisplayText = "Cmd Palette" }
+</code></pre>
+
+                    <h3>Step / Tour Layout</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>CurrentStep</code></td><td>int</td><td>1</td><td>Current step number shown in step indicator.</td></tr>
+                            <tr><td><code>TotalSteps</code></td><td>int</td><td>1</td><td>Total number of tour steps.</td></tr>
+                            <tr><td><code>StepTitle</code></td><td>string</td><td>—</td><td>Step-specific title.</td></tr>
+                            <tr><td><code>ShowNavigationButtons</code></td><td>bool</td><td>true</td><td>Show Previous / Next buttons.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Accessibility</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>MinContrastRatio</code></td><td>double</td><td>4.5</td><td>Minimum WCAG contrast ratio enforced between ForeColor and BackColor (WCAG AA = 4.5).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Lifecycle Callbacks</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>OnShow</code></td><td>Action&lt;string&gt;</td><td>Called when the tooltip becomes visible. Argument is the Key.</td></tr>
+                            <tr><td><code>OnClose</code></td><td>Action&lt;string&gt;</td><td>Called when the tooltip is dismissed. Argument is the Key.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- ═══════════ TOOLTIPMANAGER ═══════════ -->
+                <section id="manager" class="section">
+                    <h2>ToolTipManager (Singleton Entry Point)</h2>
+                    <p>Access via <code>ToolTipManager.Instance</code>. Thread-safe via <code>ConcurrentDictionary</code>; auto-cleanup timer runs every 5 s.</p>
+
+                    <h3>Global Default Properties</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>DefaultType</code></td><td>ToolTipType</td><td>Default</td><td>Fallback type for new tooltips.</td></tr>
+                            <tr><td><code>DefaultStyle</code></td><td>BeepControlStyle</td><td>Material3</td><td>Fallback visual style.</td></tr>
+                            <tr><td><code>DefaultShowDelay</code></td><td>int (ms)</td><td>500</td><td>Default show delay.</td></tr>
+                            <tr><td><code>DefaultHideDelay</code></td><td>int (ms)</td><td>3000</td><td>Default auto-dismiss duration.</td></tr>
+                            <tr><td><code>DefaultFadeInDuration</code></td><td>int (ms)</td><td>150</td><td>Default fade-in time.</td></tr>
+                            <tr><td><code>DefaultFadeOutDuration</code></td><td>int (ms)</td><td>100</td><td>Default fade-out time.</td></tr>
+                            <tr><td><code>DefaultPlacement</code></td><td>ToolTipPlacement</td><td>Auto</td><td>Default placement when not specified in config.</td></tr>
+                            <tr><td><code>EnableAnimations</code></td><td>bool</td><td>true</td><td>Global animation toggle. Set false to disable all transitions.</td></tr>
+                            <tr><td><code>EnableAccessibility</code></td><td>bool</td><td>true</td><td>Set AccessibleDescription / AccessibleName on wired controls.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Show Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ShowTooltipAsync(config)</code></td><td>Task&lt;string&gt;</td><td>Show a fully configured tooltip. Returns the Key.</td></tr>
+                            <tr><td><code>ShowTooltipAsync(text, location, duration)</code></td><td>Task&lt;string&gt;</td><td>Quick text tooltip at a screen point.</td></tr>
+                            <tr><td><code>ShowTooltipAsync(title, text, location, type?)</code></td><td>Task&lt;string&gt;</td><td>Titled tooltip at a screen point.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Hide &amp; Update Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>HideTooltipAsync(key)</code></td><td>Hide and dispose a specific tooltip by its key.</td></tr>
+                            <tr><td><code>HideAllTooltipsAsync()</code></td><td>Hide all active tooltips simultaneously.</td></tr>
+                            <tr><td><code>UpdateTooltip(key, newText, newTitle)</code></td><td>Update content of a running tooltip without re-creating it.</td></tr>
+                            <tr><td><code>UpdateTooltipPosition(key, newPosition)</code></td><td>Move a running tooltip (follow-cursor scenarios).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Control Attachment</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SetTooltip(control, text, config?)</code></td><td>Attach a hover tooltip to a control. Wires MouseEnter/Leave automatically.</td></tr>
+                            <tr><td><code>SetTooltip(control, title, text, type, style)</code></td><td>Attach a titled/typed tooltip to a control.</td></tr>
+                            <tr><td><code>RemoveTooltip(control)</code></td><td>Detach the tooltip from a control and unregister event handlers.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Query Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>IsTooltipActive(key)</code></td><td>True if a tooltip with the given key is currently shown.</td></tr>
+                            <tr><td><code>GetActiveTooltipKeys()</code></td><td>Enumerate keys of all visible tooltips.</td></tr>
+                            <tr><td><code>ActiveTooltipCount</code></td><td>Count of currently active tooltips.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- ═══════════ EXTENSIONS & BUILDER ═══════════ -->
+                <section id="extensions" class="section">
+                    <h2>Extension Methods &amp; Fluent Builder</h2>
+
+                    <h3>ToolTipExtensions (Control extension methods)</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>control.SetTooltip(text)</code></td><td>Attach a simple hover tooltip.</td></tr>
+                            <tr><td><code>control.SetRichTooltip(text, title?, type)</code></td><td>Attach a titled tooltip with a ToolTipType.</td></tr>
+                            <tr><td><code>control.SetTooltip(config)</code></td><td>Attach with full ToolTipConfig.</td></tr>
+                            <tr><td><code>control.RemoveTooltip()</code></td><td>Remove the attached tooltip.</td></tr>
+                            <tr><td><code>await control.ShowNotificationAsync(text, type, duration)</code></td><td>Show a transient notification above the control.</td></tr>
+                            <tr><td><code>await control.ShowSuccessAsync(text, duration)</code></td><td>Green success notification.</td></tr>
+                            <tr><td><code>await control.ShowErrorAsync(text, duration)</code></td><td>Red error notification (4 s default).</td></tr>
+                            <tr><td><code>await control.ShowWarningAsync(text, duration)</code></td><td>Orange warning notification.</td></tr>
+                            <tr><td><code>await control.ShowInfoAsync(text, duration)</code></td><td>Blue info notification.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ToolTipBuilder — Fluent API</h3>
+<pre><code class="language-csharp">// Attach to a control
+ToolTipBuilder.Create()
+    .WithTitle("Save File")
+    .WithText("Saves the current document to disk.")
+    .WithTheme(ToolTipType.Info)
+    .WithPlacement(ToolTipPlacement.Top)
+    .WithAnimation(ToolTipAnimation.Slide)
+    .WithArrow(true)
+    .WithShadow(true)
+    .Closable(false)
+    .AttachTo(btnSave);
+
+// Show at a point
+await ToolTipBuilder.Create()
+    .WithText("Processing…")
+    .WithTheme(ToolTipType.Notification)
+    .WithDuration(2000)
+    .ShowAsync(cursorPosition);
+</code></pre>
+
+                    <p>All builder methods return <code>this</code> for chaining. Available builder methods:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>WithText(text)</code></td><td>Set body text.</td></tr>
+                            <tr><td><code>WithTitle(title)</code></td><td>Set title.</td></tr>
+                            <tr><td><code>WithTheme(type)</code></td><td>Set ToolTipType semantic theme.</td></tr>
+                            <tr><td><code>WithCustomColors(back, fore, border?)</code></td><td>Override colors (sets Type = Custom).</td></tr>
+                            <tr><td><code>WithPlacement(placement)</code></td><td>Set preferred position.</td></tr>
+                            <tr><td><code>WithAnimation(animation)</code></td><td>Set show/hide animation.</td></tr>
+                            <tr><td><code>WithDuration(ms)</code></td><td>Set auto-dismiss duration.</td></tr>
+                            <tr><td><code>WithDelay(showMs, hideMs?)</code></td><td>Set show and hide delays.</td></tr>
+                            <tr><td><code>WithMaxSize(size)</code></td><td>Constrain tooltip dimensions.</td></tr>
+                            <tr><td><code>WithFont(font)</code></td><td>Override font.</td></tr>
+                            <tr><td><code>WithIcon(image)</code></td><td>Set icon image object.</td></tr>
+                            <tr><td><code>WithIconPath(path)</code></td><td>Set icon from file path.</td></tr>
+                            <tr><td><code>FollowCursor(bool)</code></td><td>Enable cursor-tracking.</td></tr>
+                            <tr><td><code>WithArrow(bool)</code></td><td>Show/hide arrow.</td></tr>
+                            <tr><td><code>WithShadow(bool)</code></td><td>Show/hide shadow.</td></tr>
+                            <tr><td><code>Closable(bool)</code></td><td>Show/hide × button.</td></tr>
+                            <tr><td><code>OnShow(action)</code></td><td>Show callback.</td></tr>
+                            <tr><td><code>OnClose(action)</code></td><td>Close callback.</td></tr>
+                            <tr><td><code>Build()</code></td><td>Return the ToolTipConfig.</td></tr>
+                            <tr><td><code>ShowAsync(point)</code></td><td>Build and show at position.</td></tr>
+                            <tr><td><code>AttachTo(control)</code></td><td>Build and attach to control.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- ═══════════ POPOVER ═══════════ -->
+                <section id="popover" class="section">
+                    <h2>BeepPopover — Persistent Popup</h2>
+                    <p>A persistent window that stays open until explicitly dismissed. Extends <code>CustomToolTip</code>. Configured via <code>PopoverConfig</code> (extends <code>ToolTipConfig</code>).</p>
+
+                    <h3>PopoverConfig Properties</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>PrimaryButtonText</code></td><td>string</td><td>—</td><td>Label for primary/confirm button. Omit to hide.</td></tr>
+                            <tr><td><code>SecondaryButtonText</code></td><td>string</td><td>—</td><td>Label for secondary/cancel button. Omit to hide.</td></tr>
+                            <tr><td><code>PrimaryButtonType</code></td><td>ToolTipType</td><td>Primary</td><td>Color theme of the primary button (e.g. Error for destructive actions).</td></tr>
+                            <tr><td><code>OnPrimaryClick</code></td><td>Action&lt;string&gt;</td><td>—</td><td>Fired when primary button clicked. Argument is the Key.</td></tr>
+                            <tr><td><code>OnSecondaryClick</code></td><td>Action&lt;string&gt;</td><td>—</td><td>Fired when secondary button clicked or popover cancelled.</td></tr>
+                            <tr><td><code>DismissOnClickOutside</code></td><td>bool</td><td>true</td><td>Close when the user clicks outside the popover.</td></tr>
+                            <tr><td><code>DismissOnEscape</code></td><td>bool</td><td>true</td><td>Close when the user presses Escape.</td></tr>
+                            <tr><td><code>MaxPopoverWidth</code></td><td>int</td><td>360</td><td>Maximum width of the popover in pixels.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>BeepPopover Public API</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ApplyPopoverConfig(cfg)</code></td><td>Apply a PopoverConfig and mount action buttons.</td></tr>
+                            <tr><td><code>ConfirmAndClose()</code></td><td>Invoke OnPrimaryClick callback and close.</td></tr>
+                            <tr><td><code>DismissAsCancel()</code></td><td>Invoke OnSecondaryClick callback and close.</td></tr>
+                        </tbody>
+                    </table>
+
+<pre><code class="language-csharp">// Confirmation popover
+await ToolTipManager.Instance.ShowPopoverAsync(btnDelete, new PopoverConfig
+{
+    Title               = "Delete item?",
+    Text                = "This action cannot be undone.",
+    Type                = ToolTipType.Error,
+    PrimaryButtonText   = "Delete",
+    PrimaryButtonType   = ToolTipType.Error,
+    SecondaryButtonText = "Cancel",
+    TriggerMode         = ToolTipTriggerMode.Click,
+    Placement           = ToolTipPlacement.Top,
+    OnPrimaryClick      = key => DeleteItem(),
+    OnSecondaryClick    = key => { /* do nothing */ }
+});
+</code></pre>
+                </section>
+
+                <!-- ═══════════ PINNED TOOLTIP ═══════════ -->
+                <section id="pinned" class="section">
+                    <h2>BeepPinnedTooltip — Draggable Pinned Window</h2>
+                    <p>Extends <code>BeepPopover</code>. When pinned, the window stays on screen and can be dragged anywhere. A pin button appears in the top-right corner.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>IsPinned</code></td><td>bool property — get/set pin state. When true, auto-dismiss is disabled.</td></tr>
+                            <tr><td><code>IsPinnedChanged</code></td><td>Event — fires when pin state toggles.</td></tr>
+                            <tr><td><code>Pin()</code></td><td>Pin the tooltip at its current screen position.</td></tr>
+                            <tr><td><code>Unpin()</code></td><td>Unpin — tooltip will auto-dismiss on next hide trigger.</td></tr>
+                            <tr><td><code>ApplyPinnedConfig(config, screenLocation)</code></td><td>Apply config with pre-set IsPinned and position.</td></tr>
+                        </tbody>
+                    </table>
+<pre><code class="language-csharp">// Enable pinnable tooltip via ToolTipConfig
+btnHelp.SetTooltip(new ToolTipConfig
+{
+    Title     = "Detailed Help",
+    Text      = "This panel controls the …",
+    Pinnable  = true,
+    Closable  = true,
+    Duration  = 0,          // no auto-dismiss
+    Placement = ToolTipPlacement.Right
+});
+</code></pre>
+                </section>
+
+                <!-- ═══════════ GUIDED TOUR ═══════════ -->
+                <section id="tour" class="section">
+                    <h2>Guided Tour — BeepTourManager &amp; BeepTourBuilder</h2>
+                    <p>A lightweight guided-tour / onboarding engine built on the tooltip stack. All tooltips are <code>ToolTipLayoutVariant.Tour</code> with step indicators and Prev/Next navigation.</p>
+
+                    <h3>BeepTourStep Properties</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>TargetControl</code></td><td>Control</td><td>The control to highlight and anchor this step's tooltip to.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>Primary heading.</td></tr>
+                            <tr><td><code>Body</code></td><td>string</td><td>Descriptive text.</td></tr>
+                            <tr><td><code>ImagePath</code></td><td>string</td><td>Optional image shown above the text.</td></tr>
+                            <tr><td><code>Placement</code></td><td>ToolTipPlacement</td><td>Where to anchor the tooltip relative to TargetControl.</td></tr>
+                            <tr><td><code>OnEnter</code></td><td>Action</td><td>Called just before this step is shown (e.g. scroll into view).</td></tr>
+                            <tr><td><code>OnLeave</code></td><td>Action</td><td>Called just after this step is dismissed.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>BeepTourManager API</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepTourManager.Instance</code></td><td>Singleton instance.</td></tr>
+                            <tr><td><code>IsRunning</code></td><td>True while a tour is active.</td></tr>
+                            <tr><td><code>CurrentStep</code></td><td>1-based current step number.</td></tr>
+                            <tr><td><code>TotalSteps</code></td><td>Total step count.</td></tr>
+                            <tr><td><code>CreateTour()</code></td><td>Return a new BeepTourBuilder bound to this manager.</td></tr>
+                            <tr><td><code>LoadTour(steps)</code></td><td>Load a pre-built step list.</td></tr>
+                            <tr><td><code>StartAsync() / Start()</code></td><td>Begin the tour from step 1.</td></tr>
+                            <tr><td><code>NextAsync() / Next()</code></td><td>Advance to next step; completes tour if on last step.</td></tr>
+                            <tr><td><code>PreviousAsync() / Previous()</code></td><td>Go back to previous step.</td></tr>
+                            <tr><td><code>Skip()</code></td><td>Cancel tour without completing.</td></tr>
+                            <tr><td><code>TourStarted</code></td><td>Event — fired when tour begins.</td></tr>
+                            <tr><td><code>StepChanged</code></td><td>EventHandler&lt;(int current, int total)&gt; — fired on each step transition.</td></tr>
+                            <tr><td><code>TourCompleted</code></td><td>Event — fired when all steps completed.</td></tr>
+                            <tr><td><code>TourSkipped</code></td><td>Event — fired when Skip() called.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>BeepTourBuilder Fluent API</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>AddStep(control, title, body, placement)</code></td><td>Add a basic step.</td></tr>
+                            <tr><td><code>AddStep(BeepTourStep)</code></td><td>Add a fully pre-configured step.</td></tr>
+                            <tr><td><code>WithCallbacks(onEnter?, onLeave?)</code></td><td>Attach lifecycle callbacks to the most recently added step.</td></tr>
+                            <tr><td><code>WithImage(imagePath)</code></td><td>Attach an image to the most recently added step.</td></tr>
+                            <tr><td><code>Build()</code></td><td>Validate, load into BeepTourManager, and return the manager for chaining.</td></tr>
+                        </tbody>
+                    </table>
+
+<pre><code class="language-csharp">// ── Fluent builder ──────────────────────────────────────────────
+BeepTourManager.Instance
+    .CreateTour()
+    .AddStep(btnNew,     "Create New",  "Click here to create a new record")
+    .AddStep(btnSave,    "Save",        "Saves all pending changes")
+        .WithCallbacks(onEnter: () => btnSave.Focus())
+    .AddStep(tbxSearch,  "Search",      "Type to filter the grid rows")
+        .WithImage(@"Assets\tour-search.png")
+    .AddStep(btnExport,  "Export",      "Export results to Excel or CSV",
+                         ToolTipPlacement.Left)
+    .Build()
+    .Start();
+
+// ── Events ──────────────────────────────────────────────────────
+BeepTourManager.Instance.TourCompleted += (s, e) =>
+    Properties.Settings.Default.TourSeen = true;
+
+BeepTourManager.Instance.StepChanged += (s, args) =>
+    lblStep.Text = $"Step {args.current} of {args.total}";
+</code></pre>
+                </section>
+
+                <!-- ═══════════ PAINTER PIPELINE ═══════════ -->
+                <section id="painters" class="section">
+                    <h2>Painter Pipeline</h2>
+                    <p>All rendering is delegated through <code>IToolTipPainter</code>. <code>ToolTipPainterFactory</code> selects the correct painter based on <code>ToolTipLayoutVariant</code>.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Painter Class</th><th>Used For</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepStyledToolTipPainter</code></td><td>All standard variants: Simple, Rich, Card, Shortcut, and fallback.</td></tr>
+                            <tr><td><code>PreviewToolTipPainter</code></td><td>ToolTipLayoutVariant.Preview — image-header hover card.</td></tr>
+                            <tr><td><code>TourToolTipPainter</code></td><td>ToolTipLayoutVariant.Tour — prev/next step navigation UI.</td></tr>
+                            <tr><td><code>GlassToolTipPainter</code></td><td>ToolTipLayoutVariant.Glass — glassmorphism frosted style.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>IToolTipPainter Interface</h3>
+<pre><code class="language-csharp">public interface IToolTipPainter
+{
+    void Paint(Graphics g, Rectangle bounds, ToolTipConfig config,
+               ToolTipPlacement placement, IBeepTheme theme);
+    void PaintBackground(Graphics g, Rectangle bounds, ToolTipConfig config, IBeepTheme theme);
+    void PaintBorder    (Graphics g, Rectangle bounds, ToolTipConfig config, IBeepTheme theme);
+    void PaintShadow    (Graphics g, Rectangle bounds, ToolTipConfig config);
+    void PaintArrow     (Graphics g, Point position, ToolTipPlacement placement,
+                         ToolTipConfig config, IBeepTheme theme);
+    void PaintContent   (Graphics g, Rectangle bounds, ToolTipConfig config, IBeepTheme theme);
+    Size CalculateSize  (Graphics g, ToolTipConfig config);
+}
+</code></pre>
+
+                    <h3>Registering a custom painter</h3>
+<pre><code class="language-csharp">// Implement the interface
+public class MyCustomPainter : ToolTipPainterBase
+{
+    public override void PaintContent(Graphics g, Rectangle bounds,
+                                      ToolTipConfig config, IBeepTheme theme)
+    {
+        // custom rendering
+    }
+}
+
+// Use it via ToolTipLayoutVariant.Custom requires overriding GetPainter,
+// or set directly on the CustomToolTip instance before Show().
+</code></pre>
+                </section>
+
+                <!-- ═══════════ QUICK EXAMPLES ═══════════ -->
+                <section id="examples" class="section">
+                    <h2>Code Examples</h2>
+
+                    <h3>Simple tooltip on any control</h3>
+<pre><code class="language-csharp">btnSave.SetTooltip("Save your changes (Ctrl+S)");
+</code></pre>
+
+                    <h3>Rich titled tooltip</h3>
+<pre><code class="language-csharp">btnSave.SetRichTooltip(
+    text:  "Saves all unsaved changes to the current document.",
+    title: "Save File",
+    type:  ToolTipType.Info
+);
+</code></pre>
+
+                    <h3>Shortcut badge tooltip</h3>
+<pre><code class="language-csharp">btnSave.SetTooltip(new ToolTipConfig
+{
+    Title         = "Save File",
+    Text          = "Save the current document.",
+    LayoutVariant = ToolTipLayoutVariant.Shortcut,
+    Shortcuts     = new List&lt;ShortcutKeyItem&gt;
+    {
+        new ShortcutKeyItem { Modifiers = Keys.Control, Key = Keys.S }
+    }
+});
+</code></pre>
+
+                    <h3>Preview hover card (lazy image)</h3>
+<pre><code class="language-csharp">thumbnailLabel.SetTooltip(new ToolTipConfig
+{
+    Title             = "Project Screenshot",
+    Text              = "Last modified: today",
+    LayoutVariant     = ToolTipLayoutVariant.Preview,
+    PreviewSubtitle   = "screenshot.png · 2.4 MB",
+    PreviewFooterText = "Click to open",
+    LoadPreviewAsync  = async () => await LoadThumbnailAsync(projectId),
+    Placement         = ToolTipPlacement.Right
+});
+</code></pre>
+
+                    <h3>Transient notification above a button</h3>
+<pre><code class="language-csharp">// After form validation
+await txtEmail.ShowErrorAsync("Please enter a valid email address.");
+
+// After a successful save
+await btnSave.ShowSuccessAsync("Saved!", duration: 1500);
+</code></pre>
+
+                    <h3>Glass-style tooltip</h3>
+<pre><code class="language-csharp">statusIcon.SetTooltip(new ToolTipConfig
+{
+    Title         = "System Status",
+    Text          = "All services running normally.",
+    Type          = ToolTipType.Success,
+    LayoutVariant = ToolTipLayoutVariant.Glass,
+    Animation     = ToolTipAnimation.Zoom,
+    Placement     = ToolTipPlacement.BottomStart
+});
+</code></pre>
+
+                    <h3>Programmatic tooltip at cursor</h3>
+<pre><code class="language-csharp">private async void OnGridCellHover(object sender, CellHoverEventArgs e)
+{
+    var pos = grid.PointToScreen(e.CellBounds.Location);
+
+    _hoverKey = await ToolTipManager.Instance.ShowTooltipAsync(new ToolTipConfig
+    {
+        Title     = e.ColumnHeader,
+        Text      = e.CellValue?.ToString() ?? "(empty)",
+        Type      = ToolTipType.Default,
+        Duration  = 0,          // keep until cell leave
+        Placement = ToolTipPlacement.Top,
+        Position  = pos
+    });
+}
+
+private async void OnGridCellLeave(object sender, EventArgs e)
+{
+    if (_hoverKey != null)
+    {
+        await ToolTipManager.Instance.HideTooltipAsync(_hoverKey);
+        _hoverKey = null;
+    }
+}
+</code></pre>
+
+                    <h3>Follow-cursor tooltip</h3>
+<pre><code class="language-csharp">ToolTipBuilder.Create()
+    .WithText("Drag to resize")
+    .WithTheme(ToolTipType.Hint)
+    .WithAnimation(ToolTipAnimation.Fade)
+    .FollowCursor(true)
+    .WithArrow(false)
+    .AttachTo(resizeHandle);
+</code></pre>
+                </section>
+
+                <!-- ═══════════ BEST PRACTICES ═══════════ -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Use extension methods for simple cases.</strong> <code>control.SetTooltip("text")</code> is always sufficient for plain hover tooltips — no manual ToolTipManager calls needed.</li>
+                        <li><strong>Use ToolTipBuilder for one-off styled tooltips.</strong> The fluent API avoids repeatedly constructing ToolTipConfig objects.</li>
+                        <li><strong>Use ToolTipType semantically.</strong> Choose <code>Error</code> for errors, <code>Warning</code> for cautions — the type drives accessible color selection including WCAG contrast enforcement (<code>MinContrastRatio</code>).</li>
+                        <li><strong>Set Duration = 0 for popovers and pinnable tooltips.</strong> Never let an interactive or pinned tooltip auto-dismiss.</li>
+                        <li><strong>Use PersistOnHover = true (default) for all rich tooltips.</strong> This satisfies WCAG 1.4.13 — users must be able to move the mouse over the tooltip.</li>
+                        <li><strong>Wire TriggerMode = Click for destructive confirmation popovers.</strong> Hover-triggered confirmation dialogs are confusing; click-triggered ones are expected.</li>
+                        <li><strong>Prefer LoadPreviewAsync for heavy images</strong> in Preview tooltips — the skeleton placeholder displays immediately while the image loads.</li>
+                        <li><strong>Call HideAllTooltipsAsync()</strong> when opening a modal dialog to prevent orphaned tooltips underneath.</li>
+                        <li><strong>Disable animations during tests:</strong> <code>ToolTipManager.Instance.EnableAnimations = false;</code></li>
+                        <li><strong>Always set TriggerMode = Manual when managing lifecycle yourself</strong> (grid cells, map pins, etc.) so the manager does not interfere with your MouseEnter/Leave logic.</li>
+                        <li><strong>Tour: call Properties.Settings.Default.TourSeen after TourCompleted</strong> to avoid showing the tour to returning users.</li>
+                    </ul>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Examples - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-braces-asterisk"></i> Advanced Examples</h1>
+                    <p class="page-subtitle">Advanced usage patterns for Beep Controls</p>
+                </div>
+
+                <section class="section">
+                    <h2>Dynamic Theme &amp; FormStyle Switching</h2>
+                    <p>Build a runtime theme switcher using <code>BeepThemesManager</code> and <code>BeepiFormPro.FormStyle</code>:</p>
+                    <div class="code-example">
+                        <h3>Runtime theme and FormStyle switcher</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+
+public class SettingsForm : BeepiFormPro
+{
+    public SettingsForm()
+    {
+        Text = "Settings";
+        Size = new Size(500, 400);
+        FormStyle = FormStyle.Fluent;
+
+        // Theme selector
+        var themeCombo = new BeepComboBox();
+        themeCombo.Size = new Size(220, 35);
+        themeCombo.Location = new Point(20, 70);
+        
+        // Populated from auto-discovered themes
+        foreach (var theme in BeepThemesManager.Themes)
+            themeCombo.Items.Add(theme.ThemeName);
+        
+        themeCombo.SelectedIndexChanged += (s, e) =&gt;
+        {
+            var name = themeCombo.SelectedItem?.ToString();
+            if (!string.IsNullOrEmpty(name))
+                BeepThemesManager.ApplyTheme(name);
+        };
+
+        // FormStyle selector
+        var styleCombo = new BeepComboBox();
+        styleCombo.Size = new Size(220, 35);
+        styleCombo.Location = new Point(20, 120);
+        
+        foreach (FormStyle style in Enum.GetValues(typeof(FormStyle)))
+            styleCombo.Items.Add(style.ToString());
+        
+        styleCombo.SelectedIndexChanged += (s, e) =&gt;
+        {
+            if (Enum.TryParse&lt;FormStyle&gt;(
+                styleCombo.SelectedItem?.ToString(), out var fs))
+            {
+                FormStyle = fs; // BeepiFormPro switches painter instantly
+            }
+        };
+
+        Controls.Add(themeCombo);
+        Controls.Add(styleCombo);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Working with BaseControl Painters</h2>
+                    <p>The <code>PainterKind</code> property switches the entire rendering strategy at runtime. 
+                    Under the hood, <code>BaseControl</code> calls <code>EnsurePainter()</code> which creates the appropriate painter 
+                    from the <code>PaintersFactory</code>:</p>
+                    <div class="code-example">
+                        <h3>Switching PainterKind at runtime</h3>
+                        <pre><code class="language-csharp">// Render pipeline: OnPaint → EnsurePainter → _painter.Paint → DrawingRect
+// Derived controls paint their content into DrawingRect only
+
+// Switch painter at runtime
+myPanel.PainterKind = BaseControlPainterKind.Auto;          // Follow global style
+myPanel.PainterKind = BaseControlPainterKind.Glassmorphism;  // Frosted glass
+myPanel.PainterKind = BaseControlPainterKind.Neumorphism;    // Soft 3D
+myPanel.PainterKind = BaseControlPainterKind.Card;           // Card with shadow
+myPanel.PainterKind = BaseControlPainterKind.NeoBrutalist;   // Bold outlines
+
+// Change the border/background style via BeepControlStyle (mapped from BeepStyling)
+myButton.BorderPainter = BeepControlStyle.Material3;
+myButton.BorderPainter = BeepControlStyle.FluentDesign;</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Using BeepStyling Design Systems</h2>
+                    <p><code>BeepStyling</code> manages 27 design systems. Setting <code>CurrentControlStyle</code> globally 
+                    changes which background, border, shadow, and text painters are used:</p>
+                    <div class="code-example">
+                        <h3>Global design system switching</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls.Styling;
+
+// Switch the entire app to a different design system
+BeepStyling.SetControlStyle(BeepControlStyle.Material3);
+// or BeepControlStyle.FluentDesign, iOS15, AntDesign, ChakraUI,
+// TailwindCSS, Bootstrap5, Carbon, Atlassian, Lightning, etc.
+
+// Each design system has its own painters in these folders:
+// BackgroundPainters/ (36) — e.g., Material3BackgroundPainter
+// BorderPainters/     (27) — e.g., FluentDesignBorderPainter
+// ShadowPainters/     (27) — e.g., iOS15ShadowPainter
+// TextPainters/       (5)  — e.g., MaterialTextPainter
+// PathPainters/       (23) — shape/path rendering
+
+// Query colors from the active style
+Color primary = BeepStyling.GetColor("Primary");
+Color bg = BeepStyling.GetColor("Background");</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>BeepiFormPro Form Painter Architecture</h2>
+                    <p>Each <code>FormStyle</code> maps to a dedicated <code>IFormPainter</code> class in the Painters/ subfolder. 
+                    Key classes involved:</p>
+                    <ul>
+                        <li><code>FormPainterMetrics</code> — Calculates caption bar height, button sizes, padding, border widths</li>
+                        <li><code>BeepiFormProHitAreaManager</code> — Manages close/min/max button hit areas, title bar drag region</li>
+                        <li><code>BeepiFormProInteractionManager</code> — Handles hover, press, and release states for caption buttons</li>
+                        <li><code>ActivePainter</code> — The current <code>IFormPainter</code> instance (e.g., <code>MaterialFormPainter</code>, <code>CyberpunkFormPainter</code>)</li>
+                    </ul>
+                    <div class="code-example">
+                        <h3>FormStyle to painter mapping</h3>
+                        <pre><code class="language-csharp">// BeepiFormPro automatically selects the right painter:
+// FormStyle.Material   → MaterialFormPainter
+// FormStyle.MacOS      → MacOSFormPainter
+// FormStyle.Fluent     → FluentFormPainter
+// FormStyle.Cyberpunk  → CyberpunkFormPainter
+// FormStyle.Terminal   → TerminalFormPainter
+// ... and 30+ more
+
+// When you change FormStyle, the form:
+// 1. Creates/caches the new painter via EnsureLayoutCalculated()
+// 2. Recalculates FormPainterMetrics
+// 3. Updates HitAreaManager regions
+// 4. Invalidates — triggers full repaint with new painter</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Creating a Custom Control</h2>
+                    <p>To create your own control, inherit from <code>BaseControl</code> and override the paint method. 
+                    The painter handles borders, backgrounds, and shadows — you only render your content into <code>DrawingRect</code>:</p>
+                    <div class="code-example">
+                        <h3>Custom control inheriting BaseControl</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls.Base;
+
+public class MyCustomControl : BaseControl
+{
+    public string CustomText { get; set; } = "Hello";
+
+    protected override void DrawContent(Graphics g, Rectangle drawRect)
+    {
+        // drawRect is already inset by the painter's borders/padding
+        using var brush = new SolidBrush(CurrentTheme?.TextColor ?? Color.Black);
+        using var font = new Font("Segoe UI", 12f);
+        g.DrawString(CustomText, font, brush, drawRect.Location);
+    }
+}
+
+// Usage
+var custom = new MyCustomControl();
+custom.PainterKind = BaseControlPainterKind.Card;
+custom.CustomText = "My Content";
+custom.Size = new Size(200, 100);</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Theme Propagation in BeepiFormPro</h2>
+                    <p><code>BeepiFormPro.ApplyTheme()</code> walks all child controls and applies the theme to any <code>IBeepUIComponent</code>:</p>
+                    <div class="code-example">
+                        <h3>Theme propagation in BeepiFormPro</h3>
+                        <pre><code class="language-csharp">// This happens automatically when BeepThemesManager fires ThemeChanged.
+// You can also trigger it manually:
+myForm.ApplyTheme(BeepThemesManager.GetTheme("Dracula"));
+
+// Under the hood:
+// 1. Sets CurrentTheme on the form
+// 2. Iterates all Controls recursively
+// 3. For each IBeepUIComponent child, calls child.ApplyTheme(theme)
+// 4. Each child re-reads colors/fonts from the theme and invalidates</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+</html>

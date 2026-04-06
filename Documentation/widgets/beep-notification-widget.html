@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepNotificationWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepNotificationWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepNotificationWidget</h1>
+                        <p class="subtitle">Alert and notification widget with ten styles: toast, banner, progress alert, status card, message centre, system alert, validation message, info panel, warning badge, and success banner.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Alerts / Notifications</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepNotificationWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 🔔<br>
+                        <strong>Category:</strong> Beep Widgets → Alerts / Notifications<br>
+                        <strong>Default size:</strong> 350 × 80<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>🔔 Ten Notification Styles</h3><p>Toast, banner, badge, validation — every common alert pattern covered.</p></div>
+                        <div class="feature-card"><h3>🎨 Type-Driven Colors</h3><p>NotificationType drives accent colour automatically (green=success, red=error…).</p></div>
+                        <div class="feature-card"><h3>📊 Progress Integration</h3><p>ProgressAlert style shows live progress for background operation feedback.</p></div>
+                        <div class="feature-card"><h3>✅ Validation Feedback</h3><p>ValidationMessage style targets form field validation use-cases.</p></div>
+                        <div class="feature-card"><h3>🚫 Dismissible</h3><p>IsDismissible toggles the × button; DismissClicked fires when pressed.</p></div>
+                        <div class="feature-card"><h3>⚡ Action Button</h3><p>ShowAction + ActionText expose a one-click CTA directly in the notification.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ToastNotification</code></td><td>Floating toast message with icon and optional dismiss button.</td></tr>
+                            <tr><td><code>AlertBanner</code></td><td>Full-width coloured banner for important messages.</td></tr>
+                            <tr><td><code>ProgressAlert</code></td><td>Banner with integrated progress bar and status text.</td></tr>
+                            <tr><td><code>StatusCard</code></td><td>Card with large status icon, title, and detail message.</td></tr>
+                            <tr><td><code>MessageCenter</code></td><td>Compact message centre showing notification count and preview.</td></tr>
+                            <tr><td><code>SystemAlert</code></td><td>High-priority system status alert with severity colour.</td></tr>
+                            <tr><td><code>ValidationMessage</code></td><td>Form validation feedback with field-level error/warning/success.</td></tr>
+                            <tr><td><code>InfoPanel</code></td><td>Informational panel with expandable detail area.</td></tr>
+                            <tr><td><code>WarningBadge</code></td><td>Small badge/chip suitable for inline warning indicators.</td></tr>
+                            <tr><td><code>SuccessBanner</code></td><td>Compact success confirmation strip.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>NotificationWidgetStyle</td><td>ToastNotification</td><td>Selects the notification painter.</td></tr>
+                            <tr><td><code>NotificationType</code></td><td>NotificationType</td><td>Info</td><td>Info, Success, Warning, Error, or Progress — drives icon and colour.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Notification&quot;</td><td>Heading text.</td></tr>
+                            <tr><td><code>Message</code></td><td>string</td><td>&quot;This is a notification message&quot;</td><td>Body/detail text.</td></tr>
+                            <tr><td><code>ActionText</code></td><td>string</td><td>&quot;Action&quot;</td><td>Label on the optional action button.</td></tr>
+                            <tr><td><code>IsDismissible</code></td><td>bool</td><td>true</td><td>Show/hide the dismiss (×) button.</td></tr>
+                            <tr><td><code>ShowIcon</code></td><td>bool</td><td>true</td><td>Show/hide the type icon.</td></tr>
+                            <tr><td><code>ShowAction</code></td><td>bool</td><td>false</td><td>Show/hide the action button.</td></tr>
+                            <tr><td><code>Progress</code></td><td>int</td><td>0</td><td>0–100 progress value used by ProgressAlert style.</td></tr>
+                            <tr><td><code>Timestamp</code></td><td>DateTime</td><td>DateTime.Now</td><td>Timestamp rendered in MessageCenter and ActivityStream styles.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>NotificationClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the notification body is clicked.</td></tr>
+                            <tr><td><code>ActionClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the action button is clicked.</td></tr>
+                            <tr><td><code>DismissClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the dismiss (×) button is clicked.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">// Inline error for a form field
+var validation = new BeepNotificationWidget
+{
+    Style            = NotificationWidgetStyle.ValidationMessage,
+    NotificationType = NotificationType.Error,
+    Title            = "Email Invalid",
+    Message          = "Please enter a valid email address.",
+    IsDismissible    = false,
+    ShowIcon         = true,
+    Size             = new Size(380, 50)
+};
+emailPanel.Controls.Add(validation);
+
+// Progress alert during a long operation
+var progress = new BeepNotificationWidget
+{
+    Style            = NotificationWidgetStyle.ProgressAlert,
+    NotificationType = NotificationType.Progress,
+    Title            = "Importing data...",
+    Progress         = 0,
+    IsDismissible    = false
+};
+statusPanel.Controls.Add(progress);
+// Update in background worker:
+progress.Progress = 45;
+progress.Invalidate();</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">notification.ActionClicked += (s, e) => OpenNotificationCenter();
+notification.DismissClicked += (s, e) =>
+{
+    notification.Visible = false;
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-control-widget.html" class="related-card"><h4>BeepControlWidget</h4><p>Pair validation with input controls.</p></a>
+                        <a href="beep-form-widget.html" class="related-card"><h4>BeepFormWidget</h4><p>Attach validation messages to form sections.</p></a>
+                        <a href="beep-dashboard-widget.html" class="related-card"><h4>BeepDashboardWidget</h4><p>StatusOverview dashboard for system health.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

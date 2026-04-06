@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
 {
@@ -21,15 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void MakeRequired(BeepDataBlock block, string itemName)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Required), true);
-        }
-        
-        /// <summary>
-        /// Make an item optional
-        /// </summary>
-        public static void MakeOptional(BeepDataBlock block, string itemName)
-        {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Required), false);
+            block.SetItemProperty(itemName, nameof(ItemInfo.Required), true);
         }
         
         /// <summary>
@@ -37,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void DisableItem(BeepDataBlock block, string itemName)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Enabled), false);
+            block.SetItemProperty(itemName, nameof(ItemInfo.Enabled), false);
         }
         
         /// <summary>
@@ -45,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void EnableItem(BeepDataBlock block, string itemName)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Enabled), true);
+            block.SetItemProperty(itemName, nameof(ItemInfo.Enabled), true);
         }
         
         /// <summary>
@@ -53,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void HideItem(BeepDataBlock block, string itemName)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Visible), false);
+            block.SetItemProperty(itemName, nameof(ItemInfo.Visible), false);
         }
         
         /// <summary>
@@ -61,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void ShowItem(BeepDataBlock block, string itemName)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.Visible), true);
+            block.SetItemProperty(itemName, nameof(ItemInfo.Visible), true);
         }
         
         /// <summary>
@@ -69,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void SetDefaultValue(BeepDataBlock block, string itemName, object defaultValue)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.DefaultValue), defaultValue);
+            block.SetItemProperty(itemName, nameof(ItemInfo.DefaultValue), defaultValue);
         }
         
         /// <summary>
@@ -77,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         /// </summary>
         public static void SetHintText(BeepDataBlock block, string itemName, string hintText)
         {
-            block.SetItemProperty(itemName, nameof(BeepDataBlockItem.HintText), hintText);
+            block.SetItemProperty(itemName, nameof(ItemInfo.HintText), hintText);
         }
         
         #endregion
@@ -124,8 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         {
             foreach (var itemName in itemNames)
             {
-                block.SetItemProperty(itemName, nameof(BeepDataBlockItem.InsertAllowed), false);
-                block.SetItemProperty(itemName, nameof(BeepDataBlockItem.UpdateAllowed), false);
+                block.SetItemProperty(itemName, nameof(ItemInfo.InsertAllowed), false);
+                block.SetItemProperty(itemName, nameof(ItemInfo.UpdateAllowed), false);
             }
         }
         
@@ -184,8 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers
         {
             foreach (var item in block.GetAllItems().Values)
             {
-                item.HasError = false;
-                item.ErrorMessage = null;
+                item.ClearError();
                 
                 if (item.Component is BaseControl beepControl)
                 {

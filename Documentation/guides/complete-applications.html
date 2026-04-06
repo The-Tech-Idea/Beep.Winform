@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Applications - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-window-stack"></i> Complete Applications</h1>
+                    <p class="page-subtitle">Full application examples built with Beep Controls</p>
+                </div>
+
+                <section class="section">
+                    <h2>Dashboard Application</h2>
+                    <p>A complete dashboard layout using Beep Controls featuring a side menu, app bar, stat cards, charts, and a data grid.</p>
+                    <pre><code class="language-csharp">public class DashboardForm : Form
+{
+    public DashboardForm()
+    {
+        this.Text = "Dashboard";
+        this.Size = new Size(1200, 800);
+
+        // App bar at the top
+        var appBar = new BeepAppBar();
+        appBar.Dock = DockStyle.Top;
+        appBar.Title = "My Dashboard";
+
+        // Side menu on the left
+        var sideMenu = new BeepSideMenu();
+        sideMenu.Dock = DockStyle.Left;
+        sideMenu.Width = 220;
+        sideMenu.AddMenuItem("Home", "home.svg");
+        sideMenu.AddMenuItem("Analytics", "chart.svg");
+        sideMenu.AddMenuItem("Users", "users.svg");
+        sideMenu.AddMenuItem("Settings", "gear.svg");
+
+        // Main content panel
+        var content = new BeepPanel();
+        content.Dock = DockStyle.Fill;
+
+        // Stat cards row
+        var stats = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 120 };
+        stats.Controls.Add(CreateStatCard("Total Users", "1,234", "+12%"));
+        stats.Controls.Add(CreateStatCard("Revenue", "$45,678", "+8%"));
+        stats.Controls.Add(CreateStatCard("Orders", "567", "+3%"));
+        stats.Controls.Add(CreateStatCard("Growth", "23%", "+5%"));
+        content.Controls.Add(stats);
+
+        // Data grid
+        var grid = new BeepSimpleGrid();
+        grid.Dock = DockStyle.Fill;
+        grid.DataSource = GetRecentOrders();
+        content.Controls.Add(grid);
+
+        this.Controls.AddRange(new Control[] { content, sideMenu, appBar });
+    }
+
+    private BeepStatCard CreateStatCard(string title, string value, string trend)
+    {
+        return new BeepStatCard
+        {
+            Title = title,
+            Value = value,
+            Trend = trend,
+            Size = new Size(200, 100),
+            Margin = new Padding(10)
+        };
+    }
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Data Entry Application</h2>
+                    <p>A CRUD application with a grid, navigation bar, and form fields for data entry.</p>
+                    <pre><code class="language-csharp">public class DataEntryForm : Form
+{
+    private BeepSimpleGrid _grid;
+    private BeepBindingNavigator _navigator;
+
+    public DataEntryForm()
+    {
+        this.Text = "Product Manager";
+        this.Size = new Size(900, 600);
+
+        // Grid for data display
+        _grid = new BeepSimpleGrid();
+        _grid.Dock = DockStyle.Fill;
+        _grid.DataSource = GetProducts();
+
+        // Navigator bar at bottom
+        _navigator = new BeepBindingNavigator();
+        _navigator.Dock = DockStyle.Bottom;
+        _navigator.Grid = _grid;
+        _navigator.AddClicked += (s, e) =&gt; ShowEditDialog(null);
+        _navigator.EditClicked += (s, e) =&gt; ShowEditDialog(_grid.CurrentRow);
+        _navigator.DeleteClicked += (s, e) =&gt; DeleteCurrentRow();
+
+        this.Controls.Add(_grid);
+        this.Controls.Add(_navigator);
+    }
+
+    private void ShowEditDialog(object row)
+    {
+        var dialog = new BeepDialogBox();
+        dialog.Title = row == null ? "Add Product" : "Edit Product";
+        dialog.Size = new Size(400, 300);
+        // Add form fields to dialog...
+        dialog.ShowDialog(this);
+    }
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Settings Application</h2>
+                    <p>A settings panel using tabs, switches, and combo boxes.</p>
+                    <pre><code class="language-csharp">public class SettingsForm : Form
+{
+    public SettingsForm()
+    {
+        this.Text = "Settings";
+        this.Size = new Size(700, 500);
+
+        var tabs = new BeepTabControl();
+        tabs.Dock = DockStyle.Fill;
+
+        // General tab
+        var generalPanel = CreateGeneralSettings();
+        tabs.AddTab("General", generalPanel);
+
+        // Appearance tab
+        var appearancePanel = CreateAppearanceSettings();
+        tabs.AddTab("Appearance", appearancePanel);
+
+        // Notifications tab
+        var notifPanel = CreateNotificationSettings();
+        tabs.AddTab("Notifications", notifPanel);
+
+        this.Controls.Add(tabs);
+    }
+
+    private Panel CreateAppearanceSettings()
+    {
+        var panel = new BeepPanel();
+        
+        var themeLabel = new BeepLabel { Text = "Theme:", Location = new Point(20, 20) };
+        var themeCombo = new BeepComboBox { Location = new Point(20, 50), Size = new Size(250, 35) };
+        // Populate themes...
+
+        var darkMode = new BeepSwitch { Text = "Dark Mode", Location = new Point(20, 100) };
+        var animations = new BeepSwitch { Text = "Enable Animations", Location = new Point(20, 140) };
+
+        panel.Controls.AddRange(new Control[] { themeLabel, themeCombo, darkMode, animations });
+        return panel;
+    }
+}</code></pre>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCalendarWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepCalendarWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepCalendarWidget</h1>
+                        <p class="subtitle">Calendar and scheduling widget with ten styles: date grid, time slots, event cards, full calendar view, schedule cards, date pickers, timeline views, week views, event lists, and availability grids.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Calendar / Scheduling</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepCalendarWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 📅<br>
+                        <strong>Category:</strong> Beep Widgets → Calendar / Scheduling<br>
+                        <strong>Default size:</strong> 340 × 280<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>📅 Ten Calendar Styles</h3><p>From a date picker to a full weekly grid — one widget, ten views.</p></div>
+                        <div class="feature-card"><h3>⏰ Time Slots</h3><p>TimeSlots style renders bookable time blocks with availability indicators.</p></div>
+                        <div class="feature-card"><h3>📋 Event Chips</h3><p>CalendarView and WeekView render per-event coloured chips on day cells.</p></div>
+                        <div class="feature-card"><h3>🗓️ Week View</h3><p>Seven-column grid with hourly time slots for appointment scheduling.</p></div>
+                        <div class="feature-card"><h3>✅ Availability Grid</h3><p>AvailabilityGrid shows available/busy/blocked states for resource booking.</p></div>
+                        <div class="feature-card"><h3>🎨 Per-Event Colors</h3><p>Each CalendarEvent carries its own Color — colour-code by category.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>DateGrid</code></td><td>Standard monthly calendar grid with date cells.</td></tr>
+                            <tr><td><code>TimeSlots</code></td><td>Available time slot picker with bookable slots.</td></tr>
+                            <tr><td><code>EventCard</code></td><td>Single event display card with title, time, and location.</td></tr>
+                            <tr><td><code>CalendarView</code></td><td>Full month view with event chips on day cells.</td></tr>
+                            <tr><td><code>ScheduleCard</code></td><td>Daily schedule list with time-sorted appointments.</td></tr>
+                            <tr><td><code>DatePicker</code></td><td>Inline date-selection picker (no popup).</td></tr>
+                            <tr><td><code>TimelineView</code></td><td>Horizontal or vertical timeline of events.</td></tr>
+                            <tr><td><code>WeekView</code></td><td>Seven-column weekly calendar grid.</td></tr>
+                            <tr><td><code>EventList</code></td><td>Upcoming events list sorted by date.</td></tr>
+                            <tr><td><code>AvailabilityGrid</code></td><td>Grid showing available/busy/blocked time slots for booking.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>CalendarWidgetStyle</td><td>CalendarView</td><td>Selects the calendar painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Calendar&quot;</td><td>Panel heading.</td></tr>
+                            <tr><td><code>Subtitle</code></td><td>string</td><td>&quot;Schedule&quot;</td><td>Secondary sub-heading.</td></tr>
+                            <tr><td><code>SelectedDate</code></td><td>DateTime</td><td>DateTime.Now</td><td>Currently selected/focused date.</td></tr>
+                            <tr><td><code>DisplayMonth</code></td><td>DateTime</td><td>DateTime.Now</td><td>Month displayed in CalendarView/WeekView.</td></tr>
+                            <tr><td><code>Events</code></td><td>List&lt;CalendarEvent&gt;</td><td>(empty)</td><td>Event collection. Each CalendarEvent has Title, StartTime, EndTime, Color, Location.</td></tr>
+                            <tr><td><code>MinDate</code></td><td>DateTime</td><td>DateTime.MinValue</td><td>Minimum selectable date.</td></tr>
+                            <tr><td><code>MaxDate</code></td><td>DateTime</td><td>DateTime.MaxValue</td><td>Maximum selectable date.</td></tr>
+                            <tr><td><code>ShowWeekNumbers</code></td><td>bool</td><td>false</td><td>Show ISO week numbers in CalendarView.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Highlighted date and event chip colour.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>DateClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a date cell is clicked. Data contains DateTime.</td></tr>
+                            <tr><td><code>EventClicked</code></td><td>BeepEventDataArgs</td><td>Fired when an event chip is clicked. Data contains CalendarEvent.</td></tr>
+                            <tr><td><code>SlotClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a time slot is clicked (TimeSlots / AvailabilityGrid). Data contains slot DateTime.</td></tr>
+                            <tr><td><code>MonthChanged</code></td><td>BeepEventDataArgs</td><td>Fired when navigation changes the displayed month. Data contains new DateTime.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var cal = new BeepCalendarWidget
+{
+    Style        = CalendarWidgetStyle.CalendarView,
+    SelectedDate = DateTime.Today,
+    DisplayMonth = DateTime.Today,
+    Events       = new List<CalendarEvent>
+    {
+        new CalendarEvent { Title = "Sprint Planning", StartTime = DateTime.Today.AddHours(9),
+                            EndTime = DateTime.Today.AddHours(11), Color = Color.SteelBlue },
+        new CalendarEvent { Title = "Design Review",  StartTime = DateTime.Today.AddDays(2).AddHours(14),
+                            EndTime = DateTime.Today.AddDays(2).AddHours(15), Color = Color.MediumPurple },
+    },
+    Size = new Size(380, 300)
+};
+this.Controls.Add(cal);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">cal.DateClicked += (s, e) =>
+{
+    DateTime date = (DateTime)e.Data;
+    ShowEventsForDate(date);
+};
+
+cal.EventClicked += (s, e) =>
+{
+    var evt = (CalendarEvent)e.Data;
+    OpenEventEditor(evt);
+};
+
+cal.MonthChanged += (s, e) =>
+{
+    DateTime newMonth = (DateTime)e.Data;
+    LoadEventsForMonth(newMonth);
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-navigation-widget.html" class="related-card"><h4>BeepNavigationWidget</h4><p>Pair with StepIndicator for booking workflows.</p></a>
+                        <a href="beep-notification-widget.html" class="related-card"><h4>BeepNotificationWidget</h4><p>Alert before upcoming events.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>EventList-style list alongside the calendar grid.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

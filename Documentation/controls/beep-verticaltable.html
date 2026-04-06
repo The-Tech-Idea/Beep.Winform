@@ -1,0 +1,565 @@
+<!--
+    BeepVerticalTable Control Documentation
+    Professional-grade documentation for the BeepVerticalTable WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepVerticalTable - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+                                                                        <div id="sidebar-placeholder"></div>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="#">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepVerticalTable</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepVerticalTable</h1>
+                        <p class="subtitle">Column-oriented data grid with 10 visual styles, header/row sizing, image support, and cell-level click events.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepVerticalTable</strong> is a custom-painted data grid organized as a vertical list of
+                        named columns. Each column (<code>SimpleItem</code>) owns a collection of row children, making it
+                        suitable for displaying category-grouped data, product comparison tables, spec sheets, and
+                        schedules.
+                    </p>
+                    <p>
+                        Built on <strong>BaseControl</strong>, the table uses a <code>LayoutHelper</code> for geometry
+                        calculations and a pluggable <code>VerticalTablePainter</code> that exposes 10 
+                        pre-built visual styles (<code>Style1</code>–<code>Style10</code>). Cells are individually
+                        selectable and fire <code>CellClicked</code> / <code>SelectionChanged</code> events carrying
+                        column and row indices.
+                    </p>
+                    <div class="info-box">
+                        <strong>Inheritance:</strong> Control → BaseControl → BeepVerticalTable<br>
+                        <strong>Data model:</strong> <code>BindingList&lt;SimpleItem&gt;</code> (columns); each column's <code>Children</code> list holds row cells<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls
+                    </div>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 10 Visual Styles</h3>
+                            <p>Switch between Style1–Style10 at design time or runtime without data changes.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📐 Flexible Sizing</h3>
+                            <p>Independent HeaderHeight, RowHeight, and ColumnWidth properties for precise layout control.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Image Support</h3>
+                            <p>Per-column header images when <code>ShowImage = true</code> and <code>SimpleItem.ImagePath</code> is set.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Cell Interaction</h3>
+                            <p>CellClicked and SelectionChanged events deliver (Item, ColumnIndex, RowIndex) for precise handling.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Live Data Binding</h3>
+                            <p>Backed by BindingList — adding, removing, or updating SimpleItem entries automatically repaints.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Programmatic Selection</h3>
+                            <p>SetSelection(col, row) for keyboard navigation, automated demos, or external event-driven highlighting.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Model -->
+                <section id="data-model" class="section">
+                    <h2>Data Model</h2>
+                    <p>
+                        BeepVerticalTable uses a two-level hierarchy built from <code>SimpleItem</code> objects:
+                    </p>
+                    <ul>
+                        <li><strong>Columns</strong> — The <code>Columns</code> property holds a <code>BindingList&lt;SimpleItem&gt;</code>. Each <code>SimpleItem</code> represents one column with a <code>Text</code> header and optional <code>ImagePath</code>.</li>
+                        <li><strong>Rows (Cells)</strong> — Each column's <code>Children</code> property is a list of <code>SimpleItem</code> objects, one per row in that column.</li>
+                    </ul>
+                    <pre><code class="language-csharp">// SimpleItem structure (simplified)
+class SimpleItem
+{
+    public string Text      { get; set; }
+    public string ImagePath { get; set; }
+    public string Value     { get; set; }
+    public List&lt;SimpleItem&gt; Children { get; set; } = new();
+}</code></pre>
+                    <div class="info-box">
+                        <strong>Layout note:</strong> All columns must have the same number of rows for the table to render uniformly.
+                        BeepVerticalTable does not enforce this but will paint empty cells for missing rows.
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    <div class="preview-container">
+                        <div class="preview-demo" style="padding:24px;">
+                            <!-- Simple 3-column HTML table as visual stand-in -->
+                            <table style="border-collapse:collapse;font-family:Inter,sans-serif;font-size:13px;width:100%;max-width:480px;">
+                                <thead>
+                                    <tr style="background:#1976D2;color:#fff;">
+                                        <th style="padding:10px 14px;text-align:left;border-radius:4px 0 0 0;">Feature</th>
+                                        <th style="padding:10px 14px;text-align:left;">Basic</th>
+                                        <th style="padding:10px 14px;text-align:left;border-radius:0 4px 0 0;">Pro</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="background:#fff;"><td style="padding:8px 14px;border-bottom:1px solid #eee;">Storage</td><td style="padding:8px 14px;border-bottom:1px solid #eee;">5 GB</td><td style="padding:8px 14px;border-bottom:1px solid #eee;">100 GB</td></tr>
+                                    <tr style="background:#f5f5f5;"><td style="padding:8px 14px;border-bottom:1px solid #eee;">Users</td><td style="padding:8px 14px;border-bottom:1px solid #eee;">1</td><td style="padding:8px 14px;border-bottom:1px solid #eee;">Unlimited</td></tr>
+                                    <tr style="background:#fff;"><td style="padding:8px 14px;">Priority Support</td><td style="padding:8px 14px;">✗</td><td style="padding:8px 14px;color:#4CAF50;font-weight:600;">✓</td></tr>
+                                </tbody>
+                            </table>
+                            <p style="margin-top:8px;font-size:12px;color:#888;">Rendered appearance depends on TableStyle — this preview shows Style1 (flat alternating rows).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+
+                    <h3>Populating Columns and Rows</h3>
+                    <pre><code class="language-csharp">var table = new BeepVerticalTable
+{
+    HeaderHeight = 80,
+    RowHeight    = 40,
+    ColumnWidth  = 150,
+    TableStyle   = VerticalTablePainterStyle.Style1,
+    ShowImage    = false
+};
+
+// Define columns
+var colFeature = new SimpleItem { Text = "Feature" };
+var colBasic   = new SimpleItem { Text = "Basic" };
+var colPro     = new SimpleItem { Text = "Pro" };
+
+// Add rows to each column (same count required)
+var rows = new[]
+{
+    ("Storage",          "5 GB",       "100 GB"),
+    ("Users",            "1",          "Unlimited"),
+    ("Priority Support", "No",         "Yes"),
+    ("API Access",       "Restricted", "Full")
+};
+
+foreach (var (feature, basic, pro) in rows)
+{
+    colFeature.Children.Add(new SimpleItem { Text = feature });
+    colBasic.Children.Add(new SimpleItem   { Text = basic   });
+    colPro.Children.Add(new SimpleItem     { Text = pro     });
+}
+
+table.Columns.Add(colFeature);
+table.Columns.Add(colBasic);
+table.Columns.Add(colPro);
+
+this.Controls.Add(table);</code></pre>
+
+                    <h3>Handling Cell Clicks</h3>
+                    <pre><code class="language-csharp">table.CellClicked += (s, e) =>
+{
+    // e is (SimpleItem item, int columnIndex, int rowIndex)
+    var (item, col, row) = e;
+    statusBar.Text = $"Clicked: [{col},{row}] = {item.Text}";
+};
+
+table.SelectionChanged += (s, e) =>
+{
+    var (item, col, row) = e;
+    UpdateDetailPanel(item);
+};</code></pre>
+
+                    <h3>Programmatic Selection</h3>
+                    <pre><code class="language-csharp">// Select the first data cell in column 1
+table.SetSelection(columnIndex: 1, rowIndex: 0);
+
+// Read selection info
+int col  = table.SelectedColumnIndex;
+int row  = table.SelectedRowIndex;
+var item = table.SelectedItem; // null if nothing selected</code></pre>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Columns</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>(empty)</td>
+                                <td>The column definitions. Each <code>SimpleItem.Children</code> list holds the row cells for that column.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem?</td>
+                                <td>null</td>
+                                <td>Read-only. The currently selected cell's <code>SimpleItem</code>, or <code>null</code> if no cell is selected.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedColumnIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Read-only. Zero-based index of the selected column, or -1 if nothing is selected.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedRowIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Read-only. Zero-based index of the selected row, or -1 if nothing is selected.</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeaderHeight</code></td>
+                                <td>int</td>
+                                <td>80</td>
+                                <td>Height in pixels of the column header row. Increase when adding images.</td>
+                            </tr>
+                            <tr>
+                                <td><code>RowHeight</code></td>
+                                <td>int</td>
+                                <td>40</td>
+                                <td>Height in pixels of each data row.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ColumnWidth</code></td>
+                                <td>int</td>
+                                <td>150</td>
+                                <td>Width in pixels of each column. All columns share the same width.</td>
+                            </tr>
+                            <tr>
+                                <td><code>TableStyle</code></td>
+                                <td>VerticalTablePainterStyle</td>
+                                <td>Style1</td>
+                                <td>Visual style for the grid painter. Values: <code>Style1</code> through <code>Style10</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowImage</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>When true, header cells render any image specified in <code>SimpleItem.ImagePath</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>LayoutHelper</code></td>
+                                <td>VerticalTableLayoutHelper</td>
+                                <td>(auto)</td>
+                                <td>Read-only. Provides geometry for cell hit-testing; rarely accessed directly.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Signature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CellClicked</code></td>
+                                <td>EventHandler&lt;(SimpleItem, int, int)&gt;</td>
+                                <td>Fires on mouse-down over a cell. Tuple carries (clickedItem, columnIndex, rowIndex).</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectionChanged</code></td>
+                                <td>EventHandler&lt;(SimpleItem, int, int)&gt;</td>
+                                <td>Fires when the selected cell changes. Tuple carries (newItem, columnIndex, rowIndex).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Key Methods</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Signature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SetSelection</code></td>
+                                <td>void SetSelection(int columnIndex, int rowIndex)</td>
+                                <td>Programmatically selects a cell and fires <code>SelectionChanged</code>. Pass -1 to clear selection.</td>
+                            </tr>
+                            <tr>
+                                <td><code>CalculateLayout</code></td>
+                                <td>void CalculateLayout()</td>
+                                <td>Recalculates the internal layout geometry. Called automatically on resize or data change; call manually after bulk Columns updates.</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpdatePainter</code></td>
+                                <td>void UpdatePainter()</td>
+                                <td>Switches the active painter when <code>TableStyle</code> is changed at runtime.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>void ApplyTheme()</td>
+                                <td>Re-applies the current Beep theme to all column and row colors.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- TableStyle Reference -->
+                <section id="styles" class="section">
+                    <h2>TableStyle Reference</h2>
+                    <p>
+                        BeepVerticalTable includes 10 plug-in painter styles. Each style changes colors,
+                        borders, header background, and alternating row fill. Styles are set via
+                        <code>TableStyle = VerticalTablePainterStyle.StyleN</code>.
+                    </p>
+                    <table class="props-table">
+                        <thead>
+                            <tr><th>Style</th><th>Character</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Style1</code></td><td>Flat, alternating light-grey rows, accent header</td></tr>
+                            <tr><td><code>Style2</code></td><td>Compact cells, minimal borders</td></tr>
+                            <tr><td><code>Style3</code></td><td>Bold header with rounded corners</td></tr>
+                            <tr><td><code>Style4</code></td><td>Material-style with shadow header</td></tr>
+                            <tr><td><code>Style5</code></td><td>Dark-background header, light data rows</td></tr>
+                            <tr><td><code>Style6</code></td><td>Striped with full column borders</td></tr>
+                            <tr><td><code>Style7</code></td><td>Gradient header fill</td></tr>
+                            <tr><td><code>Style8</code></td><td>Card-style with elevated selected row</td></tr>
+                            <tr><td><code>Style9</code></td><td>Minimal — header only, no row dividers</td></tr>
+                            <tr><td><code>Style10</code></td><td>High-contrast for accessibility</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Code Examples -->
+                <section id="examples" class="section">
+                    <h2>Code Examples</h2>
+
+                    <h3>Product Comparison Table</h3>
+                    <pre><code class="language-csharp">var plans = new[] { "Feature", "Starter", "Professional", "Enterprise" };
+var columns = plans.Select(p => new SimpleItem { Text = p }).ToArray();
+
+var features = new (string feature, string[] values)[]
+{
+    ("Price/mo",     new[] { "",       "$9",    "$29",    "Custom" }),
+    ("Storage",      new[] { "",       "10 GB", "100 GB", "1 TB"   }),
+    ("Users",        new[] { "",       "3",     "25",     "∞"      }),
+    ("API Calls/day",new[] { "",       "1,000", "50,000", "∞"      }),
+    ("SLA",          new[] { "",       "—",     "99.9%",  "99.99%" })
+};
+
+foreach (var (feature, values) in features)
+{
+    for (int i = 0; i < columns.Length; i++)
+        columns[i].Children.Add(new SimpleItem { Text = values[i] == "" ? feature : values[i] });
+}
+
+var cmpTable = new BeepVerticalTable
+{
+    Columns      = new BindingList&lt;SimpleItem&gt;(columns),
+    HeaderHeight = 60,
+    RowHeight    = 36,
+    ColumnWidth  = 130,
+    TableStyle   = VerticalTablePainterStyle.Style4
+};
+this.Controls.Add(cmpTable);</code></pre>
+
+                    <h3>Spec Sheet with Images</h3>
+                    <pre><code class="language-csharp">var colSpec  = new SimpleItem { Text = "Spec" };
+var colModelA = new SimpleItem { Text = "Model A", ImagePath = "images/model-a.png" };
+var colModelB = new SimpleItem { Text = "Model B", ImagePath = "images/model-b.png" };
+
+foreach (var (spec, a, b) in specs)
+{
+    colSpec.Children.Add(new SimpleItem  { Text = spec });
+    colModelA.Children.Add(new SimpleItem { Text = a   });
+    colModelB.Children.Add(new SimpleItem { Text = b   });
+}
+
+specTable.ShowImage    = true;
+specTable.HeaderHeight = 100;  // room for images
+specTable.Columns.Add(colSpec);
+specTable.Columns.Add(colModelA);
+specTable.Columns.Add(colModelB);</code></pre>
+
+                    <h3>Switching TableStyle at Runtime</h3>
+                    <pre><code class="language-csharp">styleCombo.SelectedIndexChanged += (s, e) =>
+{
+    var styleName = $"Style{styleCombo.SelectedIndex + 1}";
+    table.TableStyle = (VerticalTablePainterStyle)Enum.Parse(
+        typeof(VerticalTablePainterStyle), styleName);
+    table.UpdatePainter();
+    table.Invalidate();
+};</code></pre>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>
+                        BeepVerticalTable inherits full Beep theme support. Calling
+                        <code>BeepThemesManager.ApplyTheme(table, "Ocean")</code> (or applying a theme to the
+                        parent form) updates header background, text colors, alternating row fills, and selection
+                        highlight to match the chosen theme palette.
+                    </p>
+                    <pre><code class="language-csharp">// Apply theme to table specifically
+BeepThemesManager.ApplyTheme(table, "Dark");
+
+// Re-apply after changing style
+table.TableStyle = VerticalTablePainterStyle.Style5;
+table.UpdatePainter();
+table.ApplyTheme();</code></pre>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Keep column counts small</strong> — BeepVerticalTable is optimized for 2–8 columns. For wide datasets with many columns prefer BeepSimpleGrid.</li>
+                        <li><strong>Match row counts across columns</strong> — While not strictly enforced, inconsistent row counts will produce misaligned cells. Always add row items to every column in the same loop.</li>
+                        <li><strong>Suspend repaints during bulk loads</strong> — Call <code>SuspendLayout()</code> / <code>ResumeLayout()</code> when adding dozens of rows to avoid per-item repaints.</li>
+                        <li><strong>Use CalculateLayout after bulk changes</strong> — When programmatically modifying <code>Columns</code> outside of initial setup, call <code>table.CalculateLayout()</code> to refresh geometry before showing the control.</li>
+                        <li><strong>Size the container appropriately</strong> — The control will not automatically scroll. Ensure the host panel is large enough, or add it inside a scrollable panel (AutoScroll = true).</li>
+                        <li><strong>Use ShowImage thoughtfully</strong> — Images in headers increase <code>HeaderHeight</code> requirements. Test at your target DPI settings to avoid cropped images.</li>
+                    </ul>
+                </section>
+
+                <!-- Related Controls -->
+                <section id="related" class="section">
+                    <h2>Related Controls</h2>
+                    <div class="related-grid">
+                        <a href="beep-grid.html" class="related-card">
+                            <h4>BeepSimpleGrid</h4>
+                            <p>Horizontal data grid for large tabular datasets with sorting and scrolling.</p>
+                        </a>
+                        <a href="beep-statcard.html" class="related-card">
+                            <h4>BeepStatCard</h4>
+                            <p>Single metric snapshot card — use when you only need 1–2 values.</p>
+                        </a>
+                        <a href="beep-tree.html" class="related-card">
+                            <h4>BeepTree</h4>
+                            <p>Hierarchical tree view for nested data structures.</p>
+                        </a>
+                    </div>
+                </section>
+
+            </div><!-- /.content-wrapper -->
+        </main>
+    </div><!-- /.container -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

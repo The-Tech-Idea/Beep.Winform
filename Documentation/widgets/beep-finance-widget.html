@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFinanceWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepFinanceWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepFinanceWidget</h1>
+                        <p class="subtitle">Financial data widget with ten styles covering portfolio cards, crypto stats, transaction history, balance cards, financial charts, payment methods, investment tracking, expense categories, revenue cards, and budget progress.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Finance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepFinanceWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 💰<br>
+                        <strong>Category:</strong> Beep Widgets → Finance<br>
+                        <strong>Default size:</strong> 300 × 180<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>💰 Ten Finance Styles</h3><p>Portfolio to budget — every common fintech card pattern.</p></div>
+                        <div class="feature-card"><h3>🎨 Positive/Negative Colors</h3><p>Automatic green/red colouring driven by value sign.</p></div>
+                        <div class="feature-card"><h3>💱 Currency Support</h3><p>Currency symbol and code properties for localised display.</p></div>
+                        <div class="feature-card"><h3>📊 Financial Chart</h3><p>FinancialChart style renders candlestick or line overlays via GDI+.</p></div>
+                        <div class="feature-card"><h3>📈 Budget Progress</h3><p>BudgetWidget style shows horizontal bars for each budget category.</p></div>
+                        <div class="feature-card"><h3>🔐 Masked Card</h3><p>PaymentCard style renders masked card numbers (•••• •••• •••• 1234).</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>PortfolioCard</code></td><td>Investment portfolio with asset allocation and overall return.</td></tr>
+                            <tr><td><code>CryptoWidget</code></td><td>Cryptocurrency price and 24h change display.</td></tr>
+                            <tr><td><code>TransactionCard</code></td><td>Financial transaction list with credit/debit indicators.</td></tr>
+                            <tr><td><code>BalanceCard</code></td><td>Account balance with income and expense summary.</td></tr>
+                            <tr><td><code>FinancialChart</code></td><td>Specialised financial candlestick or line chart.</td></tr>
+                            <tr><td><code>PaymentCard</code></td><td>Payment method card (masked card number, expiry).</td></tr>
+                            <tr><td><code>InvestmentCard</code></td><td>Single investment holding with gain/loss indicator.</td></tr>
+                            <tr><td><code>ExpenseCard</code></td><td>Expense category breakdown with pie/progress sub-display.</td></tr>
+                            <tr><td><code>RevenueCard</code></td><td>Revenue tracking with period-over-period comparison.</td></tr>
+                            <tr><td><code>BudgetWidget</code></td><td>Budget progress bars with spent vs allocated amounts.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>FinanceWidgetStyle</td><td>PortfolioCard</td><td>Selects the finance painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Finance Widget&quot;</td><td>Card heading.</td></tr>
+                            <tr><td><code>Subtitle</code></td><td>string</td><td>&quot;Financial Data&quot;</td><td>Secondary heading or account name.</td></tr>
+                            <tr><td><code>PrimaryValue</code></td><td>decimal</td><td>0</td><td>Main financial figure (balance, price, amount).</td></tr>
+                            <tr><td><code>SecondaryValue</code></td><td>decimal</td><td>0</td><td>Supplementary figure (e.g. invested amount).</td></tr>
+                            <tr><td><code>Percentage</code></td><td>decimal</td><td>0</td><td>Percentage change or allocation.</td></tr>
+                            <tr><td><code>Currency</code></td><td>string</td><td>&quot;USD&quot;</td><td>ISO currency code.</td></tr>
+                            <tr><td><code>CurrencySymbol</code></td><td>string</td><td>&quot;$&quot;</td><td>Symbol prepended to values.</td></tr>
+                            <tr><td><code>PositiveColor</code></td><td>Color</td><td>Color(34,139,34)</td><td>Colour for gains / positive values.</td></tr>
+                            <tr><td><code>NegativeColor</code></td><td>Color</td><td>Color(220,20,60)</td><td>Colour for losses / negative values.</td></tr>
+                            <tr><td><code>NeutralColor</code></td><td>Color</td><td>Color(128,128,128)</td><td>Colour for neutral/zero values.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ValueClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the primary value is clicked.</td></tr>
+                            <tr><td><code>CardClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the card body is clicked.</td></tr>
+                            <tr><td><code>ActionClicked</code></td><td>BeepEventDataArgs</td><td>Fired when an action button (e.g. 'View Details') is clicked.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var balance = new BeepFinanceWidget
+{
+    Style          = FinanceWidgetStyle.BalanceCard,
+    Title          = "Checking Account",
+    Subtitle       = "•••• 4521",
+    PrimaryValue   = 12_450.75m,
+    SecondaryValue = 3_200.00m,   // monthly income
+    CurrencySymbol = "$",
+    Size           = new Size(300, 160)
+};
+
+var budget = new BeepFinanceWidget
+{
+    Style        = FinanceWidgetStyle.BudgetWidget,
+    Title        = "October Budget",
+    PrimaryValue = 2400m,   // total budget
+    Percentage   = 67m,     // percent used
+    Size         = new Size(320, 200)
+};</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">balance.CardClicked += (s, e) => OpenAccountDetails();
+balance.ActionClicked += (s, e) => OpenTransferDialog();</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-metric-widget.html" class="related-card"><h4>BeepMetricWidget</h4><p>Pair with a KPI card for financial headlines.</p></a>
+                        <a href="beep-chart-widget.html" class="related-card"><h4>BeepChartWidget</h4><p>Add a line chart to show historical price data.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>Show a transaction list alongside the balance card.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -6,169 +6,17 @@ using TheTechIdea.Beep.Editor.UOWManager.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Models
 {
     /// <summary>
-    /// Represents an item/field in a BeepDataBlock with Oracle Forms-compatible properties
+    /// Extends ItemInfo with UI-specific members for WinForms data blocks.
+    /// All data/state properties are inherited from ItemInfo (BeepDM).
     /// </summary>
-    public class BeepDataBlockItem
+    public class BeepDataBlockItem : ItemInfo
     {
-        #region Basic Properties
-        
-        /// <summary>
-        /// Item name (matches component name)
-        /// </summary>
-        public string ItemName { get; set; }
-        
-        /// <summary>
-        /// Bound property name (database field)
-        /// </summary>
-        public string BoundProperty { get; set; }
+        #region UI-Specific Properties
         
         /// <summary>
         /// Reference to the UI component
         /// </summary>
         public IBeepUIComponent Component { get; set; }
-        
-        #endregion
-        
-        #region Oracle Forms Item Properties
-        
-        /// <summary>
-        /// Oracle Forms: REQUIRED property
-        /// Whether the item must have a value before record can be saved
-        /// </summary>
-        public bool Required { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: ENABLED property
-        /// Whether the item is enabled (can be edited)
-        /// </summary>
-        public bool Enabled { get; set; } = true;
-        
-        /// <summary>
-        /// Oracle Forms: VISIBLE property
-        /// Whether the item is visible
-        /// </summary>
-        public bool Visible { get; set; } = true;
-        
-        /// <summary>
-        /// Oracle Forms: QUERY_ALLOWED property
-        /// Whether the item can be used in query mode
-        /// </summary>
-        public bool QueryAllowed { get; set; } = true;
-        
-        /// <summary>
-        /// Oracle Forms: INSERT_ALLOWED property
-        /// Whether the item can be modified during insert
-        /// </summary>
-        public bool InsertAllowed { get; set; } = true;
-        
-        /// <summary>
-        /// Oracle Forms: UPDATE_ALLOWED property
-        /// Whether the item can be modified during update
-        /// </summary>
-        public bool UpdateAllowed { get; set; } = true;
-        
-        /// <summary>
-        /// Oracle Forms: DEFAULT_VALUE property
-        /// Default value for new records
-        /// </summary>
-        public object DefaultValue { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: PROMPT_TEXT property
-        /// Label text for the item
-        /// </summary>
-        public string PromptText { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: HINT_TEXT property
-        /// Tooltip/hint text for the item
-        /// </summary>
-        public string HintText { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: LOV_NAME property
-        /// Name of the LOV attached to this item
-        /// </summary>
-        public string LOVName { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: MAX_LENGTH property
-        /// Maximum length for text items
-        /// </summary>
-        public int MaxLength { get; set; }
-        
-        /// <summary>
-        /// Oracle Forms: FORMAT_MASK property
-        /// Display format mask
-        /// </summary>
-        public string FormatMask { get; set; }
-        
-        /// <summary>
-        /// Validation formula/expression
-        /// </summary>
-        public string ValidationFormula { get; set; }
-        
-        /// <summary>
-        /// Validation rules for this item (string-based for now)
-        /// </summary>
-        public List<string> ValidationRules { get; set; } = new List<string>();
-        
-        #endregion
-        
-        #region Item State
-        
-        /// <summary>
-        /// Whether the item value has changed
-        /// </summary>
-        public bool IsDirty { get; set; }
-        
-        /// <summary>
-        /// Old value (before change)
-        /// </summary>
-        public object OldValue { get; set; }
-        
-        /// <summary>
-        /// Current value
-        /// </summary>
-        public object CurrentValue { get; set; }
-        
-        /// <summary>
-        /// Whether the item is currently focused
-        /// </summary>
-        public bool HasFocus { get; set; }
-        
-        /// <summary>
-        /// Whether the item has validation errors
-        /// </summary>
-        public bool HasError { get; set; }
-        
-        /// <summary>
-        /// Current error message
-        /// </summary>
-        public string ErrorMessage { get; set; }
-        
-        #endregion
-        
-        #region Navigation Properties
-        
-        /// <summary>
-        /// Tab index for keyboard navigation
-        /// </summary>
-        public int TabIndex { get; set; }
-        
-        /// <summary>
-        /// Next item in navigation order
-        /// </summary>
-        public string NextNavigationItem { get; set; }
-        
-        /// <summary>
-        /// Previous item in navigation order
-        /// </summary>
-        public string PreviousNavigationItem { get; set; }
-        
-        #endregion
-        
-        #region Display Properties
         
         /// <summary>
         /// Item X coordinate
@@ -192,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Models
         
         #endregion
         
-        #region Helper Methods
+        #region UI Helper Methods
         
         /// <summary>
         /// Check if property value should be validated

@@ -1,181 +1,106 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Timers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     /// <summary>
     /// BeepDataBlock partial class - Performance Optimizations
-    /// Cache frequently accessed data, debounce expensive operations
+    /// When coordinated, all caching is delegated to FormsManager.PerformanceManager.
+    /// Local state has been removed to keep BeepDataBlock UI/UX-only.
     /// </summary>
     public partial class BeepDataBlock
     {
-        #region Fields
-        
-        private Dictionary<TriggerType, List<BeepDataBlockTrigger>> _triggerCache = new Dictionary<TriggerType, List<BeepDataBlockTrigger>>();
-        private Dictionary<string, object> _lovDataCache = new Dictionary<string, object>();
-        private Dictionary<string, DateTime> _validationDebounceTimers = new Dictionary<string, DateTime>();
-        private const int DebounceDelayMs = 300;
-        private System.Timers.Timer _systemVariablesUpdateTimer;
-        private bool _systemVariablesNeedUpdate = false;
-        
-        #endregion
-        
         #region Trigger Performance
-        
+
         /// <summary>
-        /// Get cached triggers for a type (faster than dictionary lookup every time)
-        /// </summary>
-        private List<BeepDataBlockTrigger> GetCachedTriggers(TriggerType type)
-        {
-            if (_triggerCache.TryGetValue(type, out var cached))
-                return cached;
-                
-            // Not in cache - get from main dictionary and cache
-            if (_triggers.ContainsKey(type))
-            {
-                var triggers = _triggers[type].Where(t => t.IsEnabled).ToList();
-                _triggerCache[type] = triggers;
-                return triggers;
-            }
-            
-            return new List<BeepDataBlockTrigger>();
-        }
-        
-        /// <summary>
-        /// Invalidate trigger cache (call when triggers are added/removed/modified)
+        /// Invalidate trigger cache.
+        /// When coordinated, delegates to FormsManager.PerformanceManager.
         /// </summary>
         public void InvalidateTriggerCache()
         {
-            _triggerCache.Clear();
+            if (IsCoordinated)
+                _formsManager?.PerformanceManager?.ClearCache();
         }
-        
+
         #endregion
-        
+
         #region LOV Performance
-        
+
         /// <summary>
-        /// Clear LOV data cache (call when underlying data changes)
+        /// Clear LOV data cache (call when underlying data changes).
+        /// When coordinated, delegates to FormsManager.PerformanceManager.
         /// </summary>
         public void InvalidateLOVCache()
         {
-            _lovDataCache.Clear();
+            if (IsCoordinated)
+                _formsManager?.PerformanceManager?.ClearCache();
             ClearAllLOVCaches();
         }
-        
+
         #endregion
-        
+
         #region Validation Performance
-        
+
         /// <summary>
-        /// Debounced validation - only validate if enough time has passed
-        /// Prevents validation on every keystroke
+        /// Returns true to allow validation.
+        /// Debouncing is handled by FormsManager when coordinated.
         /// </summary>
-        protected bool ShouldValidateNow(string fieldName)
-        {
-            if (!_validationDebounceTimers.ContainsKey(fieldName))
-            {
-                _validationDebounceTimers[fieldName] = DateTime.Now;
-                return true;
-            }
-            
-            var lastValidation = _validationDebounceTimers[fieldName];
-            var elapsed = (DateTime.Now - lastValidation).TotalMilliseconds;
-            
-            if (elapsed >= DebounceDelayMs)
-            {
-                _validationDebounceTimers[fieldName] = DateTime.Now;
-                return true;
-            }
-            
-            return false;
-        }
-        
+        protected bool ShouldValidateNow(string fieldName) => true;
+
         /// <summary>
-        /// Clear validation debounce timers
+        /// No-op: debounce state is owned by FormsManager when coordinated.
         /// </summary>
-        public void ClearValidationDebounce()
-        {
-            _validationDebounceTimers.Clear();
-        }
-        
+        public void ClearValidationDebounce() { }
+
         #endregion
-        
+
         #region SystemVariables Performance
-        
+
         /// <summary>
-        /// Schedule SystemVariables update (batched, not on every change)
+        /// Trigger an immediate SystemVariables update.
+        /// FormsManager owns scheduling; BeepDataBlock just calls UpdateSystemVariables directly.
         /// </summary>
         private void ScheduleSystemVariablesUpdate()
         {
-            _systemVariablesNeedUpdate = true;
-            
-            if (_systemVariablesUpdateTimer == null)
-            {
-                _systemVariablesUpdateTimer = new System.Timers.Timer(100);  // 100ms delay
-                _systemVariablesUpdateTimer.Elapsed += SystemVariablesUpdateTimer_Elapsed;
-                _systemVariablesUpdateTimer.AutoReset = false;
-            }
-            
-            _systemVariablesUpdateTimer.Stop();
-            _systemVariablesUpdateTimer.Start();
+            UpdateSystemVariables();
         }
-        
-        private void SystemVariablesUpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (_systemVariablesNeedUpdate)
-            {
-                UpdateSystemVariables();
-                _systemVariablesNeedUpdate = false;
-            }
-        }
-        
+
         #endregion
-        
+
         #region Cache Management
-        
+
         /// <summary>
-        /// Clear all performance caches
+        /// Clear all performance caches (delegates to FormsManager when coordinated).
         /// </summary>
         public void ClearAllCaches()
         {
             InvalidateTriggerCache();
             InvalidateLOVCache();
             ClearValidationDebounce();
-            _systemVariablesNeedUpdate = false;
         }
-        
+
         /// <summary>
-        /// Get cache statistics
+        /// Get cache statistics from FormsManager when coordinated, otherwise returns empty stats.
         /// </summary>
         public CacheStatistics GetCacheStatistics()
         {
-            return new CacheStatistics
+            if (IsCoordinated && _formsManager?.PerformanceManager != null)
             {
-                TriggerCacheSize = _triggerCache.Count,
-                LOVCacheSize = _lovDataCache.Count,
-                ValidationDebounceSize = _validationDebounceTimers.Count,
-                TotalCacheMemoryEstimate = EstimateCacheMemory()
-            };
+                try
+                {
+                    var stats = _formsManager.PerformanceManager.GetPerformanceStatistics();
+                    return new CacheStatistics { TriggerCacheSize = stats?.CacheSize ?? 0 };
+                }
+                catch { }
+            }
+            return new CacheStatistics();
         }
-        
-        private long EstimateCacheMemory()
-        {
-            // Rough estimate in bytes
-            long total = 0;
-            total += _triggerCache.Count * 1000;  // ~1KB per trigger list
-            total += _lovDataCache.Count * 10000;  // ~10KB per LOV cache
-            total += _validationDebounceTimers.Count * 100;  // ~100 bytes per debounce entry
-            return total;
-        }
-        
+
         #endregion
     }
-    
+
     #region Supporting Classes
-    
+
     /// <summary>
     /// Cache statistics
     /// </summary>
@@ -185,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int LOVCacheSize { get; set; }
         public int ValidationDebounceSize { get; set; }
         public long TotalCacheMemoryEstimate { get; set; }
-        
+
         public string TotalCacheMemoryFormatted
         {
             get

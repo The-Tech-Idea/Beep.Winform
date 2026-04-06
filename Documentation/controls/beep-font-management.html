@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Management - Beep WinForms Controls</title>
+  <link rel="stylesheet" href="../sphinx-style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+<div id="sidebar-placeholder"></div>
+
+<main class="content">
+  <div class="page-header">
+    <h1><i class="bi bi-fonts"></i> Font Management</h1>
+    <p class="subtitle">Comprehensive font loading, caching, and discovery for all Beep WinForms controls</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ OVERVIEW -->
+  <section id="overview">
+    <h2>Overview</h2>
+    <p>The <strong>FontManagement</strong> subsystem provides application-wide font loading, caching, and discovery for every Beep WinForms control. It ships a large catalog of embedded font resources while remaining fully extensible — theme packs, plugins, and consuming projects can register their own fonts at any time without modifying the core library.</p>
+
+    <div class="architecture-diagram">
+      <h3>Architecture</h3>
+      <div class="arch-layers">
+        <div class="arch-layer arch-consumer">
+          <span class="arch-label">Consumer (Controls / Painters)</span>
+          <div class="arch-apis">
+            <span class="arch-api">BeepFontManager.ButtonFont</span>
+            <span class="arch-api">FontListHelper.GetCachedFont()</span>
+            <span class="arch-api">BeepFontPaths.RobotoRegular</span>
+          </div>
+        </div>
+        <div class="arch-arrow">&#8595;</div>
+        <div class="arch-layer arch-manager">
+          <span class="arch-label">BeepFontManager — High-level static API</span>
+          <div class="arch-apis">
+            <span class="arch-api">Element fonts (Button/Header/Title…)</span>
+            <span class="arch-api">Initialize() / Register()</span>
+            <span class="arch-api">Scale / Reset</span>
+          </div>
+        </div>
+        <div class="arch-arrow">&#8595;</div>
+        <div class="arch-row">
+          <div class="arch-layer arch-catalog">
+            <span class="arch-label">BeepFontPaths — Embedded catalog</span>
+            <div class="arch-apis">
+              <span class="arch-api">300+ font constants</span>
+              <span class="arch-api">GetAllFamilies()</span>
+              <span class="arch-api">GetFontPath(family, style)</span>
+            </div>
+          </div>
+          <div class="arch-layer arch-registry">
+            <span class="arch-label">BeepFontRegistry — Plugin registry</span>
+            <div class="arch-apis">
+              <span class="arch-api">Register(Assembly)</span>
+              <span class="arch-api">RegisterFromAppDomain()</span>
+              <span class="arch-api">Changed event</span>
+            </div>
+          </div>
+        </div>
+        <div class="arch-arrow">&#8595;</div>
+        <div class="arch-layer arch-engine">
+          <span class="arch-label">FontListHelper — Core engine</span>
+          <div class="arch-apis">
+            <span class="arch-api">LoadAllFonts(FontScanOptions)</span>
+            <span class="arch-api">GetCachedFont() — per-key Dictionary cache</span>
+            <span class="arch-api">DPI scaling — EnableDpiFontScaling / DpiScaleFactor</span>
+          </div>
+        </div>
+        <div class="arch-arrow">&#8595;</div>
+        <div class="arch-row">
+          <div class="arch-layer arch-source">
+            <span class="arch-label">System fonts</span>
+            <span class="arch-note">InstalledFontCollection</span>
+          </div>
+          <div class="arch-layer arch-source">
+            <span class="arch-label">File-system fonts</span>
+            <span class="arch-note">.ttf / .otf directories</span>
+          </div>
+          <div class="arch-layer arch-source">
+            <span class="arch-label">Embedded resources</span>
+            <span class="arch-note">Assembly manifest streams</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ BeepFontManager -->
+  <section id="beepfontmanager">
+    <h2>BeepFontManager</h2>
+    <p>The top-level static API. All controls and painters use this class to obtain <code>Font</code> instances rather than creating fonts directly. Fonts are lazy-initialised and cached for the application lifetime.</p>
+
+    <h3>Configuration Properties</h3>
+    <table class="property-table">
+      <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>DefaultFontName</code></td><td>string</td><td>"Segoe UI"</td><td>Name used for the DefaultFont instance</td></tr>
+        <tr><td><code>DefaultFontSize</code></td><td>float</td><td>9.0f</td><td>Point size for the DefaultFont</td></tr>
+        <tr><td><code>DefaultFontStyle</code></td><td>FontStyle</td><td>Regular</td><td>Style for the DefaultFont</td></tr>
+        <tr><td><code>AppFontName</code></td><td>string</td><td>"Segoe UI"</td><td>Name used for all element-specific fonts</td></tr>
+        <tr><td><code>AppFontSize</code></td><td>float</td><td>9.0f</td><td>Base point size for element fonts</td></tr>
+        <tr><td><code>AppFontStyle</code></td><td>FontStyle</td><td>Regular</td><td>Base style for element fonts</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><i class="bi bi-info-circle"></i> Setting any configuration property calls <code>ResetFonts()</code> internally, which recreates all cached element font instances.</p>
+
+    <h3>Element Font Properties (read-only)</h3>
+    <table class="property-table">
+      <thead><tr><th>Property</th><th>Size offset</th><th>Style</th><th>Use case</th></tr></thead>
+      <tbody>
+        <tr><td><code>DefaultFont</code></td><td>base</td><td>DefaultFontStyle</td><td>Generic fallback font</td></tr>
+        <tr><td><code>ButtonFont</code></td><td>+0</td><td>AppFontStyle</td><td>Button labels</td></tr>
+        <tr><td><code>LabelFont</code></td><td>+0</td><td>AppFontStyle</td><td>Regular labels</td></tr>
+        <tr><td><code>HeaderFont</code></td><td>+2</td><td>Bold</td><td>Section headers</td></tr>
+        <tr><td><code>TitleFont</code></td><td>+4</td><td>Bold</td><td>Window / dialog titles</td></tr>
+        <tr><td><code>MenuFont</code></td><td>+0</td><td>AppFontStyle</td><td>Menu items</td></tr>
+        <tr><td><code>TooltipFont</code></td><td>−1</td><td>AppFontStyle</td><td>Tooltip popups</td></tr>
+        <tr><td><code>StatusBarFont</code></td><td>−1</td><td>AppFontStyle</td><td>Status bar text</td></tr>
+        <tr><td><code>DialogFont</code></td><td>+0</td><td>AppFontStyle</td><td>Dialog body text</td></tr>
+        <tr><td><code>MonospaceFont</code></td><td>+0 (Consolas)</td><td>AppFontStyle</td><td>Code editors, log viewers</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Discovery Lists</h3>
+    <table class="property-table">
+      <thead><tr><th>Property</th><th>Source</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>SystemFontNames</code></td><td>FontListHelper</td><td>Names of all installed system fonts</td></tr>
+        <tr><td><code>CustomFontNames</code></td><td>FontListHelper</td><td>Names of loaded private / embedded fonts</td></tr>
+        <tr><td><code>AllFontNames</code></td><td>FontListHelper</td><td>Union of system + custom font names</td></tr>
+        <tr><td><code>EmbeddedFontFamilies</code></td><td>BeepFontPaths</td><td>Family names shipping in the Controls assembly</td></tr>
+        <tr><td><code>FontConfigurations</code></td><td>FontListHelper</td><td>Full <code>FontConfiguration</code> list for all loaded fonts</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Initialization</h3>
+    <p>Call <code>Initialize()</code> once at application startup before any Beep controls are shown. It is idempotent — subsequent calls return immediately.</p>
+    <pre><code class="language-csharp">// Program.cs / Application startup
+await BeepFontManager.Initialize();
+
+// After init you can read element fonts immediately
+Font btn = BeepFontManager.ButtonFont;      // "Segoe UI", 9pt
+Font hdr = BeepFontManager.HeaderFont;     // "Segoe UI", 11pt Bold
+Font code = BeepFontManager.MonospaceFont; // "Consolas", 9pt</code></pre>
+    <p><code>Initialize()</code> performs the following steps:</p>
+    <ol>
+      <li>Builds a <code>FontScanOptions</code> from built-in namespaces plus anything registered in <code>BeepFontRegistry</code>.</li>
+      <li>Runs <code>FontListHelper.LoadAllFonts(opt)</code> on a background thread.</li>
+      <li>Creates all element font instances via <code>CreateDefaultFonts()</code>.</li>
+      <li>Subscribes to <code>BeepFontRegistry.Changed</code> for incremental late-registration.</li>
+    </ol>
+
+    <h3>Registration API</h3>
+    <p>Plugins and theme packs register their font-bearing assemblies through <code>BeepFontManager</code> (preferred) or directly on <code>BeepFontRegistry</code>.</p>
+    <pre><code class="language-csharp">// Register a single assembly (triggers immediate scan if already initialized)
+BeepFontManager.Register(Assembly.GetExecutingAssembly());
+
+// Register multiple assemblies at once
+BeepFontManager.Register(new[] { asmA, asmB });
+
+// Register a namespace prefix (embedded resources whose path contains this string)
+BeepFontManager.Register("MyCompany.MyTheme.Fonts");
+
+// Register a file-system directory for .ttf / .otf scanning
+BeepFontManager.RegisterDirectory(@"C:\MyFonts");</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ BeepFontPaths -->
+  <section id="beepfontpaths">
+    <h2>BeepFontPaths</h2>
+    <p>A <code>static partial class</code> spread across several files, each covering one font category. Every constant is the fully-qualified embedded resource name for use with <code>Assembly.GetManifestResourceStream()</code>.</p>
+    <p>Base namespace: <code>TheTechIdea.Beep.Winform.Controls.Fonts</code></p>
+
+    <h3>Font Catalog by Category</h3>
+    <p>The built-in catalog ships <strong>300+ font variants</strong> across 30 families, organised into five categories:</p>
+
+    <h4>Web Fonts</h4>
+    <table class="property-table">
+      <thead><tr><th>Family</th><th>Variants</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>Cairo</code></td><td>8 (ExtraLight → Black)</td><td>Arabic / multilingual support</td></tr>
+        <tr><td><code>Roboto</code></td><td>18 (Thin → Black + italics)</td><td>Google's default UI font</td></tr>
+        <tr><td><code>RobotoCondensed</code></td><td>18 (Thin → Black + italics)</td><td>Condensed variant for tight layouts</td></tr>
+        <tr><td><code>OpenSans</code></td><td>18 + condensed variants</td><td>Humanist sans-serif</td></tr>
+        <tr><td><code>Montserrat</code></td><td>18 (Thin → Black + italics)</td><td>Geometric, poster-style</td></tr>
+        <tr><td><code>Inter</code></td><td>18pt static variants</td><td>Optimised for screen readability</td></tr>
+        <tr><td><code>Nunito</code></td><td>Multiple weights</td><td>Rounded, friendly style</td></tr>
+        <tr><td><code>Tajawal</code></td><td>Multiple weights</td><td>Arabic + Latin</td></tr>
+        <tr><td><code>Oxygen</code></td><td>Light / Regular / Bold</td><td>KDE / Linux standard</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Monospace Fonts</h4>
+    <table class="property-table">
+      <thead><tr><th>Family</th><th>Variants</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>FiraCode</code></td><td>5 (Light → Bold)</td><td>Ligature-enabled code font</td></tr>
+        <tr><td><code>JetBrainsMono</code></td><td>16 (Thin → ExtraBold + italics)</td><td>JetBrains IDE default</td></tr>
+        <tr><td><code>CascadiaCode</code></td><td>12 (ExtraLight → Bold + italics)</td><td>Windows Terminal default</td></tr>
+        <tr><td><code>SpaceMono</code></td><td>4 (Regular / Italic / Bold / BoldItalic)</td><td>Geometric monospace</td></tr>
+        <tr><td><code>DejaVuSansMono</code></td><td>4 (Regular / Bold / Oblique / BoldOblique)</td><td>Unicode-complete, ≈ Bitstream Vera</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Display Fonts</h4>
+    <table class="property-table">
+      <thead><tr><th>Family</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>BebasNeue</code></td><td>All-caps condensed, bold headers</td></tr>
+        <tr><td><code>Orbitron</code></td><td>Futuristic / sci-fi UI</td></tr>
+        <tr><td><code>Exo2</code></td><td>Contemporary geometric</td></tr>
+        <tr><td><code>Rajdhani</code></td><td>Devanagari + Latin, compact display</td></tr>
+        <tr><td><code>Whitney</code></td><td>Humanist contemporary</td></tr>
+        <tr><td><code>NotoColorEmoji</code></td><td>Full Unicode emoji coverage</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Accessibility Fonts</h4>
+    <table class="property-table">
+      <thead><tr><th>Family</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>AtkinsonHyperlegible</code></td><td>Designed for low-vision readers</td></tr>
+        <tr><td><code>OpenDyslexic</code></td><td>Weighted bottoms to anchor letter orientation</td></tr>
+        <tr><td><code>Lexend</code></td><td>Reduces visual stress, improves reading speed</td></tr>
+      </tbody>
+    </table>
+
+    <h4>System / Miscellaneous Fonts</h4>
+    <table class="property-table">
+      <thead><tr><th>Family / Constant</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>SourceSansPro</code></td><td>Adobe's open-source UI font</td></tr>
+        <tr><td><code>ComicNeue</code></td><td>Modernised Comic Sans alternative</td></tr>
+        <tr><td><code>CaprasimoRegular</code></td><td>Decorative single-weight display font</td></tr>
+        <tr><td><code>Consolas</code></td><td>Microsoft monospace (embedded copy)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Lookup Methods</h3>
+    <table class="property-table">
+      <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>GetAllPaths()</code></td><td><code>Dictionary&lt;string,string&gt;</code></td><td>All public static string fields that end in .ttf/.otf</td></tr>
+        <tr><td><code>GetAllFamilies()</code></td><td><code>Dictionary&lt;string, Dictionary&lt;string,string&gt;&gt;</code></td><td>Font paths grouped by family name; includes runtime-registered families</td></tr>
+        <tr><td><code>GetFontFamilyNames()</code></td><td><code>List&lt;string&gt;</code></td><td>Name list of all available families</td></tr>
+        <tr><td><code>GetFontPath(family, style)</code></td><td><code>string?</code></td><td>Resource path for a specific family + style combination</td></tr>
+        <tr><td><code>ResourceExists(path)</code></td><td><code>bool</code></td><td>Checks if the resource is present in <code>ResourceAssembly</code></td></tr>
+        <tr><td><code>GetAvailableFontResources()</code></td><td><code>string[]</code></td><td>All .ttf/.otf resources from primary + all registered assemblies</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Families Inner Class</h3>
+    <p>For convenient strongly-typed access each font family has a nested static class under <code>BeepFontPaths.Families</code>:</p>
+    <pre><code class="language-csharp">// Direct constant path
+string path = BeepFontPaths.RobotoRegular;
+
+// Via Families nested class (same value, grouped namespace)
+string path = BeepFontPaths.Families.Roboto.Regular;
+
+// All weights as a dictionary
+var robotoWeights = BeepFontPaths.Families.Roboto.GetAllStyles();
+// => { "Regular", "Bold", "Thin", "Medium", ... }
+
+// Cairo (8 weights)
+var cairoWeights = BeepFontPaths.Families.Cairo.GetAllWeights();
+
+// Get lookup across all families
+var all = BeepFontPaths.GetAllFamilies();
+// => { "Roboto": {...}, "Cairo": {...}, "FiraCode": {...}, ... }</code></pre>
+
+    <h3>Runtime Registration</h3>
+    <p>When an external assembly registers its fonts (e.g. a theme pack), call <code>RegisterFamilyFromAssembly</code> to make those fonts discoverable through normal path lookups:</p>
+    <pre><code class="language-csharp">// Scan an assembly's embedded resources under a specific namespace root
+BeepFontPaths.RegisterFamilyFromAssembly(
+    Assembly.GetExecutingAssembly(),
+    "MyThemePack.Fonts");
+
+// Omit namespaceRoot to accept all embedded .ttf/.otf resources
+BeepFontPaths.RegisterFamilyFromAssembly(Assembly.GetExecutingAssembly());</code></pre>
+    <p>After this call, <code>GetAllFamilies()</code> and <code>GetFontPath()</code> will include the new fonts from that assembly.</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ BeepFontRegistry -->
+  <section id="beepfontregistry">
+    <h2>BeepFontRegistry</h2>
+    <p>Thread-safe central registry that tracks which assemblies, namespace prefixes, and file-system directories should be scanned for font resources. Uses a <code>ReaderWriterLockSlim</code> for concurrent access.</p>
+
+    <h3>Registration Methods</h3>
+    <table class="property-table">
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Register(Assembly)</code></td><td>Registers a single assembly; auto-infers namespace roots from its embedded font resources and raises <code>Changed</code></td></tr>
+        <tr><td><code>Register(IEnumerable&lt;Assembly&gt;)</code></td><td>Batch registers multiple assemblies in one write-lock</td></tr>
+        <tr><td><code>Register(string namespacePrefix)</code></td><td>Registers a namespace prefix so resources containing it are treated as fonts</td></tr>
+        <tr><td><code>RegisterFromDirectory(string)</code></td><td>Registers a file-system path for .ttf/.otf scanning</td></tr>
+        <tr><td><code>RegisterFromAppDomain()</code></td><td>Auto-discovers all non-System/Microsoft assemblies in the current AppDomain that pass <code>HasConventionFontResource</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Convention Discovery</h3>
+    <p>An assembly is considered to contain fonts if it has at least one embedded <code>.ttf</code> or <code>.otf</code> resource whose namespace prefix ends with <code>.Fonts</code>. Example resource name: <code>MyApp.Fonts.Roboto-Regular.ttf</code></p>
+    <pre><code class="language-csharp">// Check if an assembly satisfies the convention
+bool hasFonts = BeepFontRegistry.HasConventionFontResource(myAssembly);
+
+// Scan entire AppDomain automatically (useful for plugin hosts)
+BeepFontRegistry.RegisterFromAppDomain();</code></pre>
+
+    <h3>Read-only Views</h3>
+    <table class="property-table">
+      <thead><tr><th>Method</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>GetRegisteredAssemblies()</code></td><td><code>IReadOnlyCollection&lt;Assembly&gt;</code> — thread-safe snapshot</td></tr>
+        <tr><td><code>GetRegisteredNamespaces()</code></td><td><code>IReadOnlyCollection&lt;string&gt;</code></td></tr>
+        <tr><td><code>GetRegisteredDirectories()</code></td><td><code>IReadOnlyCollection&lt;string&gt;</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Changed Event</h3>
+    <p><code>BeepFontRegistry.Changed</code> fires whenever a new assembly, namespace, or directory is added. <code>BeepFontManager</code> subscribes after <code>Initialize()</code> to trigger incremental scans for late-registered plugins:</p>
+    <pre><code class="language-csharp">// After BeepFontManager.Initialize(), this is done automatically.
+// You can also subscribe manually:
+BeepFontRegistry.Changed += (s, e) =&gt;
+{
+    // Re-scan or update UI font lists
+};</code></pre>
+
+    <h3>PrimaryAssembly Override</h3>
+    <p>Set <code>BeepFontRegistry.PrimaryAssembly</code> to redirect <code>BeepFontPaths.ResourceAssembly</code> to a theme-pack assembly that ships its own font catalog and embedded fonts:</p>
+    <pre><code class="language-csharp">// In a theme-pack initializer
+BeepFontRegistry.PrimaryAssembly = Assembly.GetExecutingAssembly();
+// All BeepFontPaths resource lookups now query this assembly first</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ FontListHelper -->
+  <section id="fontlisthelper">
+    <h2>FontListHelper</h2>
+    <p>The low-level engine responsible for scanning, loading, and caching fonts from all three sources: system, file-system, and embedded assembly resources.</p>
+
+    <h3>FontScanOptions</h3>
+    <p>Controls what is scanned during <code>LoadAllFonts()</code>:</p>
+    <table class="property-table">
+      <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>ScanSystemFonts</code></td><td>bool</td><td>true</td><td>Include all installed system (GDI) fonts</td></tr>
+        <tr><td><code>Directories</code></td><td>List&lt;string&gt;</td><td>[ AppBase/Fonts ]</td><td>File-system directories to scan for .ttf/.otf</td></tr>
+        <tr><td><code>EmbeddedNamespaces</code></td><td>string[]</td><td>built-in prefixes</td><td>Namespace prefixes that identify embedded font resources</td></tr>
+        <tr><td><code>AdditionalAssemblies</code></td><td>List&lt;Assembly&gt;</td><td>[ ]</td><td>Extra assemblies to scan beyond executing assembly</td></tr>
+        <tr><td><code>IncludeFrameworkAssemblies</code></td><td>bool</td><td>false</td><td>Scan System.* / Microsoft.* assemblies</td></tr>
+        <tr><td><code>IncludeReferencedAssemblies</code></td><td>bool</td><td>true</td><td>Follow assembly references during scanning</td></tr>
+        <tr><td><code>MaxReferenceDepth</code></td><td>int</td><td>2</td><td>Maximum depth for assembly reference traversal</td></tr>
+        <tr><td><code>UseConventionDiscovery</code></td><td>bool</td><td>true</td><td>Auto-register assemblies that satisfy the <code>.Fonts</code> convention</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="language-csharp">var options = new FontListHelper.FontScanOptions
+{
+    ScanSystemFonts = true,
+    Directories = new List&lt;string&gt; { @"C:\MyApp\Fonts" },
+    EmbeddedNamespaces = new[] { "MyCompany.Fonts" },
+    AdditionalAssemblies = new List&lt;Assembly&gt; { myPluginAssembly },
+    IncludeReferencedAssemblies = true,
+    MaxReferenceDepth = 1,
+    UseConventionDiscovery = true
+};
+
+FontListHelper.LoadAllFonts(options);</code></pre>
+
+    <h3>Font Caching</h3>
+    <p>An application-lifetime <code>Dictionary&lt;string, Font&gt;</code> cache is keyed by <code>"name|size|style"</code>. Paintings call these methods on every render; the cache prevents allocation spam.</p>
+    <table class="property-table">
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>GetCachedFont(name, size, style)</code></td><td>Returns a cached <code>Font</code>, applying the current <code>DpiScaleFactor</code> if <code>EnableDpiFontScaling</code> is true</td></tr>
+        <tr><td><code>GetCachedFont(name, size, dpiScale, style)</code></td><td>Uses an explicit DPI scale factor instead of the global one</td></tr>
+        <tr><td><code>GetCachedFontForControl(name, size, control, style)</code></td><td>Reads DPI from the given <code>Control</code> handle and scales accordingly</td></tr>
+        <tr><td><code>ClearFontCache()</code></td><td>Evicts all entries; call on theme change or memory pressure</td></tr>
+      </tbody>
+    </table>
+    <pre><code class="language-csharp">// In a painter's OnPaint — zero allocation after first call
+Font f = FontListHelper.GetCachedFont("Roboto", 11f, FontStyle.Regular);
+g.DrawString(text, f, brush, rect);</code></pre>
+
+    <h3>DPI Scaling</h3>
+    <p>DPI scaling is off by default for backward compatibility. Enable it globally or per-control:</p>
+    <table class="property-table">
+      <thead><tr><th>Member</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>EnableDpiFontScaling</code></td><td>Global on/off switch (default: false)</td></tr>
+        <tr><td><code>DpiScaleFactor</code></td><td>Current multiplier (default: 1.0 = 96 DPI); setting it clears the font cache</td></tr>
+        <tr><td><code>UpdateDpiFromControl(control)</code></td><td>Reads the control's current DPI and updates <code>DpiScaleFactor</code></td></tr>
+        <tr><td><code>UpdateDpiFromSystem()</code></td><td>Reads system-wide DPI via <code>DpiScalingHelper</code></td></tr>
+      </tbody>
+    </table>
+    <pre><code class="language-csharp">// Enable DPI-aware fonts globally (do once at startup)
+FontListHelper.EnableDpiFontScaling = true;
+FontListHelper.UpdateDpiFromSystem();
+
+// Per-control scaling in a custom form
+protected override void OnDpiChanged(DpiChangedEventArgs e)
+{
+    base.OnDpiChanged(e);
+    FontListHelper.UpdateDpiFromControl(this);
+}</code></pre>
+
+    <h3>Discovery Methods</h3>
+    <table class="property-table">
+      <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>GetSystemFonts()</code></td><td><code>List&lt;FontConfiguration&gt;</code></td><td>All installed <code>InstalledFontCollection</code> fonts; adds new entries to <code>FontConfigurations</code></td></tr>
+        <tr><td><code>GetFontFilesLocations(directory)</code></td><td>void</td><td>Scans a directory for .ttf/.otf and loads them into <code>PrivateFontCollection</code></td></tr>
+        <tr><td><code>GetFontNames()</code></td><td><code>List&lt;string&gt;</code></td><td>All font names (system + private)</td></tr>
+        <tr><td><code>GetSystemFontNames()</code></td><td><code>List&lt;string&gt;</code></td><td>System-only font names</td></tr>
+        <tr><td><code>GetPrivateFontNames()</code></td><td><code>List&lt;string&gt;</code></td><td>Private / embedded-only font names</td></tr>
+        <tr><td><code>GetFont(name, size, style)</code></td><td><code>Font?</code></td><td>Creates a font from the private collection; falls back to GDI</td></tr>
+        <tr><td><code>RegisterAndLoad(assembly)</code></td><td>void</td><td>Scans an assembly's embedded resources and loads discovered fonts immediately</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ Usage Patterns -->
+  <section id="usage-patterns">
+    <h2>Usage Patterns</h2>
+
+    <h3>1. Basic Application Setup</h3>
+    <pre><code class="language-csharp">// Program.cs
+static async Task Main(string[] args)
+{
+    // Initialize font system before creating any controls
+    await BeepFontManager.Initialize();
+
+    // Optionally customise the app font
+    BeepFontManager.AppFontName = "Roboto";
+    BeepFontManager.AppFontSize = 10f;
+
+    Application.Run(new MainForm());
+}</code></pre>
+
+    <h3>2. Using Element Fonts in a Control</h3>
+    <pre><code class="language-csharp">protected override void OnPaint(PaintEventArgs e)
+{
+    base.OnPaint(e);
+
+    // Use pre-cached element fonts — no allocation
+    e.Graphics.DrawString("Header", BeepFontManager.HeaderFont, Brushes.Black, headerRect);
+    e.Graphics.DrawString("Label",  BeepFontManager.LabelFont,  Brushes.Gray,  labelRect);
+    e.Graphics.DrawString("0x1A3F", BeepFontManager.MonospaceFont, Brushes.Navy, codeRect);
+}</code></pre>
+
+    <h3>3. Loading an Embedded Font by Path</h3>
+    <pre><code class="language-csharp">// Get the resource path constant
+string path = BeepFontPaths.Families.Roboto.Bold; 
+// => "TheTechIdea.Beep.Winform.Controls.Fonts.Roboto.Roboto-Bold.ttf"
+
+// Create a font from the embedded resource using BeepFontPathsExtensions
+Font robotoBold = BeepFontPathsExtensions.CreateFontFromResource(path, 14f, FontStyle.Bold);</code></pre>
+
+    <h3>4. Plugin / Theme Pack Registration</h3>
+    <pre><code class="language-csharp">// In a theme pack assembly's static initializer
+public static class MyThemeInitializer
+{
+    public static void Register()
+    {
+        // Preferred: register via BeepFontManager (handles both pre- and post-init)
+        BeepFontManager.Register(Assembly.GetExecutingAssembly());
+
+        // Optionally redirect the primary assembly so path lookups favour this pack
+        BeepFontRegistry.PrimaryAssembly = Assembly.GetExecutingAssembly();
+    }
+}
+
+// Consuming application startup:
+MyThemeInitializer.Register();
+await BeepFontManager.Initialize();</code></pre>
+
+    <h3>5. DPI-Aware Painter</h3>
+    <pre><code class="language-csharp">// In a custom BeepControl override
+protected override void OnDpiChanged(DpiChangedEventArgs e)
+{
+    base.OnDpiChanged(e);
+    FontListHelper.UpdateDpiFromControl(this);
+    Invalidate(); // repaint with new font sizes
+}
+
+protected override void OnPaint(PaintEventArgs e)
+{
+    // GetCachedFontForControl reads the control's current DPI
+    Font scaled = FontListHelper.GetCachedFontForControl("Roboto", 10f, this);
+    e.Graphics.DrawString(Text, scaled, Brushes.Black, ClientRectangle);
+}</code></pre>
+
+    <h3>6. Querying Available Families</h3>
+    <pre><code class="language-csharp">// List all family names (built-in + runtime-registered)
+List&lt;string&gt; families = BeepFontPaths.GetFontFamilyNames();
+
+// Get a specific path by family + style name
+string path = BeepFontPaths.GetFontPath("JetBrainsMono", "SemiBold");
+
+// Enumerate all system font names
+List&lt;string&gt; system = BeepFontManager.SystemFontNames;
+
+// Enumerate all loaded (private) font names
+List&lt;string&gt; custom = BeepFontManager.CustomFontNames;</code></pre>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ File Organisation -->
+  <section id="file-organisation">
+    <h2>File Organisation</h2>
+    <table class="property-table">
+      <thead><tr><th>File</th><th>Class / Role</th></tr></thead>
+      <tbody>
+        <tr><td><code>BeepFontManager.cs</code></td><td><code>BeepFontManager</code> — high-level static API, element fonts, initialization, registration</td></tr>
+        <tr><td><code>BeepFontRegistry.cs</code></td><td><code>BeepFontRegistry</code> — thread-safe registry for assemblies, namespaces, directories and the <code>Changed</code> event</td></tr>
+        <tr><td><code>BeepFontPaths.Core.cs</code></td><td><code>BeepFontPaths</code> (partial) — base namespace constant, individual font constants, <code>GetAllPaths()</code>, <code>ResourceExists()</code>, <code>GetAvailableFontResources()</code></td></tr>
+        <tr><td><code>BeepFontPaths.Families.cs</code></td><td><code>BeepFontPaths.Families</code> — nested classes (Cairo, Roboto, RobotoCondensed, …) with <code>GetAllStyles()</code> / <code>GetAllWeights()</code></td></tr>
+        <tr><td><code>BeepFontPaths.WebFonts.cs</code></td><td><code>BeepFontPaths</code> (partial) — Cairo, Roboto, RobotoCondensed, OpenSans, Montserrat, Inter, Nunito, Tajawal, Oxygen resource paths</td></tr>
+        <tr><td><code>BeepFontPaths.MonospaceFonts.cs</code></td><td><code>BeepFontPaths</code> (partial) — FiraCode, JetBrainsMono, CascadiaCode, SpaceMono, DejaVuSansMono resource paths</td></tr>
+        <tr><td><code>BeepFontPaths.DisplayFonts.cs</code></td><td><code>BeepFontPaths</code> (partial) — BebasNeue, Orbitron, Exo2, Rajdhani, Whitney, NotoColorEmoji resource paths</td></tr>
+        <tr><td><code>BeepFontPaths.AccessibilityFonts.cs</code></td><td><code>BeepFontPaths</code> (partial) — AtkinsonHyperlegible, OpenDyslexic, Lexend resource paths</td></tr>
+        <tr><td><code>BeepFontPaths.SystemFonts.cs</code></td><td><code>BeepFontPaths</code> (partial) — SourceSansPro, ComicNeue resource paths</td></tr>
+        <tr><td><code>BeepFontPaths.Extensions.cs</code></td><td><code>BeepFontPaths</code> (partial) — <code>GetAllFamilies()</code>, <code>GetFontPath()</code>, <code>RegisterFamilyFromAssembly()</code>, runtime family dictionary</td></tr>
+        <tr><td><code>BeepFontPaths.Refactored.cs</code></td><td><code>BeepFontPaths</code> (partial) — additional helpers and refactored look-up utilities</td></tr>
+        <tr><td><code>FontListHelper.cs</code></td><td><code>FontListHelper</code> — core scanning/loading/caching engine, DPI scaling, <code>FontScanOptions</code>, discovery methods</td></tr>
+        <tr><td><code>README.md</code></td><td>Architecture overview and quick-start guide</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ BEST PRACTICES -->
+  <section id="best-practices">
+    <h2>Best Practices</h2>
+    <ul>
+      <li><strong>Call <code>Initialize()</code> once at startup</strong> — preferably before any controls are created. It is asynchronous and safe to <code>await</code> in <code>Main()</code>.</li>
+      <li><strong>Prefer element font properties</strong> — use <code>BeepFontManager.HeaderFont</code> rather than creating a <code>new Font()</code> inline; element fonts are cached and consistent across the whole application.</li>
+      <li><strong>Do not dispose fonts obtained from BeepFontManager or FontListHelper</strong> — they are owned by the caching layer and shared across all controls.</li>
+      <li><strong>Use <code>GetCachedFont()</code> in painters</strong> — avoids per-paint GDI object creation and eliminates GDI handle leaks.</li>
+      <li><strong>Call <code>ClearFontCache()</code> only on theme change</strong> — not on every resize or repaint; it is an expensive operation that forces re-creation of all cached fonts.</li>
+      <li><strong>Register plugins before <code>Initialize()</code> when possible</strong> — if a plugin must register after init, use <code>BeepFontManager.Register()</code> which handles the incremental scan automatically.</li>
+      <li><strong>Enable <code>EnableDpiFontScaling</code> for high-DPI apps</strong> — call <code>UpdateDpiFromSystem()</code> at startup and <code>UpdateDpiFromControl()</code> in <code>OnDpiChanged</code> overrides.</li>
+      <li><strong>Use the <code>.Fonts</code> namespace convention</strong> for embedded font resources in plugins — this enables auto-detection by <code>RegisterFromAppDomain()</code> with zero explicit registration code.</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ FOOTER NAV -->
+  <div class="page-footer-nav">
+    <a href="beep-filter.html" class="nav-btn prev-btn">&larr; Filtering System</a>
+    <a href="beep-themes-manager.html" class="nav-btn next-btn">BeepThemesManager &rarr;</a>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="_sidebar.js"></script>
+</body>
+</html>

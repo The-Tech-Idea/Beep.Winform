@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styling System - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <!-- sidebar placeholder - will be replaced by update-navs.py -->
+                        <div id="sidebar-placeholder"></div>
+
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="#">Core Infrastructure</a>
+                    <span>&rsaquo;</span>
+                    <span>Styling System</span>
+                </nav>
+
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>Styling System</h1>
+                        <p class="subtitle">The complete painting architecture for Beep controls. A three-layer system: <strong>BeepThemesManager</strong> (color palette) &rarr; <strong>BeepStyling</strong> (rendering coordinator) &rarr; <strong>170+ specialized painters</strong>. BaseControl and BeepiFormPro each own a slice of this pipeline.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.Styling</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ARCHITECTURE OVERVIEW -->
+                <section id="overview" class="section">
+                    <h2>System Architecture</h2>
+                    <p>Three independent layers cooperate to paint everything on screen:</p>
+
+                    <table class="props-table">
+                        <thead><tr><th>Layer</th><th>Class / Namespace</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1 &mdash; Theme Layer</strong></td>
+                                <td><code>BeepThemesManager</code><br><small>ThemeManagement/</small></td>
+                                <td>
+                                    Holds the active <code>IBeepTheme</code> (color palette, typography, spacing tokens).
+                                    Fires <code>ThemeChanged</code> / <code>DpiChanged</code> events.
+                                    All controls subscribe and call <code>ApplyTheme()</code> in response.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>2 &mdash; Style Coordinator</strong></td>
+                                <td><code>BeepStyling</code><br><small>Styling/BeepStyling.cs</small></td>
+                                <td>
+                                    Central static class. Maps <code>FormStyle &harr; BeepControlStyle</code>,
+                                    routes every paint call to the correct specialist painter,
+                                    and exposes helper shortcuts (<code>GetRadius</code>, <code>GetBorderColor</code>, &hellip;).
+                                    Does <strong>not</strong> draw anything itself.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>3 &mdash; Painter Subsystems</strong></td>
+                                <td>7 painter folders<br><small>170+ classes</small></td>
+                                <td>
+                                    Each painter class owns one operation (background, border, text, shadow, &hellip;)
+                                    for one design system. Painters call the 5 helper systems for style-specific
+                                    values (colors, spacing, borders, shadows, typography).
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>How BaseControl fits in</h3>
+                    <p><code>BaseControl</code> is the root for every Beep UI control. Its painting pipeline:</p>
+                    <ol>
+                        <li><code>OnPaint</code> &rarr; <code>DrawContent(g)</code></li>
+                        <li><code>EnsurePainter()</code> &mdash; selects an <code>IBaseControlPainter</code> based on <code>PainterKind</code></li>
+                        <li>Painter calls <code>BeepStyling.PaintStyleBackground / PaintStyleBorder / PaintStyleText</code> using the control&apos;s current <code>BeepControlStyle</code></li>
+                        <li>Derived control overrides <code>DrawContent</code> to add specific content inside <code>DrawingRect</code></li>
+                    </ol>
+
+                    <h3>How BeepiFormPro fits in</h3>
+                    <p><code>BeepiFormPro</code> is the themed borderless form host. Its pipeline is parallel but separate from the control pipeline:</p>
+                    <ol>
+                        <li><code>FormStyle</code> property changes &rarr; <code>ApplyFormStyle()</code></li>
+                        <li><code>BeepStyling.GetControlStyle(FormStyle)</code> &rarr; syncs <code>BeepStyling.CurrentControlStyle</code> so controls inside the form automatically pick up the same style</li>
+                        <li><code>PaintersFactory.GetPainter(FormStyle)</code> &rarr; returns a cached <code>IFormPainter</code></li>
+                        <li><code>IFormPainter.CalculateLayoutAndHitAreas()</code> positions caption bar, buttons, title; <code>IFormPainter.PaintBackground / PaintCaptionBar / PaintBorder</code> render each layer</li>
+                    </ol>
+                    <div class="info-box">
+                        <strong>Key relationship:</strong> Setting <code>BeepiFormPro.FormStyle</code> calls <code>BeepStyling.ApplyFormStyle()</code> which sets <code>BeepStyling.CurrentControlStyle</code>. Every control inside that form reads <code>BeepStyling.CurrentControlStyle</code> during paint, so the form chrome and all controls always share the same design system.
+                    </div>
+                </section>
+
+                <!-- BEEPSTYLING -->
+                <section id="beepstyling" class="section">
+                    <h2>BeepStyling &mdash; The Coordinator</h2>
+                    <p>Static class in <code>TheTechIdea.Beep.Winform.Controls.Styling</code>. Single source of truth for which design system is currently active.</p>
+
+                    <h3>Global State</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>CurrentControlStyle</code></td><td>BeepControlStyle</td><td>The active design system for all controls. Default: <code>Minimal</code>.</td></tr>
+                            <tr><td><code>CurrentTheme</code></td><td>IBeepTheme</td><td>The active theme object (colors, typography). Set from <code>BeepThemesManager.CurrentTheme</code>.</td></tr>
+                            <tr><td><code>UseThemeColors</code></td><td>bool</td><td>When true (default), color methods prefer theme colors over hard-coded style defaults.</td></tr>
+                            <tr><td><code>ImageCachedPainters</code></td><td>Dictionary&lt;string, ImagePainter&gt;</td><td>Image painter cache. Shared across all controls.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Style Management Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SetControlStyle(BeepControlStyle)</code></td><td>Change the global style and fire <code>ControlStyleChanged</code> event.</td></tr>
+                            <tr><td><code>GetControlStyle()</code></td><td>Return <code>CurrentControlStyle</code>.</td></tr>
+                            <tr><td><code>ApplyFormStyle(FormStyle)</code></td><td>Map a <code>FormStyle</code> to the corresponding <code>BeepControlStyle</code> and set it.</td></tr>
+                            <tr><td><code>GetControlStyle(FormStyle)</code></td><td>Return the <code>BeepControlStyle</code> for a given <code>FormStyle</code> (pure lookup, no side effects).</td></tr>
+                            <tr><td><code>GetFormStyle(BeepControlStyle)</code></td><td>Reverse lookup: <code>BeepControlStyle</code> &rarr; <code>FormStyle</code>.</td></tr>
+                            <tr><td><code>GetThemeStyle(BeepControlStyle)</code></td><td>Return the theme name associated with a control style.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Paint Entry Points</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>PaintStyleBackground(g, path)</code></td><td>Paint background using <code>CurrentControlStyle</code>.</td></tr>
+                            <tr><td><code>PaintStyleBackground(g, path, BeepControlStyle)</code></td><td>Paint background for a specific style.</td></tr>
+                            <tr><td><code>PaintStyleBorder(g, path, isFocused)</code></td><td>Paint border using <code>CurrentControlStyle</code> and focus state.</td></tr>
+                            <tr><td><code>PaintStyleBorder(g, path, isFocused, BeepControlStyle)</code></td><td>Paint border for a specific style.</td></tr>
+                            <tr><td><code>PaintStyleText(g, path, text, isFocused)</code></td><td>Paint text using <code>CurrentControlStyle</code>.</td></tr>
+                            <tr><td><code>PaintStyleText(g, path, text, isFocused, BeepControlStyle)</code></td><td>Paint text for a specific style.</td></tr>
+                            <tr><td><code>PaintStyleSpinnerButtons(g, upPath, downPath, isFocused, style)</code></td><td>Paint numeric up/down buttons for a specific style.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Style Value Shortcuts</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>GetRadius(BeepControlStyle)</code></td><td>int</td><td>Corner radius in pixels for the style.</td></tr>
+                            <tr><td><code>GetBorderThickness(BeepControlStyle)</code></td><td>float</td><td>Border stroke width.</td></tr>
+                            <tr><td><code>GetPadding(BeepControlStyle)</code></td><td>int</td><td>Internal padding.</td></tr>
+                            <tr><td><code>GetBackgroundColor(BeepControlStyle)</code></td><td>Color</td><td>Background color (theme-aware).</td></tr>
+                            <tr><td><code>GetForegroundColor(BeepControlStyle)</code></td><td>Color</td><td>Foreground/text color (theme-aware).</td></tr>
+                            <tr><td><code>GetBorderColor(BeepControlStyle)</code></td><td>Color</td><td>Border color (theme-aware).</td></tr>
+                            <tr><td><code>GetThemeColor(themeColorKey)</code></td><td>Color</td><td>Read a named color from the current theme (e.g., "Primary", "Accent").</td></tr>
+                            <tr><td><code>CreateControlPath(bounds, FormStyle)</code></td><td>GraphicsPath</td><td>Create the clipping/rendering path for a control using a form style.</td></tr>
+                            <tr><td><code>CreateControlStylePath(bounds, BeepControlStyle)</code></td><td>GraphicsPath</td><td>Create the path using a direct control style.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- PAINTER FOLDERS -->
+                <section id="painters" class="section">
+                    <h2>Painter Subsystems (7 Folders)</h2>
+                    <p>Each folder contains style-specific painter classes. All painters are static and stateless; they receive all context via parameters.</p>
+
+                    <table class="props-table">
+                        <thead><tr><th>Folder</th><th>Classes</th><th>Signature Pattern</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BackgroundPainters/</code></td>
+                                <td>36+</td>
+                                <td><code>Paint(Graphics, GraphicsPath, BeepControlStyle, IBeepTheme, bool)</code></td>
+                                <td>Fill the control background. Effects include: flat fill, gradient, glass/acrylic, neon glow, neumorphism, mica, frosted glass, dark glow, gradient burst, and more.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BorderPainters/</code></td>
+                                <td>27</td>
+                                <td><code>Paint(Graphics, GraphicsPath, bool, BeepControlStyle, IBeepTheme, bool, ControlState)</code></td>
+                                <td>Draw border strokes. Variations: solid, double, dashed, glowing, focus-ring, accent-side, thick/thin.</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextPainters/</code></td>
+                                <td>5</td>
+                                <td><code>Paint(Graphics, Rectangle, string, bool, BeepControlStyle, IBeepTheme, bool)</code></td>
+                                <td>Render text with the correct font, color, weight, and spacing for each design system family.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SpinnerButtonPainters/</code></td>
+                                <td>26</td>
+                                <td><code>PaintButtons(Graphics, Rectangle, Rectangle, bool, BeepControlStyle, IBeepTheme, bool)</code></td>
+                                <td>Render up/down arrow buttons for numeric controls with style-appropriate visuals.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShadowPainters/</code></td>
+                                <td>27</td>
+                                <td><code>Paint(Graphics, GraphicsPath, int, IBeepTheme)</code></td>
+                                <td>Render drop shadows and elevation effects below controls. Includes dual shadows for neumorphism.</td>
+                            </tr>
+                            <tr>
+                                <td><code>PathPainters/</code></td>
+                                <td>23</td>
+                                <td><code>Fill(Graphics, GraphicsPath, BeepControlStyle, IBeepTheme)</code></td>
+                                <td>Fill arbitrary <code>GraphicsPath</code> shapes (shapes, overlays, decorations) with style-appropriate brushes.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImagePainters/</code></td>
+                                <td>1 (static)</td>
+                                <td>See <a href="#image-painter">StyledImagePainter</a></td>
+                                <td>Cached image rendering with rounded corners, shape clipping, tint, and opacity. Supports 10+ geometric clip shapes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Factory Classes</h3>
+                    <p>Each painter folder has a companion factory for lookup and caching:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Factory</th><th>Location</th><th>Method</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BackgroundPainterFactory</code></td><td>BackgroundPainters/</td><td><code>CreatePainter(BeepControlStyle)</code> &rarr; <code>IBackgroundPainter</code></td></tr>
+                            <tr><td><code>BorderPainterFactory</code></td><td>BorderPainters/</td><td><code>CreatePainter(BeepControlStyle)</code> &rarr; <code>IBorderPainter</code></td></tr>
+                            <tr><td><code>ShadowPainterFactory</code></td><td>Shadows/</td><td><code>CreatePainter(BeepControlStyle)</code> &rarr; <code>IShadowPainter</code></td></tr>
+                            <tr><td><code>PaintersFactory</code> (Forms)</td><td>Forms/ModernForm/</td><td><code>GetPainter(FormStyle)</code> &rarr; <code>IFormPainter</code> (cached)</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- HELPER SYSTEMS -->
+                <section id="helpers" class="section">
+                    <h2>Style Helper Systems (5 Systems)</h2>
+                    <p>All helpers are static classes that accept <code>BeepControlStyle</code> and return design-system-specific values via switch expressions. No base classes &mdash; every value is explicit.</p>
+
+                    <table class="props-table">
+                        <thead><tr><th>Class</th><th>Location</th><th>Key Methods</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>StyleColors</code></td>
+                                <td>Colors/</td>
+                                <td><code>GetBackground(style)</code>, <code>GetForeground(style)</code>, <code>GetBorder(style)</code>, <code>GetAccent(style)</code>, <code>GetPrimary(style)</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>StyleSpacing</code></td>
+                                <td>Spacing/</td>
+                                <td><code>GetPadding(style)</code>, <code>GetMargin(style)</code>, <code>GetItemHeight(style)</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>StyleBorders</code></td>
+                                <td>Borders/</td>
+                                <td><code>GetRadius(style)</code>, <code>GetBorderWidth(style)</code>, <code>HasBorder(style)</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>StyleShadows</code></td>
+                                <td>Shadows/</td>
+                                <td><code>HasShadow(style)</code>, <code>GetShadowOpacity(style)</code>, <code>GetShadowBlur(style)</code>, <code>UsesDualShadows(style)</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>StyleTypography</code></td>
+                                <td>Typography/</td>
+                                <td><code>GetFontFamily(style)</code>, <code>GetFontSize(style)</code>, <code>GetFontWeight(style)</code>, <code>GetLetterSpacing(style)</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- BASECONTROL PIPELINE -->
+                <section id="basecontrol" class="section">
+                    <h2>BaseControl Painting Pipeline</h2>
+                    <p>Every Beep control inherits from <code>BaseControl</code> (<code>ContainerControl</code>). Understanding this pipeline is essential for creating custom controls.</p>
+
+                    <h3>File Structure</h3>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BaseControl.cs</code></td><td>Core class declaration, private fields, <code>IsReadyForDrawing</code> guard, state flags (<code>IsHovered</code>, <code>IsPressed</code>, <code>IsFocused</code>)</td></tr>
+                            <tr><td><code>BaseControl.Methods.cs</code></td><td><code>EnsurePainter()</code>, <code>InvokeBorderPainter()</code>, <code>ApplyTheme()</code>, <code>UpdateBorderPainter()</code></td></tr>
+                            <tr><td><code>BaseControl.Properties.cs</code></td><td>All public properties: <code>PainterKind</code>, <code>BorderPainterStyle</code>, <code>Theme</code>, <code>IsChild</code>, layout properties</td></tr>
+                            <tr><td><code>BaseControl.LayoutManagement.cs</code></td><td><code>DrawingRect</code> calculation, label/icon/error layout</td></tr>
+                            <tr><td><code>BaseControl.Events.cs</code></td><td>Mouse events, keyboard events, theme subscription/unsubscription</td></tr>
+                            <tr><td><code>BaseControl.LabelandError.cs</code></td><td>Label text, helper text, error message regions</td></tr>
+                            <tr><td><code>BaseControl.Tooltip.cs</code></td><td>Tooltip creation and theme theming</td></tr>
+                            <tr><td><code>BaseControl.Win32.cs</code></td><td>WM_NCHITTEST overrides, flicker reduction</td></tr>
+                            <tr><td><code>Helpers/Painters/IBaseControlPainter.cs</code></td><td>Painter interface: <code>UpdateLayout()</code>, <code>Paint()</code>, <code>UpdateHitAreas()</code></td></tr>
+                            <tr><td><code>Helpers/Painters/ClassicBaseControlPainter.cs</code></td><td>Default painter: shadow &rarr; fill &rarr; border &rarr; gradient &rarr; image &rarr; text</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Render Sequence</h3>
+<pre><code class="language-csharp">protected override void OnPaint(PaintEventArgs e)
+{
+    if (!IsReadyForDrawing) return;        // 1. Guard
+    if (AllowBaseControlClear) e.Graphics.Clear(BackColor);
+
+    DrawContent(e.Graphics);              // 2. Entry
+}
+
+protected virtual void DrawContent(Graphics g)
+{
+    EnsurePainter();                      // 3. Select painter
+    _painter?.UpdateLayout(this);         // 4. Compute rects
+    _painter?.Paint(g, this);             // 5. Render outer chrome
+    _painter?.UpdateHitAreas(this);       // 6. Register hit zones
+    // DrawingRect is now ready — derived control paints content here
+}
+</code></pre>
+
+                    <h3>Painter Kinds</h3>
+                    <table class="props-table">
+                        <thead><tr><th>PainterKind</th><th>Painter Class</th><th>Visual Style</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Classic</code> (default)</td><td>ClassicBaseControlPainter</td><td>Traditional WinForms; configurable borders, shadows, gradients, state colors</td></tr>
+                            <tr><td><code>None</code></td><td>&mdash; (no painter)</td><td>Control handles ALL rendering itself inside <code>DrawContent</code></td></tr>
+                            <tr><td><code>Auto</code></td><td>ClassicBaseControlPainter</td><td>Alias for Classic</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Border Painter Style (independent)</h3>
+                    <p>Separate from <code>PainterKind</code>. The <code>BorderPainterStyle</code> property selects a <code>BeepControlStyle</code>-specific border painter that is applied after the main painter renders the background:</p>
+<pre><code class="language-csharp">// In a custom control constructor
+PainterKind         = BaseControlPainterKind.Classic;   // outer chrome
+BorderPainterStyle  = BeepControlStyle.Fluent2;          // border look
+</code></pre>
+                    <p><code>UpdateBorderPainter()</code> calls <code>BorderPainterFactory.CreatePainter(style)</code> and also syncs <code>BorderRadius</code>, <code>BorderThickness</code>, and <code>BorderColor</code> from the style defaults.</p>
+
+                    <h3>Theme Subscription Pattern</h3>
+<pre><code class="language-csharp">// BaseControl automatically subscribes in its constructor:
+BeepThemesManager.ThemeChanged += (s, e) => {
+    _currentTheme = e.NewTheme;
+    ApplyTheme();
+    Invalidate();
+};
+
+// ApplyTheme() copies theme tokens to control properties:
+public virtual void ApplyTheme()
+{
+    ForeColor    = _currentTheme.ForeColor;
+    BorderColor  = _currentTheme.BorderColor;
+    BackColor    = IsChild ? Parent.BackColor : _currentTheme.BackColor;
+    _textFont    = BeepThemesManager.ToFont(_currentTheme.BodyMedium);
+    // ...
+}
+</code></pre>
+
+                    <h3>Creating a Custom Control</h3>
+<pre><code class="language-csharp">public class MyBeepLabel : BaseControl
+{
+    public MyBeepLabel()
+    {
+        PainterKind        = BaseControlPainterKind.Classic;
+        BorderPainterStyle = BeepControlStyle.Minimal;
+        IsChild            = true;  // transparent background
+    }
+
+    protected override void DrawContent(Graphics g)
+    {
+        base.DrawContent(g);   // paints chrome into DrawingRect
+
+        // DrawingRect is the inner content area after padding/border
+        using var sf = new StringFormat { Alignment = StringAlignment.Center,
+                                          LineAlignment = StringAlignment.Center };
+        g.DrawString(Text, _textFont, new SolidBrush(ForeColor), DrawingRect, sf);
+    }
+}
+</code></pre>
+                </section>
+
+                <!-- BEEPI FORM PRO -->
+                <section id="beepi-form" class="section">
+                    <h2>BeepiFormPro Painting Pipeline</h2>
+                    <p><code>BeepiFormPro</code> is a borderless <code>Form</code> subclass. Unlike controls, it has its own separate painter contract (<code>IFormPainter</code>) and factory.</p>
+
+                    <h3>File Structure</h3>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepiFormPro.cs</code></td><td>Main form class, <code>FormStyle</code> property, <code>ApplyFormStyle()</code></td></tr>
+                            <tr><td><code>BeepiFormPro.Core.cs</code></td><td><code>EnsureLayoutCalculated()</code>, caching (<code>_layoutDirty</code>, <code>_lastLayoutSize</code>), <code>InvalidateLayout()</code></td></tr>
+                            <tr><td><code>BeepiFormPro.Drawing.cs</code></td><td><code>OnPaint</code> &rarr; calls <code>ActivePainter.PaintBackground / PaintCaptionBar / PaintBorder</code></td></tr>
+                            <tr><td><code>BeepiFormPro.Theme.cs</code></td><td><code>ApplyTheme()</code>, <code>BeepThemesManager.ThemeChanged</code> subscription</td></tr>
+                            <tr><td><code>BeepiFormPro.Events.cs</code></td><td>Mouse events for caption drag, resize, button clicks</td></tr>
+                            <tr><td><code>BeepiFormPro.Win32.cs</code></td><td>WM_NCHITTEST, borderless window hit testing</td></tr>
+                            <tr><td><code>Managers/BeepiFormProHitAreaManager.cs</code></td><td>Registers named hit zones (close, minimize, maximize, title, resize grips)</td></tr>
+                            <tr><td><code>Managers/BeepiFormProInteractionManager.cs</code></td><td>Translates mouse events to hit zone actions</td></tr>
+                            <tr><td><code>PaintersFactory.cs</code></td><td>Caches one <code>IFormPainter</code> per <code>FormStyle</code></td></tr>
+                            <tr><td><code>Painters/IFormPainter.cs</code></td><td>Contract: <code>CalculateLayoutAndHitAreas</code>, <code>PaintBackground</code>, <code>PaintCaptionBar</code>, <code>PaintBorder</code></td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>IFormPainter Contract</h3>
+<pre><code class="language-csharp">public interface IFormPainter
+{
+    void CalculateLayoutAndHitAreas(BeepiFormPro owner);
+    void PaintBackground(Graphics g, BeepiFormPro owner);
+    void PaintCaptionBar(Graphics g, BeepiFormPro owner);
+    void PaintBorder(Graphics g, BeepiFormPro owner);
+}
+</code></pre>
+                    <p>Each <code>FormStyle</code> has exactly one painter class (e.g., <code>DraculaFormPainter</code>, <code>MacOSFormPainter</code>). The painter owns everything: corner radius, caption height, window button positions, and visual effects for that style.</p>
+
+                    <h3>Layout Caching</h3>
+                    <p>To avoid recalculating hit areas on every paint, <code>BeepiFormPro.Core.cs</code> tracks a dirty flag. Layout only recalculates when:</p>
+                    <ul>
+                        <li>Form size changes</li>
+                        <li><code>FormStyle</code> changes</li>
+                        <li>Caption/button visibility changes</li>
+                        <li><code>InvalidateLayout()</code> is called explicitly</li>
+                    </ul>
+
+                    <h3>Available FormStyle Painters (40+)</h3>
+                    <div style="column-count:3;column-gap:2rem;margin-top:0.5rem">
+                        <ul style="margin:0;padding-left:1.2em">
+                            <li>ArcLinuxFormPainter</li><li>BrutalistFormPainter</li>
+                            <li>CartoonFormPainter</li><li>ChatBubbleFormPainter</li>
+                            <li>CyberpunkFormPainter</li><li>DraculaFormPainter</li>
+                            <li>FluentFormPainter</li><li>GlassFormPainter</li>
+                            <li>GlassmorphismFormPainter</li><li>GNOMEFormPainter</li>
+                            <li>GruvBoxFormPainter</li><li>HolographicFormPainter</li>
+                            <li>iOSFormPainter</li><li>KDEFormPainter</li>
+                            <li>LinearFormPainter</li><li>MacOSFormPainter</li>
+                            <li>MaterialFormPainter</li><li>MaterialYouFormPainter</li>
+                            <li>Metro2FormPainter</li><li>MetroFormPainter</li>
+                            <li>MinimalFormPainter</li><li>ModernFormPainter</li>
+                            <li>NeoMorphismFormPainter</li><li>NeonFormPainter</li>
+                            <li>NextJSFormPainter</li><li>NordFormPainter</li>
+                            <li>NordicFormPainter</li><li>OneDarkFormPainter</li>
+                            <li>PaperFormPainter</li><li>RadixUIFormPainter</li>
+                            <li>RetroFormPainter</li><li>ShadcnFormPainter</li>
+                            <li>SolarizedFormPainter</li><li>TerminalFormPainter</li>
+                            <li>TokyoFormPainter</li><li>UbuntuFormPainter</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- STYLEDIMAGEPAINTER -->
+                <section id="image-painter" class="section">
+                    <h2>StyledImagePainter</h2>
+                    <p>Static class in <code>Styling/ImagePainters/</code>. Handles all image rendering across the system with built-in caching, shape clipping, tinting, and opacity.</p>
+
+                    <h3>Caching</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Cache</th><th>Key</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>_imageCache</code></td><td>imagePath</td><td>Decoded <code>Image</code> objects from disk/resource</td></tr>
+                            <tr><td><code>_painterCache</code></td><td>imagePath</td><td><code>ImagePainter</code> objects for path-based drawing</td></tr>
+                            <tr><td><code>_tintedCache</code></td><td>path+tint+opacity</td><td>Pre-rendered tinted bitmaps</td></tr>
+                        </tbody>
+                    </table>
+                    <p>All caches are <code>ConcurrentDictionary</code> &mdash; thread-safe for background pre-rendering.</p>
+
+                    <h3>Core Paint Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Paint(g, GraphicsPath, imagePath, BeepControlStyle)</code></td><td>Paint image clipped to a path with style-appropriate corner radius.</td></tr>
+                            <tr><td><code>Paint(g, GraphicsPath, imagePath)</code></td><td>Paint image clipped to a path with no radius (raw path clip).</td></tr>
+                            <tr><td><code>PaintWithTint(g, path, imagePath, tint, opacity, cornerRadius)</code></td><td>Paint with color tint overlay and opacity. Result is cached.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Shape Clip Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Shape</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>PaintInCircle(g, cx, cy, radius, imagePath, tint?, opacity)</code></td><td>Circle</td></tr>
+                            <tr><td><code>PaintInTriangle(g, cx, cy, size, imagePath, rotation, tint?, opacity)</code></td><td>Triangle</td></tr>
+                            <tr><td><code>PaintInStar(g, cx, cy, outer, inner, imagePath, points, rotation, tint?, opacity)</code></td><td>N-pointed star</td></tr>
+                            <tr><td><code>PaintInHexagon(g, cx, cy, size, imagePath, rotation, tint?, opacity)</code></td><td>Hexagon</td></tr>
+                            <tr><td><code>PaintInPentagon(g, cx, cy, size, imagePath, rotation, tint?, opacity)</code></td><td>Pentagon</td></tr>
+                            <tr><td><code>PaintInOctagon(g, cx, cy, size, imagePath, rotation, tint?, opacity)</code></td><td>Octagon</td></tr>
+                            <tr><td><code>PaintInPolygon(g, cx, cy, size, sides, imagePath, rotation, tint?, opacity)</code></td><td>Any regular N-gon</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Usage Example</h3>
+<pre><code class="language-csharp">protected override void DrawContent(Graphics g)
+{
+    base.DrawContent(g);
+
+    // Paint avatar image clipped to a circle
+    float cx = DrawingRect.X + DrawingRect.Width  / 2f;
+    float cy = DrawingRect.Y + DrawingRect.Height / 2f;
+    float r  = Math.Min(DrawingRect.Width, DrawingRect.Height) / 2f - 2f;
+
+    StyledImagePainter.PaintInCircle(g, cx, cy, r, ImagePath);
+
+    // Or paint with a blue tint at 80% opacity:
+    StyledImagePainter.PaintWithTint(g, _clipPath, ImagePath,
+        Color.FromArgb(100, 0, 120, 215), opacity: 0.8f, cornerRadius: 8);
+}
+</code></pre>
+                </section>
+
+                <!-- FORMSTYLE-CONTROLSTYLE MAPPING -->
+                <section id="style-mapping" class="section">
+                    <h2>FormStyle &harr; BeepControlStyle Mapping</h2>
+                    <p>When <code>BeepiFormPro.FormStyle</code> changes, <code>BeepStyling.ApplyFormStyle()</code> calls <code>GetControlStyle(formStyle)</code> to sync all controls inside the form to the same visual system:</p>
+                    <table class="props-table">
+                        <thead><tr><th>FormStyle</th><th>BeepControlStyle</th><th>FormStyle</th><th>BeepControlStyle</th></tr></thead>
+                        <tbody>
+                            <tr><td>Modern</td><td>Modern</td><td>Nordic</td><td>Nordic</td></tr>
+                            <tr><td>Minimal</td><td>Minimal</td><td>iOS</td><td>iOS15</td></tr>
+                            <tr><td>MacOS</td><td>MacOSBigSur</td><td>Ubuntu</td><td>Ubuntu</td></tr>
+                            <tr><td>Fluent</td><td>Fluent</td><td>KDE</td><td>Kde</td></tr>
+                            <tr><td>Material</td><td>Material</td><td>ArcLinux</td><td>ArcLinux</td></tr>
+                            <tr><td>Cartoon</td><td>Cartoon</td><td>Dracula</td><td>Dracula</td></tr>
+                            <tr><td>ChatBubble</td><td>ChatBubble</td><td>Solarized</td><td>Solarized</td></tr>
+                            <tr><td>Glass</td><td>GlassAcrylic</td><td>OneDark</td><td>OneDark</td></tr>
+                            <tr><td>Metro</td><td>Metro</td><td>GruvBox</td><td>GruvBox</td></tr>
+                            <tr><td>Metro2</td><td>Metro2</td><td>Nord</td><td>Nord</td></tr>
+                            <tr><td>GNOME</td><td>Gnome</td><td>Tokyo</td><td>Tokyo</td></tr>
+                            <tr><td>NeoMorphism</td><td>Neumorphism</td><td>Paper</td><td>Paper</td></tr>
+                            <tr><td>Glassmorphism</td><td>Glassmorphism</td><td>Neon</td><td>Neon</td></tr>
+                            <tr><td>Brutalist</td><td>Brutalist</td><td>Holographic</td><td>Holographic</td></tr>
+                            <tr><td>Retro</td><td>Retro</td><td>Terminal</td><td>Terminal</td></tr>
+                            <tr><td>Cyberpunk</td><td>Cyberpunk</td><td>Shadcn</td><td>Shadcn</td></tr>
+                            <tr><td>MaterialYou</td><td>MaterialYou</td><td>RadixUI</td><td>RadixUI</td></tr>
+                            <tr><td>NextJS</td><td>NextJS</td><td>Linear</td><td>Linear</td></tr>
+                            <tr><td>Custom</td><td>None</td><td><em>(default)</em></td><td>Minimal</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="info-box">
+                        <strong>Control-only styles</strong> (Material3, AntDesign, Fluent2, Windows11Mica, ChakraUI, TailwindCard, DarkGlow, DiscordStyle, GradientModern, Bootstrap, FigmaCard, etc.) have no matching <code>FormStyle</code> and default to <code>FormStyle.Custom</code> in the reverse lookup. They are available for individual controls but cannot be set on the form chrome directly.
+                    </div>
+                </section>
+
+                <!-- BEEPCONTROLSTYLE ENUM -->
+                <section id="control-styles" class="section">
+                    <h2>BeepControlStyle Enum</h2>
+                    <p>60+ styles grouped by origin:</p>
+
+                    <h3>Web Frameworks &amp; Design Systems</h3>
+                    <p>Material3, AntDesign, Fluent2, MaterialYou, Windows11Mica, MacOSBigSur, ChakraUI, TailwindCard, NotionMinimal, VercelClean, StripeDashboard, Bootstrap, FigmaCard, PillRail, Apple, Shadcn, RadixUI, NextJS, Linear</p>
+
+                    <h3>Dark / Atmospheric</h3>
+                    <p>DarkGlow, DiscordStyle, GradientModern, GlassAcrylic, Neumorphism, Glassmorphism, NeoMorphism, Neon, NeonGlow, DarkGlow, Holographic, Cyberpunk</p>
+
+                    <h3>Desktop OS</h3>
+                    <p>Minimal, Modern, Fluent, Material, Metro, Metro2, MacOS, iOS15, Ubuntu, Gnome, Kde, Cinnamon, Elementary, ArcLinux, Nordic, Nord</p>
+
+                    <h3>Editor / Terminal Themes</h3>
+                    <p>Dracula, Solarized, OneDark, GruvBox, Tokyo, Terminal, Paper</p>
+
+                    <h3>Visual Aesthetics</h3>
+                    <p>Cartoon, ChatBubble, Retro, Brutalist, NeoBrutalist, Gaming, HighContrast, Office, FinSet, WebFramework, Effect</p>
+                </section>
+
+                <!-- BEST PRACTICES -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>
+                            <strong>Never copy-paste style values into a control.</strong>
+                            Always ask <code>StyleColors</code>, <code>StyleBorders</code>, etc. so the control automatically stays correct when the design system evolves.
+                        </li>
+                        <li>
+                            <strong>Let <code>BeepStyling</code> route painter calls; don&apos;t call individual painters directly from controls.</strong>
+                            The routing switch in <code>BeepStyling.PaintStyleBackground()</code> is the single maintenance point for adding new styles.
+                        </li>
+                        <li>
+                            <strong>Always set <code>BeepStyling.CurrentTheme</code> whenever <code>BeepThemesManager.CurrentTheme</code> changes.</strong>
+                            <code>BeepiFormPro.ApplyTheme()</code> does this automatically; your custom root forms must do the same.
+                        </li>
+                        <li>
+                            <strong>Use <code>PainterKind = BaseControlPainterKind.None</code> only when the control is doing fully custom rendering.</strong>
+                            Anything set to <code>None</code> bypasses the shadow, border, and background system entirely.
+                        </li>
+                        <li>
+                            <strong>Keep painters stateless.</strong>
+                            All context (style, theme, focus state) must come in as method parameters. Painters must not cache mutable state between calls.
+                        </li>
+                        <li>
+                            <strong>Use <code>StyledImagePainter</code> for every image draw operation.</strong>
+                            It handles icon loading, SVG fallback paths, DPI-aware sizing, and the shared cache. Do not call <code>g.DrawImage()</code> with an unconditional <code>Image.FromFile()</code> inside <code>OnPaint</code>.
+                        </li>
+                        <li>
+                            <strong>Call <code>InvalidateLayout()</code> after property changes that affect size.</strong>
+                            For <code>BeepiFormPro</code>, this clears the cached border path and hit areas so the painter recalculates on the next paint cycle.
+                        </li>
+                        <li>
+                            <strong>Implement <code>IFormPainter</code> for custom form skins.</strong>
+                            Register it in <code>PaintersFactory.CreatePainter()</code> under a new <code>FormStyle</code> value. That is the only change required system-wide.
+                        </li>
+                    </ul>
+                </section>
+
+            </div><!-- end content-wrapper -->
+        </main>
+    </div><!-- end container -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? '' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

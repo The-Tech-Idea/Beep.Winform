@@ -1,0 +1,470 @@
+<!--
+    BeepToggle Control Documentation
+    Professional-grade documentation for the BeepToggle WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepToggle - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+                                                                        <div id="sidebar-placeholder"></div>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="#">Specialized Controls</a>
+                    <span>›</span>
+                    <span>BeepToggle</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepToggle</h1>
+                        <p class="subtitle">Animated on/off toggle switch with multiple styles, color customization, and smooth transitions.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepToggle</strong> is a fully themed toggle switch control that replaces traditional checkboxes
+                        with a modern on/off sliding switch. It provides smooth animated transitions, multiple visual styles,
+                        and full integration with the Beep theming system.
+                    </p>
+                    <p>
+                        Built on <strong>BaseControl</strong>, BeepToggle exposes an <code>IsOn</code> boolean state,
+                        fires <code>IsOnChanged</code> and <code>Toggled</code> events, and supports optional text labels
+                        alongside the switch. Animation speed, thumb colors, track colors, and toggle styles can all be
+                        configured at design time or runtime.
+                    </p>
+                    <div class="info-box">
+                        <strong>Inheritance:</strong> Control → BaseControl → BeepToggle<br>
+                        <strong>Default size:</strong> 60 × 28 pixels<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls
+                    </div>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Multiple Styles</h3>
+                            <p>Choose from Classic, iOS, Material, Pill, and other ToggleStyle variants to match your UI.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Smooth Animation</h3>
+                            <p>Built-in thumb slide animation with configurable 50–1000 ms duration.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖌️ Full Color Control</h3>
+                            <p>Independent track and thumb colors for both the On and Off states.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Text Labels</h3>
+                            <p>Optional On/Off text labels rendered inside the track for maximum clarity.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔔 Rich Events</h3>
+                            <p>IsOnChanged and Toggled events supply the new state for easy data binding.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>♿ Accessible</h3>
+                            <p>Auto-generated tooltip text and keyboard activation support.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    <div class="preview-container">
+                        <div class="preview-demo" style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;padding:24px;">
+                            <!-- Classic OFF -->
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                                <div style="width:60px;height:28px;background:#ccc;border-radius:14px;position:relative;display:flex;align-items:center;padding:3px;">
+                                    <div style="width:22px;height:22px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>
+                                </div>
+                                <span style="font-size:12px;color:#666;">Off (Classic)</span>
+                            </div>
+                            <!-- Classic ON -->
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                                <div style="width:60px;height:28px;background:#4CAF50;border-radius:14px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding:3px;">
+                                    <div style="width:22px;height:22px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>
+                                </div>
+                                <span style="font-size:12px;color:#666;">On (Classic)</span>
+                            </div>
+                            <!-- With labels -->
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                                <div style="width:72px;height:28px;background:#2196F3;border-radius:14px;position:relative;display:flex;align-items:center;justify-content:flex-end;padding:3px;">
+                                    <span style="position:absolute;left:8px;font-size:10px;color:#fff;font-weight:600;">ON</span>
+                                    <div style="width:22px;height:22px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);"></div>
+                                </div>
+                                <span style="font-size:12px;color:#666;">ShowLabels=true</span>
+                            </div>
+                            <!-- Disabled -->
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                                <div style="width:60px;height:28px;background:#e0e0e0;border-radius:14px;position:relative;display:flex;align-items:center;padding:3px;opacity:.5;">
+                                    <div style="width:22px;height:22px;background:#bbb;border-radius:50%;"></div>
+                                </div>
+                                <span style="font-size:12px;color:#666;">Disabled</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <h3>Designer (Drag &amp; Drop)</h3>
+                    <ol>
+                        <li>Open the Visual Studio Toolbox and find <strong>BeepToggle</strong> under <em>Beep Controls</em>.</li>
+                        <li>Drag it onto your form.</li>
+                        <li>In the Properties panel, set <code>IsOn</code>, <code>ToggleStyle</code>, <code>OnColor</code>, and <code>OffColor</code> as needed.</li>
+                        <li>Double-click the control to wire up the <code>IsOnChanged</code> event handler.</li>
+                    </ol>
+
+                    <h3>Code — Minimum Setup</h3>
+                    <pre><code class="language-csharp">var toggle = new BeepToggle
+{
+    IsOn          = false,
+    ToggleStyle   = ToggleStyle.Classic,
+    OnColor       = Color.FromArgb(76, 175, 80),   // green
+    OffColor      = Color.FromArgb(204, 204, 204),  // grey
+    ShowLabels    = true,
+    OnText        = "ON",
+    OffText       = "OFF",
+    AnimateTransition = true,
+    AnimationDuration = 200
+};
+
+toggle.IsOnChanged += (s, e) =>
+{
+    MessageBox.Show($"Toggle is now: {toggle.IsOn}");
+};
+
+this.Controls.Add(toggle);</code></pre>
+
+                    <h3>Reading and Setting State at Runtime</h3>
+                    <pre><code class="language-csharp">// Read current state
+bool currentState = toggle.IsOn;
+
+// Programmatically change state (fires events)
+toggle.IsOn = true;</code></pre>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>IsOn</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Gets or sets the toggle state. Setting this property fires <code>IsOnChanged</code> and <code>Toggled</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToggleStyle</code></td>
+                                <td>ToggleStyle</td>
+                                <td>Classic</td>
+                                <td>Visual style of the toggle. Options include Classic, iOS, Material, Pill, and others.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnColor</code></td>
+                                <td>Color</td>
+                                <td>Green</td>
+                                <td>Track background color when the toggle is in the On state.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OffColor</code></td>
+                                <td>Color</td>
+                                <td>LightGray</td>
+                                <td>Track background color when the toggle is in the Off state.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThumbColor</code></td>
+                                <td>Color</td>
+                                <td>White</td>
+                                <td>Default thumb (knob) color used when state-specific colors are not set.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnThumbColor</code></td>
+                                <td>Color</td>
+                                <td>White</td>
+                                <td>Thumb color used when the toggle is On. Overrides <code>ThumbColor</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OffThumbColor</code></td>
+                                <td>Color</td>
+                                <td>White</td>
+                                <td>Thumb color used when the toggle is Off. Overrides <code>ThumbColor</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnText</code></td>
+                                <td>string</td>
+                                <td>"ON"</td>
+                                <td>Text rendered inside the track on the On side when <code>ShowLabels</code> is true.</td>
+                            </tr>
+                            <tr>
+                                <td><code>OffText</code></td>
+                                <td>string</td>
+                                <td>"OFF"</td>
+                                <td>Text rendered inside the track on the Off side when <code>ShowLabels</code> is true.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowLabels</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to render <code>OnText</code> / <code>OffText</code> inside the toggle track.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimateTransition</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enables or disables the sliding animation when the toggle state changes.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimationDuration</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Duration of the thumb slide animation in milliseconds. Valid range: 50–1000.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoGenerateTooltip</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>If true, the control automatically generates tooltip text based on the current state.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">
+                        <strong>Inherited properties</strong> from BaseControl (Theme, BorderStyle, BorderThickness, ShowTitle, etc.)
+                        are also available. Refer to the <a href="../api/beep-control-base.html">BaseControl API reference</a>.
+                    </p>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Signature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>IsOnChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Raised when <code>IsOn</code> changes. Use <code>toggle.IsOn</code> to read the new state from the sender.</td>
+                            </tr>
+                            <tr>
+                                <td><code>Toggled</code></td>
+                                <td>EventHandler&lt;ToggleEventArgs&gt;</td>
+                                <td>Raised after the state changes. <code>ToggleEventArgs.IsOn</code> carries the new toggle state.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Code Examples -->
+                <section id="examples" class="section">
+                    <h2>Code Examples</h2>
+
+                    <h3>Settings Panel Toggle (Enable/Disable Feature)</h3>
+                    <pre><code class="language-csharp">var darkModeToggle = new BeepToggle
+{
+    IsOn          = Properties.Settings.Default.DarkMode,
+    ToggleStyle   = ToggleStyle.iOS,
+    OnColor       = Color.FromArgb(33, 150, 243),
+    OffColor      = Color.FromArgb(189, 189, 189),
+    ShowLabels    = false,
+    AnimationDuration = 150
+};
+
+darkModeToggle.Toggled += (s, e) =>
+{
+    Properties.Settings.Default.DarkMode = e.IsOn;
+    Properties.Settings.Default.Save();
+    ApplyTheme(e.IsOn ? "Dark" : "Light");
+};
+
+settingsPanel.Controls.Add(darkModeToggle);</code></pre>
+
+                    <h3>Multiple Toggles Bound to Settings Object</h3>
+                    <pre><code class="language-csharp">void BindToggle(BeepToggle toggle, Func&lt;bool&gt; getter, Action&lt;bool&gt; setter)
+{
+    toggle.IsOn = getter();
+    toggle.IsOnChanged += (s, e) => setter(toggle.IsOn);
+}
+
+BindToggle(tglNotifications, () => settings.EnableNotifications,
+           v => settings.EnableNotifications = v);
+BindToggle(tglAutoSave,      () => settings.AutoSave,
+           v => settings.AutoSave = v);
+BindToggle(tglDarkMode,      () => settings.DarkMode,
+           v => settings.DarkMode = v);</code></pre>
+
+                    <h3>Programmatic State Change Without Firing Events</h3>
+                    <pre><code class="language-csharp">// Temporarily suppress events when loading saved state
+tglFeature.IsOnChanged -= OnFeatureToggled;
+tglFeature.IsOn = savedSettings.FeatureEnabled;
+tglFeature.IsOnChanged += OnFeatureToggled;</code></pre>
+
+                    <h3>Custom Colors Per State</h3>
+                    <pre><code class="language-csharp">var alarmToggle = new BeepToggle
+{
+    ToggleStyle   = ToggleStyle.Classic,
+    OnColor       = Color.FromArgb(244, 67, 54),  // red when armed
+    OffColor      = Color.FromArgb(76, 175, 80),  // green when safe
+    OnThumbColor  = Color.White,
+    OffThumbColor = Color.White,
+    OnText        = "ARM",
+    OffText       = "SAFE",
+    ShowLabels    = true
+};</code></pre>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>
+                        BeepToggle integrates with the Beep theming system via <code>BeepThemesManager</code>.
+                        When a theme is applied, the <code>OnColor</code> and <code>OffColor</code> are automatically
+                        mapped to the theme's primary and surface colours unless you have explicitly set them.
+                    </p>
+                    <pre><code class="language-csharp">// Apply a named theme to the toggle
+BeepThemesManager.ApplyTheme(toggle, "Ocean");
+
+// Or apply to the whole form (propagates to all Beep controls)
+BeepThemesManager.ApplyTheme(this, "Ocean");</code></pre>
+                    <p>
+                        To keep custom colors after a theme change, set <code>UseThemeColors = false</code>
+                        (inherited from BaseControl).
+                    </p>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Use for binary settings</strong> — BeepToggle is ideal for on/off, enabled/disabled, active/inactive choices. For multi-state options use BeepComboBox or BeepRadioButton.</li>
+                        <li><strong>Label your intent</strong> — For accessibility and clarity set <code>ShowLabels = true</code> with descriptive <code>OnText</code>/<code>OffText</code> values, or place a BeepLabel next to the toggle.</li>
+                        <li><strong>Keep animation fast</strong> — Use <code>AnimationDuration</code> between 100–250 ms for a responsive feel. Values above 400 ms will feel sluggish.</li>
+                        <li><strong>Suppress events when loading</strong> — Unsubscribe from <code>IsOnChanged</code> before setting <code>IsOn</code> programmatically to avoid triggering side-effects during initialization.</li>
+                        <li><strong>Respect disabled state</strong> — Set <code>Enabled = false</code> to prevent user interaction; the control will render at reduced opacity.</li>
+                        <li><strong>Test with high-DPI</strong> — The default 60×28 size scales automatically; avoid overriding <code>AutoSize</code> unless you have an explicit fixed-size requirement.</li>
+                    </ul>
+                </section>
+
+                <!-- Related Controls -->
+                <section id="related" class="section">
+                    <h2>Related Controls</h2>
+                    <div class="related-grid">
+                        <a href="beep-checkbox.html" class="related-card">
+                            <h4>BeepCheckBox</h4>
+                            <p>Traditional checkbox with Beep theming — better for form submissions.</p>
+                        </a>
+                        <a href="beep-switch.html" class="related-card">
+                            <h4>BeepSwitch</h4>
+                            <p>Simpler on/off switch without animation or label support.</p>
+                        </a>
+                        <a href="beep-radiobutton.html" class="related-card">
+                            <h4>BeepRadioGroup</h4>
+                            <p>For mutually exclusive multi-option selections.</p>
+                        </a>
+                    </div>
+                </section>
+
+            </div><!-- /.content-wrapper -->
+        </main>
+    </div><!-- /.container -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        // Restore theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

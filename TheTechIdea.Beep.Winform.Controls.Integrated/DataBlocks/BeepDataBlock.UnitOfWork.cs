@@ -27,6 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             List<AppFilter> filters = null,
             string orderByClause = null)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && FormManager != null)
+            {
+                return await CoordinatedQuery(filters);
+            }
+
             if (Data == null)
             {
                 Status = "No Unit of Work assigned to DataBlock";
@@ -158,6 +164,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public async Task<bool> InsertRecordWithUnitOfWorkAsync(Entity newRecord)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && FormManager != null)
+            {
+                return await FormManager.InsertRecordAsync(this.Name, newRecord);
+            }
+
             if (Data == null)
             {
                 Status = "No Unit of Work assigned to DataBlock";
@@ -275,6 +287,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public async Task<bool> DeleteCurrentRecordWithUnitOfWorkAsync()
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && FormManager != null)
+            {
+                return await FormManager.DeleteCurrentRecordAsync(this.Name);
+            }
+
             if (Data == null)
             {
                 Status = "No Unit of Work assigned to DataBlock";

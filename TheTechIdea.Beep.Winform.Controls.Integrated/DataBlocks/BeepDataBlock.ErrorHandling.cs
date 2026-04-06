@@ -49,9 +49,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
-        /// Get error log
+        /// Get error log. When coordinated, delegates to FormsManager.ErrorLog.
         /// </summary>
-        public IReadOnlyList<ErrorInfo> ErrorLog => _errorLog.AsReadOnly();
+        public IReadOnlyList<ErrorInfo> ErrorLog
+        {
+            get
+            {
+                if (IsCoordinated && _formsManager?.ErrorLog != null)
+                {
+                    try
+                    {
+                        return _formsManager.ErrorLog.GetErrorLog(this.Name)
+                            .Select(e => new ErrorInfo
+                            {
+                                Exception = e.Exception,
+                                Context   = e.Context,
+                                Severity  = (ErrorSeverity)(int)e.Severity,
+                                Timestamp = e.Timestamp,
+                                BlockName = e.BlockName
+                            })
+                            .ToList()
+                            .AsReadOnly();
+                    }
+                    catch { }
+                }
+                return _errorLog.AsReadOnly();
+            }
+        }
         
         #endregion
         
@@ -62,6 +86,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         protected void HandleError(Exception ex, string context, ErrorSeverity severity = ErrorSeverity.Error)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.ErrorLog != null)
+            {
+                _formsManager.ErrorLog.LogError(this.Name, ex, context,
+                    (Editor.Forms.Models.ErrorSeverity)(int)severity);
+                return; // platform events handled by AttachErrorLogEvents()
+            }
+
             var errorInfo = new ErrorInfo
             {
                 Exception = ex,
@@ -138,6 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ClearErrorLog()
         {
+            if (IsCoordinated && _formsManager?.ErrorLog != null)
+                _formsManager.ErrorLog.ClearErrorLog(this.Name);
             _errorLog.Clear();
         }
         
@@ -146,6 +180,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public List<ErrorInfo> GetErrorsForContext(string context)
         {
+            if (IsCoordinated && _formsManager?.ErrorLog != null)
+            {
+                return _formsManager.ErrorLog.GetErrorsForContext(this.Name, context)
+                    .Select(e => new ErrorInfo
+                    {
+                        Exception  = e.Exception,
+                        Context    = e.Context,
+                        Severity   = (ErrorSeverity)(int)e.Severity,
+                        Timestamp  = e.Timestamp,
+                        BlockName  = e.BlockName
+                    }).ToList();
+            }
             return _errorLog.Where(e => e.Context == context).ToList();
         }
         

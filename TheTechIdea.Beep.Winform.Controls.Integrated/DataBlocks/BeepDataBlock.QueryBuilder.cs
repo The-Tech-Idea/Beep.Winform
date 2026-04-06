@@ -28,6 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetQueryOperator(string fieldName, QueryOperator op)
         {
             _queryOperators[fieldName] = op;
+            // Sync to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.QueryBuilder != null)
+                _formsManager.QueryBuilder.SetQueryOperator(this.Name, fieldName, (Editor.UOWManager.Models.QueryOperator)(int)op);
         }
         
         /// <summary>
@@ -35,6 +38,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public QueryOperator GetQueryOperator(string fieldName)
         {
+            if (IsCoordinated && _formsManager?.QueryBuilder != null)
+            {
+                try
+                {
+                    return (QueryOperator)(int)_formsManager.QueryBuilder.GetQueryOperator(this.Name, fieldName);
+                }
+                catch { }
+            }
             return _queryOperators.ContainsKey(fieldName) ? _queryOperators[fieldName] : QueryOperator.Equals;
         }
         
@@ -44,6 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ClearQueryOperators()
         {
             _queryOperators.Clear();
+            if (IsCoordinated && _formsManager?.QueryBuilder != null)
+                try { _formsManager.QueryBuilder.ClearQueryOperators(this.Name); } catch { }
         }
         
         #endregion

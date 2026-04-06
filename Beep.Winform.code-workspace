@@ -25,28 +25,16 @@
 			"path": "../Beep.DeveloperAssistant"
 		},
 		{
-			"path": "../BeepDataSources/DataSourcesPlugins/RDBMSDataSource"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPluginsCore/SqliteDatasourceCore"
-		},
-		{
-			"path": "../BeepDataSources/DataSourcesPluginsCore/LiteDBDataSourceCore"
-		},
-		{
-			"path": "../BeepDataSources/InMemoryDB/DuckDBDataSourceCore"
-		},
-		{
 			"path": "../Beep.Winform.Sample"
 		},
 		{
 			"path": "../Beep.Desktop/TheTechIdea.Beep.Desktop.IDE.Extensions"
 		},
 		{
-			"path": "../Beep.StreamingEvents"
+			"path": "../../fahadTheTechIdea/MyWebSite"
 		},
 		{
-			"path": "../../fahadTheTechIdea/MyWebSite"
+			"path": "../BeepDataSources"
 		}
 	],
 	"settings": {

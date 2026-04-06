@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMetricWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepMetricWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepMetricWidget</h1>
+                        <p class="subtitle">KPI and metric display widget with six visual styles including trend indicators, progress bars, circular gauges, comparison panels, and card layouts.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Data / KPI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepMetricWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 6 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 📊<br>
+                        <strong>Category:</strong> Beep Widgets → Data / KPI<br>
+                        <strong>Default size:</strong> 200 × 120<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>📊 Six Visual Modes</h3><p>From a single plain number to a full card layout with icon — one property switch.</p></div>
+                        <div class="feature-card"><h3>📈 Trend Indicators</h3><p>Arrow icons with positive/negative colours and percentage labels.</p></div>
+                        <div class="feature-card"><h3>⭕ Circular Gauge</h3><p>Smooth arc gauge drawn entirely in GDI+ — no external charting library needed.</p></div>
+                        <div class="feature-card"><h3>🎨 Theme-Aware Colors</h3><p>AccentColor, SuccessColor, and ErrorColor default to the active BeepTheme.</p></div>
+                        <div class="feature-card"><h3>🔔 Click Events</h3><p>Separate events for value area, trend area, and icon clicks.</p></div>
+                        <div class="feature-card"><h3>📐 Compact Default</h3><p>200×120 default — fits in tight dashboard grids.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (6)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SimpleValue</code></td><td>Plain number + label – the most compact display.</td></tr>
+                            <tr><td><code>ValueWithTrend</code></td><td>Number plus an arrow trend indicator and percentage change.</td></tr>
+                            <tr><td><code>ProgressMetric</code></td><td>Number with a horizontal progress bar showing completion.</td></tr>
+                            <tr><td><code>GaugeMetric</code></td><td>Circular arc gauge coloured by value range.</td></tr>
+                            <tr><td><code>ComparisonMetric</code></td><td>Two values rendered side-by-side for direct comparison.</td></tr>
+                            <tr><td><code>CardMetric</code></td><td>Card layout with an icon, title, and large value.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>MetricWidgetStyle</td><td>SimpleValue</td><td>Selects the active painter / render mode.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Metric Title&quot;</td><td>Header label shown above or beside the value.</td></tr>
+                            <tr><td><code>Value</code></td><td>string</td><td>&quot;1,234&quot;</td><td>Primary displayed value (formatted string).</td></tr>
+                            <tr><td><code>Units</code></td><td>string</td><td>&quot;&quot;</td><td>Optional unit suffix (e.g. &quot;ms&quot;, &quot;%&quot;, &quot;USD&quot;).</td></tr>
+                            <tr><td><code>TrendValue</code></td><td>string</td><td>&quot;+12.5%&quot;</td><td>Trend label (e.g. &quot;+8.3%&quot;, &quot;-2.1%&quot;).</td></tr>
+                            <tr><td><code>TrendDirection</code></td><td>string</td><td>&quot;up&quot;</td><td>&quot;up&quot;, &quot;down&quot;, or &quot;neutral&quot; — controls arrow direction and colour.</td></tr>
+                            <tr><td><code>TrendPercentage</code></td><td>double</td><td>12.5</td><td>Numeric percentage used by progress/gauge painters.</td></tr>
+                            <tr><td><code>ShowTrend</code></td><td>bool</td><td>false</td><td>Show or hide the trend indicator area.</td></tr>
+                            <tr><td><code>ShowIcon</code></td><td>bool</td><td>false</td><td>Show or hide the icon area (CardMetric style).</td></tr>
+                            <tr><td><code>IconPath</code></td><td>string</td><td>&quot;&quot;</td><td>Path to icon image rendered in the icon area.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Dominant accent colour for bars, arcs, and arrows.</td></tr>
+                            <tr><td><code>SuccessColor</code></td><td>Color</td><td>Color(76,175,80)</td><td>Colour for positive/upward trends.</td></tr>
+                            <tr><td><code>WarningColor</code></td><td>Color</td><td>Color(255,193,7)</td><td>Colour for neutral/warning indicators.</td></tr>
+                            <tr><td><code>ErrorColor</code></td><td>Color</td><td>Color(244,67,54)</td><td>Colour for negative/downward trends.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ValueClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the user clicks the value area.</td></tr>
+                            <tr><td><code>TrendClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the user clicks the trend indicator.</td></tr>
+                            <tr><td><code>IconClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the user clicks the icon area.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var metric = new BeepMetricWidget
+{
+    Style         = MetricWidgetStyle.ValueWithTrend,
+    Title         = "Monthly Revenue",
+    Value         = "$127,450",
+    TrendValue    = "+8.3%",
+    TrendDirection = "up",
+    ShowTrend     = true,
+    Size          = new Size(220, 120)
+};
+this.Controls.Add(metric);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">metric.ValueClicked += (s, e) =>
+{
+    // e.Data contains the current Value string
+    ShowRevenueBreakdown(metric.Value);
+};
+
+metric.TrendClicked += (s, e) =>
+{
+    ShowTrendHistory();
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-chart-widget.html" class="related-card"><h4>BeepChartWidget</h4><p>Pair with a chart for full KPI+trend display.</p></a>
+                        <a href="beep-dashboard-widget.html" class="related-card"><h4>BeepDashboardWidget</h4><p>Composite panel showing multiple metrics.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>Show the data series behind the metric.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

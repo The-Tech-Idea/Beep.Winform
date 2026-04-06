@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepControlWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepControlWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepControlWidget</h1>
+                        <p class="subtitle">Interactive input-control widget with ten styles: toggle switches, sliders, dropdowns, date pickers, search boxes, button groups, checkbox groups, range selectors, colour pickers, and number spinners.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Input Controls</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepControlWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 🎛️<br>
+                        <strong>Category:</strong> Beep Widgets → Input Controls<br>
+                        <strong>Default size:</strong> 240 × 80<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>🎛️ Ten Input Styles</h3><p>From a simple toggle to a full range-selector — one control, ten behaviours.</p></div>
+                        <div class="feature-card"><h3>✅ Strongly-Typed Values</h3><p>ToggleValue, SliderValue, RangeValue, DateValue, NumberValue models carry all state.</p></div>
+                        <div class="feature-card"><h3>🔔 ValueChanged Event</h3><p>Universal ValueChanged event fires regardless of style; Data carries new value.</p></div>
+                        <div class="feature-card"><h3>🎨 Theme Integration</h3><p>Button, checkbox, and input colours all default to active theme tokens.</p></div>
+                        <div class="feature-card"><h3>🚫 IsEnabled</h3><p>Disabled state can be toggled at runtime; painters render the greyed-out style.</p></div>
+                        <div class="feature-card"><h3>🖱️ OptionSelected</h3><p>Dropdown and ButtonGroup fire OptionSelected with the chosen option string.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ToggleSwitch</code></td><td>Animated on/off toggle with label.</td></tr>
+                            <tr><td><code>Slider</code></td><td>Horizontal range slider with min/max labels.</td></tr>
+                            <tr><td><code>DropdownFilter</code></td><td>Styled dropdown for list filtering.</td></tr>
+                            <tr><td><code>DatePicker</code></td><td>Date-selection control with calendar pop-out.</td></tr>
+                            <tr><td><code>SearchBox</code></td><td>Search input with magnifier icon and suggestion support.</td></tr>
+                            <tr><td><code>ButtonGroup</code></td><td>Radio-style grouped button selection.</td></tr>
+                            <tr><td><code>CheckboxGroup</code></td><td>Multiple checkbox list with individual labels.</td></tr>
+                            <tr><td><code>RangeSelector</code></td><td>Dual-handle range selector for min/max input.</td></tr>
+                            <tr><td><code>ColorPicker</code></td><td>Colour swatch picker with custom color option.</td></tr>
+                            <tr><td><code>NumberSpinner</code></td><td>Numeric up/down spinner with typed input.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>ControlWidgetStyle</td><td>ToggleSwitch</td><td>Selects the input control painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Control Title&quot;</td><td>Label drawn above or beside the control.</td></tr>
+                            <tr><td><code>IsEnabled</code></td><td>bool</td><td>true</td><td>Enable/disable the interactive control.</td></tr>
+                            <tr><td><code>ShowLabel</code></td><td>bool</td><td>true</td><td>Show/hide the title label.</td></tr>
+                            <tr><td><code>ToggleValue</code></td><td>ToggleValue</td><td>(IsOn=false)</td><td>Toggle state for ToggleSwitch style.</td></tr>
+                            <tr><td><code>SliderValue</code></td><td>SliderValue</td><td>(Value=50)</td><td>Slider position for Slider style.</td></tr>
+                            <tr><td><code>RangeValue</code></td><td>RangeValue</td><td>(Min=0,Max=100)</td><td>Range handles for RangeSelector style.</td></tr>
+                            <tr><td><code>DateValue</code></td><td>DateValue</td><td>(DateTime.Now)</td><td>Selected date for DatePicker style.</td></tr>
+                            <tr><td><code>NumberValue</code></td><td>NumberValue</td><td>(Value=0)</td><td>Current number for NumberSpinner style.</td></tr>
+                            <tr><td><code>Options</code></td><td>List&lt;string&gt;</td><td>[Option 1…]</td><td>List of options for Dropdown and ButtonGroup.</td></tr>
+                            <tr><td><code>SelectedOption</code></td><td>string</td><td>&quot;&quot;</td><td>Currently selected option string.</td></tr>
+                            <tr><td><code>SearchText</code></td><td>string</td><td>&quot;&quot;</td><td>Current search query text.</td></tr>
+                            <tr><td><code>CheckboxOptions</code></td><td>List&lt;CheckboxOption&gt;</td><td>(3 items)</td><td>Options list for CheckboxGroup.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ValueChanged</code></td><td>BeepEventDataArgs</td><td>Fired when the control value changes. Data contains new value.</td></tr>
+                            <tr><td><code>ControlClicked</code></td><td>BeepEventDataArgs</td><td>Fired on any click within the control area.</td></tr>
+                            <tr><td><code>OptionSelected</code></td><td>BeepEventDataArgs</td><td>Fired when an option is selected (Dropdown, ButtonGroup, Checkbox). Data contains selected option.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">// Toggle switch
+var toggle = new BeepControlWidget
+{
+    Style      = ControlWidgetStyle.ToggleSwitch,
+    Title      = "Dark Mode",
+    ToggleValue = { IsOn = false },
+    Size       = new Size(200, 60)
+};
+
+// Dropdown filter
+var dropdown = new BeepControlWidget
+{
+    Style          = ControlWidgetStyle.DropdownFilter,
+    Title          = "Filter by Status",
+    Options        = new List<string> { "All", "Active", "Inactive", "Pending" },
+    SelectedOption = "All",
+    Size           = new Size(220, 70)
+};
+this.Controls.Add(toggle);
+this.Controls.Add(dropdown);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">toggle.ValueChanged += (s, e) =>
+{
+    bool isOn = (bool)e.Data;
+    ApplyDarkMode(isOn);
+};
+
+dropdown.OptionSelected += (s, e) =>
+{
+    string selected = (string)e.Data;
+    FilterGrid(selected);
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-form-widget.html" class="related-card"><h4>BeepFormWidget</h4><p>Group multiple control widgets in a form layout.</p></a>
+                        <a href="beep-notification-widget.html" class="related-card"><h4>BeepNotificationWidget</h4><p>Show validation feedback after control input.</p></a>
+                        <a href="beep-navigation-widget.html" class="related-card"><h4>BeepNavigationWidget</h4><p>Pair with navigation for multi-step forms.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

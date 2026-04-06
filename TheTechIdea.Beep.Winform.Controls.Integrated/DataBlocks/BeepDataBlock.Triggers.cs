@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Editor.Forms.Helpers;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
@@ -97,6 +99,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void RegisterTriggerInternal(BeepDataBlockTrigger trigger)
         {
+            // When coordinated, register ONLY in FormsManager to avoid double execution.
+            // Keep _namedTriggers for Enable/Disable lookups.
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var dmTrigger = TriggerBridge.ToBeepDMTrigger(
+                        blockName: this.Name,
+                        triggerName: trigger.TriggerName,
+                        localTriggerType: (int)trigger.TriggerType,
+                        localHandler: async () => await trigger.ExecuteAsync(new TriggerContext { Block = this }),
+                        executionOrder: trigger.ExecutionOrder,
+                        description: trigger.Description);
+                    _formsManager.Triggers.RegisterTrigger(dmTrigger);
+                    _namedTriggers[trigger.TriggerName] = trigger; // keep for Enable/Disable lookup
+                    return; // do NOT add to local _triggers — FormsManager is the owner
+                }
+                catch { /* FormsManager unavailable — fall through to local registration */ }
+            }
+
+            // Local registration (not coordinated, or FormsManager unavailable)
             if (!_triggers.ContainsKey(trigger.TriggerType))
             {
                 _triggers[trigger.TriggerType] = new List<BeepDataBlockTrigger>();
@@ -109,6 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 .OrderBy(t => t.ExecutionOrder)
                 .ThenBy(t => t.RegisteredDate)
                 .ToList();
+
+            _namedTriggers[trigger.TriggerName] = trigger;
         }
         
         #endregion
@@ -123,6 +148,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_suppressTriggers)
                 return true;
+            
+            // When coordinated, FormsManager owns all trigger execution (triggers registered there)
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var dmType = TriggerBridge.MapTriggerType((int)type);
+                    var dmResult = await _formsManager.Triggers.FireBlockTriggerAsync(dmType, this.Name);
+                    if (dmResult == Editor.UOWManager.Models.TriggerResult.Failure)
+                        return false;
+                    return true; // FormsManager handled it — skip local triggers to avoid double execution
+                }
+                catch { /* FormsManager unavailable — fall through to local execution */ }
+            }
                 
             if (!_triggers.ContainsKey(type))
                 return true;  // No triggers registered for this type
@@ -623,6 +662,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _triggers.Clear();
             _namedTriggers.Clear();
+            
+            if (IsCoordinated)
+            {
+                try { _formsManager.Triggers.ClearBlockTriggers(this.Name); }
+                catch { }
+            }
         }
         
         /// <summary>

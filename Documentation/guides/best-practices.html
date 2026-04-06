@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Practices - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-check2-circle"></i> Best Practices</h1>
+                    <p class="page-subtitle">Recommended patterns and practices for Beep Controls development</p>
+                </div>
+
+                <section class="section">
+                    <h2>1. Always Use BaseControl</h2>
+                    <p>When creating custom controls, always inherit from <code>BaseControl</code> to get automatic theming, styling, and the Beep lifecycle.</p>
+                    <pre><code class="language-csharp">// Correct
+public class MyCustomControl : BaseControl
+{
+    // Gets theming, painting, and lifecycle for free
+}
+
+// Avoid
+public class MyCustomControl : UserControl
+{
+    // No automatic theming support
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>2. Use ImagePath Instead of Image</h2>
+                    <p>Beep Controls reference images by file path string. This allows the theming system to tint and style images consistently.</p>
+                    <pre><code class="language-csharp">// Correct
+button.ImagePath = "icons/save.svg";
+
+// Avoid
+button.Image = Image.FromFile("icons/save.svg");</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>3. Initialize Themes Early</h2>
+                    <p>Set up <code>BeepThemesManager</code> before creating any controls, ideally in <code>Program.cs</code>.</p>
+                    <pre><code class="language-csharp">static void Main()
+{
+    ApplicationConfiguration.Initialize();
+    BeepThemesManager.ApplyTheme("MaterialBlue"); // Before any form
+    Application.Run(new MainForm());
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>4. Use BeepStyling for Custom Painting</h2>
+                    <p>When doing custom painting, use <code>BeepStyling</code> helpers and <code>StyledImagePainter</code> instead of raw GDI+ to stay consistent with the active theme.</p>
+                </section>
+
+                <section class="section">
+                    <h2>5. Leverage Built-in Layout Controls</h2>
+                    <p>Use <code>BeepPanel</code>, <code>BeepCard</code>, and <code>BeepTabControl</code> for layout instead of bare panels. They automatically apply themed borders, backgrounds, and shadows.</p>
+                </section>
+
+                <section class="section">
+                    <h2>6. Handle Theme Changes</h2>
+                    <p>If your control caches colors or brushes, listen for theme change events and refresh:</p>
+                    <pre><code class="language-csharp">public class MyControl : BaseControl
+{
+    protected override void OnThemeChanged()
+    {
+        base.OnThemeChanged();
+        // Rebuild cached resources using new theme colors
+        _cachedBrush?.Dispose();
+        _cachedBrush = new SolidBrush(CurrentTheme.AccentColor);
+        Invalidate();
+    }
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>7. Dispose Resources Properly</h2>
+                    <p>Beep Controls use GDI+ resources. Always dispose controls and forms when done:</p>
+                    <pre><code class="language-csharp">// In your form's Dispose method
+protected override void Dispose(bool disposing)
+{
+    if (disposing)
+    {
+        components?.Dispose();
+        _myCustomBrush?.Dispose();
+        _myCustomPen?.Dispose();
+    }
+    base.Dispose(disposing);
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>8. Keep README Files Updated</h2>
+                    <p>When creating or modifying controls, update the relevant README files:</p>
+                    <ul>
+                        <li>Project README for overall changes</li>
+                        <li>BaseControl README for base class changes</li>
+                        <li>Styling README for styling changes</li>
+                        <li>Theming README for theme management changes</li>
+                        <li>Per-control README for control-specific documentation</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

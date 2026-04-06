@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start Tutorial - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-lightning"></i> Quick Start Tutorial</h1>
+                    <p class="page-subtitle">Build your first themed WinForms application with Beep Controls in minutes</p>
+                </div>
+
+                <section class="section">
+                    <h2>Step 1: Create a New Project</h2>
+                    <div class="code-example">
+                        <h3>Create and configure project</h3>
+                        <pre><code class="language-bash">dotnet new winforms -n MyBeepApp
+cd MyBeepApp
+dotnet add package TheTechIdea.Beep.Winform.Controls</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Step 2: Set Up BeepiFormPro as Your Main Form</h2>
+                    <p>Replace the default <code>Form1</code> with <code>BeepiFormPro</code> for a modern custom-drawn window:</p>
+                    <div class="code-example">
+                        <h3>MainForm.cs — BeepiFormPro</h3>
+                    <div class="code-example">
+                        <h3>MainForm.cs — BeepiFormPro</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+
+// MainForm.cs — inherit BeepiFormPro instead of Form
+public class MainForm : BeepiFormPro
+{
+    public MainForm()
+    {
+        Text = "My Beep App";
+        Size = new Size(800, 600);
+        
+        // Choose a form style (35+ available)
+        FormStyle = FormStyle.Material;
+    }
+}</code></pre>
+                    </div>
+                    </div>
+                    <p><code>BeepiFormPro</code> is a borderless, fully owner-drawn Form. It handles its own caption bar, 
+                    close/min/max buttons, resizing, and DPI scaling. Each <code>FormStyle</code> value maps to a dedicated
+                    painter class (e.g., <code>MaterialFormPainter</code>, <code>MacOSFormPainter</code>, <code>FluentFormPainter</code>).</p>
+                </section>
+
+                <section class="section">
+                    <h2>Step 3: Initialize Themes &amp; Add Controls</h2>
+                    <p>In <code>Program.cs</code>, initialize <code>BeepThemesManager</code> which auto-discovers all <code>IBeepTheme</code> implementations via assembly reflection:</p>
+                    <div class="code-example">
+                        <h3>Program.cs — Theme initialization</h3>
+                    <div class="code-example">
+                        <h3>Program.cs — Theme initialization</h3>
+                        <pre><code class="language-csharp">// Program.cs
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+
+static class Program
+{
+    [STAThread]
+    static void Main()
+    {
+        ApplicationConfiguration.Initialize();
+        
+        // Auto-discovers all IBeepTheme classes from loaded assemblies
+        BeepThemesManager.InitializeThemes();
+        
+        Application.Run(new MainForm());
+    }
+}</code></pre>
+                    </div>
+                    </div>
+                    <p>Then add themed controls to your form. All controls inherit from <code>BaseControl</code> and automatically respond to theme changes:</p>
+                    <div class="code-example">
+                        <h3>Adding controls to MainForm</h3>
+                        <pre><code class="language-csharp">// Inside MainForm constructor
+var button = new BeepButton();
+button.Text = "Click Me";
+button.Location = new Point(30, 100);
+button.Size = new Size(160, 45);
+button.ImagePath = "icons/check.svg";  // Images always by string path
+button.Click += (s, e) =&gt; MessageBox.Show("Hello from Beep!");
+Controls.Add(button);
+
+var textBox = new BeepTextBox();
+textBox.Location = new Point(30, 160);
+textBox.Size = new Size(250, 35);
+Controls.Add(textBox);
+
+var label = new BeepLabel();
+label.Text = "Welcome to Beep Controls";
+label.Location = new Point(30, 210);
+label.Size = new Size(300, 30);
+Controls.Add(label);</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Step 4: Run Your App</h2>
+                    <div class="code-example">
+                        <h3>Run the application</h3>
+                        <pre><code class="language-bash">dotnet run</code></pre>
+                    </div>
+                    <p>You should see a custom-drawn <code>BeepiFormPro</code> window with a Material-style caption bar, 
+                    and all child controls themed consistently. Try changing <code>FormStyle</code> to <code>FormStyle.MacOS</code>, 
+                    <code>FormStyle.Fluent</code>, or <code>FormStyle.Cyberpunk</code> to see different looks.</p>
+                </section>
+
+                <section class="section">
+                    <h2>Understanding the Architecture</h2>
+                    <p>Here's what's happening under the hood:</p>
+                    <ul>
+                        <li><strong>BaseControl</strong> — All controls inherit from this. It uses a <strong>Painter Strategy Pattern</strong>: <code>OnPaint → EnsurePainter() → _painter.Paint()</code>. The painter handles borders, backgrounds, and shadows; your control just renders content inside <code>DrawingRect</code>.</li>
+                        <li><strong>BeepiFormPro</strong> — Custom Form with its own painter per <code>FormStyle</code>. Uses <code>FormPainterMetrics</code> for layout, <code>BeepiFormProHitAreaManager</code> for mouse hit testing, and <code>BeepiFormProInteractionManager</code> for button hover/press.</li>
+                        <li><strong>BeepThemesManager</strong> — Static class that scans assemblies for <code>IBeepTheme</code> implementations. Fires <code>ThemeChanged</code> event which all controls listen to.</li>
+                        <li><strong>BeepStyling</strong> — Central coordinator managing 130+ painter classes across 7 categories (Background, Border, Text, Shadow, SpinnerButton, Path, Image painters).</li>
+                    </ul>
+                </section>
+
+                <section class="section">
+                    <h2>What's Next?</h2>
+                    <ul>
+                        <li><strong>Theming System</strong> — Deep dive into BeepThemesManager, IBeepTheme, and 27 design systems</li>
+                        <li><strong>Basic Examples</strong> — Common control patterns (login forms, grids, tabs)</li>
+                        <li><strong>Advanced Examples</strong> — FormStyle switching, painter kinds, custom controls</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+</html>

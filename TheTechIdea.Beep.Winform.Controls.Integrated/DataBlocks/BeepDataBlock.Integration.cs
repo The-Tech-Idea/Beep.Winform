@@ -138,8 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 if (value == null || string.IsNullOrEmpty(value.ToString()))
                 {
-                    item.HasError = true;
-                    item.ErrorMessage = "This field is required";
+                    item.SetError("This field is required");
                     
                     // Update UI component
                     if (item.Component is BaseControl beepControl)
@@ -150,8 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    item.HasError = false;
-                    item.ErrorMessage = null;
+                    item.ClearError();
                     
                     // Clear UI error
                     if (item.Component is BaseControl beepControl)

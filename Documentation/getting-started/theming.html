@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theming System - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-palette"></i> Theming System</h1>
+                    <p class="page-subtitle">Understand how Beep Controls theming works and how to customize it</p>
+                </div>
+
+                <section class="section">
+                    <h2>Overview</h2>
+                    <p>The theming system has three layers that work together:</p>
+                    <ul>
+                        <li><strong>BeepThemesManager</strong> — Static manager that discovers <code>IBeepTheme</code> implementations via assembly reflection, fires <code>ThemeChanged</code> events</li>
+                        <li><strong>BeepStyling</strong> — Central coordinator with 130+ painter classes across 27 design systems (Material3, Fluent2, iOS15, AntDesign, ChakraUI, etc.)</li>
+                        <li><strong>BaseControl / BeepiFormPro</strong> — All controls and forms subscribe to theme events and re-render automatically</li>
+                    </ul>
+                </section>
+
+                <section class="section">
+                    <h2>BeepThemesManager — Theme Discovery &amp; Switching</h2>
+                    <p><code>BeepThemesManager</code> is a static class in <code>TheTechIdea.Beep.Winform.Controls.ThemeManagement</code>. 
+                    On startup it scans all loaded assemblies for classes implementing <code>IBeepTheme</code> and collects them automatically.</p>
+                    <div class="code-example">
+                        <h3>Theme initialization and switching</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+
+// Call once at startup — scans assemblies via reflection
+BeepThemesManager.InitializeThemes();
+
+// Switch theme at runtime — all controls respond automatically
+BeepThemesManager.ApplyTheme("MaterialBlue");
+
+// Listen for theme changes
+BeepThemesManager.ThemeChanged += (sender, theme) =&gt;
+{
+    Console.WriteLine($"Theme changed to: {theme.ThemeName}");
+};
+
+// Listen for form style changes
+BeepThemesManager.FormStyleChanged += (sender, style) =&gt;
+{
+    Console.WriteLine($"Form style changed to: {style}");
+};</code></pre>
+                    </div>
+                    <h3>Key Members</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InitializeThemes()</code></td><td>Scans executing, entry, and all Beep-related assemblies for <code>IBeepTheme</code> classes</td></tr>
+                            <tr><td><code>ApplyTheme(name)</code></td><td>Sets the active theme and fires <code>ThemeChanged</code></td></tr>
+                            <tr><td><code>GetTheme(name)</code></td><td>Returns a specific <code>IBeepTheme</code> by name</td></tr>
+                            <tr><td><code>GetDefaultTheme()</code></td><td>Returns the fallback theme (DefaultBeepTheme)</td></tr>
+                            <tr><td><code>ThemeChanged</code></td><td>Event fired when active theme changes</td></tr>
+                            <tr><td><code>FormStyleChanged</code></td><td>Event fired when form style changes</td></tr>
+                            <tr><td><code>DpiChanged</code></td><td>Event fired when DPI scale changes</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section class="section">
+                    <h2>IBeepTheme Interface</h2>
+                    <p>Every theme implements <code>IBeepTheme</code>. You can create custom themes by inheriting <code>BeepThemeBase</code>:</p>
+                    <div class="code-example">
+                        <h3>Creating a custom theme</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Vis.Modules2;
+
+public class MyCustomTheme : BeepThemeBase, IBeepTheme
+{
+    public MyCustomTheme()
+    {
+        ThemeName = "MyCustomTheme";
+        
+        // Colors
+        PrimaryColor = Color.FromArgb(99, 102, 241);
+        SecondaryColor = Color.FromArgb(139, 92, 246);
+        BackgroundColor = Color.FromArgb(249, 250, 251);
+        SurfaceColor = Color.White;
+        TextColor = Color.FromArgb(31, 41, 55);
+        
+        // Typography
+        FontFamily = "Inter";
+        FontSize = 14f;
+        
+        // Borders
+        BorderRadius = 8;
+        BorderWidth = 1;
+        BorderColor = Color.FromArgb(229, 231, 235);
+    }
+}</code></pre>
+                    </div>
+                    <p>Themes are auto-discovered: just compile them into any assembly loaded by your app and call <code>InitializeThemes()</code>. No manual registration needed.</p>
+                </section>
+
+                <section class="section">
+                    <h2>BeepStyling — 27 Design Systems</h2>
+                    <p><code>BeepStyling</code> is a static class in <code>TheTechIdea.Beep.Winform.Controls.Styling</code> 
+                    that coordinates 130+ painter classes across 7 categories:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Painter Folder</th><th>Count</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td>BackgroundPainters</td><td>36</td><td>Fill backgrounds per design system</td></tr>
+                            <tr><td>BorderPainters</td><td>27</td><td>Border drawing (rounded, sharp, glow, etc.)</td></tr>
+                            <tr><td>ShadowPainters</td><td>27</td><td>Shadow/elevation effects</td></tr>
+                            <tr><td>SpinnerButtonPainters</td><td>26</td><td>Spin button rendering</td></tr>
+                            <tr><td>PathPainters</td><td>23</td><td>Shape/path rendering</td></tr>
+                            <tr><td>TextPainters</td><td>5</td><td>Text layout and rendering</td></tr>
+                            <tr><td>ImagePainters</td><td>1</td><td>Image/SVG rendering (<code>StyledImagePainter</code>)</td></tr>
+                        </tbody>
+                    </table>
+                    <p>Additionally, 5 helper systems provide shared utilities: <strong>Colors</strong>, <strong>Spacing</strong>, <strong>Borders</strong>, <strong>Shadows</strong>, and <strong>Typography</strong>.</p>
+                    <div class="code-example">
+                        <h3>Setting the global control style</h3>
+                        <pre><code class="language-csharp">using TheTechIdea.Beep.Winform.Controls.Styling;
+
+// Set the global control style — all painters switch to match
+BeepStyling.SetControlStyle(BeepControlStyle.Material3);
+
+// Listen for style changes
+BeepStyling.ControlStyleChanged += (s, style) =&gt;
+{
+    Console.WriteLine($"Control style: {style}");
+};</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>BaseControl Painter Kinds</h2>
+                    <p>Every control inheriting from <code>BaseControl</code> has a <code>PainterKind</code> property that selects the visual strategy:</p>
+                    <table class="props-table">
+                        <thead><tr><th>PainterKind</th><th>Visual Style</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Auto</code></td><td>Follows the global theme &amp; style automatically</td></tr>
+                            <tr><td><code>Classic</code></td><td>Traditional flat rendering</td></tr>
+                            <tr><td><code>Material</code></td><td>Material Design with elevation and ripple</td></tr>
+                            <tr><td><code>Card</code></td><td>Card-based layout with shadow</td></tr>
+                            <tr><td><code>Glassmorphism</code></td><td>Frosted glass effect</td></tr>
+                            <tr><td><code>Neumorphism</code></td><td>Soft embossed/debossed look</td></tr>
+                            <tr><td><code>NeoBrutalist</code></td><td>Bold outlines, offset shadows</td></tr>
+                            <tr><td><code>Button</code></td><td>Optimized for button rendering</td></tr>
+                            <tr><td><code>ShortcutCard</code></td><td>Compact card for shortcuts/actions</td></tr>
+                            <tr><td><code>ReadingCard</code></td><td>Card for readable content</td></tr>
+                            <tr><td><code>Minimalist</code></td><td>Minimal with thin borders</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="code-example">
+                        <h3>Using PainterKind</h3>
+                        <pre><code class="language-csharp">var card = new BeepPanel();
+card.PainterKind = BaseControlPainterKind.Card;       // Card with shadow
+card.Size = new Size(300, 200);
+
+var btn = new BeepButton();
+btn.PainterKind = BaseControlPainterKind.Glassmorphism; // Frosted glass
+btn.Text = "Glass Button";</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>BeepiFormPro Form Styles</h2>
+                    <p><code>BeepiFormPro</code> supports 35+ form styles via the <code>FormStyle</code> enum. Each style has a dedicated form painter:</p>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>OS Styles</h3><p>Modern, Minimal, MacOS, Fluent, iOS, Ubuntu, KDE, ArcLinux, GNOME</p></div>
+                        <div class="feature-card"><h3>Design Styles</h3><p>Material, MaterialYou, Glass, Glassmorphism, NeoMorphism, Brutalist, Neon, Holographic</p></div>
+                        <div class="feature-card"><h3>Editor Themes</h3><p>Dracula, Solarized, OneDark, GruvBox, Nord, Tokyo</p></div>
+                        <div class="feature-card"><h3>Web/App Styles</h3><p>Shadcn, RadixUI, NextJS, Linear, Paper, Metro, Metro2</p></div>
+                        <div class="feature-card"><h3>Fun Styles</h3><p>Cartoon, ChatBubble, Retro, Cyberpunk, Nordic, Terminal</p></div>
+                        <div class="feature-card"><h3>Custom</h3><p>Use <code>FormStyle.Custom</code> with your own <code>IFormPainter</code> implementation</p></div>
+                    </div>
+                    <div class="code-example">
+                        <h3>Setting FormStyle</h3>
+                        <pre><code class="language-csharp">public class MyApp : BeepiFormPro
+{
+    public MyApp()
+    {
+        FormStyle = FormStyle.Cyberpunk; // Try any style
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Key Classes Summary</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Class</th><th>Namespace</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepThemesManager</code></td><td>ThemeManagement</td><td>Auto-discovers themes, fires ThemeChanged events</td></tr>
+                            <tr><td><code>BeepStyling</code></td><td>Styling</td><td>Central coordinator for 130+ painters across 27 design systems</td></tr>
+                            <tr><td><code>BeepThemeBase</code></td><td>Vis.Modules2.0</td><td>Abstract base for custom themes</td></tr>
+                            <tr><td><code>IBeepTheme</code></td><td>Vis.Modules2.0</td><td>Interface all themes implement</td></tr>
+                            <tr><td><code>StyledImagePainter</code></td><td>Styling/ImagePainters</td><td>SVG/PNG rendering with theme-aware tinting</td></tr>
+                            <tr><td><code>PaintersFactory</code></td><td>Styling</td><td>Creates and caches painter instances per design system</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!--
+    BeepDialogBox Control Documentation
+    Professional-grade documentation for the BeepDialogBox WinForms control.
+    Rewritten from old styles.css format to sphinx-style format.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDialogBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+                                                                        <div id="sidebar-placeholder"></div>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="#">Dialogs &amp; Popups</a>
+                    <span>›</span>
+                    <span>BeepDialogBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepDialogBox</h1>
+                        <p class="subtitle">Fully themed dialog panel with primary, secondary, and tertiary action buttons, icon support, and declarative result capture.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDialogBox</strong> is a composable dialog panel that replaces standard
+                        <code>MessageBox</code> dialogs with a fully themed, customizable alternative. It
+                        renders inside any container — typically a <code>BeepPopupForm</code> or a borderless
+                        overlay panel — and surfaces up to three action buttons plus a close button.
+                    </p>
+                    <p>
+                        Built on <strong>BeepPanel</strong>, the control owns an icon area, a message area,
+                        and a button row. Each button exposes its label and color as first-class properties,
+                        and the dialog fires dedicated events for every possible user action, from which the
+                        caller derives the <code>BeepDialogResult</code>.
+                    </p>
+                    <div class="info-box">
+                        <strong>Inheritance:</strong> Control → BaseControl → BeepPanel → BeepDialogBox<br>
+                        <strong>Typical host:</strong> BeepPopupForm or a dedicated overlay Panel<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls
+                    </div>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Three-Button Layout</h3>
+                            <p>Primary, secondary, and tertiary buttons with independent labels and colors. Show only the buttons you need.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Icon Area</h3>
+                            <p>Built-in BeepImage area for info, warning, error, or custom icons to convey dialog type at a glance.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✖ Close Button</h3>
+                            <p>Dedicated close (×) button fires <code>CloseButtonClicked</code> — distinct from any destructive action button.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📣 Rich Events</h3>
+                            <p>Separate events for every button click make it trivial to wire different logic to each action.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 DialogResult</h3>
+                            <p>Read the <code>DialogResult</code> property after the dialog closes instead of checking events.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖌️ Full Theming</h3>
+                            <p>BeepPanel inheritance makes every color, border, font, and spacing theme-aware.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    <div class="preview-container">
+                        <div class="preview-demo" style="padding:24px;display:flex;justify-content:center;">
+                            <div style="width:380px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.18);font-family:Inter,sans-serif;overflow:hidden;">
+                                <div style="background:#f5f5f5;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e0e0e0;">
+                                    <strong style="font-size:15px;color:#333;">Confirm Delete</strong>
+                                    <span style="cursor:pointer;color:#999;font-size:18px;">✕</span>
+                                </div>
+                                <div style="padding:20px;display:flex;gap:16px;align-items:flex-start;">
+                                    <div style="width:40px;height:40px;background:#FFF3E0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">⚠️</div>
+                                    <p style="margin:0;color:#555;font-size:14px;line-height:1.5;">Are you sure you want to permanently delete this record? This action cannot be undone.</p>
+                                </div>
+                                <div style="padding:16px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #f0f0f0;background:#fafafa;">
+                                    <button style="background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:6px;padding:8px 18px;font-size:13px;cursor:pointer;">Cancel</button>
+                                    <button style="background:#f44336;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+
+                    <h3>Simple Confirmation Dialog</h3>
+                    <pre><code class="language-csharp">var dlg = new BeepDialogBox
+{
+    ShowTitle            = true,
+    Text                 = "Confirm Delete",
+    PrimaryButtonText    = "Delete",
+    PrimaryButtonColor   = Color.FromArgb(244, 67, 54),
+    SecondaryButtonText  = "Cancel"
+};
+
+dlg.PrimaryButtonClicked   += (s, e) => DeleteRecord();
+dlg.SecondaryButtonClicked += (s, e) => { /* dismiss */ };
+dlg.CloseButtonClicked     += (s, e) => { /* dismiss */ };
+
+popupHost.ShowDialog(dlg);</code></pre>
+
+                    <h3>Reading DialogResult</h3>
+                    <pre><code class="language-csharp">dlg.PrimaryButtonClicked += (s, e) =>
+{
+    if (dlg.DialogResult == BeepDialogResult.Primary)
+        ProcessResult();
+};</code></pre>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DialogResult</code></td>
+                                <td>BeepDialogResult</td>
+                                <td>None</td>
+                                <td>Which button was pressed. Values: None, Primary, Secondary, Third, Close.</td>
+                            </tr>
+                            <tr>
+                                <td><code>PrimaryButtonText</code></td>
+                                <td>string</td>
+                                <td>"OK"</td>
+                                <td>Label on the primary (right-most) action button.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SecondaryButtonText</code></td>
+                                <td>string</td>
+                                <td>"Cancel"</td>
+                                <td>Label on the secondary button. Hidden when empty or null.</td>
+                            </tr>
+                            <tr>
+                                <td><code>PrimaryButtonColor</code></td>
+                                <td>Color</td>
+                                <td>(theme primary)</td>
+                                <td>Background fill color for the primary button.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SecondaryButtonColor</code></td>
+                                <td>Color</td>
+                                <td>(theme surface)</td>
+                                <td>Background fill color for the secondary button.</td>
+                            </tr>
+                            <tr>
+                                <td><code>IconImagePath</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to an image shown in the left icon area (info, warning, error, or custom).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">
+                        Inherits all <strong>BeepPanel</strong> and <strong>BaseControl</strong> properties including
+                        <code>ShowTitle</code>, <code>BorderStyle</code>, <code>BorderThickness</code>, and all theme properties.
+                    </p>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Signature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>PrimaryButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Fires when primary button is clicked. DialogResult set to Primary.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SecondaryButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Fires when secondary button is clicked. DialogResult set to Secondary.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThirdButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Fires when the optional third button is clicked. DialogResult set to Third.</td>
+                            </tr>
+                            <tr>
+                                <td><code>CloseButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Fires when the ✕ header close icon is clicked. DialogResult set to Close.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Code Examples</h2>
+                    <h3>Async Awaitable Confirmation</h3>
+                    <pre><code class="language-csharp">public static Task&lt;BeepDialogResult&gt; ShowConfirmAsync(
+    Control host, string title, string message,
+    string primaryLabel = "Confirm", string secondaryLabel = "Cancel",
+    Color? primaryColor = null)
+{
+    var tcs = new TaskCompletionSource&lt;BeepDialogResult&gt;();
+    var dlg = new BeepDialogBox
+    {
+        Text                = title,
+        MessageText         = message,
+        PrimaryButtonText   = primaryLabel,
+        SecondaryButtonText = secondaryLabel,
+        PrimaryButtonColor  = primaryColor ?? Color.FromArgb(25, 118, 210)
+    };
+
+    dlg.PrimaryButtonClicked   += (s, e) => tcs.TrySetResult(BeepDialogResult.Primary);
+    dlg.SecondaryButtonClicked += (s, e) => tcs.TrySetResult(BeepDialogResult.Secondary);
+    dlg.CloseButtonClicked     += (s, e) => tcs.TrySetResult(BeepDialogResult.Close);
+
+    ShowOverlay(host, dlg, () => tcs.Task.IsCompleted);
+    return tcs.Task;
+}
+
+// Usage:
+var result = await ShowConfirmAsync(this, "Delete Item",
+    "This cannot be undone.", "Delete",
+    primaryColor: Color.FromArgb(244, 67, 54));
+if (result == BeepDialogResult.Primary)
+    DeleteItem();</code></pre>
+
+                    <h3>Error Dialog</h3>
+                    <pre><code class="language-csharp">var errorDlg = new BeepDialogBox
+{
+    Text                = "Connection Failed",
+    MessageText         = $"Could not connect:\n{ex.Message}",
+    IconImagePath       = "icons/error.svg",
+    PrimaryButtonText   = "Retry",
+    SecondaryButtonText = "Cancel"
+};
+errorDlg.PrimaryButtonClicked   += (s, e) => RetryConnection();
+errorDlg.SecondaryButtonClicked += (s, e) => NavigateHome();</code></pre>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Color destructive actions red</strong> — Set <code>PrimaryButtonColor</code> to a red/danger value for Delete, Remove, or irreversible action buttons.</li>
+                        <li><strong>Hide unused buttons</strong> — Set <code>SecondaryButtonText = ""</code> to hide it for simple OK-only confirmations.</li>
+                        <li><strong>Always handle CloseButtonClicked</strong> — Users must always be able to dismiss the dialog; never leave this event unhandled.</li>
+                        <li><strong>Use an icon</strong> — An info/warning/error icon set via <code>IconImagePath</code> dramatically improves comprehension.</li>
+                        <li><strong>Keep messages concise</strong> — One to three sentences maximum. Link to help pages for detailed explanations.</li>
+                        <li><strong>Prefer async wrappers</strong> — The <code>TaskCompletionSource</code> pattern avoids blocking the UI thread and integrates cleanly with async workflows.</li>
+                    </ul>
+                </section>
+
+                <!-- Related Controls -->
+                <section id="related" class="section">
+                    <h2>Related Controls</h2>
+                    <div class="related-grid">
+                        <a href="beep-popupform.html" class="related-card">
+                            <h4>BeepPopupForm</h4>
+                            <p>Host form for showing BeepDialogBox as a modal overlay.</p>
+                        </a>
+                        <a href="beep-wait.html" class="related-card">
+                            <h4>BeepWait</h4>
+                            <p>Loading/progress overlay without action buttons.</p>
+                        </a>
+                        <a href="beep-filedialog.html" class="related-card">
+                            <h4>BeepFileDialog</h4>
+                            <p>Themed file picker dialog.</p>
+                        </a>
+                    </div>
+                </section>
+
+            </div><!-- /.content-wrapper -->
+        </main>
+    </div><!-- /.container -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

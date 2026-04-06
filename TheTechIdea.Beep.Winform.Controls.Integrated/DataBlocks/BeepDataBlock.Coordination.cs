@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Editor.UOWManager;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
+using TheTechIdea.Beep.Editor.Forms.Models;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.ConfigUtil;
 
@@ -95,7 +96,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                         MasterKeyPropertyName,
                         ForeignKeyPropertyName);
                 }
-                
+
+                // Push CRUD flags to DataBlockInfo
+                var info = _formsManager.GetBlock(this.Name);
+                if (info != null)
+                {
+                    info.InsertAllowed = InsertAllowed;
+                    info.UpdateAllowed = UpdateAllowed;
+                    info.DeleteAllowed = DeleteAllowed;
+                    info.QueryAllowed = QueryAllowed;
+                    info.DefaultWhereClause = _blockProperties?.WhereClause ?? string.Empty;
+                    info.DefaultOrderByClause = _blockProperties?.OrderByClause ?? string.Empty;
+                }
+
+                // Attach platform-specific event handlers
+                AttachMessageManagerEvents();
+                AttachErrorLogEvents();
+                AttachLockManagerEvents();
+
                 _isRegisteredWithFormsManager = true;
                 return true;
             }
@@ -336,6 +354,105 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         
+        #endregion
+
+        #region FormsManager Event Subscriptions
+
+        /// <summary>
+        /// Subscribe to FormsManager.Messages events for platform display.
+        /// </summary>
+        private void AttachMessageManagerEvents()
+        {
+            if (_formsManager?.Messages == null) return;
+
+            _formsManager.Messages.OnMessage += (_, e) =>
+            {
+                if (!string.Equals(e.Message?.BlockName, this.Name, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                Status = e.Message.Text;
+                if (SYSTEM != null) SYSTEM.MESSAGE_TEXT = e.Message.Text;
+
+                // Re-fire local event and start auto-hide timer (WinForms-specific)
+                OnMessageDisplayed?.Invoke(this, new MessageEventArgs
+                {
+                    Message = new BlockMessage
+                    {
+                        Text = e.Message.Text,
+                        Level = e.Message.Level,
+                        Timestamp = e.Message.Timestamp
+                    }
+                });
+
+                StartMessageTimer();
+            };
+
+            _formsManager.Messages.OnMessageCleared += (_, e) =>
+            {
+                if (string.Equals(e.Message?.BlockName, this.Name, StringComparison.OrdinalIgnoreCase))
+                    ClearMessage();
+            };
+        }
+
+        /// <summary>
+        /// Subscribe to FormsManager.ErrorLog events for platform display.
+        /// </summary>
+        private void AttachErrorLogEvents()
+        {
+            if (_formsManager?.ErrorLog == null) return;
+
+            _formsManager.ErrorLog.OnError += (_, args) =>
+            {
+                if (!string.Equals(args.ErrorInfo?.BlockName, this.Name, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                // Re-fire local OnError event for backward compatibility
+                OnError?.Invoke(this, new DataBlockErrorEventArgs
+                {
+                    Exception = args.ErrorInfo.Exception,
+                    Context = args.ErrorInfo.Context,
+                    Block = this,
+                    Severity = (ErrorSeverity)(int)args.ErrorInfo.Severity
+                });
+
+                // Show MessageBox if not suppressed and not already handled
+                if (!_suppressErrorDialogs && !args.Handled)
+                {
+                    System.Windows.Forms.MessageBox.Show(
+                        $"{args.ErrorInfo.Context}\n\n{args.ErrorInfo.Message}",
+                        "Error",
+                        System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Error);
+                    args.Handled = true;
+                }
+            };
+
+            _formsManager.ErrorLog.OnWarning += (_, args) =>
+            {
+                if (!string.Equals(args.ErrorInfo?.BlockName, this.Name, StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                OnWarning?.Invoke(this, new DataBlockErrorEventArgs
+                {
+                    Exception = args.ErrorInfo.Exception,
+                    Context = args.ErrorInfo.Context,
+                    Block = this,
+                    Severity = (ErrorSeverity)(int)args.ErrorInfo.Severity
+                });
+            };
+        }
+
+        /// <summary>
+        /// Sync LockMode / LockOnEdit to FormsManager.Locking on registration.
+        /// </summary>
+        private void AttachLockManagerEvents()
+        {
+            if (_formsManager?.Locking == null) return;
+
+            _formsManager.Locking.SetLockMode(this.Name, (Editor.UOWManager.Models.LockMode)(int)_lockMode);
+            _formsManager.Locking.SetLockOnEdit(this.Name, _lockOnEdit);
+        }
+
         #endregion
     }
 }

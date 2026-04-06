@@ -43,14 +43,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
-        /// Current message being displayed
+        /// Current message being displayed. When coordinated, delegates to FormsManager.
         /// </summary>
-        public string CurrentMessage => _currentMessage?.Text;
+        public string CurrentMessage
+        {
+            get
+            {
+                if (IsCoordinated && _formsManager?.Messages != null)
+                {
+                    try { return _formsManager.Messages.GetCurrentMessage(this.Name); }
+                    catch { }
+                }
+                return _currentMessage?.Text;
+            }
+        }
         
         /// <summary>
-        /// Current message level
+        /// Current message level. When coordinated, delegates to FormsManager.
         /// </summary>
-        public MessageLevel CurrentMessageLevel => _currentMessage?.Level ?? MessageLevel.Info;
+        public MessageLevel CurrentMessageLevel
+        {
+            get
+            {
+                if (IsCoordinated && _formsManager?.Messages != null)
+                {
+                    try { return (MessageLevel)(int)_formsManager.Messages.GetCurrentMessageLevel(this.Name); }
+                    catch { }
+                }
+                return _currentMessage?.Level ?? MessageLevel.Info;
+            }
+        }
         
         #endregion
         
@@ -62,6 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void SetMessage(string text, MessageLevel level = MessageLevel.Info)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.Messages != null)
+            {
+                _formsManager.Messages.SetMessage(this.Name, text,
+                    (Editor.Forms.Models.MessageLevel)(int)level);
+                return;
+            }
+
             var message = new BlockMessage
             {
                 Text = text,
@@ -91,6 +121,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ClearMessage()
         {
+            if (IsCoordinated && _formsManager?.Messages != null)
+                _formsManager.Messages.ClearMessage(this.Name);
+
             _messageTimer?.Stop();
             _currentMessage = null;
             
@@ -143,19 +176,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _currentMessage = message;
             
-            // Create timer for auto-hide
+            // Start auto-hide timer
             if (_autoHideMessages)
-            {
-                if (_messageTimer == null)
-                {
-                    _messageTimer = new System.Windows.Forms.Timer();
-                    _messageTimer.Tick += MessageTimer_Tick;
-                }
-                
-                _messageTimer.Stop();
-                _messageTimer.Interval = _messageDisplayDuration;
-                _messageTimer.Start();
-            }
+                StartMessageTimer();
             
             // Update status (could be status bar, label, etc.)
             Status = message.Text;
@@ -167,6 +190,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void MessageTimer_Tick(object sender, EventArgs e)
         {
             ClearMessage();
+        }
+
+        /// <summary>
+        /// Start (or restart) the auto-hide message timer.
+        /// Called by Coordination.cs after attaching message manager events.
+        /// </summary>
+        public void StartMessageTimer()
+        {
+            if (!_autoHideMessages) return;
+            if (_messageTimer == null)
+            {
+                _messageTimer = new System.Windows.Forms.Timer();
+                _messageTimer.Tick += MessageTimer_Tick;
+            }
+            _messageTimer.Stop();
+            _messageTimer.Interval = _messageDisplayDuration;
+            _messageTimer.Start();
         }
         
         private void ShowNextMessage()

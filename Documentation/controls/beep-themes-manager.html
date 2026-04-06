@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepThemesManager - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <!-- sidebar placeholder - will be replaced by update-navs.py -->
+                                <div id="sidebar-placeholder"></div>
+
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="#">Core Infrastructure</a>
+                    <span>&rsaquo;</span>
+                    <span>BeepThemesManager</span>
+                </nav>
+
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepThemesManager</h1>
+                        <p class="subtitle">The central static theme registry for all Beep controls. Manages theme discovery, switching, DPI scaling, and form-style-to-theme mapping. All controls listen to its events to repaint automatically when the active theme or DPI changes.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.ThemeManagement</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OVERVIEW -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><code>BeepThemesManager</code> is a <strong>static class</strong> &mdash; no instantiation required. At startup it:</p>
+                    <ol>
+                        <li>Scans all loaded assemblies for types implementing <code>IBeepTheme</code>.</li>
+                        <li>Loads the fixed list of 55+ predefined themes from <code>TheTechIdea.Beep.Vis.Modules2.0</code>.</li>
+                        <li>Ensures a fallback <code>DefaultBeepTheme</code> always exists.</li>
+                        <li>Exposes static events (<code>ThemeChanged</code>, <code>FormStyleChanged</code>, <code>DpiChanged</code>) that every control subscribes to.</li>
+                    </ol>
+                    <div class="info-box">
+                        <strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.ThemeManagement</code><br>
+                        <strong>Type:</strong> Static class &mdash; use directly, no <code>new</code> needed.<br>
+                        <strong>Key entry points:</strong> <code>BeepThemesManager.CurrentThemeName</code> &middot; <code>BeepThemesManager.CurrentStyle</code> &middot; <code>BeepThemesManager.ThemeChanged</code>
+                    </div>
+                </section>
+
+                <!-- EVENTS -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>When Fired</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ThemeChanged</code></td>
+                                <td>ThemeChangeEventArgs</td>
+                                <td>Every time <code>CurrentThemeName</code> is assigned a new value. All controls subscribe here to call <code>ApplyTheme()</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>FormStyleChanged</code></td>
+                                <td>StyleChangeEventArgs</td>
+                                <td>Every time <code>CurrentStyle</code> changes. Automatically triggers <code>ThemeChanged</code> via the corresponding theme name.</td>
+                            </tr>
+                            <tr>
+                                <td><code>DpiChanged</code></td>
+                                <td>EventArgs</td>
+                                <td>When <code>DpiScaleFactor</code> changes (monitor-move). Controls should update layout metrics and <code>Invalidate()</code> &mdash; <strong>not</strong> call <code>ApplyTheme()</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ThemeChangeEventArgs</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property / Method</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>OldThemeName</code></td><td>string</td><td>Name of the theme before the change.</td></tr>
+                            <tr><td><code>NewThemeName</code></td><td>string</td><td>Name of the newly active theme.</td></tr>
+                            <tr><td><code>OldTheme</code></td><td>IBeepTheme</td><td>The previous theme object.</td></tr>
+                            <tr><td><code>NewTheme</code></td><td>IBeepTheme</td><td>The new theme object (ready to use for painting).</td></tr>
+                            <tr><td><code>IsThemeChanged()</code></td><td>bool</td><td>True when old and new theme names differ.</td></tr>
+                            <tr><td><code>IsAnyChange()</code></td><td>bool</td><td>True when any aspect of the event represents a change.</td></tr>
+                            <tr><td><code>GetChangeSummary()</code></td><td>string</td><td>Human-readable summary of what changed.</td></tr>
+                            <tr><td><code>ToString()</code></td><td>string</td><td>&quot;Theme changed from X to Y&quot;</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>StyleChangeEventArgs</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>OldStyle</code></td><td>FormStyle</td><td>The FormStyle value before the change.</td></tr>
+                            <tr><td><code>NewStyle</code></td><td>FormStyle</td><td>The new FormStyle value.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- PROPERTIES -->
+                <section id="properties" class="section">
+                    <h2>Static Properties</h2>
+
+                    <h3>Theme Selection</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>CurrentThemeName</code></td><td>string</td><td>Get or set the name of the active theme. Setting fires <code>ThemeChanged</code>.</td></tr>
+                            <tr><td><code>CurrentTheme</code></td><td>IBeepTheme</td><td>Read-only. Returns the <code>IBeepTheme</code> object for the current theme name.</td></tr>
+                            <tr><td><code>CurrentStyle</code></td><td>FormStyle</td><td>Get or set the current <code>FormStyle</code>. Setting resolves the corresponding theme and fires both <code>FormStyleChanged</code> and <code>ThemeChanged</code>.</td></tr>
+                            <tr><td><code>DefaultTheme</code></td><td>IBeepTheme</td><td>The resolved fallback theme (always non-null after initialization).</td></tr>
+                            <tr><td><code>DefaultThemeGuid</code></td><td>Guid</td><td>All-zeros GUID used as the default theme identifier sentinel.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>DPI Scaling</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>DpiScaleFactor</code></td><td>float</td><td>1.0</td><td>Average DPI scale (1.0 = 96 DPI, 1.25 = 120 DPI, 1.5 = 144 DPI). Setting fires <code>DpiChanged</code>.</td></tr>
+                            <tr><td><code>DpiScaleX</code></td><td>float</td><td>1.0</td><td>Horizontal DPI scale factor. Read-only; updated via <code>UpdateDpiScaleFactors</code>.</td></tr>
+                            <tr><td><code>DpiScaleY</code></td><td>float</td><td>1.0</td><td>Vertical DPI scale factor. Read-only.</td></tr>
+                            <tr>
+                                <td><code>EnableDpiFontScaling</code></td>
+                                <td>bool</td>
+                                <td><strong>false</strong></td>
+                                <td>
+                                    Enable manual DPI multiplication on fonts. <strong>Keep false.</strong>
+                                    WinForms already auto-scales Point fonts; enabling this causes double-scaling
+                                    and oversized text on high-DPI monitors.
+                                    Only enable for pure GDI custom painters that need physical pixel sizes.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- METHODS -->
+                <section id="methods" class="section">
+                    <h2>Static Methods</h2>
+
+                    <h3>Theme Lifecycle</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>InitializeThemes()</code></td><td>void</td>
+                                <td>Clear and re-discover all themes from loaded assemblies. Called automatically by the static constructor; call again to reload after dynamically loading plugin assemblies.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ResetThemes()</code></td><td>void</td>
+                                <td>Alias for <code>InitializeThemes()</code>. Useful in tests or plugin-reload scenarios.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AddTheme(theme)</code></td><td>void</td>
+                                <td>Register a custom <code>IBeepTheme</code>. Assigns a GUID automatically if missing. Duplicate GUIDs are ignored.</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveTheme(theme)</code></td><td>void</td>
+                                <td>Remove a theme by its GUID.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Theme Retrieval</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>GetTheme(name)</code></td><td>IBeepTheme</td><td>Return theme by name, or the default theme if not found.</td></tr>
+                            <tr><td><code>GetDefaultTheme()</code></td><td>IBeepTheme</td><td>Priority: &quot;DefaultTheme&quot; &rarr; &quot;DefaultBeepTheme&quot; &rarr; any registered theme.</td></tr>
+                            <tr><td><code>GetThemes()</code></td><td>List&lt;IBeepTheme&gt;</td><td>Return a snapshot copy of the full theme collection.</td></tr>
+                            <tr><td><code>GetThemeNames()</code></td><td>List&lt;string&gt;</td><td>Return all registered theme names.</td></tr>
+                            <tr><td><code>GetThemeName(theme)</code></td><td>string</td><td>Return the ThemeName of a theme object, or &quot;DefaultBeepTheme&quot; if null.</td></tr>
+                            <tr><td><code>GetGuidFromTheme(theme)</code></td><td>string</td><td>Return the GUID string, or the zero-GUID placeholder if null.</td></tr>
+                            <tr><td><code>ThemeExists(name)</code></td><td>bool</td><td>Returns true if a theme with the given name is registered.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Theme Switching</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SetCurrentTheme(string&nbsp;name)</code></td><td>Switch by name if it exists; fires <code>ThemeChanged</code>.</td></tr>
+                            <tr><td><code>SetCurrentTheme(IBeepTheme&nbsp;theme)</code></td><td>Switch by object reference; auto-registers if not already known; fires <code>ThemeChanged</code>.</td></tr>
+                            <tr><td><code>SetCurrentStyle(FormStyle&nbsp;style)</code></td><td>Switch by <code>FormStyle</code> enum; resolves the paired theme; fires <code>FormStyleChanged</code> + <code>ThemeChanged</code>.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>FormStyle to Theme Mapping</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>GetThemeForFormStyle(FormStyle)</code></td><td>IBeepTheme</td><td>Return the theme object paired with a given FormStyle.</td></tr>
+                            <tr><td><code>GetThemeNameForFormStyle(FormStyle)</code></td><td>string</td><td>Return the theme name for a given FormStyle (see mapping table below).</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Font Helpers</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ToFont(TypographyStyle)</code></td><td>Font</td>
+                                <td>Create a logical Point font. <strong>No DPI scaling applied</strong> &mdash; WinForms auto-scales these. For standard control text.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToFont(TypographyStyle, bool)</code></td><td>Font</td>
+                                <td><code>applyDpiScaling</code> parameter is silently ignored for backward compatibility. Behaves identically to the one-argument overload.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToFontForControl(TypographyStyle, Control)</code></td><td>Font</td>
+                                <td>DPI-scaled font <strong>for custom GDI painters only</strong>. Uses the control&apos;s current DPI to calculate physical pixel size. Do not use for standard WinForms text properties.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToFont(family, size, weight, style)</code></td><td>Font</td>
+                                <td>Create a font from raw parameters. Falls back to <code>Segoe UI</code> automatically when the requested family is unavailable.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ScaleFontForDpi(Font)</code></td><td>Font</td>
+                                <td>Multiply an existing font by the global <code>DpiScaleFactor</code>. No-op when <code>EnableDpiFontScaling</code> is false (default).</td>
+                            </tr>
+                            <tr>
+                                <td><code>ScaleFontForControl(Font, Control)</code></td><td>Font</td>
+                                <td>Multiply an existing font by a specific control&apos;s current DPI scale factor.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>DPI Management</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>UpdateDpiFromControl(Control)</code></td><td>Detect and apply the DPI of a specific control. Call from <code>OnDpiChanged</code> in forms.</td></tr>
+                            <tr><td><code>UpdateDpiFromSystem()</code></td><td>Apply the system-wide DPI. Call once at application startup before any form is created.</td></tr>
+                            <tr><td><code>UpdateDpiScaleFactors(scaleX, scaleY)</code></td><td>Set both axes explicitly. Fires <code>DpiChanged</code> only when values change by more than 0.01.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Persistence</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SaveTheme(theme, filePath)</code></td><td>XML-serialize a theme to the given file path.</td></tr>
+                            <tr><td><code>LoadTheme(filePath)</code></td><td>XML-deserialize a theme from file. Registers it in the collection automatically.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Misc</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ConfigureDefaultTheme(BeepTheme)</code></td><td>Apply sensible dark or light color defaults based on whether the name contains &quot;Dark&quot;. Good starting point for new themes.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- FORMSTYLE MAPPING -->
+                <section id="formstyle-map" class="section">
+                    <h2>FormStyle &rarr; Theme Name Mapping</h2>
+                    <p>Setting <code>CurrentStyle</code> automatically resolves and activates the paired theme via this mapping:</p>
+                    <table class="props-table">
+                        <thead><tr><th>FormStyle</th><th>Theme Name</th><th>FormStyle</th><th>Theme Name</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Modern</code></td><td>ModernTheme</td><td><code>Nordic</code></td><td>NordicTheme</td></tr>
+                            <tr><td><code>Minimal</code></td><td>MinimalTheme</td><td><code>iOS</code></td><td>iOSTheme</td></tr>
+                            <tr><td><code>MacOS</code></td><td>MacOSTheme</td><td><code>Ubuntu</code></td><td>UbuntuTheme</td></tr>
+                            <tr><td><code>Fluent</code></td><td>FluentTheme</td><td><code>KDE</code></td><td>KDETheme</td></tr>
+                            <tr><td><code>Material</code></td><td>MaterialDesignTheme</td><td><code>ArcLinux</code></td><td>ArcLinuxTheme</td></tr>
+                            <tr><td><code>Cartoon</code></td><td>CartoonTheme</td><td><code>Dracula</code></td><td>DraculaTheme</td></tr>
+                            <tr><td><code>ChatBubble</code></td><td>ChatBubbleTheme</td><td><code>Solarized</code></td><td>SolarizedTheme</td></tr>
+                            <tr><td><code>Glass</code></td><td>GlassTheme</td><td><code>OneDark</code></td><td>OneDarkTheme</td></tr>
+                            <tr><td><code>Metro</code></td><td>MetroTheme</td><td><code>GruvBox</code></td><td>GruvBoxTheme</td></tr>
+                            <tr><td><code>Metro2</code></td><td>Metro2Theme</td><td><code>Nord</code></td><td>NordTheme</td></tr>
+                            <tr><td><code>GNOME</code></td><td>GNOMETheme</td><td><code>Tokyo</code></td><td>TokyoTheme</td></tr>
+                            <tr><td><code>NeoMorphism</code></td><td>NeoMorphismTheme</td><td><code>Paper</code></td><td>PaperTheme</td></tr>
+                            <tr><td><code>Glassmorphism</code></td><td>GlassmorphismTheme</td><td><code>Neon</code></td><td>NeonTheme</td></tr>
+                            <tr><td><code>Brutalist</code></td><td>BrutalistTheme</td><td><code>Holographic</code></td><td>HolographicTheme</td></tr>
+                            <tr><td><code>Retro</code></td><td>RetroTheme</td><td><code>Terminal</code></td><td>TerminalTheme</td></tr>
+                            <tr><td><code>Cyberpunk</code></td><td>CyberpunkTheme</td><td><code>Custom</code></td><td>DefaultTheme</td></tr>
+                            <tr><td colspan="2">&nbsp;</td><td><em>(any other)</em></td><td>DefaultTheme</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- PREDEFINED THEMES -->
+                <section id="themes-list" class="section">
+                    <h2>Built-in Predefined Themes</h2>
+                    <p>All themes below are auto-discovered and registered at startup from <code>TheTechIdea.Beep.Vis.Modules2.0</code>. They are also dynamically loaded by <code>AddPredefinedThemes()</code> via reflection:</p>
+                    <div style="column-count:3;column-gap:2rem;margin-top:0.5rem">
+                        <ul style="margin:0;padding-left:1.2em">
+                            <li>DefaultTheme</li><li>WinterTheme</li><li>CandyTheme</li>
+                            <li>ZenTheme</li><li>RetroTheme</li><li>RoyalTheme</li>
+                            <li>HighlightTheme</li><li>DarkTheme</li><li>OceanTheme</li>
+                            <li>LightTheme</li><li>PastelTheme</li><li>MidnightTheme</li>
+                            <li>SpringTheme</li><li>ForestTheme</li><li>NeonTheme</li>
+                            <li>RusticTheme</li><li>GalaxyTheme</li><li>DesertTheme</li>
+                            <li>VintageTheme</li><li>ModernDarkTheme</li><li>MaterialDesignTheme</li>
+                            <li>NeumorphismTheme</li><li>GlassmorphismTheme</li><li>FlatDesignTheme</li>
+                            <li>CyberpunkNeonTheme</li><li>GradientBurstTheme</li><li>HighContrastTheme</li>
+                            <li>MonochromeTheme</li><li>LuxuryGoldTheme</li><li>SunsetTheme</li>
+                            <li>AutumnTheme</li><li>EarthyTheme</li><li>ArcLinuxTheme</li>
+                            <li>BrutalistTheme</li><li>CartoonTheme</li><li>ChatBubbleTheme</li>
+                            <li>CyberpunkTheme</li><li>DraculaTheme</li><li>FluentTheme</li>
+                            <li>GlassTheme</li><li>GNOMETheme</li><li>GruvBoxTheme</li>
+                            <li>HolographicTheme</li><li>iOSTheme</li><li>KDETheme</li>
+                            <li>MacOSTheme</li><li>Metro2Theme</li><li>MetroTheme</li>
+                            <li>MinimalTheme</li><li>NeoMorphismTheme</li><li>NordicTheme</li>
+                            <li>NordTheme</li><li>OneDarkTheme</li><li>PaperTheme</li>
+                            <li>SolarizedTheme</li><li>TerminalTheme</li><li>TokyoTheme</li>
+                            <li>UbuntuTheme</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- CUSTOM THEME -->
+                <section id="custom-theme" class="section">
+                    <h2>Creating a Custom Theme</h2>
+                    <p>Implement <code>IBeepTheme</code> (or inherit from <code>BeepTheme</code>) and register it once at startup:</p>
+<pre><code class="language-csharp">public class MyBrandTheme : BeepTheme
+{
+    public MyBrandTheme()
+    {
+        ThemeName      = "MyBrandTheme";
+        IsDarkTheme    = false;
+        BackColor      = Color.FromArgb(245, 248, 255);
+        ForeColor      = Color.FromArgb(20, 20, 40);
+        PrimaryColor   = Color.FromArgb(0, 85, 200);    // brand blue
+        SecondaryColor = Color.FromArgb(0, 150, 130);   // brand teal
+        AccentColor    = Color.FromArgb(255, 120, 30);  // brand orange
+        BorderRadius   = 8;
+        PaddingSmall   = 4;
+        PaddingMedium  = 8;
+        PaddingLarge   = 16;
+    }
+}
+</code></pre>
+<pre><code class="language-csharp">// Register once at application startup (before Application.Run)
+BeepThemesManager.AddTheme(new MyBrandTheme());
+
+// Activate it - all subscribed controls repaint automatically
+BeepThemesManager.SetCurrentTheme("MyBrandTheme");
+</code></pre>
+                </section>
+
+                <!-- SUBSCRIBING TO EVENTS -->
+                <section id="subscribing" class="section">
+                    <h2>Subscribing to Theme Events in Custom Controls</h2>
+<pre><code class="language-csharp">public class MyCustomControl : BeepControl
+{
+    public MyCustomControl()
+    {
+        BeepThemesManager.ThemeChanged     += OnThemeChanged;
+        BeepThemesManager.DpiChanged       += OnDpiChanged;
+        BeepThemesManager.FormStyleChanged += OnFormStyleChanged;
+    }
+
+    private void OnThemeChanged(object sender, ThemeChangeEventArgs e)
+    {
+        // e.NewTheme is the ready-to-use IBeepTheme
+        ApplyTheme(e.NewTheme);
+        Invalidate();
+    }
+
+    private void OnDpiChanged(object sender, EventArgs e)
+    {
+        // DPI changed - update layout metrics but do NOT call ApplyTheme()
+        UpdateLayout();
+        Invalidate();
+    }
+
+    private void OnFormStyleChanged(object sender, StyleChangeEventArgs e)
+    {
+        // Optional: adjust chrome for the new style
+        UpdateBorderForStyle(e.NewStyle);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // CRITICAL: always unsubscribe - static events hold strong references
+            BeepThemesManager.ThemeChanged     -= OnThemeChanged;
+            BeepThemesManager.DpiChanged       -= OnDpiChanged;
+            BeepThemesManager.FormStyleChanged -= OnFormStyleChanged;
+        }
+        base.Dispose(disposing);
+    }
+}
+</code></pre>
+                    <div class="info-box">
+                        <strong>Memory leak warning:</strong> Static events hold strong references to all subscribers. Always unsubscribe in <code>Dispose()</code>, otherwise controls are kept alive until the application exits.
+                    </div>
+                </section>
+
+                <!-- DPI -->
+                <section id="dpi" class="section">
+                    <h2>DPI Handling</h2>
+                    <p>Beep uses WinForms automatic Point-font DPI scaling for all standard text. Custom GDI painters that need absolute pixel measurements must call <code>ToFontForControl</code> instead of <code>ToFont</code>.</p>
+
+                    <h3>Application startup</h3>
+<pre><code class="language-csharp">// Program.cs - before Application.Run()
+Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+BeepThemesManager.UpdateDpiFromSystem();
+</code></pre>
+
+                    <h3>Forms that can move between monitors</h3>
+<pre><code class="language-csharp">protected override void OnDpiChanged(DpiChangedEventArgs e)
+{
+    base.OnDpiChanged(e);
+    // Updates DpiScaleX/Y and fires BeepThemesManager.DpiChanged automatically
+    BeepThemesManager.UpdateDpiFromControl(this);
+}
+</code></pre>
+
+                    <h3>Font in a custom GDI painter</h3>
+<pre><code class="language-csharp">protected override void OnPaint(PaintEventArgs e)
+{
+    // Use ToFontForControl for physical pixel accuracy in custom GDI drawing
+    using var bodyFont = BeepThemesManager.ToFontForControl(
+        BeepThemesManager.CurrentTheme.Body1Typography, this);
+
+    e.Graphics.DrawString("Hello", bodyFont, Brushes.Black, ClientRectangle);
+}
+</code></pre>
+                </section>
+
+                <!-- SWITCHING THEMES -->
+                <section id="switching" class="section">
+                    <h2>Switching Themes at Runtime</h2>
+<pre><code class="language-csharp">// By name
+BeepThemesManager.SetCurrentTheme("DraculaTheme");
+
+// By FormStyle - sets both form chrome and theme palette in one call
+BeepThemesManager.SetCurrentStyle(FormStyle.Dracula);
+
+// By object reference
+IBeepTheme night = BeepThemesManager.GetTheme("MidnightTheme");
+BeepThemesManager.SetCurrentTheme(night);
+
+// Populate a ComboBox with all available themes
+var names = BeepThemesManager.GetThemeNames();
+cmbTheme.DataSource = names;
+cmbTheme.SelectedIndexChanged += (s, e) =>
+    BeepThemesManager.SetCurrentTheme((string)cmbTheme.SelectedItem);
+</code></pre>
+                </section>
+
+                <!-- PERSISTENCE -->
+                <section id="persistence" class="section">
+                    <h2>Theme Persistence</h2>
+<pre><code class="language-csharp">// Save a custom theme to an XML file
+IBeepTheme custom = BeepThemesManager.GetTheme("MyBrandTheme");
+BeepThemesManager.SaveTheme(custom, @"themes\mybrand.xml");
+
+// Load it back (also registers it automatically)
+IBeepTheme loaded = BeepThemesManager.LoadTheme(@"themes\mybrand.xml");
+BeepThemesManager.SetCurrentTheme(loaded);
+</code></pre>
+                </section>
+
+                <!-- BEST PRACTICES -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>
+                            <strong>Never call <code>ApplyTheme()</code> inside the <code>DpiChanged</code> handler.</strong>
+                            DPI change and theme change are intentionally separate events. Calling <code>ApplyTheme()</code>
+                            on DPI change causes unnecessary font re-creation, multiple repaints, and potential double-scaling.
+                        </li>
+                        <li>
+                            <strong>Always unsubscribe in <code>Dispose()</code>.</strong>
+                            Static event subscriptions prevent controls from being garbage-collected.
+                        </li>
+                        <li>
+                            <strong>Use <code>ToFont()</code> for normal WinForms text, <code>ToFontForControl()</code> for custom GDI painters.</strong>
+                            <code>ToFont()</code> returns a logical Point font that WinForms auto-scales.
+                            <code>ToFontForControl()</code> returns a physical pixel font for raw GDI measurements.
+                        </li>
+                        <li>
+                            <strong>Leave <code>EnableDpiFontScaling = false</code> (the default).</strong>
+                            Enabling it on a WinForms app causes double-scaling (WinForms + manual) resulting in oversized text on high-DPI monitors.
+                        </li>
+                        <li>
+                            <strong>Call <code>UpdateDpiFromSystem()</code> once at startup.</strong>
+                            For forms that can move between monitors also call <code>UpdateDpiFromControl(this)</code>
+                            inside <code>OnDpiChanged</code>.
+                        </li>
+                        <li>
+                            <strong>Register custom themes before calling <code>Application.Run()</code>.</strong>
+                            Controls are created first and may miss a <code>ThemeChanged</code> event if the theme is added after the window is shown.
+                        </li>
+                        <li>
+                            <strong>Use <code>ConfigureDefaultTheme()</code> as a quick baseline.</strong>
+                            It sets sensible dark/light colors and padding so you only override the properties your brand needs.
+                        </li>
+                        <li>
+                            <strong>Prefer <code>SetCurrentStyle(FormStyle)</code> over <code>SetCurrentTheme(name)</code></strong>
+                            when you want the form chrome and control palette to stay visually consistent &mdash; both change together in one call.
+                        </li>
+                    </ul>
+                </section>
+
+            </div><!-- end content-wrapper -->
+        </main>
+    </div><!-- end container -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? '' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

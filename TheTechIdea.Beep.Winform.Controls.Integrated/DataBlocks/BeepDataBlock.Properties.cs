@@ -54,6 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var item = new BeepDataBlockItem
             {
                 ItemName = itemName,
+                BlockName = Name,
                 BoundProperty = component.BoundProperty,
                 Component = component,
                 Enabled = true,
@@ -64,6 +65,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
             
             _items[itemName] = item;
+
+            // Delegate to FormsManager — BeepDataBlockItem IS an ItemInfo
+            if (IsCoordinated)
+            {
+                try { _formsManager.Properties.RegisterItem(Name, itemName, item); }
+                catch { /* fall through to local-only */ }
+            }
         }
         
         /// <summary>
@@ -124,12 +132,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 throw new ArgumentException($"Item '{itemName}' not found", nameof(itemName));
             }
 
-            var property = typeof(BeepDataBlockItem).GetProperty(propertyName);
+            var property = typeof(ItemInfo).GetProperty(propertyName)
+                        ?? typeof(BeepDataBlockItem).GetProperty(propertyName);
             
             if (property != null && property.CanWrite)
             {
                 property.SetValue(item, value);
                 ApplyItemProperty(item, propertyName);
+
+                // FormsManager sees the same ItemInfo instance — already updated
+                if (IsCoordinated)
+                {
+                    try { _formsManager.Properties.SetItemProperty(Name, itemName, propertyName, value); }
+                    catch { /* fall through to local-only */ }
+                }
             }
             else
             {
@@ -146,7 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!TryResolveItem(itemName, out var item, out _))
                 return null;
 
-            var property = typeof(BeepDataBlockItem).GetProperty(propertyName);
+            var property = typeof(ItemInfo).GetProperty(propertyName)
+                        ?? typeof(BeepDataBlockItem).GetProperty(propertyName);
              
             return property?.GetValue(item);
         }
@@ -245,15 +262,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 switch (propertyName)
                 {
-                    case nameof(BeepDataBlockItem.Enabled):
+                    case nameof(ItemInfo.Enabled):
                         control.Enabled = item.Enabled;
                         break;
                         
-                    case nameof(BeepDataBlockItem.Visible):
+                    case nameof(ItemInfo.Visible):
                         control.Visible = item.Visible;
                         break;
                         
-                    case nameof(BeepDataBlockItem.Required):
+                    case nameof(ItemInfo.Required):
                         // Add visual indicator for required fields
                         if (item.Component is BaseControl beepControl)
                         {
@@ -274,14 +291,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         break;
                         
-                    case nameof(BeepDataBlockItem.HintText):
+                    case nameof(ItemInfo.HintText):
                         if (item.Component is BaseControl beepCtrl)
                         {
                             beepCtrl.ToolTipText = item.HintText;
                         }
                         break;
                         
-                    case nameof(BeepDataBlockItem.DefaultValue):
+                    case nameof(ItemInfo.DefaultValue):
                         // Default value is applied in WHEN-NEW-RECORD-INSTANCE
                         break;
                 }
@@ -333,8 +350,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool InsertAllowed
         {
-            get => _blockProperties.InsertAllowed;
-            set => _blockProperties.InsertAllowed = value;
+            get => IsCoordinated ? (_formsManager.GetBlock(Name)?.InsertAllowed ?? _blockProperties.InsertAllowed) : _blockProperties.InsertAllowed;
+            set
+            {
+                _blockProperties.InsertAllowed = value;
+                if (IsCoordinated) { var info = _formsManager.GetBlock(Name); if (info != null) info.InsertAllowed = value; }
+            }
         }
         
         /// <summary>
@@ -342,8 +363,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool UpdateAllowed
         {
-            get => _blockProperties.UpdateAllowed;
-            set => _blockProperties.UpdateAllowed = value;
+            get => IsCoordinated ? (_formsManager.GetBlock(Name)?.UpdateAllowed ?? _blockProperties.UpdateAllowed) : _blockProperties.UpdateAllowed;
+            set
+            {
+                _blockProperties.UpdateAllowed = value;
+                if (IsCoordinated) { var info = _formsManager.GetBlock(Name); if (info != null) info.UpdateAllowed = value; }
+            }
         }
         
         /// <summary>
@@ -351,8 +376,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool DeleteAllowed
         {
-            get => _blockProperties.DeleteAllowed;
-            set => _blockProperties.DeleteAllowed = value;
+            get => IsCoordinated ? (_formsManager.GetBlock(Name)?.DeleteAllowed ?? _blockProperties.DeleteAllowed) : _blockProperties.DeleteAllowed;
+            set
+            {
+                _blockProperties.DeleteAllowed = value;
+                if (IsCoordinated) { var info = _formsManager.GetBlock(Name); if (info != null) info.DeleteAllowed = value; }
+            }
         }
         
         /// <summary>
@@ -360,8 +389,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool QueryAllowed
         {
-            get => _blockProperties.QueryAllowed;
-            set => _blockProperties.QueryAllowed = value;
+            get => IsCoordinated ? (_formsManager.GetBlock(Name)?.QueryAllowed ?? _blockProperties.QueryAllowed) : _blockProperties.QueryAllowed;
+            set
+            {
+                _blockProperties.QueryAllowed = value;
+                if (IsCoordinated) { var info = _formsManager.GetBlock(Name); if (info != null) info.QueryAllowed = value; }
+            }
         }
         
         #endregion
@@ -385,10 +418,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
                 
             // Apply all properties
-            ApplyItemProperty(item, nameof(BeepDataBlockItem.Enabled));
-            ApplyItemProperty(item, nameof(BeepDataBlockItem.Visible));
-            ApplyItemProperty(item, nameof(BeepDataBlockItem.Required));
-            ApplyItemProperty(item, nameof(BeepDataBlockItem.HintText));
+            ApplyItemProperty(item, nameof(ItemInfo.Enabled));
+            ApplyItemProperty(item, nameof(ItemInfo.Visible));
+            ApplyItemProperty(item, nameof(ItemInfo.Required));
+            ApplyItemProperty(item, nameof(ItemInfo.HintText));
         }
         
         /// <summary>
@@ -414,6 +447,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ApplyDefaultValues()
         {
+            // Delegate to FormsManager IItemPropertyManager
+            if (IsCoordinated)
+            {
+                try { _formsManager.Properties.ApplyDefaultValues(Name, null); }
+                catch { /* fall through to local */ }
+            }
+
             foreach (var item in _items.Values.Where(i => i.DefaultValue != null))
             {
                 try

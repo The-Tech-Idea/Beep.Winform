@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepChartWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepChartWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepChartWidget</h1>
+                        <p class="subtitle">Chart and data-visualization widget with seven styles: bar, line, pie/donut, gauge, sparkline, heatmap, and combination charts — all rendered in pure GDI+.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Data / Charts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepChartWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 7 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 📈<br>
+                        <strong>Category:</strong> Beep Widgets → Data / Charts<br>
+                        <strong>Default size:</strong> 300 × 200<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>📊 Seven Chart Types</h3><p>Bar, line, pie, gauge, sparkline, heatmap, combination — all via one Style enum.</p></div>
+                        <div class="feature-card"><h3>🎨 Theme Palette</h3><p>Colors defaults to the active theme's ChartDefaultSeriesColors list.</p></div>
+                        <div class="feature-card"><h3>🖱️ Hit-test Events</h3><p>DataPointClicked carries the clicked series index for drill-down navigation.</p></div>
+                        <div class="feature-card"><h3>📐 Gridlines & Legend</h3><p>ShowGrid and ShowLegend toggles with no extra configuration needed.</p></div>
+                        <div class="feature-card"><h3>⚡ Pure GDI+</h3><p>No third-party charting library — lightweight and always theme-consistent.</p></div>
+                        <div class="feature-card"><h3>🔢 Axis Control</h3><p>MinValue / MaxValue let you fix axis extents for meaningful comparisons.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (7)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BarChart</code></td><td>Vertical or horizontal bar chart with optional gridlines.</td></tr>
+                            <tr><td><code>LineChart</code></td><td>Smooth line or filled area chart for trend data.</td></tr>
+                            <tr><td><code>PieChart</code></td><td>Pie or donut chart with optional legend.</td></tr>
+                            <tr><td><code>GaugeChart</code></td><td>Speedometer-style gauge for a single KPI value.</td></tr>
+                            <tr><td><code>Sparkline</code></td><td>Miniature inline trend line — ideal in tight layouts.</td></tr>
+                            <tr><td><code>HeatmapChart</code></td><td>Calendar or grid heatmap for frequency/intensity data.</td></tr>
+                            <tr><td><code>CombinationChart</code></td><td>Bar + line combination for comparing two series.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>ChartWidgetStyle</td><td>BarChart</td><td>Selects the chart type and painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Chart Title&quot;</td><td>Optional header label drawn above the chart area.</td></tr>
+                            <tr><td><code>Values</code></td><td>List&lt;double&gt;</td><td>[10,25,30…]</td><td>Primary data series.</td></tr>
+                            <tr><td><code>Labels</code></td><td>List&lt;string&gt;</td><td>[Jan,Feb…]</td><td>Category labels aligned with Values.</td></tr>
+                            <tr><td><code>Colors</code></td><td>List&lt;Color&gt;</td><td>(theme palette)</td><td>Per-series or per-segment colour list.</td></tr>
+                            <tr><td><code>ShowLegend</code></td><td>bool</td><td>true</td><td>Show/hide the legend panel.</td></tr>
+                            <tr><td><code>ShowGrid</code></td><td>bool</td><td>true</td><td>Show/hide background gridlines.</td></tr>
+                            <tr><td><code>MinValue</code></td><td>double</td><td>0</td><td>Y-axis minimum (bar and line charts).</td></tr>
+                            <tr><td><code>MaxValue</code></td><td>double</td><td>100</td><td>Y-axis maximum (bar and line charts).</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Dominant accent used for single-series charts.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ChartClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the chart background area is clicked.</td></tr>
+                            <tr><td><code>DataPointClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a bar, segment, or data point is clicked. Data contains index.</td></tr>
+                            <tr><td><code>LegendClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a legend item is clicked. Data contains series label.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var chart = new BeepChartWidget
+{
+    Style      = ChartWidgetStyle.LineChart,
+    Title      = "Weekly Sales",
+    Values     = new List<double> { 120, 135, 98, 160, 175, 210, 195 },
+    Labels     = new List<string> { "Mon","Tue","Wed","Thu","Fri","Sat","Sun" },
+    ShowLegend = false,
+    ShowGrid   = true,
+    Size       = new Size(360, 220)
+};
+this.Controls.Add(chart);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">chart.DataPointClicked += (s, e) =>
+{
+    int idx = (int)e.Data;  // index into Values/Labels
+    MessageBox.Show($"Clicked: {chart.Labels[idx]} = {chart.Values[idx]}");
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-metric-widget.html" class="related-card"><h4>BeepMetricWidget</h4><p>Pair with a metric card for the headline KPI.</p></a>
+                        <a href="beep-dashboard-widget.html" class="related-card"><h4>BeepDashboardWidget</h4><p>ChartGrid dashboard shows multiple small charts.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>Show the raw data table alongside the chart.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

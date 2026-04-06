@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtering System - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="#">Data Controls</a>
+                    <span>&rsaquo;</span>
+                    <span>Filtering System</span>
+                </nav>
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>Filtering System</h1>
+                        <p class="subtitle">A complete, decoupled filter architecture: <strong>BeepFilter</strong> builds the filter UI and emits a <strong>FilterConfiguration</strong> event; consuming controls (BeepGridPro, BeepListBox) apply it through the generic <strong>FilterEngine&lt;T&gt;</strong>. Eight interaction styles, 17 operators, drag-drop, validation, smart suggestions, and full keyboard support.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.Filtering</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Architecture Overview</a></li>
+                        <li><a href="#beepfilter">BeepFilter Control</a></li>
+                        <li><a href="#filterstyles">Filter Styles (8)</a></li>
+                        <li><a href="#models">Data Models</a></li>
+                        <li><a href="#operators">Filter Operators (17)</a></li>
+                        <li><a href="#engine">FilterEngine&lt;T&gt;</a></li>
+                        <li><a href="#painters">Painter System</a></li>
+                        <li><a href="#hittest">Hit Testing</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#helpers">Helper Components</a></li>
+                        <li><a href="#enums">Enums Reference</a></li>
+                        <li><a href="#usage">Usage Patterns</a></li>
+                        <li><a href="#legacy">Legacy Control</a></li>
+                        <li><a href="#files">File Organisation</a></li>
+                        <li><a href="#bestpractices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Architecture Overview</h2>
+                    <p>The filtering system is split into two clearly separated responsibilities:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Layer</th><th>Class</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>UI Builder</strong></td><td><code>BeepFilter</code></td><td>Renders filter UI, accepts user input, emits <code>FilterConfiguration</code> via events &mdash; never touches data.</td></tr>
+                            <tr><td><strong>Data Applier</strong></td><td><code>FilterEngine&lt;T&gt;</code></td><td>Evaluates a <code>FilterConfiguration</code> against an <code>IEnumerable&lt;T&gt;</code> &mdash; no UI involved.</td></tr>
+                            <tr><td><strong>Consumer</strong></td><td><code>BeepGridPro</code> / <code>BeepListBox</code></td><td>Subscribes to <code>FilterApplied</code>, calls <code>FilterEngine&lt;T&gt;</code>, updates visible rows/items.</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <div class="code-header"><span>Architecture Diagram</span></div>
+<pre><code class="language-text">+-----------------------------+
+|         BeepFilter          |  UI only: takes EntityStructure,
+|       (UI Builder)          |  shows filter widgets (TagPills, etc.)
+|                             |  Raises FilterApplied event -----+
++-----------------------------+                                  |
+                                                                 | FilterConfiguration
+                                              +------------------v-----------+
+                                              |    BeepGridPro / BeepListBox |
+                                              |  (Consumer)                  |
+                                              |  Uses FilterEngine&lt;T&gt;        |
+                                              +------------------------------+</code></pre>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Key Design Principle:</strong> BeepFilter never sees your data. It generates a <code>FilterConfiguration</code> and fires an event. The consuming control decides how and when to apply it. This makes BeepFilter reusable with any data source.
+                    </div>
+                </section>
+
+                <section id="beepfilter" class="section">
+                    <h2>BeepFilter Control</h2>
+                    <p>Inherits <code>BaseControl</code>. Hosts one active <code>IFilterPainter</code> which handles all rendering and layout. Switching <code>FilterStyle</code> hot-swaps the painter at runtime.</p>
+                    <h3>Key Private Fields</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>_filterStyle</code></td><td><code>FilterStyle</code></td><td>Current interaction pattern (default: TagPills).</td></tr>
+                            <tr><td><code>_activePainter</code></td><td><code>IFilterPainter?</code></td><td>Live painter instance; replaced when style changes.</td></tr>
+                            <tr><td><code>_activeFilter</code></td><td><code>FilterConfiguration</code></td><td>Living filter being built by the user.</td></tr>
+                            <tr><td><code>_hitAreas</code></td><td><code>List&lt;FilterHitArea&gt;</code></td><td>All clickable regions registered by the painter.</td></tr>
+                            <tr><td><code>_keyboardHandler</code></td><td><code>FilterKeyboardHandler?</code></td><td>Handles keyboard shortcuts (Add, Clear, Navigate).</td></tr>
+                            <tr><td><code>_suggestionProvider</code></td><td><code>FilterSuggestionProvider?</code></td><td>Provides recent/frequent value suggestions.</td></tr>
+                            <tr><td><code>_validationHelper</code></td><td><code>FilterValidationHelper?</code></td><td>Validates criteria type/operator compatibility.</td></tr>
+                            <tr><td><code>_autocompletePopup</code></td><td><code>FilterAutocompletePopup?</code></td><td>Created on demand for value input autocomplete.</td></tr>
+                            <tr><td><code>_inlineValueEditor</code></td><td><code>BeepTextBox?</code></td><td>Inline text editor that appears over a criterion.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>Properties</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterStyle</code></td><td><code>FilterStyle</code></td><td><code>TagPills</code></td><td>Changes the painter; triggers layout recalculation + <code>FilterStyleChanged</code> event.</td></tr>
+                            <tr><td><code>DisplayMode</code></td><td><code>FilterDisplayMode</code></td><td><code>AlwaysVisible</code></td><td>Whether filter bar is always visible, collapsible, shown on hover, or modal.</td></tr>
+                            <tr><td><code>Position</code></td><td><code>FilterPosition</code></td><td><code>Top</code></td><td>Position hint for parent layout (Top, Bottom, Left, Right, Floating).</td></tr>
+                            <tr><td><code>ActiveFilter</code></td><td><code>FilterConfiguration</code></td><td>empty list</td><td>The current filter being built; consumer reads this in <code>FilterApplied</code> handler.</td></tr>
+                            <tr><td><code>EntityStructure</code></td><td><code>EntityStructure</code></td><td><code>null</code></td><td>Provides column names and types for the field selector dropdowns.</td></tr>
+                            <tr><td><code>DataSource</code></td><td><code>object</code></td><td><code>null</code></td><td>Optional data source forwarded to <code>FilterSuggestionProvider</code> for value hints.</td></tr>
+                            <tr><td><code>IsExpanded</code></td><td><code>bool</code></td><td><code>true</code></td><td>Controls collapsed/expanded state for <code>Collapsible</code> display mode.</td></tr>
+                            <tr><td><code>FilterCount</code></td><td><code>int</code></td><td>0</td><td>Read-only count of enabled criteria; useful for badge display.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>Initialization Sequence</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>BeepFilter constructor pipeline</span></div>
+                        <pre><code class="language-csharp">BeepFilter()
+  : base()
+    |- InitializeComponent()          // Size=600x45, DoubleBuffered, ApplyThemeToChilds=false
+    +- InitializeFilterControl()
+         |- UpdatePainter()            // Creates TagPillsFilterPainter (default)
+         |- _activeFilter = new FilterConfiguration { Criteria = [] }
+         |- InitializePhase1Components()
+         |     |- _keyboardHandler = new FilterKeyboardHandler(this)
+         |     |- _suggestionProvider = new FilterSuggestionProvider()
+         |     +- _validationHelper  = new FilterValidationHelper()
+         +- RecalculateLayout()</code></pre>
+                    </div>
+                </section>
+
+                <section id="filterstyles" class="section">
+                    <h2>Filter Styles</h2>
+                    <p><code>FilterStyle</code> controls the <em>interaction pattern</em> &mdash; how the user builds criteria. Visual colors, borders, and spacing always come from <code>BeepStyling</code> / <code>BeepControlStyle</code>, not from the style enum.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Painter Class</th><th>Visual Pattern</th><th>Best For</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TagPills</code></td>
+                                <td><code>TagPillsFilterPainter</code></td>
+                                <td>Horizontal row of rounded pill chips with &times; remove button; drag handles for reordering.</td>
+                                <td>Simple, at-a-glance active filters bar.</td>
+                            </tr>
+                            <tr>
+                                <td><code>GroupedRows</code></td>
+                                <td><code>GroupedRowsFilterPainter</code></td>
+                                <td>One row per criterion with AND/OR connectors; Add Filter / Add Group buttons; indented subgroups.</td>
+                                <td>Multi-condition structured queries.</td>
+                            </tr>
+                            <tr>
+                                <td><code>QueryBuilder</code></td>
+                                <td><code>QueryBuilderFilterPainter</code></td>
+                                <td>Visual logic tree with If/Else branches; Prompt vs Logic toggle.</td>
+                                <td>Complex nested conditions and business rules.</td>
+                            </tr>
+                            <tr>
+                                <td><code>DropdownMultiSelect</code></td>
+                                <td><code>DropdownMultiSelectFilterPainter</code></td>
+                                <td>Field / Operator / Value dropdowns; multi-select checkboxes; active count badge.</td>
+                                <td>User-friendly quick filtering with fixed column sets.</td>
+                            </tr>
+                            <tr>
+                                <td><code>InlineRow</code></td>
+                                <td><code>InlineRowFilterPainter</code></td>
+                                <td>Single compact row: Column | Operator | Value. Minimal spacing.</td>
+                                <td>Space-constrained panels; table header filter rows.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SidebarPanel</code></td>
+                                <td><code>SidebarPanelFilterPainter</code></td>
+                                <td>Vertical list of collapsible filter categories with checkboxes/toggles. Apply/Clear at bottom.</td>
+                                <td>E-commerce / catalog browsing style.</td>
+                            </tr>
+                            <tr>
+                                <td><code>QuickSearch</code></td>
+                                <td><code>QuickSearchFilterPainter</code></td>
+                                <td>Single search bar with column selector. Real-time filtering. Filter count badge.</td>
+                                <td>Fast free-text search across all columns.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AdvancedDialog</code></td>
+                                <td><code>AdvancedDialogFilterPainter</code></td>
+                                <td>Modal or slide-in panel with tabs; Save/Load config; result count preview.</td>
+                                <td>Power users; reusable named filter sets.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Switching Styles at Runtime</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; runtime style switch</span></div>
+                        <pre><code class="language-csharp">// Painter is hot-swapped; existing ActiveFilter is preserved
+beepFilter.FilterStyle = FilterStyle.GroupedRows;
+
+// Get description from factory
+string desc = FilterPainterFactory.GetStyleDescription(FilterStyle.QuickSearch);
+// "Single search bar with instant filtering - quick and easy"
+
+bool ready = FilterPainterFactory.IsFullyImplemented(FilterStyle.AdvancedDialog); // true</code></pre>
+                    </div>
+                </section>
+
+                <section id="models" class="section">
+                    <h2>Data Models</h2>
+                    <h3>FilterCriteria</h3>
+                    <p>One condition in the filter: <em>ColumnName Operator Value</em>.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ColumnName</code></td><td><code>string</code></td><td>Column / property to filter on.</td></tr>
+                            <tr><td><code>Operator</code></td><td><code>FilterOperator</code></td><td>Comparison operator (one of 17).</td></tr>
+                            <tr><td><code>Value</code></td><td><code>object</code></td><td>Primary comparison value.</td></tr>
+                            <tr><td><code>Value2</code></td><td><code>object</code></td><td>Upper bound for <code>Between</code> / <code>NotBetween</code>.</td></tr>
+                            <tr><td><code>CaseSensitive</code></td><td><code>bool</code></td><td>Case-sensitive text comparison. Default <code>false</code>.</td></tr>
+                            <tr><td><code>IsEnabled</code></td><td><code>bool</code></td><td>Skip this criterion when <code>false</code> without removing it. Default <code>true</code>.</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; creating criteria</span></div>
+                        <pre><code class="language-csharp">// Simple
+var c1 = new FilterCriteria("Country", FilterOperator.Equals, "Germany");
+
+// Range
+var c2 = new FilterCriteria("Price", FilterOperator.Between, 10.0, 50.0);
+
+// Case-sensitive text
+var c3 = new FilterCriteria("Code", FilterOperator.StartsWith, "ABC", caseSensitive: true);
+
+// Disabled (remembered but not evaluated)
+c3.IsEnabled = false;</code></pre>
+                    </div>
+                    <h3>FilterConfiguration</h3>
+                    <p>A named, serialisable collection of <code>FilterCriteria</code> with AND / OR logic.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Name</code></td><td><code>string</code></td><td>Human-readable name for saving / loading.</td></tr>
+                            <tr><td><code>Description</code></td><td><code>string</code></td><td>Optional description.</td></tr>
+                            <tr><td><code>Criteria</code></td><td><code>List&lt;FilterCriteria&gt;</code></td><td>Ordered list of conditions.</td></tr>
+                            <tr><td><code>Logic</code></td><td><code>FilterLogic</code></td><td><code>And</code> (all must match) or <code>Or</code> (any match). Default <code>And</code>.</td></tr>
+                            <tr><td><code>IsActive</code></td><td><code>bool</code></td><td>Whether this configuration is currently applied.</td></tr>
+                            <tr><td><code>CreatedDate</code></td><td><code>DateTime</code></td><td>Auto-set on construction.</td></tr>
+                            <tr><td><code>ModifiedDate</code></td><td><code>DateTime</code></td><td>Should be updated on every change.</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; building a configuration</span></div>
+                        <pre><code class="language-csharp">var config = new FilterConfiguration("Q1 EU Customers")
+{
+    Logic = FilterLogic.And
+};
+config.AddCriteria(new FilterCriteria("Region",  FilterOperator.Equals,      "EU"));
+config.AddCriteria(new FilterCriteria("Revenue", FilterOperator.GreaterThan, 50000));
+
+// Serialize / deserialize (System.Text.Json compatible)
+string json   = JsonSerializer.Serialize(config);
+var    loaded = JsonSerializer.Deserialize&lt;FilterConfiguration&gt;(json);</code></pre>
+                    </div>
+                </section>
+
+                <section id="operators" class="section">
+                    <h2>Filter Operators</h2>
+                    <p>17 operators covering string, numeric, date, null-check, regex, and set membership comparisons.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Operator</th><th>Display Name</th><th>Applicable To</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Equals</code></td><td>=</td><td>All types</td><td>Exact match; case-insensitive for strings unless <code>CaseSensitive=true</code>.</td></tr>
+                            <tr><td><code>NotEquals</code></td><td>&ne;</td><td>All types</td><td>Inverse of Equals.</td></tr>
+                            <tr><td><code>Contains</code></td><td>contains</td><td>String</td><td>Substring search. Case-insensitive by default.</td></tr>
+                            <tr><td><code>NotContains</code></td><td>does not contain</td><td>String</td><td>Inverse of Contains.</td></tr>
+                            <tr><td><code>StartsWith</code></td><td>starts with</td><td>String</td><td>Prefix match.</td></tr>
+                            <tr><td><code>EndsWith</code></td><td>ends with</td><td>String</td><td>Suffix match.</td></tr>
+                            <tr><td><code>GreaterThan</code></td><td>&gt;</td><td>Numeric, Date</td><td>Strict greater than.</td></tr>
+                            <tr><td><code>GreaterThanOrEqual</code></td><td>&ge;</td><td>Numeric, Date</td><td></td></tr>
+                            <tr><td><code>LessThan</code></td><td>&lt;</td><td>Numeric, Date</td><td>Strict less than.</td></tr>
+                            <tr><td><code>LessThanOrEqual</code></td><td>&le;</td><td>Numeric, Date</td><td></td></tr>
+                            <tr><td><code>Between</code></td><td>between</td><td>Numeric, Date</td><td>Inclusive. Requires both <code>Value</code> and <code>Value2</code>.</td></tr>
+                            <tr><td><code>NotBetween</code></td><td>not between</td><td>Numeric, Date</td><td>Inverse of Between.</td></tr>
+                            <tr><td><code>IsNull</code></td><td>is empty</td><td>All types</td><td>Matches null or empty string.</td></tr>
+                            <tr><td><code>IsNotNull</code></td><td>is not empty</td><td>All types</td><td>Inverse of IsNull.</td></tr>
+                            <tr><td><code>Regex</code></td><td>matches pattern</td><td>String</td><td>Full .NET regex pattern.</td></tr>
+                            <tr><td><code>In</code></td><td>is one of</td><td>All types</td><td><code>Value</code> should be <code>IEnumerable</code> or comma-separated string.</td></tr>
+                            <tr><td><code>NotIn</code></td><td>is not one of</td><td>All types</td><td>Inverse of In.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>FilterLogic</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterLogic.And</code></td><td>All enabled criteria must match (default &mdash; most restrictive).</td></tr>
+                            <tr><td><code>FilterLogic.Or</code></td><td>At least one enabled criterion must match.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="engine" class="section">
+                    <h2>FilterEngine&lt;T&gt;</h2>
+                    <p>Generic, reflection-based engine that evaluates a <code>FilterConfiguration</code> against any <code>IEnumerable&lt;T&gt;</code>. Property info is cached on construction for performance.</p>
+                    <h3>Core Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyFilter(FilterConfiguration config)</code></td>
+                                <td><code>IEnumerable&lt;T&gt;</code></td>
+                                <td>Filters data source using all <em>enabled</em> criteria. Returns full source if config is null or has no enabled criteria.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyQuickFilter(string text, string? prop)</code></td>
+                                <td><code>IEnumerable&lt;T&gt;</code></td>
+                                <td>Fast substring search. Pass <code>null</code> for <code>prop</code> to search all properties.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyFilterGetIndices(FilterConfiguration config)</code></td>
+                                <td><code>List&lt;int&gt;</code></td>
+                                <td>Returns 0-based indices of matched items. Useful for grid row hiding without rebuilding collections.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; applying a filter in a consumer</span></div>
+                        <pre><code class="language-csharp">// Works with any typed collection
+var engine = new FilterEngine&lt;Customer&gt;(customers);
+
+// Works with ExpandoObject (BeepGridPro uses this internally)
+var engine = new FilterEngine&lt;ExpandoObject&gt;(gridRows);
+
+// Option A: get filtered rows
+var visible = engine.ApplyFilter(config).ToList();
+
+// Option B: get matching indices (faster for large virtual grids)
+var indices = engine.ApplyFilterGetIndices(config);
+HideRowsNotIn(indices);
+
+// Quick search across all properties
+var results = engine.ApplyQuickFilter("Smith", propertyName: null);</code></pre>
+                    </div>
+                </section>
+
+                <section id="painters" class="section">
+                    <h2>Painter System</h2>
+                    <h3>IFilterPainter Interface</h3>
+                    <p>Every filter style is rendered by a dedicated painter. Painters return <code>FilterLayoutInfo</code> (all element rectangles) and paint using <code>BeepStyling</code> helpers for colors and borders.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterStyle</code></td><td><code>FilterStyle</code></td><td>The style this painter handles.</td></tr>
+                            <tr><td><code>SupportsAnimations</code></td><td><code>bool</code></td><td>Whether the painter supports animated transitions.</td></tr>
+                            <tr><td><code>SupportsDragDrop</code></td><td><code>bool</code></td><td>Whether drag-and-drop reordering is supported.</td></tr>
+                            <tr><td><code>CalculateLayout(BeepFilter, Rectangle)</code></td><td><code>FilterLayoutInfo</code></td><td>Measures and positions all UI elements; registers hit areas.</td></tr>
+                            <tr><td><code>Paint(Graphics, BeepFilter, FilterLayoutInfo)</code></td><td><code>void</code></td><td>Renders the filter UI using the supplied layout.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>Painter Implementations</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Class</th><th>Style</th><th>DragDrop</th><th>Special Features</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>TagPillsFilterPainter</code></td><td><code>TagPills</code></td><td>Yes</td><td>Pill height 32px, corner radius 16, max 10/row; wraps to new row; remove &times; per pill.</td></tr>
+                            <tr><td><code>GroupedRowsFilterPainter</code></td><td><code>GroupedRows</code></td><td>No</td><td>AND/OR connector labels; Add Filter + Add Group buttons; indented subgroups.</td></tr>
+                            <tr><td><code>QueryBuilderFilterPainter</code></td><td><code>QueryBuilder</code></td><td>No</td><td>Visual If/Else tree; Prompt vs Logic mode toggle.</td></tr>
+                            <tr><td><code>DropdownMultiSelectFilterPainter</code></td><td><code>DropdownMultiSelect</code></td><td>No</td><td>Three-column layout: field | operator | value; count badge.</td></tr>
+                            <tr><td><code>InlineRowFilterPainter</code></td><td><code>InlineRow</code></td><td>No</td><td>Single-height, minimal padding; + / &minus; buttons at row end.</td></tr>
+                            <tr><td><code>SidebarPanelFilterPainter</code></td><td><code>SidebarPanel</code></td><td>No</td><td>Vertical collapsible sections; fixed Apply/Clear footer.</td></tr>
+                            <tr><td><code>QuickSearchFilterPainter</code></td><td><code>QuickSearch</code></td><td>No</td><td>Search icon + text box + column dropdown; real-time debounce.</td></tr>
+                            <tr><td><code>AdvancedDialogFilterPainter</code></td><td><code>AdvancedDialog</code></td><td>No</td><td>Modal layout; tabs; Save/Load named presets; record count preview.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>FilterLayoutInfo</h3>
+                    <p>All geometry calculated by a painter &mdash; no pixel math in the control itself.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ContainerRect / ContentRect / HeaderRect / FooterRect</code></td><td>Primary layout regions.</td></tr>
+                            <tr><td><code>TagRects[] / RemoveButtonRects[]</code></td><td>Per-criterion pill and &times; button rectangles (TagPills).</td></tr>
+                            <tr><td><code>RowRects[] / ConnectorRects[] / DragHandleRects[]</code></td><td>GroupedRows / row-style layout arrays.</td></tr>
+                            <tr><td><code>FieldDropdownRects[] / OperatorDropdownRects[] / ValueDropdownRects[]</code></td><td>Dropdown column rectangles.</td></tr>
+                            <tr><td><code>AddFilterButtonRect / AddGroupButtonRect / ClearAllButtonRect</code></td><td>Action button rectangles.</td></tr>
+                            <tr><td><code>SaveButtonRect / LoadButtonRect / ApplyButtonRect</code></td><td>Persistence / submit button rectangles.</td></tr>
+                            <tr><td><code>SearchInputRect / SearchIconRect</code></td><td>QuickSearch widget rectangles.</td></tr>
+                            <tr><td><code>CountBadgeRect</code></td><td>Filter count badge position.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="hittest" class="section">
+                    <h2>Hit Testing</h2>
+                    <p>Painters register <code>FilterHitArea</code> objects during <code>CalculateLayout()</code>. Mouse events resolve to a typed <code>FilterHitAreaType</code> which drives all interaction logic without duplicating coordinate math.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Type</th><th>Triggered When</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterTag</code></td><td>Click on a pill/row (select or begin edit).</td></tr>
+                            <tr><td><code>RemoveButton</code></td><td>Click on &times; button of a criterion.</td></tr>
+                            <tr><td><code>EditButton</code></td><td>Click on pencil/edit icon.</td></tr>
+                            <tr><td><code>AddFilterButton</code></td><td>Click &ldquo;+ Add filter&rdquo; button.</td></tr>
+                            <tr><td><code>AddGroupButton</code></td><td>Click &ldquo;+ Add group&rdquo; button (GroupedRows).</td></tr>
+                            <tr><td><code>LogicConnector</code></td><td>Click AND/OR toggle connector.</td></tr>
+                            <tr><td><code>FieldDropdown</code></td><td>Click column selector dropdown.</td></tr>
+                            <tr><td><code>OperatorDropdown</code></td><td>Click operator selector dropdown.</td></tr>
+                            <tr><td><code>ValueInput</code></td><td>Click value text field.</td></tr>
+                            <tr><td><code>ValueDropdown</code></td><td>Click value dropdown.</td></tr>
+                            <tr><td><code>DragHandle</code></td><td>Mouse-down on pill drag grip (TagPills).</td></tr>
+                            <tr><td><code>CollapseButton</code></td><td>Click section header collapse chevron (SidebarPanel).</td></tr>
+                            <tr><td><code>SearchInput</code></td><td>Click into search text box (QuickSearch).</td></tr>
+                            <tr><td><code>ClearAllButton</code></td><td>Click &ldquo;Clear All&rdquo; button.</td></tr>
+                            <tr><td><code>SaveButton / LoadButton</code></td><td>Persistence actions in AdvancedDialog.</td></tr>
+                            <tr><td><code>ApplyButton</code></td><td>Click &ldquo;Apply&rdquo; &rarr; raises <code>FilterApplied</code> event.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <h3>Core Filter Events</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>When Raised</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterAdded</code></td><td><code>EventArgs</code></td><td>A new <code>FilterCriteria</code> is added to <code>ActiveFilter</code>.</td></tr>
+                            <tr><td><code>FilterRemoved</code></td><td><code>FilterRemovedEventArgs</code></td><td>A criterion is removed; args carry the removed criterion.</td></tr>
+                            <tr><td><code>FilterModified</code></td><td><code>FilterChangedEventArgs</code></td><td>A criterion is edited (operator or value changed).</td></tr>
+                            <tr><td><code>FiltersCleared</code></td><td><code>EventArgs</code></td><td>All criteria cleared via &ldquo;Clear All&rdquo;.</td></tr>
+                            <tr><td><code>FilterChanged</code></td><td><code>EventArgs</code></td><td>Any change to <code>ActiveFilter</code> (fired after all of the above).</td></tr>
+                            <tr><td><code>FilterEditRequested</code></td><td><code>FilterEditEventArgs</code></td><td>User clicks edit on a criterion (open inline editor or dialog).</td></tr>
+                            <tr><td><strong><code>FilterApplied</code></strong></td><td><code>EventArgs</code></td><td><strong>User clicks Apply. Consuming control reads <code>ActiveFilter</code> here.</strong></td></tr>
+                            <tr><td><code>FilterCanceled</code></td><td><code>EventArgs</code></td><td>User cancels dialog interaction.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>Group &amp; Interaction Events</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>GroupAdded</code></td><td>A filter group (subgroup) is added to the GroupedRows or QueryBuilder view.</td></tr>
+                            <tr><td><code>GroupRemoved</code></td><td>A filter group is removed; args carry group identifier.</td></tr>
+                            <tr><td><code>FieldSelectionRequested</code></td><td>User clicks field/column dropdown; host can provide a custom picker.</td></tr>
+                            <tr><td><code>OperatorSelectionRequested</code></td><td>User clicks operator dropdown.</td></tr>
+                            <tr><td><code>ValueInputRequested</code></td><td>User activates value input; host can show a date picker or custom dialog.</td></tr>
+                            <tr><td><code>FilterDragStarted</code></td><td>Drag-and-drop reorder begins (TagPills with DragDrop enabled).</td></tr>
+                            <tr><td><code>FilterStyleChanged</code></td><td>Painter swapped due to <code>FilterStyle</code> property change.</td></tr>
+                            <tr><td><code>ConfigurationSaveRequested</code></td><td>User wants to save current config by name (AdvancedDialog).</td></tr>
+                            <tr><td><code>ConfigurationLoadRequested</code></td><td>User wants to load a saved config (AdvancedDialog).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="helpers" class="section">
+                    <h2>Helper Components</h2>
+                    <h3>FilterSuggestionProvider</h3>
+                    <p>Analyses the data source and provides smart value suggestions: recent values, most frequent values, and partial-text matches. Results are cached for 5 minutes.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; suggestions</span></div>
+                        <pre><code class="language-csharp">var provider = new FilterSuggestionProvider();
+provider.SetDataSource(myList);  // invalidates cache
+
+var suggestions = provider.GetSuggestions(
+    columnName: "Country", partialValue: "Ge", maxResults: 10);
+// Returns: Recent (star), Frequent (fire), Partial-match
+// Each item: Value, DisplayText, MatchCount, Relevance, Type</code></pre>
+                    </div>
+                    <h3>FilterValidationHelper</h3>
+                    <p>Validates operator/type compatibility and value requirements before criteria are committed.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; validation</span></div>
+                        <pre><code class="language-csharp">var helper = new FilterValidationHelper();
+var result = helper.Validate(criteria, DbFieldCategory.Numeric);
+if (!result.IsValid)
+    ShowError(result.ErrorMessage);
+// Guards: null column, operator/type mismatch,
+//         missing Value2 for Between, type incompatibility</code></pre>
+                    </div>
+                    <h3>FilterKeyboardHandler</h3>
+                    <p>Attached to the <code>BeepFilter</code> control; provides keyboard shortcuts for adding, clearing, and navigating criteria.</p>
+                    <h3>FilterAutocompletePopup</h3>
+                    <p>Popup created on demand when a value input is focused. Shows <code>FilterSuggestion</code> items. Dismissed on Escape or selection.</p>
+                    <h3>FilterIconProvider</h3>
+                    <p>Returns icon glyphs (Bootstrap Icons / strings) for operator symbols and filter actions, keeping painter code free of icon literals.</p>
+                    <h3>FilterPainterMetrics / IFilterPainterMetricsProvider</h3>
+                    <p>Provides computed layout metrics (heights, widths, paddings) derived from <code>BeepStyling</code> so all painters share a single source of truth for spacing.</p>
+                </section>
+
+                <section id="enums" class="section">
+                    <h2>Enums Reference</h2>
+                    <h3>FilterDisplayMode</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Behavior</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>AlwaysVisible</code></td><td>Filter bar is always shown.</td></tr>
+                            <tr><td><code>Collapsible</code></td><td>Can be collapsed; controlled by <code>IsExpanded</code>.</td></tr>
+                            <tr><td><code>OnHover</code></td><td>Shown only when the user hovers over the host area.</td></tr>
+                            <tr><td><code>Modal</code></td><td>Appears in a floating overlay (AdvancedDialog style).</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>FilterPosition</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Hint For</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Top</code></td><td>Above data view (default).</td></tr>
+                            <tr><td><code>Bottom</code></td><td>Below data view.</td></tr>
+                            <tr><td><code>Left</code></td><td>Left sidebar (SidebarPanel style).</td></tr>
+                            <tr><td><code>Right</code></td><td>Right sidebar.</td></tr>
+                            <tr><td><code>Floating</code></td><td>Detached floating panel.</td></tr>
+                        </tbody>
+                    </table>
+                    <h3>FilterHitAreaType (18 values)</h3>
+                    <p>
+                        <code>None</code>, <code>FilterTag</code>, <code>RemoveButton</code>, <code>EditButton</code>, <code>AddFilterButton</code>,
+                        <code>AddGroupButton</code>, <code>LogicConnector</code>, <code>FieldDropdown</code>, <code>OperatorDropdown</code>,
+                        <code>ValueInput</code>, <code>ValueDropdown</code>, <code>DragHandle</code>, <code>CollapseButton</code>,
+                        <code>SearchInput</code>, <code>ClearAllButton</code>, <code>SaveButton</code>, <code>LoadButton</code>, <code>ApplyButton</code>.
+                    </p>
+                </section>
+
+                <section id="usage" class="section">
+                    <h2>Usage Patterns</h2>
+                    <h3>Pattern 1: Standalone BeepFilter</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; standalone, apply to any data source</span></div>
+                        <pre><code class="language-csharp">var filter = new BeepFilter
+{
+    EntityStructure = myEntityStructure,
+    FilterStyle     = FilterStyle.TagPills,
+    DataSource      = myList,         // optional: enables suggestions
+    Dock            = DockStyle.Top
+};
+
+filter.FilterApplied += (s, e) =&gt;
+{
+    var engine  = new FilterEngine&lt;Product&gt;(allProducts);
+    var results = engine.ApplyFilter(filter.ActiveFilter);
+    listBox1.DataSource = results.ToList();
+};
+
+panel.Controls.Add(filter);</code></pre>
+                    </div>
+                    <h3>Pattern 2: Wired to BeepGridPro</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; filter drives a grid</span></div>
+                        <pre><code class="language-csharp">var beepFilter = new BeepFilter
+{
+    EntityStructure = grid.EntityStructure,
+    FilterStyle     = FilterStyle.GroupedRows,
+    Dock            = DockStyle.Top
+};
+
+beepFilter.FilterApplied += (s, e) =&gt;
+{
+    // Grid's ActiveFilter setter calls FilterEngine&lt;ExpandoObject&gt; internally
+    grid.ActiveFilter = beepFilter.ActiveFilter;
+};
+
+// Or use the grid's built-in integration:
+grid.ShowAdvancedFilterDialog();   // opens AdvancedDialog style
+grid.ApplyQuickFilter("Smith");    // internal QuickSearch</code></pre>
+                    </div>
+                    <h3>Pattern 3: Programmatic Filter (no UI)</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; direct FilterEngine usage</span></div>
+                        <pre><code class="language-csharp">var config = new FilterConfiguration();
+config.AddCriteria(new FilterCriteria("Status", FilterOperator.Equals,            "Active"));
+config.AddCriteria(new FilterCriteria("Score",  FilterOperator.GreaterThanOrEqual, 80));
+config.Logic = FilterLogic.And;
+
+var engine  = new FilterEngine&lt;Employee&gt;(employees);
+var visible = engine.ApplyFilter(config).ToList();
+
+// Get just the indices (faster for large virtual lists)
+var indices = engine.ApplyFilterGetIndices(config);</code></pre>
+                    </div>
+                    <h3>Pattern 4: Save / Load Named Configurations</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>C# &mdash; persist filter presets</span></div>
+                        <pre><code class="language-csharp">// Save
+beepFilter.ConfigurationSaveRequested += (s, e) =&gt;
+{
+    var config = beepFilter.ActiveFilter;
+    config.Name = "EU High-Value Q1";
+    File.WriteAllText("filters/eu-q1.json", JsonSerializer.Serialize(config));
+};
+
+// Load
+beepFilter.ConfigurationLoadRequested += (s, e) =&gt;
+{
+    var json   = File.ReadAllText("filters/eu-q1.json");
+    var config = JsonSerializer.Deserialize&lt;FilterConfiguration&gt;(json)!;
+    beepFilter.ActiveFilter = config;
+    beepFilter.Invalidate();
+};</code></pre>
+                    </div>
+                </section>
+
+                <section id="legacy" class="section">
+                    <h2>BeepQueryandFilter (Legacy)</h2>
+                    <p>Older, simpler control in the root <code>Controls</code> namespace. Uses a <code>TableLayoutPanel</code> with one row per field from an <code>EntityStructure</code>.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Member</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>CreateQueryControls(EntityStructure)</code></td><td>Generates one label + input per field; range inputs for range operators.</td></tr>
+                            <tr><td><code>SubmitClicked</code></td><td>Event raised when user clicks Submit; consumer reads <code>AppFilter</code> list.</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Prefer <code>BeepFilter</code> for new code.</strong> <code>BeepQueryandFilter</code> predates the painter architecture; it does not support themes, painter styles, or the <code>FilterEngine&lt;T&gt;</code> pipeline.
+                    </div>
+                </section>
+
+                <section id="files" class="section">
+                    <h2>File Organisation</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterStyle.cs</code></td><td><code>FilterStyle</code>, <code>FilterDisplayMode</code>, <code>FilterPosition</code> enums.</td></tr>
+                            <tr><td><code>FilterOperator.cs</code></td><td><code>FilterOperator</code>, <code>FilterLogic</code> enums + <code>FilterOperatorExtensions.GetDisplayName()</code>.</td></tr>
+                            <tr><td><code>FilterCriteria.cs</code></td><td><code>FilterCriteria</code> and <code>FilterConfiguration</code> model classes.</td></tr>
+                            <tr><td><code>FilterEngine.cs</code></td><td>Generic <code>FilterEngine&lt;T&gt;</code> with <code>ApplyFilter</code>, <code>ApplyQuickFilter</code>, <code>ApplyFilterGetIndices</code>.</td></tr>
+                            <tr><td><code>IFilterPainter.cs</code></td><td><code>IFilterPainter</code>, <code>FilterHitArea</code>, <code>FilterHitAreaType</code>, <code>FilterLayoutInfo</code>.</td></tr>
+                            <tr><td><code>BaseFilterPainter.cs</code></td><td>Abstract base painter; shared paint/layout helpers.</td></tr>
+                            <tr><td><code>FilterPainterFactory.cs</code></td><td>FilterStyle &rarr; <code>IFilterPainter</code> factory with descriptions.</td></tr>
+                            <tr><td><code>FilterPainterMetrics.cs</code></td><td>Shared layout metrics interface + default implementation.</td></tr>
+                            <tr><td><code>BeepFilter.cs</code></td><td>Main control: constructor, painter management, paint override, mouse handling.</td></tr>
+                            <tr><td><code>BeepFilter.Properties.cs</code></td><td>All public properties and change handlers.</td></tr>
+                            <tr><td><code>BeepFilter.Events.cs</code></td><td>All event definitions and <code>On*</code> raising methods.</td></tr>
+                            <tr><td><code>BeepFilter.HitTest.cs</code></td><td>Mouse coordinate &rarr; <code>FilterHitAreaType</code> dispatch.</td></tr>
+                            <tr><td><code>BeepFilter.Layout.cs</code></td><td><code>RecalculateLayout()</code> dispatcher &rarr; active painter.</td></tr>
+                            <tr><td><code>FilterKeyboardHandler.cs</code></td><td>Keyboard shortcut handler attached to the control.</td></tr>
+                            <tr><td><code>FilterSuggestionProvider.cs</code></td><td>Recent/frequent value suggestion engine with 5-min cache.</td></tr>
+                            <tr><td><code>FilterValidationHelper.cs</code></td><td>Operator/type compatibility validation &rarr; <code>FilterValidationResult</code>.</td></tr>
+                            <tr><td><code>FilterAutocompletePopup.cs</code></td><td>On-demand popup for value autocomplete during typing.</td></tr>
+                            <tr><td><code>FilterIconProvider.cs</code></td><td>Icon glyph provider for operators and actions.</td></tr>
+                            <tr><td><code>Painters/TagPillsFilterPainter.cs</code></td><td>TagPills: pill height 32px, corner radius 16, max 10/row, drag-drop reorder.</td></tr>
+                            <tr><td><code>Painters/GroupedRowsFilterPainter.cs</code></td><td>GroupedRows: AND/OR connectors, subgroups.</td></tr>
+                            <tr><td><code>Painters/QueryBuilderFilterPainter.cs</code></td><td>QueryBuilder: If/Else tree branching.</td></tr>
+                            <tr><td><code>Painters/DropdownMultiSelectFilterPainter.cs</code></td><td>DropdownMultiSelect: 3-column dropdown, multi-select checkboxes.</td></tr>
+                            <tr><td><code>Painters/InlineRowFilterPainter.cs</code></td><td>InlineRow: compact single-row per criterion.</td></tr>
+                            <tr><td><code>Painters/SidebarPanelFilterPainter.cs</code></td><td>SidebarPanel: vertical collapsible categories.</td></tr>
+                            <tr><td><code>Painters/QuickSearchFilterPainter.cs</code></td><td>QuickSearch: search bar with real-time debounce.</td></tr>
+                            <tr><td><code>Painters/AdvancedDialogFilterPainter.cs</code></td><td>AdvancedDialog: modal, tabs, Save/Load, result count.</td></tr>
+                            <tr><td><code>BeepQueryandFilter.cs</code></td><td>Legacy query control (TableLayoutPanel, <code>AppFilter</code> based).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="bestpractices" class="section">
+                    <h2>Best Practices</h2>
+                    <ol>
+                        <li><strong>Never apply filters inside BeepFilter.</strong> Always subscribe to <code>FilterApplied</code> and use <code>FilterEngine&lt;T&gt;</code> in the consuming control.</li>
+                        <li><strong>Disable criteria instead of removing them.</strong> Set <code>IsEnabled = false</code> to temporarily skip without losing the configuration.</li>
+                        <li><strong>Use <code>ApplyFilterGetIndices()</code> for large grids.</strong> Returning indices avoids creating a new collection and maps directly to row-hiding in virtual grids.</li>
+                        <li><strong>Set <code>EntityStructure</code> before <code>FilterStyle</code>.</strong> Painters read column definitions during <code>CalculateLayout()</code>; setting style first may paint an empty field list.</li>
+                        <li><strong>Provide <code>DataSource</code> for smart suggestions.</strong> <code>FilterSuggestionProvider</code> can only generate recent/frequent hints when <code>BeepFilter.DataSource</code> is set.</li>
+                        <li><strong>Call <code>RecalculateLayout() + Invalidate()</code> after programmatic changes.</strong> Internal layout recalculates only on user interaction and property changes, not on direct <code>ActiveFilter.Criteria.Add()</code> calls.</li>
+                        <li><strong>Serialize <code>FilterConfiguration</code> with <code>System.Text.Json</code>.</strong> All properties are plain types &mdash; no custom converters needed for basic save/load.</li>
+                        <li><strong>Avoid <code>BeepQueryandFilter</code> in new code.</strong> It does not integrate with the theming system, painter architecture, or <code>FilterEngine&lt;T&gt;</code> pipeline.</li>
+                    </ol>
+                </section>
+
+                <div class="page-footer-nav">
+                    <a href="beep-styling.html" class="nav-btn prev-btn"><i class="bi bi-arrow-left"></i> Styling System</a>
+                    <a href="beep-font-management.html" class="nav-btn next-btn">Font Management <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        function toggleTheme() {
+            var body = document.body;
+            var icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+            }
+        }
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

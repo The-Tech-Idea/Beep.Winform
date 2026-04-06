@@ -87,6 +87,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Update timestamp
             SYSTEM.LAST_OPERATION_TIME = DateTime.Now;
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var recordIndex = units?.CurrentIndex ?? 0;
+                    var totalRecords = units?.Count ?? 0;
+                    _formsManager.SystemVariables.UpdateForRecordChange(this.Name, recordIndex, totalRecords);
+                    _formsManager.SystemVariables.SetMode(SYSTEM.MODE);
+                    _formsManager.SystemVariables.SetBlockStatus(this.Name, SYSTEM.BLOCK_STATUS);
+                }
+                catch { }
+            }
         }
         
         /// <summary>
@@ -107,6 +121,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             UpdateSystemVariables();
+            
+            // Delegate trigger context to FormsManager
+            if (IsCoordinated)
+            {
+                try
+                {
+                    _formsManager.SystemVariables.SetTriggerContext(
+                        triggerType.ToString(), this.Name, itemName, SYSTEM.CURSOR_RECORD);
+                }
+                catch { }
+            }
         }
         
         #endregion

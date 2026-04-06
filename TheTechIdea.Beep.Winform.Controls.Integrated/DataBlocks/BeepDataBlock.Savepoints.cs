@@ -28,6 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public string CreateSavepoint(string name = null)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+            {
+                return _formsManager.Savepoints.CreateSavepoint(this.Name, name);
+            }
+
             if (Data == null)
                 return null;
                 
@@ -70,6 +76,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public async Task<bool> RollbackToSavepoint(string name)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+            {
+                return await _formsManager.Savepoints.RollbackToSavepointAsync(this.Name, name);
+            }
+
             if (!_savepoints.ContainsKey(name))
             {
                 ShowErrorMessage($"Savepoint '{name}' not found");
@@ -122,6 +134,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool ReleaseSavepoint(string name)
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+            {
+                return _formsManager.Savepoints.ReleaseSavepoint(this.Name, name);
+            }
+
             if (_savepoints.ContainsKey(name))
             {
                 _savepoints.Remove(name);
@@ -136,6 +154,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ReleaseAllSavepoints()
         {
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+            {
+                _formsManager.Savepoints.ReleaseAllSavepoints(this.Name);
+                return;
+            }
             _savepoints.Clear();
         }
         
@@ -144,6 +167,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public List<Savepoint> ListSavepoints()
         {
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+            {
+                // Project FormsManager SavepointInfo back to local Savepoint for API compatibility
+                return _formsManager.Savepoints.ListSavepoints(this.Name)
+                    .Select(sp => new Savepoint
+                    {
+                        Name = sp.Name,
+                        Timestamp = sp.Timestamp,
+                        RecordIndex = sp.RecordIndex,
+                        RecordCount = sp.RecordCount,
+                        IsDirty = sp.WasDirty
+                    }).ToList();
+            }
             return _savepoints.Values.OrderBy(sp => sp.Timestamp).ToList();
         }
         
@@ -152,6 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool SavepointExists(string name)
         {
+            if (IsCoordinated && _formsManager?.Savepoints != null)
+                return _formsManager.Savepoints.SavepointExists(this.Name, name);
             return _savepoints.ContainsKey(name);
         }
         

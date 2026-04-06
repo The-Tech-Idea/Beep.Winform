@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFormWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepFormWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepFormWidget</h1>
+                        <p class="subtitle">Form layout widget with ten styles: field groups, validation panels, form sections, input cards, multi-step form steps, fieldsets, inline/compact layouts, validated inputs, and form summaries.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Forms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepFormWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 📝<br>
+                        <strong>Category:</strong> Beep Widgets → Forms<br>
+                        <strong>Default size:</strong> 360 × 280<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>📝 Ten Form Styles</h3><p>From compact inline to multi-step wizard — every form layout covered.</p></div>
+                        <div class="feature-card"><h3>✅ Validation Display</h3><p>ValidatedInput and ValidationPanel render per-field error messages.</p></div>
+                        <div class="feature-card"><h3>🔢 FormStep</h3><p>FormStep style integrates with BeepNavigationWidget WizardSteps for multi-step flows.</p></div>
+                        <div class="feature-card"><h3>📋 FormSummary</h3><p>Read-only summary style for review-before-submit screens.</p></div>
+                        <div class="feature-card"><h3>🎨 Theme tokens</h3><p>ValidColor, InvalidColor, and AccentColor default to active theme tokens.</p></div>
+                        <div class="feature-card"><h3>⭐ Required Indicators</h3><p>ShowRequired renders asterisks on required fields automatically.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FieldGroup</code></td><td>Grouped set of related labelled input fields.</td></tr>
+                            <tr><td><code>ValidationPanel</code></td><td>Form section with live validation state indicators.</td></tr>
+                            <tr><td><code>FormSection</code></td><td>Titled section dividing a long form into logical parts.</td></tr>
+                            <tr><td><code>InputCard</code></td><td>Single-input styled card — ideal for prominent single fields.</td></tr>
+                            <tr><td><code>FormStep</code></td><td>One step in a multi-step form with step number and title.</td></tr>
+                            <tr><td><code>FieldSet</code></td><td>Traditional HTML-style fieldset with legend.</td></tr>
+                            <tr><td><code>InlineForm</code></td><td>Horizontal side-by-side label/input layout.</td></tr>
+                            <tr><td><code>CompactForm</code></td><td>Space-efficient stacked layout for dense UIs.</td></tr>
+                            <tr><td><code>ValidatedInput</code></td><td>Single input with inline validation message below.</td></tr>
+                            <tr><td><code>FormSummary</code></td><td>Read-only summary of submitted form data.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>FormWidgetStyle</td><td>FieldGroup</td><td>Selects the form layout painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Form Widget&quot;</td><td>Section or card heading.</td></tr>
+                            <tr><td><code>Subtitle</code></td><td>string</td><td>&quot;Data Entry&quot;</td><td>Secondary sub-heading.</td></tr>
+                            <tr><td><code>Description</code></td><td>string</td><td>&quot;&quot;</td><td>Helper text below the title.</td></tr>
+                            <tr><td><code>Fields</code></td><td>List&lt;FormField&gt;</td><td>(empty)</td><td>Form fields. Each FormField has Label, Value, Type, IsRequired, IsValid, ErrorMessage.</td></tr>
+                            <tr><td><code>IsValid</code></td><td>bool</td><td>true</td><td>Overall form validity state.</td></tr>
+                            <tr><td><code>ShowRequired</code></td><td>bool</td><td>true</td><td>Show asterisks on required fields.</td></tr>
+                            <tr><td><code>ShowValidation</code></td><td>bool</td><td>true</td><td>Show validation icons/messages.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Active/focused field border colour.</td></tr>
+                            <tr><td><code>ValidColor</code></td><td>Color</td><td>(theme success)</td><td>Border/icon colour for valid fields.</td></tr>
+                            <tr><td><code>InvalidColor</code></td><td>Color</td><td>(theme error)</td><td>Border/icon colour for invalid fields.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FieldClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a field area is clicked. Data contains FormField.</td></tr>
+                            <tr><td><code>SubmitClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a submit button (if rendered) is clicked.</td></tr>
+                            <tr><td><code>FieldChanged</code></td><td>BeepEventDataArgs</td><td>Fired when a field value changes. Data contains FormField with new value.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var form = new BeepFormWidget
+{
+    Style    = FormWidgetStyle.ValidationPanel,
+    Title    = "User Registration",
+    Fields   = new List<FormField>
+    {
+        new FormField { Label = "First Name", Value = "", IsRequired = true  },
+        new FormField { Label = "Last Name",  Value = "", IsRequired = true  },
+        new FormField { Label = "Email",      Value = "", IsRequired = true,
+                        IsValid = false, ErrorMessage = "Enter a valid email" },
+        new FormField { Label = "Phone",      Value = "", IsRequired = false },
+    },
+    Size = new Size(380, 280)
+};
+this.Controls.Add(form);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">form.FieldClicked += (s, e) =>
+{
+    var field = (FormField)e.Data;
+    FocusNativeInput(field.Label);
+};
+
+form.SubmitClicked += (s, e) => ValidateAndSubmit();</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-control-widget.html" class="related-card"><h4>BeepControlWidget</h4><p>Use BeepControlWidget for individual interactive inputs.</p></a>
+                        <a href="beep-navigation-widget.html" class="related-card"><h4>BeepNavigationWidget</h4><p>Pair FormStep with WizardSteps navigation.</p></a>
+                        <a href="beep-notification-widget.html" class="related-card"><h4>BeepNotificationWidget</h4><p>Show ValidationMessage for field-level errors.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Guide - Beep Controls</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <div class="page-header">
+                    <h1><i class="bi bi-speedometer2"></i> Performance Guide</h1>
+                    <p class="page-subtitle">Optimize your Beep Controls applications for speed and responsiveness</p>
+                </div>
+
+                <section class="section">
+                    <h2>Reduce Control Count</h2>
+                    <p>Each control on a form adds overhead. For complex layouts:</p>
+                    <ul>
+                        <li>Use <code>BeepSimpleGrid</code> instead of many individual labels/textboxes for tabular data</li>
+                        <li>Use <code>BeepListBox</code> or <code>BeepTree</code> for large lists instead of dynamically created controls</li>
+                        <li>Use virtualization when displaying hundreds of items</li>
+                    </ul>
+                </section>
+
+                <section class="section">
+                    <h2>Suspend Layout During Bulk Updates</h2>
+                    <pre><code class="language-csharp">// Before adding many controls
+panel.SuspendLayout();
+
+for (int i = 0; i &lt; 100; i++)
+{
+    var label = new BeepLabel { Text = $"Item {i}" };
+    panel.Controls.Add(label);
+}
+
+// Resume after all additions
+panel.ResumeLayout(true);</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Use Double Buffering</h2>
+                    <p>BaseControl enables double buffering by default. If you create custom controls, ensure it's enabled:</p>
+                    <pre><code class="language-csharp">public class MyControl : BaseControl
+{
+    public MyControl()
+    {
+        SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                 ControlStyles.AllPaintingInWmPaint |
+                 ControlStyles.UserPaint, true);
+    }
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Cache GDI+ Resources</h2>
+                    <p>Creating brushes and pens on every paint call is expensive. Cache them:</p>
+                    <pre><code class="language-csharp">// Bad — creates new brush every paint
+protected override void OnPaint(PaintEventArgs e)
+{
+    using var brush = new SolidBrush(CurrentTheme.BackColor);
+    e.Graphics.FillRectangle(brush, ClientRectangle);
+}
+
+// Good — cached brush, recreated only on theme change
+private SolidBrush _bgBrush;
+
+protected override void OnThemeChanged()
+{
+    base.OnThemeChanged();
+    _bgBrush?.Dispose();
+    _bgBrush = new SolidBrush(CurrentTheme.BackColor);
+}
+
+protected override void OnPaint(PaintEventArgs e)
+{
+    e.Graphics.FillRectangle(_bgBrush, ClientRectangle);
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Async Data Loading</h2>
+                    <p>Never load data on the UI thread. Use async patterns:</p>
+                    <pre><code class="language-csharp">private async void LoadData()
+{
+    var wait = new BeepWait();
+    wait.Show("Loading data...");
+
+    var data = await Task.Run(() =&gt; FetchDataFromDatabase());
+
+    grid.DataSource = data;
+    wait.Close();
+}</code></pre>
+                </section>
+
+                <section class="section">
+                    <h2>Minimize Theme Switching</h2>
+                    <p>Switching themes triggers a repaint cascade across all controls. Avoid switching themes rapidly (e.g., in a loop or timer). Switch themes only in response to deliberate user action.</p>
+                </section>
+
+                <section class="section">
+                    <h2>Grid Performance Tips</h2>
+                    <ul>
+                        <li>Set <code>VirtualMode = true</code> for grids with &gt;1000 rows</li>
+                        <li>Avoid complex cell formatting in the paint handler</li>
+                        <li>Use pagination via <code>BeepDataNavigator</code> instead of loading all rows</li>
+                        <li>Disable auto-sizing columns for very wide data sets</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

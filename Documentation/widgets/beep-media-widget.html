@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMediaWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepMediaWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepMediaWidget</h1>
+                        <p class="subtitle">Media display widget with ten styles: image cards, avatar groups, icon cards, galleries, profile cards, image overlays, photo grids, media viewers, avatar lists, and icon grids.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Media / Images</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepMediaWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 10 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 🖼️<br>
+                        <strong>Category:</strong> Beep Widgets → Media / Images<br>
+                        <strong>Default size:</strong> 280 × 200<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>🖼️ Ten Media Styles</h3><p>Images, galleries, avatars, icons — one widget covers every media type.</p></div>
+                        <div class="feature-card"><h3>🎭 Overlay Support</h3><p>Built-in text overlay with ShowOverlay toggle for ImageCard/ImageOverlay.</p></div>
+                        <div class="feature-card"><h3>👤 Avatar Clusters</h3><p>AvatarGroup renders stacked circular thumbnails with overflow count badge.</p></div>
+                        <div class="feature-card"><h3>🎨 Theme Consistent</h3><p>Border, accent, and hover colours derive automatically from the active theme.</p></div>
+                        <div class="feature-card"><h3>🖱️ Per-Item Events</h3><p>ImageClicked and AvatarClicked carry individual item data for drill-down.</p></div>
+                        <div class="feature-card"><h3>📐 Gallery & Grid</h3><p>MediaGallery and PhotoGrid handle multi-image layouts internally.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (10)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ImageCard</code></td><td>Card with a background image and an overlay text strip.</td></tr>
+                            <tr><td><code>AvatarGroup</code></td><td>Stacked circular avatar thumbnails for group display.</td></tr>
+                            <tr><td><code>IconCard</code></td><td>Large centred icon with a title and description below.</td></tr>
+                            <tr><td><code>MediaGallery</code></td><td>Horizontally scrollable image carousel.</td></tr>
+                            <tr><td><code>ProfileCard</code></td><td>User profile card with photo, name, role, and stats.</td></tr>
+                            <tr><td><code>ImageOverlay</code></td><td>Full-bleed image with a semi-transparent text overlay.</td></tr>
+                            <tr><td><code>PhotoGrid</code></td><td>Masonry-style grid of photo thumbnails.</td></tr>
+                            <tr><td><code>MediaViewer</code></td><td>Single large media item with title and metadata.</td></tr>
+                            <tr><td><code>AvatarList</code></td><td>Vertical list of avatars with name and subtitle labels.</td></tr>
+                            <tr><td><code>IconGrid</code></td><td>Grid of icons with labels — ideal for feature showcases.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>MediaWidgetStyle</td><td>ImageCard</td><td>Selects the media painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Media Title&quot;</td><td>Primary caption or heading.</td></tr>
+                            <tr><td><code>Subtitle</code></td><td>string</td><td>&quot;Subtitle&quot;</td><td>Secondary caption.</td></tr>
+                            <tr><td><code>ImagePath</code></td><td>string</td><td>&quot;&quot;</td><td>File path to the primary display image.</td></tr>
+                            <tr><td><code>Image</code></td><td>Image</td><td>null</td><td>Directly assigned Image object (takes priority over ImagePath).</td></tr>
+                            <tr><td><code>MediaItems</code></td><td>List&lt;MediaItem&gt;</td><td>(empty)</td><td>Collection for gallery, grid, and group styles.</td></tr>
+                            <tr><td><code>ShowOverlay</code></td><td>bool</td><td>true</td><td>Show/hide the text overlay on ImageCard/ImageOverlay.</td></tr>
+                            <tr><td><code>OverlayText</code></td><td>string</td><td>&quot;Overlay Text&quot;</td><td>Text rendered in the overlay strip.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Accent for icon colours and selection borders.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>MediaClicked</code></td><td>BeepEventDataArgs</td><td>Fired when anywhere on the widget is clicked.</td></tr>
+                            <tr><td><code>ImageClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a specific image/thumbnail is clicked. Data contains MediaItem or index.</td></tr>
+                            <tr><td><code>AvatarClicked</code></td><td>BeepEventDataArgs</td><td>Fired when an avatar is clicked in AvatarGroup or AvatarList styles.</td></tr>
+                            <tr><td><code>OverlayClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the overlay text area is clicked.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">// Profile card
+var profile = new BeepMediaWidget
+{
+    Style    = MediaWidgetStyle.ProfileCard,
+    Title    = "Sarah Connor",
+    Subtitle = "Lead Designer",
+    ImagePath = "avatars/sarah.png",
+    Size     = new Size(240, 180)
+};
+
+// Icon grid
+var icons = new BeepMediaWidget
+{
+    Style      = MediaWidgetStyle.IconGrid,
+    Title      = "Quick Access",
+    MediaItems = new List<MediaItem>
+    {
+        new MediaItem { Title = "Reports",    IconPath = "icons/report.svg"    },
+        new MediaItem { Title = "Settings",   IconPath = "icons/settings.svg"  },
+        new MediaItem { Title = "Team",       IconPath = "icons/team.svg"      },
+        new MediaItem { Title = "Analytics",  IconPath = "icons/analytics.svg" },
+    },
+    Size = new Size(320, 160)
+};</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">icons.ImageClicked += (s, e) =>
+{
+    var item = (MediaItem)e.Data;
+    NavigateTo(item.Title);
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-social-widget.html" class="related-card"><h4>BeepSocialWidget</h4><p>Full ProfileCard social widget with stats.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>ProfileList renders rows of avatars with details.</p></a>
+                        <a href="beep-form-widget.html" class="related-card"><h4>BeepFormWidget</h4><p>Pair with InputCard for photo-upload forms.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

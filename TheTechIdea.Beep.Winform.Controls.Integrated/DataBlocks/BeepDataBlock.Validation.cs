@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Editor.Forms.Helpers;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
@@ -43,6 +45,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             _validationRules[fieldName].Add(rule);
             _validationRules[fieldName] = _validationRules[fieldName].OrderBy(r => r.ExecutionOrder).ToList();
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var dmRule = ValidationBridge.ToBeepDMRule(
+                        blockName: this.Name,
+                        fieldName: fieldName,
+                        ruleName: rule.RuleName,
+                        validationType: (int)rule.ValidationType,
+                        errorMessage: rule.ErrorMessage,
+                        isRequired: rule.IsRequired,
+                        minValue: rule.MinValue,
+                        maxValue: rule.MaxValue,
+                        pattern: rule.Pattern,
+                        executionOrder: rule.ExecutionOrder);
+                    _formsManager.Validation.RegisterRule(dmRule);
+                }
+                catch { /* local rules still active as fallback */ }
+            }
         }
         
         /// <summary>
@@ -61,6 +84,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_validationRules.ContainsKey(fieldName))
             {
                 _validationRules.Remove(fieldName);
+            }
+            
+            if (IsCoordinated)
+            {
+                try { _formsManager.Validation.UnregisterItemRules(this.Name, fieldName); }
+                catch { }
             }
         }
         
@@ -84,6 +113,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         public async Task<IErrorsInfo> ValidateField(string fieldName, object value)
         {
             var errors = new ErrorsInfo { Flag = Errors.Ok };
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var result = _formsManager.Validation.ValidateItem(this.Name, fieldName, value);
+                    if (!result.IsValid)
+                    {
+                        errors.Flag = Errors.Failed;
+                        errors.Message = result.ErrorMessage;
+                        if (TryResolveItem(fieldName, out var errItem, out _))
+                        {
+                            errItem.SetError(result.ErrorMessage);
+                        }
+                        return errors;
+                    }
+                }
+                catch { /* fall through to local validation */ }
+            }
             
             if (!_validationRules.ContainsKey(fieldName))
                 return errors;  // No rules = valid
@@ -110,8 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Update item error state
                     if (TryResolveItem(fieldName, out var resolvedItem, out _))
                     {
-                        resolvedItem.HasError = true;
-                        resolvedItem.ErrorMessage = result.Message;
+                        resolvedItem.SetError(result.Message);
                     }
                     
                     return errors;  // Stop on first error
@@ -121,8 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Clear error state if validation passed
             if (TryResolveItem(fieldName, out var clearedItem, out _))
             {
-                clearedItem.HasError = false;
-                clearedItem.ErrorMessage = null;
+                clearedItem.ClearError();
             }
             
             return errors;
@@ -139,6 +186,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var errors = new ErrorsInfo { Flag = Errors.Ok };
             var allErrors = new List<string>();
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var recordValues = GetCurrentRecordValues();
+                    var result = _formsManager.Validation.ValidateRecord(this.Name, recordValues);
+                    if (!result.IsValid)
+                    {
+                        errors.Flag = Errors.Failed;
+                        errors.Message = string.Join("\n", result.ItemResults
+                            .Where(r => !r.IsValid)
+                            .Select(r => r.ErrorMessage));
+                        return errors;
+                    }
+                }
+                catch { /* fall through to local validation */ }
+            }
             
             // Validate each field
             foreach (var fieldName in _validationRules.Keys.Where(k => k != "*"))
@@ -193,8 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             foreach (var item in _items.Values)
             {
-                item.HasError = false;
-                item.ErrorMessage = null;
+                item.ClearError();
             }
         }
         

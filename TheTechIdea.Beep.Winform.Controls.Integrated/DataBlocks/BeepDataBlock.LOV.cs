@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor.Forms.Helpers;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Dialogs;
@@ -49,6 +50,51 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 AttachLOVToComponent(itemName, lov);
             }
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var columns = lov.Columns?.Select(c => new LOVColumnInfo
+                    {
+                        FieldName = c.FieldName,
+                        DisplayName = c.DisplayName,
+                        Width = c.Width,
+                        Visible = c.Visible,
+                        Searchable = c.Searchable,
+                        Format = c.Format,
+                        Alignment = (int)c.Alignment
+                    }).ToList();
+                    
+                    var dmLov = LOVBridge.ToBeepDMLOV(
+                        lovName: lov.LOVName,
+                        title: lov.Title,
+                        dataSourceName: lov.DataSourceName,
+                        entityName: lov.EntityName,
+                        displayField: lov.DisplayField,
+                        returnField: lov.ReturnField,
+                        whereClause: lov.WhereClause,
+                        orderByClause: lov.OrderByClause,
+                        allowSearch: lov.AllowSearch,
+                        searchMode: (int)lov.SearchMode,
+                        width: lov.Width,
+                        height: lov.Height,
+                        allowMultiSelect: lov.AllowMultiSelect,
+                        autoRefresh: lov.AutoRefresh,
+                        validationType: (int)lov.ValidationType,
+                        autoDisplay: lov.AutoDisplay,
+                        autoDisplayMinChars: lov.AutoDisplayMinChars,
+                        autoPopulateRelatedFields: lov.AutoPopulateRelatedFields,
+                        relatedFieldMappings: lov.RelatedFieldMappings,
+                        useCache: lov.UseCache,
+                        cacheDurationMinutes: lov.CacheDurationMinutes,
+                        filters: lov.Filters,
+                        columns: columns);
+                    _formsManager.LOV.RegisterLOV(this.Name, itemName, dmLov);
+                }
+                catch { /* local LOV still active as fallback */ }
+            }
         }
         
         /// <summary>
@@ -60,6 +106,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _lovs.Remove(itemName);
                 DetachLOVFromComponent(itemName);
+            }
+            
+            if (IsCoordinated)
+            {
+                try { _formsManager.LOV.UnregisterLOV(this.Name, itemName); }
+                catch { }
             }
         }
         
@@ -156,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             try
             {
                 // Load LOV data
-                var lovData = await LoadLOVData(lov);
+                var lovData = await LoadLOVData(lov, itemName);
                 
                 if (lovData == null || lovData.Count == 0)
                 {
@@ -237,12 +289,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region LOV Data Loading
         
-        private async Task<List<object>> LoadLOVData(BeepDataBlockLOV lov)
+        private async Task<List<object>> LoadLOVData(BeepDataBlockLOV lov, string fieldName = null)
         {
             // Check cache first
             if (lov.UseCache && lov.IsCacheValid())
             {
                 return lov.CachedData;
+            }
+            
+            // Delegate data loading to FormsManager when coordinated
+            if (IsCoordinated && !string.IsNullOrEmpty(fieldName))
+            {
+                try
+                {
+                    var lovResult = await _formsManager.LOV.LoadLOVDataAsync(this.Name, fieldName);
+                    if (lovResult != null && lovResult.Records != null)
+                    {
+                        var data = lovResult.Records.Cast<object>().ToList();
+                        if (lov.UseCache && data.Count > 0)
+                        {
+                            lov.CachedData = data;
+                            lov.CacheTimestamp = DateTime.Now;
+                        }
+                        return data;
+                    }
+                }
+                catch { /* fall through to local loading */ }
             }
             
             try
@@ -379,6 +451,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!_lovs.ContainsKey(itemName))
                 return true;  // No LOV = no validation
+            
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated)
+            {
+                try
+                {
+                    var result = await _formsManager.LOV.ValidateLOVValueAsync(this.Name, itemName, value);
+                    return result.IsValid;
+                }
+                catch { /* fall through to local validation */ }
+            }
                 
             var lov = _lovs[itemName];
             
@@ -387,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return true;
                 
             // Load LOV data
-            var lovData = await LoadLOVData(lov);
+            var lovData = await LoadLOVData(lov, itemName);
             
             if (lovData == null || lovData.Count == 0)
                 return true;  // Can't validate against empty LOV
@@ -448,6 +531,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var lov in _lovs.Values)
             {
                 lov.ClearCache();
+            }
+            
+            if (IsCoordinated)
+            {
+                try { _formsManager.LOV.ClearBlockLOVCache(this.Name); }
+                catch { }
             }
         }
         

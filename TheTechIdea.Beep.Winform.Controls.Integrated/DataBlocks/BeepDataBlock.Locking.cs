@@ -34,7 +34,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         public LockMode LockMode
         {
             get => _lockMode;
-            set => _lockMode = value;
+            set
+            {
+                _lockMode = value;
+                if (IsCoordinated && _formsManager?.Locking != null)
+                    _formsManager.Locking.SetLockMode(this.Name, (Editor.UOWManager.Models.LockMode)(int)value);
+            }
         }
         
         /// <summary>
@@ -43,13 +48,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool LockOnEdit
         {
             get => _lockOnEdit;
-            set => _lockOnEdit = value;
+            set
+            {
+                _lockOnEdit = value;
+                if (IsCoordinated && _formsManager?.Locking != null)
+                    _formsManager.Locking.SetLockOnEdit(this.Name, value);
+            }
         }
         
         /// <summary>
         /// Get count of locked records
         /// </summary>
-        public int LockedRecordCount => _lockedRecords.Count;
+        public int LockedRecordCount
+        {
+            get
+            {
+                if (IsCoordinated && _formsManager?.Locking != null)
+                    return _formsManager.Locking.GetLockedRecordCount(this.Name);
+                return _lockedRecords.Count;
+            }
+        }
         
         #endregion
         
@@ -61,6 +79,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public async Task<bool> LockCurrentRecord()
         {
+            // Delegate to FormsManager when coordinated
+            if (IsCoordinated && _formsManager?.Locking != null)
+            {
+                int idx = Data?.Units?.CurrentIndex ?? 0;
+                _formsManager.Locking.SetCurrentRecordIndex(this.Name, idx);
+                return await _formsManager.Locking.LockCurrentRecordAsync(this.Name);
+            }
+
             if (Data == null || Data.Units.Current == null)
                 return false;
                 
@@ -117,6 +143,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool UnlockCurrentRecord()
         {
+            if (IsCoordinated && _formsManager?.Locking != null)
+                return _formsManager.Locking.UnlockCurrentRecord(this.Name);
+
             if (Data == null)
                 return false;
                 
@@ -136,6 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void UnlockAllRecords()
         {
+            if (IsCoordinated && _formsManager?.Locking != null)
+            {
+                _formsManager.Locking.UnlockAllRecords(this.Name);
+                return;
+            }
             _lockedRecords.Clear();
         }
         
@@ -144,6 +178,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool IsRecordLocked(int recordIndex)
         {
+            if (IsCoordinated && _formsManager?.Locking != null)
+                return _formsManager.Locking.IsRecordLocked(this.Name, recordIndex);
             return _lockedRecords.ContainsKey(recordIndex);
         }
         
@@ -152,6 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public bool IsCurrentRecordLocked()
         {
+            if (IsCoordinated && _formsManager?.Locking != null)
+                return _formsManager.Locking.IsCurrentRecordLocked(this.Name);
             return Data != null && IsRecordLocked(Data.Units.CurrentIndex);
         }
         
@@ -160,6 +198,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public RecordLockInfo GetLockInfo(int recordIndex)
         {
+            if (IsCoordinated && _formsManager?.Locking != null)
+            {
+                var info = _formsManager.Locking.GetLockInfo(this.Name, recordIndex);
+                if (info == null) return null;
+                return new RecordLockInfo
+                {
+                    RecordIndex = info.RecordIndex,
+                    LockTime    = info.LockTime,
+                    LockedBy    = info.LockedBy
+                };
+            }
             return _lockedRecords.ContainsKey(recordIndex) ? _lockedRecords[recordIndex] : null;
         }
         

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beep Widget System - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>Widget Overview</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>Beep Widget System</h1>
+                        <p class="subtitle">Self-contained, fully themed display/input widgets built on BaseControl. Drop any widget on a form, set a style, and it paints itself.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.Widgets</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>What are Beep Widgets?</h2>
+                    <p>Beep Widgets are self-contained, paint-based WinForms controls that deliver rich visual output without child controls. Each widget:</p>
+                    <ul>
+                        <li>Inherits from <strong>BaseControl</strong> — full theme support, Border, Padding, and Hover states come for free.</li>
+                        <li>Has a <strong>Style enum</strong> property that switches the entire visual rendering mode (e.g. <code>MetricWidgetStyle.GaugeMetric</code>).</li>
+                        <li>Uses an <strong>IWidgetPainter</strong> / <strong>WidgetContext</strong> pipeline — background, content, and foreground accents are drawn in three separate passes.</li>
+                        <li>Fires strongly-typed <strong>BeepEventDataArgs</strong> events for every meaningful user interaction.</li>
+                        <li>Re-applies the currently active <strong>BeepTheme</strong> automatically when the application theme changes.</li>
+                    </ul>
+                    <div class="info-box">
+                        <strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Widgets</code><br>
+                        <strong>Base class:</strong> <code>BaseControl</code> (→ Control)<br>
+                        <strong>Toolbox category:</strong> <em>Beep Widgets</em>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p>The widget rendering pipeline consists of three layers:</p>
+                    <pre><code class="language-csharp">// IWidgetPainter interface
+void Initialize(BaseControl owner, IBeepTheme theme);
+WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx);
+void DrawBackground(Graphics g, WidgetContext ctx);
+void DrawContent(Graphics g, WidgetContext ctx);
+void DrawForegroundAccents(Graphics g, WidgetContext ctx);
+void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action&lt;string, Rectangle&gt; notifyAreaHit);</code></pre>
+                    <p>The <code>WidgetContext</code> object carries all layout rectangles, colours, and data needed for a single paint pass. The widget control populates the context from its properties; the current painter reads it.</p>
+                    <h3>Painter Selection</h3>
+                    <p>When the <code>Style</code> property changes, the widget calls <code>InitializePainter()</code> which instantiates the matching concrete painter class and calls <code>Initialize()</code> followed by <code>Invalidate()</code>.</p>
+                    <pre><code class="language-csharp">// Example: changing a metric widget style at runtime
+metricWidget.Style = MetricWidgetStyle.GaugeMetric;
+// The widget automatically swaps in GaugeMetricPainter and repaints.</code></pre>
+                </section>
+
+                <section id="quick-start" class="section">
+                    <h2>Quick Start</h2>
+                    <pre><code class="language-csharp">// 1. Drop any widget on a form, or create programmatically:
+var metric = new BeepMetricWidget
+{
+    Style      = MetricWidgetStyle.ValueWithTrend,
+    Title      = "Monthly Revenue",
+    Value      = "$127,450",
+    TrendValue = "+8.3%",
+    ShowTrend  = true,
+    Size       = new Size(220, 120)
+};
+panel.Controls.Add(metric);
+
+// 2. Handle events:
+metric.ValueClicked += (s, e) => ShowRevenueDetail();
+
+// 3. Theme changes are picked up automatically via ApplyTheme().</code></pre>
+
+                    <h3>Using a Chart Widget</h3>
+                    <pre><code class="language-csharp">var chart = new BeepChartWidget
+{
+    Style      = ChartWidgetStyle.LineChart,
+    Title      = "Sales Trend",
+    Values     = new List&lt;double&gt; { 120, 135, 98, 160, 175, 210 },
+    Labels     = new List&lt;string&gt; { "Jan","Feb","Mar","Apr","May","Jun" },
+    ShowLegend = true
+};
+chart.DataPointClicked += (s, e) => Console.WriteLine(e.Data);</code></pre>
+                </section>
+
+                <section id="available-widgets" class="section">
+                    <h2>Available Widgets (13)</h2>
+                    <div class="related-grid">
+                    <a href="beep-metric-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>📊 BeepMetricWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">6 styles</span></h4>
+                        <p>KPI and metric display panels with optional trend indicators and progress bars.</p>
+                    </a>
+                    <a href="beep-chart-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>📈 BeepChartWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">7 styles</span></h4>
+                        <p>Bar, line, pie, gauge, sparkline, heatmap and combination charts.</p>
+                    </a>
+                    <a href="beep-list-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>📋 BeepListWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">6 styles</span></h4>
+                        <p>Activity feeds, data tables, rankings, status lists, profile lists and to-do lists.</p>
+                    </a>
+                    <a href="beep-dashboard-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🗂️ BeepDashboardWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">6 styles</span></h4>
+                        <p>Composite dashboard panels combining multiple KPIs, charts and timelines.</p>
+                    </a>
+                    <a href="beep-control-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🎛️ BeepControlWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Interactive input controls: toggles, sliders, dropdowns, date pickers, search boxes, colour pickers and more.</p>
+                    </a>
+                    <a href="beep-notification-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🔔 BeepNotificationWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Toast notifications, alert banners, validation messages, progress alerts and success banners.</p>
+                    </a>
+                    <a href="beep-navigation-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🧭 BeepNavigationWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Breadcrumbs, step indicators, tabs, pagination, menu bars, sidebars and wizard steps.</p>
+                    </a>
+                    <a href="beep-media-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🖼️ BeepMediaWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Image cards, avatar groups, icon cards, galleries, profile cards and photo grids.</p>
+                    </a>
+                    <a href="beep-finance-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>💰 BeepFinanceWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Portfolio cards, crypto widgets, transaction cards, balance cards and budget trackers.</p>
+                    </a>
+                    <a href="beep-form-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>📝 BeepFormWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Field groups, validation panels, form sections, input cards and multi-step form steps.</p>
+                    </a>
+                    <a href="beep-social-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>👥 BeepSocialWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Profile cards, team grids, chat widgets, comment threads and social activity feeds.</p>
+                    </a>
+                    <a href="beep-map-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>🗺️ BeepMapWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Location cards, route display, geographic heatmaps, address cards and place cards.</p>
+                    </a>
+                    <a href="beep-calendar-widget.html" class="related-card" style="text-decoration:none;">
+                        <h4>📅 BeepCalendarWidget <span class="badge badge-stable" style="font-size:11px;margin-left:6px;">10 styles</span></h4>
+                        <p>Calendar views, time slots, event cards, week views, event lists and availability grids.</p>
+                    </a>
+                    </div>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Set Size before adding to a container</strong> — each widget has a sensible default size but you should adjust it to fit your layout.</li>
+                        <li><strong>Use Style enums, not magic numbers</strong> — always assign the strongly-typed enum value.</li>
+                        <li><strong>Avoid overlapping widgets</strong> — widgets are GDI+ paint-based and do not clip to parent containers automatically.</li>
+                        <li><strong>Let the theme engine drive colours</strong> — avoid hard-coding color properties; most colour properties default to the current theme values.</li>
+                        <li><strong>Reuse widget instances</strong> — updating data properties and calling <code>Invalidate()</code> is cheaper than creating a new widget.</li>
+                        <li><strong>Handle BeepEventDataArgs.Data</strong> — the <code>Data</code> property contains context-specific clicked-item data (index, value, label, etc.).</li>
+                    </ul>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

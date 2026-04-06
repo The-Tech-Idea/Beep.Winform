@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDashboardWidget - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../controls/_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+                <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="index.html">Widgets</a>
+                    <span>›</span>
+                    <span>BeepDashboardWidget</span>
+                </nav>
+
+                <div class="page-header">
+                    <div class="header-content">
+                        <h1>BeepDashboardWidget</h1>
+                        <p class="subtitle">Composite dashboard widget that arranges multiple KPIs, charts, and timelines in a single panel with six layout styles.</p>
+                        <div class="header-badges">
+                            <span class="badge badge-stable">Stable</span>
+                            <span class="badge badge-version">v1.0.164</span>
+                            <span class="badge badge-namespace">Beep Widgets / Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepDashboardWidget</strong> is a paint-based WinForms widget that inherits from <strong>BaseControl</strong>. It uses an IWidgetPainter pipeline to render rich visuals without child controls. The <code>Style</code> property selects one of 6 built-in render modes; changing it at runtime immediately swaps the painter and triggers a repaint.</p>
+                    <div class="info-box">
+                        <strong>Toolbox icon:</strong> 🗂️<br>
+                        <strong>Category:</strong> Beep Widgets → Dashboard<br>
+                        <strong>Default size:</strong> 400 × 300<br>
+                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls.Widgets
+                    </div>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card"><h3>🗂️ Six Layouts</h3><p>Grid, timeline, comparison, and analytics — all from one widget.</p></div>
+                        <div class="feature-card"><h3>📊 DashboardMetric</h3><p>Simple DashboardMetric model (Title, Value, Trend, Color) populates all styles.</p></div>
+                        <div class="feature-card"><h3>🎨 Gradient Panels</h3><p>Built-in LinearGradient support for the panel background.</p></div>
+                        <div class="feature-card"><h3>🖱️ Card Click Events</h3><p>MetricClicked fires with the specific DashboardMetric the user clicked.</p></div>
+                        <div class="feature-card"><h3>📐 Configurable Grid</h3><p>Columns and Rows properties control the metric/chart grid density.</p></div>
+                        <div class="feature-card"><h3>🔄 Live Update</h3><p>Update Metrics collection and call Invalidate() to refresh in place.</p></div>
+                    </div>
+                </section>
+
+                <section id="styles" class="section">
+                    <h2>Style Variants (6)</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Style Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>MultiMetric</code></td><td>Grid of metric cards (Revenue, Users, Orders, Growth).</td></tr>
+                            <tr><td><code>ChartGrid</code></td><td>Grid of small charts each representing a different metric.</td></tr>
+                            <tr><td><code>TimelineView</code></td><td>Chronological event/activity timeline.</td></tr>
+                            <tr><td><code>ComparisonGrid</code></td><td>Side-by-side metric comparisons with delta indicators.</td></tr>
+                            <tr><td><code>StatusOverview</code></td><td>System-health style dashboard with service status indicators.</td></tr>
+                            <tr><td><code>AnalyticsPanel</code></td><td>Complex analytics layout with chart + metric summary.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Style</code></td><td>DashboardWidgetStyle</td><td>MultiMetric</td><td>Selects the dashboard layout painter.</td></tr>
+                            <tr><td><code>Title</code></td><td>string</td><td>&quot;Dashboard&quot;</td><td>Header text for the panel.</td></tr>
+                            <tr><td><code>Metrics</code></td><td>List&lt;DashboardMetric&gt;</td><td>(4 sample)</td><td>Data items. Each DashboardMetric has Title, Value, Trend, Color.</td></tr>
+                            <tr><td><code>Columns</code></td><td>int</td><td>2</td><td>Number of columns in metric/chart grid layouts.</td></tr>
+                            <tr><td><code>Rows</code></td><td>int</td><td>2</td><td>Number of rows in metric/chart grid layouts.</td></tr>
+                            <tr><td><code>ShowTitle</code></td><td>bool</td><td>true</td><td>Show/hide the panel title bar.</td></tr>
+                            <tr><td><code>GradientDirection</code></td><td>LinearGradientMode</td><td>Vertical</td><td>Direction of the panel background gradient.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td>Color</td><td>(theme primary)</td><td>Primary accent colour used across metric cards.</td></tr>
+                            <tr><td><code>CardBackColor</code></td><td>Color</td><td>(theme card)</td><td>Background colour for each inner metric card.</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="note">Inherits all <strong>BaseControl</strong> properties (Border, Padding, Theme colors, etc.).</p>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>MetricClicked</code></td><td>BeepEventDataArgs</td><td>Fired when a metric card is clicked. Data contains the DashboardMetric.</td></tr>
+                            <tr><td><code>PanelClicked</code></td><td>BeepEventDataArgs</td><td>Fired when the dashboard panel background is clicked.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    <pre><code class="language-csharp">var dash = new BeepDashboardWidget
+{
+    Style   = DashboardWidgetStyle.MultiMetric,
+    Title   = "Q4 KPIs",
+    Columns = 2,
+    Metrics = new List<DashboardMetric>
+    {
+        new DashboardMetric { Title = "Revenue", Value = "$127K",  Trend = "+12%", Color = Color.Green  },
+        new DashboardMetric { Title = "Users",   Value = "23,456", Trend = "+8%",  Color = Color.Blue   },
+        new DashboardMetric { Title = "Orders",  Value = "1,234",  Trend = "-2%",  Color = Color.Red    },
+        new DashboardMetric { Title = "Growth",  Value = "15.7%",  Trend = "+5%",  Color = Color.Orange },
+    },
+    Size = new Size(420, 260)
+};
+this.Controls.Add(dash);</code></pre>
+                </section>
+
+                <section id="event-handling" class="section">
+                    <h2>Event Handling</h2>
+                    <pre><code class="language-csharp">dash.MetricClicked += (s, e) =>
+{
+    var m = (DashboardMetric)e.Data;
+    DrillDown(m.Title);
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li>Set <code>Style</code> before adding the widget to the form to avoid double repaints.</li>
+                        <li>Adjust <code>Size</code> to fit your layout — defaults are minimum comfortable sizes.</li>
+                        <li>Read <code>BeepEventDataArgs.Data</code> in event handlers for context-specific click data.</li>
+                        <li>Call <code>Invalidate()</code> after updating data properties to trigger a repaint.</li>
+                        <li>Let theme colors flow from <code>BeepStyling.CurrentTheme</code> — avoid overriding color properties unless customization is explicitly desired.</li>
+                    </ul>
+                </section>
+
+                <section id="related" class="section">
+                    <h2>Related Widgets</h2>
+                    <div class="related-grid">
+                        <a href="beep-metric-widget.html" class="related-card"><h4>BeepMetricWidget</h4><p>Individual KPI card for single-metric focus.</p></a>
+                        <a href="beep-chart-widget.html" class="related-card"><h4>BeepChartWidget</h4><p>Add a standalone chart alongside the dashboard.</p></a>
+                        <a href="beep-list-widget.html" class="related-card"><h4>BeepListWidget</h4><p>Detail list to pair with the summary dashboard.</p></a>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function searchDocs(q) {
+            document.querySelectorAll('.nav-menu a').forEach(a => {
+                a.closest('li').style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) || q==='' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

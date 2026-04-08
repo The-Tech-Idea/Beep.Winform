@@ -286,6 +286,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
 
         #endregion
 
+        #region Content Painting
+
         /// <summary>
         /// Paint content including icons, title, and text
         /// </summary>

@@ -380,7 +380,8 @@ var builder = Host.CreateApplicationBuilder();
 BeepDesktopServices.RegisterServices(builder);
 var host = builder.Build();
 BeepDesktopServices.ConfigureServices(host);
-BeepDesktopServices.ConfigureControlsandMenus();
+// using TheTechIdea.Beep.Winform.Extensions;
+host.ConfigureBeepWinformAddInUi();
 
 // Start loading assemblies and services
 var result = BeepDesktopServices.StartLoading(

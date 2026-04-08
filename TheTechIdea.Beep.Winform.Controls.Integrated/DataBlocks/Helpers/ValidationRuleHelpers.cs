@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Helpers

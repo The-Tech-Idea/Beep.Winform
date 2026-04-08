@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Controls.Integrated", "TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj", "{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Extensions", "TheTechIdea.Beep.Winform.Extensions\TheTechIdea.Beep.Winform.Extensions.csproj", "{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Vis.Loader", "..\Beep.Branchs\TheTechIdea.Beep.Vis.Loader\TheTechIdea.Beep.Vis.Loader.csproj", "{48A13373-EE93-15DC-042E-737D6CEB8F5B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.TreeNodes", "..\Beep.Branchs\TheTechIdea.Beep.TreeNodes\TheTechIdea.Beep.TreeNodes.csproj", "{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}"
@@ -59,6 +61,10 @@ Global
 		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3A7F2C4-1E8B-4A9D-9C2F-7B6E5D4A3C10}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU

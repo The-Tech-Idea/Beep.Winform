@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
                 int textTop = y;
                 int textHeight = availableHeight - (y - bounds.Y - padding);
                 // Reserve space for footer if shortcut keys exist
-                if (config.ShortcutKeys != null && config.ShortcutKeys.Count > 0)
+                if (config.Shortcuts != null && config.Shortcuts.Count > 0)
                 {
                     int footerHeight = ResolveFooterHeight(config, spacing);
                     textHeight -= footerHeight + spacing;
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             }
 
             // Divider and footer for shortcut keys
-            if (config.ShortcutKeys != null && config.ShortcutKeys.Count > 0)
+            if (config.Shortcuts != null && config.Shortcuts.Count > 0)
             {
                 int footerHeight = ResolveFooterHeight(config, spacing);
                 int dividerY = bounds.Bottom - padding - footerHeight - spacing;
@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             }
 
             // Add footer space for shortcut keys
-            if (config.ShortcutKeys != null && config.ShortcutKeys.Count > 0)
+            if (config.Shortcuts != null && config.Shortcuts.Count > 0)
             {
                 height += ResolveFooterHeight(config, spacing) + spacing; // divider + footer
             }
@@ -269,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
             {
                 var measured = TextRenderer.MeasureText(g, config.Title, titleFont,
                     new Size(availableWidth, int.MaxValue), TextFormatFlags.WordBreak);
-                return (int)Math.Ceiling(measured.Height);
+                return (int)Math.Ceiling((double)measured.Height);
             }
 
             // Fallback: estimate from font height × line-height multiplier

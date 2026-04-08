@@ -56,7 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var args = new BeepMouseEventArgs("RightClick", item);
                     NodeRightClicked?.Invoke(this, args);
 
-                    // Resolve menu items provider from either SimpleItemFactory or HandlersFactory (fallback)
                     var provider = SimpleItemFactory.GlobalMenuItemsProvider;
                     var menuItems = provider != null ? provider(item) : null;
                     if (menuItems != null && menuItems.Count > 0)

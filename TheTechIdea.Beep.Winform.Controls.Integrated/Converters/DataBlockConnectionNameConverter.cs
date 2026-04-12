@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
@@ -10,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            if (context?.Instance is BeepDataBlock block)
+            if (context?.Instance is BeepBlock block)
             {
                 return new StandardValuesCollection(block.GetAvailableConnectionNames().ToList());
             }

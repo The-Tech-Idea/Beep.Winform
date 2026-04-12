@@ -206,5 +206,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens
 
         /// <summary>Corner radius applied to thumbnail (px).</summary>
         public const int ThumbnailCornerRadius = 4;
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Missing tokens added by Task 1.8
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>Preferred (ideal) tab width before overflow kicks in (px). Between min and max.</summary>
+        public const int TabPreferredWidth = 180;
+
+        /// <summary>Icon size inside a pinned (icon-only) tab (px).</summary>
+        public const int PinnedTabIconSize = 16;
+
+        /// <summary>Extended hit-test hotspot width for the splitter bar (px). Wider than visual thickness.</summary>
+        public const int SplitterHotspotWidth = 8;
+
+        /// <summary>Visual size of each dock-zone arrow button in the overlay compass (px).</summary>
+        public const int DockZoneSize = 32;
+
+        /// <summary>Stroke thickness of dock-guide arrow lines (px).</summary>
+        public const int DockGuideThickness = 2;
+
+        /// <summary>Minimum badge diameter — enforces readability at small sizes (px).</summary>
+        public const int BadgeMinSize = 14;
+
+        /// <summary>Horizontal padding inside a badge pill between digit and edge (px).</summary>
+        public const int BadgePadding = 3;
+
+        /// <summary>Maximum width of the rich tooltip popup (px).</summary>
+        public const int TooltipMaxWidth = 320;
     }
 }

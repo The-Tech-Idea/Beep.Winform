@@ -3,102 +3,120 @@
 // is dragged near a BeepDocumentHost.
 //
 // Five diamond targets are rendered: Centre (merge/re-dock), Left, Right, Top, Bottom.
-// Currently only Centre is active; the edge zones are shown but disabled (grey-tinted).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
-    // ─────────────────────────────────────────────────────────────────────────
-    // DockZone enum
-    // ─────────────────────────────────────────────────────────────────────────
-
     /// <summary>Identifies a dock drop zone on the overlay.</summary>
     public enum DockZone
     {
-        /// <summary>Cursor is not over any zone.</summary>
         None,
-        /// <summary>Merge / dock-back to the host as a tab.</summary>
         Centre,
-        /// <summary>Split the host and dock to the left half.</summary>
         Left,
-        /// <summary>Split the host and dock to the right half.</summary>
         Right,
-        /// <summary>Split the host and dock to the top half.</summary>
         Top,
-        /// <summary>Split the host and dock to the bottom half.</summary>
         Bottom
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Event args
-    // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>Carries the chosen <see cref="DockZone"/> when a drop occurs.</summary>
     public class DockZoneEventArgs : EventArgs
     {
-        public DockZone Zone       { get; }
-        public string   DocumentId { get; }
+        public DockZone Zone { get; }
+        public string DocumentId { get; }
 
         public DockZoneEventArgs(DockZone zone, string documentId)
         {
-            Zone       = zone;
+            Zone = zone;
             DocumentId = documentId;
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Overlay form
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Borderless, semi-transparent overlay drawn on top of a <see cref="BeepDocumentHost"/>
-    /// during a drag-to-dock operation.  Call <see cref="ShowOverlay"/> /
-    /// <see cref="HideOverlay"/> and use <see cref="HitTest"/> to resolve the drop.
-    /// </summary>
     internal sealed class BeepDocumentDockOverlay : Form
     {
-        // ── Layout constants ─────────────────────────────────────────────────
-        private const int DiamondR   = 28;   // logical: half-width of each diamond target
-        private const int EdgeOffset = 40;   // logical: distance from edge to edge-zone centre
+        private const int DiamondR = 28;
+        private const int EdgeOffset = 40;
 
-        // ── State ────────────────────────────────────────────────────────────
         private DockZone _highlighted = DockZone.None;
+        private IBeepTheme? _currentTheme;
 
-        // ── Colours ──────────────────────────────────────────────────────────
-        private static readonly Color ColNormal      = Color.FromArgb(100, 55, 135, 210);   // blue
-        private static readonly Color ColHighlight   = Color.FromArgb(200, 55, 135, 210);   // bright blue
-        private static readonly Color ColDisabled    = Color.FromArgb(60,  140, 140, 140);  // grey
-        private static readonly Color ColBorder      = Color.FromArgb(200, 255, 255, 255);
+        // Pulse animation — 0.0 to 1.0 cycling at ~25fps
+        private System.Windows.Forms.Timer? _pulseTimer;
+        private float _pulsePhase;
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Constructor
-        // ─────────────────────────────────────────────────────────────────────
+        private Color _colNormal;
+        private Color _colHighlight;
+        private Color _colDisabled;
+        private Color _colBorder;
+        private Color _colPreviewFill;
+        private Color _colPreviewBorder;
+
         public BeepDocumentDockOverlay()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer
                    | ControlStyles.AllPaintingInWmPaint
                    | ControlStyles.UserPaint, true);
 
-            FormBorderStyle     = FormBorderStyle.None;
-            ShowInTaskbar       = false;
-            TopMost             = true;
-            StartPosition       = FormStartPosition.Manual;
-            BackColor           = Color.Black;   // key colour for layered window
-            TransparencyKey     = Color.Black;
-            Opacity             = 1.0;           // individual shapes control their own alpha
+            FormBorderStyle = FormBorderStyle.None;
+            ShowInTaskbar = false;
+            TopMost = true;
+            StartPosition = FormStartPosition.Manual;
+            BackColor = Color.Black;
+            TransparencyKey = Color.Black;
+            Opacity = 1.0;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Public API
-        // ─────────────────────────────────────────────────────────────────────
+        private void EnsurePulseTimer()
+        {
+            if (_pulseTimer != null) return;
+            _pulseTimer = new System.Windows.Forms.Timer { Interval = 40 };
+            _pulseTimer.Tick += (_, _) =>
+            {
+                _pulsePhase = (_pulsePhase + 0.06f) % 1.0f;
+                Invalidate();
+            };
+        }
 
-        /// <summary>
-        /// Position the overlay over <paramref name="hostScreenBounds"/> and make it visible.
-        /// </summary>
+        private void StartPulse()
+        {
+            EnsurePulseTimer();
+            if (!_pulseTimer!.Enabled) _pulseTimer.Start();
+        }
+
+        private void StopPulse()
+        {
+            _pulseTimer?.Stop();
+            _pulsePhase = 0f;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _pulseTimer?.Stop();
+                _pulseTimer?.Dispose();
+                _pulseTimer = null;
+            }
+            base.Dispose(disposing);
+        }
+
+        public void ApplyTheme(IBeepTheme theme)
+        {
+            _currentTheme = theme;
+            _colNormal = Color.FromArgb(100, theme.PrimaryColor.R, theme.PrimaryColor.G, theme.PrimaryColor.B);
+            _colHighlight = Color.FromArgb(200, theme.PrimaryColor.R, theme.PrimaryColor.G, theme.PrimaryColor.B);
+            _colDisabled = Color.FromArgb(60, theme.SecondaryTextColor.R, theme.SecondaryTextColor.G, theme.SecondaryTextColor.B);
+            _colBorder = Color.FromArgb(200, 255, 255, 255);
+            _colPreviewFill = Color.FromArgb(70, theme.PrimaryColor.R, theme.PrimaryColor.G, theme.PrimaryColor.B);
+            _colPreviewBorder = Color.FromArgb(200, theme.PrimaryColor.R, theme.PrimaryColor.G, theme.PrimaryColor.B);
+            Invalidate();
+        }
+
         public void ShowOverlay(Rectangle hostScreenBounds)
         {
             Bounds = hostScreenBounds;
@@ -107,48 +125,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!Visible) Show();
         }
 
-        /// <summary>Hide the overlay.</summary>
         public void HideOverlay()
         {
+            StopPulse();
             if (Visible) Hide();
         }
 
-        /// <summary>
-        /// Update the highlighted zone based on the current screen cursor position.
-        /// Call this from the float window's MouseMove handler.
-        /// </summary>
         public void UpdateHighlight(Point screenPt)
         {
             DockZone zone = HitTest(screenPt);
             if (zone == _highlighted) return;
             _highlighted = zone;
+            if (zone != DockZone.None)
+                StartPulse();
+            else
+                StopPulse();
             Invalidate();
         }
 
-        /// <summary>
-        /// Returns which zone (if any) the screen point falls inside.
-        /// </summary>
         public DockZone HitTest(Point screenPt)
         {
             Point local = PointToClient(screenPt);
             foreach (DockZone zone in new[] { DockZone.Centre, DockZone.Left, DockZone.Right, DockZone.Top, DockZone.Bottom })
             {
                 Point centre = ZoneCentre(zone);
-                int   r      = ScaleL(DiamondR);
-                // Diamond bounds as a square rotated 45° — use Manhattan distance
-                int   dx     = Math.Abs(local.X - centre.X);
-                int   dy     = Math.Abs(local.Y - centre.Y);
+                int r = ScaleL(DiamondR);
+                int dx = Math.Abs(local.X - centre.X);
+                int dy = Math.Abs(local.Y - centre.Y);
                 if (dx + dy <= r)
                     return zone;
             }
             return DockZone.None;
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Painting
-        // ─────────────────────────────────────────────────────────────────────
         protected override void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -158,65 +170,79 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void DrawZone(Graphics g, DockZone zone)
         {
-            bool  isActive    = true;   // all 5 zones are active
-            bool  isHighlight = zone == _highlighted;
-            int   r           = ScaleL(DiamondR);
-            Point c           = ZoneCentre(zone);
+            bool isHighlight = zone == _highlighted;
+            int r = ScaleL(DiamondR);
+            Point c = ZoneCentre(zone);
 
-            // ── Semi-transparent preview rectangle when this zone is highlighted ──
             if (isHighlight && zone != DockZone.None)
             {
                 var preview = ZonePreviewRect();
-                using var previewBrush = new SolidBrush(Color.FromArgb(70, 55, 135, 210));
-                using var previewPen   = new Pen(Color.FromArgb(200, 55, 135, 210), 2f);
+                using var previewBrush = new SolidBrush(_colPreviewFill);
+                using var previewPen = new Pen(_colPreviewBorder, 2f);
                 g.FillRectangle(previewBrush, preview);
-                g.DrawRectangle(previewPen,   preview);
+                g.DrawRectangle(previewPen, preview);
+
+                // Animated expanding/fading pulse ring
+                float progress = _pulsePhase;
+                int   pulseR   = r + (int)(r * 0.55f * progress);
+                int   alpha    = Math.Max(0, (int)(110 * (1f - progress)));
+                if (alpha > 0 && pulseR > r)
+                {
+                    var pCol = Color.FromArgb(alpha,
+                        _colHighlight.R, _colHighlight.G, _colHighlight.B);
+                    using var pulsePen = new Pen(pCol, 2.5f);
+                    Point[] pulseRing =
+                    {
+                        new Point(c.X, c.Y - pulseR),
+                        new Point(c.X + pulseR, c.Y),
+                        new Point(c.X, c.Y + pulseR),
+                        new Point(c.X - pulseR, c.Y),
+                    };
+                    g.DrawPolygon(pulsePen, pulseRing);
+                }
             }
 
             Point[] diamond =
             {
-                new Point(c.X,     c.Y - r),
-                new Point(c.X + r, c.Y    ),
-                new Point(c.X,     c.Y + r),
-                new Point(c.X - r, c.Y    ),
+                new Point(c.X, c.Y - r),
+                new Point(c.X + r, c.Y),
+                new Point(c.X, c.Y + r),
+                new Point(c.X - r, c.Y),
             };
 
-            Color fill = isHighlight ? ColHighlight
-                       : isActive    ? ColNormal
-                       :               ColDisabled;
+            Color fill = isHighlight ? _colHighlight : _colNormal;
 
             using (var brush = new SolidBrush(fill))
                 g.FillPolygon(brush, diamond);
 
-            using (var pen = new Pen(ColBorder, 1.5f))
+            using (var pen = new Pen(_colBorder, 1.5f))
                 g.DrawPolygon(pen, diamond);
 
-            DrawZoneIcon(g, c, zone, isActive);
+            DrawZoneIcon(g, c, zone);
         }
 
-        private static void DrawZoneIcon(Graphics g, Point centre, DockZone zone, bool active)
+        private static void DrawZoneIcon(Graphics g, Point centre, DockZone zone)
         {
-            Color  iconCol = active ? Color.White : Color.FromArgb(120, 200, 200, 200);
-            int    s       = 7;   // half-size of icon strokes
+            Color iconCol = Color.White;
+            int s = 7;
 
             using var pen = new Pen(iconCol, 2f);
 
             switch (zone)
             {
                 case DockZone.Centre:
-                    // Two overlapping tab rectangles
                     g.DrawRectangle(pen, centre.X - s, centre.Y - s / 2, s, s);
-                    g.DrawRectangle(pen, centre.X,     centre.Y - s / 2, s, s);
+                    g.DrawRectangle(pen, centre.X, centre.Y - s / 2, s, s);
                     break;
                 case DockZone.Left:
                     g.DrawLine(pen, centre.X - s, centre.Y, centre.X + s, centre.Y);
-                    g.DrawLine(pen, centre.X,     centre.Y - s, centre.X - s, centre.Y);
-                    g.DrawLine(pen, centre.X,     centre.Y + s, centre.X - s, centre.Y);
+                    g.DrawLine(pen, centre.X, centre.Y - s, centre.X - s, centre.Y);
+                    g.DrawLine(pen, centre.X, centre.Y + s, centre.X - s, centre.Y);
                     break;
                 case DockZone.Right:
                     g.DrawLine(pen, centre.X - s, centre.Y, centre.X + s, centre.Y);
-                    g.DrawLine(pen, centre.X,     centre.Y - s, centre.X + s, centre.Y);
-                    g.DrawLine(pen, centre.X,     centre.Y + s, centre.X + s, centre.Y);
+                    g.DrawLine(pen, centre.X, centre.Y - s, centre.X + s, centre.Y);
+                    g.DrawLine(pen, centre.X, centre.Y + s, centre.X + s, centre.Y);
                     break;
                 case DockZone.Top:
                     g.DrawLine(pen, centre.X, centre.Y + s, centre.X, centre.Y - s);
@@ -231,53 +257,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Geometry helpers
-        // ─────────────────────────────────────────────────────────────────────
-
-        /// <summary>Returns the client-space centre of a given zone target.</summary>
         private Point ZoneCentre(DockZone zone)
         {
-            int cx = Width  / 2;
+            int cx = Width / 2;
             int cy = Height / 2;
-            int e  = ScaleL(EdgeOffset);
+            int e = ScaleL(EdgeOffset);
 
             return zone switch
             {
                 DockZone.Centre => new Point(cx, cy),
-                DockZone.Left   => new Point(e,          cy),
-                DockZone.Right  => new Point(Width  - e, cy),
-                DockZone.Top    => new Point(cx,          e),
-                DockZone.Bottom => new Point(cx,  Height - e),
-                _               => new Point(cx, cy)
+                DockZone.Left => new Point(e, cy),
+                DockZone.Right => new Point(Width - e, cy),
+                DockZone.Top => new Point(cx, e),
+                DockZone.Bottom => new Point(cx, Height - e),
+                _ => new Point(cx, cy)
             };
         }
 
-        /// <summary>
-        /// Returns the translucent preview rectangle (in client coords) that shows
-        /// where a panel will land if dropped on the currently highlighted zone.
-        /// </summary>
         private Rectangle ZonePreviewRect()
         {
             int w = Width;
             int h = Height;
-            int t = ScaleL(4);   // thin margin so the preview doesn't overlap the diamond
+            int t = ScaleL(4);
 
             return _highlighted switch
             {
-                DockZone.Centre => new Rectangle(t,       t,       w - 2*t, h - 2*t),
-                DockZone.Left   => new Rectangle(t,       t,       w/2 - t, h - 2*t),
-                DockZone.Right  => new Rectangle(w/2,     t,       w/2 - t, h - 2*t),
-                DockZone.Top    => new Rectangle(t,       t,       w - 2*t, h/2 - t),
-                DockZone.Bottom => new Rectangle(t,       h/2,     w - 2*t, h/2 - t),
-                _               => Rectangle.Empty
+                DockZone.Centre => new Rectangle(t, t, w - 2 * t, h - 2 * t),
+                DockZone.Left => new Rectangle(t, t, w / 2 - t, h - 2 * t),
+                DockZone.Right => new Rectangle(w / 2, t, w / 2 - t, h - 2 * t),
+                DockZone.Top => new Rectangle(t, t, w - 2 * t, h / 2 - t),
+                DockZone.Bottom => new Rectangle(t, h / 2, w - 2 * t, h / 2 - t),
+                _ => Rectangle.Empty
             };
         }
 
         private int ScaleL(int logical) =>
             (int)Math.Round(logical * (DeviceDpi / 96f));
 
-        // ── No-activate ──────────────────────────────────────────────────────
         protected override bool ShowWithoutActivation => true;
 
         protected override CreateParams CreateParams
@@ -286,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 const int WS_EX_NOACTIVATE = unchecked((int)0x08000000);
                 const int WS_EX_TOOLWINDOW = 0x00000080;
-                var cp   = base.CreateParams;
+                var cp = base.CreateParams;
                 cp.ExStyle |= WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW;
                 return cp;
             }

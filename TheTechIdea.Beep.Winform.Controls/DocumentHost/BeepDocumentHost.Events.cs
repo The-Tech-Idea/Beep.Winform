@@ -71,28 +71,84 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ── Host-level keyboard shortcut routing ──────────────────────────────
-        // Forward to tab strip when any child control is focused
+        // Merged with chord-system and command palette logic (BeepDocumentHost.Keyboard.cs)
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
         {
-            if (_keyboardShortcutsEnabled)
+            if (!_keyboardShortcutsEnabled)
+                return base.ProcessCmdKey(ref msg, keyData);
+
+            // Consume chord second key before delegating to children
+            if (_chordPending)
             {
-                // Ctrl+Shift+T — reopen last closed document
-                if (keyData == (Keys.Control | Keys.Shift | Keys.T))
+                Keys bare = keyData & ~(Keys.Control | Keys.Shift | Keys.Alt);
+                CancelChord();
+                if (ChordMap.TryGetValue(bare, out string? cmdId))
                 {
-                    ReopenLastClosed();
+                    ExecuteCommandById(cmdId);
                     return true;
                 }
-
-                // Ctrl+P — quick-switch document picker
-                if (keyData == (Keys.Control | Keys.P))
-                {
-                    ShowQuickSwitch();
-                    return true;
-                }
-
-                if (_tabStrip.HandleShortcut(keyData))
-                    return true;
+                return base.ProcessCmdKey(ref msg, keyData);
             }
+
+            // Ctrl+Shift+P — command palette
+            if (keyData == (Keys.Control | Keys.Shift | Keys.P))
+            {
+                ShowCommandPalette(CommandPaletteMode.Commands);
+                return true;
+            }
+
+            // Ctrl+P — go-to-file
+            if (keyData == (Keys.Control | Keys.P))
+            {
+                ShowCommandPalette(CommandPaletteMode.GoToFile);
+                return true;
+            }
+
+            // Ctrl+K — begin chord sequence
+            if (keyData == (Keys.Control | Keys.K))
+            {
+                BeginChord();
+                return true;
+            }
+
+            // F11 — fullscreen toggle
+            if (keyData == Keys.F11)
+            {
+                ToggleFullscreen();
+                return true;
+            }
+
+            // Ctrl+N — new document
+            if (keyData == (Keys.Control | Keys.N))
+            {
+                CommandService.NewDocument();
+                return true;
+            }
+
+            // Ctrl+Shift+T — reopen last closed
+            if (keyData == (Keys.Control | Keys.Shift | Keys.T))
+            {
+                ExecuteCommandById("document.reopen");
+                return true;
+            }
+
+            // Ctrl+Z — undo layout change
+            if (keyData == (Keys.Control | Keys.Z))
+            {
+                UndoLayout();
+                return true;
+            }
+
+            // Ctrl+Y — redo layout change
+            if (keyData == (Keys.Control | Keys.Y))
+            {
+                RedoLayout();
+                return true;
+            }
+
+            // Forward remaining shortcuts to the active tab strip
+            if (_tabStrip.HandleShortcut(keyData))
+                return true;
 
             return base.ProcessCmdKey(ref msg, keyData);
         }

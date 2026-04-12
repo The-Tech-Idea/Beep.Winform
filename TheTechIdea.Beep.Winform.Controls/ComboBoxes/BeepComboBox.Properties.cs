@@ -58,6 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _listItems = value ?? new BindingList<SimpleItem>();
+                TryResolveSelectionFromCurrentValue();
               
                 Invalidate();
             }
@@ -79,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _selectedItemIndex = -1;
                     _inputText = string.Empty;
                     Text = string.Empty;
+                    base.SelectedValue = null;
                 }
                 else
                 {
@@ -86,11 +88,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _selectedItemIndex = _listItems.IndexOf(_selectedItem);
                     _inputText = value.Text;
                     Text = value.Text;
-                    
-                    if (_selectedItem.Item != null)
-                    {
-                        SelectedValue = _selectedItem.Item;
-                    }
+
+                    base.SelectedValue = ResolveSelectedValue(_selectedItem);
                     
                     // Clear error state on valid selection
                     if (HasError && !string.IsNullOrEmpty(_selectedItem.Text))
@@ -113,6 +112,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string SelectedText
         {
             get => _inputText;
+        }
+
+        [Browsable(false)]
+        [Category("Data")]
+        [Description("The typed value of the currently selected item.")]
+        public new object SelectedValue
+        {
+            get => _selectedItem != null ? ResolveSelectedValue(_selectedItem) ?? base.SelectedValue : base.SelectedValue;
+            set
+            {
+                if (value == null || value == DBNull.Value)
+                {
+                    SelectedItem = null;
+                    return;
+                }
+
+                var resolved = ResolveItemFromValue(value);
+                if (resolved != null)
+                {
+                    SelectedItem = resolved;
+                    return;
+                }
+
+                SelectedItem = null;
+                base.SelectedValue = value;
+
+                string textValue = Convert.ToString(value) ?? string.Empty;
+                _inputText = textValue;
+                Text = textValue;
+
+                Invalidate();
+            }
         }
         
         [Browsable(false)]

@@ -197,11 +197,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [Description("Beep theme name applied to this control.")]
         public string ThemeName
         {
-            get => _themeName;
+            get => _localThemeName;
             set
             {
-                _themeName = value ?? string.Empty;
-                _theme     = BeepThemesManager.GetTheme(_themeName)
+                _localThemeName = value ?? string.Empty;
+                _currentTheme     = BeepThemesManager.GetTheme(_localThemeName)
                              ?? BeepThemesManager.GetDefaultTheme();
                 ApplyThemeColors();
                 CalculateTabLayout();
@@ -361,5 +361,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Allows adding/removing items or suppressing the menu entirely.
         /// </summary>
         public event System.EventHandler<TabContextMenuEventArgs>? TabContextMenuOpening;
+
+        /// <summary>Raised when the user requests a horizontal split for the tab via context menu.</summary>
+        public event System.EventHandler<TabEventArgs>?          TabSplitHorizontalRequested;
+
+        /// <summary>Raised when the user requests a vertical split for the tab via context menu.</summary>
+        public event System.EventHandler<TabEventArgs>?          TabSplitVerticalRequested;
+
+        /// <summary>Raised when the user requests a tab be moved to a different tab group.</summary>
+        public event System.EventHandler<TabMoveGroupEventArgs>? TabMoveToGroupRequested;
     }
 }

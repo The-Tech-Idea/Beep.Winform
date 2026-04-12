@@ -715,7 +715,7 @@ host.AutoHideDocument("Welcome", AutoHideSide.Left);
 | `Control` base for TabStrip | Avoids `ContainerControl` focus-traversal and `WM_ERASEBKGND` conflicts |
 | `Panel` base for panels/host | Lightweight container; `AutoScroll` and `DoubleBuffered` built-in |
 | `BeepiFormPro` for float window | Full themed title bar and min/max buttons on detached docs |
-| `_theme` field + `BeepThemesManager.ThemeChanged` | Pattern from `TemplateUserControl`; no dependency on BaseControl |
+| `_currentTheme` field + `BeepThemesManager.ThemeChanged` | Pattern from `TemplateUserControl`; no dependency on BaseControl |
 | One panel per document | Simple show/hide swap; no z-order tricks required |
 
 ---

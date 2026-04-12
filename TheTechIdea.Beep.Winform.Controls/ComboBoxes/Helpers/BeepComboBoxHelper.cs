@@ -169,18 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         /// </summary>
         public SimpleItem FindItemByValue(object value)
         {
-            if (value == null || _owner.ListItems.Count == 0)
-                return null;
-            
-            foreach (var item in _owner.ListItems)
-            {
-                if (Equals(item.Item, value))
-                {
-                    return item;
-                }
-            }
-            
-            return null;
+            return value == null ? null : _owner.ResolveItemFromValue(value);
         }
         
         /// <summary>

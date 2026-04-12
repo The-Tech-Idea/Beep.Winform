@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers
             return AcquireInternal(contextKey, () => CreateServiceContext(component));
         }
 
-        public static IDesignTimeServiceLease AcquireForDataBlock(string? baseDirectory = null, string appRepoName = "BeepPlatformConnections")
+        public static IDesignTimeServiceLease AcquireForBlockDesigner(string? baseDirectory = null, string appRepoName = "BeepPlatformConnections")
         {
             var resolvedBaseDirectory = string.IsNullOrWhiteSpace(baseDirectory)
                 ? AppContext.BaseDirectory
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers
             var resolvedAppRepoName = string.IsNullOrWhiteSpace(appRepoName)
                 ? "BeepPlatformConnections"
                 : appRepoName.Trim();
-            var contextKey = $"DataBlock|{resolvedAppRepoName}|{resolvedBaseDirectory}";
+            var contextKey = $"BlockDesigner|{resolvedAppRepoName}|{resolvedBaseDirectory}";
             return AcquireInternal(contextKey, () => CreateServiceContext(resolvedBaseDirectory, resolvedAppRepoName));
         }
 

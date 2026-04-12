@@ -10,6 +10,7 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ── Data ─────────────────────────────────────────────────────────────
 
         private readonly IReadOnlyList<BeepDocumentTab> _allTabs;
-        private readonly IBeepTheme?                    _theme;
+        private readonly IBeepTheme?                    _currentTheme;
         private List<BeepDocumentTab>                   _filtered = new();
 
         // ── Result ───────────────────────────────────────────────────────────
@@ -55,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Point                          screenPosition)
         {
             _allTabs = tabs;
-            _theme   = theme;
+            _currentTheme   = theme;
 
             // ── Form setup ───────────────────────────────────────────────────
             FormBorderStyle = FormBorderStyle.None;
@@ -82,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Bounds         = new Rectangle(Pad, Pad, PopupWidth - Pad * 2, SearchH),
                 Anchor         = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 BorderStyle    = BorderStyle.FixedSingle,
-                Font           = new Font("Segoe UI", 11),
+                Font           = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular),
                 PlaceholderText= "Type to filter…",
                 BackColor      = theme?.BackgroundColor ?? SystemColors.Window,
                 ForeColor      = theme?.ForeColor       ?? SystemColors.WindowText,
@@ -221,21 +222,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool sel    = (e.State & DrawItemState.Selected) != 0;
 
             Color backCol = sel
-                ? (_theme?.PrimaryColor ?? SystemColors.Highlight)
-                : (_theme?.PanelBackColor ?? SystemColors.Window);
+                ? (_currentTheme?.PrimaryColor ?? SystemColors.Highlight)
+                : (_currentTheme?.PanelBackColor ?? SystemColors.Window);
             Color foreCol = sel
-                ? (_theme?.BackgroundColor ?? SystemColors.HighlightText)
-                : (_theme?.ForeColor   ?? SystemColors.WindowText);
+                ? (_currentTheme?.BackgroundColor ?? SystemColors.HighlightText)
+                : (_currentTheme?.ForeColor   ?? SystemColors.WindowText);
             Color dimCol  = sel
                 ? Color.FromArgb(200, foreCol)
-                : (_theme?.SecondaryTextColor ?? SystemColors.GrayText);
+                : (_currentTheme?.SecondaryTextColor ?? SystemColors.GrayText);
 
             e.Graphics.FillRectangle(new SolidBrush(backCol), e.Bounds);
 
             // Active indicator bar
             if (tab.IsActive)
             {
-                using var bar = new SolidBrush(_theme?.PrimaryColor ?? Color.DodgerBlue);
+                using var bar = new SolidBrush(_currentTheme?.PrimaryColor ?? Color.DodgerBlue);
                 e.Graphics.FillRectangle(bar,
                     e.Bounds.Left, e.Bounds.Top + 4, 3, e.Bounds.Height - 8);
             }
@@ -282,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Color borderCol = _theme?.BorderColor ?? SystemColors.ControlDark;
+            Color borderCol = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
             using var pen = new Pen(borderCol, 1);
             e.Graphics.DrawRectangle(pen,
                 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);

@@ -13,6 +13,16 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepComboBox
     {
         #region Public Methods
+
+        public override void SetValue(object value)
+        {
+            SelectedValue = value;
+        }
+
+        public override object GetValue()
+        {
+            return SelectedValue;
+        }
         
         /// <summary>
         /// Shows the dropdown menu
@@ -559,16 +569,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void SelectItemByValue(object value)
         {
-            if (value == null || _listItems.Count == 0)
-                return;
-            
-            foreach (var item in _listItems)
+            if (value == null || value == DBNull.Value)
             {
-                if (Equals(item.Item, value))
-                {
-                    SelectedItem = item;
-                    return;
-                }
+                SelectedItem = null;
+                return;
+            }
+
+            var resolved = ResolveItemFromValue(value);
+            if (resolved != null)
+            {
+                SelectedItem = resolved;
             }
         }
         
@@ -623,6 +633,125 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal void UpdateLayoutAndInvalidate()
         {
             InvalidateLayout();
+        }
+
+        private object ResolveSelectedValue(SimpleItem item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            if (item.Value != null)
+            {
+                return item.Value;
+            }
+
+            if (item.Item != null)
+            {
+                return item.Item;
+            }
+
+            return !string.IsNullOrWhiteSpace(item.Text) ? item.Text : item.Name;
+        }
+
+        private void TryResolveSelectionFromCurrentValue()
+        {
+            if (_listItems == null || _listItems.Count == 0)
+            {
+                return;
+            }
+
+            object currentValue = _selectedItem != null ? ResolveSelectedValue(_selectedItem) : base.SelectedValue;
+            if (currentValue == null && string.IsNullOrWhiteSpace(_inputText))
+            {
+                return;
+            }
+
+            var resolved = ResolveItemFromValue(currentValue ?? _inputText);
+            if (resolved == null)
+            {
+                return;
+            }
+
+            if (_selectedItem != null && IsSameSimpleItem(_selectedItem, resolved))
+            {
+                _selectedItem = resolved;
+                _selectedItemIndex = _listItems.IndexOf(resolved);
+                _inputText = resolved.Text;
+                Text = resolved.Text;
+                return;
+            }
+
+            SelectedItem = resolved;
+        }
+
+        internal SimpleItem ResolveItemFromValue(object value)
+        {
+            if (value == null || value == DBNull.Value || _listItems == null || _listItems.Count == 0)
+            {
+                return null;
+            }
+
+            if (value is SimpleItem simpleItem)
+            {
+                foreach (var candidate in _listItems)
+                {
+                    if (candidate == null)
+                    {
+                        continue;
+                    }
+
+                    if (ReferenceEquals(candidate, simpleItem) || IsSameSimpleItem(candidate, simpleItem))
+                    {
+                        return candidate;
+                    }
+
+                    if (MatchesItemValue(candidate, simpleItem.Value) ||
+                        MatchesItemValue(candidate, simpleItem.Item) ||
+                        MatchesItemValue(candidate, simpleItem.Text) ||
+                        MatchesItemValue(candidate, simpleItem.Name))
+                    {
+                        return candidate;
+                    }
+                }
+
+                return null;
+            }
+
+            foreach (var candidate in _listItems)
+            {
+                if (MatchesItemValue(candidate, value))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool MatchesItemValue(SimpleItem item, object value)
+        {
+            if (item == null || value == null || value == DBNull.Value)
+            {
+                return false;
+            }
+
+            if (Equals(item.Value, value) || Equals(item.Item, value))
+            {
+                return true;
+            }
+
+            string valueText = Convert.ToString(value) ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(valueText))
+            {
+                return false;
+            }
+
+            return string.Equals(item.Text, valueText, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(item.Name, valueText, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(Convert.ToString(item.Value), valueText, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(Convert.ToString(item.Item), valueText, StringComparison.OrdinalIgnoreCase);
         }
 
         internal static string GetSimpleItemIdentity(SimpleItem item)

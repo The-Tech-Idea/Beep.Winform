@@ -22,13 +22,11 @@ public static class FormsModeTransitionExamples
 
         // Register master block
         using var customerUow = new UnitofWork<Customer>(editor, "MyDb", "Customers", "Id");
-        var customerStructure = editor.GetDataSource("MyDb").GetEntityStructure("Customers", true);
-        forms.RegisterBlock("CUSTOMERS", customerUow, customerStructure, "MyDb", isMasterBlock: true);
+        forms.RegisterBlock("CUSTOMERS", customerUow, "MyDb", isMasterBlock: true);
 
         // Register detail block
         using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
-        var orderStructure = editor.GetDataSource("MyDb").GetEntityStructure("Orders", true);
-        forms.RegisterBlock("ORDERS", orderUow, orderStructure, "MyDb", isMasterBlock: false);
+        forms.RegisterBlock("ORDERS", orderUow, "MyDb", isMasterBlock: false);
 
         // Link blocks
         forms.CreateMasterDetailRelation("CUSTOMERS", "ORDERS", "Id", "CustomerId");

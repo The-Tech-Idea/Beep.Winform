@@ -37,6 +37,66 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 grp.TabStrip.EndBatchAdd();
             RecalculateLayout();
         }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Batch-Close API (performance — 5.6)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Begins a batch close operation.  Individual <see cref="CloseDocument"/> calls
+        /// are queued rather than executed immediately; call <see cref="EndBatchCloseDocuments"/>
+        /// to flush the queue with a single layout pass.
+        /// </summary>
+        public void BeginBatchCloseDocuments()
+        {
+            _batchClosing = true;
+            _pendingCloseIds.Clear();
+        }
+
+        /// <summary>
+        /// Ends a batch close started by <see cref="BeginBatchCloseDocuments"/> and
+        /// closes all queued documents.
+        /// </summary>
+        public void EndBatchCloseDocuments()
+        {
+            _batchClosing = false;
+            var toClose = new System.Collections.Generic.List<string>(_pendingCloseIds);
+            _pendingCloseIds.Clear();
+            foreach (var id in toClose)
+                CloseDocument(id);
+        }
+
+        /// <summary>
+        /// Moves <paramref name="documentId"/> from its current group to
+        /// <paramref name="targetGroupId"/> with a single layout pass.
+        /// Returns <see langword="false"/> if either the document or target group is not found.
+        /// </summary>
+        public bool BatchMoveDocument(string documentId, string targetGroupId)
+        {
+            if (!_panels.TryGetValue(documentId, out var panel)) return false;
+            var targetGroup = _groups.Find(g => g.GroupId == targetGroupId);
+            if (targetGroup == null) return false;
+
+            // Remove from current group
+            if (_docGroupMap.TryGetValue(documentId, out var currentGroupId))
+            {
+                var currentGroup = _groups.Find(g => g.GroupId == currentGroupId);
+                if (currentGroup != null)
+                {
+                    currentGroup.DocumentIds.Remove(documentId);
+                    int tabIdx = currentGroup.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                    if (tabIdx >= 0) currentGroup.TabStrip.RemoveTabAt(tabIdx);
+                }
+            }
+
+            // Add to target group
+            _docGroupMap[documentId] = targetGroupId;
+            targetGroup.DocumentIds.Add(documentId);
+            targetGroup.TabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: false);
+
+            RecalculateLayout();
+            return true;
+        }
         // ─────────────────────────────────────────────────────────────────────
         // Add
         // ─────────────────────────────────────────────────────────────────────
@@ -62,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var panel = new BeepDocumentPanel(documentId, title)
             {
                 Bounds    = _contentArea.ClientRectangle,
-                ThemeName = _themeName,
+                Theme = ThemeName,
                 IconPath  = iconPath,
                 Visible   = false
             };
@@ -121,6 +181,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             panel.Bounds  = activeGrp.ContentArea.ClientRectangle;
             panel.Anchor  = AnchorStyles.Top | AnchorStyles.Bottom
                           | AnchorStyles.Left | AnchorStyles.Right;
+            // 5.2: Ensure deferred content is loaded the first time the panel is activated
+            panel.EnsureContentLoaded();
             panel.Visible = true;
             panel.BringToFront();
 
@@ -141,6 +203,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Closes and removes the document.  Returns false if not found.</summary>
         public bool CloseDocument(string documentId)
         {
+            // 5.6: If a batch-close is in progress, queue instead of closing immediately
+            if (_batchClosing)
+            {
+                if (_panels.ContainsKey(documentId) && !_pendingCloseIds.Contains(documentId))
+                    _pendingCloseIds.Add(documentId);
+                return true;
+            }
+
             if (!_panels.TryGetValue(documentId, out var panel)) return false;
 
             string title = panel.DocumentTitle;
@@ -174,6 +244,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _panels.Remove(documentId);
             panel.Parent?.Controls.Remove(panel);
             panel.Dispose();
+
+            // 5.7: Free cached thumbnail for the closed document
+            InvalidatePreview(documentId);
 
             if (_activeDocumentId == documentId)
             {
@@ -224,7 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (_panels.Count > 0) SetActiveDocument(_panels.Keys.Last());
             }
 
-            var fw = new BeepDocumentFloatWindow(panel, _themeName);
+            var fw = new BeepDocumentFloatWindow(panel, ThemeName);
             fw.DockBack       += (s, ea) => DockBackDocument(documentId);
             fw.WindowMoved    += (s, screenPt) => OnFloatWindowMoved(documentId, screenPt);
             fw.TitleBarMouseUp += (s, ea) => OnFloatWindowDropped(documentId);
@@ -270,7 +343,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         private void OnFloatWindowMoved(string documentId, System.Drawing.Point floatWindowScreenPt)
         {
-            // Convert our client area to screen coords
             Rectangle hostScreen = RectangleToScreen(ClientRectangle);
 
             if (hostScreen.Contains(floatWindowScreenPt))
@@ -278,18 +350,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (_dockOverlay == null)
                     _dockOverlay = new BeepDocumentDockOverlay();
 
+                if (_currentTheme != null)
+                    _dockOverlay.ApplyTheme(_currentTheme);
+
                 if (!_dockOverlay.Visible)
                     _dockOverlay.ShowOverlay(hostScreen);
                 else
-                    _dockOverlay.Bounds = hostScreen; // keep in sync if host was resized
+                    _dockOverlay.Bounds = hostScreen;
 
-                // Use the float window's top-left corner for hit-testing
                 _dockOverlay.UpdateHighlight(floatWindowScreenPt);
             }
             else
             {
                 _dockOverlay?.HideOverlay();
             }
+
+            // Broadcast position to all other registered hosts (Feature 4.5)
+            if (_allowDragBetweenHosts)
+                BeepDocumentDragManager.BroadcastFloatWindowMoved(
+                    floatWindowScreenPt, this, documentId);
         }
 
         /// <summary>
@@ -298,50 +377,59 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         private void OnFloatWindowDropped(string documentId)
         {
+            var cursor = System.Windows.Forms.Cursor.Position;
+
+            // ── Cross-host drop (Feature 4.5) ─────────────────────────────────
+            if (_allowDragBetweenHosts)
+            {
+                bool handled = BeepDocumentDragManager.BroadcastFloatWindowDropped(
+                    cursor, this, documentId);
+                if (handled)
+                {
+                    _dockOverlay?.HideOverlay();
+                    return;
+                }
+            }
+
+            // ── Local drop ────────────────────────────────────────────────────
             if (_dockOverlay == null || !_dockOverlay.Visible) return;
 
-            DockZone zone = _dockOverlay.HitTest(System.Windows.Forms.Cursor.Position);
+            DockZone zone = _dockOverlay.HitTest(cursor);
             _dockOverlay.HideOverlay();
+
+            // Enforce dock constraints (Feature 4.7)
+            if (!_dockConstraints.IsZoneAllowed(zone)) return;
 
             switch (zone)
             {
                 case DockZone.Centre:
-                    // Dock back as a tab in the primary group
                     DockBackDocument(documentId);
                     break;
 
                 case DockZone.Right:
-                    // Floating panel docks into a new RIGHT pane
                     DockBackDocument(documentId);
-                    SplitDocumentHorizontal(documentId);   // driver goes to g1 (right)
+                    SplitDocumentHorizontal(documentId);
                     break;
 
                 case DockZone.Bottom:
-                    // Floating panel docks into a new BOTTOM pane
                     DockBackDocument(documentId);
-                    SplitDocumentVertical(documentId);     // driver goes to g1 (bottom)
+                    SplitDocumentVertical(documentId);
                     break;
 
                 case DockZone.Left:
-                    // Floating panel docks into a new LEFT pane;
-                    // push existing primary docs to the right via a horizontal split.
                     DockBackDocument(documentId);
                     var leftOther = _primaryGroup.DocumentIds
                         .Find(id => id != documentId);
                     if (leftOther != null)
-                        SplitDocumentHorizontal(leftOther); // leftOther moves to g1 (right)
-                    // documentId stays in primary (left)
+                        SplitDocumentHorizontal(leftOther);
                     break;
 
                 case DockZone.Top:
-                    // Floating panel docks into a new TOP pane;
-                    // push existing primary docs downward via a vertical split.
                     DockBackDocument(documentId);
                     var topOther = _primaryGroup.DocumentIds
                         .Find(id => id != documentId);
                     if (topOther != null)
-                        SplitDocumentVertical(topOther);    // topOther moves to g1 (bottom)
-                    // documentId stays in primary (top)
+                        SplitDocumentVertical(topOther);
                     break;
 
                 // DockZone.None → user released outside any zone; do nothing
@@ -349,8 +437,90 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Lookup
+        // External drag overlay callbacks (Feature 4.5)
+        // Called by BeepDocumentDragManager on non-source hosts during a drag.
         // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>Shows or hides this host's dock overlay while a foreign float window is moving.</summary>
+        internal void HandleExternalDragPosition(
+            Point screenPt, BeepDocumentHost source, string documentId)
+        {
+            if (!_allowDragBetweenHosts) return;
+            if (!_dockConstraints.AllowIncomingTransfer) return;
+
+            Rectangle hostScreen = RectangleToScreen(ClientRectangle);
+            if (hostScreen.Contains(screenPt))
+            {
+                if (_dockOverlay == null)
+                    _dockOverlay = new BeepDocumentDockOverlay();
+
+                if (_currentTheme != null)
+                    _dockOverlay.ApplyTheme(_currentTheme);
+
+                if (!_dockOverlay.Visible)
+                    _dockOverlay.ShowOverlay(hostScreen);
+                else
+                    _dockOverlay.Bounds = hostScreen;
+
+                _dockOverlay.UpdateHighlight(screenPt);
+            }
+            else
+            {
+                _dockOverlay?.HideOverlay();
+            }
+        }
+
+        /// <summary>Hides the dock overlay without acting on any zone selection.</summary>
+        internal void HideExternalDragOverlay()
+            => _dockOverlay?.HideOverlay();
+
+        /// <summary>
+        /// Accepts a document dropped from another host at the currently highlighted zone.
+        /// Returns true if the drop was accepted.
+        /// </summary>
+        internal bool AcceptExternalDrop(
+            BeepDocumentHost source, string documentId, Point screenPt)
+        {
+            if (!_allowDragBetweenHosts) return false;
+            if (!_dockConstraints.AllowIncomingTransfer) return false;
+            if (_dockOverlay == null || !_dockOverlay.Visible) return false;
+
+            DockZone zone = _dockOverlay.HitTest(screenPt);
+            _dockOverlay.HideOverlay();
+
+            if (zone == DockZone.None) return false;
+            if (!_dockConstraints.IsZoneAllowed(zone)) return false;
+
+            // Raise transfer event on source so consumer can cancel
+            var args = new DocumentTransferEventArgs(documentId, this);
+            source.DocumentDetaching?.Invoke(source, args);
+            if (args.Cancel) return false;
+
+            // Transfer document from source to this host
+            AttachExternalDocument(source, documentId);
+
+            // Apply dock zone split after transfer
+            switch (zone)
+            {
+                case DockZone.Right:
+                    SplitDocumentHorizontal(documentId);
+                    break;
+                case DockZone.Bottom:
+                    SplitDocumentVertical(documentId);
+                    break;
+                case DockZone.Left:
+                    var leftOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
+                    if (leftOther != null) SplitDocumentHorizontal(leftOther);
+                    break;
+                case DockZone.Top:
+                    var topOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
+                    if (topOther != null) SplitDocumentVertical(topOther);
+                    break;
+                // DockZone.Centre → just tab merge (already done by AttachExternalDocument)
+            }
+
+            return true;
+        }
 
         /// <summary>Returns the panel for a given document id, or null.</summary>
         public BeepDocumentPanel? GetPanel(string documentId)
@@ -432,7 +602,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var popup = new BeepDocumentQuickSwitch(
                 tabs,
                 _activeDocumentId,
-                _theme,
+                _currentTheme,
                 new System.Drawing.Point(x, y));
 
             popup.ShowDialog(this);
@@ -552,14 +722,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!_panels.ContainsKey(documentId)) return false;
             if (_groups.Count >= _maxGroups) return false;
 
+            // Push undo state before structural change
+            PushUndoState();
+            if (_trackLayoutHistory) PushLayoutVersion($"Before split ({(horizontal ? "H" : "V")})");
+
             // Create a fresh secondary group
             var grp = new BeepDocumentGroup(
                 Guid.NewGuid().ToString(),
-                _themeName,
+                ThemeName,
                 _showAddButton,
                 _closeMode,
                 _tabStyle,
-                _theme);
+                _currentTheme);
 
             // Register the group's new controls with this host
             Controls.Add(grp.ContentArea);

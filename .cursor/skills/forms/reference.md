@@ -10,7 +10,7 @@ var formsManager = new FormsManager(dmeEditor);
 
 ```csharp
 // Register block
-formsManager.RegisterBlock("CUSTOMERS", customerUow, customerStructure, "MyDatabase", isMasterBlock: true);
+formsManager.RegisterBlock("CUSTOMERS", customerUow, "MyDatabase", isMasterBlock: true);
 
 // Create relationship
 formsManager.CreateRelationship("CUSTOMERS", "ORDERS", "Id", "CustomerId");

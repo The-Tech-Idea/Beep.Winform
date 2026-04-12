@@ -57,20 +57,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             if (version < 2)
                 obj = UpgradeFromV1ToV2(obj);
 
-            // Future: add UpgradeFromV2ToV3 here as needed.
+            if (version < 3)
+                obj = UpgradeFromV2ToV3(obj);
 
             return obj.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
         }
 
         /// <summary>
-        /// Returns <c>true</c> if the given JSON string is already at schema v2.
+        /// Returns <c>true</c> if the given JSON string is already at the current schema version (v3).
         /// </summary>
         public static bool IsCurrentVersion(string json)
         {
             try
             {
                 var root = JsonNode.Parse(json);
-                return (root?["schemaVersion"]?.GetValue<int>() ?? 0) >= 2;
+                return (root?["schemaVersion"]?.GetValue<int>() ?? 0) >= 3;
             }
             catch { return false; }
         }
@@ -143,6 +144,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             };
 
             return v2;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // v2 → v3  (adds nodeExtensions bag to every tree node)
+        // ─────────────────────────────────────────────────────────────────────
+
+        private static JsonObject UpgradeFromV2ToV3(JsonObject v2)
+        {
+            var v3 = new JsonObject();
+
+            // Copy all existing fields
+            foreach (var kvp in v2)
+                v3[kvp.Key] = kvp.Value?.DeepClone();
+
+            v3["schemaVersion"] = 3;
+
+            // Walk the layoutTree and stamp every node with an empty extensions bag
+            if (v3["layoutTree"] is JsonObject treeRoot)
+                StampNodeExtensions(treeRoot);
+
+            return v3;
+        }
+
+        /// <summary>
+        /// Recursively adds an empty <c>nodeExtensions</c> object to every tree node
+        /// that does not already have one.  This allows future versions to attach
+        /// per-node metadata without a schema break.
+        /// </summary>
+        private static void StampNodeExtensions(JsonObject node)
+        {
+            if (node["nodeExtensions"] == null)
+                node["nodeExtensions"] = new JsonObject();
+
+            var children = node["children"] as JsonArray;
+            if (children == null) return;
+
+            foreach (var child in children)
+                if (child is JsonObject childObj)
+                    StampNodeExtensions(childObj);
         }
     }
 

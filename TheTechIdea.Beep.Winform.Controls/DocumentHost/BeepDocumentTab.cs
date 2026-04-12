@@ -276,6 +276,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     }
 
     // ─────────────────────────────────────────────────────────
+    // TabMoveGroupEventArgs — move tab to a tab group
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Arguments raised when the user requests a tab be moved to a different <see cref="TabGroup"/>.
+    /// </summary>
+    public class TabMoveGroupEventArgs : EventArgs
+    {
+        /// <summary>Zero-based index of the tab being moved.</summary>
+        public int TabIndex { get; }
+
+        /// <summary>The tab being moved.</summary>
+        public BeepDocumentTab Tab { get; }
+
+        /// <summary>Id of the target <see cref="TabGroup"/>, or null to remove the tab from all groups.</summary>
+        public string? TargetGroupId { get; }
+
+        public TabMoveGroupEventArgs(int tabIndex, BeepDocumentTab tab, string? targetGroupId)
+        {
+            TabIndex      = tabIndex;
+            Tab           = tab ?? throw new ArgumentNullException(nameof(tab));
+            TargetGroupId = targetGroupId;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
     // DocumentLayoutEventArgs — serialisation / restore notifications
     // ─────────────────────────────────────────────────────────
 

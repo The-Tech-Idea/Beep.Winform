@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
         /// Maximum number of leaf groups the current layout engine can display.
         /// Increase this constant when the engine is upgraded to support deep trees.
         /// </summary>
-        public const int MaxSupportedGroups = 2;
+        public const int MaxSupportedGroups = 4;
 
         // ── Public API ────────────────────────────────────────────────────────
 

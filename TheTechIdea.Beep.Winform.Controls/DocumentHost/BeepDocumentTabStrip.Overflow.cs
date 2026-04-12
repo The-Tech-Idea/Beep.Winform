@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void ShowOverflowMenu()
         {
             // Sprint 14: replaced ContextMenuStrip with searchable BeepTabOverflowPopup
-            var popup    = new BeepTabOverflowPopup(this, _theme);
+            var popup    = new BeepTabOverflowPopup(this, _currentTheme);
             var screenPt = PointToScreen(new Point(_overflowButtonRect.Left, Height));
             popup.ShowBelow(screenPt);
         }

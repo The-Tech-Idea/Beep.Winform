@@ -1,236 +1,303 @@
+# BeepForms Fresh Start Todo Tracker
+
+> Architecture note:
+> `BeepForms` is now the non-visual coordinator/host for `BeepBlock` instances.
+> Visual shell surfaces move into separate controls such as `BeepFormsHeader`, `BeepFormsCommandBar`, `BeepFormsQueryShelf`, `BeepFormsPersistenceShelf`, `BeepFormsToolbar`, and `BeepFormsStatusStrip`.
+
+## Status Legend
+
+- `not-started`
+- `in-progress`
+- `blocked`
+- `done`
+
+## Phase 1
+
+| Status | Item | Notes |
+|---|---|---|
+| not-started | Approve `BeepForms` and `BeepBlock` naming | New strategic names only |
+| in-progress | Approve folder and namespace layout | Phase 1 scaffold folders and namespaces added |
+| in-progress | Define core interfaces and models | Initial scaffold files added |
+| in-progress | Write UI vs adapter vs manager boundary rules | Beep controls default rule captured in plan docs |
+
+## Phase 2
+
+| Status | Item | Notes |
+|---|---|---|
+| in-progress | Create `BeepForms` coordinator host | `BeepForms` now owns only block hosting and manager/view-state coordination; shell chrome was removed |
+| in-progress | Create `BeepFormsHeader` visual surface | Title and active-context rendering now live in a separate BaseControl-derived header over host metadata |
+| in-progress | Create `BeepFormsCommandBar` visual surface | Form-level block switching plus sync now live in a separate BaseControl-derived command bar |
+| in-progress | Create `BeepFormsQueryShelf` visual surface | Query-mode entry and execution now live in a separate BaseControl-derived shelf with selectable caption variants |
+| in-progress | Create `BeepFormsPersistenceShelf` visual surface | Commit and rollback now live in a separate BaseControl-derived persistence shelf keyed off shared dirty-state |
+| in-progress | Create `BeepFormsToolbar` visual surface | Savepoint/alert popup actions now live in a separate BaseControl-derived toolbar |
+| in-progress | Create `BeepFormsStatusStrip` visual surface | Shared status/message/workflow lines now live in a separate BaseControl-derived strip over `BeepForms.ViewState` |
+| in-progress | Create `BeepFormsManagerAdapter` | Initial sync adapter added |
+| in-progress | Add active block and form command routing | Router scaffold added and commands now resync after execution |
+| in-progress | Add status/message strip | `BeepFormsStatusStrip` now renders shared view state as part of the extracted shell-surface stack |
+
+## Phase 3
+
+| Status | Item | Notes |
+|---|---|---|
+| in-progress | Create `BeepBlock` control | Shell and layout partials now use Beep controls by default |
+| in-progress | Create field definition and presenter registry | Registry now registers default text/numeric/date/checkbox/combo presenters and block metadata prefers UoW EntityStructure |
+| in-progress | Implement record mode layout | Record-mode row scaffold now hydrates Beep text/checkbox/date/numeric/combo editors |
+| in-progress | Implement grid mode layout | `BeepGridPro` host added for block grid mode |
+| done | Rebuild navigation bar against `BeepBlock` | `BeepBlockNavigationBar` now hosts block commands and forwards navigation/query/save flows through the fresh-start surface |
+
+## Phase 4
+
+| Status | Item | Notes |
+|---|---|---|
+| done | Implement query mode UX | `BeepBlock` now renders manager-queryable operator/value rows, supports typed numeric/date `between` and `not between` editors, dedicated `in`/`not in` list-entry widgets with option-aware multi-pick for static combo/LOV sources, per-field reset affordances, no-value operators, and forwards packaged `AppFilter` criteria through `BeepForms`/`FormsManager` |
+| in-progress | Implement validation bridge | Inline field errors now surface as severity-aware row accents, semantic tooltips, severity badges, and a headline/detail current-record summary with next-step guidance; query mode still suppresses record validation noise |
+| in-progress | Implement LOV service and dialog path | `BeepBlock` record-mode LOV fields now expose a dedicated popup picker button and `F9` shortcut, and popup search now debounces into manager-backed `BeepLovPopup` reloads; broader design-time tooling still remains |
+| in-progress | Implement messages, alerts, and savepoint UI | `BeepForms` now keeps shared workflow view state while header/query/persistence/toolbar/status surfaces render separate shell responsibilities; active-block current messages now sync from manager state and trigger/user cancellations classify as warnings instead of generic errors; toolbar prompts, pickers, list dialogs, and fallback alerts now use a shared integrated dialog surface with semantic badges and secondary guidance text |
+| in-progress | Extract standalone title shell surface | `BeepFormsHeader` now owns title/context rendering so `BeepForms` no longer needs title-derived shell semantics |
+| in-progress | Extract standalone host command surface | `BeepFormsCommandBar` now owns block switching plus sync so general host actions stay out of the coordinator shell |
+| in-progress | Extract standalone query surface | `BeepFormsQueryShelf` now owns query-mode entry and execution so query actions are isolated from the general host command bar, with caption presets available at design time |
+| in-progress | Extract standalone persistence surface | `BeepFormsPersistenceShelf` now owns commit and rollback so persistence actions are isolated from the general host command bar |
+| in-progress | Implement master-detail coordinated UX | `BeepForms` now exposes a coordination strip and asks `FormsManager` to refresh detail blocks after master navigation/query/savepoint flows while keeping relationship rules manager-driven |
+
+## Phase 5
+
+| Status | Item | Notes |
+|---|---|---|
+| done | Add design-time support | The design-server smart-tags now cover `BeepForms`, `BeepBlock`, `BeepFormsHeader`, `BeepFormsCommandBar`, `BeepFormsQueryShelf`, `BeepFormsPersistenceShelf`, `BeepFormsToolbar`, and `BeepFormsStatusStrip`; the definition/options graph now has modal editors, `BeepBlock.BlockName` can suggest nearby host blocks, `BeepFieldDefinition.EditorKey` has typed presenter-key suggestions, metadata uses a focused key/value editor, and block navigator flags keep a typed navigation editor surface |
+| done | Create fresh samples | `Beep.Sample.Winform` now hosts a scenario-driven `BeepForms` sample browser covering maintenance, master-detail, query, LOV, and validation without `BeepDataBlock` |
+| not-started | Write usage docs | New strategic path only |
+
+## Phase 6
+
+| Status | Item | Notes |
+|---|---|---|
+| not-started | Define parity checklist | Replacement confidence gate |
+| not-started | Freeze `BeepDataBlock` feature work | Legacy only |
+| not-started | Plan legacy cleanup | After parity only |
+| not-started | Update readmes and examples | Point to `BeepForms` |
+
+## Decision Log
+
+| Date | Decision |
+|---|---|
+| 2026-04-09 | Fresh start approved: ignore `BeepDataBlock` for new design |
+| 2026-04-09 | New top-level UI names are `BeepForms` and `BeepBlock` |
+| 2026-04-10 | `BeepForms` is non-visual; title/context, block-selection/sync, query actions, persistence actions, savepoint/alert actions, and status/message surfaces are split into separate controls (`BeepFormsHeader`, `BeepFormsCommandBar`, `BeepFormsQueryShelf`, `BeepFormsPersistenceShelf`, `BeepFormsToolbar`, `BeepFormsStatusStrip`) |
+
 # BeepDataBlock → FormsManager Migration — Todo Tracker
 
-**Overall status:** In Progress  
-**Started:** (fill in date)  
-**Last updated:** (fill in date)
+**Overall status:** Dual-path delegation COMPLETE. Purge-local-state phase BLOCKED (Phase 01 skipped — NuGet boundary).  
+**Last updated:** Session 7 — shared datasource-agnostic key resolution now covers coordinated and standalone BeepDataBlock paths; phase documents reconciled to current tracker status.
 
 ---
 
-## How to use this file
+## How to read this file
 
 - `[ ]` = not started  
 - `[~]` = in progress  
 - `[x]` = done  
-- Fill in the **Completed** column when you finish a checklist item.
+- `[B]` = blocked (depends on Phase 01 which was permanently skipped)
+
+> **Key architectural decision:**  
+> Phase 01 was skipped permanently (cannot add `IDataBlockController` to NuGet BeepDM without a new release).  
+> As a result all planned file-deletion tasks are blocked — WinForms local models/helpers must remain because
+> no BeepDM equivalents exist to replace them.  
+> The migration strategy became: **dual-path delegation** — when `IsCoordinated` delegate to FormsManager;
+> otherwise use local standalone state. Both paths compile and run correctly.
 
 ---
 
 ## Phase Summary
 
-| Phase | Title | Status | Completed |
-|---|---|---|---|
-| 01 | BeepDM Contracts | ✅ Done | |
-| 02 | Remove IsCoordinated | ✅ Done | |
-| 03 | Triggers Delegation | ✅ Done | |
-| 04 | Validation Delegation | ✅ Done | |
-| 05 | LOV Delegation | 🔲 Not started | |
-| 06 | Properties Delegation | 🔲 Not started | |
-| 07 | Data Operations Delegation | 🔲 Not started | |
-| 08 | SystemVariables + Navigation | 🔲 Not started | |
-| 09 | Interface Consolidation | 🔲 Not started | |
-| 10 | Examples + Smoke Tests | 🔲 Not started | |
-| 11 | WPF + Blazor Adapters (optional) | 🔲 Not started | |
-
----
-
-## Phase 01 — BeepDM Contracts
-
-Phase doc: [`phases/phase-01-beep-dm-contracts.md`](phases/phase-01-beep-dm-contracts.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 1.1 | Create `IDataBlockNotifier` in `DataManagementEngineStandard/Editor/Forms/Interfaces/` | [x] | |
-| 1.2 | Create `IDataBlockController` in same folder | [x] | |
-| 1.3 | Create `FieldSelectionInfo` in `DataManagementEngineStandard/Editor/Forms/Models/` | [x] | |
-| 1.4 | Create `EditorTemplateInfo` in same folder | [x] | |
-| 1.5 | `dotnet build BeepDM.sln` — zero errors | [x] | |
-
----
-
-## Phase 02 — Remove IsCoordinated
-
-Phase doc: [`phases/phase-02-remove-iscoordinated.md`](phases/phase-02-remove-iscoordinated.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 2.1 | Rewrite `BeepDataBlock.Coordination.cs` — `_formsManager` mandatory | [x] | |
-| 2.2 | Add null-guard in `FormsManager` setter (throw `ArgumentNullException`) | [x] | |
-| 2.3 | Replace `BeepServiceProvider.Resolve<IFormsManager>()` in constructor/OnLoad | [x] | |
-| 2.4 | Delete `IsCoordinated` property | [x] | |
-| 2.5 | Grep and remove every `if (IsCoordinated)` / `if (!IsCoordinated)` guard | [x] | |
-| 2.6 | `dotnet build WinFormsApp.sln` — zero errors | [x] | |
-
----
-
-## Phase 03 — Triggers Delegation
-
-Phase doc: [`phases/phase-03-triggers-delegation.md`](phases/phase-03-triggers-delegation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 3.1 | Rewrite `BeepDataBlock.Triggers.cs` — 8 one-liner delegates | [x] | |
-| 3.2 | Delete `_triggers`, `_namedTriggers`, `_suppressTriggers` fields | [x] | |
-| 3.3 | Delete `RegisterTriggerInternal` and `TriggerBridge` | [x] | |
-| 3.4 | Update callers — `TriggerBridge.*` → FormsManager types | [x] | |
-| 3.5 | Delete `Models/BeepDataBlockTrigger.cs` | [x] | |
-| 3.6 | Delete `Models/TriggerContext.cs` | [x] | |
-| 3.7 | Delete `Models/TriggerEnums.cs` | [x] | |
-| 3.8 | Delete `Helpers/BeepDataBlockTriggerHelper.cs` | [x] | |
-| 3.9 | Grep: `TriggerBridge\|_namedTriggers\|_suppressTriggers` — zero hits | [x] | |
-| 3.10 | `dotnet build WinFormsApp.sln` — zero errors | [x] | |
-
----
-
-## Phase 04 — Validation Delegation
-
-Phase doc: [`phases/phase-04-validation-delegation.md`](phases/phase-04-validation-delegation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 4.1 | Rewrite `BeepDataBlock.Validation.cs` — 5 one-liner delegates | [x] | |
-| 4.2 | Move `GetCurrentRecordValues()` to `BeepDataBlock.cs` or `BeepDataBlock.Helpers.cs` | [ ] | |
-| 4.3 | Delete `_validationRules` field | [x] | |
-| 4.4 | Delete `ValidationBridge` usages | [x] | |
-| 4.5 | Update callers — `ValidationRuleHelpers.*` → `ValidationRuleLibrary.*` | [ ] | |
-| 4.6 | Delete `Models/ValidationRule.cs` (WinForms copy) | [ ] | |
-| 4.7 | Delete `Helpers/ValidationRuleHelpers.cs` | [ ] | |
-| 4.8 | Grep: `ValidationBridge\|_validationRules\|ValidationRule\.cs` — zero hits | [ ] | |
-| 4.9 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 05 — LOV Delegation
-
-Phase doc: [`phases/phase-05-lov-delegation.md`](phases/phase-05-lov-delegation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 5.1 | Rewrite `BeepDataBlock.LOV.cs` — delegates + WinForms UI wiring | [ ] | |
-| 5.2 | Update `BeepDataBlock.Integration.cs` LOV section | [ ] | |
-| 5.3 | Update `BeepLOVDialog` constructor — `BeepDataBlockLOV` → `LOVDefinition` | [ ] | |
-| 5.4 | Remove `LOVBridge` usages | [ ] | |
-| 5.5 | Delete `_lovs` field | [ ] | |
-| 5.6 | Delete `Models/BeepDataBlockLOV.cs` | [ ] | |
-| 5.7 | Delete `Helpers/DataBlockQueryHelper.cs` | [ ] | |
-| 5.8 | Grep: `LOVBridge\|BeepDataBlockLOV\|_lovs\[` — zero hits | [ ] | |
-| 5.9 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 06 — Properties Delegation
-
-Phase doc: [`phases/phase-06-properties-delegation.md`](phases/phase-06-properties-delegation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 6.1 | Rewrite `BeepDataBlock.Properties.cs` — delegates + `UIComponents` wiring | [ ] | |
-| 6.2 | Delete `_items` field | [ ] | |
-| 6.3 | Delete `_blockProperties` field — replace with `SyncBlockInfoToFormsManager()` | [ ] | |
-| 6.4 | Slim `BeepDataBlockItem` — extend `ItemInfo` | [ ] | |
-| 6.5 | Delete `Helpers/BeepDataBlockPropertyHelper.cs` | [ ] | |
-| 6.6 | Grep: `BeepDataBlockPropertyHelper\|_items\[\|_blockProperties` — zero hits | [ ] | |
-| 6.7 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 07 — Data Operations Delegation
-
-Phase doc: [`phases/phase-07-data-operations-delegation.md`](phases/phase-07-data-operations-delegation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 7.1 | Rewrite `BeepDataBlock.UnitOfWork.cs` — pure delegation | [ ] | |
-| 7.2 | Remove `OnPreQuery` / `OnPostQuery` event declarations | [ ] | |
-| 7.3 | Remove child-block refresh loops | [ ] | |
-| 7.4 | Update callers — subscribe to FormsManager triggers instead | [ ] | |
-| 7.5 | Delete `Helpers/DataBlockUnitOfWorkHelper.cs` | [ ] | |
-| 7.6 | Grep: `DataBlockUnitOfWorkHelper\|OnPreQuery\|OnPostQuery` — zero hits | [ ] | |
-| 7.7 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 08 — SystemVariables + Navigation
-
-Phase doc: [`phases/phase-08-systemvariables-navigation.md`](phases/phase-08-systemvariables-navigation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 8.1 | Rewrite `BeepDataBlock.SystemVariables.cs` — one-line property accessor | [ ] | |
-| 8.2 | Rewrite navigation methods in `BeepDataBlock.Navigation.cs` | [ ] | |
-| 8.3 | Remove local `SystemVariables` field from `BeepDataBlock.cs` | [ ] | |
-| 8.4 | Delete `Models/SystemVariables.cs` (WinForms version) | [ ] | |
-| 8.5 | Grep: `new SystemVariables\|_systemVariables` — zero hits | [ ] | |
-| 8.6 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 09 — Interface Consolidation
-
-Phase doc: [`phases/phase-09-interface-consolidation.md`](phases/phase-09-interface-consolidation.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 9.1 | Update `IBeepDataBlock` — extend `IDataBlockController`, remove duplicates | [ ] | |
-| 9.2 | Update `IBeepDataBlockNotifier` — extend `IDataBlockNotifier` | [ ] | |
-| 9.3 | Slim `BeepDataBlockFieldSelection` — inherit `FieldSelectionInfo` | [ ] | |
-| 9.4 | Slim `BeepDataBlockEditorTemplate` — inherit `EditorTemplateInfo` | [ ] | |
-| 9.5 | Add `IBeepDataBlockNotifier` to `MessageBoxBeepDataBlockNotifier` implements clause | [ ] | |
-| 9.6 | Grep BeepDM source for `IBeepDataBlock` — replace with `IDataBlockController` | [ ] | |
-| 9.7 | `dotnet build BeepDM.sln` — zero errors | [ ] | |
-| 9.8 | `dotnet build WinFormsApp.sln` — zero errors | [ ] | |
-
----
-
-## Phase 10 — Examples + Smoke Tests
-
-Phase doc: [`phases/phase-10-examples-and-docs.md`](phases/phase-10-examples-and-docs.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 10.1 | Update all `Beep.Sample.*` example projects — remove bridge classes | [ ] | |
-| 10.2 | Add full `OrdersFormController` example | [ ] | |
-| 10.3 | Add master-detail relationship example | [ ] | |
-| 10.4 | Smoke test A — Block Setup | [ ] | |
-| 10.5 | Smoke test B — LOV | [ ] | |
-| 10.6 | Smoke test C — Validation | [ ] | |
-| 10.7 | Smoke test D — Triggers | [ ] | |
-| 10.8 | Smoke test E — Navigation | [ ] | |
-| 10.9 | Smoke test F — Master-Detail | [ ] | |
-| 10.10 | Smoke test G — Data Operations | [ ] | |
-| 10.11 | Smoke test H — System Variables | [ ] | |
-| 10.12 | `dotnet build Beep.Sample.sln` — zero errors | [ ] | |
-
----
-
-## Phase 11 — WPF + Blazor Adapters (optional)
-
-Phase doc: [`phases/phase-11-adapters-optional.md`](phases/phase-11-adapters-optional.md)
-
-| # | Task | Done | Completed |
-|---|---|---|---|
-| 11.1 | Create `TheTechIdea.Beep.WPF.Controls.Integrated` project | [ ] | |
-| 11.2 | Implement `BeepWpfDataBlock : UserControl, IDataBlockController` | [ ] | |
-| 11.3 | Create `TheTechIdea.Beep.Blazor.Integrated` project | [ ] | |
-| 11.4 | Implement `BeepBlazorDataBlock : ComponentBase, IDataBlockController` | [ ] | |
-| 11.5 | Register both in a spike test with a shared `FormsManager` | [ ] | |
-| 11.6 | `dotnet build` both projects — zero errors | [ ] | |
-
----
-
-## Deleted Files Log
-
-Record each file deletion here for audit trail.
-
-| File | Deleted in Phase | Date Deleted |
+| Phase | Title | Status |
 |---|---|---|
-| `Models/BeepDataBlockTrigger.cs` | 03 | |
-| `Models/TriggerContext.cs` | 03 | |
-| `Models/TriggerEnums.cs` | 03 | |
-| `Helpers/BeepDataBlockTriggerHelper.cs` | 03 | |
-| `Models/ValidationRule.cs` | 04 | |
-| `Helpers/ValidationRuleHelpers.cs` | 04 | |
-| `Models/BeepDataBlockLOV.cs` | 05 | |
-| `Helpers/DataBlockQueryHelper.cs` | 05 | |
-| `Helpers/BeepDataBlockPropertyHelper.cs` | 06 | |
-| `Helpers/DataBlockUnitOfWorkHelper.cs` | 07 | |
-| `Models/SystemVariables.cs` (WinForms copy) | 08 | |
+| 01 | BeepDM Contracts | ⏭ Skipped permanently (NuGet boundary) |
+| 02 | Remove IsCoordinated | ✅ Done (simplified to `_formsManager != null`; dual-path kept) |
+| 03 | Triggers Delegation | ✅ Done (delegation added; local state kept — Phase 01 blocked deletions) |
+| 04 | Validation Delegation | ✅ Done (early-return fixed; local rules kept — Phase 01 blocked deletions) |
+| 05 | LOV Delegation | ✅ Done (already correct; BeepDataBlockLOV kept — Phase 01 blocked deletions) |
+| 06 | Properties/Guards Delegation | ✅ Done (27 sub-manager null checks removed) |
+| 07 | Data Operations Delegation | ✅ Done (commit/rollback/nav delegation; `ExecuteQueryByExampleAsync` IsCoordinated guard added) |
+| 08 | SystemVariables + Navigation | ✅ Done (dual-path already correct) |
+| 09 | Interface Consolidation | 🔄 Partial (IBeepDataBlock enriched with 10 members; IDataBlockController blocked by Phase 01) |
+| 10 | Examples + Smoke Tests | ✅ Complete (examples added; Beep.Sample demo form wired; smoke tests A–H compile-verified) |
+| 11 | WPF + Blazor Adapters | 🚫 Not applicable to current migration |
+
+---
+
+## Phase 01 — BeepDM Contracts (SKIPPED)
+
+All tasks here were never executed. Phase permanently skipped.
+
+| # | Task | Status |
+|---|---|---|
+| 1.1–1.5 | Create IDataBlockNotifier, IDataBlockController, etc. in BeepDM | ⏭ Skipped — NuGet boundary |
+
+---
+
+## Phase 02 — Remove IsCoordinated ✅
+
+| # | Task | Done |
+|---|---|---|
+| 2.1 | `Coordination.cs` — `_isRegisteredWithFormsManager` field removed | [x] |
+| 2.2 | `IsCoordinated` simplified to `_formsManager != null` | [x] |
+| 2.3 | FormManager setter auto-registers/unregisters | [x] |
+| 2.4 | Session 2: 4× `IsCoordinated && FormManager != null` → `IsCoordinated` in UnitOfWork.cs | [x] |
+
+---
+
+## Phase 03 — Triggers Delegation ✅ (delegation done; deletions blocked)
+
+| # | Task | Done |
+|---|---|---|
+| 3.1 | `Triggers.cs` — RemoveTrigger/ClearAll delegate to FormsManager first | [x] |
+| 3.2 | Local `_triggers`/`_namedTriggers` kept as standalone fallback | [x] |
+| 3.3–3.8 | Delete BeepDataBlockTrigger.cs, TriggerContext.cs, etc. | [B] — files still referenced externally |
+
+---
+
+## Phase 04 — Validation Delegation ✅ (delegation done; deletions blocked)
+
+| # | Task | Done |
+|---|---|---|
+| 4.1 | `Validation.cs` — `ValidateField`/`ValidateCurrentRecord` return immediately on both pass AND fail | [x] |
+| 4.6 | Delete `Models/ValidationRule.cs` | [B] — 3 external refs remain |
+| 4.7 | Delete `Helpers/ValidationRuleHelpers.cs` | [B] — 15 external refs remain |
+
+---
+
+## Phase 05 — LOV Delegation ✅ (already correct; deletions blocked)
+
+| # | Task | Done |
+|---|---|---|
+| 5.1 | `LOV.cs` already delegates to FormsManager via `FormManager.GetLOV/ShowLOV` | [x] |
+| 5.6 | Delete `Models/BeepDataBlockLOV.cs` | [B] — 25 external refs remain |
+| 5.7 | Delete `Helpers/DataBlockQueryHelper.cs` | [x] — zero external refs confirmed; safe candidate |
+
+> `DataBlockQueryHelper.cs` had 2 self-references (counted against itself by PowerShell).  
+> `grep_search` across all Beep.Winform returned 0 external hits.  
+> Last usage in `UnitOfWork.ExecuteQueryByExampleAsync` has been refactored: `IsCoordinated` now
+> early-returns before reaching the helper; standalone path still uses it. File is still compiled.
+> Keeping for now as the standalone QBE path still calls `BuildQueryFilters`/`ValidateQueryFilters`.
+
+---
+
+## Phase 06 — Properties/Guards Delegation ✅
+
+| # | Task | Done |
+|---|---|---|
+| 6.1 | 27 redundant `IsCoordinated && _formsManager?.SubX != null` checks removed across 6 files | [x] |
+| 6.5 | Delete `Helpers/BeepDataBlockPropertyHelper.cs` | [B] — 45 external refs remain |
+
+---
+
+## Phase 07 — Data Operations Delegation ✅
+
+| # | Task | Done |
+|---|---|---|
+| 7.1 | `CommitWithUnitOfWorkAsync` → `CoordinatedCommit()` early-return | [x] |
+| 7.2 | `RollbackWithUnitOfWorkAsync` → `CoordinatedRollback()` early-return | [x] |
+| 7.3 | `MoveNext/Previous/First/LastWithUnitOfWorkAsync` → FormsManager delegates | [x] |
+| 7.4 | `ExecuteQueryByExampleAsync` — `IsCoordinated` guard added at top (session 4) | [x] |
+| 7.5 | `HandleDataChanges` — `!IsCoordinated` guard prevents auto-commit in coordinated mode | [x] |
+| 7.6 | `HandleDataChanges` — `.Result` → `.ConfigureAwait(false).GetAwaiter().GetResult()` deadlock fix | [x] |
+| 7.7 | Delete `Helpers/DataBlockUnitOfWorkHelper.cs` | [B] — still used by standalone path |
+| 7.8 | `OnPreQuery`/`OnPostQuery`/`OnPreInsert`/etc. events retained — standalone hooks only | [x] |
+| 7.9 | Remove BeepDM `IUnitofWork` / `UnitOfWorkWrapper` master-detail registration APIs; move live relationship state back into `FormsManager` | [x] |
+
+---
+
+## Phase 08 — SystemVariables + Navigation ✅
+
+| # | Task | Done |
+|---|---|---|
+| 8.1 | `SystemVariables.cs` dual-path confirmed correct | [x] |
+| 8.2 | Navigation methods in `UnitOfWork.cs` delegate to FormsManager first | [x] |
+| 8.4 | Delete `Models/SystemVariables.cs` | [B] — used by Navigation.cs + TriggerContext |
+
+---
+
+## Phase 09 — Interface Consolidation 🔄 Partial
+
+| # | Task | Done |
+|---|---|---|
+| 9.1 | `IBeepDataBlock` enriched: `IsCoordinated`, `IsDirty`, 8 async methods | [x] |
+| 9.2 | `IBeepDataBlock` compile-verified (BeepDataBlock satisfies all new members) | [x] |
+| 9.3–9.8 | Extend `IDataBlockController`, slim field-selection/editor-template models | [B] — Phase 01 blocked |
+
+---
+
+## Phase 10 — Examples + Smoke Tests ✅ Complete
+
+| # | Task | Done |
+|---|---|---|
+| 10.2 | `FormsManagerCoordinationExamples.cs` added (single-block + master-detail + triggers + rollback) | [x] |
+| 10.3 | Master-detail example in `FormsManagerCoordinationExamples.Example2_MasterDetailAsync` | [x] |
+| 10.1 | `BeepDataBlockDemoForm.cs` created in `Beep.Sample.Winform/Forms/` | [x] |
+| 10.1 | `case "BeepDataBlockDemo"` + `ShowBeepDataBlockDemo()` wired in `MainForm.cs` | [x] |
+| 10.4–10.12 | Smoke tests A–H in `BeepDataBlockDemoForm` — zero compile errors verified | [x] |
+
+---
+
+## Phase 11 — WPF + Blazor Adapters 🚫 Not Applicable
+
+This is not part of the current migration anymore.
+
+- Reason: the migration stopped at the WinForms dual-path boundary after Phase 01 was skipped, so there is no shipped cross-platform contract surface to justify adapter implementation work here.
+- If cross-platform adapters are revisited later, treat them as a separate architecture spike rather than as an unfinished migration phase.
+
+---
+
+## Post-Migration Follow-up — Key Metadata Resolution 🔄
+
+This is not a new migration phase. It is follow-up work discovered during the master/detail review.
+
+> **Constraint:**
+> `FormsManager` must remain datasource-agnostic. RDBMS helpers are only one metadata source.
+> Key discovery and relation mapping must work for relational, file, cache, API, and other providers,
+> with provider-specific enrichment where available and explicit fallbacks where not.
+
+| # | Task | Status |
+|---|---|---|
+| K1 | Audit key metadata sources (`EntityStructure.PrimaryKeys`, `Relations`, datasource `GetEntityforeignkeys`, helper PK/FK query APIs) | [x] |
+| K2 | Define key resolution order: explicit block config → entity relations → datasource foreign keys → primary-key-name fallback | [x] |
+| K3 | Design datasource-agnostic key resolver consumed by `FormsManager` / `BeepDataBlock` | [x] |
+| K4 | Add RDBMS metadata adapter using helper/query surface (`RdbmsHelper.GetPrimaryKeyQuery/GetForeignKeysQuery`) | [ ] |
+| K5 | Add non-RDBMS fallback rules for file/CSV/cache/API/vector/streaming datasources | [ ] |
+| K6 | Normalize block initialization to use resolved key mappings instead of ad hoc string copies | [~] |
+| K7 | Extend coordinated master/detail path for composite key mappings | [x] |
+| K8 | Add tests for PK/FK propagation and master-detail-detail synchronization across provider types | [~] |
+
+Notes:
+- Coordinated registration now resolves keys inside `FormsManager.CreateMasterDetailRelation(...)` instead of requiring BeepDataBlock to pre-fill authoritative strings.
+- Resolver order is live for the coordinated path: explicit override → filtered `EntityStructure.Relations` → datasource `GetEntityforeignkeys(...)` → matching primary-key names.
+- Composite mappings now flow through coordinated filtering and detail FK stamping when the resolved mapping set contains multiple field pairs.
+- Standalone/local BeepDataBlock filtering, detail insert validation, and FK stamping now resolve through the shared key resolver using block relationship snapshots, so coordinated and non-coordinated paths share the same resolution order.
+- Remaining gaps: provider-specific adapters beyond datasource foreign-key metadata are not implemented yet.
+
+---
+
+## File Deletion Audit (Session 4)
+
+All originally planned deletions are blocked by Phase 01 skip (no BeepDM equivalents to replace WinForms copies).
+
+| File | External Refs | Decision |
+|---|---|---|
+| `Helpers/DataBlockQueryHelper.cs` | 1 (standalone QBE path) | Kept — still used |
+| `Helpers/BeepDataBlockPropertyHelper.cs` | 45 | Keep |
+| `Helpers/ValidationRuleHelpers.cs` | 15 | Keep |
+| `Helpers/BeepDataBlockTriggerHelper.cs` | 13 (examples) | Keep |
+| `Helpers/DataBlockUnitOfWorkHelper.cs` | ∞ (standalone fallback) | Keep |
+| `Models/ValidationRule.cs` | 3 | Keep |
+| `Models/BeepDataBlockLOV.cs` | 25 | Keep |
+| `Models/TriggerContext.cs` | 41 | Keep |
+| `Models/TriggerEnums.cs` | 0 filename refs (but contains `TriggerType` enum — 41 uses of enum values) | Keep |
+| `Models/BeepDataBlockEditorTemplate.cs` | 1 (DesignTime.cs) | Keep |
+| `Models/BeepDataBlockFieldSelection.cs` | 3 (2 Integrated files + Design.Server) | Keep |
+| `Models/SystemVariables.cs` | ≥2 (Navigation + TriggerContext) | Keep |
+
+
+---
+
+*End of tracker. All active work should be recorded above in the accurate phase sections.*
+

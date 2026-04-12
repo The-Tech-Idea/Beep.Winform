@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 thumb = ThumbnailProvider(tab.Id);
 
             (_richTooltipPopup ??= new BeepDocumentRichTooltip())
-                .ShowForTab(tab, thumb, screenPt, _theme);
+                .ShowForTab(tab, thumb, screenPt, _currentTheme);
         }
 
         private void HideRichTooltip()
@@ -233,12 +233,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     TabFloatRequested?.Invoke(this,
                         new TabEventArgs(_dragStartTab, _tabs[_dragStartTab]));
 
-                _dragFloating = false;
-                _dragging     = false;
-                _dragStartTab = -1;
-                Cursor        = Cursors.Default;
+                _dragFloating    = false;
+                _dragging        = false;
+                _dragStartTab    = -1;
+                _dragInsertIndex = -1;
+                Cursor           = Cursors.Default;
                 return;
             }
+
+            // ── Commit insert-mode drag reorder ──────────────────────────────
+            if (_dragging && _dragInsertIndex >= 0)
+                CommitDragReorder();
 
             _dragging     = false;
             _dragStartTab = -1;
@@ -304,13 +309,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 if (!_dragFloating)
                 {
-                    _dragFloating = true;
-                    _dragging     = false;  // suspend reorder while floating
+                    _dragFloating    = true;
+                    _dragging        = false;
+                    _dragInsertIndex = -1;
                     ShowDragFloatGhost(_tabs[_dragStartTab].Title, PointToScreen(current));
                 }
                 Cursor = Cursors.SizeAll;
                 MoveDragFloatGhost(PointToScreen(current));
-                return; // skip horizontal reorder
+                return;
             }
 
             if (_dragFloating)
@@ -322,27 +328,84 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!_dragging) return;
             Cursor = Cursors.SizeWE;
 
+            // ── Insert-mode: compute target insert slot from cursor position ───
+            // The insert index is the position (0..Count) where the dragged tab
+            // would land if the mouse button were released now.  We only skip
+            // moving from the pinned section into the unpinned section (and vice-versa).
+            _dragCurrentCursorX = current.X;
+            bool draggingPinned = _dragStartTab >= 0 && _dragStartTab < _tabs.Count
+                                  && _tabs[_dragStartTab].IsPinned;
+
+            int insert = _tabs.Count;   // default: append at end
             for (int i = 0; i < _tabs.Count; i++)
             {
                 if (i == _dragStartTab) continue;
-                if (!_tabs[i].TabRect.Contains(current)) continue;
+                var r = _tabs[i].TabRect;
+                if (r.IsEmpty) continue;
+                // Skip crossing pinned/unpinned boundary
+                if (draggingPinned != _tabs[i].IsPinned) continue;
 
-                // Swap
-                int   oldIdx = _dragStartTab;
-                var   tab    = _tabs[oldIdx];
-                _tabs.RemoveAt(oldIdx);
-                _tabs.Insert(i, tab);
-
-                if (_activeTabIndex == oldIdx)   _activeTabIndex = i;
-                else if (_activeTabIndex > oldIdx && _activeTabIndex <= i) _activeTabIndex--;
-                else if (_activeTabIndex < oldIdx && _activeTabIndex >= i) _activeTabIndex++;
-
-                _dragStartTab = i;
-                CalculateTabLayout();
-                Invalidate();
-                TabReordered?.Invoke(this, new TabReorderArgs(oldIdx, i, tab));
-                break;
+                if (current.X < r.Left + r.Width / 2)
+                {
+                    insert = i;
+                    break;
+                }
+                insert = i + 1;
             }
+
+            // Clamp: pinned tabs cannot move past the pinned block
+            if (draggingPinned)
+            {
+                int lastPinned = -1;
+                for (int i = 0; i < _tabs.Count; i++)
+                    if (_tabs[i].IsPinned) lastPinned = i;
+                insert = Math.Min(insert, lastPinned + 1);
+            }
+            else
+            {
+                int firstUnpinned = _tabs.Count;
+                for (int i = 0; i < _tabs.Count; i++)
+                    if (!_tabs[i].IsPinned) { firstUnpinned = i; break; }
+                insert = Math.Max(insert, firstUnpinned);
+            }
+
+            if (_dragInsertIndex != insert)
+            {
+                _dragInsertIndex = insert;
+                Invalidate();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // CommitDragReorder — called from OnMouseUp to apply the pending insert
+        // ─────────────────────────────────────────────────────────────────────
+
+        private void CommitDragReorder()
+        {
+            int from = _dragStartTab;
+            int to   = _dragInsertIndex;
+
+            _dragInsertIndex    = -1;
+            _dragCurrentCursorX = 0;
+
+            if (from < 0 || from >= _tabs.Count || to < 0) return;
+
+            // Adjust 'to' for the removal shift
+            int insertAt = to > from ? to - 1 : to;
+
+            if (insertAt == from) return;   // no real movement
+
+            var tab = _tabs[from];
+            _tabs.RemoveAt(from);
+            _tabs.Insert(Math.Min(insertAt, _tabs.Count), tab);
+
+            if (_activeTabIndex == from) _activeTabIndex = insertAt;
+            else if (_activeTabIndex > from && _activeTabIndex <= insertAt) _activeTabIndex--;
+            else if (_activeTabIndex < from && _activeTabIndex >= insertAt) _activeTabIndex++;
+
+            CalculateTabLayout();
+            Invalidate();
+            TabReordered?.Invoke(this, new TabReorderArgs(from, insertAt, tab));
         }
 
         // ─────────────────────────────────────────────────────────────────────

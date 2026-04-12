@@ -1,7 +1,6 @@
 # BeepDocumentHost Design Server
 
-Design-time extensions for `BeepDocumentHost` — custom designers, smart-tag action lists,
-collection editors, and dialogs for the WinForms VS designer.
+Design-time extensions for Beep WinForms controls, including `BeepDocumentHost` and the fresh-start integrated forms stack. The design server ships custom designers, smart-tag action lists, collection editors, typed converters, and dialogs for the WinForms VS designer.
 
 ---
 
@@ -11,12 +10,30 @@ collection editors, and dialogs for the WinForms VS designer.
 |---|---|
 | `ActionLists/` | `DocumentHostActionList` — smart-tag property bindings + method actions |
 | `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `ThemePickerDialog` |
-| `Editors/` | `DocumentDescriptorCollectionEditor`, `DesignTimeDocumentsEditor`, `IconPickerDialog` |
+| `Editors/` | `DocumentDescriptorCollectionEditor`, `DesignTimeDocumentsEditor`, `IconPickerDialog`, `IntegratedFormsDefinitionEditors` |
 | `Helpers/` | Internal utilities used by designers |
 
 ---
 
 ## Key Components
+
+### `IntegratedFormsDefinitionEditors` (Editors/)
+Focused modal editors and type converters for the integrated forms path.
+
+Provides:
+- `BeepFormsDefinitionEditor` and `BeepBlockDefinitionEditor` for modal definition editing
+- Collection editors for `Blocks`, `Fields`, and field `Options`
+- `BeepFormsBlockNameTypeConverter` so `BeepBlock.BlockName` can suggest nearby `BeepForms.Definition` block names
+- `BeepFieldEditorKeyTypeConverter` so `BeepFieldDefinition.EditorKey` exposes the default presenter keys (`text`, `numeric`, `date`, `checkbox`, `combo`, `lov`, `option`)
+- `BeepStringDictionaryEditor` for focused key/value editing of `BeepFormsDefinition.Metadata` and `BeepBlockDefinition.Metadata`
+
+Using the integrated editors:
+1. Select `BeepForms` or `BeepBlock` in the designer.
+2. Use the smart-tag or properties grid to open the modal definition editor.
+3. Use the definition editor to add blocks, fields, and options.
+4. For manually placed blocks, pick `BlockName` from the suggested host block list when a nearby `BeepForms` definition is present.
+
+---
 
 ### `BeepDocumentHostDesigner` (Designers/)
 Extends `ParentControlDesigner`. Provides:

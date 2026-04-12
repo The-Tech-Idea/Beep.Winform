@@ -27,13 +27,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             g.TextRenderingHint  = TextRenderingHint.ClearTypeGridFit;
 
             // Strip background
-            using (var bg = new SolidBrush(_theme?.PanelBackColor ?? BackColor))
+            using (var bg = new SolidBrush(_currentTheme?.PanelBackColor ?? BackColor))
                 g.FillRectangle(bg, ClientRectangle);
 
             // Empty-state hint
             if (_tabs.Count == 0)
             {
-                using var hintBr  = new SolidBrush(Color.FromArgb(100, _theme?.SecondaryTextColor ?? ForeColor));
+                using var hintBr  = new SolidBrush(Color.FromArgb(100, _currentTheme?.SecondaryTextColor ?? ForeColor));
                 using var hintFmt = new StringFormat
                 {
                     Alignment     = StringAlignment.Center,
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             // Separator line — right edge in vertical mode, bottom edge otherwise
-            using (var sep = new Pen(_theme?.BorderColor ?? SystemColors.ControlDark, 1))
+            using (var sep = new Pen(_currentTheme?.BorderColor ?? SystemColors.ControlDark, 1))
             {
                 if (IsVertical)
                     g.DrawLine(sep, Width - 1, 0, Width - 1, Height);
@@ -84,6 +84,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     }
                     // Sprint 18.2: in ActiveOnly mode only the active tab is painted
                     if (_responsiveMode == TabResponsiveMode.ActiveOnly && !t.IsActive) continue;
+                    // 5.1: Skip unpinned tabs scrolled entirely outside the visible tab area
+                    if (!t.IsPinned && !t.TabRect.IntersectsWith(_tabArea)) continue;
                     DrawTab(g, t, i);
                 }
 
@@ -125,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var at = _tabs[_activeTabIndex];
                 if (!at.TabRect.IsEmpty)
                 {
-                    Color contentBg = _theme?.BackgroundColor ?? BackColor;
+                    Color contentBg = _currentTheme?.BackgroundColor ?? BackColor;
                     using var bridgeBr = new SolidBrush(contentBg);
                     int bLeft  = Math.Max(at.TabRect.Left  + 1, _tabArea.Left);
                     int bRight = Math.Min(at.TabRect.Right - 1, _tabArea.Right);
@@ -205,9 +207,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool active  = tab.IsActive;
             bool hovered = index == _hoverTabIndex;
 
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.3f)
-                       :           _theme.PanelBackColor;
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.3f)
+                       :           _currentTheme.PanelBackColor;
 
             // Background (use chrome-style rounded path when applicable)
             if (_tabStyle == DocumentTabStyle.Chrome)
@@ -215,14 +217,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 using var path = BuildChromeTabPath(tab.TabRect, TabRadius);
                 using var br   = new SolidBrush(fill);
                 g.FillPath(br, path);
-                using var pen  = new Pen(_theme.BorderColor, 1f);
+                using var pen  = new Pen(_currentTheme.BorderColor, 1f);
                 g.DrawPath(pen, path);
             }
             else
             {
                 using var br  = new SolidBrush(fill);
                 g.FillRectangle(br, tab.TabRect);
-                using var pen = new Pen(_theme.BorderColor, 1f);
+                using var pen = new Pen(_currentTheme.BorderColor, 1f);
                 g.DrawLine(pen, tab.TabRect.Right - 1, tab.TabRect.Top,
                                 tab.TabRect.Right - 1, tab.TabRect.Bottom);
             }
@@ -242,8 +244,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 int cx = tab.TabRect.Left + tab.TabRect.Width  / 2;
                 int cy = tab.TabRect.Top  + tab.TabRect.Height / 2 - S(1);
                 Color pinColor = active
-                    ? _theme.PrimaryColor
-                    : Blend(_theme.SecondaryTextColor, _theme.PanelBackColor, 0.4f);
+                    ? _currentTheme.PrimaryColor
+                    : Blend(_currentTheme.SecondaryTextColor, _currentTheme.PanelBackColor, 0.4f);
                 using var br = new SolidBrush(pinColor);
                 g.FillEllipse(br, cx - r, cy - r, r * 2, r * 2);
 
@@ -256,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (tab.IsModified)
             {
                 int ds = S(5);
-                using var dotBr = new SolidBrush(_theme.WarningColor);
+                using var dotBr = new SolidBrush(_currentTheme.WarningColor);
                 g.FillEllipse(dotBr,
                     tab.TabRect.Right - ds - S(3),
                     tab.TabRect.Bottom - ds - S(3),
@@ -271,14 +273,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool active  = tab.IsActive;
             bool hovered = index == _hoverTabIndex;
 
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Blend(_theme.PanelBackColor, Color.White, 0.08f)   // +8 % white (Figma 2026)
-                       :           _theme.PanelBackColor;
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Blend(_currentTheme.PanelBackColor, Color.White, 0.08f)   // +8 % white (Figma 2026)
+                       :           _currentTheme.PanelBackColor;
 
             using var path = BuildChromeTabPath(tab.TabRect, TabRadius);
             using (var br = new SolidBrush(fill))
                 g.FillPath(br, path);
-            using (var pen = new Pen(_theme.BorderColor, 1f))
+            using (var pen = new Pen(_currentTheme.BorderColor, 1f))
                 g.DrawPath(pen, path);
 
             // Top accent bar on active tab
@@ -295,9 +297,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool active  = tab.IsActive;
             bool hovered = index == _hoverTabIndex;
 
-            Color fill   = active  ? _theme.BackgroundColor
-                         : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.2f)
-                         :           _theme.PanelBackColor;
+            Color fill   = active  ? _currentTheme.BackgroundColor
+                         : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.2f)
+                         :           _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, tab.TabRect);
@@ -307,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 DrawAccentBar(g, tab);
 
             // Vertical separator lines
-            using (var pen = new Pen(_theme.BorderColor, 1f))
+            using (var pen = new Pen(_currentTheme.BorderColor, 1f))
             {
                 g.DrawLine(pen, tab.TabRect.Right - 1, tab.TabRect.Top + 4,
                                 tab.TabRect.Right - 1, tab.TabRect.Bottom - 4);
@@ -325,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (hovered && !active)
             {
-                using var br = new SolidBrush(Blend(_theme.PanelBackColor, _theme.BorderColor, 0.15f));
+                using var br = new SolidBrush(Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.15f));
                 g.FillRectangle(br, tab.TabRect);
             }
 
@@ -340,9 +342,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool active  = tab.IsActive;
             bool hovered = index == _hoverTabIndex;
 
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.2f)
-                       :           _theme.PanelBackColor;
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.2f)
+                       :           _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, tab.TabRect);
@@ -350,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Top accent bar only on active tab (4 px, full width)
             if (active)
             {
-                Color accent = tab.AccentColor == Color.Empty ? _theme.PrimaryColor : tab.AccentColor;
+                Color accent = tab.AccentColor == Color.Empty ? _currentTheme.PrimaryColor : tab.AccentColor;
                 using var pen = new Pen(accent, 3f);
                 g.DrawLine(pen, tab.TabRect.Left, tab.TabRect.Top + 1,
                                 tab.TabRect.Right, tab.TabRect.Top + 1);
@@ -368,9 +370,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             var r = Rectangle.Inflate(tab.TabRect, -2, -2);
 
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.25f)
-                       :           _theme.PanelBackColor;
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.25f)
+                       :           _currentTheme.PanelBackColor;
 
             int radius = Math.Min(r.Height / 2, S(10));
             using var path = BuildRoundedRect(r, radius);
@@ -379,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (active)
             {
-                Color accent = tab.AccentColor == Color.Empty ? _theme.PrimaryColor : tab.AccentColor;
+                Color accent = tab.AccentColor == Color.Empty ? _currentTheme.PrimaryColor : tab.AccentColor;
                 using var pen = new Pen(accent, 2f);
                 g.DrawPath(pen, path);
             }
@@ -410,14 +412,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     new(r.Right,         r.Bottom)
                 });
 
-                Color fill = active  ? _theme.BackgroundColor
-                           : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.2f)
-                           :           _theme.PanelBackColor;
+                Color fill = active  ? _currentTheme.BackgroundColor
+                           : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.2f)
+                           :           _currentTheme.PanelBackColor;
 
                 using (var br = new SolidBrush(fill))
                     g.FillPath(br, path);
 
-                using (var pen = new Pen(_theme.BorderColor, 1f))
+                using (var pen = new Pen(_currentTheme.BorderColor, 1f))
                     g.DrawPath(pen, path);
 
                 if (active) DrawAccentBar(g, tab);
@@ -434,9 +436,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool active  = tab.IsActive;
             bool hovered = index == _hoverTabIndex;
 
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.18f)
-                       :           _theme.PanelBackColor;
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.18f)
+                       :           _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, tab.TabRect);
@@ -444,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Office: thick 3 px bottom accent on the active tab (below content)
             if (active)
             {
-                Color accent = tab.AccentColor == Color.Empty ? _theme.PrimaryColor : tab.AccentColor;
+                Color accent = tab.AccentColor == Color.Empty ? _currentTheme.PrimaryColor : tab.AccentColor;
                 using var pen = new Pen(accent, 3f);
                 g.DrawLine(pen, tab.TabRect.Left, tab.TabRect.Bottom - 2,
                                 tab.TabRect.Right, tab.TabRect.Bottom - 2);
@@ -453,7 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Subtle right-side separator for inactive tabs
             if (!active)
             {
-                using var sep = new Pen(Color.FromArgb(40, _theme.BorderColor), 1f);
+                using var sep = new Pen(Color.FromArgb(40, _currentTheme.BorderColor), 1f);
                 g.DrawLine(sep, tab.TabRect.Right - 1, tab.TabRect.Top + 4,
                                 tab.TabRect.Right - 1, tab.TabRect.Bottom - 4);
             }
@@ -471,9 +473,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             // Active tab: full BackgroundColor fill (opaque, like Fluent active pane)
             // Inactive tab: semi-transparent overlay — simulates acrylic / mica backdrop
-            Color fill = active  ? _theme.BackgroundColor
-                       : hovered ? Color.FromArgb(32, _theme.ForeColor)
-                       :           Color.FromArgb(16, _theme.ForeColor);
+            Color fill = active  ? _currentTheme.BackgroundColor
+                       : hovered ? Color.FromArgb(32, _currentTheme.ForeColor)
+                       :           Color.FromArgb(16, _currentTheme.ForeColor);
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, tab.TabRect);
@@ -481,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // 4 px bottom accent bar on the active tab (Fluent: bottom-aligned indicator)
             if (active)
             {
-                Color accent = tab.AccentColor == Color.Empty ? _theme.PrimaryColor : tab.AccentColor;
+                Color accent = tab.AccentColor == Color.Empty ? _currentTheme.PrimaryColor : tab.AccentColor;
                 using var pen = new Pen(accent, 4f);
                 g.DrawLine(pen,
                     tab.TabRect.Left  + 1, tab.TabRect.Bottom - 2,
@@ -491,7 +493,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Thin top line on every tab for structural clarity
             if (active || hovered)
             {
-                using var topPen = new Pen(Color.FromArgb(60, _theme.BorderColor), 1f);
+                using var topPen = new Pen(Color.FromArgb(60, _currentTheme.BorderColor), 1f);
                 g.DrawLine(topPen, tab.TabRect.Left, tab.TabRect.Top,
                                    tab.TabRect.Right, tab.TabRect.Top);
             }
@@ -516,8 +518,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     -4, 0);
 
                 Color pillColor = active
-                    ? Blend(_theme.PrimaryColor, _theme.BackgroundColor, 0.85f)
-                    : Blend(_theme.PanelBackColor, _theme.BorderColor, 0.25f);
+                    ? Blend(_currentTheme.PrimaryColor, _currentTheme.BackgroundColor, 0.85f)
+                    : Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.25f);
 
                 using var path = BuildRoundedRect(pillRect, PillRadius);
                 using var br   = new SolidBrush(pillColor);
@@ -550,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 // Base text colour; inactive tabs get 70 % opacity per DocTokens (visual hierarchy)
                 Color baseColor = textColorOverride
-                    ?? (tab.IsActive ? _theme.ForeColor : _theme.SecondaryTextColor);
+                    ?? (tab.IsActive ? _currentTheme.ForeColor : _currentTheme.SecondaryTextColor);
                 Color textColor = tab.IsActive
                     ? baseColor
                     : Color.FromArgb(DocTokens.InactiveTabTextAlpha, baseColor);
@@ -577,7 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Dirty / modified dot
             if (!tab.DirtyRect.IsEmpty)
             {
-                using var dotBr = new SolidBrush(_theme.WarningColor);
+                using var dotBr = new SolidBrush(_currentTheme.WarningColor);
                 g.FillEllipse(dotBr, tab.DirtyRect);
             }
 
@@ -696,7 +698,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void DrawAccentBar(Graphics g, BeepDocumentTab tab)
         {
-            Color accent = tab.AccentColor == Color.Empty ? _theme.PrimaryColor : tab.AccentColor;
+            Color accent = tab.AccentColor == Color.Empty ? _currentTheme.PrimaryColor : tab.AccentColor;
             // Token-driven accent line thickness at the very top of the tab
             int inset = TabRadius;
             using var pen = new Pen(accent, DocTokens.IndicatorThickness)
@@ -721,7 +723,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _tabStyle == DocumentTabStyle.VSCode  ||
                 _tabStyle == DocumentTabStyle.Fluent) return;
 
-            Color color = _theme.PrimaryColor;
+            Color color = _currentTheme.PrimaryColor;
             using var path = BuildRoundedRect(_indicatorCurrent, IndicatorHeight / 2);
             using var br   = new SolidBrush(color);
             g.FillPath(br, path);
@@ -736,14 +738,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool hovered = index == _hoverTabIndex && _hoverClose;
             if (hovered)
             {
-                using var hBr = new SolidBrush(_theme.ErrorColor);
+                using var hBr = new SolidBrush(_currentTheme.ErrorColor);
                 g.FillEllipse(hBr, tab.CloseRect);
             }
 
             int m = Math.Max(3, tab.CloseRect.Width / 4);
             var cr = tab.CloseRect;
             using var xPen = new Pen(
-                hovered ? Color.White : _theme.SecondaryTextColor, 1.5f);
+                hovered ? Color.White : _currentTheme.SecondaryTextColor, 1.5f);
             g.DrawLine(xPen, cr.Left + m, cr.Top + m, cr.Right - m, cr.Bottom - m);
             g.DrawLine(xPen, cr.Right - m, cr.Top + m, cr.Left + m, cr.Bottom - m);
         }
@@ -778,7 +780,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var pillRect = new Rectangle(bx, by, scaledW, scaledH);
 
             // Fill
-            Color fillCol = tab.BadgeColor == Color.Empty ? _theme.ErrorColor : tab.BadgeColor;
+            Color fillCol = tab.BadgeColor == Color.Empty ? _currentTheme.ErrorColor : tab.BadgeColor;
             int   radius  = pillH / 2;
 
             using (var fillBr = new SolidBrush(fillCol))
@@ -816,8 +818,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void DrawAddButton(Graphics g)
         {
             Color fill = _hoverAdd
-                ? Blend(_theme.PanelBackColor, _theme.PrimaryColor, 0.25f)
-                : _theme.PanelBackColor;
+                ? Blend(_currentTheme.PanelBackColor, _currentTheme.PrimaryColor, 0.25f)
+                : _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, _addButtonRect);
@@ -826,7 +828,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             int cy  = _addButtonRect.Top  + _addButtonRect.Height / 2;
             int arm = S(6);
 
-            using var pen = new Pen(_theme.SecondaryTextColor, 1.5f);
+            using var pen = new Pen(_currentTheme.SecondaryTextColor, 1.5f);
             g.DrawLine(pen, cx - arm, cy,       cx + arm, cy);
             g.DrawLine(pen, cx,       cy - arm, cx,       cy + arm);
         }
@@ -840,8 +842,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_overflowButtonRect.IsEmpty) return;
 
             Color fill = _hoverOverflow
-                ? Blend(_theme.PanelBackColor, _theme.PrimaryColor, 0.25f)
-                : _theme.PanelBackColor;
+                ? Blend(_currentTheme.PanelBackColor, _currentTheme.PrimaryColor, 0.25f)
+                : _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, _overflowButtonRect);
@@ -858,7 +860,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 new Point(cx,        cy + arm / 2),
                 new Point(cx + half, cy - arm / 2)
             };
-            using var pen = new Pen(_theme.SecondaryTextColor, 1.5f);
+            using var pen = new Pen(_currentTheme.SecondaryTextColor, 1.5f);
             pen.EndCap = pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
             g.DrawLines(pen, pts);
         }
@@ -871,8 +873,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             bool hovered = isLeft ? _hoverScrollLeft : _hoverScrollRight;
             Color fill = hovered
-                ? Blend(_theme.PanelBackColor, _theme.BorderColor, 0.4f)
-                : _theme.PanelBackColor;
+                ? Blend(_currentTheme.PanelBackColor, _currentTheme.BorderColor, 0.4f)
+                : _currentTheme.PanelBackColor;
 
             using (var br = new SolidBrush(fill))
                 g.FillRectangle(br, rect);
@@ -882,7 +884,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             int cy  = rect.Top  + rect.Height / 2;
             int arm = S(5);
 
-            using var pen = new Pen(_theme.SecondaryTextColor, 1.5f);
+            using var pen = new Pen(_currentTheme.SecondaryTextColor, 1.5f);
             if (IsVertical)
             {
                 // isLeft = "up" button, !isLeft = "down" button
@@ -949,7 +951,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 int y = firstTab.TabRect.Top;
 
                 // Vertical colour bar (4 px wide)
-                Color barColor = grp.GroupColor.IsEmpty ? (_theme?.BorderColor ?? Color.Gray) : grp.GroupColor;
+                Color barColor = grp.GroupColor.IsEmpty ? (_currentTheme?.BorderColor ?? Color.Gray) : grp.GroupColor;
                 using (var barBr = new SolidBrush(barColor))
                     g.FillRectangle(barBr, x, y, S(4), tabH);
 
@@ -963,7 +965,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                         LineAlignment = StringAlignment.Center
                     };
                     using var lblBr   = new SolidBrush(Color.FromArgb(
-                        160, _theme?.SecondaryTextColor ?? ForeColor));
+                        160, _currentTheme?.SecondaryTextColor ?? ForeColor));
                     using var lblFont = new Font(Font.FontFamily, Font.Size - 1f, FontStyle.Regular);
                     var lblRect = new Rectangle(x + S(6), y, S(80), tabH);
                     g.DrawString(grp.GroupName, lblFont, lblBr, (RectangleF)lblRect, lblFmt);

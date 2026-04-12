@@ -79,9 +79,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool  _floatGestureArmed;
         private int   _floatTabIndex = -1;
         private const float SwipeDownThreshold = 30f;  // logical px
+        private const float SwipeUpThreshold   = -30f; // logical px (negative = upward)
 
-        // ─────────────────────────────────────────────────────────────────────
-        // Register WM_TOUCH after the HWND is created
+        // Double-tap detection
+        private int   _lastTapIndex = -1;
+        private long  _lastTapTick  = 0;
+        private const int DoubleTapMs = 400;
+
+        // Three-finger swipe
+        private float _threeFingerStartX;
+        private bool  _threeFingerArmed;
+        private const float ThreeFingerSwipeThreshold = 60f;
+
+        // Two-finger vertical scroll
+        private float _twoFingerStartY;
+        private bool  _twoFingerScrollArmed;
+
+        // Event raised when a double-tap requests split maximise/restore
+        public event EventHandler<TabEventArgs>? TouchSplitMaximizeRequested;
+
+        // Event raised when a three-finger swipe requests workspace switch
+        // +1 = forward, -1 = backward
+        public event EventHandler<int>?          TouchWorkspaceSwitchRequested;
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
@@ -169,16 +188,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _longPressTimer.Start();
 
                 // Arm float gesture
-                _floatTabIndex   = _longPressTabIndex;
+                _floatTabIndex    = _longPressTabIndex;
                 _floatGestureArmed = _floatTabIndex >= 0;
             }
             else if (_touchStart.Count == 2)
             {
-                // Two fingers down — start pinch tracking
+                // Two fingers down — start pinch tracking and 2-finger scroll
                 _longPressTimer.Stop();
-                _floatGestureArmed = false;
-                _pinchActive      = true;
-                _pinchStartDist   = TouchDistance();
+                _floatGestureArmed    = false;
+                _pinchActive          = true;
+                _pinchStartDist       = TouchDistance();
+                _twoFingerScrollArmed = true;
+                _twoFingerStartY      = AverageTouchY();
+            }
+            else if (_touchStart.Count == 3)
+            {
+                // Three fingers down — arm workspace swipe
+                _longPressTimer.Stop();
+                _floatGestureArmed    = false;
+                _twoFingerScrollArmed = false;
+                _threeFingerArmed     = true;
+                _threeFingerStartX    = AverageTouchX();
             }
         }
 
@@ -210,43 +240,107 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     _longPressTimer.Stop();
                     TriggerFloatGesture(_floatTabIndex);
                 }
+                else if (dy < SwipeUpThreshold && _floatGestureArmed && _floatTabIndex >= 0)
+                {
+                    // Swipe-up gesture → also float (tear out upward)
+                    _floatGestureArmed = false;
+                    _longPressTimer.Stop();
+                    TriggerFloatGesture(_floatTabIndex);
+                }
                 else if (Math.Abs(dx) > 6 || Math.Abs(dy) > 6)
                 {
                     // Any movement beyond tap threshold cancels long-press
                     _longPressTimer.Stop();
                 }
             }
-            else if (_touchStart.Count == 2 && _pinchActive)
+            else if (_touchStart.Count == 2)
             {
-                float newDist = TouchDistance();
-                float ratio   = newDist / Math.Max(1f, _pinchStartDist);
+                if (_pinchActive)
+                {
+                    float newDist = TouchDistance();
+                    float ratio   = newDist / Math.Max(1f, _pinchStartDist);
 
-                if (ratio < 0.75f)
-                {
-                    // Pinch in → cycle to next (denser) size mode
-                    _pinchStartDist = newDist;
-                    CycleSizeMode(forward: true);
+                    if (ratio < 0.75f)
+                    {
+                        // Pinch in → next (denser) size mode
+                        _pinchStartDist = newDist;
+                        CycleSizeMode(forward: true);
+                    }
+                    else if (ratio > 1.35f)
+                    {
+                        // Expand → less dense
+                        _pinchStartDist = newDist;
+                        CycleSizeMode(forward: false);
+                    }
                 }
-                else if (ratio > 1.35f)
+
+                if (_twoFingerScrollArmed)
                 {
-                    // Expand → cycle backwards
-                    _pinchStartDist = newDist;
-                    CycleSizeMode(forward: false);
+                    // Two-finger vertical scroll — notify host via event
+                    float currentAvgY = AverageTouchY();
+                    float deltaY = currentAvgY - _twoFingerStartY;
+                    if (Math.Abs(deltaY) > 5)
+                    {
+                        _twoFingerStartY = currentAvgY;
+                        // Scroll the tab strip itself (horizontal scroll of tab row)
+                        ScrollOffset = Math.Max(0, _scrollOffset - (int)(deltaY * 0.5f));
+                    }
+                }
+            }
+            else if (_touchStart.Count >= 3 && _threeFingerArmed)
+            {
+                float currentAvgX = AverageTouchX();
+                float delta = currentAvgX - _threeFingerStartX;
+
+                if (delta > ThreeFingerSwipeThreshold)
+                {
+                    _threeFingerArmed = false;
+                    TouchWorkspaceSwitchRequested?.Invoke(this, +1);
+                }
+                else if (delta < -ThreeFingerSwipeThreshold)
+                {
+                    _threeFingerArmed = false;
+                    TouchWorkspaceSwitchRequested?.Invoke(this, -1);
                 }
             }
         }
 
         private void OnTouchUp(int id, PointF pt)
         {
+            // Single-finger tap → check for double-tap
+            if (_touchStart.Count == 1 && _touchStart.ContainsKey(id))
+            {
+                int hitIdx = HitTestTabIndex(Point.Round(pt));
+                long now   = Environment.TickCount64;
+
+                if (hitIdx >= 0 && hitIdx == _lastTapIndex &&
+                    (now - _lastTapTick) <= DoubleTapMs)
+                {
+                    // Double-tap: request split maximize/restore
+                    _lastTapIndex = -1;
+                    _lastTapTick  = 0;
+                    if (hitIdx < _tabs.Count)
+                        TouchSplitMaximizeRequested?.Invoke(this,
+                            new TabEventArgs(hitIdx, _tabs[hitIdx]));
+                }
+                else
+                {
+                    _lastTapIndex = hitIdx;
+                    _lastTapTick  = now;
+                }
+            }
+
             _touchStart.Remove(id);
             _touchCurrent.Remove(id);
 
             if (_touchStart.Count == 0)
             {
                 _longPressTimer.Stop();
-                _pinchActive      = false;
-                _floatGestureArmed = false;
-                _floatTabIndex    = -1;
+                _pinchActive          = false;
+                _floatGestureArmed    = false;
+                _floatTabIndex        = -1;
+                _twoFingerScrollArmed = false;
+                _threeFingerArmed     = false;
             }
         }
 
@@ -312,11 +406,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
-        /// <summary>Returns the zero-based index of the tab hit by the given client-coordinate point, or -1.</summary>
+        /// <summary>Average X of all current touch points (used for 3-finger swipe).</summary>
+        private float AverageTouchX()
+        {
+            if (_touchCurrent.Count == 0) return 0f;
+            float sum = 0f;
+            foreach (var v in _touchCurrent.Values) sum += v.X;
+            return sum / _touchCurrent.Count;
+        }
+
+        /// <summary>Average Y of all current touch points (used for 2-finger scroll).</summary>
+        private float AverageTouchY()
+        {
+            if (_touchCurrent.Count == 0) return 0f;
+            float sum = 0f;
+            foreach (var v in _touchCurrent.Values) sum += v.Y;
+            return sum / _touchCurrent.Count;
+        }
+
+        /// <summary>
+        /// Returns the zero-based index of the tab hit by the given client-coordinate point, or -1.
+        /// Uses a minimum 44×44 logical-pixel touch target per WCAG 2.5.5 / iOS/Android HIG.
+        /// </summary>
         private int HitTestTabIndex(Point pt)
         {
+            const int MinHit = 44;
             for (int i = 0; i < _tabs.Count; i++)
-                if (_tabs[i].TabRect.Contains(pt)) return i;
+            {
+                var r = _tabs[i].TabRect;
+                // Expand narrow/short rects to the 44px minimum touch target
+                var expanded = r;
+                if (expanded.Width  < MinHit) { int d = MinHit - expanded.Width;  expanded.Inflate(d / 2, 0); }
+                if (expanded.Height < MinHit) { int d = MinHit - expanded.Height; expanded.Inflate(0, d / 2); }
+                if (expanded.Contains(pt)) return i;
+            }
             return -1;
         }
     }

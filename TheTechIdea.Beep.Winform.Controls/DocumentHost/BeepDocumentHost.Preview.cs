@@ -29,6 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly Dictionary<string, Bitmap> _previewCache
             = new Dictionary<string, Bitmap>(StringComparer.Ordinal);
 
+        // 5.4 — Bounded LRU: front = most-recently-used
+        private const int MaxPreviewCacheEntries = 50;
+        private readonly LinkedList<string> _previewLruOrder = new();
+
         // ─────────────────────────────────────────────────────────────────────
         // Public property
         // ─────────────────────────────────────────────────────────────────────
@@ -69,7 +73,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private Bitmap? GetOrCaptureThumbnail(string documentId)
         {
             if (_previewCache.TryGetValue(documentId, out var cached))
+            {
+                // 5.4: Promote to MRU front on cache hit
+                var node = _previewLruOrder.Find(documentId);
+                if (node != null) { _previewLruOrder.Remove(node); _previewLruOrder.AddFirst(documentId); }
                 return cached;
+            }
 
             // Lazy capture on first request
             return CaptureSnapshot(documentId);
@@ -112,6 +121,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     old.Dispose();
 
                 _previewCache[documentId] = thumb;
+
+                // 5.4: Update LRU order and evict least-recently-used entries over the cap
+                var existingNode = _previewLruOrder.Find(documentId);
+                if (existingNode != null) _previewLruOrder.Remove(existingNode);
+                _previewLruOrder.AddFirst(documentId);
+
+                while (_previewLruOrder.Count > MaxPreviewCacheEntries)
+                {
+                    var evictId = _previewLruOrder.Last!.Value;
+                    _previewLruOrder.RemoveLast();
+                    if (_previewCache.TryGetValue(evictId, out var evicted))
+                    {
+                        _previewCache.Remove(evictId);
+                        evicted.Dispose();
+                    }
+                }
+
                 return thumb;
             }
             catch
@@ -133,6 +159,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 bmp.Dispose();
                 _previewCache.Remove(documentId);
             }
+            // 5.4: keep LRU list in sync
+            var node = _previewLruOrder.Find(documentId);
+            if (node != null) _previewLruOrder.Remove(node);
         }
 
         /// <summary>Clears all cached thumbnails.</summary>
@@ -141,6 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var bmp in _previewCache.Values)
                 bmp.Dispose();
             _previewCache.Clear();
+            _previewLruOrder.Clear();   // 5.4: keep LRU list in sync
         }
 
         // ─────────────────────────────────────────────────────────────────────

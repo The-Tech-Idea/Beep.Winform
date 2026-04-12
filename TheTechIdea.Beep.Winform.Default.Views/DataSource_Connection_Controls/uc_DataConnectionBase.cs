@@ -27,6 +27,7 @@ using TheTechIdea.Beep.Helpers.ConnectionHelpers;
 
 using System.Reflection;
 using TheTechIdea.Beep;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -110,6 +111,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private BeepLabel _requirementsBeepLabel;
         private BeepCheckBoxBool _openAfterSaveBeepCheckBox;
         private bool _enhancedUxInitialized;
+        private IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
+        private bool _themeEventsRegistered;
+        private string _themeName = BeepThemesManager.CurrentThemeName;
 
         #region IAddinVisSchema
         public string RootNodeName { get; set; } = "Configuration";
@@ -155,9 +159,24 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                         InitializeDriverLists();
                     }
                 }
+
+                ApplyCurrentThemeAndStyleSafe();
             }
         }
         private IDMEEditor Editor => beepService?.DMEEditor;
+
+        [Browsable(true)]
+        [TypeConverter(typeof(ThemeEnumConverter))]
+        public string Theme
+        {
+            get => _themeName;
+            set
+            {
+                _themeName = value;
+                _currentTheme = BeepThemesManager.GetTheme(value);
+                ApplyCurrentThemeAndStyle();
+            }
+        }
         // Main data object - ConnectionProperties that will be passed in and returned
         protected ConnectionProperties _connectionProperties;
         private readonly List<uc_DataConnectionPropertiesBaseControl> _childPropertyControls = new();
@@ -228,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         public uc_DataConnectionBase()
         {
             InitializeComponent();
-           
+            RegisterThemeEvents();
         }
         #region Public Methods
         /// <summary>
@@ -273,6 +292,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             UpdateConnectionTypeTabs();
             RefreshConnectionPreviewAndValidationHints();
             RefreshHeaderStatus();
+            ApplyCurrentThemeAndStyleSafe();
         }
 
         /// <summary>
@@ -399,6 +419,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.SelectedItemChanged += DriverSelectionChanged_RefreshUx;
             DriverVersionbeepComboBox.SelectedItemChanged -= DriverSelectionChanged_RefreshUx;
             DriverVersionbeepComboBox.SelectedItemChanged += DriverSelectionChanged_RefreshUx;
+
+            ApplyCurrentThemeAndStyleSafe();
         }
 
         private void DriverSelectionChanged_RefreshUx(object sender, SelectedItemChangedEventArgs e)
@@ -502,10 +524,58 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
 
             _statusBeepLabel.Text = $"Status ({severity}): {statusText}";
+            ApplyInputValidationState(validationDetails);
             ApplyTabStatus(tabPage1, severity);
             ApplyTabStatus(tabPageDriver, GetDriverCompatibilityStatus());
             ApplyTabStatus(tabPageDatabase, validationDetails.IsValid ? TabStateOk : TabStateWarning);
             ApplyTabStatus(tabPageAuth, ConnectionHelper.ContainsSensitiveInformation(ConnectionProperties.ConnectionString ?? string.Empty) ? TabStateWarning : TabStateOk);
+        }
+
+        private void ApplyInputValidationState((bool IsValid, string Message) validationDetails)
+        {
+            if (ConnectionNamebeepTextBox == null || ConnectionProperties == null)
+            {
+                return;
+            }
+
+            var normalizedName = ConnectionProperties.ConnectionName?.Trim() ?? string.Empty;
+            var nameMissing = string.IsNullOrWhiteSpace(normalizedName);
+            var nameDuplicate = !nameMissing && !IsConnectionNameUnique();
+
+            ConnectionNamebeepTextBox.HasError = nameMissing || nameDuplicate;
+            ConnectionNamebeepTextBox.IsValid = !ConnectionNamebeepTextBox.HasError;
+            ConnectionNamebeepTextBox.ErrorText = nameMissing
+                ? "Connection name is required."
+                : nameDuplicate
+                    ? "Connection name already exists."
+                    : string.Empty;
+            ConnectionNamebeepTextBox.HelperText = ConnectionNamebeepTextBox.HasError
+                ? ConnectionNamebeepTextBox.ErrorText
+                : "Use a unique connection name.";
+            ConnectionNamebeepTextBox.HelperTextOn = true;
+
+            if (DriverbeepComboBox != null)
+            {
+                var driverRequired = connectionDriversConfigs.Count > 0;
+                var driverMissing = driverRequired && string.IsNullOrWhiteSpace(ConnectionProperties.DriverName);
+                DriverbeepComboBox.HasError = driverMissing;
+                DriverbeepComboBox.IsValid = !driverMissing;
+                DriverbeepComboBox.ErrorText = driverMissing ? "Select a driver before saving." : string.Empty;
+                DriverbeepComboBox.HelperText = driverMissing ? DriverbeepComboBox.ErrorText : string.Empty;
+                DriverbeepComboBox.HelperTextOn = driverMissing;
+            }
+
+            if (ConnectionStringbeepTextBox != null)
+            {
+                var connectionProblem = !validationDetails.IsValid
+                    && (validationDetails.Message.Contains("Connection string", StringComparison.OrdinalIgnoreCase)
+                        || validationDetails.Message.Contains("server/host", StringComparison.OrdinalIgnoreCase));
+                ConnectionStringbeepTextBox.HasError = connectionProblem;
+                ConnectionStringbeepTextBox.IsValid = !connectionProblem;
+                ConnectionStringbeepTextBox.ErrorText = connectionProblem ? validationDetails.Message : string.Empty;
+                ConnectionStringbeepTextBox.HelperText = connectionProblem ? validationDetails.Message : string.Empty;
+                ConnectionStringbeepTextBox.HelperTextOn = connectionProblem;
+            }
         }
 
         private string GetDriverCompatibilityStatus()
@@ -640,6 +710,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 return (false, "Connection properties are not set.");
             }
 
+            NormalizeConnectionIdentityFields();
+
             var issues = new List<string>();
             if (string.IsNullOrWhiteSpace(ConnectionProperties.ConnectionName))
             {
@@ -649,6 +721,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             if (!IsConnectionNameUnique())
             {
                 issues.Add("Connection name must be unique.");
+            }
+
+            if (ConnectionProperties.DatabaseType == default || ConnectionProperties.DatabaseType == DataSourceType.Unknown)
+            {
+                issues.Add("Database type is required.");
+            }
+
+            if (connectionDriversConfigs.Count > 0 && string.IsNullOrWhiteSpace(ConnectionProperties.DriverName))
+            {
+                issues.Add("Driver selection is required.");
             }
 
             if (string.IsNullOrWhiteSpace(ConnectionProperties.ConnectionString) && string.IsNullOrWhiteSpace(ConnectionProperties.Host))
@@ -677,7 +759,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private bool IsConnectionNameUnique()
         {
             var configEditor = (Editor ?? beepService?.DMEEditor)?.ConfigEditor ?? beepService?.Config_editor;
-            var allConnections = configEditor?.DataConnections;
+            var allConnections = GetPersistedConnections(configEditor);
             if (allConnections == null || ConnectionProperties == null || string.IsNullOrWhiteSpace(ConnectionProperties.ConnectionName))
             {
                 return true;
@@ -687,6 +769,44 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 !ReferenceEquals(existing, ConnectionProperties) &&
                 string.Equals(existing.ConnectionName, ConnectionProperties.ConnectionName, StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(existing.GuidID, ConnectionProperties.GuidID, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void NormalizeConnectionIdentityFields()
+        {
+            if (ConnectionProperties == null)
+            {
+                return;
+            }
+
+            ConnectionProperties.ConnectionName = ConnectionProperties.ConnectionName?.Trim() ?? string.Empty;
+            ConnectionProperties.DriverName = ConnectionProperties.DriverName?.Trim() ?? string.Empty;
+            ConnectionProperties.DriverVersion = ConnectionProperties.DriverVersion?.Trim() ?? string.Empty;
+            ConnectionProperties.Host = ConnectionProperties.Host?.Trim() ?? string.Empty;
+            ConnectionProperties.Database = ConnectionProperties.Database?.Trim() ?? string.Empty;
+        }
+
+        private List<ConnectionProperties>? GetPersistedConnections(dynamic? configEditor)
+        {
+            if (configEditor == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var loaded = configEditor.LoadDataConnectionsValues() as List<ConnectionProperties>;
+                if (loaded != null)
+                {
+                    configEditor.DataConnections = loaded;
+                    return loaded;
+                }
+            }
+            catch
+            {
+                // Best effort only. Fall back to in-memory collection.
+            }
+
+            return configEditor.DataConnections as List<ConnectionProperties>;
         }
         #endregion
         
@@ -834,19 +954,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 Text = "Test Connection",
                 Size = new Size(130, 60),
                 Location = new Point(260, 567), // Position between Cancel and Save buttons
-                BackColor = Color.White,
-                ForeColor = Color.Black,
-                BorderColor = Color.FromArgb(76, 175, 80), // Green color for test button
                 BorderThickness = 1,
                 BorderRadius = 8,
                 UseFormStylePaint = true,
                 TextFont = new System.Drawing.Font("Segoe UI", 15F),
-                TextAlign = ContentAlignment.MiddleCenter
+                TextAlign = ContentAlignment.MiddleCenter,
+                IsChild = true,
+                IsColorFromTheme = true,
+                Theme = Theme
             };
             
             TestConnectionButton.Click += TestConnectionButton_Click;
             tabPage1.Controls.Add(TestConnectionButton);
             TestConnectionButton.BringToFront();
+            ApplyCurrentThemeAndStyleSafe();
         }
         
         #endregion
@@ -1584,6 +1705,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                     return false;
                 }
 
+                NormalizeConnectionIdentityFields();
+
+                configEditor.DataConnections ??= GetPersistedConnections(configEditor) ?? new List<ConnectionProperties>();
+
                 var existing = configEditor.DataConnections?
                     .FirstOrDefault(c =>
                         string.Equals(c.GuidID, ConnectionProperties.GuidID, StringComparison.OrdinalIgnoreCase) ||
@@ -1652,6 +1777,97 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 error = ex.Message;
                 return false;
             }
+        }
+
+        private void RegisterThemeEvents()
+        {
+            if (_themeEventsRegistered)
+            {
+                return;
+            }
+
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            _themeEventsRegistered = true;
+            Theme = BeepThemesManager.CurrentThemeName;
+        }
+
+        private void UnregisterThemeEvents()
+        {
+            if (!_themeEventsRegistered)
+            {
+                return;
+            }
+
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            _themeEventsRegistered = false;
+        }
+
+        private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventArgs e)
+        {
+            Theme = e.NewThemeName;
+        }
+
+        private void ApplyCurrentThemeAndStyleSafe()
+        {
+            if (IsDisposed || Disposing)
+            {
+                return;
+            }
+
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)ApplyCurrentThemeAndStyle);
+                return;
+            }
+
+            ApplyCurrentThemeAndStyle();
+        }
+
+        private void ApplyCurrentThemeAndStyle()
+        {
+            _currentTheme = BeepThemesManager.GetTheme(Theme);
+
+            BackColor = _currentTheme?.BackgroundColor ?? SystemColors.Control;
+            ForeColor = _currentTheme?.ForeColor ?? SystemColors.ControlText;
+
+            ApplyThemeToControls(Controls);
+
+            if (_statusBeepLabel != null)
+            {
+                _statusBeepLabel.ForeColor = _currentTheme?.LabelForeColor ?? ForeColor;
+            }
+        }
+
+        private void ApplyThemeToControls(Control.ControlCollection controls)
+        {
+            foreach (Control child in controls)
+            {
+                if (child is IBeepUIComponent ui)
+                {
+                    ui.Theme = Theme;
+                }
+
+                if (child is TabPage page)
+                {
+                    page.BackColor = _currentTheme?.BackgroundColor ?? page.BackColor;
+                    page.ForeColor = _currentTheme?.ForeColor ?? page.ForeColor;
+                }
+
+                if (child.HasChildren)
+                {
+                    ApplyThemeToControls(child.Controls);
+                }
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                UnregisterThemeEvents();
+            }
+
+            base.Dispose(disposing);
         }
         #endregion
 

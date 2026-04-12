@@ -68,5 +68,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Reads <paramref name="filePath"/> and asynchronously restores the layout.</summary>
         /// <returns><see langword="true"/> when the layout was restored successfully.</returns>
         Task<bool> RestoreLayoutAsync(string filePath);
+
+        // ── Workspace ─────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Saves the current layout as a named workspace (creates or overwrites).
+        /// </summary>
+        void SaveWorkspace(string name, string description = "");
+
+        /// <summary>
+        /// Saves the current workspace (if active), then restores <paramref name="name"/>.
+        /// </summary>
+        void SwitchWorkspace(string name);
+
+        /// <summary>Deletes the workspace with the given name.</summary>
+        void DeleteWorkspace(string name);
     }
 }

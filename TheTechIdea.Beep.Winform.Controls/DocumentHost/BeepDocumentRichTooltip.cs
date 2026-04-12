@@ -10,6 +10,7 @@ using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -44,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private string  _category    = string.Empty;  // e.g. "Source Files"
         private bool    _isModified;
         private Bitmap? _thumbnail;
-        private IBeepTheme? _theme;
+        private IBeepTheme? _currentTheme;
 
         private const string FooterHint = "Ctrl+W to close \u00b7 Ctrl+click to pin";
 
@@ -92,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _category   = tab.DocumentCategory ?? string.Empty;
             _isModified = tab.IsModified;
             _thumbnail  = thumbnail;
-            _theme      = theme;
+            _currentTheme      = theme;
 
             RecalcSize();
             PositionNearPoint(screenPt);
@@ -116,8 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool hasCategory  = !string.IsNullOrWhiteSpace(_category);
 
             using Font titleFont  = new Font(Font.FontFamily, Font.Size + 1f, FontStyle.Bold,    Font.Unit);
-            using Font bodyFont   = Font;
-            using Font smallFont  = new Font(Font.FontFamily, Font.Size - 0.5f, FontStyle.Regular, Font.Unit);
+            Font bodyFont   = Font;
+            Font smallFont  = BeepFontManager.GetCachedFont(Font.FontFamily.Name, Font.SizeInPoints - 0.5f, FontStyle.Regular);
             using var g           = Graphics.FromHwnd(Handle);
 
             // Measure title (may append " ●" for modified)
@@ -191,12 +192,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Resolve colors
-            Color back      = _theme?.PanelBackColor     ?? Color.FromArgb(40, 44, 52);
-            Color border    = _theme?.BorderColor        ?? Color.FromArgb(80, 86, 100);
-            Color titleFg   = _theme?.ForeColor          ?? Color.White;
-            Color bodyFg    = _theme?.SecondaryTextColor ?? Color.FromArgb(180, 185, 200);
+            Color back      = _currentTheme?.PanelBackColor     ?? Color.FromArgb(40, 44, 52);
+            Color border    = _currentTheme?.BorderColor        ?? Color.FromArgb(80, 86, 100);
+            Color titleFg   = _currentTheme?.ForeColor          ?? Color.White;
+            Color bodyFg    = _currentTheme?.SecondaryTextColor ?? Color.FromArgb(180, 185, 200);
             Color footerFg  = Color.FromArgb(120, bodyFg.R, bodyFg.G, bodyFg.B);
-            Color accentFg  = _theme?.PrimaryColor       ?? Color.FromArgb(0, 122, 204);
+            Color accentFg  = _currentTheme?.PrimaryColor       ?? Color.FromArgb(0, 122, 204);
 
             Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1);
 
@@ -227,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             using Font titleFont  = new Font(Font.FontFamily, Font.Size + 1f, FontStyle.Bold,    Font.Unit);
-            using Font smallFont  = new Font(Font.FontFamily, Font.Size - 0.5f, FontStyle.Regular, Font.Unit);
+            Font smallFont  = BeepFontManager.GetCachedFont(Font.FontFamily.Name, Font.SizeInPoints - 0.5f, FontStyle.Regular);
 
             // Title + optional modified dot
             string displayTitle = _isModified ? _title + " ●" : _title;

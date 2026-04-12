@@ -8,6 +8,7 @@ BaseControl uses a **Painter Strategy Pattern** to handle all visual rendering. 
 
 ## Recent updates
 - BeepGridPro top filter panel now supports a `GridTitle` label and is enabled by default via `ShowTopFilterPanel`.
+- Integrated workflow surfaces now prefer split architecture: visual helpers such as `BeepFormsToolbar` inherit `BaseControl`, while non-visual coordinators such as `BeepForms` stop owning shell chrome.
 
 ## Structure
 

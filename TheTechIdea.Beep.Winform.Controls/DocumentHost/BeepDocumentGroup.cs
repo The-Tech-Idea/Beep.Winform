@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -21,6 +20,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     /// </summary>
     public sealed class BeepDocumentGroup : IDisposable
     {
+        // ─────────────────────────────────────────────────────────────────────
+        // Private double-buffered panel — avoids reflection on Panel internals
+        // ─────────────────────────────────────────────────────────────────────
+        private sealed class DoubleBufferedContentPanel : Panel
+        {
+            public DoubleBufferedContentPanel() => DoubleBuffered = true;
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Identity
         // ─────────────────────────────────────────────────────────────────────
@@ -114,17 +121,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 TabStyle     = tabStyle
             };
 
-            ContentArea = new Panel
+            ContentArea = new DoubleBufferedContentPanel
             {
                 Dock      = DockStyle.None,
                 BackColor = theme?.BackgroundColor ?? System.Drawing.SystemColors.Window
             };
-
-            // Enable double buffering via private property (same pattern as host)
-            typeof(Panel)
-                .GetProperty("DoubleBuffered",
-                    BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.SetValue(ContentArea, true);
 
             WireEvents();
         }

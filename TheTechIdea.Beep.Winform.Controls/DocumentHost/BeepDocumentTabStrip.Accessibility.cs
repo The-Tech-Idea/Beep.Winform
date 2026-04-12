@@ -1,9 +1,11 @@
 // BeepDocumentTabStrip.Accessibility.cs
-// Accessibility (UIA / MSAA) support for BeepDocumentTabStrip.
-// Exposes the strip as a TabControl with individual PageTab children so that
-// screen readers (Narrator, NVDA, JAWS) can announce the active tab and allow
-// the user to navigate between tabs with the virtual cursor.
+// WCAG 2.1 AA accessibility for BeepDocumentTabStrip.
+// • Screen-reader announcements via AccessibilityObject.NotifyClients
+// • Keyboard arrow navigation (Left/Right/Home/End, Tab/Shift-Tab)
+// • Focus ring drawn via DrawFocusRectangle on the active tab rect
+// • Every tab exposes role, state, bounds, help-text, and name
 // ─────────────────────────────────────────────────────────────────────────────────────────
+using System;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -18,6 +20,88 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         protected override AccessibleObject CreateAccessibilityInstance()
             => new BeepTabStripAccessible(this);
+
+        // ── Screen-reader notification ────────────────────────────────────────
+
+        /// <summary>
+        /// Called after the active tab index changes.  Notifies the accessibility
+        /// tree so that screen readers announce the newly selected tab.
+        /// </summary>
+        internal void NotifyActiveTabChanged()
+        {
+            int idx = _activeTabIndex;
+            if (idx < 0 || idx >= _tabs.Count) return;
+
+            var obj = new BeepTabAccessible(this, idx);
+            if (AccessibilityObject is Control.ControlAccessibleObject coa)
+            {
+                coa.NotifyClients(AccessibleEvents.Selection, idx);
+                coa.NotifyClients(AccessibleEvents.Focus, idx);
+            }
+        }
+
+        // ── Focus ring ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Draws a keyboard focus rectangle around the active tab when the control
+        /// has focus, satisfying WCAG 2.1 SC 2.4.7 (Focus Visible).
+        /// Called at the end of <c>DrawContent</c> in the painting partial.
+        /// </summary>
+        internal void DrawAccessibilityFocusRing(System.Drawing.Graphics g)
+        {
+            if (!Focused) return;
+            int idx = _activeTabIndex;
+            if (idx < 0 || idx >= _tabs.Count) return;
+            var rect = _tabs[idx].TabRect;
+            if (rect.IsEmpty) return;
+            rect.Inflate(-1, -1);
+            System.Windows.Forms.ControlPaint.DrawFocusRectangle(g, rect);
+        }
+
+        // ── Keyboard navigation ───────────────────────────────────────────────
+
+        protected override bool IsInputKey(Keys keyData)
+        {
+            if (!Focused) return base.IsInputKey(keyData);
+            return keyData switch
+            {
+                Keys.Left or Keys.Right or Keys.Home or Keys.End => true,
+                _ => base.IsInputKey(keyData)
+            };
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if (_tabs.Count == 0) return;
+
+            int next = _activeTabIndex;
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    next = next > 0 ? next - 1 : _tabs.Count - 1;
+                    break;
+                case Keys.Right:
+                    next = next < _tabs.Count - 1 ? next + 1 : 0;
+                    break;
+                case Keys.Home:
+                    next = 0;
+                    break;
+                case Keys.End:
+                    next = _tabs.Count - 1;
+                    break;
+                default:
+                    return;
+            }
+
+            if (next != _activeTabIndex)
+            {
+                ActiveTabIndex = next;
+                TabSelected?.Invoke(this, new TabEventArgs(next, _tabs[next]));
+                NotifyActiveTabChanged();
+                e.Handled = true;
+            }
+        }
 
         // ════════════════════════════════════════════════════════════════════
         // BeepTabStripAccessible — root accessible object for the strip
@@ -35,6 +119,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             public override AccessibleRole Role        => AccessibleRole.PageTabList;
             public override string?        Name        => _strip.Name ?? "Document Tabs";
             public override string?        Description => "Tab strip for document windows";
+            public override string?        Help        =>
+                "Use Left/Right arrows to navigate tabs. Home/End for first/last. Enter to activate.";
+
+            // ── State ────────────────────────────────────────────────────────
+
+            public override AccessibleStates State
+                => _strip.Focused
+                   ? AccessibleStates.Focused | AccessibleStates.Focusable
+                   : AccessibleStates.Focusable;
 
             // ── Children ─────────────────────────────────────────────────────
 
@@ -102,6 +195,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             public override string?        Description => Tab?.TooltipText ?? Tab?.Title;
             public override string?        Value       => Tab?.IsModified == true ? "Modified" : null;
+            public override string?        Help        => "Press Enter or Space to activate this tab. Right-click for more options.";
+            public override string?        DefaultAction => "Activate";
 
             // ── Bounds ───────────────────────────────────────────────────────
 
@@ -153,8 +248,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     _strip.TabSelected?.Invoke(_strip,
                         new TabEventArgs(_index, _strip._tabs[_index]));
                     _strip.Focus();
+                    _strip.NotifyActiveTabChanged();
                 }
             }
+
+            public override void DoDefaultAction() => Select(AccessibleSelection.TakeSelection);
         }
     }
 }

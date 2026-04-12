@@ -28,38 +28,72 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private Color _hcInactiveText = SystemColors.GrayText;
 
         // ─────────────────────────────────────────────────────────────────────
-        // Effective-colour helpers — used by the painting code
+        // Convenience property
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary><c>true</c> when Windows High Contrast mode is currently active.</summary>
+        public static bool IsHighContrastActive => SystemInformation.HighContrast;
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Additional effective-colour helpers (Phase 8 — WCAG 2.1 AA)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>Focus ring colour — bright and unambiguous in HC mode.</summary>
+        internal Color EffectiveFocusRing => SystemInformation.HighContrast
+            ? SystemColors.Highlight
+            : (_currentTheme?.AccentColor ?? SystemColors.Highlight);
+
+        /// <summary>Badge background colour in HC mode maps to the window background.</summary>
+        internal Color EffectiveBadgeBack => SystemInformation.HighContrast
+            ? SystemColors.WindowText
+            : (_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
+
+        /// <summary>Badge foreground colour in HC mode maps to the window background.</summary>
+        internal Color EffectiveBadgeFore => SystemInformation.HighContrast
+            ? SystemColors.Window
+            : SystemColors.HighlightText;
+
+        /// <summary>Selection-indicator (active-tab underline) colour.</summary>
+        internal Color EffectiveSelectionIndicator => SystemInformation.HighContrast
+            ? SystemColors.Highlight
+            : (_currentTheme?.AccentColor ?? SystemColors.Highlight);
+
+        /// <summary>Modified-tab dot colour.</summary>
+        internal Color EffectiveModifiedDot => SystemInformation.HighContrast
+            ? SystemColors.ControlText
+            : (_currentTheme?.WarningColor ?? Color.Orange);
+
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>Tab strip and inactive tab background colour.</summary>
         internal Color EffectivePanelBack   => SystemInformation.HighContrast
             ? _hcBack
-            : (_theme?.PanelBackColor ?? BackColor);
+            : (_currentTheme?.PanelBackColor ?? BackColor);
 
         /// <summary>Active tab background colour.</summary>
         internal Color EffectiveActiveBack  => SystemInformation.HighContrast
             ? _hcActiveBack
-            : (_theme?.BackgroundColor ?? BackColor);
+            : (_currentTheme?.BackgroundColor ?? BackColor);
 
         /// <summary>Primary foreground / text colour.</summary>
         internal Color EffectiveFore        => SystemInformation.HighContrast
             ? _hcFore
-            : (_theme?.ForeColor ?? ForeColor);
+            : (_currentTheme?.ForeColor ?? ForeColor);
 
         /// <summary>Inactive / secondary text colour.</summary>
         internal Color EffectiveInactiveText => SystemInformation.HighContrast
             ? _hcInactiveText
-            : (_theme?.SecondaryTextColor ?? SystemColors.GrayText);
+            : (_currentTheme?.SecondaryTextColor ?? SystemColors.GrayText);
 
         /// <summary>Border or separator colour.</summary>
         internal Color EffectiveBorder      => SystemInformation.HighContrast
             ? _hcBorder
-            : (_theme?.BorderColor ?? SystemColors.ControlDark);
+            : (_currentTheme?.BorderColor ?? SystemColors.ControlDark);
 
         /// <summary>Active-indicator and accent colour.</summary>
         internal Color EffectiveAccent      => SystemInformation.HighContrast
             ? _hcAccent
-            : (_theme?.PrimaryColor ?? SystemColors.Highlight);
+            : (_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
 
         // ─────────────────────────────────────────────────────────────────────
         // System-colour change hook (HC on/off toggle at runtime)
@@ -106,12 +140,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             else
             {
                 // Restore from Beep theme
-                if (_theme != null)
+                if (_currentTheme != null)
                 {
-                    BackColor = _theme.PanelBackColor;
-                    ForeColor = _theme.ForeColor;
+                    BackColor = _currentTheme.PanelBackColor;
+                    ForeColor = _currentTheme.ForeColor;
                 }
             }
+
+            // Always invalidate so painters pick up new effective colours
+            Invalidate();
         }
     }
 }

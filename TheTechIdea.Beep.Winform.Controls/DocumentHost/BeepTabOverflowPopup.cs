@@ -13,6 +13,7 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -35,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ── Fields ────────────────────────────────────────────────────────────
 
         private readonly BeepDocumentTabStrip _strip;
-        private readonly IBeepTheme?          _theme;
+        private readonly IBeepTheme?          _currentTheme;
 
         private readonly TextBox  _search;
         private readonly ListBox  _list;
@@ -59,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal BeepTabOverflowPopup(BeepDocumentTabStrip strip, IBeepTheme? theme)
         {
             _strip = strip;
-            _theme = theme;
+            _currentTheme = theme;
 
             // Popup window setup
             FormBorderStyle = FormBorderStyle.None;
@@ -120,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 BorderStyle = BorderStyle.None,
                 BackColor   = theme?.PanelBackColor ?? SystemColors.Window,
                 ForeColor   = theme?.ForeColor ?? SystemColors.WindowText,
-                Font        = new Font("Segoe UI", 9.5f),
+                Font        = BeepFontManager.GetCachedFont("Segoe UI", 9.5f, FontStyle.Regular),
                 ItemHeight  = ItemH
             };
             _list.MeasureItem    += OnMeasureItem;
@@ -249,10 +250,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var g   = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            Color back   = _theme?.PanelBackColor ?? SystemColors.Window;
-            Color fore   = _theme?.ForeColor ?? SystemColors.WindowText;
-            Color accent = _theme?.PrimaryColor ?? SystemColors.Highlight;
-            Color subFore= _theme?.SecondaryTextColor ?? SystemColors.GrayText;
+            Color back   = _currentTheme?.PanelBackColor ?? SystemColors.Window;
+            Color fore   = _currentTheme?.ForeColor ?? SystemColors.WindowText;
+            Color accent = _currentTheme?.PrimaryColor ?? SystemColors.Highlight;
+            Color subFore= _currentTheme?.SecondaryTextColor ?? SystemColors.GrayText;
 
             var r = e.Bounds;
 
@@ -291,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (tab.IsModified)
             {
                 int ds = 6;
-                using var dotBr = new SolidBrush(_theme?.WarningColor ?? Color.Orange);
+                using var dotBr = new SolidBrush(_currentTheme?.WarningColor ?? Color.Orange);
                 g.FillEllipse(dotBr, r.Left + 6, r.Top + (r.Height - ds) / 2, ds, ds);
             }
 

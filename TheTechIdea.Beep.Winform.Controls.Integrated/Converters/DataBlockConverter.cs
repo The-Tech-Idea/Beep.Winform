@@ -1,19 +1,20 @@
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     public class DataBlockConverter : TypeConverter
     {
-        private Dictionary<string, BeepDataBlock> _blockMap = new();
+        private Dictionary<string, BeepBlock> _blockMap = new();
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) => true;
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            if (sourceType == typeof(string) || sourceType == typeof(BeepDataBlock))
+            if (sourceType == typeof(string) || sourceType == typeof(BeepBlock))
             {
                 return true;
             }
@@ -22,14 +23,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            if (context?.Container == null || context.Instance is not BeepDataBlock currentBlock)
+            if (context?.Container == null || context.Instance is not BeepBlock currentBlock)
                 return new StandardValuesCollection(Array.Empty<string>());
 
             if (context.Container is not IDesignerHost designerHost)
                 return new StandardValuesCollection(Array.Empty<string>());
 
             var allBlocks = designerHost.Container.Components
-                .OfType<BeepDataBlock>()
+                .OfType<BeepBlock>()
                 .Where(block => block != currentBlock && !IsChildBlock(currentBlock, block))
                 .ToList();
 
@@ -47,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
      object value)
         {
             // If the incoming value is a block, just return it.
-            if (value is BeepDataBlock blockValue)
+            if (value is BeepBlock blockValue)
                 return blockValue;
 
             // If it's a string, try to look it up in _blockMap.
@@ -73,21 +74,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is BeepDataBlock block)
+            if (destinationType == typeof(string) && value is BeepBlock block)
             {
                 return block.Name ?? block.ToString();
             }
             return base.ConvertTo(context, culture, value, destinationType);
         }
-        private bool IsChildBlock(IBeepDataBlock parentBlock, IBeepDataBlock block)
+        private static bool IsChildBlock(BeepBlock parentBlock, BeepBlock block)
         {
-            if (parentBlock.ChildBlocks == null || !parentBlock.ChildBlocks.Any())
-                return false;
-
-            foreach (var child in parentBlock.ChildBlocks)
+            Control? current = block.Parent;
+            while (current != null)
             {
-                if (child == block || IsChildBlock(child, block))
+                if (ReferenceEquals(current, parentBlock))
+                {
                     return true;
+                }
+
+                current = current.Parent;
             }
 
             return false;

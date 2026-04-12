@@ -101,5 +101,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }));
             return await tcs.Task.ConfigureAwait(false);
         }
+
+        // ── Workspace ─────────────────────────────────────────────────────────
+
+        /// <inheritdoc/>
+        public void SaveWorkspace(string name, string description = "")
+            => _host.SaveWorkspace(name, description);
+
+        /// <inheritdoc/>
+        public void SwitchWorkspace(string name)
+            => _host.SwitchWorkspace(name);
+
+        /// <inheritdoc/>
+        public void DeleteWorkspace(string name)
+            => _host.DeleteWorkspace(name);
     }
 }

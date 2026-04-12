@@ -21,8 +21,7 @@ public static class FormsEnhancedDataOpsExamples
         var forms = new FormsManager(editor);
 
         using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
-        var orderStructure = editor.GetDataSource("MyDb").GetEntityStructure("Orders", true);
-        forms.RegisterBlock("ORDERS", orderUow, orderStructure, "MyDb", isMasterBlock: true);
+        forms.RegisterBlock("ORDERS", orderUow, "MyDb", isMasterBlock: true);
 
         await forms.OpenFormAsync("OrderForm");
 

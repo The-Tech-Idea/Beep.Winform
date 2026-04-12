@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             ref BeepAutoHideStrip? slot = ref GetStripRef(side);
             if (slot == null)
             {
-                slot = new BeepAutoHideStrip(side, _theme)
+                slot = new BeepAutoHideStrip(side, _currentTheme)
                 {
                     Name    = $"_ah{side}",
                     Visible = false
@@ -196,11 +196,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (_ahOverlay == null)
             {
-                _ahOverlay = new Panel { BackColor = _theme?.PanelBackColor ?? SystemColors.Control };
+                _ahOverlay = new Panel { BackColor = _currentTheme?.PanelBackColor ?? SystemColors.Control };
                 Controls.Add(_ahOverlay);
             }
 
-            _ahOverlay.BackColor = _theme?.PanelBackColor ?? SystemColors.Control;
+            _ahOverlay.BackColor = _currentTheme?.PanelBackColor ?? SystemColors.Control;
 
             // Remove panel from hidden parent and dock it inside the overlay
             this.Controls.Remove(panel);
@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         private readonly AutoHideSide                 _side;
         private readonly List<(string Id, string Title, string? Icon)> _items = new();
-        private IBeepTheme? _theme;
+        private IBeepTheme? _currentTheme;
         private int _hoverIndex = -1;
 
         internal event EventHandler<AhItemClickArgs>? ItemClicked;
@@ -374,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal BeepAutoHideStrip(AutoHideSide side, IBeepTheme? theme)
         {
             _side  = side;
-            _theme = theme;
+            _currentTheme = theme;
 
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer |
@@ -444,10 +444,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             base.OnPaint(e);
             var g = e.Graphics;
 
-            Color bg     = _theme?.PanelBackColor    ?? SystemColors.Control;
-            Color border = _theme?.BorderColor       ?? SystemColors.ControlDark;
-            Color fg     = _theme?.ForeColor         ?? SystemColors.ControlText;
-            Color hover  = _theme?.BackgroundColor   ?? SystemColors.ControlLight;
+            Color bg     = _currentTheme?.PanelBackColor    ?? SystemColors.Control;
+            Color border = _currentTheme?.BorderColor       ?? SystemColors.ControlDark;
+            Color fg     = _currentTheme?.ForeColor         ?? SystemColors.ControlText;
+            Color hover  = _currentTheme?.BackgroundColor   ?? SystemColors.ControlLight;
 
             g.Clear(bg);
 

@@ -108,6 +108,98 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 menu.Items.Add(floatItem);
             }
 
+            menu.Items.Add(new ToolStripSeparator());
+
+            // ── Split ─────────────────────────────────────────────────────
+            if (hasTab)
+            {
+                var splitH = new ToolStripMenuItem("Split Right");
+                splitH.Click += (s, e) =>
+                {
+                    if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                        TabSplitHorizontalRequested?.Invoke(this,
+                            new TabEventArgs(_contextTabIndex, _tabs[_contextTabIndex]));
+                };
+                menu.Items.Add(splitH);
+
+                var splitV = new ToolStripMenuItem("Split Down");
+                splitV.Click += (s, e) =>
+                {
+                    if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                        TabSplitVerticalRequested?.Invoke(this,
+                            new TabEventArgs(_contextTabIndex, _tabs[_contextTabIndex]));
+                };
+                menu.Items.Add(splitV);
+            }
+
+            // ── Move to Group ─────────────────────────────────────────────
+            if (hasTab && _tabGroups.Count > 0)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                var moveToGroup = new ToolStripMenuItem("Move to Group");
+                ApplyThemeToMenu(moveToGroup.DropDown as ContextMenuStrip ?? new ContextMenuStrip());
+
+                // "No Group" item
+                var noGroup = new ToolStripMenuItem("(No Group)");
+                noGroup.Click += (s, e) =>
+                {
+                    if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                    {
+                        var t = _tabs[_contextTabIndex];
+                        t.Group = null;
+                        CalculateTabLayout();
+                        Invalidate();
+                        TabMoveToGroupRequested?.Invoke(this,
+                            new TabMoveGroupEventArgs(_contextTabIndex, t, null));
+                    }
+                };
+                moveToGroup.DropDownItems.Add(noGroup);
+                moveToGroup.DropDownItems.Add(new ToolStripSeparator());
+
+                foreach (var grp in _tabGroups)
+                {
+                    string grpId   = grp.Id;
+                    string grpName = grp.GroupName;
+                    var groupItem  = new ToolStripMenuItem(grpName)
+                        { Checked = string.Equals(tab?.Group, grpId) };
+                    groupItem.Click += (s, e) =>
+                    {
+                        if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                        {
+                            var t = _tabs[_contextTabIndex];
+                            t.Group = grpId;
+                            CalculateTabLayout();
+                            Invalidate();
+                            TabMoveToGroupRequested?.Invoke(this,
+                                new TabMoveGroupEventArgs(_contextTabIndex, t, grpId));
+                        }
+                    };
+                    moveToGroup.DropDownItems.Add(groupItem);
+                }
+
+                menu.Items.Add(moveToGroup);
+            }
+
+            // ── Copy Title ────────────────────────────────────────────────
+            if (hasTab)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                var copyTitle = new ToolStripMenuItem("Copy Title");
+                copyTitle.Click += (s, e) =>
+                {
+                    if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                    {
+                        try
+                        {
+                            System.Windows.Forms.Clipboard.SetText(
+                                _tabs[_contextTabIndex].Title);
+                        }
+                        catch (System.Runtime.InteropServices.ExternalException) { }
+                    }
+                };
+                menu.Items.Add(copyTitle);
+            }
+
             // ── Consumer extension point ───────────────────────────────────
             var args = new TabContextMenuEventArgs(_contextTabIndex, tab, menu);
             TabContextMenuOpening?.Invoke(this, args);
@@ -129,10 +221,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void ApplyThemeToMenu(ContextMenuStrip menu)
         {
-            if (_theme == null) return;
-            menu.BackColor = _theme.PanelBackColor;
-            menu.ForeColor = _theme.ForeColor;
-            menu.Renderer  = new BeepTabMenuRenderer(_theme);
+            if (_currentTheme == null) return;
+            menu.BackColor = _currentTheme.PanelBackColor;
+            menu.ForeColor = _currentTheme.ForeColor;
+            menu.Renderer  = new BeepTabMenuRenderer(_currentTheme);
         }
 
         // ─────────────────────────────────────────────────────────────────────

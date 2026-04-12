@@ -1,5 +1,7 @@
 # Beep WinForm Styling System - Complete Architecture# Beep WinForm Styling System
 
+Recent integrated-forms note: keep visual workflow surfaces in dedicated themed controls such as `BeepFormsToolbar`; non-visual coordinators such as `BeepForms` should publish state, not own toolbar or message-strip chrome.
+
 
 
 ## 🎯 OverviewA comprehensive styling system for Beep WinForm controls with support for 21 distinct design systems.

@@ -30,11 +30,8 @@ public static class FormsOperationsNavigationExamples
         using var customerUow = new UnitofWork<Customer>(editor, "MyDb", "Customers", "Id");
         using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
 
-        var customerStructure = editor.GetDataSource("MyDb").GetEntityStructure("Customers", true);
-        var orderStructure = editor.GetDataSource("MyDb").GetEntityStructure("Orders", true);
-
-        forms.RegisterBlock("CUSTOMERS", customerUow, customerStructure, "MyDb", isMasterBlock: true);
-        forms.RegisterBlock("ORDERS", orderUow, orderStructure, "MyDb", isMasterBlock: false);
+        forms.RegisterBlock("CUSTOMERS", customerUow, "MyDb", isMasterBlock: true);
+        forms.RegisterBlock("ORDERS", orderUow, "MyDb", isMasterBlock: false);
         forms.CreateMasterDetailRelation("CUSTOMERS", "ORDERS", "Id", "CustomerId");
 
         if (!await forms.OpenFormAsync("CustomerOrderForm"))

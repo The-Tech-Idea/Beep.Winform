@@ -17,6 +17,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
 
@@ -213,6 +215,48 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             return report;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // RestoreLayoutAsync  (5.5 — non-blocking restore for 100+ docs)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Asynchronously restores a saved layout.  The actual restore runs on the UI
+        /// message queue via <see cref="Control.BeginInvoke"/> so the calling thread is
+        /// never blocked.  An optional <paramref name="progress"/> callback receives
+        /// 100 when the restore completes.
+        /// </summary>
+        public Task<LayoutRestoreReport> RestoreLayoutAsync(
+            string json,
+            IProgress<int>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            var tcs = new TaskCompletionSource<LayoutRestoreReport>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var reg = cancellationToken.Register(
+                () => tcs.TrySetCanceled(cancellationToken));
+
+            void DoRestore()
+            {
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var r = TryRestoreLayout(json, out _);
+                    progress?.Report(100);
+                    tcs.TrySetResult(r);
+                }
+                catch (OperationCanceledException) { tcs.TrySetCanceled(cancellationToken); }
+                catch (Exception ex)               { tcs.TrySetException(ex); }
+            }
+
+            if (IsHandleCreated)
+                BeginInvoke(new Action(DoRestore));
+            else
+                DoRestore();
+
+            return tcs.Task;
         }
 
         // ─────────────────────────────────────────────────────────────────────

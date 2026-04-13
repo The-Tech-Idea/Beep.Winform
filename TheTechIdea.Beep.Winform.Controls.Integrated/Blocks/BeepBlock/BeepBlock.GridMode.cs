@@ -5,6 +5,7 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 {
@@ -84,10 +85,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         private static BeepColumnType ResolveGridCellEditor(Models.BeepFieldDefinition fieldDefinition, EntityField? entityField)
         {
+            if (!string.IsNullOrWhiteSpace(fieldDefinition.ControlType))
+            {
+                return ResolveGridCellEditorFromControlType(fieldDefinition.ControlType, fieldDefinition.EditorKey);
+            }
+
             string editorKey = string.IsNullOrWhiteSpace(fieldDefinition.EditorKey) && entityField != null
                 ? InferEditorKey(entityField)
                 : fieldDefinition.EditorKey ?? string.Empty;
 
+            return ResolveGridCellEditorFromEditorKey(editorKey);
+        }
+
+        private static BeepColumnType ResolveGridCellEditorFromControlType(string controlType, string editorKey)
+        {
+            return BeepFieldControlTypeRegistry.SimplifyControlTypeName(controlType) switch
+            {
+                nameof(BeepCheckBoxBool) or nameof(System.Windows.Forms.CheckBox) => BeepColumnType.CheckBoxBool,
+                nameof(BeepDatePicker) or nameof(System.Windows.Forms.DateTimePicker) => BeepColumnType.DateTime,
+                nameof(BeepNumericUpDown) or nameof(System.Windows.Forms.NumericUpDown) => BeepColumnType.NumericUpDown,
+                nameof(BeepComboBox) or nameof(System.Windows.Forms.ComboBox) => string.Equals(editorKey, "lov", StringComparison.OrdinalIgnoreCase)
+                    ? BeepColumnType.ListOfValue
+                    : BeepColumnType.ComboBox,
+                _ => ResolveGridCellEditorFromEditorKey(editorKey)
+            };
+        }
+
+        private static BeepColumnType ResolveGridCellEditorFromEditorKey(string editorKey)
+        {
             return editorKey.Trim().ToLowerInvariant() switch
             {
                 "checkbox" => BeepColumnType.CheckBoxBool,

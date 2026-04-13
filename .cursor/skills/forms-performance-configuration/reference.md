@@ -1,85 +1,126 @@
-# Forms Performance And Configuration Reference
-
-This reference shows practical setup for configuration persistence and cache/metrics tuning.
+# Forms Performance, Audit, Security, and Configuration Reference
 
 ## Scenario A: Bootstrap Configuration + Performance Policy
 
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Editor.UOW;
-using TheTechIdea.Beep.Editor.UOWManager;
-using TheTechIdea.Beep.Editor.UOWManager.Configuration;
-using TheTechIdea.Beep.Editor.UOWManager.Models;
-
-public static class FormsPerformanceConfigurationExamples
+public static FormsManager BuildConfiguredManager(IDMEEditor editor)
 {
-    public static async Task<FormsManager> BuildConfiguredManagerAsync(IDMEEditor editor)
-    {
-        // Load persisted config
-        var cfgManager = new ConfigurationManager();
-        cfgManager.LoadConfiguration();
-        if (!cfgManager.ValidateConfiguration())
-        {
-            cfgManager.ResetToDefaults();
-        }
+    var cfgManager = new ConfigurationManager();
+    cfgManager.LoadConfiguration();
+    if (!cfgManager.ValidateConfiguration())
+        cfgManager.ResetToDefaults();
 
-        // Customize defaults for this environment
-        cfgManager.Configuration.EnableLogging = true;
-        cfgManager.Configuration.ValidateBeforeCommit = true;
-        cfgManager.Configuration.ClearCacheOnFormClose = false;
-        cfgManager.Configuration.MaxRecordsPerBlock = 2000;
-        cfgManager.SaveConfiguration();
+    cfgManager.Configuration.EnableLogging = true;
+    cfgManager.Configuration.ValidateBeforeCommit = true;
+    cfgManager.Configuration.ValidateBeforeNavigation = true;
+    cfgManager.Configuration.ClearCacheOnFormClose = false;
+    cfgManager.Configuration.MaxRecordsPerBlock = 2000;
+    cfgManager.SaveConfiguration();
 
-        // Build manager with explicit configuration manager instance
-        var forms = new FormsManager(editor, configurationManager: cfgManager);
-
-        // Register sample blocks
-        using var customerUow = new UnitofWork<Customer>(editor, "MyDb", "Customers", "Id");
-        forms.RegisterBlock("CUSTOMERS", customerUow, "MyDb", isMasterBlock: true);
-
-        using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
-        forms.RegisterBlock("ORDERS", orderUow, "MyDb", isMasterBlock: false);
-
-        return forms;
-    }
+    return new FormsManager(editor, configurationManager: cfgManager);
 }
 ```
 
-## Scenario B: Runtime Metrics Loop
+## Scenario B: Paging Setup
 
 ```csharp
-public static void EvaluateAndTune(FormsManager forms)
-{
-    var stats = forms.PerformanceManager.GetPerformanceStatistics();
-    var efficiency = forms.PerformanceManager.GetCacheEfficiencyMetrics();
+// After query completes, set total-record count then load first page
+var queryResult = await forms.ExecuteQueryEnhancedAsync("ORDERS", filters);
+forms.SetTotalRecordCount("ORDERS", forms.GetRecordCount("ORDERS"));
+forms.SetBlockPageSize("ORDERS", 50);
 
-    Console.WriteLine($"Hits={stats.CacheHits}, Misses={stats.CacheMisses}, Ratio={stats.CacheHitRatio:P2}");
-    Console.WriteLine($"Top blocks tracked={efficiency?.TopAccessedBlocks?.Count ?? 0}");
+var pageInfo = await forms.LoadPageAsync("ORDERS", pageNumber: 1);
+Console.WriteLine($"Page {pageInfo.PageNumber} of {pageInfo.TotalPages} " +
+                  $"({pageInfo.PageSize} records per page)");
 
-    // Example threshold policy
-    if (stats.CacheHitRatio < 0.60)
-    {
-        forms.PerformanceManager.OptimizeBlockAccess();
-    }
-}
+// Navigate to next page
+pageInfo = await forms.LoadPageAsync("ORDERS", pageInfo.PageNumber + 1);
 ```
 
-## Scenario C: Controlled Preload For Frequent Blocks
+## Scenario C: Cache Metrics and Tuning
 
 ```csharp
-public static void PreloadCommonBlocks(FormsManager forms)
+var stats = forms.PerformanceManager.GetPerformanceStatistics();
+Console.WriteLine($"Hits={stats.CacheHits}, Misses={stats.CacheMisses}, Ratio={stats.CacheHitRatio:P2}");
+
+var efficiency = forms.PerformanceManager.GetCacheEfficiencyMetrics();
+Console.WriteLine($"Top blocks: {string.Join(", ", efficiency.TopAccessedBlocks)}");
+
+if (stats.CacheHitRatio < 0.60)
+    forms.PerformanceManager.OptimizeBlockAccess();
+
+// Preload known-frequent blocks at startup
+forms.PerformanceManager.PreloadFrequentBlocks(new[] { "CUSTOMERS", "ORDERS", "PRODUCTS" });
+```
+
+## Scenario D: Audit Trail Setup + Query
+
+```csharp
+forms.SetAuditUser(Environment.UserName);
+forms.ConfigureAudit(cfg =>
 {
-    var topBlocks = new[] { "CUSTOMERS", "ORDERS", "ORDER_LINES", "INVOICES" };
-    forms.PerformanceManager.PreloadFrequentBlocks(topBlocks);
+    cfg.Enabled = true;
+    cfg.FlushIntervalSeconds = 30;
+    // Use file-backed store for session history
+    cfg.Store = new FileAuditStore("./audit-session.json");
+});
+
+// After operations ...
+var deletions = forms.GetAuditLog(
+    blockName: "ORDERS",
+    operation: AuditOperation.Delete,
+    from: DateTime.Today);
+
+foreach (var e in deletions)
+    Console.WriteLine($"{e.UserName} deleted record {e.RecordKey} at {e.Timestamp}");
+
+// Export and purge
+await forms.ExportAuditToJsonAsync("./orders-audit.json", "ORDERS");
+forms.PurgeAuditLog(before: DateTime.Today.AddDays(-30));
+```
+
+## Scenario E: Block and Field Security
+
+```csharp
+// Set security context at session start
+forms.SetSecurityContext(new SecurityContext
+{
+    UserName = "carol",
+    Roles = new[] { "manager", "sales" }
+});
+
+// Block-level rules
+forms.SetBlockSecurity("ORDERS", new BlockSecurity
+{
+    AllowInsert = true,
+    AllowUpdate = true,
+    AllowDelete = false,          // only managers can delete
+    RequiredRoles = new[] { "sales" }
+});
+
+// Field masking + read-only
+forms.SetFieldSecurity("CUSTOMERS", "TaxId", new FieldSecurity
+{
+    Masked = true,
+    ReadOnly = true
+});
+
+// Runtime check before attempting delete
+if (!forms.IsBlockAllowed("ORDERS", SecurityPermission.Delete))
+{
+    await forms.ShowAlertAsync("Access Denied", "You do not have permission to delete orders.",
+                               AlertStyle.Stop);
+    return;
 }
+
+// Masked display value
+var masked = forms.GetMaskedValue("CUSTOMERS", "TaxId", rawTaxId);
 ```
 
 ## Notes
-- Tune by telemetry; avoid blind cache invalidation.
-- Keep config updates explicit and persisted.
-- Avoid oversized preload lists unless data justifies it.
+- Tune with `GetCacheEfficiencyMetrics`; avoid blind cache invalidation.
+- Set total-record count explicitly after each query when paging is active.
+- `FileAuditStore` opens with `FileShare.Delete` to avoid lock conflicts during log rotation.
+- `SecurityManager` pushes flags into `DataBlockInfo` and `ItemPropertyManager`; UI disabling is supplemental.
+- `PurgeAuditLog` is a maintenance tool; avoid calling it inside transactional flows.
 

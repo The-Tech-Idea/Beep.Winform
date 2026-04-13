@@ -232,6 +232,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             Definition = definition;
         }
 
+        public void EditFieldDefaultPolicy()
+        {
+            using var dialog = new BeepFieldControlTypePolicyEditorForm();
+            dialog.ShowDialog();
+        }
+
         private void SetPresentationMode(BeepBlockPresentationMode presentationMode)
         {
             BeepBlockDefinition definition = CreateWorkingDefinition();
@@ -260,6 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem(nameof(Definition), "Definition", "Block", "Edit the block definition, presentation mode, navigation, and UI field composition."));
             items.Add(new DesignerActionMethodItem(this, nameof(OpenSetupWizard), "Open Setup Wizard...", "Block", true));
             items.Add(new DesignerActionMethodItem(this, nameof(EditFieldProperties), "Edit Field Properties...", "Block", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(EditFieldDefaultPolicy), "Edit Field Default Policy...", "Block", true));
 
             items.Add(new DesignerActionHeaderItem("Entity"));
             items.Add(new DesignerActionPropertyItem(nameof(Entity), "Entity Snapshot", "Entity", "Edit the typed entity, field, and structure metadata stored by the block UI."));

@@ -1,116 +1,125 @@
 # Forms Enhanced Data Operations Reference
 
-This reference demonstrates robust end-to-end CRUD using enhanced operations in `FormsManager`.
+This reference demonstrates robust end-to-end CRUD, LOV usage, undo/redo, and batch export using enhanced operations in `FormsManager`.
 
 ## Scenario A: Insert + Update + Query Roundtrip
 
 ```csharp
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Editor.UOW;
-using TheTechIdea.Beep.Editor.UOWManager;
-using TheTechIdea.Beep.Utilities;
-
-public static class FormsEnhancedDataOpsExamples
+public static async Task RunCrudRoundtripAsync(IDMEEditor editor)
 {
-    public static async Task RunCrudRoundtripAsync(IDMEEditor editor)
+    var forms = new FormsManager(editor);
+
+    using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
+    forms.RegisterBlock<Order>("ORDERS", orderUow, "MyDb", isMasterBlock: true);
+
+    await forms.OpenFormAsync("OrderForm");
+
+    // Enter CRUD-ready state for new record
+    var enterCrud = await forms.EnterCrudModeForNewRecordAsync("ORDERS");
+    if (enterCrud.Flag != Errors.Ok) throw new InvalidOperationException(enterCrud.Message);
+
+    // Create and fill record
+    var newRecord = (Order)forms.CreateNewRecord("ORDERS");
+    newRecord.Status = "NEW";
+    forms.ApplyAuditDefaults(newRecord, Environment.UserName);
+
+    var insert = await forms.InsertRecordEnhancedAsync("ORDERS", newRecord);
+    if (insert.Flag != Errors.Ok) throw new InvalidOperationException(insert.Message);
+
+    // Query with filters
+    var filters = new List<AppFilter>
     {
-        var forms = new FormsManager(editor);
+        new AppFilter { FieldName = "Status", Operator = "=", FilterValue = "NEW" }
+    };
+    var query = await forms.ExecuteQueryEnhancedAsync("ORDERS", filters);
+    Console.WriteLine($"Records: {forms.GetRecordCount("ORDERS")}");
 
-        using var orderUow = new UnitofWork<Order>(editor, "MyDb", "Orders", "Id");
-        forms.RegisterBlock("ORDERS", orderUow, "MyDb", isMasterBlock: true);
-
-        await forms.OpenFormAsync("OrderForm");
-
-        // 1) Enter CRUD-ready state for new record
-        var enterCrud = await forms.EnterCrudModeForNewRecordAsync("ORDERS");
-        if (enterCrud.Flag != Errors.Ok)
-        {
-            throw new InvalidOperationException(enterCrud.Message);
-        }
-
-        // 2) Let manager create record, then fill fields
-        var newRecord = forms.CreateNewRecord("ORDERS");
-        if (newRecord == null)
-        {
-            throw new InvalidOperationException("CreateNewRecord returned null");
-        }
-
-        forms.ApplyAuditDefaults(newRecord, Environment.UserName);
-        // Use your record type or helper to set values
-        // Example: ((Order)newRecord).Status = "NEW";
-
-        var insert = await forms.InsertRecordEnhancedAsync("ORDERS", newRecord);
-        if (insert.Flag != Errors.Ok)
-        {
-            throw new InvalidOperationException(insert.Message);
-        }
-
-        // 3) Update current record
-        var update = await forms.UpdateCurrentRecordAsync("ORDERS");
-        if (update.Flag != Errors.Ok)
-        {
-            throw new InvalidOperationException(update.Message);
-        }
-
-        // 4) Query with filters via enhanced path
-        var filters = new List<AppFilter>
-        {
-            new AppFilter { FieldName = "Status", Operator = "=", FilterValue = "NEW" }
-        };
-        var query = await forms.ExecuteQueryEnhancedAsync("ORDERS", filters);
-        if (query.Flag != Errors.Ok && query.Flag != Errors.Warning)
-        {
-            throw new InvalidOperationException(query.Message);
-        }
-
-        Console.WriteLine($"Records in ORDERS: {forms.GetRecordCount("ORDERS")}");
-
-        await forms.CommitFormAsync();
-        await forms.CloseFormAsync();
-    }
+    await forms.CommitFormAsync();
+    await forms.CloseFormAsync();
 }
 ```
 
-## Scenario B: Copy Fields Between Records
+## Scenario B: Typed Registration + InsertRecordAsync<T>
 
 ```csharp
-public static object CloneOrderWithSelectedFields(FormsManager forms, string blockName)
+public static async Task TypedInsertAsync(IDMEEditor editor)
 {
-    var source = forms.GetCurrentRecord(blockName);
-    if (source == null)
-    {
-        return null;
-    }
+    var forms = new FormsManager(editor);
+    using var uow = new UnitofWork<Customer>(editor, "MyDb", "Customers", "Id");
 
-    var target = forms.CreateNewRecord(blockName);
-    if (target == null)
-    {
-        return null;
-    }
+    // Typed registration stamps EntityType on DataBlockInfo
+    forms.RegisterBlock<Customer>("CUSTOMERS", uow, customerEntity, "MyDb", isMasterBlock: true);
 
-    var copied = forms.CopyFields(
-        source,
-        target,
-        "CustomerId",
-        "OrderDate",
-        "CurrencyCode",
-        "Notes");
+    // CreateNewRecord returns a Customer instance, not ExpandoObject
+    var customer = (Customer)forms.CreateNewRecord("CUSTOMERS");
+    customer.Name = "Acme Corp";
 
-    if (copied)
-    {
-        forms.ApplyAuditDefaults(target, Environment.UserName);
-    }
+    // Shorthand: create default T and insert in one call
+    await forms.InsertRecordAsync<Customer>("CUSTOMERS", customer);
+}
+```
 
-    return target;
+## Scenario C: LOV Selection
+
+```csharp
+// Register a LOV on the Customers block for the Country field
+forms.LOV.RegisterLOV("COUNTRY_LOV", new LOVDefinition
+{
+    DataSourceName = "MyDb",
+    EntityName     = "Countries",
+    DisplayField   = "CountryName",
+    ReturnField    = "CountryCode",
+    RelatedFields  = new[] { ("Capital", "CapitalCity") }
+});
+forms.LOV.BindLOVToField("CUSTOMERS", "CountryCode", "COUNTRY_LOV");
+
+// Show LOV dialog and apply selection (including related fields) to current record
+var selected = await forms.ShowLOVAsync("CUSTOMERS", "CountryCode");
+```
+
+## Scenario D: Undo / Redo + Change Summary
+
+```csharp
+// Requires backing UoW to implement IUndoable
+forms.SetBlockUndoEnabled("ORDERS", true, maxDepth: 20);
+
+// ... make changes ...
+var summary = forms.GetBlockChangeSummary("ORDERS");
+Console.WriteLine($"Added={summary.AddedCount}, Changed={summary.ChangedCount}");
+
+if (forms.CanUndoBlock("ORDERS"))
+    forms.UndoBlock("ORDERS");
+
+var allSummaries = forms.GetFormChangeSummary();
+```
+
+## Scenario E: Batch Commit + Export
+
+```csharp
+var progress = new Progress<PassedArgs>(p => Console.WriteLine(p.Messege));
+var batchResult = await forms.BatchCommitAsync(
+    new[] { "CUSTOMERS", "ORDERS", "ORDER_LINES" },
+    progress);
+
+if (batchResult.Flag == Errors.Ok)
+    await forms.ExportBlockDataAsync("ORDERS", ExportFormat.Json, "./orders-backup.json");
+```
+
+## Scenario F: Copy Fields Between Records
+
+```csharp
+var source = forms.GetCurrentRecord("ORDERS");
+var target = forms.CreateNewRecord("ORDERS");
+if (target != null)
+{
+    forms.CopyFields(source, target, "CustomerId", "OrderDate", "CurrencyCode");
+    forms.ApplyAuditDefaults(target, Environment.UserName);
 }
 ```
 
 ## Notes
-- Keep enhanced operations as the single CRUD entry point for consistency.
-- Always inspect `IErrorsInfo` and preserve warning/error context.
-- Use explicit field lists for safe copy behavior.
+- `InsertRecordAsync<T>` is shorthand for `CreateNewRecord` + `InsertRecordEnhancedAsync`.
+- Always inspect `IErrorsInfo` and treat `Warning` distinctly from `Failed`.
+- `CopyFields` requires an explicit field list; never rely on order-based copy.
+- `BatchCommitAsync` stops on the first failure unless configured to continue.
 

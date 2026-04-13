@@ -76,13 +76,70 @@
 | not-started | Plan legacy cleanup | After parity only |
 | not-started | Update readmes and examples | Point to `BeepForms` |
 
+## Phase 7 — EntityStructure → BeepBlock Production Pipeline
+
+> Full plan: `07-phase7-entitystructure-beepblock-pipeline.md`
+
+**Architecture rule:** `BeepBlock` and `BeepForms` are UI only. All datasource access, entity structure retrieval, UoW creation, and business logic live in **FormsManager** (BeepDM). BeepBlock/BeepForms read from FormsManager; they never call `IDataSource` directly.
+
+---
+
+### Phase 7A — EntityField Fidelity (Beep.Winform)
+
+| Status | Item | File |
+|---|---|---|
+| not-started | Add `IsIdentity`, `IsHidden`, `IsLong`, `IsRowVersion`, `DefaultValue` to `BeepBlockEntityFieldDefinition` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| not-started | Update `CreateEntityDefinition()` field-mapping loop | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
+| not-started | Update `ToFieldDefinition()`: `IsVisible = !IsHidden`, extend `IsReadOnly`, add `DefaultValue` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| not-started | Update `Clone()` for 5 new fields | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| not-started | Add `DefaultValue` to `BeepFieldDefinition` + `Clone()` | `Blocks/Models/BeepFieldDefinition.cs` |
+
+### Phase 7B — FormsManager `SetupBlockAsync` (BeepDM)
+
+| Status | Item | File |
+|---|---|---|
+| not-started | Add `SetupBlockAsync(blockName, connectionName, entityName, isMaster, ct)` to `IUnitofWorksManager` | `DataManagementEngineStandard/Editor/Forms/Interfaces/IUnitofWorksManagerInterfaces.cs` |
+| not-started | Implement `SetupBlockAsync` in `FormsManager.cs` | `DataManagementEngineStandard/Editor/Forms/FormsManager.cs` |
+
+### Phase 7C — FieldCategory → ControlType Resolution (Beep.Winform)
+
+| Status | Item | File |
+|---|---|---|
+| not-started | Add `isLong` param + short-circuit to `ResolveDefaultFieldSettings()` | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
+| not-started | Complete category switch (Integer, Decimal, Date, DateTime, Boolean, Binary, Enum, LongString) | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
+| not-started | Update `ResolveWidth()` for numeric / long-text widths | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| not-started | Update `ResolveDefaultFieldSettings` call sites to pass `isLong` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+
+### Phase 7D — BeepForms Bootstrap Trigger, UI side only (Beep.Winform)
+
+| Status | Item | File |
+|---|---|---|
+| not-started | Create `BootstrapState` enum + `BeepFormsBootstrapEventArgs` | `Forms/Models/BeepFormsBootstrapModels.cs` (new) |
+| not-started | Add `BootstrapState` to `BeepFormsViewState` | `Forms/Models/BeepFormsViewState.cs` |
+| not-started | Add `InitializeAsync()` + `BootstrapCompleted` event to `BeepForms.cs` | `Forms/BeepForms/BeepForms.cs` |
+| not-started | Update `FormsManager` + `Definition` setters to call `InitializeAsync()` | `Forms/BeepForms/BeepForms.cs` |
+| not-started | Surface `BootstrapState` in `BeepFormsStatusStrip` | `Forms/Surfaces/BeepFormsStatusStrip.cs` |
+
+### Phase 7E — Designer-Time Preview (Beep.Winform)
+
+| Status | Item | File |
+|---|---|---|
+| not-started | Change `CreateEntityDefinition` to `internal static` | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
+| not-started | Override `GetProperties` + add `TryPopulateFromIde` helper | `Design.Server/Editors/BeepBlockEntityDefinitionTypeConverter.cs` |
+
+---
+
 ## Decision Log
 
 | Date | Decision |
 |---|---|
 | 2026-04-09 | Fresh start approved: ignore `BeepDataBlock` for new design |
 | 2026-04-09 | New top-level UI names are `BeepForms` and `BeepBlock` |
-| 2026-04-10 | `BeepForms` is non-visual; title/context, block-selection/sync, query actions, persistence actions, savepoint/alert actions, and status/message surfaces are split into separate controls (`BeepFormsHeader`, `BeepFormsCommandBar`, `BeepFormsQueryShelf`, `BeepFormsPersistenceShelf`, `BeepFormsToolbar`, `BeepFormsStatusStrip`) |
+| 2026-04-10 | `BeepForms` is non-visual; shell surfaces split into separate controls |
+| 2026-04-13 | Bootstrap gap identified; Phase 7 plan created |
+| 2026-04-13 | **`LoadEntityStructure(EntityStructure)` removed from `BeepBlock.Metadata.cs`** — violated UI-only rule |
+| 2026-04-13 | **`IBeepFormsBootstrapper` / `BeepFormsDefaultBootstrapper` cancelled** — called `IDataSource` directly |
+| 2026-04-13 | Phase 7B renamed to "FormsManager `SetupBlockAsync`" — FormsManager is the only data authority; BeepBlock/BeepForms are pure UI |
 
 # BeepDataBlock → FormsManager Migration — Todo Tracker
 

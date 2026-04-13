@@ -10,6 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services
     public sealed class BeepBlockPresenterRegistry
     {
         private readonly Dictionary<string, IBeepFieldPresenter> _presenters = new(StringComparer.OrdinalIgnoreCase);
+        private readonly ReflectiveControlBeepFieldPresenter _reflectivePresenter = new();
 
         public IReadOnlyCollection<IBeepFieldPresenter> Presenters => _presenters.Values.ToList().AsReadOnly();
 
@@ -51,6 +52,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services
             if (fieldDefinition == null)
             {
                 return null;
+            }
+
+            if (_reflectivePresenter.CanPresent(fieldDefinition))
+            {
+                return _reflectivePresenter;
             }
 
             if (!string.IsNullOrWhiteSpace(fieldDefinition.EditorKey) &&

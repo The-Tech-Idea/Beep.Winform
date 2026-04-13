@@ -25,13 +25,24 @@ Provides:
 - Collection editors for `Blocks`, `Fields`, and field `Options`
 - `BeepFormsBlockNameTypeConverter` so `BeepBlock.BlockName` can suggest nearby `BeepForms.Definition` block names
 - `BeepFieldEditorKeyTypeConverter` so `BeepFieldDefinition.EditorKey` exposes the default presenter keys (`text`, `numeric`, `date`, `checkbox`, `combo`, `lov`, `option`)
+- `BeepFieldControlTypeTypeConverter` and `BeepFieldBindingPropertyTypeConverter` so block fields and entity-field snapshots can persist an explicit control class plus binding property in `Designer.cs`, with suggestions hydrated from the shared `BeepFieldControlTypeRegistry`
 - `BeepStringDictionaryEditor` for focused key/value editing of `BeepFormsDefinition.Metadata` and `BeepBlockDefinition.Metadata`
+
+Shared field default policy:
+- Integrated field generation now resolves defaults through `BeepFieldControlTypeRegistry`.
+- Built-in defaults still cover text, numeric, date, checkbox, and combo/LOV presenters.
+- Optional override rules can be stored in `%LocalAppData%\TheTechIdea\Beep.Winform\field-control-defaults.json` and matched by field category, data-type pattern, `IsCheck`, and editor key.
+- `BeepBlock` design-time surfaces now expose a first-class policy editor through the smart tag, the field-property editor, and the setup wizard field step, so global default-control changes no longer require hand-editing the JSON file.
+- `BeepBlockEntityFieldDefinition` now exposes `EditorKey`, `ControlType`, and `BindingProperty` so entity snapshots can preseed generated fields before those rows are materialized into `BeepFieldDefinition` entries.
 
 Using the integrated editors:
 1. Select `BeepForms` or `BeepBlock` in the designer.
 2. Use the smart-tag or properties grid to open the modal definition editor.
 3. Use the definition editor to add blocks, fields, and options.
-4. For manually placed blocks, pick `BlockName` from the suggested host block list when a nearby `BeepForms` definition is present.
+4. Use the field editor to add, remove, or update generated field definitions, including editor key, explicit control type, and binding property.
+5. For manually placed blocks, pick `BlockName` from the suggested host block list when a nearby `BeepForms` definition is present.
+6. When you need global default changes instead of per-field overrides, use `Edit Field Default Policy...` from the `BeepBlock` smart tag or the `Default Policy...` button inside the field editor or setup wizard.
+7. The policy editor persists back to `%LocalAppData%\TheTechIdea\Beep.Winform\field-control-defaults.json` and applies immediately to newly generated block fields.
 
 ---
 

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Linq;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
 {
@@ -23,6 +24,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
 
         [NotifyParentProperty(true)]
         public string Description { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldEditorKeyTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string EditorKey { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldControlTypeTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string ControlType { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldBindingPropertyTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string BindingProperty { get; set; } = string.Empty;
 
         [NotifyParentProperty(true)]
         public string DataSourceId { get; set; } = string.Empty;
@@ -67,6 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
                 DatasourceEntityName = DatasourceEntityName,
                 Caption = Caption,
                 Description = Description,
+                EditorKey = EditorKey,
+                ControlType = ControlType,
+                BindingProperty = BindingProperty,
                 DataSourceId = DataSourceId,
                 IsMasterBlock = IsMasterBlock,
                 MasterBlockName = MasterBlockName,
@@ -113,6 +129,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
         public string DataType { get; set; } = string.Empty;
 
         [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldEditorKeyTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string EditorKey { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldControlTypeTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string ControlType { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldBindingPropertyTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string BindingProperty { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
         public DbFieldCategory Category { get; set; } = DbFieldCategory.String;
 
         [NotifyParentProperty(true)]
@@ -151,19 +179,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
         [NotifyParentProperty(true)]
         public bool IsCheck { get; set; }
 
+        // Phase 7A additions — lossless snapshot of EntityField
+        [NotifyParentProperty(true)]
+        public bool IsIdentity { get; set; }
+
+        [NotifyParentProperty(true)]
+        public bool IsHidden { get; set; }
+
+        [NotifyParentProperty(true)]
+        public bool IsLong { get; set; }
+
+        [NotifyParentProperty(true)]
+        public bool IsRowVersion { get; set; }
+
+        [NotifyParentProperty(true)]
+        public string DefaultValue { get; set; } = string.Empty;
+
         public BeepFieldDefinition ToFieldDefinition(int order)
         {
+            var defaults = BeepFieldControlTypeRegistry.ResolveDefaultFieldSettings(Category, DataType, IsCheck, IsLong);
+            string editorKey = string.IsNullOrWhiteSpace(EditorKey) ? defaults.EditorKey : EditorKey;
+            string controlType = string.IsNullOrWhiteSpace(ControlType) ? defaults.ControlType : ControlType;
+            string bindingProperty = string.IsNullOrWhiteSpace(BindingProperty)
+                ? BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(controlType, editorKey)
+                : BindingProperty;
+
             return new BeepFieldDefinition
             {
                 FieldName = FieldName,
                 Label = string.IsNullOrWhiteSpace(Label)
                     ? (string.IsNullOrWhiteSpace(Description) ? FieldName : Description)
                     : Label,
-                EditorKey = ResolveEditorKey(),
+                EditorKey = editorKey,
+                ControlType = controlType,
+                BindingProperty = bindingProperty,
                 Order = order,
                 Width = ResolveWidth(),
-                IsVisible = true,
-                IsReadOnly = IsReadOnly || IsAutoIncrement
+                IsVisible = !IsHidden,
+                IsReadOnly = IsReadOnly || IsAutoIncrement || IsIdentity || IsRowVersion,
+                DefaultValue = DefaultValue
             };
         }
 
@@ -174,6 +228,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
                 FieldName = FieldName,
                 Label = Label,
                 Description = Description,
+                EditorKey = EditorKey,
+                ControlType = ControlType,
+                BindingProperty = BindingProperty,
                 DataType = DataType,
                 Category = Category,
                 Order = Order,
@@ -187,7 +244,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
                 IsIndexed = IsIndexed,
                 IsAutoIncrement = IsAutoIncrement,
                 IsReadOnly = IsReadOnly,
-                IsCheck = IsCheck
+                IsCheck = IsCheck,
+                IsIdentity = IsIdentity,
+                IsHidden = IsHidden,
+                IsLong = IsLong,
+                IsRowVersion = IsRowVersion,
+                DefaultValue = DefaultValue
             };
         }
 
@@ -202,74 +264,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
             return string.IsNullOrWhiteSpace(DataType) ? name : $"{name} ({DataType})";
         }
 
-        private string ResolveEditorKey()
-        {
-            string typeName = DataType ?? string.Empty;
-
-            if (IsCheck ||
-                Category == DbFieldCategory.Boolean ||
-                typeName.IndexOf("bool", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf("bit", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return "checkbox";
-            }
-
-            if (Category == DbFieldCategory.Enum)
-            {
-                return "combo";
-            }
-
-            if (Category == DbFieldCategory.Date ||
-                Category == DbFieldCategory.DateTime ||
-                typeName.IndexOf("date", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf("time", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return "date";
-            }
-
-            if (Category == DbFieldCategory.Numeric ||
-                Category == DbFieldCategory.Integer ||
-                Category == DbFieldCategory.Decimal ||
-                Category == DbFieldCategory.Double ||
-                Category == DbFieldCategory.Float ||
-                Category == DbFieldCategory.Currency ||
-                typeName.IndexOf("int", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf("decimal", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf("double", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                typeName.IndexOf("float", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return "numeric";
-            }
-
-            return "text";
-        }
-
         private int ResolveWidth()
         {
             if (IsCheck || Category == DbFieldCategory.Boolean)
-            {
                 return 120;
-            }
 
             if (Category == DbFieldCategory.Date || Category == DbFieldCategory.DateTime)
-            {
                 return 180;
-            }
 
             if (Category == DbFieldCategory.Enum)
-            {
                 return 220;
-            }
 
-            if (Category == DbFieldCategory.Numeric ||
-                Category == DbFieldCategory.Integer ||
-                Category == DbFieldCategory.Decimal ||
+            if (Category == DbFieldCategory.Integer)
+                return 120;
+
+            if (Category == DbFieldCategory.Decimal ||
                 Category == DbFieldCategory.Double ||
                 Category == DbFieldCategory.Float ||
+                Category == DbFieldCategory.Numeric ||
                 Category == DbFieldCategory.Currency)
-            {
-                return 140;
-            }
+                return 160;
+
+            if (IsLong)
+                return 320;
 
             int raw = Size > 0 ? Size : 160;
             int width = raw <= 24 ? raw * 12 : raw * 2;

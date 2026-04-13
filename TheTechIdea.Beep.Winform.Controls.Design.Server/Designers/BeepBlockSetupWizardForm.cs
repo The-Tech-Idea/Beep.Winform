@@ -39,6 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly Button _cancelButton = new();
         private readonly Button _selectAllFieldsButton = new();
         private readonly Button _clearFieldsButton = new();
+        private readonly Button _defaultsButton = new();
 
         private readonly Dictionary<string, EntityField> _metadataFieldsByName = new(StringComparer.OrdinalIgnoreCase);
         private int _currentStepIndex;
@@ -104,6 +105,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
                 field.Label = string.IsNullOrWhiteSpace(existingField.Label) ? field.Label : existingField.Label;
                 field.EditorKey = string.IsNullOrWhiteSpace(existingField.EditorKey) ? field.EditorKey : existingField.EditorKey;
+                field.ControlType = string.IsNullOrWhiteSpace(existingField.ControlType) ? field.ControlType : existingField.ControlType;
+                field.BindingProperty = string.IsNullOrWhiteSpace(existingField.BindingProperty) ? field.BindingProperty : existingField.BindingProperty;
                 field.Order = existingField.Order;
                 field.Width = existingField.Width > 0 ? existingField.Width : field.Width;
                 field.IsVisible = selectedFields.Contains(field.FieldName);
@@ -241,10 +244,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _clearFieldsButton.Size = new Size(120, 30);
             _clearFieldsButton.Click += (_, _) => SetAllFieldsChecked(false);
 
+            _defaultsButton.Text = "Default Policy...";
+            _defaultsButton.Location = new Point(460, 124);
+            _defaultsButton.Size = new Size(140, 30);
+            _defaultsButton.Click += (_, _) => OpenDefaultPolicyEditor();
+
             _stepFieldsPanel.Controls.Add(label);
             _stepFieldsPanel.Controls.Add(_fieldsList);
             _stepFieldsPanel.Controls.Add(_selectAllFieldsButton);
             _stepFieldsPanel.Controls.Add(_clearFieldsButton);
+            _stepFieldsPanel.Controls.Add(_defaultsButton);
         }
 
         private void BuildViewStep()
@@ -359,6 +368,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             return names.OrderBy(name => name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        private void OpenDefaultPolicyEditor()
+        {
+            using var dialog = new BeepFieldControlTypePolicyEditorForm();
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+            {
+                MessageBox.Show(
+                    this,
+                    "Field default policy saved. Finishing this wizard will use the updated defaults when it rebuilds the block field definitions.",
+                    "Field Default Policy",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
 
         private void LoadEntities(string connectionName)

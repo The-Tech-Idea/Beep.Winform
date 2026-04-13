@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
@@ -185,10 +186,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            string bindingProperty = ResolveEditorBindingProperty(editor);
-            if (string.IsNullOrWhiteSpace(bindingProperty))
+            string bindingProperty = string.IsNullOrWhiteSpace(fieldDefinition.BindingProperty)
+                ? Services.BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(fieldDefinition.ControlType, fieldDefinition.EditorKey)
+                : fieldDefinition.BindingProperty;
+            if (string.IsNullOrWhiteSpace(bindingProperty) || editor.GetType().GetProperty(bindingProperty, BindingFlags.Public | BindingFlags.Instance) == null)
             {
-                return;
+                bindingProperty = ResolveEditorBindingProperty(editor);
             }
 
             var existingBinding = editor.DataBindings[bindingProperty];
@@ -206,10 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             binding.Parse += (_, args) => args.Value = ConvertEditorValueForDataSource(fieldDefinition.FieldName, args.Value);
             editor.DataBindings.Add(binding);
 
-            if (editor is BaseControl baseControl)
+            if (editor is IBeepUIComponent beepComponent)
             {
-                baseControl.BoundProperty = bindingProperty;
-                baseControl.DataSourceProperty = fieldDefinition.FieldName;
+                beepComponent.BoundProperty = bindingProperty;
+                beepComponent.DataSourceProperty = fieldDefinition.FieldName;
             }
 
             if (editor is BeepComboBox comboBox)
@@ -337,8 +340,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 TextBoxBase => nameof(TextBoxBase.Text),
                 ComboBox => nameof(ComboBox.Text),
                 CheckBox => nameof(CheckBox.Checked),
-                _ => nameof(Control.Text)
+                _ => ResolveEditorBindingPropertyByReflection(editor)
             };
+        }
+
+        private static string ResolveEditorBindingPropertyByReflection(Control editor)
+        {
+            foreach (string propertyName in new[] { "CurrentValue", "SelectedDateTime", "SelectedValue", "Value", "Checked", nameof(Control.Text) })
+            {
+                if (editor.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance) != null)
+                {
+                    return propertyName;
+                }
+            }
+
+            return nameof(Control.Text);
         }
 
         private object? ConvertDataSourceValueForEditor(Control editor, object? value)

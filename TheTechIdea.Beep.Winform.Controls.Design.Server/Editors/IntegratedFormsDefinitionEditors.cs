@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models;
 
@@ -280,6 +281,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             return keys
                 .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
+        }
+    }
+
+    public sealed class BeepFieldControlTypeTypeConverter : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext? context) => true;
+
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext? context) => false;
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext? context)
+            => new StandardValuesCollection(BeepFieldControlTypeRegistry.GetKnownControlTypes().ToArray());
+    }
+
+    public sealed class BeepFieldBindingPropertyTypeConverter : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext? context) => true;
+
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext? context) => false;
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext? context)
+            => new StandardValuesCollection(BeepFieldControlTypeRegistry.GetKnownBindingProperties(ResolveControlTypeName(context)).ToArray());
+
+        private static string ResolveControlTypeName(ITypeDescriptorContext? context)
+        {
+            if (context?.Instance == null)
+            {
+                return string.Empty;
+            }
+
+            IEnumerable<object?> instances = context.Instance is Array array
+                ? array.Cast<object?>()
+                : new[] { context.Instance };
+
+            foreach (var instance in instances)
+            {
+                if (instance == null)
+                {
+                    continue;
+                }
+
+                var type = instance.GetType();
+                string? controlType = type.GetProperty("ControlType")?.GetValue(instance) as string;
+                if (!string.IsNullOrWhiteSpace(controlType))
+                {
+                    return controlType;
+                }
+
+                string? editorKey = type.GetProperty("EditorKey")?.GetValue(instance) as string;
+                if (!string.IsNullOrWhiteSpace(editorKey))
+                {
+                    return BeepFieldControlTypeRegistry.ResolveDefaultControlType(editorKey);
+                }
+            }
+
+            return string.Empty;
         }
     }
 
@@ -813,6 +869,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
                         FieldName = "Name",
                         Label = "Name",
                         EditorKey = "text",
+                        ControlType = BeepFieldControlTypeRegistry.ResolveDefaultControlType("text"),
+                        BindingProperty = BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(nameof(BeepTextBox), "text"),
                         Order = 0
                     }
                 }
@@ -821,11 +879,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
 
         public static BeepFieldDefinition CreateDefaultFieldDefinition(int nextIndex)
         {
+            string editorKey = "text";
+            string controlType = BeepFieldControlTypeRegistry.ResolveDefaultControlType(editorKey);
+
             return new BeepFieldDefinition
             {
                 FieldName = "Field" + nextIndex,
                 Label = "Field " + nextIndex,
-                EditorKey = "text",
+                EditorKey = editorKey,
+                ControlType = controlType,
+                BindingProperty = BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(controlType, editorKey),
                 Order = nextIndex - 1
             };
         }

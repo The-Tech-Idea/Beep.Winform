@@ -121,6 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                             FieldName = "Name",
                             Label = "Name",
                             EditorKey = "text",
+                            ControlType = BeepFieldControlTypeRegistry.ResolveDefaultControlType("text"),
+                            BindingProperty = BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(nameof(BeepTextBox), "text"),
                             Order = 0
                         }
                     }

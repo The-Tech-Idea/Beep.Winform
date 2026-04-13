@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
 {
@@ -18,6 +19,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
         public string EditorKey { get; set; } = string.Empty;
 
         [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldControlTypeTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string ControlType { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
+        [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepFieldBindingPropertyTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+        public string BindingProperty { get; set; } = string.Empty;
+
+        [NotifyParentProperty(true)]
         public int Order { get; set; }
 
         [NotifyParentProperty(true)]
@@ -28,6 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
 
         [NotifyParentProperty(true)]
         public bool IsReadOnly { get; set; }
+
+        [NotifyParentProperty(true)]
+        public string DefaultValue { get; set; } = string.Empty;
 
         [NotifyParentProperty(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -41,10 +53,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
                 FieldName = FieldName,
                 Label = Label,
                 EditorKey = EditorKey,
+                ControlType = ControlType,
+                BindingProperty = BindingProperty,
                 Order = Order,
                 Width = Width,
                 IsVisible = IsVisible,
-                IsReadOnly = IsReadOnly
+                IsReadOnly = IsReadOnly,
+                DefaultValue = DefaultValue
             };
 
             if (Options != null)
@@ -69,7 +84,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
                 name = "Field Definition";
             }
 
-            return $"{name} ({EditorKey})";
+            string editorDescriptor = !string.IsNullOrWhiteSpace(ControlType)
+                ? BeepFieldControlTypeRegistry.SimplifyControlTypeName(ControlType)
+                : EditorKey;
+
+            return string.IsNullOrWhiteSpace(editorDescriptor)
+                ? name
+                : $"{name} ({editorDescriptor})";
         }
     }
 

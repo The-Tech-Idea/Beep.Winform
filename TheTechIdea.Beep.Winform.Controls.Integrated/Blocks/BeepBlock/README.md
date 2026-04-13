@@ -17,12 +17,16 @@ Visible block UI should use Beep controls by default. Stock WinForms controls ar
 - Track manager-aligned block view state such as current mode, current record index, and record count
 - Keep a typed UI-side entity snapshot on `BeepBlock.Definition.Entity` so the block always carries connection, entity, and field structure metadata without pushing runtime ownership into the control
 - Render a record-mode scaffold from `BeepFieldDefinition`
+- Persist field-level editor metadata in `Designer.cs`, including the presenter key, explicit control type override, and binding property used for generated record editors
+- Resolve generated field defaults through `BeepFieldControlTypeRegistry`, combining the built-in control map with optional persisted policy rules from `%LocalAppData%\TheTechIdea\Beep.Winform\field-control-defaults.json`, and expose that policy through the BeepBlock smart tag, setup wizard, and field-property editor so design-time authors can tune defaults without leaving the integrated workflow
+- Allow `BeepBlockEntityFieldDefinition` snapshots to preseed `EditorKey`, `ControlType`, and `BindingProperty` so entity-level field definitions can override the generated control and binding contract before `BeepFieldDefinition` rows are emitted
 - Rebuild query mode as a real criteria-entry surface with operator/value rows for manager-queryable items instead of only switching view state
 - Treat class-object records as the bound record contract in record helpers; block binding reads and writes public properties/fields on record instances returned from datasource `List<object>` results
 - Bind record-mode editors to a shared block-level `BindingSource` over `FormsManager.GetUnitOfWork(blockName).Units`
 - Keep `BindingSource.Position` and `UnitOfWork.CurrentItem` synchronized so single-record view and grid view share the same current record
 - Capture a typed runtime entity snapshot from `FormsManager.GetBlock(blockName).UnitOfWork.EntityStructure` and use that snapshot to scaffold field definitions whenever explicit UI field definitions were not supplied
 - Resolve editors through `BeepBlockPresenterRegistry` with default text, numeric, date, checkbox, and combo/LOV presenters
+- Honor `BeepFieldDefinition.ControlType` and `BeepFieldDefinition.BindingProperty` when a field needs a specific Beep control or a stock WinForms control with an explicit binding contract
 - Bind combo editors through typed `BeepComboBox.SelectedValue` instead of text fallback, so enum and LOV return values stay in their original CLR shape
 - Populate combo/LOV editors from runtime sources: explicit `BeepFieldDefinition.Options`, enum properties, and FormsManager LOV registrations all produce typed `SimpleItem` values
 - Surface record-mode LOV fields with an explicit picker button plus `F9` keyboard entry so the block can open a forms-native popup instead of forcing users through the inline combo drop-down only
@@ -37,7 +41,8 @@ Visible block UI should use Beep controls by default. Stock WinForms controls ar
 - Bind `BeepGridPro` to the same shared block `BindingSource` in grid mode
 - Offer typed design-time editor-key suggestions and nearby host block-name suggestions so block registration and field presenter selection do not depend on raw string recall
 - Expose typed entity snapshots in design-time editors so block authoring works against first-class entity/field structure instead of loose metadata keys
-- Provide a BeepBlock-native design-time workflow through the smart-tag setup wizard and field editor so authors can select connection/entity metadata, choose visible fields, switch record versus grid presentation, and tune field labels/order/editor keys without relying on the removed legacy data-block designer surface
+- Provide a BeepBlock-native design-time workflow through the smart-tag setup wizard and field editor so authors can select connection/entity metadata, choose visible fields, add or remove persisted field definitions, switch record versus grid presentation, and tune field labels/order/editor keys/control types/binding properties without relying on the removed legacy data-block designer surface
+- Keep extension scaffolding and runtime fallback aligned by generating persisted field definitions through the same shared registry-driven default resolver that the integrated controls use at runtime
 - Project manager validation and LOV validation messages into generated editors through the shared `BaseControl` error surface plus row-level label/status accents, semantic tooltips, and explicit severity badges
 - Surface record-level validation problems above the block as a headline-plus-detail summary with severity badges and next-step guidance so blocking issues, warnings, and informational notes stay readable even when the current field is out of view
 - Surface manager master/detail context in the workflow strip so coordinated blocks stay understandable without duplicating coordination logic in the UI
@@ -47,5 +52,6 @@ Visible block UI should use Beep controls by default. Stock WinForms controls ar
 ## Current gaps
 
 - `BeepFieldDefinition.Options` now has a dedicated design-time collection editor, navigator flags have a typed `BeepBlockDefinition.Navigation` editor surface, metadata uses a focused key/value editor, `EditorKey`/`BlockName` expose typed standard-value suggestions, and the smart tag now includes a BeepBlock-native setup wizard plus field-property editor; remaining tooling work is mostly deeper host-aware multi-block authoring beyond the current single-block workflow
+- Global field-control defaults can now be overridden through the persisted policy file, the dedicated BeepBlock policy editor surface, and per-entity field snapshots that preseed control and binding overrides; remaining tooling work is mostly any future scope-aware sharing beyond the current global policy plus per-field overrides
 - Query mode now supports per-field reset, typed `between`/`not between` filters for numeric/date fields, `is null`/`is not null` no-value operators, and dedicated `in`/`not in` list-entry widgets that can switch between free-text entry and known-value multi-pick for static combo/LOV sources; remaining work is any deeper specialized widgets beyond the current range/list/no-value path
 - LOV support now covers the record-mode popup path for manager-registered LOV fields, including debounced manager-backed reloads from the popup search box; remaining tooling work is mostly richer designer authoring and any future typed editors beyond navigator settings

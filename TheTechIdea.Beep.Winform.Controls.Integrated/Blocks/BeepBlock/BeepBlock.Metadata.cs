@@ -9,6 +9,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 {
     public partial class BeepBlock
     {
+        // BeepBlock is UI-only.  All entity structure, field metadata, datasource operations,
+        // and business logic live in FormsManager.  BeepBlock reads from FormsManager only.
+        // It never accepts EntityStructure directly; it never calls IDataSource.
+
         private BeepBlockDefinition? _runtimeDefinition;
 
         private BeepBlockDefinition? EffectiveDefinition => _runtimeDefinition ?? _definition;
@@ -143,7 +147,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             return persistedEntity?.Clone() ?? new BeepBlockEntityDefinition();
         }
 
-        private static BeepBlockEntityDefinition CreateEntityDefinition(DataBlockInfo? blockInfo, IEntityStructure entityStructure)
+        // Phase 7B: promoted to internal so design-time and bootstrapper code can call it.
+        internal static BeepBlockEntityDefinition CreateEntityDefinition(DataBlockInfo? blockInfo, IEntityStructure entityStructure)
         {
             var primaryKeyNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (entityStructure.PrimaryKeys != null)
@@ -200,7 +205,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                         IsIndexed = field.IsIndexed,
                         IsAutoIncrement = field.IsAutoIncrement,
                         IsReadOnly = field.IsReadOnly,
-                        IsCheck = field.IsCheck
+                        IsCheck = field.IsCheck,
+                        // Phase 7A: lossless fields
+                        IsIdentity = field.IsIdentity,
+                        IsHidden = field.IsHidden,
+                        IsLong = field.IsLong,
+                        IsRowVersion = field.IsRowVersion,
+                        DefaultValue = field.DefaultValue ?? string.Empty
                     });
                 }
             }

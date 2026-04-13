@@ -28,6 +28,7 @@ using TheTechIdea.Beep.Helpers.ConnectionHelpers;
 using System.Reflection;
 using TheTechIdea.Beep;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -1816,7 +1817,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)ApplyCurrentThemeAndStyle);
+                BeginInvoke((System.Windows.Forms.MethodInvoker)ApplyCurrentThemeAndStyle);
                 return;
             }
 
@@ -1860,15 +1861,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                UnregisterThemeEvents();
-            }
-
-            base.Dispose(disposing);
-        }
         #endregion
 
         #region ParameterList Handling

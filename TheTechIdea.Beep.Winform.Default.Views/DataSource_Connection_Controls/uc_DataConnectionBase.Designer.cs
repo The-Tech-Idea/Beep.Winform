@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         {
             if (disposing && (components != null))
             {
+                UnregisterThemeEvents();
                 components.Dispose();
             }
             base.Dispose(disposing);

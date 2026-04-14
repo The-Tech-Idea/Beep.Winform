@@ -63,7 +63,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
                 editable,
                 item => item.Clone());
 
-            return dialog.ShowDialog() == DialogResult.OK ? dialog.Result : value;
+            if (dialog.ShowDialog() != DialogResult.OK)
+            {
+                return value;
+            }
+
+            bool hadExplicitFieldDefinitions = value is BeepBlockDefinition existingDefinition
+                && BeepBlockFieldDefinitionStateHelper.HasExplicitFieldDefinitions(existingDefinition);
+            BeepBlockDefinition result = dialog.Result;
+            BeepBlockFieldDefinitionStateHelper.UpdateExplicitFieldState(result, hadExplicitFieldDefinitions);
+            return result;
         }
 
         private static BeepBlockDefinition CreateDefaultDefinition(ITypeDescriptorContext? context)
@@ -168,7 +177,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
 
             using (dialog)
             {
-                return dialog.ShowDialog() == DialogResult.OK ? dialog.Result : value;
+                if (dialog.ShowDialog() != DialogResult.OK)
+                {
+                    return value;
+                }
+
+                List<BeepFieldDefinition> result = dialog.Result;
+                if (context?.Instance is BeepBlockDefinition ownerDefinition)
+                {
+                    var definitionDraft = ownerDefinition.Clone();
+                    definitionDraft.Fields = result.Select(item => item.Clone()).ToList();
+                    BeepBlockFieldDefinitionStateHelper.UpdateExplicitFieldState(definitionDraft, treatEmptyAsExplicit: true);
+                    ownerDefinition.Metadata = definitionDraft.Metadata;
+                }
+
+                return result;
             }
         }
     }
@@ -674,7 +697,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         private readonly ListBox _itemsList;
         private readonly PropertyGrid _propertyGrid;
 
-        public List<T> Result => _items.Select(_cloneItem).ToList();
+        public List<T> Result
+        {
+            get
+            {
+                NormalizeOrderedItems();
+                return _items.Select(_cloneItem).ToList();
+            }
+        }
 
         public DefinitionCollectionEditorForm(
             string title,
@@ -781,6 +811,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         private void AddItem()
         {
             _items.Add(_itemFactory());
+            NormalizeOrderedItems();
             RefreshItems(_items.Count - 1);
         }
 
@@ -793,6 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             }
 
             _items.RemoveAt(index);
+            NormalizeOrderedItems();
             RefreshItems(Math.Min(index, _items.Count - 1));
         }
 
@@ -806,7 +838,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             }
 
             (_items[index], _items[targetIndex]) = (_items[targetIndex], _items[index]);
+            NormalizeOrderedItems();
             RefreshItems(targetIndex);
+        }
+
+        private void NormalizeOrderedItems()
+        {
+            IntegratedDefinitionEditorHelpers.NormalizeItemOrder(_items);
         }
 
         private void RefreshItems(int selectedIndex)
@@ -846,6 +884,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             return value is IEnumerable<T> items
                 ? items.Select(cloneItem).ToList()
                 : new List<T>();
+        }
+
+        public static void NormalizeItemOrder<T>(IList<T> items)
+            where T : class
+        {
+            var orderProperty = typeof(T).GetProperty("Order");
+            if (orderProperty == null || !orderProperty.CanWrite || orderProperty.PropertyType != typeof(int))
+            {
+                return;
+            }
+
+            for (int index = 0; index < items.Count; index++)
+            {
+                orderProperty.SetValue(items[index], index);
+            }
         }
     }
 

@@ -37,6 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
+        public override DesignerVerbCollection Verbs => CustomVerbs;
+
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
@@ -45,11 +47,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         private void OnSelectOnIcon(object? sender, EventArgs e)
+            => SelectOnIcon();
+
+        public void SelectOnIcon()
         {
             SelectIcon("OnIconName");
         }
 
         private void OnSelectOffIcon(object? sender, EventArgs e)
+            => SelectOffIcon();
+
+        public void SelectOffIcon()
         {
             SelectIcon("OffIconName");
         }
@@ -73,17 +81,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         private void OnClearIcons(object? sender, EventArgs e)
+            => ClearIcons();
+
+        public void ClearIcons()
         {
             SetProperty("OnIconName", string.Empty);
             SetProperty("OffIconName", string.Empty);
         }
 
         private void OnToggleSwitch(object? sender, EventArgs e)
+            => ToggleSwitch();
+
+        public void ToggleSwitch()
         {
-            if (Switch != null)
-            {
-                Switch.Checked = !Switch.Checked;
-            }
+            SetProperty("Checked", !GetProperty<bool>("Checked"));
         }
     }
 
@@ -151,12 +162,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public void SelectOnIcon()
         {
-            _designer.Verbs[0].Invoke(); // "Select On Icon..."
+            _designer.SelectOnIcon();
         }
 
         public void SelectOffIcon()
         {
-            _designer.Verbs[1].Invoke(); // "Select Off Icon..."
+            _designer.SelectOffIcon();
         }
 
         public void UseCheckmarkIcons()
@@ -193,8 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public void ClearIcons()
         {
-            _designer.SetProperty("OnIconName", string.Empty);
-            _designer.SetProperty("OffIconName", string.Empty);
+            _designer.ClearIcons();
         }
 
         #endregion

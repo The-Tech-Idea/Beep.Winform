@@ -14,5 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models
         public BeepFormsMessageSeverity AlertSeverity { get; set; }
         public BeepFormsMessageSeverity MessageSeverity { get; set; }
         public string? ActiveBlockName { get; set; }
+
+        // Phase 7D — bootstrap progress surfaced to status strip
+        public BootstrapState BootstrapState { get; set; } = BootstrapState.Idle;
     }
 }

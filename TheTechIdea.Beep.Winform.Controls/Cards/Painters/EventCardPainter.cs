@@ -171,6 +171,14 @@ _titleFont = titleFont;
                 };
                 g.DrawString(ctx.StatusText, _dateFont, textBrush, ctx.ImageRect, format);
             }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _locationFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
             
             // Draw event category tags
             if (ctx.Tags != null && ctx.Tags.Count > 0 && !ctx.TagsRect.IsEmpty)

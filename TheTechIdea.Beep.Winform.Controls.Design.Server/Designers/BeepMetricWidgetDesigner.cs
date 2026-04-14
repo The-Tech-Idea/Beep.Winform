@@ -72,10 +72,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("TrendValue", value);
         }
 
-        public void ConfigureAsSimpleValue() { Style = MetricWidgetStyle.SimpleValue; }
-        public void ConfigureAsValueWithTrend() { Style = MetricWidgetStyle.ValueWithTrend; }
-        public void ConfigureAsProgressMetric() { Style = MetricWidgetStyle.ProgressMetric; }
-        public void ConfigureAsGaugeMetric() { Style = MetricWidgetStyle.GaugeMetric; }
+        [Category("Widget")]
+        [Description("Trend direction: up, down, or neutral")]
+        public string TrendDirection
+        {
+            get => _designer.GetProperty<string>("TrendDirection") ?? string.Empty;
+            set => _designer.SetProperty("TrendDirection", value);
+        }
+
+        [Category("Widget")]
+        [Description("Trend percentage value")]
+        public double TrendPercentage
+        {
+            get => _designer.GetProperty<double>("TrendPercentage");
+            set => _designer.SetProperty("TrendPercentage", value);
+        }
+
+        [Category("Widget")]
+        [Description("Whether to show the trend indicator")]
+        public bool ShowTrend
+        {
+            get => _designer.GetProperty<bool>("ShowTrend");
+            set => _designer.SetProperty("ShowTrend", value);
+        }
+
+        [Category("Widget")]
+        [Description("Whether to show an icon")]
+        public bool ShowIcon
+        {
+            get => _designer.GetProperty<bool>("ShowIcon");
+            set => _designer.SetProperty("ShowIcon", value);
+        }
+
+        public void ConfigureAsSimpleValue()
+        {
+            Style = MetricWidgetStyle.SimpleValue;
+            ShowTrend = false;
+            ShowIcon = false;
+        }
+
+        public void ConfigureAsValueWithTrend()
+        {
+            Style = MetricWidgetStyle.ValueWithTrend;
+            ShowTrend = true;
+            TrendDirection = "up";
+            TrendPercentage = 12.5;
+        }
+
+        public void ConfigureAsProgressMetric()
+        {
+            Style = MetricWidgetStyle.ProgressMetric;
+            ShowTrend = false;
+            ShowIcon = false;
+        }
+
+        public void ConfigureAsGaugeMetric()
+        {
+            Style = MetricWidgetStyle.GaugeMetric;
+            ShowTrend = false;
+            ShowIcon = false;
+        }
+
+        public void ConfigureAsComparisonMetric()
+        {
+            Style = MetricWidgetStyle.ComparisonMetric;
+            ShowTrend = true;
+            TrendDirection = "neutral";
+            TrendPercentage = 0;
+        }
+
+        public void ConfigureAsCardMetric()
+        {
+            Style = MetricWidgetStyle.CardMetric;
+            ShowTrend = false;
+            ShowIcon = true;
+        }
 
         public override DesignerActionItemCollection GetSortedActionItems()
         {
@@ -85,12 +156,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsValueWithTrend", "Value With Trend", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsProgressMetric", "Progress Metric", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsGaugeMetric", "Gauge Metric", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsComparisonMetric", "Comparison Metric", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsCardMetric", "Card Metric", "Style Presets", true));
             items.Add(new DesignerActionHeaderItem("Properties"));
             items.Add(new DesignerActionPropertyItem("Style", "Style", "Properties"));
             items.Add(new DesignerActionPropertyItem("Title", "Title", "Properties"));
             items.Add(new DesignerActionPropertyItem("Value", "Value", "Properties"));
             items.Add(new DesignerActionPropertyItem("Units", "Units", "Properties"));
             items.Add(new DesignerActionPropertyItem("TrendValue", "Trend Value", "Properties"));
+            items.Add(new DesignerActionPropertyItem("TrendDirection", "Trend Direction", "Properties"));
+            items.Add(new DesignerActionPropertyItem("TrendPercentage", "Trend Percentage", "Properties"));
+            items.Add(new DesignerActionPropertyItem("ShowTrend", "Show Trend", "Properties"));
+            items.Add(new DesignerActionPropertyItem("ShowIcon", "Show Icon", "Properties"));
             return items;
         }
     }

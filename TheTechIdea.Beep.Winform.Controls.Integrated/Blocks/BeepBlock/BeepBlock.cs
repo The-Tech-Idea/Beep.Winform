@@ -76,6 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             get => _definition;
             set
             {
+                bool hadExplicitFieldDefinitions = BeepBlockFieldDefinitionStateHelper.HasExplicitFieldDefinitions(_definition);
+                BeepBlockFieldDefinitionStateHelper.UpdateExplicitFieldState(value, hadExplicitFieldDefinitions);
                 _definition = value;
                 if (!string.IsNullOrWhiteSpace(value?.BlockName))
                 {
@@ -84,6 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
                 _viewState.ManagerBlockName = ManagerBlockName;
                 RefreshRuntimeDefinition(TryGetManagerBlockInfo());
+                ReconcileDesignerGeneratedBindings(EffectiveDefinition);
                 RefreshPresentation();
                 NotifyViewStateChanged();
                 Invalidate();
@@ -149,6 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             _viewState.RecordCount = 0;
             SyncGridFromManager(null);
             RefreshRuntimeDefinition(null);
+            ReconcileDesignerGeneratedBindings(EffectiveDefinition);
             RefreshPresentation();
             NotifyViewStateChanged();
         }
@@ -160,8 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         public void SyncFromManager()
         {
-            var manager = _formsHost?.FormsManager;
-            if (manager == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !manager.BlockExists(ManagerBlockName))
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !_formsHost.IsBlockRegistered(ManagerBlockName))
             {
                 SyncValidationSubscriptions(null);
                 ResetRecordBinding();
@@ -172,23 +175,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 _viewState.RecordCount = 0;
                 SyncGridFromManager(null);
                 RefreshRuntimeDefinition(null);
+                ReconcileDesignerGeneratedBindings(EffectiveDefinition);
                 RefreshPresentation();
                 NotifyViewStateChanged();
                 return;
             }
 
-            var blockInfo = manager.GetBlock(ManagerBlockName);
-            var unitOfWork = manager.GetUnitOfWork(ManagerBlockName);
+            var blockInfo = _formsHost.GetBlockInfo(ManagerBlockName);
+            var unitOfWork = _formsHost.GetBlockUnitOfWork(ManagerBlockName);
 
-            SyncValidationSubscriptions(manager);
+            SyncValidationSubscriptions(_formsHost?.FormsManager);
             RefreshRuntimeDefinition(blockInfo);
+            ReconcileDesignerGeneratedBindings(EffectiveDefinition);
             SyncRecordBinding(unitOfWork);
 
             _viewState.IsDirty = unitOfWork?.IsDirty ?? false;
             _viewState.Mode = blockInfo?.Mode ?? DataBlockMode.Query;
             _viewState.IsQueryMode = _viewState.Mode == DataBlockMode.Query;
 
-            SyncGridFromManager(manager);
+            SyncGridFromManager(_formsHost?.FormsManager);
             UpdateRecordViewState(unitOfWork);
             RefreshPresentation();
             NotifyViewStateChanged();
@@ -222,7 +227,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint |
-                ControlStyles.ResizeRedraw,
+                ControlStyles.ResizeRedraw |
+                ControlStyles.SupportsTransparentBackColor,
                 true);
 
             AutoScroll = true;

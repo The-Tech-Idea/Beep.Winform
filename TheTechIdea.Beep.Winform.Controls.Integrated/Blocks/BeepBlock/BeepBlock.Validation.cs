@@ -89,8 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            var manager = _formsHost?.FormsManager;
-            if (manager == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !manager.BlockExists(ManagerBlockName))
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !_formsHost.IsBlockRegistered(ManagerBlockName))
             {
                 ResetValidationState();
                 return;
@@ -103,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            ApplyRecordValidationResult(manager.Validation.ValidateRecord(ManagerBlockName, record, ValidationTiming.Manual));
+            ApplyRecordValidationResult(_formsHost!.ValidateBlockRecord(ManagerBlockName, record, ValidationTiming.Manual));
         }
 
         private void ApplyRecordValidationResult(RecordValidationResult? result)

@@ -4,7 +4,9 @@ using System.Linq;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks

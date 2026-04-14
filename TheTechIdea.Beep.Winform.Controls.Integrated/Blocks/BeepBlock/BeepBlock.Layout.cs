@@ -244,8 +244,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         private void ApplyPresentationMode()
         {
-            bool showGrid = !ViewState.IsQueryMode &&
-                            (EffectiveDefinition?.PresentationMode ?? BeepBlockPresentationMode.Record) == BeepBlockPresentationMode.Grid;
+            var mode = EffectiveDefinition?.PresentationMode ?? BeepBlockPresentationMode.Record;
+
+            // DesignerGenerated: the host panels are not used; the parent form owns the controls.
+            if (mode == BeepBlockPresentationMode.DesignerGenerated)
+            {
+                if (_recordHostPanel != null) _recordHostPanel.Visible = false;
+                if (_gridHostPanel != null)   _gridHostPanel.Visible   = false;
+                // Push current record values into the designer-generated controls.
+                RefreshGeneratedFieldControls();
+                return;
+            }
+
+            bool showGrid = !ViewState.IsQueryMode && mode == BeepBlockPresentationMode.Grid;
 
             if (_recordHostPanel != null)
             {

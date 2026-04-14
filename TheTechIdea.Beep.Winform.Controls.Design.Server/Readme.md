@@ -8,7 +8,7 @@ Design-time extensions for Beep WinForms controls, including `BeepDocumentHost` 
 
 | Folder | Contents |
 |---|---|
-| `ActionLists/` | `DocumentHostActionList` — smart-tag property bindings + method actions |
+| `ActionLists/` | Shared smart-tag infrastructure such as `CommonBeepControlActionList`, `ImagePathDesignerActionList`, `ContainerControlActionList`, `DataControlActionList`, `DocumentHostActionList`, and `WizardConfigActionList` |
 | `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `ThemePickerDialog` |
 | `Editors/` | `DocumentDescriptorCollectionEditor`, `DesignTimeDocumentsEditor`, `IconPickerDialog`, `IntegratedFormsDefinitionEditors` |
 | `Helpers/` | Internal utilities used by designers |
@@ -43,6 +43,39 @@ Using the integrated editors:
 5. For manually placed blocks, pick `BlockName` from the suggested host block list when a nearby `BeepForms` definition is present.
 6. When you need global default changes instead of per-field overrides, use `Edit Field Default Policy...` from the `BeepBlock` smart tag or the `Default Policy...` button inside the field editor or setup wizard.
 7. The policy editor persists back to `%LocalAppData%\TheTechIdea\Beep.Winform\field-control-defaults.json` and applies immediately to newly generated block fields.
+8. `BeepBlock` smart tags now expose direct `Caption`, `Manager Block Name`, `Presentation Mode`, `Navigation Settings`, and `Field Controls Layout` editing, including a dedicated `Edit Navigation Settings...` action plus quick presets for `DesignerGenerated` with Stacked Vertical, Label Field Pairs, and Grid layout metadata.
+9. The BeepBlock setup wizard now supports `DesignerGenerated` presentation mode, persists `FieldControlsLayoutMode` metadata when that mode is selected, and shows a live layout preview so authors can see the generated composition before finishing.
+10. The field editor now preserves `DefaultValue`, loads rows in persisted field order, and supports explicit Move Up / Move Down row ordering without forcing manual order edits.
+
+### `BeepBlockDesigner` (Designers/)
+The integrated block smart tag now covers the current BeepBlock definition contract directly.
+
+Provides:
+- Block-level smart-tag properties for `BlockName`, `Caption`, `ManagerBlockName`, `PresentationMode`, `Navigation`, and full `Definition`
+- Quick actions to create starter definitions, capture entity metadata from FormsManager, rebuild fields from the entity snapshot, open the setup wizard or field editor, and launch a dedicated navigation editor dialog without opening the full definition object
+- Dedicated `Designer Generated` actions that switch the block into `BeepBlockPresentationMode.DesignerGenerated` and persist the selected generated field-controls layout in `Definition.Metadata["FieldControlsLayoutMode"]`
+- Smart-tag `BlockName` edits now keep the component property and `Definition.BlockName` synchronized, and the standalone `Field Controls Layout` property only appears while the block is already running in `DesignerGenerated` mode
+- Baseline image-backed controls now share the same Beep style/theme smart tags as the rest of the suite: `BeepButtonDesigner` and `BeepLabelDesigner` now inherit the common designer base, `BeepPanelDesigner` now uses a shared parent-control base plus container/header smart tags, and the panel header image/title presets are available from the smart-tag surface instead of only the designer verb menu
+- Data-entry designer gaps were tightened for the common pickers: `BeepComboBoxDesigner` now maps multi-select to the real `AllowMultipleSelection` runtime property and exposes searchable / chip / command-menu presets, while `BeepListBoxDesigner` now maps search to `ShowSearch` and surfaces selection, grouping, density, loading, and data-binding properties that actually exist on the runtime control
+- The integrated forms shell family now shares `BaseBeepParentControlDesigner`: `BeepFormsHostDesigner`, `BeepFormsHeaderDesigner`, `BeepFormsStatusStripDesigner`, `BeepFormsQueryShelfDesigner`, `BeepFormsCommandBarDesigner`, `BeepFormsPersistenceShelfDesigner`, and `BeepFormsToolbarDesigner` no longer duplicate local change-service and property plumbing just to expose control-specific presets
+- Container designers were brought closer to the `BeepDocumentHost` experience: `BeepTabsDesigner` now exposes selected-tab caption editing plus add / remove / clear / reorder / select page actions from both smart tags and designer verbs, and it now syncs the VS designer selection service to the active `TabPage` after add / remove / navigation actions so focus stays on the authored page; `BeepLayoutControlDesigner` now exposes restore / clear generated-child actions and workspace-oriented 2 x 2 grid and split presets in addition to raw template switching
+- Thin widget designers now expose the runtime switches that make presets usable instead of only `Style` and `Title`: calendar, chart, dashboard, finance, form, map, metric, navigation, control, list, media, notification, and social widgets now surface key behavior toggles directly from the smart-tag panel
+- Reusable smart-tag helpers now live under `ActionLists/` instead of being split across designer files: `CommonBeepControlActionList` and `ImagePathDesignerActionList` were moved alongside the other shared action-list types, while control-specific action lists still stay next to their designer when they only serve one control surface
+- Designers that expose custom verb collections now route those commands through explicit designer helpers and override `Verbs` so smart-tag actions do not depend on fragile `Verbs[index]` assumptions; this tightened the icon-picking surfaces on `BeepToggleDesigner`, `BeepSwitchDesigner`, and `BeepExtendedButtonDesigner`
+- Toggle-family icon surfaces now target the real runtime properties (`OnIconPath` / `OffIconPath` for `BeepToggle`, `OnIconName` / `OffIconName` for `BeepSwitch`) instead of placeholder names, and `BeepCheckBoxDesigner` style presets now apply the helper-backed recommended checkbox size and spacing together with the selected visual style
+- `BeepToggleDesigner` icon presets now also switch the control to `ToggleStyle.IconCustom`, matching the runtime examples where custom icon paths are only meaningful when the toggle is in a custom-icon rendering mode
+- `BeepDockDesigner` style presets now defer to the runtime `DockStyleType` setter for recommended item size, dock height, spacing, padding, and scale instead of hardcoding duplicate values that can drift from `DockStyleHelpers`; the dock smart tag also now exposes runtime-backed `AnimationStyle`, `IconMode`, `ShowTooltips`, and `ShowBadges` properties
+- `BeepCardDesigner` now reuses the shared image smart-tag surface and exposes the card-specific runtime fields that its painters actually depend on (`SubtitleText`, secondary button text/visibility, badge text, status text/visibility, rating, and accent color); the built-in card presets were also tightened so metric, testimonial, profile, pricing, product, and stat presets populate those painter-backed fields instead of only header/paragraph/button text
+- `BeepGridProDesigner` no longer exposes a dead sample-data action: `Generate Sample Data` now binds a non-serialized design-time preview row set through the grid's existing binder and pairs it with `Clear Sample Preview`, so the smart tag can show a reversible header/row preview without claiming unsupported behavior
+- Shared data-binding smart tags were narrowed to the real common surface: `DataControlActionList` now only exposes binding properties plus `Clear Data Binding`, while placeholder `Configure Data Source` and `Generate Sample Data` actions were removed so sample/config flows stay on the control-specific designers that actually implement them
+- Shared container smart tags were narrowed the same way: `ContainerControlActionList` now only exposes implemented `Arrange Children` and `Clear All Children` actions, while the old dock/flow layout entries were removed because `BeepPanelDesigner` never had a real shared implementation behind them
+
+Wizard / editor support:
+- Setup wizard step 4 now offers Record, Grid, and Designer Generated presentation modes
+- Designer Generated mode includes layout selection for `StackedVertical`, `LabelFieldPairs`, and `GridLayout`, plus a live preview panel that visualizes the selected composition alongside Record and Grid previews
+- Retargeting the setup wizard to a different entity now defaults that entity's fields selected, while finishing the wizard on the same entity preserves explicitly removed baseline fields unless the author reselects them; intentionally removing every field now persists as an explicit empty state instead of silently regenerating the entity defaults on the next round-trip
+- Entity snapshots captured through the wizard now preserve the lossless field flags used by runtime scaffolding: `IsIdentity`, `IsHidden`, `IsLong`, `IsRowVersion`, and `DefaultValue`
+- Field editor rows now round-trip `DefaultValue`, honor persisted ordering on load, and expose move-up / move-down ordering helpers, while the generic collection editors also renormalize `Order` after add/remove/move so property-grid edits stay aligned with the dedicated field editor
 
 ---
 

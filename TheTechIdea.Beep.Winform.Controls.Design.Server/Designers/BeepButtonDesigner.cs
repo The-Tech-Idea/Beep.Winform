@@ -1,40 +1,29 @@
 using System;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
-using Microsoft.DotNet.DesignTools.Designers;
-using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
     /// Provides design-time verbs for managing the BeepButton image content.
     /// </summary>
-    internal sealed class BeepButtonDesigner : ControlDesigner, IImagePathDesignerHost
+    internal sealed class BeepButtonDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
-        private IComponentChangeService _changeService;
-        private DesignerVerbCollection _verbs;
-        private DesignerActionListCollection _actionLists;
+        private DesignerVerbCollection? _verbs;
 
-        public override void Initialize(IComponent component)
-        {
-            base.Initialize(component);
-            _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
-        }
+        protected override DesignerActionListCollection GetControlSpecificActionLists()
+            => new DesignerActionListCollection
+            {
+                new ImagePathDesignerActionList(this)
+            };
 
         public override DesignerVerbCollection Verbs
             => _verbs ??= new DesignerVerbCollection
             {
                 new DesignerVerb("Select Image...", OnSelectImage),
                 new DesignerVerb("Clear Image", OnClearImage)
-            };
-
-        public override DesignerActionListCollection ActionLists
-            => _actionLists ??= new DesignerActionListCollection
-            {
-                new ImagePathDesignerActionList(this)
             };
 
         private void OnSelectImage(object sender, EventArgs e)
@@ -86,38 +75,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         public string GetImagePath()
-        {
-            if (Component == null)
-            {
-                return string.Empty;
-            }
-
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            return property?.GetValue(Component) as string ?? string.Empty;
-        }
+            => GetProperty<string>("ImagePath") ?? string.Empty;
 
         public void SetImagePath(string value)
-        {
-            if (Component == null)
-            {
-                return;
-            }
-
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            if (property == null)
-            {
-                return;
-            }
-
-            var current = property.GetValue(Component) as string;
-            if (string.Equals(current ?? string.Empty, value ?? string.Empty, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, current, value);
-        }
+            => SetProperty("ImagePath", value ?? string.Empty);
     }
 }

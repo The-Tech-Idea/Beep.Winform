@@ -88,44 +88,45 @@
 
 | Status | Item | File |
 |---|---|---|
-| not-started | Add `IsIdentity`, `IsHidden`, `IsLong`, `IsRowVersion`, `DefaultValue` to `BeepBlockEntityFieldDefinition` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
-| not-started | Update `CreateEntityDefinition()` field-mapping loop | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
-| not-started | Update `ToFieldDefinition()`: `IsVisible = !IsHidden`, extend `IsReadOnly`, add `DefaultValue` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
-| not-started | Update `Clone()` for 5 new fields | `Blocks/Models/BeepBlockEntityDefinition.cs` |
-| not-started | Add `DefaultValue` to `BeepFieldDefinition` + `Clone()` | `Blocks/Models/BeepFieldDefinition.cs` |
+| done | Add `IsIdentity`, `IsHidden`, `IsLong`, `IsRowVersion`, `DefaultValue` to `BeepBlockEntityFieldDefinition` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| done | Update `CreateEntityDefinition()` field-mapping loop | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
+| done | Update `ToFieldDefinition()`: `IsVisible = !IsHidden`, extend `IsReadOnly`, add `DefaultValue` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| done | Update `Clone()` for 5 new fields | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| done | Add `DefaultValue` to `BeepFieldDefinition` + `Clone()` | `Blocks/Models/BeepFieldDefinition.cs` |
 
 ### Phase 7B — FormsManager `SetupBlockAsync` (BeepDM)
 
 | Status | Item | File |
 |---|---|---|
-| not-started | Add `SetupBlockAsync(blockName, connectionName, entityName, isMaster, ct)` to `IUnitofWorksManager` | `DataManagementEngineStandard/Editor/Forms/Interfaces/IUnitofWorksManagerInterfaces.cs` |
-| not-started | Implement `SetupBlockAsync` in `FormsManager.cs` | `DataManagementEngineStandard/Editor/Forms/FormsManager.cs` |
+| done | Add `SetupBlockAsync(blockName, connectionName, entityName, isMaster, ct)` to `IUnitofWorksManager` | `DataManagementEngineStandard/Editor/Forms/Interfaces/IUnitofWorksManagerInterfaces.cs` |
+| done | Implement `SetupBlockAsync` in `FormsManager.BlockRegistration.cs` (delegates to `RegisterBlockFromSourceAsync`) | `DataManagementEngineStandard/Editor/Forms/FormsManager.BlockRegistration.cs` |
 
 ### Phase 7C — FieldCategory → ControlType Resolution (Beep.Winform)
 
 | Status | Item | File |
 |---|---|---|
-| not-started | Add `isLong` param + short-circuit to `ResolveDefaultFieldSettings()` | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
-| not-started | Complete category switch (Integer, Decimal, Date, DateTime, Boolean, Binary, Enum, LongString) | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
-| not-started | Update `ResolveWidth()` for numeric / long-text widths | `Blocks/Models/BeepBlockEntityDefinition.cs` |
-| not-started | Update `ResolveDefaultFieldSettings` call sites to pass `isLong` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| done | Add `isLong` param + short-circuit to `ResolveDefaultFieldSettings()` | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
+| done | Complete category switch (Integer, Decimal, Date, DateTime, Boolean, Binary, Enum, LongString) | `Blocks/Services/BeepFieldControlTypeRegistry.cs` |
+| done | Update `ResolveWidth()` for numeric / long-text widths | `Blocks/Models/BeepBlockEntityDefinition.cs` |
+| done | Update `ResolveDefaultFieldSettings` call sites to pass `isLong` | `Blocks/Models/BeepBlockEntityDefinition.cs` |
 
 ### Phase 7D — BeepForms Bootstrap Trigger, UI side only (Beep.Winform)
 
 | Status | Item | File |
 |---|---|---|
-| not-started | Create `BootstrapState` enum + `BeepFormsBootstrapEventArgs` | `Forms/Models/BeepFormsBootstrapModels.cs` (new) |
-| not-started | Add `BootstrapState` to `BeepFormsViewState` | `Forms/Models/BeepFormsViewState.cs` |
-| not-started | Add `InitializeAsync()` + `BootstrapCompleted` event to `BeepForms.cs` | `Forms/BeepForms/BeepForms.cs` |
-| not-started | Update `FormsManager` + `Definition` setters to call `InitializeAsync()` | `Forms/BeepForms/BeepForms.cs` |
-| not-started | Surface `BootstrapState` in `BeepFormsStatusStrip` | `Forms/Surfaces/BeepFormsStatusStrip.cs` |
+| done | `BootstrapState` enum + `BeepFormsBootstrapEventArgs` | `Forms/Models/BeepFormsBootstrapEventArgs.cs` |
+| done | Add `BootstrapState` to `BeepFormsViewState` | `Forms/Models/BeepFormsViewState.cs` |
+| done | Add `InitializeAsync()` + `BootstrapCompleted` event to `BeepForms.cs` | `Forms/BeepForms/BeepForms.cs` |
+| done | Update `FormsManager` + `Definition` setters to call `InitializeAsync()` | `Forms/BeepForms/BeepForms.cs` |
+| done | Surface `BootstrapState` prefix in `BeepFormsStatusStrip.UpdateFromViewState()` | `Forms/BeepFormsStatusStrip/BeepFormsStatusStrip.cs` |
+| done | Add `BootstrapCompleted` + `InitializeAsync` to `IBeepFormsHost` | `Forms/Contracts/IBeepFormsHost.cs` |
 
 ### Phase 7E — Designer-Time Preview (Beep.Winform)
 
 | Status | Item | File |
 |---|---|---|
-| not-started | Change `CreateEntityDefinition` to `internal static` | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
-| not-started | Override `GetProperties` + add `TryPopulateFromIde` helper | `Design.Server/Editors/BeepBlockEntityDefinitionTypeConverter.cs` |
+| done | `CreateEntityDefinition` is `internal static` | `Blocks/BeepBlock/BeepBlock.Metadata.cs` |
+| done | `BeepBlockEntityDefinitionTypeConverter` + `BeepBlockEntityFieldDefinitionTypeConverter` (both `GetProperties` + `ConvertTo`) | `Design.Server/Editors/IntegratedFormsDefinitionEditors.cs` |
 
 ---
 

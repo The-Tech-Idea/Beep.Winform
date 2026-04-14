@@ -33,6 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
+        public override DesignerVerbCollection Verbs => CustomVerbs;
+
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
@@ -41,11 +43,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         private void OnSelectMainIcon(object? sender, EventArgs e)
+            => SelectMainIcon();
+
+        public void SelectMainIcon()
         {
             SelectIcon("ImagePath");
         }
 
         private void OnSelectExtendIcon(object? sender, EventArgs e)
+            => SelectExtendIcon();
+
+        public void SelectExtendIcon()
         {
             SelectIcon("ExtendButtonImagePath");
         }
@@ -69,6 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         private void OnClearIcons(object? sender, EventArgs e)
+            => ClearIcons();
+
+        public void ClearIcons()
         {
             SetProperty("ImagePath", string.Empty);
             SetProperty("ExtendButtonImagePath", string.Empty);
@@ -112,8 +123,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         #region Actions
 
-        public void SelectMainIcon() => _designer.Verbs[0].Invoke();
-        public void SelectExtendIcon() => _designer.Verbs[1].Invoke();
+        public void SelectMainIcon() => _designer.SelectMainIcon();
+        public void SelectExtendIcon() => _designer.SelectExtendIcon();
 
         public void UseDropdownExtendIcon()
         {

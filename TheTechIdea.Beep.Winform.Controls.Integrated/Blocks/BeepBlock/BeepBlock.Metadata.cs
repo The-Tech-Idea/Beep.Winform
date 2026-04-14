@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
             var baseDefinition = _definition ?? CreateDefinitionShell();
             var entityDefinition = ResolveEntityDefinition(blockInfo, baseDefinition.Entity);
-            bool hasExplicitFields = baseDefinition.Fields != null && baseDefinition.Fields.Count > 0;
+            bool hasExplicitFields = BeepBlockFieldDefinitionStateHelper.HasExplicitFieldDefinitions(baseDefinition);
             string resolvedBlockName = string.IsNullOrWhiteSpace(blockInfo?.BlockName) ? baseDefinition.BlockName : blockInfo.BlockName;
 
             UpdateEntityViewState(entityDefinition);
@@ -95,14 +95,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 names.Add(_definition.Entity.ConnectionName);
             }
 
-            var connections = _formsHost?.FormsManager?.DMEEditor?.ConfigEditor?.DataConnections;
+            var connections = _formsHost?.GetAvailableConnectionNames();
             if (connections != null)
             {
-                foreach (var connection in connections)
+                foreach (var name in connections)
                 {
-                    if (!string.IsNullOrWhiteSpace(connection?.ConnectionName))
+                    if (!string.IsNullOrWhiteSpace(name))
                     {
-                        names.Add(connection.ConnectionName);
+                        names.Add(name);
                     }
                 }
             }
@@ -112,13 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         private DataBlockInfo? TryGetManagerBlockInfo()
         {
-            var manager = _formsHost?.FormsManager;
-            if (manager == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !manager.BlockExists(ManagerBlockName))
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !_formsHost.IsBlockRegistered(ManagerBlockName))
             {
                 return null;
             }
 
-            return manager.GetBlock(ManagerBlockName);
+            return _formsHost.GetBlockInfo(ManagerBlockName);
         }
 
         private static string ResolveCaption(BeepBlockEntityDefinition entityDefinition, string fallbackBlockName)

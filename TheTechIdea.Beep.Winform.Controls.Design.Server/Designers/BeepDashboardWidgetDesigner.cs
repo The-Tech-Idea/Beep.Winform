@@ -61,9 +61,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("Rows", value);
         }
 
-        public void ConfigureAsMultiMetric() { Style = DashboardWidgetStyle.MultiMetric; }
-        public void ConfigureAsChartGrid() { Style = DashboardWidgetStyle.ChartGrid; }
-        public void ConfigureAsTimelineView() { Style = DashboardWidgetStyle.TimelineView; }
+        [Category("Dashboard")]
+        [Description("Show the dashboard title header")]
+        public bool ShowTitle
+        {
+            get => _designer.GetProperty<bool>("ShowTitle");
+            set => _designer.SetProperty("ShowTitle", value);
+        }
+
+        public void ConfigureAsMultiMetric()
+        {
+            Style = DashboardWidgetStyle.MultiMetric;
+            ShowTitle = true;
+            Columns = 2;
+            Rows = 2;
+        }
+
+        public void ConfigureAsChartGrid()
+        {
+            Style = DashboardWidgetStyle.ChartGrid;
+            ShowTitle = true;
+            Columns = 2;
+            Rows = 2;
+        }
+
+        public void ConfigureAsTimelineView()
+        {
+            Style = DashboardWidgetStyle.TimelineView;
+            ShowTitle = true;
+            Columns = 1;
+            Rows = 1;
+        }
+
+        public void ConfigureAsStatusOverview()
+        {
+            Style = DashboardWidgetStyle.StatusOverview;
+            ShowTitle = true;
+            Columns = 2;
+            Rows = 2;
+        }
 
         public override DesignerActionItemCollection GetSortedActionItems()
         {
@@ -72,9 +108,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsMultiMetric", "Multi Metric", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsChartGrid", "Chart Grid", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsTimelineView", "Timeline View", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsStatusOverview", "Status Overview", "Style Presets", true));
             items.Add(new DesignerActionHeaderItem("Properties"));
             items.Add(new DesignerActionPropertyItem("Style", "Style", "Properties"));
             items.Add(new DesignerActionPropertyItem("Title", "Title", "Properties"));
+            items.Add(new DesignerActionPropertyItem("ShowTitle", "Show Title", "Properties"));
             items.Add(new DesignerActionPropertyItem("Columns", "Columns", "Properties"));
             items.Add(new DesignerActionPropertyItem("Rows", "Rows", "Properties"));
             return items;

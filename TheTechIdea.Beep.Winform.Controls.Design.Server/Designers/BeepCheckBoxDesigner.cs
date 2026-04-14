@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyMaterial3Style()
         {
-            CheckBoxStyle = CheckBoxStyle.Material3;
+            ApplyStylePreset(CheckBoxStyle.Material3);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyModernStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.Modern;
+            ApplyStylePreset(CheckBoxStyle.Modern);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyClassicStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.Classic;
+            ApplyStylePreset(CheckBoxStyle.Classic);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyMinimalStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.Minimal;
+            ApplyStylePreset(CheckBoxStyle.Minimal);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyiOSStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.iOS;
+            ApplyStylePreset(CheckBoxStyle.iOS);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyFluent2Style()
         {
-            CheckBoxStyle = CheckBoxStyle.Fluent2;
+            ApplyStylePreset(CheckBoxStyle.Fluent2);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplySwitchStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.Switch;
+            ApplyStylePreset(CheckBoxStyle.Switch);
         }
 
         /// <summary>
@@ -149,7 +149,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ApplyButtonStyle()
         {
-            CheckBoxStyle = CheckBoxStyle.Button;
+            ApplyStylePreset(CheckBoxStyle.Button);
+        }
+
+        private void ApplyStylePreset(CheckBoxStyle style)
+        {
+            CheckBoxStyle = style;
+            CheckBoxSize = CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(style);
+            Spacing = CheckBoxStyleHelpers.GetRecommendedSpacing(style);
         }
 
         /// <summary>
@@ -159,8 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (CheckBox != null)
             {
-                CheckBoxSize = CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(CheckBox.CheckBoxStyle);
-                Spacing = CheckBoxStyleHelpers.GetRecommendedSpacing(CheckBox.CheckBoxStyle);
+                ApplyStylePreset(CheckBox.CheckBoxStyle);
             }
         }
 

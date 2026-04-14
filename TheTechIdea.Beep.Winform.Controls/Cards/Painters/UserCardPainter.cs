@@ -155,6 +155,14 @@ _nameFont = titleFont;
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _roleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
+
             // Draw status badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {

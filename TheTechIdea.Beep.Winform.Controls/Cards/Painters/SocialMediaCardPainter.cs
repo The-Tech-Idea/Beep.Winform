@@ -57,7 +57,8 @@ _timeFont = captionFont;
 
             ctx.TagsRect = new Rectangle(ctx.DrawingRect.Left + pad, Math.Min(ctx.ParagraphRect.Bottom + 8, buttonY - 24), ctx.DrawingRect.Width - pad * 2, 20);
 
-            ctx.ShowSecondaryButton = true;
+            ctx.ShowButton = false;
+            ctx.ShowSecondaryButton = false;
             return ctx;
         }
 
@@ -65,6 +66,13 @@ _timeFont = captionFont;
 
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var handleBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
+                var handleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _timeFont, handleBrush, ctx.SubtitleRect, handleFormat);
+            }
+
             // Draw timestamp
             if (!string.IsNullOrEmpty(ctx.StatusText))
             {
@@ -77,13 +85,13 @@ _timeFont = captionFont;
             CardRenderingHelpers.DrawChips(g, Owner, ctx.TagsRect, ctx.AccentColor, ctx.Tags, _timeFont);
             
             // Draw engagement icons (like, share, etc.)
-            if (ctx.ShowButton)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 var iconBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("♥ Like", _iconFont, iconBrush, ctx.ButtonRect, format);
                 
-                if (ctx.ShowSecondaryButton)
+                if (!ctx.SecondaryButtonRect.IsEmpty)
                 {
                     g.DrawString("↗ Share", _iconFont, iconBrush, ctx.SecondaryButtonRect, format);
                 }

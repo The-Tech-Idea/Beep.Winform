@@ -2,7 +2,7 @@ using System;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 
-namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
+namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 {
     /// <summary>
     /// Interface implemented by designers that expose select/clear image commands for smart tags.
@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     internal sealed class ImagePathDesignerActionList : DesignerActionList
     {
         private readonly IImagePathDesignerHost _host;
+
         public ImagePathDesignerActionList(ControlDesigner designer)
             : base(designer.Component)
         {

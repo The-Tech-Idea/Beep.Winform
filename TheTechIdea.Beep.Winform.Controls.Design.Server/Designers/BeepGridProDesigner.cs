@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
@@ -34,6 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     public class BeepGridProActionList : DesignerActionList
     {
         private readonly BeepGridProDesigner _designer;
+
+        private sealed class DesignTimeGridPreviewRow
+        {
+            public int Id { get; set; }
+            public string Customer { get; set; } = string.Empty;
+            public string Status { get; set; } = string.Empty;
+            public decimal Amount { get; set; }
+            public DateTime UpdatedOn { get; set; }
+            public bool Active { get; set; }
+        }
 
         public BeepGridProActionList(BeepGridProDesigner designer)
             : base(designer.Component)
@@ -334,8 +347,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void GenerateSampleData()
         {
-            // This would use DesignTimeDataHelper to populate the grid
-            // For now, just a placeholder - actual implementation would add sample rows
+            if (Grid == null)
+            {
+                return;
+            }
+
+            try
+            {
+                Grid.ClearGrid();
+
+                var previewData = new BindingList<DesignTimeGridPreviewRow>
+                {
+                    new DesignTimeGridPreviewRow { Id = 1001, Customer = "Northwind Traders", Status = "Open", Amount = 12450.75m, UpdatedOn = DateTime.Today.AddDays(-1), Active = true },
+                    new DesignTimeGridPreviewRow { Id = 1002, Customer = "Contoso Ltd", Status = "Pending", Amount = 8420.10m, UpdatedOn = DateTime.Today.AddDays(-2), Active = true },
+                    new DesignTimeGridPreviewRow { Id = 1003, Customer = "Adventure Works", Status = "Closed", Amount = 3150.00m, UpdatedOn = DateTime.Today.AddDays(-5), Active = false },
+                    new DesignTimeGridPreviewRow { Id = 1004, Customer = "Fabrikam", Status = "Open", Amount = 22990.99m, UpdatedOn = DateTime.Today, Active = true },
+                    new DesignTimeGridPreviewRow { Id = 1005, Customer = "Tailspin Toys", Status = "Review", Amount = 1675.45m, UpdatedOn = DateTime.Today.AddDays(-3), Active = false },
+                    new DesignTimeGridPreviewRow { Id = 1006, Customer = "Woodgrove Bank", Status = "Pending", Amount = 9580.30m, UpdatedOn = DateTime.Today.AddDays(-7), Active = true }
+                };
+
+                var dataHelper = typeof(BeepGridPro).GetProperty("Data", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(Grid);
+                var bindMethod = dataHelper?.GetType().GetMethod("Bind", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                bindMethod?.Invoke(dataHelper, new object[] { previewData, false });
+
+                var layoutHelper = typeof(BeepGridPro).GetProperty("Layout", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(Grid);
+                var recalcMethod = layoutHelper?.GetType().GetMethod("Recalculate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                recalcMethod?.Invoke(layoutHelper, null);
+
+                Grid.Invalidate();
+                Grid.Refresh();
+            }
+            catch
+            {
+                // Leave the designer stable if the preview pipeline changes.
+            }
+        }
+
+        public void ClearSamplePreview()
+        {
+            Grid?.ClearGrid();
+            Grid?.Invalidate();
+            Grid?.Refresh();
         }
 
         /// <summary>
@@ -413,6 +465,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsSimpleList", "Simple List", "Quick Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsSelectionGrid", "Selection Grid", "Quick Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "GenerateSampleData", "Generate Sample Data", "Quick Configuration", true));
+            items.Add(new DesignerActionMethodItem(this, "ClearSamplePreview", "Clear Sample Preview", "Quick Configuration", true));
 
             // Layout presets
             items.Add(new DesignerActionHeaderItem("Row Height Presets"));

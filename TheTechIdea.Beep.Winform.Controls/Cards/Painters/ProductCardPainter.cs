@@ -106,14 +106,14 @@ _nameFont = titleFont;
                 ratingHeight);
             
             // Price at right
-            ctx.ParagraphRect = new Rectangle(
+            ctx.SubtitleRect = new Rectangle(
                 ctx.HeaderRect.Right - priceWidth,
                 ctx.RatingRect.Top,
                 priceWidth,
                 ratingHeight + DpiScalingHelper.ScaleValue(4, _owner));
             
             // Description below rating
-            ctx.SubtitleRect = new Rectangle(
+            ctx.ParagraphRect = new Rectangle(
                 ctx.HeaderRect.Left,
                 ctx.RatingRect.Bottom + elementGap,
                 contentWidth,
@@ -152,7 +152,7 @@ _nameFont = titleFont;
             }
             
             // Draw price
-            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ParagraphRect.IsEmpty)
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
                 using var brush = new SolidBrush(ctx.AccentColor);
                 var format = new StringFormat 
@@ -160,7 +160,7 @@ _nameFont = titleFont;
                     Alignment = StringAlignment.Far, 
                     LineAlignment = StringAlignment.Center 
                 };
-                g.DrawString(ctx.SubtitleText, _priceFont, brush, ctx.ParagraphRect, format);
+                g.DrawString(ctx.SubtitleText, _priceFont, brush, ctx.SubtitleRect, format);
             }
         }
         

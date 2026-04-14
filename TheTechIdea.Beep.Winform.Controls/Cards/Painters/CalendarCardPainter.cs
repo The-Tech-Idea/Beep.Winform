@@ -73,18 +73,17 @@ _monthFont = bodyFont;
             int contentTop = ctx.ShowStatus ? ctx.StatusRect.Bottom + Padding : drawingRect.Top + Padding;
             
             // Large date block on left (Material Design inspired)
-            if (ctx.ShowImage)
-            {
-                ctx.ImageRect = new Rectangle(
-                    drawingRect.Left + Padding,
-                    contentTop,
-                    DateBlockSize,
-                    DateBlockSize);
-            }
+            ctx.ImageRect = new Rectangle(
+                drawingRect.Left + Padding,
+                contentTop,
+                DateBlockSize,
+                DateBlockSize);
             
             // Content area to the right of date block
-            int contentLeft = ctx.ShowImage ? ctx.ImageRect.Right + ContentGap : drawingRect.Left + Padding;
-            int contentWidth = drawingRect.Width - Padding * 2 - (ctx.ShowImage ? DateBlockSize + ContentGap : 0);
+            int contentLeft = ctx.ImageRect.Right + ContentGap;
+            int contentWidth = drawingRect.Width - Padding * 2 - DateBlockSize - ContentGap;
+
+            ctx.ShowImage = false;
             
             // Event title
             ctx.HeaderRect = new Rectangle(
@@ -150,7 +149,7 @@ _monthFont = bodyFont;
             }
             
             // Draw date block with calendar-style layout
-            if (ctx.ShowImage && !string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ImageRect.IsEmpty)
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ImageRect.IsEmpty)
             {
                 // Draw date block background
                 using var bgPath = CardRenderingHelpers.CreateRoundedPath(ctx.ImageRect, 8);
@@ -185,6 +184,14 @@ _monthFont = bodyFont;
                     g.DrawString(ctx.SubtitleText, _dayFont, textBrush, ctx.ImageRect, format);
                 }
             }
+
+            if (!string.IsNullOrEmpty(ctx.StatusText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var timeColor = Color.FromArgb(170, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var timeBrush = new SolidBrush(timeColor);
+                var timeFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.StatusText, _timeFont, timeBrush, ctx.SubtitleRect, timeFormat);
+            }
             
             // Draw location/category badge
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
@@ -196,7 +203,7 @@ _monthFont = bodyFont;
         
         public void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
         {
-            if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
+            if (!ctx.ImageRect.IsEmpty)
             {
                 owner.AddHitArea("DateBlock", ctx.ImageRect, null,
                     () => notifyAreaHit?.Invoke("DateBlock", ctx.ImageRect));

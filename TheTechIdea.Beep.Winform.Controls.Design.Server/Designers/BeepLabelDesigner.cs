@@ -1,45 +1,35 @@
 using System;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
-using Microsoft.DotNet.DesignTools.Designers;
-using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
     /// Designer verbs for BeepLabel to streamline image selection.
     /// </summary>
-    internal sealed class BeepLabelDesigner : ControlDesigner, IImagePathDesignerHost
+    internal sealed class BeepLabelDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
-        private IComponentChangeService _changeService;
-        private DesignerVerbCollection _verbs;
-        private DesignerActionListCollection _actionLists;
+        private DesignerVerbCollection? _verbs;
 
-        public override void Initialize(IComponent component)
-        {
-            base.Initialize(component);
-            _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
-        }
+        protected override DesignerActionListCollection GetControlSpecificActionLists()
+            => new DesignerActionListCollection
+            {
+                new ImagePathDesignerActionList(this),
+                new BeepLabelActionList(this)
+            };
 
         public override DesignerVerbCollection Verbs
             => _verbs ??= new DesignerVerbCollection
             {
                 new DesignerVerb("Select Image...", OnSelectImage),
                 new DesignerVerb("Clear Image", OnClearImage),
-                new DesignerVerb("Preset: Text Only", (s, e) => ApplyPreset(textOnly: true, imageTop: false, titleCard: false)),
-                new DesignerVerb("Preset: Image Left", (s, e) => ApplyPreset(textOnly: false, imageTop: false, titleCard: false)),
-                new DesignerVerb("Preset: Image Top", (s, e) => ApplyPreset(textOnly: false, imageTop: true, titleCard: false)),
-                new DesignerVerb("Preset: Title + Subheader", (s, e) => ApplyPreset(textOnly: true, imageTop: false, titleCard: true)),
+                new DesignerVerb("Preset: Text Only", (s, e) => ApplyTextOnlyPreset()),
+                new DesignerVerb("Preset: Image Left", (s, e) => ApplyImageLeftPreset()),
+                new DesignerVerb("Preset: Image Top", (s, e) => ApplyImageTopPreset()),
+                new DesignerVerb("Preset: Title + Subheader", (s, e) => ApplyTitleCardPreset()),
                 new DesignerVerb("Toggle Theme Image Tint", (s, e) => ToggleApplyThemeOnImage())
-            };
-
-        public override DesignerActionListCollection ActionLists
-            => _actionLists ??= new DesignerActionListCollection
-            {
-                new ImagePathDesignerActionList(this)
             };
 
         private void OnSelectImage(object sender, EventArgs e)
@@ -82,39 +72,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         public string GetImagePath()
-        {
-            if (Component == null)
-            {
-                return string.Empty;
-            }
-
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            return property?.GetValue(Component) as string ?? string.Empty;
-        }
+            => GetProperty<string>("ImagePath") ?? string.Empty;
 
         public void SetImagePath(string value)
-        {
-            if (Component == null)
-            {
-                return;
-            }
+            => SetProperty("ImagePath", value ?? string.Empty);
 
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            if (property == null)
-            {
-                return;
-            }
+        public void ApplyTextOnlyPreset()
+            => ApplyPreset(textOnly: true, imageTop: false, titleCard: false);
 
-            var current = property.GetValue(Component) as string;
-            if (string.Equals(current ?? string.Empty, value ?? string.Empty, StringComparison.Ordinal))
-            {
-                return;
-            }
+        public void ApplyImageLeftPreset()
+            => ApplyPreset(textOnly: false, imageTop: false, titleCard: false);
 
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, current, value);
-        }
+        public void ApplyImageTopPreset()
+            => ApplyPreset(textOnly: false, imageTop: true, titleCard: false);
+
+        public void ApplyTitleCardPreset()
+            => ApplyPreset(textOnly: true, imageTop: false, titleCard: true);
 
         private void ApplyPreset(bool textOnly, bool imageTop, bool titleCard)
         {
@@ -123,52 +96,121 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return;
             }
 
-            var properties = TypeDescriptor.GetProperties(Component);
-            SetProperty(properties, "HideText", false);
-            SetProperty(properties, "TextImageRelation", textOnly
+            SetProperty("HideText", false);
+            SetProperty("TextImageRelation", textOnly
                 ? TextImageRelation.Overlay
                 : (imageTop ? TextImageRelation.ImageAboveText : TextImageRelation.ImageBeforeText));
-            SetProperty(properties, "TextAlign", titleCard ? ContentAlignment.TopLeft : ContentAlignment.MiddleLeft);
-            SetProperty(properties, "ImageAlign", imageTop ? ContentAlignment.TopCenter : ContentAlignment.MiddleLeft);
-            SetProperty(properties, "HeaderSubheaderSpacing", titleCard ? 4 : 2);
-            SetProperty(properties, "Multiline", titleCard);
+            SetProperty("TextAlign", titleCard ? ContentAlignment.TopLeft : ContentAlignment.MiddleLeft);
+            SetProperty("ImageAlign", imageTop ? ContentAlignment.TopCenter : ContentAlignment.MiddleLeft);
+            SetProperty("HeaderSubheaderSpacing", titleCard ? 4 : 2);
+            SetProperty("Multiline", titleCard);
         }
 
-        private void ToggleApplyThemeOnImage()
+        public void ToggleApplyThemeOnImage()
         {
             if (Component == null)
             {
                 return;
             }
 
-            var properties = TypeDescriptor.GetProperties(Component);
-            var property = properties["ApplyThemeOnImage"];
-            if (property == null)
-            {
-                return;
-            }
+            bool current = GetProperty<bool>("ApplyThemeOnImage");
+            SetProperty("ApplyThemeOnImage", !current);
+        }
+    }
 
-            bool current = property.GetValue(Component) is bool value && value;
-            SetProperty(properties, "ApplyThemeOnImage", !current);
+    internal sealed class BeepLabelActionList : DesignerActionList
+    {
+        private readonly BeepLabelDesigner _designer;
+
+        public BeepLabelActionList(BeepLabelDesigner designer)
+            : base(designer.Component)
+        {
+            _designer = designer ?? throw new ArgumentNullException(nameof(designer));
         }
 
-        private void SetProperty(PropertyDescriptorCollection properties, string propertyName, object value)
+        [Category("Content")]
+        [Description("Hide the label text while keeping image or subheader content.")]
+        public bool HideText
         {
-            var property = properties[propertyName];
-            if (property == null || property.IsReadOnly)
-            {
-                return;
-            }
+            get => _designer.GetProperty<bool>("HideText");
+            set => _designer.SetProperty("HideText", value);
+        }
 
-            var oldValue = property.GetValue(Component);
-            if (Equals(oldValue, value))
-            {
-                return;
-            }
+        [Category("Content")]
+        [Description("Relationship between image and text.")]
+        public TextImageRelation TextImageRelation
+        {
+            get => _designer.GetProperty<TextImageRelation>("TextImageRelation");
+            set => _designer.SetProperty("TextImageRelation", value);
+        }
 
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, oldValue, value);
+        [Category("Content")]
+        [Description("Text alignment within the label surface.")]
+        public ContentAlignment TextAlign
+        {
+            get => _designer.GetProperty<ContentAlignment>("TextAlign");
+            set => _designer.SetProperty("TextAlign", value);
+        }
+
+        [Category("Content")]
+        [Description("Image alignment within the label surface.")]
+        public ContentAlignment ImageAlign
+        {
+            get => _designer.GetProperty<ContentAlignment>("ImageAlign");
+            set => _designer.SetProperty("ImageAlign", value);
+        }
+
+        [Category("Content")]
+        [Description("Spacing between header and subheader text blocks.")]
+        public int HeaderSubheaderSpacing
+        {
+            get => _designer.GetProperty<int>("HeaderSubheaderSpacing");
+            set => _designer.SetProperty("HeaderSubheaderSpacing", value);
+        }
+
+        [Category("Content")]
+        [Description("Allow the label to render as multiple lines.")]
+        public bool Multiline
+        {
+            get => _designer.GetProperty<bool>("Multiline");
+            set => _designer.SetProperty("Multiline", value);
+        }
+
+        [Category("Image")]
+        [Description("Tint the selected image with the active theme colors.")]
+        public bool ApplyThemeOnImage
+        {
+            get => _designer.GetProperty<bool>("ApplyThemeOnImage");
+            set => _designer.SetProperty("ApplyThemeOnImage", value);
+        }
+
+        public void UseTextOnlyPreset() => _designer.ApplyTextOnlyPreset();
+        public void UseImageLeftPreset() => _designer.ApplyImageLeftPreset();
+        public void UseImageTopPreset() => _designer.ApplyImageTopPreset();
+        public void UseTitleCardPreset() => _designer.ApplyTitleCardPreset();
+
+        public override DesignerActionItemCollection GetSortedActionItems()
+        {
+            var items = new DesignerActionItemCollection();
+
+            items.Add(new DesignerActionHeaderItem("Label Presets"));
+            items.Add(new DesignerActionMethodItem(this, nameof(UseTextOnlyPreset), "Text Only", "Label Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(UseImageLeftPreset), "Image Left", "Label Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(UseImageTopPreset), "Image Top", "Label Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(UseTitleCardPreset), "Title + Subheader", "Label Presets", true));
+
+            items.Add(new DesignerActionHeaderItem("Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(HideText), "Hide Text", "Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(TextImageRelation), "Text / Image Relation", "Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(TextAlign), "Text Align", "Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(ImageAlign), "Image Align", "Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(HeaderSubheaderSpacing), "Header/Subheader Spacing", "Content"));
+            items.Add(new DesignerActionPropertyItem(nameof(Multiline), "Multiline", "Content"));
+
+            items.Add(new DesignerActionHeaderItem("Image"));
+            items.Add(new DesignerActionPropertyItem(nameof(ApplyThemeOnImage), "Apply Theme On Image", "Image"));
+
+            return items;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         // Announcement card fonts
         private Font _titleFont;
+        private Font _metaFont;
         private Font _messageFont;
         private Font _actionFont;
         private Font _badgeFont;
@@ -46,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
 _titleFont = titleFont;
+            _metaFont = captionFont;
             _messageFont = bodyFont;
             _actionFont = bodyFont;
             _badgeFont = captionFont;
@@ -95,14 +97,24 @@ _titleFont = titleFont;
                 drawingRect.Top + Padding,
                 contentWidth - (string.IsNullOrEmpty(ctx.BadgeText1) ? 0 : BadgeWidth + ElementGap),
                 TitleHeight);
+
+            int subtitleHeight = !string.IsNullOrEmpty(ctx.SubtitleText) ? 18 : 0;
+            if (subtitleHeight > 0)
+            {
+                ctx.SubtitleRect = new Rectangle(
+                    contentLeft,
+                    ctx.HeaderRect.Bottom + ElementGap / 2,
+                    contentWidth,
+                    subtitleHeight);
+            }
             
             // Message
             int messageHeight = Math.Max(MessageMinHeight, 
-                drawingRect.Height - Padding * 2 - TitleHeight - ElementGap);
+                drawingRect.Height - Padding * 2 - TitleHeight - subtitleHeight - ElementGap);
             
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                (subtitleHeight > 0 ? ctx.SubtitleRect.Bottom : ctx.HeaderRect.Bottom) + ElementGap / 2,
                 contentWidth,
                 messageHeight);
             
@@ -113,7 +125,7 @@ _titleFont = titleFont;
                 24,
                 24);
             
-            ctx.ShowSecondaryButton = true;
+            ctx.ShowSecondaryButton = false; // Dismiss button is painter-owned
             return ctx;
         }
         
@@ -138,6 +150,14 @@ _titleFont = titleFont;
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
                 DrawAnnouncementIcon(g, ctx);
+            }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
             }
             
             // Draw badge

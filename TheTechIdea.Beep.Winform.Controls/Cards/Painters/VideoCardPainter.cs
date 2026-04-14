@@ -144,7 +144,7 @@ _titleFont = titleFont;
                 contentWidth,
                 statsHeight);
             
-            ctx.ShowButton = true; // Play button
+            ctx.ShowButton = false; // Play button is painted by the custom painter
             ctx.ShowSecondaryButton = false;
             return ctx;
         }
@@ -192,13 +192,13 @@ _titleFont = titleFont;
                 using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), 2);
                 g.DrawEllipse(borderPen, ctx.StatusRect);
             }
-            
-            // Draw view count and date
-            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.ParagraphRect.IsEmpty)
+
+            // Draw channel name / source
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
             {
-                using var brush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                using var brush = new SolidBrush(Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black));
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString(ctx.SubtitleText, _statsFont, brush, ctx.ParagraphRect, format);
+                g.DrawString(ctx.SubtitleText, _channelFont, brush, ctx.SubtitleRect, format);
             }
             
             // Draw gradient overlay on thumbnail bottom

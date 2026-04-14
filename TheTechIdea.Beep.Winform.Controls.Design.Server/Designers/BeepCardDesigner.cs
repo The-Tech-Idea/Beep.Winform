@@ -1,9 +1,11 @@
 using System;
 using System.ComponentModel;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
@@ -11,16 +13,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// Design-time support for BeepCard control
     /// Provides smart tags for card type presets and common configurations
     /// </summary>
-    public class BeepCardDesigner : BaseBeepControlDesigner
+    public class BeepCardDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
+        private DesignerVerbCollection? _verbs;
+
         public BeepCard? Card => Component as BeepCard;
 
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
+            lists.Add(new ImagePathDesignerActionList(this));
             lists.Add(new BeepCardActionList(this));
             return lists;
         }
+
+        public override DesignerVerbCollection Verbs
+            => _verbs ??= new DesignerVerbCollection
+            {
+                new DesignerVerb("Select Image...", OnSelectImage),
+                new DesignerVerb("Clear Image", OnClearImage)
+            };
+
+        private void OnSelectImage(object sender, EventArgs e)
+            => SelectImage();
+
+        private void OnClearImage(object sender, EventArgs e)
+            => ClearImage();
+
+        public void SelectImage()
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+
+            using var dialog = new BeepImagePickerDialog(null, embed: false, serviceProvider, Component.GetType().Assembly);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public void ClearImage()
+            => SetImagePath(string.Empty);
+
+        public string GetImagePath()
+            => GetProperty<string>("ImagePath") ?? string.Empty;
+
+        public void SetImagePath(string value)
+            => SetProperty("ImagePath", value ?? string.Empty);
     }
 
     /// <summary>
@@ -82,27 +131,118 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         [Category("Card")]
-        [Description("Image path for the card")]
-        public string ImagePath
+        [Description("Secondary text displayed by many card styles")]
+        public string SubtitleText
         {
-            get => _designer.GetProperty<string>("ImagePath") ?? string.Empty;
-            set => _designer.SetProperty("ImagePath", value);
+            get => _designer.GetProperty<string>("SubtitleText") ?? string.Empty;
+            set => _designer.SetProperty("SubtitleText", value);
+        }
+
+        [Category("Card")]
+        [Description("Text displayed on a secondary action button when the style supports it")]
+        public string SecondaryButtonText
+        {
+            get => _designer.GetProperty<string>("SecondaryButtonText") ?? string.Empty;
+            set => _designer.SetProperty("SecondaryButtonText", value);
+        }
+
+        [Category("Card")]
+        [Description("Whether to show the secondary action button")]
+        public bool ShowSecondaryButton
+        {
+            get => _designer.GetProperty<bool>("ShowSecondaryButton");
+            set => _designer.SetProperty("ShowSecondaryButton", value);
+        }
+
+        [Category("Card")]
+        [Description("Primary badge text rendered by styles that support badge accents")]
+        public string BadgeText1
+        {
+            get => _designer.GetProperty<string>("BadgeText1") ?? string.Empty;
+            set => _designer.SetProperty("BadgeText1", value);
+        }
+
+        [Category("Card")]
+        [Description("Status or trend text rendered by styles that support status accents")]
+        public string StatusText
+        {
+            get => _designer.GetProperty<string>("StatusText") ?? string.Empty;
+            set => _designer.SetProperty("StatusText", value);
+        }
+
+        [Category("Card")]
+        [Description("Whether to show the style-specific status accent")]
+        public bool ShowStatus
+        {
+            get => _designer.GetProperty<bool>("ShowStatus");
+            set => _designer.SetProperty("ShowStatus", value);
+        }
+
+        [Category("Card")]
+        [Description("Rating value used by styles that render stars or nested depth")]
+        public int Rating
+        {
+            get => _designer.GetProperty<int>("Rating");
+            set => _designer.SetProperty("Rating", value);
+        }
+
+        [Category("Card")]
+        [Description("Whether to render the rating accent")]
+        public bool ShowRating
+        {
+            get => _designer.GetProperty<bool>("ShowRating");
+            set => _designer.SetProperty("ShowRating", value);
+        }
+
+        [Category("Card")]
+        [Description("Accent color used for card highlights and emphasis")]
+        public System.Drawing.Color AccentColor
+        {
+            get => _designer.GetProperty<System.Drawing.Color>("AccentColor");
+            set => _designer.SetProperty("AccentColor", value);
         }
 
         #endregion
 
         #region Quick Configuration Actions
 
+        private void ResetExtendedCardFields()
+        {
+            SubtitleText = string.Empty;
+            SecondaryButtonText = string.Empty;
+            ShowSecondaryButton = false;
+            BadgeText1 = string.Empty;
+            StatusText = string.Empty;
+            ShowStatus = false;
+            Rating = 0;
+            ShowRating = false;
+            ButtonText = string.Empty;
+            ShowButton = false;
+        }
+
+        private void ApplyCardPreset(CardStyle style, Action configure)
+        {
+            CardStyle = style;
+            ResetExtendedCardFields();
+            configure();
+        }
+
         /// <summary>
         /// Configure card as a product card with image, title, price, and button
         /// </summary>
         public void ConfigureAsProductCard()
         {
-            CardStyle = CardStyle.ProductCard;
-            HeaderText = "Product Name";
-            ParagraphText = "Product description goes here...";
-            ButtonText = "Add to Cart";
-            ShowButton = true;
+            ApplyCardPreset(CardStyle.ProductCard, () =>
+            {
+                HeaderText = "Wireless Headphones Pro";
+                ParagraphText = "Premium noise-cancelling headphones with 40hr battery life";
+                SubtitleText = "$299.99";
+                ButtonText = "Add to Cart";
+                ShowButton = true;
+                ShowRating = true;
+                Rating = 5;
+                BadgeText1 = "-20%";
+            });
         }
 
         /// <summary>
@@ -110,10 +250,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsFeatureCard()
         {
-            CardStyle = CardStyle.FeatureCard;
-            HeaderText = "Feature Title";
-            ParagraphText = "Feature description highlighting key benefits...";
-            ShowButton = false;
+            ApplyCardPreset(CardStyle.FeatureCard, () =>
+            {
+                HeaderText = "Advanced Analytics";
+                ParagraphText = "Get deep insights into your data with real-time dashboards and custom reports.";
+                ShowButton = false;
+            });
         }
 
         /// <summary>
@@ -121,10 +263,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsMetricCard()
         {
-            CardStyle = CardStyle.MetricCard;
-            HeaderText = "1,234";
-            ParagraphText = "Total Users";
-            ShowButton = false;
+            ApplyCardPreset(CardStyle.MetricCard, () =>
+            {
+                HeaderText = "Conversion Rate";
+                ParagraphText = "Target: 4.0%";
+                SubtitleText = "3.8%";
+                StatusText = "+0.5% vs last week";
+                ShowStatus = true;
+                BadgeText1 = "Growth";
+                ShowButton = false;
+            });
         }
 
         /// <summary>
@@ -132,10 +280,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsTestimonialCard()
         {
-            CardStyle = CardStyle.TestimonialCard;
-            HeaderText = "John Doe";
-            ParagraphText = "\"This is an amazing product! Highly recommended.\"";
-            ShowButton = false;
+            ApplyCardPreset(CardStyle.TestimonialCard, () =>
+            {
+                HeaderText = "Emma Wilson";
+                ParagraphText = "\"This product completely transformed our workflow. The team is more productive than ever, and our clients are thrilled with the results!\"";
+                SubtitleText = "CEO, TechVision Inc.";
+                ShowRating = true;
+                Rating = 5;
+                ShowButton = false;
+            });
         }
 
         /// <summary>
@@ -143,11 +296,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsProfileCard()
         {
-            CardStyle = CardStyle.ProfileCard;
-            HeaderText = "User Name";
-            ParagraphText = "User bio and description...";
-            ButtonText = "Follow";
-            ShowButton = true;
+            ApplyCardPreset(CardStyle.ProfileCard, () =>
+            {
+                HeaderText = "Alex Morgan";
+                ParagraphText = "Senior Full Stack Developer | Cloud Architecture Specialist\nPassionate about building scalable solutions";
+                SubtitleText = "@alexmorgan";
+                StatusText = "Available for work";
+                ShowStatus = true;
+                ButtonText = "Follow";
+                SecondaryButtonText = "Message";
+                ShowButton = true;
+                ShowSecondaryButton = true;
+                BadgeText1 = "Pro";
+            });
         }
 
         /// <summary>
@@ -155,10 +316,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsStatCard()
         {
-            CardStyle = CardStyle.StatCard;
-            HeaderText = "1,234";
-            ParagraphText = "Total Sales";
-            ShowButton = false;
+            ApplyCardPreset(CardStyle.StatCard, () =>
+            {
+                HeaderText = "12,458";
+                ParagraphText = "Active Users";
+                StatusText = "+18.2% from last month";
+                ShowStatus = true;
+                ShowButton = false;
+            });
         }
 
         /// <summary>
@@ -166,11 +331,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsPricingCard()
         {
-            CardStyle = CardStyle.PricingCard;
-            HeaderText = "Premium Plan";
-            ParagraphText = "$99/month\n• Feature 1\n• Feature 2\n• Feature 3";
-            ButtonText = "Subscribe";
-            ShowButton = true;
+            ApplyCardPreset(CardStyle.PricingCard, () =>
+            {
+                HeaderText = "Professional Plan";
+                ParagraphText = "Perfect for growing teams\n• Unlimited projects\n• Advanced features\n• Priority support\n• Custom integrations";
+                SubtitleText = "$49/month";
+                StatusText = "Billed monthly";
+                ButtonText = "Choose Plan";
+                ShowButton = true;
+                BadgeText1 = "Most Popular";
+            });
         }
 
         /// <summary>
@@ -178,10 +348,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsBasicCard()
         {
-            CardStyle = CardStyle.BasicCard;
-            HeaderText = "Card Title";
-            ParagraphText = "Card content goes here...";
-            ShowButton = false;
+            ApplyCardPreset(CardStyle.BasicCard, () =>
+            {
+                HeaderText = "Card Title";
+                ParagraphText = "Card content goes here...";
+                ShowButton = false;
+            });
         }
 
         #endregion
@@ -206,9 +378,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("CardStyle", "Card Style", "Card Properties"));
             items.Add(new DesignerActionPropertyItem("HeaderText", "Header Text", "Card Properties"));
             items.Add(new DesignerActionPropertyItem("ParagraphText", "Paragraph Text", "Card Properties"));
+            items.Add(new DesignerActionPropertyItem("SubtitleText", "Subtitle Text", "Card Properties"));
             items.Add(new DesignerActionPropertyItem("ButtonText", "Button Text", "Card Properties"));
             items.Add(new DesignerActionPropertyItem("ShowButton", "Show Button", "Card Properties"));
-            items.Add(new DesignerActionPropertyItem("ImagePath", "Image Path", "Card Properties"));
+            items.Add(new DesignerActionPropertyItem("AccentColor", "Accent Color", "Card Properties"));
+
+            items.Add(new DesignerActionHeaderItem("Card Accents"));
+            items.Add(new DesignerActionPropertyItem("SecondaryButtonText", "Secondary Button Text", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("ShowSecondaryButton", "Show Secondary Button", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("BadgeText1", "Badge Text", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("StatusText", "Status Text", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("ShowStatus", "Show Status", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("Rating", "Rating", "Card Accents"));
+            items.Add(new DesignerActionPropertyItem("ShowRating", "Show Rating", "Card Accents"));
 
             return items;
         }

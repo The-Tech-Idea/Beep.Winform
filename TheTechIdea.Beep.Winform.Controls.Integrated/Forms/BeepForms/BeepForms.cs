@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Contracts;
@@ -79,7 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
                 _managerAdapter.Attach(_formsManager);
                 _commandRouter.FormsManager = _formsManager;
                 AttachToFormsManager(_formsManager);
-                SyncFromManager();
+                if (_formsManager != null && _definition?.Blocks?.Count > 0)
+                    _ = InitializeAsync();
+                else
+                    SyncFromManager();
                 FormsManagerChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -103,6 +108,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
 
                 ApplyShellStateToUi();
                 RebuildBlocksFromDefinition();
+                if (_formsManager != null && _definition?.Blocks?.Count > 0)
+                    _ = InitializeAsync();
             }
         }
 
@@ -115,6 +122,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         public event EventHandler? ActiveBlockChanged;
         public event EventHandler? FormsManagerChanged;
         public event EventHandler? ViewStateChanged;
+
+        // Phase 7D — raised when all blocks have been bootstrapped (or failed)
+        public event EventHandler<BeepFormsBootstrapEventArgs>? BootstrapCompleted;
 
         public bool RegisterBlock(IBeepBlockView blockView)
         {
@@ -209,6 +219,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
 
             UpdateMasterDetailShellContext();
             ApplyShellStateToUi();
+        }
+
+        /// <summary>
+        /// Phase 7D — Asynchronously bootstraps all blocks defined in <see cref="Definition"/>
+        /// by delegating to <see cref="IUnitofWorksManager.SetupBlockAsync"/> for each block.
+        /// Updates <see cref="BeepFormsViewState.BootstrapState"/> and raises
+        /// <see cref="BootstrapCompleted"/> when done.
+        /// </summary>
+        public async Task<bool> InitializeAsync(CancellationToken cancellationToken = default)
+        {
+            if (DesignMode || _formsManager == null
+                || _definition?.Blocks == null || _definition.Blocks.Count == 0)
+                return false;
+
+            _viewState.BootstrapState = BootstrapState.Running;
+            bool allOk = true;
+
+            foreach (var blockDef in _definition.Blocks)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string blockName  = string.IsNullOrWhiteSpace(blockDef.ManagerBlockName)
+                    ? blockDef.BlockName
+                    : blockDef.ManagerBlockName;
+                string connName   = blockDef.Entity?.ConnectionName ?? string.Empty;
+                string entityName = blockDef.Entity?.EntityName     ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(connName) || string.IsNullOrWhiteSpace(entityName))
+                    continue;
+
+                bool ok = await _formsManager.SetupBlockAsync(
+                    blockName, connName, entityName,
+                    blockDef.Entity?.IsMasterBlock ?? false,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!ok) allOk = false;
+            }
+
+            _viewState.BootstrapState = allOk ? BootstrapState.Succeeded : BootstrapState.PartialSuccess;
+            SyncFromManager();
+            BootstrapCompleted?.Invoke(this, new BeepFormsBootstrapEventArgs(
+                allOk ? BootstrapState.Succeeded : BootstrapState.PartialSuccess));
+            return allOk;
         }
 
         private void InitializeComponent()

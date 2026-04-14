@@ -156,6 +156,14 @@ _titleFont = titleFont;
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
                     ctx.Badge1BackColor, ctx.Badge1ForeColor, _badgeFont);
             }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Near };
+                g.DrawString(ctx.SubtitleText, _labelFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
             
             // Draw divider line between header and data
             int dividerY = ctx.HeaderRect.Bottom + ElementGap;

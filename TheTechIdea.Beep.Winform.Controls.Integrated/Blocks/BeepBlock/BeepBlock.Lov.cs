@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return false;
             }
 
-            return TryGetLovContext(fieldDefinition.FieldName, out _, out _);
+            return TryGetLovContext(fieldDefinition.FieldName, out _);
         }
 
         private BeepButton CreateLovPickerButton(BeepComboBox comboBox, Models.BeepFieldDefinition fieldDefinition)
@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 fieldName = comboBox.DataSourceProperty;
             }
 
-            if (string.IsNullOrWhiteSpace(fieldName) || !TryGetLovContext(fieldName, out var manager, out var lov))
+            if (string.IsNullOrWhiteSpace(fieldName) || !TryGetLovContext(fieldName, out var lov))
             {
                 return;
             }
@@ -183,7 +183,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                         {
                             loadedItems = await QueueLovPopupSearchReloadAsync(
                                 popup,
-                                manager,
                                 lov,
                                 fieldName,
                                 changedSearchText,
@@ -198,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
                     await popup.LoadItemsAsync(async token =>
                     {
-                        loadedItems = await LoadLovPopupItemsAsync(manager, lov, fieldName, searchText, token, useShowLov: true).ConfigureAwait(true);
+                        loadedItems = await LoadLovPopupItemsAsync(lov, fieldName, searchText, token, useShowLov: true).ConfigureAwait(true);
                         return loadedItems;
                     }, searchText).ConfigureAwait(true);
 
@@ -245,7 +244,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         private async Task<List<SimpleItem>> QueueLovPopupSearchReloadAsync(
             BeepLovPopup popup,
-            IUnitofWorksManager manager,
             LOVDefinition lov,
             string fieldName,
             string? searchText,
@@ -260,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 cancellationToken.ThrowIfCancellationRequested();
                 popupToken.ThrowIfCancellationRequested();
 
-                loadedItems = await LoadLovPopupItemsAsync(manager, lov, fieldName, searchText, popupToken, useShowLov: false).ConfigureAwait(true);
+                loadedItems = await LoadLovPopupItemsAsync(lov, fieldName, searchText, popupToken, useShowLov: false).ConfigureAwait(true);
                 return loadedItems;
             }, searchText ?? string.Empty).ConfigureAwait(true);
 
@@ -328,14 +326,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
         }
 
         private async Task<List<SimpleItem>> LoadLovPopupItemsAsync(
-            IUnitofWorksManager manager,
             LOVDefinition lov,
             string fieldName,
             string? searchText,
             CancellationToken cancellationToken,
             bool useShowLov)
         {
-            if (string.IsNullOrWhiteSpace(ManagerBlockName))
+            if (string.IsNullOrWhiteSpace(ManagerBlockName) || _formsHost == null)
             {
                 return new List<SimpleItem>();
             }
@@ -344,8 +341,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             cancellationToken.ThrowIfCancellationRequested();
 
             LOVResult result = useShowLov
-                ? await manager.ShowLOVAsync(ManagerBlockName, fieldName, searchText: effectiveSearchText, ct: cancellationToken).ConfigureAwait(true)
-                : await manager.LOV.LoadLOVDataAsync(ManagerBlockName, fieldName, effectiveSearchText).ConfigureAwait(true);
+                ? await _formsHost.ShowLovAsync(ManagerBlockName, fieldName, searchText: effectiveSearchText, ct: cancellationToken).ConfigureAwait(true)
+                : await _formsHost.LoadLovDataAsync(ManagerBlockName, fieldName, effectiveSearchText).ConfigureAwait(true);
 
             cancellationToken.ThrowIfCancellationRequested();
             if (!result.Success)
@@ -504,23 +501,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             return fieldDefinition?.FieldName ?? string.Empty;
         }
 
-        private bool TryGetLovContext(string fieldName, out IUnitofWorksManager manager, out LOVDefinition lov)
+        private bool TryGetLovContext(string fieldName, out LOVDefinition lov)
         {
-            manager = null!;
             lov = null!;
 
-            if (_formsHost?.FormsManager == null || string.IsNullOrWhiteSpace(ManagerBlockName) || string.IsNullOrWhiteSpace(fieldName))
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName) || string.IsNullOrWhiteSpace(fieldName))
             {
                 return false;
             }
 
-            manager = _formsHost.FormsManager;
-            if (!manager.BlockExists(ManagerBlockName) || !manager.LOV.HasLOV(ManagerBlockName, fieldName))
+            if (!_formsHost.IsBlockRegistered(ManagerBlockName) || !_formsHost.HasLov(ManagerBlockName, fieldName))
             {
                 return false;
             }
 
-            lov = manager.LOV.GetLOV(ManagerBlockName, fieldName);
+            lov = _formsHost.GetLov(ManagerBlockName, fieldName)!;
             return lov != null;
         }
 

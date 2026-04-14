@@ -7,14 +7,23 @@ using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
+    public interface IBeepDesignerActionHost
+    {
+        IComponent? Component { get; }
+        void SetProperty(string propertyName, object value);
+        T? GetProperty<T>(string propertyName);
+        void ApplyTheme();
+    }
+
     /// <summary>
     /// Base designer for all BeepControl controls
     /// Provides common design-time functionality: style selection, theme application, painter configuration
     /// </summary>
-    public abstract class BaseBeepControlDesigner : Microsoft.DotNet.DesignTools.Designers.ControlDesigner
+    public abstract class BaseBeepControlDesigner : Microsoft.DotNet.DesignTools.Designers.ControlDesigner, IBeepDesignerActionHost
     {
         protected IComponentChangeService? ChangeService;
         private DesignerActionListCollection? _actionLists;
@@ -111,104 +120,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Common action list for all BeepControl controls
-    /// Provides Style, Theme, and Painter actions
-    /// </summary>
-    public class CommonBeepControlActionList : DesignerActionList
-    {
-        private readonly BaseBeepControlDesigner _designer;
-
-        public CommonBeepControlActionList(BaseBeepControlDesigner designer)
-            : base(designer.Component)
-        {
-            _designer = designer ?? throw new ArgumentNullException(nameof(designer));
-        }
-
-        protected BaseControl? BeepControl => Component as BaseControl;
-
-        #region Common Properties (for smart tags)
-
-        [Category("Style")]
-        [Description("The visual style of the control")]
-        public BeepControlStyle ControlStyle
-        {
-            get => _designer.GetProperty<BeepControlStyle>("ControlStyle");
-            set => _designer.SetProperty("ControlStyle", value);
-        }
-
-        [Category("Theme")]
-        [Description("Use theme colors instead of style colors")]
-        public bool UseThemeColors
-        {
-            get => _designer.GetProperty<bool>("UseThemeColors");
-            set => _designer.SetProperty("UseThemeColors", value);
-        }
-
-        [Category("Painting")]
-        [Description("Use the BeepStyling system for painting")]
-        public bool UseFormStylePaint
-        {
-            get => _designer.GetProperty<bool>("UseFormStylePaint");
-            set => _designer.SetProperty("UseFormStylePaint", value);
-        }
-
-        #endregion
-
-        #region Common Actions
-
-        public void ApplyTheme()
-        {
-            _designer.ApplyTheme();
-        }
-
-        public void SelectStyle()
-        {
-            // Open style selector dialog (to be implemented)
-            var dialog = new StyleSelectorDialog(ControlStyle);
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                ControlStyle = dialog.SelectedStyle;
-            }
-        }
-
-        // Quick style presets
-        public void SetStyleToMaterial3() => ControlStyle = BeepControlStyle.Material3;
-        public void SetStyleToiOS15() => ControlStyle = BeepControlStyle.iOS15;
-        public void SetStyleToFluent2() => ControlStyle = BeepControlStyle.Fluent2;
-        public void SetStyleToMinimal() => ControlStyle = BeepControlStyle.Minimal;
-        public void SetStyleToBrutalist() => ControlStyle = BeepControlStyle.Brutalist;
-        public void SetStyleToNeumorphism() => ControlStyle = BeepControlStyle.Neumorphism;
-
-        #endregion
-
-        public override DesignerActionItemCollection GetSortedActionItems()
-        {
-            var items = new DesignerActionItemCollection();
-
-            // Style selection
-            items.Add(new DesignerActionHeaderItem("Visual Style"));
-            items.Add(new DesignerActionMethodItem(this, "SelectStyle", "Select Style...", "Visual Style", true));
-            
-            // Quick style presets (most popular)
-            items.Add(new DesignerActionMethodItem(this, "SetStyleToMaterial3", "Material 3", "Visual Style", false));
-            items.Add(new DesignerActionMethodItem(this, "SetStyleToiOS15", "iOS 15", "Visual Style", false));
-            items.Add(new DesignerActionMethodItem(this, "SetStyleToFluent2", "Fluent 2", "Visual Style", false));
-            items.Add(new DesignerActionMethodItem(this, "SetStyleToMinimal", "Minimal", "Visual Style", false));
-
-            // Theme
-            items.Add(new DesignerActionHeaderItem("Theme"));
-            items.Add(new DesignerActionMethodItem(this, "ApplyTheme", "Apply Current Theme", "Theme", true));
-            items.Add(new DesignerActionPropertyItem("UseThemeColors", "Use Theme Colors", "Theme"));
-
-            // Painting
-            items.Add(new DesignerActionHeaderItem("Painting"));
-            items.Add(new DesignerActionPropertyItem("UseFormStylePaint", "Use Style Painting", "Painting"));
-
-            return items;
-        }
     }
 }
 

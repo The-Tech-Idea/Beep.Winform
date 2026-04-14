@@ -129,6 +129,7 @@ _timeFont = captionFont;
                     DpiScalingHelper.ScaleValue(20, _owner));
             }
             
+                    ctx.ShowImage = false;
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;

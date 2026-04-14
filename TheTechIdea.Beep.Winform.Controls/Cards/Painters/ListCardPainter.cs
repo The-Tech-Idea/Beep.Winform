@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
 _titleFont = titleFont;
-            _subtitleFont = titleFont;
+            _subtitleFont = captionFont;
             _descFont = bodyFont;
             _badgeFont = captionFont;
         }
@@ -133,6 +133,14 @@ _titleFont = titleFont;
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _subtitleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
+
             // Draw rating stars
             if (ctx.ShowRating && ctx.Rating > 0 && !ctx.RatingRect.IsEmpty)
             {

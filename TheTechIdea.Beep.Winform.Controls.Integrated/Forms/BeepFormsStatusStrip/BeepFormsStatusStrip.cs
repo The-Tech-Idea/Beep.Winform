@@ -305,7 +305,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
 
             string statusText = BeepFormsDisplayTextResolver.ResolveStatusText(_formsHost);
 
-            ApplyLine(_statusLabel, $"Status: {statusText}", ResolveStatusSeverity(viewState), visible: ShowStatusLine);
+            // Phase 7D — prepend bootstrap state indicator
+            string bootstrapPrefix = viewState.BootstrapState switch
+            {
+                BootstrapState.Running       => "[Loading…] ",
+                BootstrapState.PartialSuccess => "[Partial] ",
+                BootstrapState.Failed        => "[Load Failed] ",
+                _                            => string.Empty
+            };
+
+            var statusSeverity = viewState.BootstrapState == BootstrapState.Failed
+                ? BeepFormsMessageSeverity.Error
+                : viewState.BootstrapState == BootstrapState.PartialSuccess
+                    ? BeepFormsMessageSeverity.Warning
+                    : ResolveStatusSeverity(viewState);
+
+            ApplyLine(_statusLabel, $"Status: {bootstrapPrefix}{statusText}", statusSeverity, visible: ShowStatusLine);
             ApplyLine(_messageLabel, string.IsNullOrWhiteSpace(viewState.CurrentMessage) ? string.Empty : $"Message: {viewState.CurrentMessage}", viewState.MessageSeverity, ShowMessageLine && !string.IsNullOrWhiteSpace(viewState.CurrentMessage));
             ApplyLine(_coordinationLabel, string.IsNullOrWhiteSpace(viewState.CoordinationText) ? string.Empty : $"Coordination: {viewState.CoordinationText}", viewState.CoordinationSeverity, ShowCoordinationLine && !string.IsNullOrWhiteSpace(viewState.CoordinationText));
             ApplyLine(_savepointLabel, string.IsNullOrWhiteSpace(viewState.SavepointText) ? string.Empty : $"Savepoints: {viewState.SavepointText}", viewState.SavepointSeverity, ShowSavepointLine && !string.IsNullOrWhiteSpace(viewState.SavepointText));

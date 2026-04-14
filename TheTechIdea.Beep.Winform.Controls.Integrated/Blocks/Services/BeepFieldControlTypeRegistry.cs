@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services
 
             // IsLong (TEXT/CLOB) short-circuit — must come before generic date/numeric checks
             if (isLong ||
-                category == DbFieldCategory.LongString ||
+                category == DbFieldCategory.Text ||
                 typeName.IndexOf("clob", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 typeName.IndexOf("ntext", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 typeName.IndexOf("text", StringComparison.OrdinalIgnoreCase) >= 0)

@@ -104,7 +104,7 @@ _titleFont = titleFont;
                     DpiScalingHelper.ScaleValue(16, _owner));
             }
             
-            ctx.ShowButton = true;
+            ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;
         }

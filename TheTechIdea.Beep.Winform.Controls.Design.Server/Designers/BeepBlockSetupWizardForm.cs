@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
 
@@ -32,6 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly CheckedListBox _fieldsList = new();
         private readonly RadioButton _recordControlsRadio = new();
         private readonly RadioButton _gridRadio = new();
+        private readonly RadioButton _designerGeneratedRadio = new();
+        private readonly Label _layoutModeLabel = new();
+        private readonly ComboBox _layoutModeCombo = new();
+        private readonly Label _layoutPreviewLabel = new();
+        private readonly Panel _layoutPreviewPanel = new();
         private readonly Label _summaryLabel = new();
 
         private readonly Button _backButton = new();
@@ -42,6 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly Button _defaultsButton = new();
 
         private readonly Dictionary<string, EntityField> _metadataFieldsByName = new(StringComparer.OrdinalIgnoreCase);
+        private string _loadedFieldsConnectionName = string.Empty;
+        private string _loadedFieldsEntityName = string.Empty;
         private int _currentStepIndex;
 
         public string SelectedConnectionName => _connectionCombo.Text?.Trim() ?? string.Empty;
@@ -54,7 +63,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         public BeepBlockPresentationMode SelectedPresentationMode =>
-            _gridRadio.Checked ? BeepBlockPresentationMode.Grid : BeepBlockPresentationMode.Record;
+            _designerGeneratedRadio.Checked
+                ? BeepBlockPresentationMode.DesignerGenerated
+                : _gridRadio.Checked ? BeepBlockPresentationMode.Grid : BeepBlockPresentationMode.Record;
+
+        public BeepBlockFieldControlsLayoutMode SelectedFieldControlsLayoutMode =>
+            _layoutModeCombo.SelectedItem is BeepBlockFieldControlsLayoutMode mode
+                ? mode
+                : BeepBlockFieldControlsLayoutMode.StackedVertical;
 
         public BeepBlockSetupWizardForm(BeepBlock block, IDMEEditor? editor)
         {
@@ -81,10 +97,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             definition.BlockName = resolvedBlockName;
+            definition.ManagerBlockName = string.IsNullOrWhiteSpace(definition.ManagerBlockName)
+                ? resolvedBlockName
+                : definition.ManagerBlockName;
             definition.Caption = string.IsNullOrWhiteSpace(definition.Caption)
                 ? (string.IsNullOrWhiteSpace(SelectedEntityName) ? resolvedBlockName : SelectedEntityName)
                 : definition.Caption;
             definition.PresentationMode = SelectedPresentationMode;
+            if (SelectedPresentationMode == BeepBlockPresentationMode.DesignerGenerated)
+            {
+                BeepBlockFieldControlsLayoutModeHelper.Apply(definition, SelectedFieldControlsLayoutMode);
+            }
+            else
+            {
+                BeepBlockFieldControlsLayoutModeHelper.Clear(definition);
+            }
 
             BeepBlockEntityDefinition entityDefinition = BuildEntityDefinition();
             definition.Entity = entityDefinition;
@@ -93,13 +120,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 .Where(field => field != null && !string.IsNullOrWhiteSpace(field.FieldName))
                 .ToDictionary(field => field.FieldName, field => field, StringComparer.OrdinalIgnoreCase);
             var selectedFields = SelectedFieldNames;
+            bool matchesBaselineEntity = string.Equals(entityDefinition.ConnectionName, _baselineEntity.ConnectionName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(entityDefinition.EntityName, _baselineEntity.EntityName, StringComparison.OrdinalIgnoreCase);
             var rebuiltFields = entityDefinition.CreateFieldDefinitions();
+            var resolvedFields = new List<BeepFieldDefinition>(rebuiltFields.Count);
 
             foreach (var field in rebuiltFields)
             {
+                if (matchesBaselineEntity &&
+                    existingFields.Count > 0 &&
+                    !existingFields.ContainsKey(field.FieldName) &&
+                    !selectedFields.Contains(field.FieldName))
+                {
+                    continue;
+                }
+
                 if (!existingFields.TryGetValue(field.FieldName, out var existingField))
                 {
                     field.IsVisible = selectedFields.Contains(field.FieldName);
+                    resolvedFields.Add(field);
                     continue;
                 }
 
@@ -116,9 +155,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     field.Options = existingField.Options.Select(option => option.Clone()).ToList();
                 }
+
+                resolvedFields.Add(field);
             }
 
-            definition.Fields = rebuiltFields;
+            definition.Fields = resolvedFields;
+            BeepBlockFieldDefinitionStateHelper.UpdateExplicitFieldState(definition, treatEmptyAsExplicit: true);
             return definition;
         }
 
@@ -271,19 +313,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _recordControlsRadio.Location = new Point(20, 60);
             _recordControlsRadio.Size = new Size(200, 24);
             _recordControlsRadio.Checked = true;
-            _recordControlsRadio.CheckedChanged += (_, _) => UpdateSummary();
+            _recordControlsRadio.CheckedChanged += (_, _) => UpdatePreviewState();
 
             _gridRadio.Text = "Grid";
             _gridRadio.Location = new Point(20, 92);
             _gridRadio.Size = new Size(200, 24);
-            _gridRadio.CheckedChanged += (_, _) => UpdateSummary();
+            _gridRadio.CheckedChanged += (_, _) => UpdatePreviewState();
 
-            _summaryLabel.Location = new Point(20, 140);
-            _summaryLabel.Size = new Size(640, 160);
+            _designerGeneratedRadio.Text = "Designer Generated Controls";
+            _designerGeneratedRadio.Location = new Point(20, 124);
+            _designerGeneratedRadio.Size = new Size(240, 24);
+            _designerGeneratedRadio.CheckedChanged += (_, _) => UpdateLayoutModeState();
+
+            _layoutModeLabel.Text = "Field Controls Layout:";
+            _layoutModeLabel.Location = new Point(44, 158);
+            _layoutModeLabel.Size = new Size(140, 24);
+
+            _layoutModeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+            _layoutModeCombo.FormattingEnabled = true;
+            _layoutModeCombo.Location = new Point(188, 156);
+            _layoutModeCombo.Size = new Size(220, 28);
+            _layoutModeCombo.DataSource = BeepBlockFieldControlsLayoutModeHelper.GetAvailableModes().ToArray();
+            _layoutModeCombo.Format += (_, e) =>
+            {
+                if (e.ListItem is BeepBlockFieldControlsLayoutMode layoutMode)
+                {
+                    e.Value = BeepBlockFieldControlsLayoutModeHelper.GetDisplayName(layoutMode);
+                }
+            };
+            _layoutModeCombo.SelectedIndexChanged += (_, _) => UpdatePreviewState();
+
+            _layoutPreviewLabel.Text = "Layout Preview";
+            _layoutPreviewLabel.Location = new Point(452, 24);
+            _layoutPreviewLabel.Size = new Size(236, 24);
+            _layoutPreviewLabel.Font = new Font(Font, FontStyle.Bold);
+
+            _layoutPreviewPanel.Location = new Point(452, 52);
+            _layoutPreviewPanel.Size = new Size(236, 170);
+            _layoutPreviewPanel.BorderStyle = BorderStyle.FixedSingle;
+            _layoutPreviewPanel.BackColor = Color.White;
+            _layoutPreviewPanel.Paint += (_, e) => DrawLayoutPreview(e.Graphics, _layoutPreviewPanel.ClientRectangle);
+
+            _summaryLabel.Location = new Point(20, 236);
+            _summaryLabel.Size = new Size(668, 104);
 
             _stepViewPanel.Controls.Add(label);
             _stepViewPanel.Controls.Add(_recordControlsRadio);
             _stepViewPanel.Controls.Add(_gridRadio);
+            _stepViewPanel.Controls.Add(_designerGeneratedRadio);
+            _stepViewPanel.Controls.Add(_layoutModeLabel);
+            _stepViewPanel.Controls.Add(_layoutModeCombo);
+            _stepViewPanel.Controls.Add(_layoutPreviewLabel);
+            _stepViewPanel.Controls.Add(_layoutPreviewPanel);
             _stepViewPanel.Controls.Add(_summaryLabel);
         }
 
@@ -321,11 +402,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             LoadFields(SelectedConnectionName, SelectedEntityName);
-            if (_baselineDefinition.PresentationMode == BeepBlockPresentationMode.Grid)
+            _layoutModeCombo.SelectedItem = BeepBlockFieldControlsLayoutModeHelper.Resolve(_baselineDefinition);
+
+            switch (_baselineDefinition.PresentationMode)
             {
-                _gridRadio.Checked = true;
+                case BeepBlockPresentationMode.Grid:
+                    _gridRadio.Checked = true;
+                    break;
+                case BeepBlockPresentationMode.DesignerGenerated:
+                    _designerGeneratedRadio.Checked = true;
+                    break;
+                default:
+                    _recordControlsRadio.Checked = true;
+                    break;
             }
 
+            UpdateLayoutModeState();
             UpdateSummary();
         }
 
@@ -441,13 +533,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void LoadFields(string connectionName, string entityName)
         {
+            bool preserveCurrentSelection = _fieldsList.Items.Count > 0 &&
+                string.Equals(connectionName, _loadedFieldsConnectionName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(entityName, _loadedFieldsEntityName, StringComparison.OrdinalIgnoreCase);
+            var currentSelectedFields = preserveCurrentSelection
+                ? SelectedFieldNames
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             _fieldsList.Items.Clear();
             _metadataFieldsByName.Clear();
 
-            var selectedFields = _baselineDefinition.Fields
-                .Where(field => field != null && field.IsVisible && !string.IsNullOrWhiteSpace(field.FieldName))
-                .Select(field => field.FieldName)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            bool matchesBaselineEntity = string.Equals(connectionName, _baselineEntity.ConnectionName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(entityName, _baselineEntity.EntityName, StringComparison.OrdinalIgnoreCase);
+            bool preserveExplicitEmptyBaseline = matchesBaselineEntity
+                && BeepBlockFieldDefinitionStateHelper.IsExplicitlyEmpty(_baselineDefinition);
+            var selectedFields = preserveCurrentSelection
+                ? currentSelectedFields
+                : matchesBaselineEntity
+                    ? _baselineDefinition.Fields
+                        .Where(field => field != null && field.IsVisible && !string.IsNullOrWhiteSpace(field.FieldName))
+                        .Select(field => field.FieldName)
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                    : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             var orderedFieldNames = new List<string>();
 
@@ -470,7 +577,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     .Select(field => field.FieldName));
             }
 
-            if (selectedFields.Count == 0)
+            if (!preserveCurrentSelection && selectedFields.Count == 0 && !preserveExplicitEmptyBaseline)
             {
                 selectedFields = orderedFieldNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
             }
@@ -479,6 +586,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 _fieldsList.Items.Add(fieldName, selectedFields.Contains(fieldName));
             }
+
+            _loadedFieldsConnectionName = connectionName ?? string.Empty;
+            _loadedFieldsEntityName = entityName ?? string.Empty;
         }
 
         private List<EntityField> GetEntityFields(string connectionName, string entityName)
@@ -552,7 +662,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     IsIndexed = field.IsIndexed,
                     IsAutoIncrement = field.IsAutoIncrement,
                     IsReadOnly = field.IsReadOnly,
-                    IsCheck = field.IsCheck
+                    IsCheck = field.IsCheck,
+                    IsIdentity = field.IsIdentity,
+                    IsHidden = field.IsHidden,
+                    IsLong = field.IsLong,
+                    IsRowVersion = field.IsRowVersion,
+                    DefaultValue = field.DefaultValue ?? string.Empty
                 });
             }
 
@@ -615,12 +730,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return false;
             }
 
-            if (_currentStepIndex == 2 && SelectedFieldNames.Count == 0)
-            {
-                MessageBox.Show("Select at least one field to display.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-
             return true;
         }
 
@@ -650,20 +759,229 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     break;
                 case 3:
                     _stepTitle.Text = "Step 4 of 4: Choose Presentation Mode";
-                    _stepSubtitle.Text = "Pick record or grid presentation for the rebuilt block definition.";
+                    _stepSubtitle.Text = "Pick record, grid, or designer-generated presentation for the rebuilt block definition.";
                     UpdateSummary();
                     break;
             }
         }
 
+        private void UpdateLayoutModeState()
+        {
+            bool isDesignerGenerated = _designerGeneratedRadio.Checked;
+            _layoutModeLabel.Enabled = isDesignerGenerated;
+            _layoutModeCombo.Enabled = isDesignerGenerated;
+            UpdatePreviewState();
+        }
+
+        private void UpdatePreviewState()
+        {
+            UpdateSummary();
+            _layoutPreviewPanel.Invalidate();
+        }
+
         private void UpdateSummary()
         {
-            string viewLabel = SelectedPresentationMode == BeepBlockPresentationMode.Grid ? "Grid" : "Record Controls";
+            string viewLabel = SelectedPresentationMode switch
+            {
+                BeepBlockPresentationMode.Grid => "Grid",
+                BeepBlockPresentationMode.DesignerGenerated => "Designer Generated",
+                _ => "Record Controls"
+            };
+
+            string layoutSummary = SelectedPresentationMode == BeepBlockPresentationMode.DesignerGenerated
+                ? $"{BeepBlockFieldControlsLayoutModeHelper.GetDisplayName(SelectedFieldControlsLayoutMode)} - {BeepBlockFieldControlsLayoutModeHelper.GetDescription(SelectedFieldControlsLayoutMode)}"
+                : "Used only when the block runs in Designer Generated mode.";
+
             _summaryLabel.Text =
                 $"Connection: {SelectedConnectionName}\n" +
                 $"Entity: {SelectedEntityName}\n" +
                 $"Visible Fields: {SelectedFieldNames.Count}\n" +
-                $"Presentation: {viewLabel}";
+                $"Presentation: {viewLabel}\n" +
+                $"Field Controls Layout: {layoutSummary}";
+        }
+
+        private void DrawLayoutPreview(Graphics graphics, Rectangle bounds)
+        {
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.Clear(Color.White);
+
+            Rectangle canvas = Rectangle.Inflate(bounds, -8, -8);
+            if (canvas.Width <= 0 || canvas.Height <= 0)
+            {
+                return;
+            }
+
+            using var borderPen = new Pen(Color.FromArgb(198, 206, 216));
+            using var accentBrush = new SolidBrush(Color.FromArgb(56, 118, 255));
+            using var mutedBrush = new SolidBrush(Color.FromArgb(236, 240, 245));
+            using var fieldBrush = new SolidBrush(Color.FromArgb(248, 250, 252));
+            using var textBrush = new SolidBrush(Color.FromArgb(54, 65, 79));
+            using var textFont = new Font(Font.FontFamily, 7.5f, FontStyle.Regular);
+            using var captionFont = new Font(Font.FontFamily, 8f, FontStyle.Bold);
+
+            graphics.FillRectangle(mutedBrush, canvas);
+            graphics.DrawRectangle(borderPen, canvas);
+
+            Rectangle headerRect = new Rectangle(canvas.Left, canvas.Top, canvas.Width, 18);
+            graphics.FillRectangle(accentBrush, headerRect);
+            graphics.DrawString(GetPreviewCaption(), captionFont, Brushes.White, headerRect.Left + 6, headerRect.Top + 3);
+
+            Rectangle bodyRect = new Rectangle(canvas.Left + 8, headerRect.Bottom + 8, canvas.Width - 16, canvas.Height - 34);
+            if (bodyRect.Width <= 0 || bodyRect.Height <= 0)
+            {
+                return;
+            }
+
+            switch (SelectedPresentationMode)
+            {
+                case BeepBlockPresentationMode.Grid:
+                    DrawGridPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+                case BeepBlockPresentationMode.DesignerGenerated:
+                    DrawDesignerGeneratedPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+                default:
+                    DrawRecordPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+            }
+        }
+
+        private string GetPreviewCaption()
+        {
+            return SelectedPresentationMode switch
+            {
+                BeepBlockPresentationMode.Grid => "Grid Preview",
+                BeepBlockPresentationMode.DesignerGenerated => BeepBlockFieldControlsLayoutModeHelper.GetDisplayName(SelectedFieldControlsLayoutMode),
+                _ => "Record Preview"
+            };
+        }
+
+        private static void DrawRecordPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            const int rowCount = 3;
+            int spacing = 6;
+            int labelWidth = Math.Min(60, Math.Max(44, bodyRect.Width / 3));
+            int rowHeight = Math.Max(18, (bodyRect.Height - (spacing * (rowCount - 1))) / rowCount);
+            int editorHeight = Math.Max(14, Math.Min(22, rowHeight - 2));
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                int top = bodyRect.Top + (row * (rowHeight + spacing));
+                int editorTop = top + Math.Max(0, (rowHeight - editorHeight) / 2);
+                Rectangle labelRect = new Rectangle(bodyRect.Left, top + Math.Max(2, (rowHeight - 14) / 2), labelWidth, 14);
+                Rectangle editorRect = new Rectangle(bodyRect.Left + labelWidth + 8, editorTop, Math.Max(40, bodyRect.Width - labelWidth - 8), editorHeight);
+
+                graphics.DrawString($"Field {row + 1}", textFont, textBrush, labelRect);
+                graphics.FillRectangle(fieldBrush, editorRect);
+                graphics.DrawRectangle(borderPen, editorRect);
+            }
+        }
+
+        private static void DrawGridPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            int headerHeight = Math.Max(18, Math.Min(20, bodyRect.Height / 4));
+            int rowHeight = Math.Max(14, (bodyRect.Height - headerHeight) / 3);
+            int columnWidth = Math.Max(36, bodyRect.Width / 3);
+
+            Rectangle headerRect = new Rectangle(bodyRect.Left, bodyRect.Top, bodyRect.Width, headerHeight);
+            graphics.FillRectangle(fieldBrush, headerRect);
+            graphics.DrawRectangle(borderPen, headerRect);
+
+            for (int column = 0; column < 3; column++)
+            {
+                int left = bodyRect.Left + (column * columnWidth);
+                Rectangle cellRect = new Rectangle(left, bodyRect.Top, columnWidth, headerHeight);
+                graphics.DrawRectangle(borderPen, cellRect);
+                graphics.DrawString($"Col {column + 1}", textFont, textBrush, left + 4, bodyRect.Top + 4);
+            }
+
+            for (int row = 0; row < 3; row++)
+            {
+                for (int column = 0; column < 3; column++)
+                {
+                    int left = bodyRect.Left + (column * columnWidth);
+                    int top = bodyRect.Top + headerHeight + (row * rowHeight);
+                    Rectangle cellRect = new Rectangle(left, top, columnWidth, rowHeight);
+                    graphics.FillRectangle(Brushes.White, cellRect);
+                    graphics.DrawRectangle(borderPen, cellRect);
+                }
+            }
+        }
+
+        private void DrawDesignerGeneratedPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            switch (SelectedFieldControlsLayoutMode)
+            {
+                case BeepBlockFieldControlsLayoutMode.LabelFieldPairs:
+                    DrawLabelFieldPairsPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+                case BeepBlockFieldControlsLayoutMode.GridLayout:
+                    DrawGridLayoutPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+                default:
+                    DrawStackedVerticalPreview(graphics, bodyRect, borderPen, fieldBrush, textBrush, textFont);
+                    break;
+            }
+        }
+
+        private static void DrawStackedVerticalPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            const int rowCount = 3;
+            int labelHeight = 12;
+            int innerSpacing = 4;
+            int spacing = 6;
+            int rowHeight = Math.Max(22, (bodyRect.Height - (spacing * (rowCount - 1))) / rowCount);
+            int blockHeight = Math.Max(12, rowHeight - labelHeight - innerSpacing);
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                int top = bodyRect.Top + (row * (rowHeight + spacing));
+                graphics.DrawString($"Field {row + 1}", textFont, textBrush, bodyRect.Left, top);
+                Rectangle editorRect = new Rectangle(bodyRect.Left, top + labelHeight + innerSpacing, bodyRect.Width, blockHeight);
+                graphics.FillRectangle(fieldBrush, editorRect);
+                graphics.DrawRectangle(borderPen, editorRect);
+            }
+        }
+
+        private static void DrawLabelFieldPairsPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            const int rowCount = 3;
+            int spacing = 6;
+            int rowHeight = Math.Max(18, (bodyRect.Height - (spacing * (rowCount - 1))) / rowCount);
+            int labelWidth = Math.Min(60, Math.Max(44, bodyRect.Width / 3));
+            int editorHeight = Math.Max(14, Math.Min(22, rowHeight - 2));
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                int top = bodyRect.Top + (row * (rowHeight + spacing));
+                int editorTop = top + Math.Max(0, (rowHeight - editorHeight) / 2);
+                graphics.DrawString($"Field {row + 1}", textFont, textBrush, bodyRect.Left, top + Math.Max(2, (rowHeight - 14) / 2));
+                Rectangle editorRect = new Rectangle(bodyRect.Left + labelWidth + 8, editorTop, Math.Max(36, bodyRect.Width - labelWidth - 8), editorHeight);
+                graphics.FillRectangle(fieldBrush, editorRect);
+                graphics.DrawRectangle(borderPen, editorRect);
+            }
+        }
+
+        private static void DrawGridLayoutPreview(Graphics graphics, Rectangle bodyRect, Pen borderPen, Brush fieldBrush, Brush textBrush, Font textFont)
+        {
+            int gap = 10;
+            int columnWidth = Math.Max(40, (bodyRect.Width - gap) / 2);
+            int labelHeight = 12;
+            int innerSpacing = 4;
+            int rowHeight = Math.Max(26, (bodyRect.Height - gap) / 2);
+            int editorHeight = Math.Max(14, Math.Min(22, rowHeight - labelHeight - innerSpacing));
+
+            for (int index = 0; index < 4; index++)
+            {
+                int column = index % 2;
+                int row = index / 2;
+                int left = bodyRect.Left + (column * (columnWidth + gap));
+                int top = bodyRect.Top + (row * (rowHeight + gap));
+                graphics.DrawString($"Field {index + 1}", textFont, textBrush, left, top);
+                Rectangle editorRect = new Rectangle(left, top + labelHeight + innerSpacing, columnWidth, editorHeight);
+                graphics.FillRectangle(fieldBrush, editorRect);
+                graphics.DrawRectangle(borderPen, editorRect);
+            }
         }
     }
 }

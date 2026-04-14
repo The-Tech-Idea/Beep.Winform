@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TheTechIdea.Beep.Winform.Controls.Design.Server\TheTechIdea.Beep.Winform.Controls.Design.Server.csproj" />
+    <ProjectReference Include="..\..\TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
+  </ItemGroup>
+</Project>

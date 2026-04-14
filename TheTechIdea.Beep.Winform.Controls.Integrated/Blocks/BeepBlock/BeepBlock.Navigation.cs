@@ -119,14 +119,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return !IsFailure(result);
             }
 
-            if (_boundUnitOfWork == null)
+            // Route through BeepForms host — never access FormsManager from BeepBlock.
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
             {
                 return false;
             }
 
-            var commitResult = await _boundUnitOfWork.Commit().ConfigureAwait(true);
-            RefreshAfterLocalMutation();
-            return !IsFailure(commitResult);
+            bool committed = await _formsHost.SaveBlockAsync(ManagerBlockName).ConfigureAwait(true);
+            SyncFromManager();
+            return committed;
         }
 
         public async Task<bool> RollbackAsync()
@@ -138,38 +139,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return !IsFailure(result);
             }
 
-            if (_boundUnitOfWork == null)
+            // Route through BeepForms host — never access FormsManager from BeepBlock.
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
             {
                 return false;
             }
 
-            var rollbackResult = await _boundUnitOfWork.Rollback().ConfigureAwait(true);
-            RefreshAfterLocalMutation();
-            return !IsFailure(rollbackResult);
+            bool rolledBack = await _formsHost.RollbackBlockAsync(ManagerBlockName).ConfigureAwait(true);
+            SyncFromManager();
+            return rolledBack;
         }
 
-        public bool NewRecord()
+        public async Task<bool> NewRecordAsync()
         {
-            if (_boundUnitOfWork == null || ViewState.IsQueryMode)
+            if (ViewState.IsQueryMode)
             {
                 return false;
             }
 
-            _boundUnitOfWork.New();
-            RefreshAfterLocalMutation();
-            return true;
+            if (_formsHost is BeepForms forms)
+            {
+                _formsHost.TrySetActiveBlock(BlockName);
+            }
+
+            // Route through BeepForms host — never access FormsManager from BeepBlock.
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
+            {
+                return false;
+            }
+
+            bool ok = await _formsHost.InsertBlockRecordAsync(ManagerBlockName).ConfigureAwait(true);
+            SyncFromManager();
+            return ok;
         }
 
-        public bool DeleteCurrentRecord()
+        public async Task<bool> DeleteCurrentRecordAsync()
         {
-            if (_boundUnitOfWork == null || ViewState.IsQueryMode || ViewState.RecordCount == 0)
+            if (ViewState.IsQueryMode || ViewState.RecordCount == 0)
             {
                 return false;
             }
 
-            var result = _boundUnitOfWork.Delete();
-            RefreshAfterLocalMutation();
-            return !IsFailure(result);
+            if (_formsHost is BeepForms forms)
+            {
+                _formsHost.TrySetActiveBlock(BlockName);
+            }
+
+            // Route through BeepForms host — never access FormsManager from BeepBlock.
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
+            {
+                return false;
+            }
+
+            bool ok = await _formsHost.DeleteBlockCurrentRecordAsync(ManagerBlockName).ConfigureAwait(true);
+            SyncFromManager();
+            return ok;
         }
 
         private bool GetNavigatorFlag(string key, bool defaultValue)
@@ -226,19 +250,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             }
 
             return TryMoveBindingSourceTo(_recordBindingSource.Position + offset);
-        }
-
-        private void RefreshAfterLocalMutation()
-        {
-            if (_recordBindingSource?.DataSource != null)
-            {
-                _recordBindingSource.ResetBindings(false);
-                SyncBindingSourcePositionFromUnitOfWork();
-            }
-
-            UpdateRecordViewState(_boundUnitOfWork);
-            ApplyCurrentRecordToEditors();
-            RefreshValidationState();
         }
 
         private static bool IsFailure(IErrorsInfo? result)

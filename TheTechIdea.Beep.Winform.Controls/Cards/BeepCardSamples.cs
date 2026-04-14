@@ -22,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 CardStyle = CardStyle.ProfileCard,
                 HeaderText = "Corey Tawney",
+                SubtitleText = "Senior Full Stack Developer",
                 StatusText = "Available for work",
                 ShowStatus = true,
                 StatusColor = Color.Green,
@@ -46,7 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 CardStyle = CardStyle.ContentCard,
                 HeaderText = "Film Coverage — A Step-By-Step Guide To Shot Listing Efficiently",
-                ParagraphText = "by Cameron P. West • Apr 10, 2020",
+                SubtitleText = "by Cameron P. West • Apr 10, 2020",
+                ParagraphText = "Learn how experienced production teams create shot lists quickly without losing clarity across scenes, setups, and revisions.",
                 Tags = new List<string> { "Production", "Film" },
                 BadgeText1 = "PREMIUM",
                 Badge1BackColor = Color.FromArgb(255, 193, 7), // Amber
@@ -92,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 CardStyle = CardStyle.TestimonialCard,
                 HeaderText = "Emma",
+                SubtitleText = "Producer, Northwind Studio",
                 ParagraphText = "\"Emma is an amazing producer.\" She put together one of the best sets that I've ever been on!",
                 Rating = 5,
                 ShowRating = true,
@@ -212,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 CardStyle = CardStyle.ProductCard,
                 HeaderText = "Wireless Bluetooth Headphones",
-                ParagraphText = "Sony",
+                ParagraphText = "Premium over-ear audio with adaptive noise cancellation and 30-hour battery life.",
                 SubtitleText = "$149.99", // Price in SubtitleText
                 Rating = 4,
                 ShowRating = true,
@@ -228,8 +231,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         }
 
         /// <summary>
-        /// Creates a compact product card for product lists
-        /// Uses ProductCompactCardPainter.cs
+        /// Creates a smaller product card sample for list-style layouts.
+        /// The enum does not currently expose a dedicated compact-product CardStyle,
+        /// so this helper uses ProductCard with tighter dimensions.
         /// </summary>
         public static BeepCard CreateProductCompactCard()
         {
@@ -237,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 CardStyle = CardStyle.ProductCard,
                 HeaderText = "MacBook Pro 14-inch",
-                ParagraphText = "Apple",
+                ParagraphText = "Apple • M4 chip with Liquid Retina XDR display",
                 SubtitleText = "$1,999.00", // Price
                 Rating = 5,
                 ShowRating = true,
@@ -259,9 +263,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             return new BeepCard
             {
                 CardStyle = CardStyle.StatCard,
-                HeaderText = "Total Sales", // Label
-                SubtitleText = "$127,340", // Main value
-                StatusText = "+12.5%", // Trend indicator
+                HeaderText = "$127,340", // Main value
+                ParagraphText = "Total Sales", // Label
+                StatusText = "+12.5% vs last month", // Trend indicator
                 ShowStatus = true,
                 StatusColor = Color.FromArgb(76, 175, 80), // Green accent line
                 ImagePath = "", // Optional icon
@@ -305,10 +309,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
                 ParagraphText = "Just finished an amazing design sprint with the team! 🎨 The new user dashboard is looking incredible. Can't wait to share it with everyone soon.",
                 StatusText = "2h ago", // Timestamp
                 Tags = new List<string> { "#design", "#teamwork", "#ux" },
-                ButtonText = "Like",
-                SecondaryButtonText = "Share",
-                ShowButton = true,
-                ShowSecondaryButton = true,
+                ButtonText = string.Empty,
+                SecondaryButtonText = string.Empty,
+                ShowButton = false,
+                ShowSecondaryButton = false,
                 ImagePath = "", // User avatar
                 Size = new Size(400, 200),
                 AccentColor = Color.FromArgb(29, 161, 242) // Twitter blue
@@ -433,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
                 {
                     CardStyle = CardStyle.ProductCard,
                     HeaderText = name,
-                    ParagraphText = brand,
+                    ParagraphText = $"{brand} • Best seller with premium build quality",
                     SubtitleText = price,
                     Rating = rating,
                     ShowRating = true,
@@ -490,8 +494,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
                 var card = new BeepCard
                 {
                     CardStyle = CardStyle.StatCard,
-                    HeaderText = label,
-                    SubtitleText = value,
+                    HeaderText = value,
+                    ParagraphText = label,
                     StatusText = trend,
                     ShowStatus = true,
                     StatusColor = color,

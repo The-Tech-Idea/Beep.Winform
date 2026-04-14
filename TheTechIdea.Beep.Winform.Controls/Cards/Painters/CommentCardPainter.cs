@@ -120,8 +120,8 @@ _authorFont = bodyFont;
                 ActionButtonWidth,
                 ActionHeight);
             
-            ctx.ShowButton = true;
-            ctx.ShowSecondaryButton = true;
+            ctx.ShowButton = false;
+            ctx.ShowSecondaryButton = false;
             return ctx;
         }
         

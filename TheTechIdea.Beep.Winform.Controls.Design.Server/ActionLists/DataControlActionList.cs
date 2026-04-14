@@ -1,27 +1,24 @@
 using System;
 using System.ComponentModel;
-using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
-using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Designers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 {
     /// <summary>
     /// Shared action list for data-bound controls
-    /// Provides common actions for configuring data sources and bindings
+    /// Provides the small shared surface that is genuinely common across data-bound controls.
+    /// Control-specific sample-data and configuration flows stay on the individual designer.
     /// </summary>
     public class DataControlActionList : DesignerActionList
     {
-        private readonly BaseBeepControlDesigner _designer;
+        private readonly IBeepDesignerActionHost _designer;
 
-        public DataControlActionList(BaseBeepControlDesigner designer)
+        public DataControlActionList(IBeepDesignerActionHost designer)
             : base(designer.Component)
         {
             _designer = designer ?? throw new ArgumentNullException(nameof(designer));
         }
-
-        protected BaseControl? BeepControl => Component as BaseControl;
 
         #region Properties
 
@@ -54,15 +51,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         #region Actions
 
         /// <summary>
-        /// Generate sample data for the control
-        /// </summary>
-        public void GenerateSampleData()
-        {
-            // This would use DesignTimeDataHelper to populate the control
-            // Implementation depends on control type
-        }
-
-        /// <summary>
         /// Clear data binding
         /// </summary>
         public void ClearDataBinding()
@@ -72,15 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             _designer.SetProperty("ValueMember", string.Empty);
         }
 
-        /// <summary>
-        /// Configure data source
-        /// </summary>
-        public void ConfigureDataSource()
-        {
-            // In a full implementation, this would show a dialog to configure data source
-            // For now, just a placeholder
-        }
-
         #endregion
 
         public override DesignerActionItemCollection GetSortedActionItems()
@@ -88,8 +67,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             var items = new DesignerActionItemCollection();
 
             items.Add(new DesignerActionHeaderItem("Data Binding"));
-            items.Add(new DesignerActionMethodItem(this, "ConfigureDataSource", "Configure Data Source...", "Data Binding", true));
-            items.Add(new DesignerActionMethodItem(this, "GenerateSampleData", "Generate Sample Data", "Data Binding", true));
             items.Add(new DesignerActionMethodItem(this, "ClearDataBinding", "Clear Data Binding", "Data Binding", true));
 
             items.Add(new DesignerActionHeaderItem("Data Properties"));

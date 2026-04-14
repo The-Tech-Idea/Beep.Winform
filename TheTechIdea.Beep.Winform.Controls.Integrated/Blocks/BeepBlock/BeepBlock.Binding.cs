@@ -20,6 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 {
     public partial class BeepBlock
     {
+        // Read-only mirror of FormsManager.GetUnitOfWork(ManagerBlockName).
+        // One BeepBlock → one entity → one UnitOfWork, always owned and provided by FormsManager.
+        // This field is ONLY assigned in SyncRecordBinding (called from SyncFromManager).
+        // All mutations (commit, rollback, new, delete, position) must route through FormsManager.
         private IUnitofWork? _boundUnitOfWork;
         private bool _isSyncingRecordBinding;
         private bool _isApplyingLovRelatedFieldMappings;
@@ -159,8 +163,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             _isSyncingRecordBinding = true;
             try
             {
-                _boundUnitOfWork.MoveTo(position);
-                _viewState.IsDirty = _boundUnitOfWork.IsDirty;
+                // Route cursor movement through BeepForms host — never access FormsManager from BeepBlock.
+                _formsHost?.SetBlockCurrentRecordIndex(ManagerBlockName, position);
+                _viewState.IsDirty = _boundUnitOfWork?.IsDirty ?? false;
                 RefreshValidationState();
             }
             finally
@@ -263,13 +268,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return _recordBindingSource.Current;
             }
 
-            var manager = _formsHost?.FormsManager;
-            if (manager == null || string.IsNullOrWhiteSpace(ManagerBlockName) || !manager.BlockExists(ManagerBlockName))
+            if (_formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
             {
                 return null;
             }
 
-            return manager.GetUnitOfWork(ManagerBlockName)?.CurrentItem;
+            return _formsHost.GetCurrentBlockItem(ManagerBlockName);
         }
 
         private static object? GetRecordValue(object record, string fieldName)
@@ -298,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return false;
             }
 
-            var manager = _formsHost?.FormsManager;
+            var manager = _formsHost?.FormsManager; // field-value setter: FormsManager owns coercion
             if (manager?.SetFieldValue(record, fieldName, value) == true)
             {
                 return true;
@@ -440,10 +444,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 }
             }
 
-            var manager = _formsHost?.FormsManager;
-            if (manager != null && !string.IsNullOrWhiteSpace(ManagerBlockName) && manager.BlockExists(ManagerBlockName))
+            if (_formsHost != null && !string.IsNullOrWhiteSpace(ManagerBlockName) && _formsHost.IsBlockRegistered(ManagerBlockName))
             {
-                var entityField = ResolveEntityStructure(manager.GetBlock(ManagerBlockName))?.Fields?
+                var entityField = ResolveEntityStructure(_formsHost.GetBlockInfo(ManagerBlockName))?.Fields?
                     .FirstOrDefault(x => string.Equals(x.FieldName, fieldName, StringComparison.OrdinalIgnoreCase));
 
                 if (entityField != null)
@@ -611,23 +614,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            if (_formsHost?.FormsManager != null && !string.IsNullOrWhiteSpace(ManagerBlockName) && !string.IsNullOrWhiteSpace(fieldDefinition.FieldName))
+            if (_formsHost != null && !string.IsNullOrWhiteSpace(ManagerBlockName) && !string.IsNullOrWhiteSpace(fieldDefinition.FieldName)
+                && _formsHost.HasLov(ManagerBlockName, fieldDefinition.FieldName))
             {
                 AttachComboValidationHandler(comboBox);
 
-                var manager = _formsHost.FormsManager;
-                if (manager.LOV.HasLOV(ManagerBlockName, fieldDefinition.FieldName))
+                var lov = _formsHost.GetLov(ManagerBlockName, fieldDefinition.FieldName);
+                if (lov != null)
                 {
-                    var lov = manager.LOV.GetLOV(ManagerBlockName, fieldDefinition.FieldName);
-                    if (lov != null)
-                    {
-                        comboBox.AllowFreeText = lov.ValidationType != LOVValidationType.ListOnly;
-                        comboBox.IsEditable = comboBox.AllowFreeText;
-                    }
-
-                    LoadLovItemsAsync(comboBox, manager, fieldDefinition.FieldName);
-                    return;
+                    comboBox.AllowFreeText = lov.ValidationType != LOVValidationType.ListOnly;
+                    comboBox.IsEditable = comboBox.AllowFreeText;
                 }
+
+                LoadLovItemsAsync(comboBox, fieldDefinition.FieldName);
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(fieldDefinition.FieldName))
@@ -682,24 +682,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             return items;
         }
 
-        private async void LoadLovItemsAsync(BeepComboBox comboBox, IUnitofWorksManager manager, string fieldName)
+        private async void LoadLovItemsAsync(BeepComboBox comboBox, string fieldName)
         {
             string blockName = ManagerBlockName;
-            if (comboBox.IsDisposed || string.IsNullOrWhiteSpace(blockName) || string.IsNullOrWhiteSpace(fieldName))
+            if (comboBox.IsDisposed || string.IsNullOrWhiteSpace(blockName) || string.IsNullOrWhiteSpace(fieldName) || _formsHost == null)
             {
                 return;
             }
 
+            var hostSnapshot = _formsHost;
             try
             {
-                var lov = manager.LOV.GetLOV(blockName, fieldName);
+                var lov = hostSnapshot.GetLov(blockName, fieldName);
                 if (lov == null)
                 {
                     return;
                 }
 
-                var result = await manager.LOV.LoadLOVDataAsync(blockName, fieldName).ConfigureAwait(true);
-                if (!result.Success || comboBox.IsDisposed || _formsHost?.FormsManager != manager || !string.Equals(blockName, ManagerBlockName, StringComparison.OrdinalIgnoreCase))
+                var result = await hostSnapshot.LoadLovDataAsync(blockName, fieldName).ConfigureAwait(true);
+                if (!result.Success || comboBox.IsDisposed || !ReferenceEquals(_formsHost, hostSnapshot)
+                    || !string.Equals(blockName, ManagerBlockName, StringComparison.OrdinalIgnoreCase))
                 {
                     return;
                 }
@@ -790,9 +792,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             return items;
         }
 
-        private void ApplyLovRelatedFieldMappings(IUnitofWorksManager manager, string fieldName, SimpleItem? selectedItem)
+        private void ApplyLovRelatedFieldMappings(string fieldName, SimpleItem? selectedItem)
         {
-            if (_isApplyingLovRelatedFieldMappings || selectedItem?.Item == null || string.IsNullOrWhiteSpace(ManagerBlockName))
+            if (_isApplyingLovRelatedFieldMappings || selectedItem?.Item == null || string.IsNullOrWhiteSpace(ManagerBlockName) || _formsHost == null)
             {
                 return;
             }
@@ -803,13 +805,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            var lov = manager.LOV.GetLOV(ManagerBlockName, fieldName);
+            var lov = _formsHost.GetLov(ManagerBlockName, fieldName);
             if (lov == null)
             {
                 return;
             }
 
-            var relatedValues = manager.LOV.GetRelatedFieldValues(lov, selectedItem.Item);
+            var relatedValues = _formsHost.GetLovRelatedFieldValues(lov, selectedItem.Item);
             if (relatedValues == null || relatedValues.Count == 0)
             {
                 return;
@@ -864,7 +866,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         private async void ComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            if (_isApplyingLovRelatedFieldMappings || sender is not BeepComboBox comboBox || _formsHost?.FormsManager == null || string.IsNullOrWhiteSpace(ManagerBlockName))
+            if (_isApplyingLovRelatedFieldMappings || sender is not BeepComboBox comboBox || _formsHost == null || string.IsNullOrWhiteSpace(ManagerBlockName))
             {
                 return;
             }
@@ -875,19 +877,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 return;
             }
 
-            var manager = _formsHost.FormsManager;
-            if (!manager.LOV.HasLOV(ManagerBlockName, fieldName))
+            if (!_formsHost.HasLov(ManagerBlockName, fieldName))
             {
                 ClearFieldError(fieldName);
                 return;
             }
 
+            var hostSnapshot = _formsHost;
             try
             {
-                ApplyLovRelatedFieldMappings(manager, fieldName, e.SelectedItem);
+                ApplyLovRelatedFieldMappings(fieldName, e.SelectedItem);
 
-                var result = await manager.LOV.ValidateLOVValueAsync(ManagerBlockName, fieldName, comboBox.SelectedValue).ConfigureAwait(true);
-                if (comboBox.IsDisposed || _formsHost?.FormsManager != manager)
+                var result = await hostSnapshot.ValidateLovValueAsync(ManagerBlockName, fieldName, comboBox.SelectedValue).ConfigureAwait(true);
+                if (comboBox.IsDisposed || !ReferenceEquals(_formsHost, hostSnapshot))
                 {
                     return;
                 }

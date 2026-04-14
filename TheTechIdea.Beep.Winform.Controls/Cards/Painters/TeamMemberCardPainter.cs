@@ -126,7 +126,8 @@ _nameFont = titleFont;
                 statHeight);
             
             // Social links row at bottom
-            if (ctx.ShowButton)
+            bool showSocialLinks = ctx.ShowButton;
+            if (showSocialLinks)
             {
                 int socialRowWidth = (socialIconSize + socialIconGap) * 4 - socialIconGap;
                 ctx.ButtonRect = new Rectangle(
@@ -135,7 +136,12 @@ _nameFont = titleFont;
                     socialRowWidth,
                     socialIconSize);
             }
+            else
+            {
+                ctx.ButtonRect = Rectangle.Empty;
+            }
             
+            ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;
         }
@@ -147,6 +153,14 @@ _nameFont = titleFont;
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _roleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
+
             // Draw avatar ring
             if (ctx.ShowImage && !ctx.ImageRect.IsEmpty)
             {
@@ -167,7 +181,7 @@ _nameFont = titleFont;
             }
             
             // Draw social icons
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 DrawSocialIcons(g, ctx);
             }
@@ -279,7 +293,7 @@ _nameFont = titleFont;
             }
             
             // Social icons hit area
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 int x = ctx.ButtonRect.Left;
                 string[] icons = { "LinkedIn", "Twitter", "GitHub", "Email" };

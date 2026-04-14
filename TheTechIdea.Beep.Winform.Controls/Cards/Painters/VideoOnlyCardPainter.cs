@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             ctx.StatusRect = Rectangle.Empty;
             
             ctx.ShowImage = true;
-            ctx.ShowButton = true;
+            ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             ctx.ShowStatus = false;
             ctx.ShowRating = false;

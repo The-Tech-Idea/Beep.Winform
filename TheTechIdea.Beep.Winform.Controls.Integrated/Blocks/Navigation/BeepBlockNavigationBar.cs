@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 Dock = DockStyle.Fill,
                 ColumnCount = 2,
                 RowCount = 1,
-                BackColor = Color.Transparent,
+                BackColor = SystemColors.Control,
                 Margin = new Padding(0),
                 Padding = new Padding(0)
             };
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 FlowDirection = FlowDirection.LeftToRight,
                 Margin = new Padding(0),
                 Padding = new Padding(6, 4, 6, 4),
-                BackColor = Color.Transparent
+                BackColor = SystemColors.Control
             };
 
             _positionLabel = new BeepLabel
@@ -102,6 +102,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+
+            Color chromeBackColor = BackColor.A == 0 ? ParentBackColor : BackColor;
+            if (chromeBackColor.A == 0)
+            {
+                chromeBackColor = SystemColors.Control;
+            }
+
+            _layoutRoot.BackColor = chromeBackColor;
+            _commandsPanel.BackColor = chromeBackColor;
 
             _positionLabel.Theme = Theme;
             foreach (var button in _buttons.Values)
@@ -210,14 +219,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             }
         }
 
-        private void NewButton_Click(object? sender, EventArgs e)
+        private async void NewButton_Click(object? sender, EventArgs e)
         {
-            _block?.NewRecord();
+            if (_block != null)
+            {
+                await _block.NewRecordAsync().ConfigureAwait(true);
+            }
         }
 
-        private void DeleteButton_Click(object? sender, EventArgs e)
+        private async void DeleteButton_Click(object? sender, EventArgs e)
         {
-            _block?.DeleteCurrentRecord();
+            if (_block != null)
+            {
+                await _block.DeleteCurrentRecordAsync().ConfigureAwait(true);
+            }
         }
 
         private async void QueryButton_Click(object? sender, EventArgs e)

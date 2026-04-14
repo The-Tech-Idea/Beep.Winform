@@ -26,14 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     _verbs = new DesignerVerbCollection
                     {
-                        new DesignerVerb("Select Icon...", OnSelectIcon),
-                        new DesignerVerb("Clear Icon", OnClearIcon),
+                        new DesignerVerb("Select On Icon...", OnSelectOnIcon),
+                        new DesignerVerb("Select Off Icon...", OnSelectOffIcon),
+                        new DesignerVerb("Clear Icons", OnClearIcons),
                         new DesignerVerb("Toggle State", OnToggle)
                     };
                 }
                 return _verbs;
             }
         }
+
+        public override DesignerVerbCollection Verbs => CustomVerbs;
 
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
@@ -42,11 +45,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return lists;
         }
 
-        private void OnSelectIcon(object? sender, EventArgs e)
+        private void OnSelectOnIcon(object? sender, EventArgs e)
+            => SelectOnIcon();
+
+        public void SelectOnIcon()
+            => SelectIconPath("OnIconPath");
+
+        private void OnSelectOffIcon(object? sender, EventArgs e)
+            => SelectOffIcon();
+
+        public void SelectOffIcon()
+            => SelectIconPath("OffIconPath");
+
+        private void SelectIconPath(string propertyName)
         {
             if (Component == null) return;
 
-            var property = TypeDescriptor.GetProperties(Component)["IconName"];
+            var property = TypeDescriptor.GetProperties(Component)[propertyName];
             if (property == null) return;
 
             var currentValue = property.GetValue(Component) as string;
@@ -55,23 +70,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    SetProperty("IconName", dialog.SelectedIconPath);
+                    SetProperty(propertyName, dialog.SelectedIconPath);
                 }
             }
         }
 
-        private void OnClearIcon(object? sender, EventArgs e)
+        private void OnClearIcons(object? sender, EventArgs e)
+            => ClearIcons();
+
+        public void ClearIcons()
         {
-            SetProperty("IconName", string.Empty);
+            SetProperty("OnIconPath", string.Empty);
+            SetProperty("OffIconPath", string.Empty);
         }
 
         private void OnToggle(object? sender, EventArgs e)
+            => ToggleState();
+
+        public void ToggleState()
         {
-            if (Toggle != null)
-            {
-                var currentValue = GetProperty<object>("Value");
-                // Toggle implementation depends on value type
-            }
+            SetProperty("IsOn", !GetProperty<bool>("IsOn"));
         }
     }
 
@@ -171,39 +189,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         public void ToggleState()
         {
-            if (Toggle != null)
-            {
-                IsOn = !IsOn;
-            }
+            _designer.ToggleState();
         }
 
-        public void SelectIcon()
+        public void SelectOnIcon()
         {
-            _designer.Verbs[0].Invoke();
+            _designer.SelectOnIcon();
+        }
+
+        public void SelectOffIcon()
+        {
+            _designer.SelectOffIcon();
         }
 
         public void UseCheckmarkIcon()
         {
+            ToggleStyle = ToggleStyle.IconCustom;
             _designer.SetProperty("OnIconPath", TheTechIdea.Beep.Icons.SvgsUI.Check);
             _designer.SetProperty("OffIconPath", TheTechIdea.Beep.Icons.SvgsUI.X);
         }
 
         public void UseHeartIcon()
         {
+            ToggleStyle = ToggleStyle.IconCustom;
             _designer.SetProperty("OnIconPath", TheTechIdea.Beep.Icons.SvgsUI.Heart);
             _designer.SetProperty("OffIconPath", TheTechIdea.Beep.Icons.SvgsUI.HeartOff ?? TheTechIdea.Beep.Icons.SvgsUI.Heart);
         }
 
         public void UseLockIcon()
         {
+            ToggleStyle = ToggleStyle.IconCustom;
             _designer.SetProperty("OnIconPath", TheTechIdea.Beep.Icons.SvgsUI.Lock);
             _designer.SetProperty("OffIconPath", TheTechIdea.Beep.Icons.SvgsUI.Unlock);
         }
 
         public void UseEyeIcon()
         {
+            ToggleStyle = ToggleStyle.IconCustom;
             _designer.SetProperty("OnIconPath", TheTechIdea.Beep.Icons.SvgsUI.Eye);
             _designer.SetProperty("OffIconPath", TheTechIdea.Beep.Icons.SvgsUI.EyeOff);
+        }
+
+        public void ClearIcons()
+        {
+            _designer.ClearIcons();
         }
 
         public void ApplyClassicStyle()
@@ -254,7 +283,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ApplyMinimalStyle", "Minimal Style", "Style Presets", false));
 
             items.Add(new DesignerActionHeaderItem("Icons"));
-            items.Add(new DesignerActionMethodItem(this, "SelectIcon", "Select Icon...", "Icons", true));
+            items.Add(new DesignerActionMethodItem(this, "SelectOnIcon", "Select On Icon...", "Icons", true));
+            items.Add(new DesignerActionMethodItem(this, "SelectOffIcon", "Select Off Icon...", "Icons", true));
+            items.Add(new DesignerActionMethodItem(this, "ClearIcons", "Clear Icons", "Icons", false));
             items.Add(new DesignerActionMethodItem(this, "UseCheckmarkIcon", "✓ Checkmark", "Icons", false));
             items.Add(new DesignerActionMethodItem(this, "UseHeartIcon", "❤️ Heart", "Icons", false));
             items.Add(new DesignerActionMethodItem(this, "UseLockIcon", "🔒 Lock", "Icons", false));

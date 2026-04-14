@@ -90,7 +90,8 @@ _captionFont = captionFont;
             // Play button centered on media (for video)
             bool isVideo = !string.IsNullOrEmpty(ctx.BadgeText2) && 
                           ctx.BadgeText2.Contains("Video", StringComparison.OrdinalIgnoreCase);
-            if (ctx.ShowButton && isVideo && ctx.ShowImage)
+            bool showPlayOverlay = ctx.ShowButton && isVideo && ctx.ShowImage;
+            if (showPlayOverlay)
             {
                 ctx.ButtonRect = new Rectangle(
                     ctx.ImageRect.Left + (ctx.ImageRect.Width - playButtonSize) / 2,
@@ -100,8 +101,10 @@ _captionFont = captionFont;
             }
             else
             {
-                ctx.ShowButton = false;
+                ctx.ButtonRect = Rectangle.Empty;
             }
+
+            ctx.ShowButton = false;
             
             // Content area below media
             int contentTop = ctx.ShowImage ? ctx.ImageRect.Bottom + padding : drawingRect.Top + padding;
@@ -169,9 +172,17 @@ _captionFont = captionFont;
                 CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1,
                     overlayBackColor, ctx.Badge1ForeColor, _badgeFont);
             }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
             
             // Draw play button overlay for video
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 
@@ -212,7 +223,7 @@ _captionFont = captionFont;
                     () => notifyAreaHit?.Invoke("Badge", ctx.BadgeRect));
             }
             
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 owner.AddHitArea("PlayButton", ctx.ButtonRect, null,
                     () => notifyAreaHit?.Invoke("PlayButton", ctx.ButtonRect));

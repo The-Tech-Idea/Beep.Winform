@@ -140,6 +140,14 @@ _titleFont = titleFont;
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
+
             // Draw badge overlay on banner
             if (!string.IsNullOrEmpty(ctx.BadgeText1) && !ctx.BadgeRect.IsEmpty)
             {

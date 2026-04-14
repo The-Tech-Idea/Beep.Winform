@@ -1067,6 +1067,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!DesignMode) return;
 
+            ResetDesignTimeData();
+
             switch (_style)
             {
                 #region Profile & User Cards
@@ -1075,6 +1077,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     headerText = "Alex Morgan";
                     paragraphText = "Senior Full Stack Developer | Cloud Architecture Specialist\nPassionate about building scalable solutions";
                     _subtitleText = "@alexmorgan";
+                    _statusText = "Available for work";
                     buttonText = "Follow";
                     secondaryButtonText = "Message";
                     showButton = true;
@@ -1087,11 +1090,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case CardStyle.CompactProfile:
                     headerText = "Jordan Chen";
-                    paragraphText = "UI/UX Designer • 12K followers";
-                    _subtitleText = "Active now";
-                    buttonText = "Connect";
-                    showButton = true;
-                    showSecondaryButton = false;
+                    _subtitleText = "UI/UX Designer • 12K followers";
+                    _statusText = "Active now";
                     imagePath = Svgs.Person;
                     _showStatus = true;
                     _statusColor = Color.FromArgb(76, 175, 80); // Green
@@ -1104,22 +1104,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     buttonText = "View Profile";
                     showButton = true;
                     imagePath = Svgs.User;
-                    _badgeText1 = "2.5K";
-                    _badgeText2 = "150";
+                    _badgeText1 = "2.5K Followers";
                     _badge1BackColor = Color.FromArgb(33, 150, 243); // Blue
                     _badge1ForeColor = Color.White;
-                    _badge2BackColor = Color.FromArgb(156, 39, 176); // Purple
-                    _badge2ForeColor = Color.White;
                     break;
 
                 case CardStyle.TeamMemberCard:
                     headerText = "Morgan Lee";
-                    paragraphText = "Lead DevOps Engineer\nAWS Certified Solutions Architect";
-                    _subtitleText = "Team Lead";
-                    buttonText = "Contact";
-                    secondaryButtonText = "Schedule";
+                    paragraphText = "Builds secure delivery platforms and mentors the infrastructure guild.";
+                    _subtitleText = "Lead DevOps Engineer";
+                    _statusText = "24 Projects | 8 Years | 12 Certs";
                     showButton = true;
-                    showSecondaryButton = true;
                     imagePath = Svgs.PersonEdit;
                     break;
 
@@ -1167,8 +1162,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     headerText = "Stunning Landscape Photography";
                     paragraphText = "Explore breathtaking views from around the world";
                     _subtitleText = "Photography Collection";
-                    buttonText = "View Gallery";
-                    showButton = true;
+                    buttonText = string.Empty;
+                    showButton = false;
+                    _badgeText1 = "Gallery";
+                    _badge1BackColor = Color.FromArgb(33, 150, 243); // Blue
+                    _badge1ForeColor = Color.White;
                     imagePath = Svgs.Cat;
                     break;
 
@@ -1239,10 +1237,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     paragraphText = "Perfect for growing teams\n• Unlimited projects\n• Advanced features\n• Priority support\n• Custom integrations";
                     _subtitleText = "$49/month";
                     _priceText = "$49";
+                    _statusText = "Billed monthly";
                     buttonText = "Choose Plan";
-                    secondaryButtonText = "Compare";
                     showButton = true;
-                    showSecondaryButton = true;
                     _badgeText1 = "Most Popular";
                     _badge1BackColor = Color.FromArgb(255, 193, 7); // Amber
                     _badge1ForeColor = Color.Black;
@@ -1251,10 +1248,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.OfferCard:
                     headerText = "Black Friday Sale!";
                     paragraphText = "Save up to 70% on select items. Limited time offer!";
-                    _subtitleText = "Ends in 2 days";
+                    _subtitleText = "$29.99 | $99.99";
+                    _statusText = "Ends in 2 days";
+                    _showStatus = true;
                     buttonText = "Shop Now";
                     showButton = true;
-                    _badgeText1 = "HOT DEAL";
+                    _badgeText1 = "-70%";
                     _badge1BackColor = Color.FromArgb(244, 67, 54); // Red
                     _badge1ForeColor = Color.White;
                     imagePath = Svgs.Star;
@@ -1262,8 +1261,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case CardStyle.CartItemCard:
                     headerText = "Premium T-Shirt";
-                    paragraphText = "Size: L • Color: Navy Blue";
-                    _subtitleText = "$29.99 × 2";
+                    paragraphText = "$29.99 each";
+                    _subtitleText = "Size: L • Color: Navy Blue";
+                    _statusText = "$59.98 total";
+                    _badgeText1 = "2";
                     buttonText = "Update";
                     secondaryButtonText = "Remove";
                     showButton = true;
@@ -1285,14 +1286,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case CardStyle.ReviewCard:
-                    headerText = "Outstanding Service!";
+                    headerText = "David Martinez";
                     paragraphText = "I've been using this for 6 months and it's been fantastic. Highly recommend to anyone looking for a reliable solution.";
-                    _subtitleText = "David Martinez • Verified Purchase";
+                    _subtitleText = "Verified Purchase • 6 months ago";
                     _rating = 5;
                     _showRating = true;
+                    _statusText = "24 people found this helpful";
                     buttonText = "Helpful";
                     showButton = true;
-                    imagePath = Svgs.ThumbUp;
+                    imagePath = Svgs.Person;
                     _badgeText1 = "Verified";
                     _badge1BackColor = Color.FromArgb(76, 175, 80); // Green
                     _badge1ForeColor = Color.White;
@@ -1301,29 +1303,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.CommentCard:
                     headerText = "Michael Chen";
                     paragraphText = "Great article! I especially liked the section about performance optimization. Would love to see more content like this.";
-                    _subtitleText = "2 hours ago";
-                    buttonText = "Reply";
-                    secondaryButtonText = "Like";
-                    showButton = true;
-                    showSecondaryButton = true;
+                    _statusText = "2 hours ago";
+                    buttonText = string.Empty;
+                    secondaryButtonText = string.Empty;
+                    showButton = false;
+                    showSecondaryButton = false;
                     imagePath = Svgs.Comment;
-                    _badgeText1 = "❤ 15";
+                    _badgeText1 = "15";
                     break;
 
                 case CardStyle.SocialMediaCard:
                     headerText = "Sarah Johnson";
                     paragraphText = "Just shipped a major update! 🚀 Check out the new features we've been working on. Your feedback would mean a lot! #development #coding";
-                    _subtitleText = "3 hours ago";
-                    _badgeText1 = "♥ 234";
-                    _badgeText2 = "💬 42";
-                    _badge1BackColor = Color.FromArgb(244, 67, 54); // Red
-                    _badge1ForeColor = Color.White;
-                    _badge2BackColor = Color.FromArgb(33, 150, 243); // Blue
-                    _badge2ForeColor = Color.White;
-                    buttonText = "Like";
-                    secondaryButtonText = "Share";
-                    showButton = true;
-                    showSecondaryButton = true;
+                    _subtitleText = "@sarahdesigns";
+                    _statusText = "3 hours ago";
+                    buttonText = string.Empty;
+                    secondaryButtonText = string.Empty;
+                    showButton = false;
+                    showSecondaryButton = false;
                     imagePath = Svgs.Person;
                     break;
 
@@ -1334,10 +1331,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.StatCard:
                     headerText = "12,458";
                     paragraphText = "Active Users";
-                    _subtitleText = "+18.2% from last month";
-                    _badgeText1 = "↑";
-                    _badge1BackColor = Color.FromArgb(76, 175, 80); // Green
-                    _badge1ForeColor = Color.White;
+                    _statusText = "+18.2% from last month";
                     imagePath = Svgs.TrendUp;
                     _showStatus = true;
                     _statusColor = Color.FromArgb(76, 175, 80);
@@ -1345,18 +1339,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case CardStyle.ChartCard:
                     headerText = "Revenue Overview";
-                    paragraphText = "Monthly revenue trends and projections for Q4 2024";
-                    buttonText = "View Report";
-                    showButton = true;
-                    imagePath = Svgs.TrendUp;
+                    paragraphText = "Revenue vs target";
                     _subtitleText = "$124,500";
+                    _statusText = "+12.4%";
+                    _badgeText1 = "Q4";
                     break;
 
                 case CardStyle.MetricCard:
                     headerText = "Conversion Rate";
-                    paragraphText = "3.8%";
-                    _subtitleText = "+0.5% vs last week";
-                    _badgeText1 = "Target: 4%";
+                    paragraphText = "Target: 4.0%";
+                    _subtitleText = "3.8%";
+                    _statusText = "+0.5% vs last week";
+                    _badgeText1 = "Growth";
                     _badge1BackColor = Color.FromArgb(255, 152, 0); // Orange
                     _badge1ForeColor = Color.White;
                     imagePath = Svgs.Sum;
@@ -1365,13 +1359,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.ActivityCard:
                     headerText = "New Order Placed";
                     paragraphText = "Order #4567 by John Smith\nTotal: $156.99";
-                    _subtitleText = "5 minutes ago";
-                    buttonText = "View Order";
-                    showButton = true;
+                    _statusText = "5 minutes ago";
                     imagePath = Svgs.InfoAlert;
                     _badgeText1 = "NEW";
                     _badge1BackColor = Color.FromArgb(33, 150, 243); // Blue
                     _badge1ForeColor = Color.White;
+                    _showStatus = true;
+                    _statusColor = Color.FromArgb(33, 150, 243);
                     break;
 
                 #endregion
@@ -1381,20 +1375,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.NotificationCard:
                     headerText = "System Update Available";
                     paragraphText = "A new version is ready to install. Update now to get the latest features and security improvements.";
-                    _subtitleText = "Just now";
-                    buttonText = "Update Now";
-                    secondaryButtonText = "Later";
-                    showButton = true;
-                    showSecondaryButton = true;
+                    _statusText = "Just now";
+                    _subtitleText = "Recommended update";
+                    _showStatus = true;
                     imagePath = Svgs.InfoInfo;
                     break;
 
                 case CardStyle.MessageCard:
                     headerText = "Lisa Anderson";
                     paragraphText = "Hey! Did you get a chance to review the proposal? Let me know if you have any questions.";
-                    _subtitleText = "10:32 AM";
-                    buttonText = "Reply";
-                    showButton = true;
+                    _statusText = "10:32 AM";
                     imagePath = Svgs.Mail;
                     break;
 
@@ -1428,52 +1418,59 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case CardStyle.EventCard:
                     headerText = "Annual Developer Conference 2025";
-                    paragraphText = "Join industry leaders for three days of workshops, keynotes, and networking.\nJanuary 15-17, 2025";
+                    paragraphText = "Join industry leaders for three days of workshops, keynotes, and networking.";
                     _subtitleText = "San Francisco Convention Center";
+                    _statusText = "JAN\n15";
                     _badgeText1 = "Early Bird";
                     _badge1BackColor = Color.FromArgb(156, 39, 176); // Purple
                     _badge1ForeColor = Color.White;
                     buttonText = "Register Now";
-                    secondaryButtonText = "Details";
                     showButton = true;
-                    showSecondaryButton = true;
-                    imagePath = Svgs.Calendar;
+                    imagePath = string.Empty;
                     break;
 
                 case CardStyle.CalendarEventCard:
                     headerText = "Team Meeting";
                     paragraphText = "Q4 Planning & Strategy Review";
-                    _subtitleText = "Today at 2:00 PM";
+                    _subtitleText = "DEC\n15";
+                    _statusText = "Today at 2:00 PM";
                     buttonText = "Join Meeting";
                     showButton = true;
-                    imagePath = Svgs.fi_tr_calendar;
-                    _badgeText1 = "15";
-                    _badgeText2 = "DEC";
+                    imagePath = string.Empty;
+                    _badgeText1 = "Room A";
+                    _badge1BackColor = Color.FromArgb(33, 150, 243); // Blue
+                    _badge1ForeColor = Color.White;
+                    _showStatus = true;
+                    _statusColor = Color.FromArgb(103, 58, 183); // Deep Purple
                     break;
 
                 case CardStyle.ScheduleCard:
                     headerText = "Doctor's Appointment";
                     paragraphText = "Dr. Sarah Williams • Annual Checkup";
-                    _subtitleText = "Tomorrow at 10:30 AM";
-                    buttonText = "View Details";
-                    secondaryButtonText = "Reschedule";
-                    showButton = true;
-                    showSecondaryButton = true;
-                    imagePath = Svgs.AlarmClock;
+                    _subtitleText = "Medical Center • Building A";
+                    _statusText = "10:30 AM - 11:30 AM";
+                    buttonText = string.Empty;
+                    secondaryButtonText = string.Empty;
+                    showButton = false;
+                    showSecondaryButton = false;
+                    imagePath = string.Empty;
+                    _badgeText1 = "Confirmed";
+                    _badge1BackColor = Color.FromArgb(76, 175, 80); // Green
+                    _badge1ForeColor = Color.White;
+                    _statusColor = Color.FromArgb(33, 150, 243); // Blue
                     break;
 
                 case CardStyle.TaskCard:
                     headerText = "Complete Project Documentation";
                     paragraphText = "Write comprehensive docs for the new API endpoints";
-                    _subtitleText = "Due: Dec 20, 2024";
-                    buttonText = "Mark Complete";
-                    showButton = true;
-                    imagePath = Svgs.Check;
+                    _statusText = "Due: Dec 20, 2024";
+                    buttonText = string.Empty;
+                    showButton = false;
+                    imagePath = string.Empty;
                     _badgeText1 = "High Priority";
                     _badge1BackColor = Color.FromArgb(244, 67, 54); // Red
                     _badge1ForeColor = Color.White;
                     _showStatus = true;
-                    _statusText = "In Progress";
                     _statusColor = Color.FromArgb(255, 152, 0); // Orange
                     break;
 
@@ -1495,12 +1492,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.DataCard:
                     headerText = "Server Status";
                     paragraphText = "CPU: 45%\nMemory: 62%\nDisk: 78%\nNetwork: 12 MB/s";
-                    _subtitleText = "Last updated: 2 minutes ago";
+                    _subtitleText = "CPU\nMemory\nDisk\nNetwork";
                     buttonText = "Details";
                     showButton = true;
                     imagePath = Svgs.DataView;
-                    _showStatus = true;
-                    _statusColor = Color.FromArgb(76, 175, 80); // Green
+                    _badgeText1 = "Healthy";
+                    _badge1BackColor = Color.FromArgb(76, 175, 80); // Green
+                    _badge1ForeColor = Color.White;
                     break;
 
                 case CardStyle.FormCard:
@@ -1516,12 +1514,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.SettingsCard:
                     headerText = "Email Notifications";
                     paragraphText = "Receive updates about your account activity";
-                    _subtitleText = "Currently enabled";
-                    buttonText = "Configure";
-                    showButton = true;
+                    _statusText = "Enabled";
+                    buttonText = string.Empty;
+                    showButton = false;
                     imagePath = Svgs.Settings;
-                    _showStatus = true;
-                    _statusColor = Color.FromArgb(76, 175, 80); // Green
+                    _showRating = true;
                     break;
 
                 #endregion
@@ -1552,9 +1549,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case CardStyle.HoverCard:
                     headerText = "Interactive Experience";
                     paragraphText = "Hover over this card to see the smooth transition effects";
-                    buttonText = "Explore";
+                    buttonText = string.Empty;
                     showButton = true;
                     imagePath = Svgs.Cool;
+                    _badgeText1 = "Explore";
                     break;
 
                 case CardStyle.InteractiveCard:
@@ -1577,12 +1575,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case CardStyle.VideoCard:
                     headerText = "Product Demo Video";
-                    paragraphText = "Watch our 5-minute introduction to get started quickly";
-                    _subtitleText = "5:42";
-                    buttonText = "Play Video";
-                    showButton = true;
+                    paragraphText = "1.2M views • 3 days ago";
+                    _subtitleText = "Beep Labs";
+                    _statusText = "5:42";
+                    buttonText = string.Empty;
+                    showButton = false;
+                    _showStatus = true;
                     imagePath = Svgs.Cat;
-                    _badgeText1 = "▶";
+                    _badgeText1 = "HD";
                     _badge1BackColor = Color.FromArgb(244, 67, 54); // Red
                     _badge1ForeColor = Color.White;
                     break;
@@ -1672,8 +1672,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Dashboard & Analytics
                 case CardStyle.StatCard:
-                case CardStyle.ChartCard:
                     return Svgs.TrendUp;
+                case CardStyle.ChartCard:
+                    return string.Empty;
                 case CardStyle.MetricCard:
                     return Svgs.Sum;
                 case CardStyle.ActivityCard:
@@ -1692,13 +1693,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Event & Calendar
                 case CardStyle.EventCard:
-                    return Svgs.Calendar;
+                    return string.Empty;
                 case CardStyle.CalendarEventCard:
-                    return Svgs.fi_tr_calendar;
+                    return string.Empty;
                 case CardStyle.ScheduleCard:
-                    return Svgs.AlarmClock;
+                    return string.Empty;
                 case CardStyle.TaskCard:
-                    return Svgs.Check;
+                    return string.Empty;
 
                 // List & Data
                 case CardStyle.ListCard:
@@ -1727,6 +1728,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 default:
                     return Svgs.Beep;
             }
+        }
+
+        private void ResetDesignTimeData()
+        {
+            headerText = "Card Title";
+            paragraphText = "Card Description";
+            buttonText = "Action";
+            secondaryButtonText = "More";
+            showButton = false;
+            showSecondaryButton = false;
+            imagePath = string.Empty;
+            _subtitleText = string.Empty;
+            _statusText = string.Empty;
+            _showStatus = false;
+            _statusColor = Color.Green;
+            _rating = 0;
+            _showRating = false;
+            _badgeText1 = string.Empty;
+            _badge1BackColor = Color.FromArgb(255, 235, 59);
+            _badge1ForeColor = Color.Black;
+            _badgeText2 = string.Empty;
+            _badge2BackColor = Color.FromArgb(33, 150, 243);
+            _badge2ForeColor = Color.White;
+            _priceText = string.Empty;
         }
 
         private string PathCombineGfx(string folder, string file)

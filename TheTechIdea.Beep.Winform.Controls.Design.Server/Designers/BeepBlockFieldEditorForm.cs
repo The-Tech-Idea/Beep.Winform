@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 
@@ -15,6 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly DataGridView _grid = new();
         private readonly Button _addButton = new();
         private readonly Button _removeButton = new();
+        private readonly Button _moveUpButton = new();
+        private readonly Button _moveDownButton = new();
         private readonly Button _defaultsButton = new();
         private readonly Button _okButton = new();
         private readonly Button _cancelButton = new();
@@ -37,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     EditorKey = row.EditorKey,
                     ControlType = row.ControlType,
                     BindingProperty = row.BindingProperty,
+                    DefaultValue = row.DefaultValue,
                     Order = row.Order,
                     Width = row.Width,
                     IsVisible = row.IsVisible,
@@ -100,15 +104,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _removeButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             _removeButton.Click += (_, _) => RemoveSelectedRow();
 
+            _moveUpButton.Text = "Move Up";
+            _moveUpButton.Size = new Size(90, 30);
+            _moveUpButton.Location = new Point(214, 544);
+            _moveUpButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            _moveUpButton.Click += (_, _) => MoveSelectedRow(-1);
+
+            _moveDownButton.Text = "Move Down";
+            _moveDownButton.Size = new Size(100, 30);
+            _moveDownButton.Location = new Point(310, 544);
+            _moveDownButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            _moveDownButton.Click += (_, _) => MoveSelectedRow(1);
+
             _defaultsButton.Text = "Default Policy...";
             _defaultsButton.Size = new Size(130, 30);
-            _defaultsButton.Location = new Point(214, 544);
+            _defaultsButton.Location = new Point(416, 544);
             _defaultsButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             _defaultsButton.Click += (_, _) => OpenDefaultPolicyEditor();
 
             Controls.Add(_grid);
             Controls.Add(_addButton);
             Controls.Add(_removeButton);
+            Controls.Add(_moveUpButton);
+            Controls.Add(_moveDownButton);
             Controls.Add(_defaultsButton);
             Controls.Add(_okButton);
             Controls.Add(_cancelButton);
@@ -156,6 +174,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             _grid.Columns.Add(new DataGridViewTextBoxColumn
             {
+                HeaderText = "Default",
+                DataPropertyName = nameof(FieldRow.DefaultValue),
+                FillWeight = 16
+            });
+
+            _grid.Columns.Add(new DataGridViewTextBoxColumn
+            {
                 HeaderText = "Order",
                 DataPropertyName = nameof(FieldRow.Order),
                 FillWeight = 10
@@ -185,6 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void LoadRows(IEnumerable<BeepFieldDefinition>? fieldDefinitions, BeepBlockEntityDefinition? entityDefinition)
         {
+            _rows.Clear();
+
             var existingFields = (fieldDefinitions ?? Array.Empty<BeepFieldDefinition>())
                 .Where(field => field != null && !string.IsNullOrWhiteSpace(field.FieldName))
                 .ToDictionary(field => field.FieldName, field => field, StringComparer.OrdinalIgnoreCase);
@@ -202,12 +229,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 }
             }
 
-            foreach (var fieldName in fieldNames.OrderBy(name => name, StringComparer.OrdinalIgnoreCase))
+            var rows = new List<FieldRow>();
+            foreach (var fieldName in fieldNames)
             {
                 existingFields.TryGetValue(fieldName, out var existingField);
                 var entityField = entityDefinition?.Fields?.FirstOrDefault(field => string.Equals(field.FieldName, fieldName, StringComparison.OrdinalIgnoreCase));
 
-                _rows.Add(new FieldRow
+                rows.Add(new FieldRow
                 {
                     FieldName = fieldName,
                     Label = existingField?.Label ?? entityField?.Label ?? fieldName,
@@ -221,6 +249,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                             : existingField!.ControlType,
                             string.IsNullOrWhiteSpace(existingField?.EditorKey) ? InferEditorKey(entityField) : existingField!.EditorKey)
                         : existingField!.BindingProperty,
+                    DefaultValue = existingField?.DefaultValue ?? entityField?.DefaultValue ?? string.Empty,
                     Order = existingField?.Order ?? entityField?.Order ?? _rows.Count,
                     Width = existingField?.Width ?? 160,
                     IsVisible = existingField?.IsVisible ?? true,
@@ -229,12 +258,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 });
             }
 
+            foreach (FieldRow row in rows
+                .OrderBy(row => row.Order)
+                .ThenBy(row => row.FieldName, StringComparer.OrdinalIgnoreCase))
+            {
+                _rows.Add(row);
+            }
+
             _grid.DataSource = _rows;
         }
 
         private void AddRow()
         {
-            int nextIndex = _rows.Count + 1;
+            int nextOrder = _rows.Count == 0 ? 0 : _rows.Max(row => row.Order) + 1;
+            int nextIndex = nextOrder + 1;
             var field = IntegratedDefinitionFactories.CreateDefaultFieldDefinition(nextIndex);
 
             _rows.Add(new FieldRow
@@ -244,6 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 EditorKey = field.EditorKey,
                 ControlType = field.ControlType,
                 BindingProperty = field.BindingProperty,
+                DefaultValue = field.DefaultValue,
                 Order = field.Order,
                 Width = field.Width,
                 IsVisible = field.IsVisible,
@@ -267,6 +305,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             _rows.Remove(selectedRow);
+            RecalculateRowOrder();
+            _rows.ResetBindings();
+        }
+
+        private void MoveSelectedRow(int direction)
+        {
+            if (_grid.CurrentRow?.DataBoundItem is not FieldRow selectedRow)
+            {
+                return;
+            }
+
+            int currentIndex = _rows.IndexOf(selectedRow);
+            if (currentIndex < 0)
+            {
+                return;
+            }
+
+            int nextIndex = currentIndex + direction;
+            if (nextIndex < 0 || nextIndex >= _rows.Count)
+            {
+                return;
+            }
+
+            _rows.RaiseListChangedEvents = false;
+            _rows.RemoveAt(currentIndex);
+            _rows.Insert(nextIndex, selectedRow);
+            RecalculateRowOrder();
+            _rows.RaiseListChangedEvents = true;
+            _rows.ResetBindings();
+
+            _grid.ClearSelection();
+            _grid.Rows[nextIndex].Selected = true;
+            _grid.CurrentCell = _grid.Rows[nextIndex].Cells[0];
         }
 
         private void OpenDefaultPolicyEditor()
@@ -357,6 +428,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return BeepFieldControlTypeRegistry.ResolveDefaultBindingProperty(controlType, editorKey);
         }
 
+        private void RecalculateRowOrder()
+        {
+            for (int index = 0; index < _rows.Count; index++)
+            {
+                _rows[index].Order = index;
+            }
+        }
+
         private sealed class FieldRow
         {
             public string FieldName { get; set; } = string.Empty;
@@ -364,6 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             public string EditorKey { get; set; } = "text";
             public string ControlType { get; set; } = nameof(BeepTextBox);
             public string BindingProperty { get; set; } = nameof(Control.Text);
+            public string DefaultValue { get; set; } = string.Empty;
             public int Order { get; set; }
             public int Width { get; set; } = 160;
             public bool IsVisible { get; set; } = true;

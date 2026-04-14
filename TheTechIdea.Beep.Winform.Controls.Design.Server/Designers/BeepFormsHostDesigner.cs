@@ -4,68 +4,21 @@ using System.ComponentModel.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Services;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
-    public sealed class BeepFormsHostDesigner : ParentControlDesigner
+    public sealed class BeepFormsHostDesigner : BaseBeepParentControlDesigner
     {
-        private IComponentChangeService? _changeService;
-        private DesignerActionListCollection? _actionLists;
-
-        public override void Initialize(IComponent component)
+        protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
-            base.Initialize(component);
-            _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
-        }
-
-        internal void SetProperty(string propertyName, object? value)
-        {
-            if (Component == null)
-            {
-                return;
-            }
-
-            PropertyDescriptor? property = TypeDescriptor.GetProperties(Component)[propertyName];
-            if (property == null)
-            {
-                return;
-            }
-
-            object? currentValue = property.GetValue(Component);
-            if (ReferenceEquals(currentValue, value) || Equals(currentValue, value))
-            {
-                return;
-            }
-
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, currentValue, value);
-        }
-
-        internal T? GetProperty<T>(string propertyName)
-        {
-            if (Component == null)
-            {
-                return default;
-            }
-
-            PropertyDescriptor? property = TypeDescriptor.GetProperties(Component)[propertyName];
-            if (property == null)
-            {
-                return default;
-            }
-
-            object? value = property.GetValue(Component);
-            return value is T typedValue ? typedValue : default;
-        }
-
-        public override DesignerActionListCollection ActionLists
-            => _actionLists ??= new DesignerActionListCollection
+            return new DesignerActionListCollection
             {
                 new BeepFormsHostActionList(this)
             };
+        }
     }
 
     public sealed class BeepFormsHostActionList : DesignerActionList

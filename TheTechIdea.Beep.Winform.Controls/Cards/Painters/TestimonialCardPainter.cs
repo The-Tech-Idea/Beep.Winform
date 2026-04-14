@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
 _quoteMarkFont = titleFont;
             _quoteFont = titleFont;
             _nameFont = titleFont;
-            _titleFont = titleFont;
+            _titleFont = captionFont;
         }
         
         public LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
@@ -119,6 +119,14 @@ _quoteMarkFont = titleFont;
             g.DrawString("\u201C", _quoteMarkFont, quoteBrush, 
                 ctx.DrawingRect.Left + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(5, _owner), 
                 ctx.DrawingRect.Top + DpiScalingHelper.ScaleValue(Padding, _owner) - DpiScalingHelper.ScaleValue(10, _owner));
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _titleFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
             
             // Draw rating stars
             if (ctx.ShowRating && ctx.Rating > 0 && !ctx.RatingRect.IsEmpty)

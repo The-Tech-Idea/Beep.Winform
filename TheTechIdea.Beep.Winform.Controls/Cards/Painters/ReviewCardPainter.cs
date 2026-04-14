@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
 _nameFont = titleFont;
-            _dateFont = titleFont;
+            _dateFont = captionFont;
             _reviewFont = bodyFont;
             _badgeFont = captionFont;
             _helpfulFont = bodyFont;
@@ -177,6 +177,14 @@ _nameFont = titleFont;
             if (ctx.ShowRating && ctx.Rating > 0 && !ctx.RatingRect.IsEmpty)
             {
                 CardRenderingHelpers.DrawStars(g, ctx.RatingRect, ctx.Rating, ctx.AccentColor);
+            }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _dateFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
             }
             
             // Draw verification badge

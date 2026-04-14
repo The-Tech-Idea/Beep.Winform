@@ -112,8 +112,8 @@ _titleFont = titleFont;
                 RemoveButtonSize,
                 RemoveButtonSize);
             
-            ctx.ShowButton = true;
-            ctx.ShowSecondaryButton = true;
+            ctx.ShowButton = false;
+            ctx.ShowSecondaryButton = false;
             return ctx;
         }
         
@@ -124,6 +124,14 @@ _titleFont = titleFont;
         
         public void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _variantFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
+            }
+
             // Draw quantity controls
             if (!ctx.ButtonRect.IsEmpty)
             {

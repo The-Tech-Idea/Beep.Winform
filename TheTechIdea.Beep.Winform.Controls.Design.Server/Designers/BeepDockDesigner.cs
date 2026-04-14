@@ -5,6 +5,7 @@ using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.Docks;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 using DockStyle = TheTechIdea.Beep.Winform.Controls.Docks.DockStyle;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -115,21 +116,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("IndicatorStyle", value);
         }
 
+        [Category("Beep Dock")]
+        [Description("Animation style used for item interactions")]
+        public DockAnimationStyle AnimationStyle
+        {
+            get => _designer.GetProperty<DockAnimationStyle>("AnimationStyle");
+            set => _designer.SetProperty("AnimationStyle", value);
+        }
+
+        [Category("Beep Dock")]
+        [Description("Controls dock icon rendering mode")]
+        public DockIconMode IconMode
+        {
+            get => _designer.GetProperty<DockIconMode>("IconMode");
+            set => _designer.SetProperty("IconMode", value);
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show per-item tooltips on hover")]
+        public bool ShowTooltips
+        {
+            get => _designer.GetProperty<bool>("ShowTooltips");
+            set => _designer.SetProperty("ShowTooltips", value);
+        }
+
+        [Category("Beep Dock")]
+        [Description("Show notification badges on items")]
+        public bool ShowBadges
+        {
+            get => _designer.GetProperty<bool>("ShowBadges");
+            set => _designer.SetProperty("ShowBadges", value);
+        }
+
         #endregion
 
         #region Quick Configuration Actions
+
+        private void ApplyDockStylePreset(DockStyle dockStyle, DockPosition position = DockPosition.Bottom, DockOrientation orientation = DockOrientation.Horizontal)
+        {
+            DockStyleType = dockStyle;
+            DockPositionType = position;
+            DockOrientationType = orientation;
+            DockAlignmentType = DockAlignment.Center;
+        }
 
         /// <summary>
         /// Configure as macOS-style Apple Dock
         /// </summary>
         public void ConfigureAsAppleDock()
         {
-            DockStyleType = DockStyle.AppleDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 56;
-            DockHeight = 72;
-            MaxScale = 1.5f;
+            ApplyDockStylePreset(DockStyle.AppleDock);
         }
 
         /// <summary>
@@ -137,12 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsWindows11Dock()
         {
-            DockStyleType = DockStyle.Windows11Dock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 48;
-            DockHeight = 48;
-            MaxScale = 1.3f;
+            ApplyDockStylePreset(DockStyle.Windows11Dock);
         }
 
         /// <summary>
@@ -150,12 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsMaterial3Dock()
         {
-            DockStyleType = DockStyle.Material3Dock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 56;
-            DockHeight = 64;
-            MaxScale = 1.4f;
+            ApplyDockStylePreset(DockStyle.Material3Dock);
         }
 
         /// <summary>
@@ -163,12 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsGlassmorphismDock()
         {
-            DockStyleType = DockStyle.GlassmorphismDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 56;
-            DockHeight = 72;
-            MaxScale = 1.5f;
+            ApplyDockStylePreset(DockStyle.GlassmorphismDock);
         }
 
         /// <summary>
@@ -176,12 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsiOSDock()
         {
-            DockStyleType = DockStyle.iOSDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 60;
-            DockHeight = 80;
-            MaxScale = 1.6f;
+            ApplyDockStylePreset(DockStyle.iOSDock);
         }
 
         /// <summary>
@@ -189,32 +205,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public void ConfigureAsMinimalDock()
         {
-            DockStyleType = DockStyle.MinimalDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 48;
-            DockHeight = 56;
-            MaxScale = 1.2f;
+            ApplyDockStylePreset(DockStyle.MinimalDock);
         }
 
         public void ConfigureAsCyberpunkDock()
         {
-            DockStyleType = DockStyle.CyberpunkDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 54;
-            DockHeight = 74;
-            MaxScale = 1.45f;
+            ApplyDockStylePreset(DockStyle.CyberpunkDock);
         }
 
         public void ConfigureAsDraculaDock()
         {
-            DockStyleType = DockStyle.DraculaDock;
-            DockPositionType = DockPosition.Bottom;
-            DockOrientationType = DockOrientation.Horizontal;
-            ItemSize = 52;
-            DockHeight = 70;
-            MaxScale = 1.35f;
+            ApplyDockStylePreset(DockStyle.DraculaDock);
         }
 
         /// <summary>
@@ -313,11 +314,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("DockPositionType", "Dock Position", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockOrientationType", "Dock Orientation", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockAlignmentType", "Dock Alignment", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("AnimationStyle", "Animation Style", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("IconMode", "Icon Mode", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("ItemSize", "Item Size", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("DockHeight", "Dock Height", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("ItemSpacing", "Item Spacing", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("MaxScale", "Max Scale", "Dock Properties"));
             items.Add(new DesignerActionPropertyItem("IndicatorStyle", "Indicator Style", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("ShowTooltips", "Show Tooltips", "Dock Properties"));
+            items.Add(new DesignerActionPropertyItem("ShowBadges", "Show Badges", "Dock Properties"));
 
             return items;
         }

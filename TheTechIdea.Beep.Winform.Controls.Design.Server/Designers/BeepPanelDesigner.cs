@@ -1,29 +1,31 @@
 using System;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
-using Microsoft.DotNet.DesignTools.Designers;
-using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
     /// Design-time support for container panels, exposing verbs for image and layout helpers.
     /// </summary>
-    internal sealed class BeepPanelDesigner : ParentControlDesigner, IImagePathDesignerHost
+    internal sealed class BeepPanelDesigner : BaseBeepParentControlDesigner, IImagePathDesignerHost
     {
-        private IComponentChangeService _changeService;
-        private DesignerVerbCollection _verbs;
-        private DesignerActionListCollection _actionLists;
+        private DesignerVerbCollection? _verbs;
 
         public override void Initialize(IComponent component)
         {
             base.Initialize(component);
-            _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
             EnableDragDrop(true);
         }
+
+        protected override DesignerActionListCollection GetControlSpecificActionLists()
+            => new DesignerActionListCollection
+            {
+                new ImagePathDesignerActionList(this),
+                new ContainerControlActionList(this),
+                new BeepPanelActionList(this)
+            };
 
         public override DesignerVerbCollection Verbs
             => _verbs ??= new DesignerVerbCollection
@@ -37,12 +39,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 new DesignerVerb("Preset: Flat Panel", (s, e) => ApplyPanelPreset("flat")),
                 new DesignerVerb("Preset: Header Hidden", (s, e) => ApplyPanelPreset("hidden")),
                 new DesignerVerb("Fix Header Placement", (s, e) => FixHeaderPlacement())
-            };
-
-        public override DesignerActionListCollection ActionLists
-            => _actionLists ??= new DesignerActionListCollection
-            {
-                new ImagePathDesignerActionList(this)
             };
 
         private void OnSelectBackgroundImage(object sender, EventArgs e)
@@ -123,147 +119,189 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         public string GetImagePath()
-        {
-            if (Component == null)
-            {
-                return string.Empty;
-            }
-
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            return property?.GetValue(Component) as string ?? string.Empty;
-        }
+            => GetProperty<string>("ImagePath") ?? string.Empty;
 
         public void SetImagePath(string value)
+            => SetProperty("ImagePath", value ?? string.Empty);
+
+        public string GetHeaderIconPath() => GetProperty<string>("IconPath") ?? string.Empty;
+
+        public void SetHeaderIconPath(string value)
         {
-            if (Component == null)
+            string next = value ?? string.Empty;
+            SetProperty("IconPath", next);
+            if (!string.IsNullOrEmpty(next))
             {
-                return;
-            }
-
-            var property = TypeDescriptor.GetProperties(Component)["ImagePath"];
-            if (property == null)
-            {
-                return;
-            }
-
-            var current = property.GetValue(Component) as string;
-            if (string.Equals(current ?? string.Empty, value ?? string.Empty, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, current, value);
-        }
-
-        private void SetHeaderIconPath(string value)
-        {
-            if (Component == null)
-            {
-                return;
-            }
-
-            var properties = TypeDescriptor.GetProperties(Component);
-            var iconProperty = properties["IconPath"];
-            if (iconProperty == null || iconProperty.IsReadOnly)
-            {
-                return;
-            }
-
-            var current = iconProperty.GetValue(Component) as string ?? string.Empty;
-            var next = value ?? string.Empty;
-            if (string.Equals(current, next, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            _changeService?.OnComponentChanging(Component, iconProperty);
-            iconProperty.SetValue(Component, next);
-            _changeService?.OnComponentChanged(Component, iconProperty, current, next);
-
-            var showIconProperty = properties["ShowTitleIcon"];
-            if (showIconProperty != null && !showIconProperty.IsReadOnly)
-            {
-                var currentShow = showIconProperty.GetValue(Component) is bool b && b;
-                if (!currentShow && !string.IsNullOrEmpty(next))
-                {
-                    _changeService?.OnComponentChanging(Component, showIconProperty);
-                    showIconProperty.SetValue(Component, true);
-                    _changeService?.OnComponentChanged(Component, showIconProperty, false, true);
-                }
+                SetProperty("ShowTitleIcon", true);
             }
         }
 
-        private void ApplyPanelPreset(string preset)
+        public void ApplyPanelPreset(string preset)
         {
             if (Component == null)
             {
                 return;
             }
 
-            var properties = TypeDescriptor.GetProperties(Component);
             switch (preset)
             {
                 case "groupbox":
-                    SetProperty(properties, "ShowTitle", true);
-                    SetProperty(properties, "TitleStyle", PanelTitleStyle.GroupBox);
-                    SetProperty(properties, "ShowTitleLine", false);
-                    SetProperty(properties, "TitleAlignment", ContentAlignment.TopLeft);
-                    SetProperty(properties, "TitleGap", 8);
+                    SetProperty("ShowTitle", true);
+                    SetProperty("TitleStyle", PanelTitleStyle.GroupBox);
+                    SetProperty("ShowTitleLine", false);
+                    SetProperty("TitleAlignment", ContentAlignment.TopLeft);
+                    SetProperty("TitleGap", 8);
                     break;
                 case "card":
-                    SetProperty(properties, "ShowTitle", true);
-                    SetProperty(properties, "TitleStyle", PanelTitleStyle.TopHeader);
-                    SetProperty(properties, "ShowTitleLine", true);
-                    SetProperty(properties, "ShowTitleLineinFullWidth", true);
-                    SetProperty(properties, "TitleAlignment", ContentAlignment.TopLeft);
-                    SetProperty(properties, "ShowTitleIcon", true);
+                    SetProperty("ShowTitle", true);
+                    SetProperty("TitleStyle", PanelTitleStyle.TopHeader);
+                    SetProperty("ShowTitleLine", true);
+                    SetProperty("ShowTitleLineinFullWidth", true);
+                    SetProperty("TitleAlignment", ContentAlignment.TopLeft);
+                    SetProperty("ShowTitleIcon", true);
                     break;
                 case "flat":
-                    SetProperty(properties, "ShowTitle", true);
-                    SetProperty(properties, "TitleStyle", PanelTitleStyle.Above);
-                    SetProperty(properties, "ShowTitleLine", true);
-                    SetProperty(properties, "ShowTitleLineinFullWidth", true);
-                    SetProperty(properties, "ShowTitleIcon", true);
+                    SetProperty("ShowTitle", true);
+                    SetProperty("TitleStyle", PanelTitleStyle.Above);
+                    SetProperty("ShowTitleLine", true);
+                    SetProperty("ShowTitleLineinFullWidth", true);
+                    SetProperty("ShowTitleIcon", true);
                     break;
                 case "hidden":
-                    SetProperty(properties, "ShowTitle", false);
+                    SetProperty("ShowTitle", false);
                     break;
             }
         }
 
-        private void FixHeaderPlacement()
+        public void FixHeaderPlacement()
         {
             if (Component == null)
             {
                 return;
             }
 
-            var properties = TypeDescriptor.GetProperties(Component);
-            SetProperty(properties, "TitleGap", 8);
-            SetProperty(properties, "TitleLineThickness", 2);
-            SetProperty(properties, "TitleAlignment", ContentAlignment.TopLeft);
-            SetProperty(properties, "ShowTitleLineinFullWidth", true);
+            SetProperty("TitleGap", 8);
+            SetProperty("TitleLineThickness", 2);
+            SetProperty("TitleAlignment", ContentAlignment.TopLeft);
+            SetProperty("ShowTitleLineinFullWidth", true);
+        }
+    }
+
+    internal sealed class BeepPanelActionList : DesignerActionList
+    {
+        private readonly BeepPanelDesigner _designer;
+
+        public BeepPanelActionList(BeepPanelDesigner designer)
+            : base(designer.Component)
+        {
+            _designer = designer ?? throw new ArgumentNullException(nameof(designer));
         }
 
-        private void SetProperty(PropertyDescriptorCollection properties, string propertyName, object value)
+        [Category("Header")]
+        [Description("Show or hide the panel title area.")]
+        public bool ShowTitle
         {
-            var property = properties[propertyName];
-            if (property == null || property.IsReadOnly)
-            {
-                return;
-            }
+            get => _designer.GetProperty<bool>("ShowTitle");
+            set => _designer.SetProperty("ShowTitle", value);
+        }
 
-            var current = property.GetValue(Component);
-            if (Equals(current, value))
-            {
-                return;
-            }
+        [Category("Header")]
+        [Description("The panel title text.")]
+        public string TitleText
+        {
+            get => _designer.GetProperty<string>("TitleText") ?? string.Empty;
+            set => _designer.SetProperty("TitleText", value);
+        }
 
-            _changeService?.OnComponentChanging(Component, property);
-            property.SetValue(Component, value);
-            _changeService?.OnComponentChanged(Component, property, current, value);
+        [Category("Header")]
+        [Description("Header visual style.")]
+        public PanelTitleStyle TitleStyle
+        {
+            get => _designer.GetProperty<PanelTitleStyle>("TitleStyle");
+            set => _designer.SetProperty("TitleStyle", value);
+        }
+
+        [Category("Header")]
+        [Description("Show a decorative line under the title.")]
+        public bool ShowTitleLine
+        {
+            get => _designer.GetProperty<bool>("ShowTitleLine");
+            set => _designer.SetProperty("ShowTitleLine", value);
+        }
+
+        [Category("Header")]
+        [Description("Stretch the title line across the full width.")]
+        public bool ShowTitleLineinFullWidth
+        {
+            get => _designer.GetProperty<bool>("ShowTitleLineinFullWidth");
+            set => _designer.SetProperty("ShowTitleLineinFullWidth", value);
+        }
+
+        [Category("Header")]
+        [Description("Alignment used for the panel title.")]
+        public ContentAlignment TitleAlignment
+        {
+            get => _designer.GetProperty<ContentAlignment>("TitleAlignment");
+            set => _designer.SetProperty("TitleAlignment", value);
+        }
+
+        [Category("Header")]
+        [Description("Spacing between the title and body.")]
+        public int TitleGap
+        {
+            get => _designer.GetProperty<int>("TitleGap");
+            set => _designer.SetProperty("TitleGap", value);
+        }
+
+        [Category("Header")]
+        [Description("Show an icon beside the title text.")]
+        public bool ShowTitleIcon
+        {
+            get => _designer.GetProperty<bool>("ShowTitleIcon");
+            set => _designer.SetProperty("ShowTitleIcon", value);
+        }
+
+        [Category("Header")]
+        [Description("Resource or file path for the panel header icon.")]
+        public string HeaderIconPath
+        {
+            get => _designer.GetHeaderIconPath();
+            set => _designer.SetHeaderIconPath(value);
+        }
+
+        public void SelectHeaderIcon() => _designer.SelectHeaderIcon();
+        public void ClearHeaderIcon() => _designer.ClearHeaderIcon();
+        public void ApplyGroupBoxPreset() => _designer.ApplyPanelPreset("groupbox");
+        public void ApplyCardPreset() => _designer.ApplyPanelPreset("card");
+        public void ApplyFlatPreset() => _designer.ApplyPanelPreset("flat");
+        public void HideHeader() => _designer.ApplyPanelPreset("hidden");
+        public void FixHeaderPlacement() => _designer.FixHeaderPlacement();
+
+        public override DesignerActionItemCollection GetSortedActionItems()
+        {
+            var items = new DesignerActionItemCollection();
+
+            items.Add(new DesignerActionHeaderItem("Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(ShowTitle), "Show Title", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(TitleText), "Title Text", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(TitleStyle), "Title Style", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(ShowTitleLine), "Show Title Line", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(ShowTitleLineinFullWidth), "Full Width Title Line", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(TitleAlignment), "Title Alignment", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(TitleGap), "Title Gap", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(ShowTitleIcon), "Show Title Icon", "Header"));
+            items.Add(new DesignerActionPropertyItem(nameof(HeaderIconPath), "Header Icon Path", "Header"));
+            items.Add(new DesignerActionMethodItem(this, nameof(SelectHeaderIcon), "Select Header Icon", "Header", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ClearHeaderIcon), "Clear Header Icon", "Header", true));
+
+            items.Add(new DesignerActionHeaderItem("Presets"));
+            items.Add(new DesignerActionMethodItem(this, nameof(ApplyGroupBoxPreset), "GroupBox Header", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ApplyCardPreset), "Card Header", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ApplyFlatPreset), "Flat Panel", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(HideHeader), "Header Hidden", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(FixHeaderPlacement), "Fix Header Placement", "Presets", true));
+
+            return items;
         }
     }
 }

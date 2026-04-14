@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         // Service card fonts
         private Font _titleFont;
+        private Font _metaFont;
         private Font _descFont;
         private Font _badgeFont;
         
@@ -49,6 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
 _titleFont = titleFont;
+            _metaFont = captionFont;
             _descFont = bodyFont;
             _badgeFont = captionFont;
         }
@@ -86,20 +88,34 @@ _titleFont = titleFont;
                 titleTop,
                 drawingRect.Width - padding * 2,
                 titleHeight);
+
+            int subtitleHeight = !string.IsNullOrEmpty(ctx.SubtitleText)
+                ? DpiScalingHelper.ScaleValue(18, _owner)
+                : 0;
+
+            if (subtitleHeight > 0)
+            {
+                ctx.SubtitleRect = new Rectangle(
+                    drawingRect.Left + padding,
+                    ctx.HeaderRect.Bottom + elementGap / 2,
+                    drawingRect.Width - padding * 2,
+                    subtitleHeight);
+            }
             
             // Category badge (centered below title)
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
                 ctx.BadgeRect = new Rectangle(
                     drawingRect.Left + (drawingRect.Width - badgeWidth) / 2,
-                    ctx.HeaderRect.Bottom + elementGap,
+                    (subtitleHeight > 0 ? ctx.SubtitleRect.Bottom : ctx.HeaderRect.Bottom) + elementGap,
                     badgeWidth,
                     badgeHeight);
             }
             
             // Service description
-            int descTop = ctx.HeaderRect.Bottom + 
-                (string.IsNullOrEmpty(ctx.BadgeText1) ? elementGap * 2 : badgeHeight + elementGap * 2);
+            int descTop = string.IsNullOrEmpty(ctx.BadgeText1)
+                ? (subtitleHeight > 0 ? ctx.SubtitleRect.Bottom : ctx.HeaderRect.Bottom) + elementGap * 2
+                : ctx.BadgeRect.Bottom + elementGap * 2;
             int descHeight = Math.Max(descMinHeight,
                 drawingRect.Height - (descTop - drawingRect.Top) - padding * 2 - 
                 (ctx.ShowButton ? buttonHeight + elementGap + accentLineThickness + elementGap : 0));
@@ -154,6 +170,14 @@ _titleFont = titleFont;
                 // Border circle
                 using var borderPen = new Pen(Color.FromArgb(40, ctx.AccentColor), DpiScalingHelper.ScaleValue(2, _owner));
                 g.DrawEllipse(borderPen, circleRect);
+            }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
             }
             
             // Draw category badge

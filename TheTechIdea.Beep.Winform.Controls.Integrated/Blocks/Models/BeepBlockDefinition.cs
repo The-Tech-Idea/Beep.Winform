@@ -87,7 +87,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models
     public enum BeepBlockPresentationMode
     {
         Record,
-        Grid
+        Grid,
+        /// <summary>
+        /// Controls were created by the IDE extension and persisted in Designer.cs.
+        /// BeepBlock skips its own internal control-creation pass and uses only the
+        /// controls registered via <c>BindControl</c>.
+        /// </summary>
+        DesignerGenerated
     }
 
     [TypeConverter("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepBlockNavigationDefinitionTypeConverter, TheTechIdea.Beep.Winform.Controls.Design.Server")]

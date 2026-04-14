@@ -87,7 +87,8 @@ _titleFont = titleFont;
                 descHeight);
             
             // Action link (centered at bottom)
-            if (ctx.ShowButton)
+            bool showActionLink = ctx.ShowButton;
+            if (showActionLink)
             {
                 ctx.ButtonRect = new Rectangle(
                     drawingRect.Left + padding,
@@ -95,7 +96,12 @@ _titleFont = titleFont;
                     drawingRect.Width - padding * 2,
                     actionHeight);
             }
+            else
+            {
+                ctx.ButtonRect = Rectangle.Empty;
+            }
             
+            ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;
         }
@@ -114,7 +120,7 @@ _titleFont = titleFont;
             }
             
             // Draw action link with arrow
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 DrawActionLink(g, ctx);
             }
@@ -190,7 +196,7 @@ _titleFont = titleFont;
             }
             
             // Action link hit area
-            if (ctx.ShowButton && !ctx.ButtonRect.IsEmpty)
+            if (!ctx.ButtonRect.IsEmpty)
             {
                 owner.AddHitArea("Action", ctx.ButtonRect, null,
                     () => notifyAreaHit?.Invoke("Action", ctx.ButtonRect));

@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
         
         // Alert card fonts
         private Font _titleFont;
+        private Font _metaFont;
         private Font _messageFont;
         private Font _actionFont;
         
@@ -44,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Painters
             _owner = owner;
             _theme = theme;
 _titleFont = titleFont;
+            _metaFont = captionFont;
             _messageFont = bodyFont;
             _actionFont = bodyFont;
         }
@@ -88,15 +90,25 @@ _titleFont = titleFont;
                 drawingRect.Top + Padding,
                 contentWidth,
                 TitleHeight);
+
+            int subtitleHeight = !string.IsNullOrEmpty(ctx.SubtitleText) ? 18 : 0;
+            if (subtitleHeight > 0)
+            {
+                ctx.SubtitleRect = new Rectangle(
+                    contentLeft,
+                    ctx.HeaderRect.Bottom + ElementGap / 2,
+                    contentWidth + 24 + ElementGap,
+                    subtitleHeight);
+            }
             
             // Alert message
             int messageHeight = Math.Max(MessageMinHeight, 
-                drawingRect.Height - Padding * 2 - TitleHeight - ElementGap - 
+                drawingRect.Height - Padding * 2 - TitleHeight - subtitleHeight - ElementGap - 
                 (ctx.ShowButton ? ButtonHeight + ElementGap : 0));
             
             ctx.ParagraphRect = new Rectangle(
                 contentLeft,
-                ctx.HeaderRect.Bottom + ElementGap / 2,
+                (subtitleHeight > 0 ? ctx.SubtitleRect.Bottom : ctx.HeaderRect.Bottom) + ElementGap / 2,
                 contentWidth + 24 + ElementGap, // Full width for message
                 messageHeight);
             
@@ -113,7 +125,7 @@ _titleFont = titleFont;
                     ButtonHeight);
             }
             
-            ctx.ShowSecondaryButton = true; // Close button
+            ctx.ShowSecondaryButton = false; // Close button is painter-owned
             return ctx;
         }
         
@@ -134,6 +146,14 @@ _titleFont = titleFont;
             {
                 using var brush = new SolidBrush(ctx.StatusColor);
                 g.FillRectangle(brush, ctx.StatusRect);
+            }
+
+            if (!string.IsNullOrEmpty(ctx.SubtitleText) && !ctx.SubtitleRect.IsEmpty)
+            {
+                var subtitleColor = Color.FromArgb(180, _theme?.CardTextForeColor ?? _owner?.ForeColor ?? Color.Black);
+                using var subtitleBrush = new SolidBrush(subtitleColor);
+                var subtitleFormat = new StringFormat { LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, _metaFont, subtitleBrush, ctx.SubtitleRect, subtitleFormat);
             }
             
             // Draw alert icon

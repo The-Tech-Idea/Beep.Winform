@@ -511,13 +511,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Sync background color from new parent once (avoids doing it on every paint frame)
             if (IsChild && Parent != null)
             {
-                ParentBackColor = Parent.BackColor;
+                ParentBackColor = ResolveUsableParentBackColor(Parent);
                 BackColor = ParentBackColor;
             }
 
             // Now register all external drawings with new parent (parent tracks them per child)
             RegisterBadgeDrawer();
             RegisterExternalLabelHelperDrawer();
+        }
+
+        private Color ResolveUsableParentBackColor(Control parent)
+        {
+            if (GetStyle(ControlStyles.SupportsTransparentBackColor))
+            {
+                return parent.BackColor;
+            }
+
+            Control? current = parent;
+            while (current != null)
+            {
+                Color candidate = current.BackColor;
+                if (candidate.A == byte.MaxValue)
+                {
+                    return candidate;
+                }
+
+                current = current.Parent;
+            }
+
+            return SystemColors.Control;
         }
         
         /// <summary>

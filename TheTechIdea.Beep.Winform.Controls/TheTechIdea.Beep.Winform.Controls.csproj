@@ -216,6 +216,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.140" />
+    <PackageReference Include="TheTechIdea.Beep.TreeNodes" Version="1.0.16" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Loader" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />

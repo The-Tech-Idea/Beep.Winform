@@ -45,44 +45,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
           
         }
 
-        private void AddDesignTimeSampleNodes()
-        {
-            // Add sample nodes for design-time visualization
-            var rootNode = new SimpleItem
-            {
-                Text = "Root Node",
-                GuidId = Guid.NewGuid().ToString(),
-                IsExpanded = true
-            };
-
-            var child1 = new SimpleItem
-            {
-                Text = "Child Node 1",
-                GuidId = Guid.NewGuid().ToString(),
-                IsExpanded = true
-            };
-
-            var child2 = new SimpleItem
-            {
-                Text = "Child Node 2",
-                GuidId = Guid.NewGuid().ToString()
-            };
-
-            var grandChild = new SimpleItem
-            {
-                Text = "Grandchild Node",
-                GuidId = Guid.NewGuid().ToString()
-            };
-
-            child1.Children.Add(grandChild);
-            rootNode.Children.Add(child1);
-            rootNode.Children.Add(child2);
-
-            Nodes.Add(rootNode);
-            // Ensure the newly added nodes are processed for layout at design-time
-            // (Nodes.Add does not auto-refresh in the new BeepTree)
-            // Caller will also call base.RefreshTree() in constructor.
-        }
         public void init(IBeepService service,IAppManager vis)
         {
             VisManager = vis;

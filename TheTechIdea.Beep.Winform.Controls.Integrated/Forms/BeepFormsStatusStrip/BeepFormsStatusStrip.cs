@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         private readonly BeepLabel _statusLabel;
         private readonly BeepLabel _messageLabel;
         private readonly BeepLabel _coordinationLabel;
+        private readonly BeepLabel _workflowLabel;
         private readonly BeepLabel _savepointLabel;
         private readonly BeepLabel _alertLabel;
         private BeepForms? _formsHost;
@@ -28,8 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         private bool _showStatusLine = true;
         private bool _showMessageLine = true;
         private bool _showCoordinationLine = true;
+        private bool _showWorkflowLine = true;
         private bool _showSavepointLine = true;
         private bool _showAlertLine = true;
+        private int _workflowHistoryVisibleCount = 3;
 
         public BeepFormsStatusStrip()
         {
@@ -37,13 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             Padding = new Padding(0);
             Margin = new Padding(0);
             MinimumSize = new Size(0, 36);
-            Height = 92;
+            Height = 110;
 
             _table = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 5,
+                RowCount = 6,
                 Padding = new Padding(10, 6, 10, 6),
                 Margin = new Padding(0)
             };
@@ -52,14 +56,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             _statusLabel = CreateLineLabel();
             _messageLabel = CreateLineLabel();
             _coordinationLabel = CreateLineLabel();
+            _workflowLabel = CreateLineLabel();
+            _workflowLabel.Multiline = true;
+            _workflowLabel.WordWrap = true;
+            _workflowLabel.AutoEllipsis = false;
+            _workflowLabel.TextAlign = ContentAlignment.TopLeft;
             _savepointLabel = CreateLineLabel();
             _alertLabel = CreateLineLabel();
 
             _table.Controls.Add(_statusLabel, 0, 0);
             _table.Controls.Add(_messageLabel, 0, 1);
             _table.Controls.Add(_coordinationLabel, 0, 2);
-            _table.Controls.Add(_savepointLabel, 0, 3);
-            _table.Controls.Add(_alertLabel, 0, 4);
+            _table.Controls.Add(_workflowLabel, 0, 3);
+            _table.Controls.Add(_savepointLabel, 0, 4);
+            _table.Controls.Add(_alertLabel, 0, 5);
 
             Controls.Add(_table);
             UpdateFromViewState();
@@ -161,6 +171,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
                 }
 
                 _showCoordinationLine = value;
+                UpdateFromViewState();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Display")]
+        [Description("Show the workflow summary line.")]
+        [DefaultValue(true)]
+        public bool ShowWorkflowLine
+        {
+            get => _showWorkflowLine;
+            set
+            {
+                if (_showWorkflowLine == value)
+                {
+                    return;
+                }
+
+                _showWorkflowLine = value;
+                UpdateFromViewState();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Display")]
+        [Description("Maximum number of recent workflow entries to render in the rolling history surface.")]
+        [DefaultValue(3)]
+        public int WorkflowHistoryVisibleCount
+        {
+            get => _workflowHistoryVisibleCount;
+            set
+            {
+                int normalizedValue = Math.Max(1, value);
+                if (_workflowHistoryVisibleCount == normalizedValue)
+                {
+                    return;
+                }
+
+                _workflowHistoryVisibleCount = normalizedValue;
                 UpdateFromViewState();
             }
         }
@@ -295,6 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
                 ApplyLine(_statusLabel, "Status: No BeepForms host attached.", BeepFormsMessageSeverity.Info, visible: ShowStatusLine);
                 ApplyLine(_messageLabel, string.Empty, BeepFormsMessageSeverity.None, visible: false);
                 ApplyLine(_coordinationLabel, string.Empty, BeepFormsMessageSeverity.None, visible: false);
+                ApplyLine(_workflowLabel, string.Empty, BeepFormsMessageSeverity.None, visible: false);
                 ApplyLine(_savepointLabel, string.Empty, BeepFormsMessageSeverity.None, visible: false);
                 ApplyLine(_alertLabel, string.Empty, BeepFormsMessageSeverity.None, visible: false);
                 ApplyLayout();
@@ -302,6 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             }
 
             BeepFormsViewState viewState = _formsHost.ViewState;
+            string workflowText = BuildWorkflowHistoryText(viewState);
 
             string statusText = BeepFormsDisplayTextResolver.ResolveStatusText(_formsHost);
 
@@ -323,6 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             ApplyLine(_statusLabel, $"Status: {bootstrapPrefix}{statusText}", statusSeverity, visible: ShowStatusLine);
             ApplyLine(_messageLabel, string.IsNullOrWhiteSpace(viewState.CurrentMessage) ? string.Empty : $"Message: {viewState.CurrentMessage}", viewState.MessageSeverity, ShowMessageLine && !string.IsNullOrWhiteSpace(viewState.CurrentMessage));
             ApplyLine(_coordinationLabel, string.IsNullOrWhiteSpace(viewState.CoordinationText) ? string.Empty : $"Coordination: {viewState.CoordinationText}", viewState.CoordinationSeverity, ShowCoordinationLine && !string.IsNullOrWhiteSpace(viewState.CoordinationText));
+            ApplyLine(_workflowLabel, workflowText, ResolveWorkflowHistorySeverity(viewState), ShowWorkflowLine && !string.IsNullOrWhiteSpace(workflowText));
             ApplyLine(_savepointLabel, string.IsNullOrWhiteSpace(viewState.SavepointText) ? string.Empty : $"Savepoints: {viewState.SavepointText}", viewState.SavepointSeverity, ShowSavepointLine && !string.IsNullOrWhiteSpace(viewState.SavepointText));
             ApplyLine(_alertLabel, string.IsNullOrWhiteSpace(viewState.AlertText) ? string.Empty : $"Alerts: {viewState.AlertText}", viewState.AlertSeverity, ShowAlertLine && !string.IsNullOrWhiteSpace(viewState.AlertText));
 
@@ -339,16 +391,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         private void ApplyLayout()
         {
             int visibleLines = 0;
-            visibleLines += ApplyRowVisibility(0, _statusLabel.Visible);
-            visibleLines += ApplyRowVisibility(1, _messageLabel.Visible);
-            visibleLines += ApplyRowVisibility(2, _coordinationLabel.Visible);
-            visibleLines += ApplyRowVisibility(3, _savepointLabel.Visible);
-            visibleLines += ApplyRowVisibility(4, _alertLabel.Visible);
+            visibleLines += ApplyRowVisibility(0, _statusLabel.Visible, 1);
+            visibleLines += ApplyRowVisibility(1, _messageLabel.Visible, 1);
+            visibleLines += ApplyRowVisibility(2, _coordinationLabel.Visible, 1);
+            visibleLines += ApplyRowVisibility(3, _workflowLabel.Visible, GetWorkflowRowLineCount());
+            visibleLines += ApplyRowVisibility(4, _savepointLabel.Visible, 1);
+            visibleLines += ApplyRowVisibility(5, _alertLabel.Visible, 1);
 
             Height = Math.Max(36, visibleLines * 18 + 16);
         }
 
-        private int ApplyRowVisibility(int rowIndex, bool visible)
+        private int ApplyRowVisibility(int rowIndex, bool visible, int lineCount)
         {
             while (_table.RowStyles.Count <= rowIndex)
             {
@@ -356,8 +409,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             }
 
             _table.RowStyles[rowIndex].SizeType = SizeType.Absolute;
-            _table.RowStyles[rowIndex].Height = visible ? 18f : 0f;
-            return visible ? 1 : 0;
+            _table.RowStyles[rowIndex].Height = visible ? 18f * Math.Max(1, lineCount) : 0f;
+            return visible ? Math.Max(1, lineCount) : 0;
+        }
+
+        private int GetWorkflowRowLineCount()
+        {
+            if (!_workflowLabel.Visible || string.IsNullOrWhiteSpace(_workflowLabel.Text))
+            {
+                return 0;
+            }
+
+            int availableWidth = Math.Max(180, (_table.DisplayRectangle.Width > 0 ? _table.DisplayRectangle.Width : Width) - _table.Padding.Horizontal);
+            Size preferredSize = _workflowLabel.GetPreferredSize(new Size(availableWidth, 0));
+            return Math.Max(1, (int)Math.Ceiling(preferredSize.Height / 18d));
+        }
+
+        private string BuildWorkflowHistoryText(BeepFormsViewState viewState)
+        {
+            BeepFormsWorkflowEntry[] entries = viewState.WorkflowHistory
+                .Take(WorkflowHistoryVisibleCount)
+                .ToArray();
+
+            if (entries.Length == 0)
+            {
+                return string.IsNullOrWhiteSpace(viewState.WorkflowText)
+                    ? string.Empty
+                    : $"Workflow: {viewState.WorkflowText}";
+            }
+
+            if (entries.Length == 1)
+            {
+                return $"Workflow: {FormatWorkflowEntry(entries[0])}";
+            }
+
+            return "Workflow:" + Environment.NewLine + string.Join(Environment.NewLine, entries.Select(entry => $"  {FormatWorkflowEntry(entry)}"));
+        }
+
+        private BeepFormsMessageSeverity ResolveWorkflowHistorySeverity(BeepFormsViewState viewState)
+        {
+            BeepFormsWorkflowEntry[] entries = viewState.WorkflowHistory
+                .Take(WorkflowHistoryVisibleCount)
+                .ToArray();
+
+            if (entries.Length == 0)
+            {
+                return viewState.WorkflowSeverity;
+            }
+
+            if (entries.Any(entry => entry.Severity == BeepFormsMessageSeverity.Error))
+            {
+                return BeepFormsMessageSeverity.Error;
+            }
+
+            if (entries.Any(entry => entry.Severity == BeepFormsMessageSeverity.Warning))
+            {
+                return BeepFormsMessageSeverity.Warning;
+            }
+
+            if (entries.Any(entry => entry.Severity == BeepFormsMessageSeverity.Success))
+            {
+                return BeepFormsMessageSeverity.Success;
+            }
+
+            if (entries.Any(entry => entry.Severity == BeepFormsMessageSeverity.Info))
+            {
+                return BeepFormsMessageSeverity.Info;
+            }
+
+            return BeepFormsMessageSeverity.None;
+        }
+
+        private static string FormatWorkflowEntry(BeepFormsWorkflowEntry entry)
+        {
+            string severityCode = entry.Severity switch
+            {
+                BeepFormsMessageSeverity.Error => "ERR",
+                BeepFormsMessageSeverity.Warning => "WARN",
+                BeepFormsMessageSeverity.Success => "OK",
+                BeepFormsMessageSeverity.Info => "INFO",
+                _ => "NOTE"
+            };
+
+            return $"{entry.Timestamp:HH:mm} {severityCode} {entry.Text}";
         }
 
         private static BeepFormsMessageSeverity ResolveStatusSeverity(BeepFormsViewState viewState)

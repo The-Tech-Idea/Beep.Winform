@@ -1,5 +1,7 @@
+using Microsoft.DotNet.DesignTools.Designers.Actions;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;

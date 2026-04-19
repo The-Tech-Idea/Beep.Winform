@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor.Forms.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models;
@@ -12,6 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
 {
     public partial class BeepForms
     {
+        private const int WorkflowHistoryCapacity = 6;
+
         public string? CreateSavepoint(string? blockName = null, string? savepointName = null)
         {
             if (!TryResolveWorkflowBlockName(blockName, out string targetBlockName, out string unavailableMessage))
@@ -106,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             if (!TryResolveWorkflowBlockName(blockName, out string targetBlockName, out string unavailableMessage))
             {
                 SetSavepointState(unavailableMessage, BeepFormsMessageSeverity.Warning);
+                SetWorkflowState(unavailableMessage, BeepFormsMessageSeverity.Warning);
                 ApplyShellStateToUi();
                 return false;
             }
@@ -113,6 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             if (string.IsNullOrWhiteSpace(savepointName))
             {
                 SetSavepointState($"Savepoint rollback skipped for '{targetBlockName}': a savepoint name is required.", BeepFormsMessageSeverity.Warning);
+                SetWorkflowState($"Savepoint rollback skipped for '{targetBlockName}': a savepoint name is required.", BeepFormsMessageSeverity.Warning);
                 ApplyShellStateToUi();
                 return false;
             }
@@ -120,6 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             if (_formsManager?.Savepoints.SavepointExists(targetBlockName, savepointName) != true)
             {
                 SetSavepointState($"Savepoint '{savepointName}' does not exist for '{targetBlockName}'.", BeepFormsMessageSeverity.Warning);
+                SetWorkflowState($"Savepoint rollback is unavailable because '{savepointName}' does not exist for '{targetBlockName}'.", BeepFormsMessageSeverity.Warning);
                 ApplyShellStateToUi();
                 return false;
             }
@@ -128,6 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             if (!success)
             {
                 SetSavepointState($"Savepoint rollback failed for '{targetBlockName}' -> '{savepointName}'.", BeepFormsMessageSeverity.Warning);
+                SetWorkflowState($"Savepoint rollback failed for '{targetBlockName}' -> '{savepointName}'.", BeepFormsMessageSeverity.Error);
                 ApplyShellStateToUi();
                 return false;
             }
@@ -135,6 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             SyncFromManager();
             await RefreshMasterDetailShellAsync(targetBlockName, $"savepoint rollback '{savepointName}'").ConfigureAwait(true);
             UpdateSavepointStateFromManager(targetBlockName, $"Rolled back to savepoint '{savepointName}'", BeepFormsMessageSeverity.Success);
+            SetWorkflowState($"Savepoint rollback completed for '{targetBlockName}' -> '{savepointName}'. Hosted blocks were refreshed from manager state.", BeepFormsMessageSeverity.Success);
             ApplyShellStateToUi();
             return true;
         }
@@ -355,10 +363,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             ApplyShellStateToUi();
         }
 
+        internal void PublishWorkflowState(string text, BeepFormsMessageSeverity severity)
+        {
+            SetWorkflowState(text, severity);
+            ApplyShellStateToUi();
+        }
+
         internal void PublishAlertState(string text, BeepFormsMessageSeverity severity)
         {
             SetAlertState(text, severity);
             ApplyShellStateToUi();
+        }
+
+        private void SetWorkflowState(string text, BeepFormsMessageSeverity severity)
+        {
+            string normalizedText = (text ?? string.Empty).Trim();
+            _viewState.WorkflowText = normalizedText;
+            _viewState.WorkflowSeverity = string.IsNullOrWhiteSpace(normalizedText)
+                ? BeepFormsMessageSeverity.None
+                : severity;
+
+            if (!string.IsNullOrWhiteSpace(normalizedText))
+            {
+                _viewState.WorkflowHistoryItems.Insert(0, new BeepFormsWorkflowEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Text = normalizedText,
+                    Severity = severity
+                });
+
+                while (_viewState.WorkflowHistoryItems.Count > WorkflowHistoryCapacity)
+                {
+                    _viewState.WorkflowHistoryItems.RemoveAt(_viewState.WorkflowHistoryItems.Count - 1);
+                }
+            }
+        }
+
+        private string BuildRollbackWorkflowText(string scopeName, string? targetName, IErrorsInfo? result, string successText)
+        {
+            if (result?.Flag == Errors.Ok)
+            {
+                return successText;
+            }
+
+            string scope = string.IsNullOrWhiteSpace(targetName)
+                ? scopeName
+                : $"{scopeName} '{targetName}'";
+            string detail = string.IsNullOrWhiteSpace(result?.Message)
+                ? "."
+                : $": {result!.Message}";
+
+            return ResolveRollbackWorkflowSeverity(result) == BeepFormsMessageSeverity.Warning
+                ? $"{scope} rollback was blocked{detail}"
+                : $"{scope} rollback failed{detail}";
+        }
+
+        private BeepFormsMessageSeverity ResolveRollbackWorkflowSeverity(IErrorsInfo? result)
+        {
+            if (result == null)
+            {
+                return BeepFormsMessageSeverity.Error;
+            }
+
+            if (result.Flag == Errors.Ok)
+            {
+                return BeepFormsMessageSeverity.Success;
+            }
+
+            if (result.Flag is Errors.Warning or Errors.Information)
+            {
+                return BeepFormsMessageSeverity.Warning;
+            }
+
+            return ClassifyMessageText(result.Message, BeepFormsMessageSeverity.Error) == BeepFormsMessageSeverity.Warning
+                ? BeepFormsMessageSeverity.Warning
+                : BeepFormsMessageSeverity.Error;
         }
 
         private void SetSavepointState(string text, BeepFormsMessageSeverity severity)

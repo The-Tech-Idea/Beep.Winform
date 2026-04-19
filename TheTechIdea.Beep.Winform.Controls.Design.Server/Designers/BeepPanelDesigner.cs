@@ -16,7 +16,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public override void Initialize(IComponent component)
         {
             base.Initialize(component);
-            EnableDragDrop(true);
         }
 
         protected override DesignerActionListCollection GetControlSpecificActionLists()
@@ -86,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             SetImagePath(string.Empty);
         }
 
-        private void SelectHeaderIcon()
+        internal void SelectHeaderIcon()
         {
             if (Component == null)
             {
@@ -108,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
         }
 
-        private void ClearHeaderIcon()
+        internal void ClearHeaderIcon()
         {
             if (Component == null)
             {

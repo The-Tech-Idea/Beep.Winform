@@ -132,7 +132,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         public void Bind(IBeepFormsHost formsHost)
         {
+            DetachFromFormsHost(_formsHost);
             _formsHost = formsHost ?? throw new ArgumentNullException(nameof(formsHost));
+            AttachToFormsHost(_formsHost);
             _viewState.IsBound = true;
             _viewState.ManagerBlockName = ManagerBlockName;
             SyncFromManager();
@@ -141,10 +143,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
         public void Unbind()
         {
+            DetachFromFormsHost(_formsHost);
             _formsHost = null;
             ResetRecordBinding();
             SyncValidationSubscriptions(null);
             ResetValidationState();
+            ResetTriggerState();
             _viewState.IsBound = false;
             _viewState.IsDirty = false;
             _viewState.IsQueryMode = false;
@@ -169,6 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
                 SyncValidationSubscriptions(null);
                 ResetRecordBinding();
                 ResetValidationState();
+                ResetTriggerState();
                 _viewState.IsDirty = false;
                 _viewState.IsQueryMode = false;
                 _viewState.CurrentRecordIndex = -1;
@@ -195,6 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
 
             SyncGridFromManager(_formsHost?.FormsManager);
             UpdateRecordViewState(unitOfWork);
+            RefreshTriggerState();
             RefreshPresentation();
             NotifyViewStateChanged();
         }

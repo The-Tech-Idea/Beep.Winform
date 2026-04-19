@@ -1846,7 +1846,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             }
 
             string relationText = BuildMasterDetailContextText();
-            bool showWorkflowPanel = ViewState.IsQueryMode || !string.IsNullOrWhiteSpace(relationText);
+            string runtimeText = BuildRuntimeActivityText();
+            var workflowLines = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(relationText))
+            {
+                workflowLines.Add(relationText);
+            }
+
+            if (ViewState.IsQueryMode)
+            {
+                workflowLines.Add("Enter criteria below. Execute and clear stay in the UI; FormsManager performs the query and mode transition.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(runtimeText))
+            {
+                workflowLines.Add(runtimeText);
+            }
+
+            bool showWorkflowPanel = workflowLines.Count > 0;
             if (!showWorkflowPanel)
             {
                 _workflowPanel.Visible = false;
@@ -1855,18 +1873,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks
             }
 
             _workflowPanel.Visible = true;
-            _workflowPanel.Height = ViewState.IsQueryMode ? 60 : 42;
+            _workflowPanel.Height = Math.Max(ViewState.IsQueryMode ? 60 : 42, 24 + workflowLines.Count * 18);
 
             _clearQueryButton.Visible = ViewState.IsQueryMode;
             _executeQueryButton.Visible = ViewState.IsQueryMode;
             _clearQueryButton.Enabled = ViewState.IsQueryMode;
             _executeQueryButton.Enabled = ViewState.IsQueryMode && IsManagerQueryAllowed();
 
-            _workflowLabel.Text = ViewState.IsQueryMode
-                ? string.IsNullOrWhiteSpace(relationText)
-                    ? "Enter criteria below. Execute and clear stay in the UI; FormsManager performs the query and mode transition."
-                    : relationText + Environment.NewLine + "Enter criteria below. Execute and clear stay in the UI; FormsManager performs the query and mode transition."
-                : relationText;
+            _workflowLabel.Text = string.Join(Environment.NewLine, workflowLines);
+        }
+
+        private string BuildRuntimeActivityText()
+        {
+            var parts = new List<string>();
+
+            if (ViewState.TriggerCount > 0)
+            {
+                parts.Add($"Triggers: {ViewState.TriggerCount} total (F{ViewState.FormTriggerCount}/B{ViewState.BlockTriggerCount}/R{ViewState.RecordTriggerCount}/I{ViewState.ItemTriggerCount}).");
+            }
+
+            if (!string.IsNullOrWhiteSpace(ViewState.LastTriggerText))
+            {
+                parts.Add($"Last trigger: {ViewState.LastTriggerText}.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(ViewState.LastUnitOfWorkActivityText))
+            {
+                parts.Add($"Last activity: {ViewState.LastUnitOfWorkActivityText}.");
+            }
+
+            return parts.Count == 0 ? string.Empty : string.Join(" ", parts);
         }
 
         private string BuildMasterDetailContextText()

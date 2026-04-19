@@ -82,6 +82,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             SyncFromManager();
             UpdateMasterDetailShellContext();
             PublishCommandResult(messageSnapshot, result, "Changes rolled back.", "Rollback failed.");
+            PublishWorkflowState(
+                BuildRollbackWorkflowText(
+                    "Form",
+                    null,
+                    result,
+                    "Form rollback completed. Manager and hosted blocks were synchronized to the rolled-back state."),
+                ResolveRollbackWorkflowSeverity(result));
             return result;
         }
 

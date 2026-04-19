@@ -114,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 tabs.Invalidate();
             });
 
-            SyncDesignerSelection(createdPage ?? Tabs);
+            SyncDesignerSelection((object?)createdPage ?? Tabs);
         }
 
         public void RemoveSelectedTabPage()
@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             ExecuteTabsAction($"Remove Tab Page '{selectedTab.Text}'", tabs =>
             {
                 tabs.TabPages.Remove(selectedTab);
-                selectionTarget = tabs.SelectedTab ?? tabs;
+                selectionTarget = (object?)tabs.SelectedTab ?? tabs;
 
                 IDesignerHost? designerHost = GetDesignerHost();
                 if (designerHost != null && selectedTab.Site != null)
@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 tabs.Invalidate();
             });
 
-            SyncDesignerSelection(Tabs.SelectedTab ?? Tabs);
+            SyncDesignerSelection((object?)Tabs.SelectedTab ?? Tabs);
         }
 
         public void SelectNextTabPage()
@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             Tabs.SelectedIndex = Math.Min(Tabs.TabCount - 1, Tabs.SelectedIndex + 1);
             Tabs.Invalidate();
-            SyncDesignerSelection(Tabs.SelectedTab ?? Tabs);
+            SyncDesignerSelection((object?)Tabs.SelectedTab ?? Tabs);
         }
 
         public void SelectPreviousTabPage()
@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             Tabs.SelectedIndex = Math.Max(0, Tabs.SelectedIndex - 1);
             Tabs.Invalidate();
-            SyncDesignerSelection(Tabs.SelectedTab ?? Tabs);
+            SyncDesignerSelection((object?)Tabs.SelectedTab ?? Tabs);
         }
 
         private void SetComponentProperty(object component, string propertyName, object value)

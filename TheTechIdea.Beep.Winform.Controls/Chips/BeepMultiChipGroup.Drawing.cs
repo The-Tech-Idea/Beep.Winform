@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;

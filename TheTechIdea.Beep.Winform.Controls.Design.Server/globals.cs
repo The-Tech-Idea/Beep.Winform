@@ -1,0 +1,11 @@
+﻿global using Microsoft.DotNet.DesignTools.Designers.Actions;
+global using System;
+global using System.ComponentModel;
+global using System.ComponentModel.Design;
+global using System.Windows.Forms;
+global using TheTechIdea.Beep.Winform.Controls;
+global using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
+global using TheTechIdea.Beep.Editor;
+global using TheTechIdea.Beep.Services;
+global using TheTechIdea.Beep.Vis.Modules;
+global using TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView;

@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             formsManager.Messages.OnMessageCleared += HandleManagerBlockMessageCleared;
             formsManager.ErrorLog.OnError += HandleManagerError;
             formsManager.ErrorLog.OnWarning += HandleManagerWarning;
+            AttachTriggerProxy(formsManager);
         }
 
         private void DetachFromFormsManager(IUnitofWorksManager? formsManager)
@@ -36,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             formsManager.Messages.OnMessageCleared -= HandleManagerBlockMessageCleared;
             formsManager.ErrorLog.OnError -= HandleManagerError;
             formsManager.ErrorLog.OnWarning -= HandleManagerWarning;
+            DetachTriggerProxy(formsManager);
         }
 
         private void HandleManagerBlockFieldChanged(object? sender, BlockFieldChangedEventArgs e)

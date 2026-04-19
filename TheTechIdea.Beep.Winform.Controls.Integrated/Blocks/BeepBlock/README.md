@@ -10,6 +10,7 @@ Visible block UI should use Beep controls by default. Stock WinForms controls ar
 - `BeepBlock.Layout.cs`: caption/header, workflow strip, validation summary, and record/grid host regions
 - `BeepBlock.RecordMode.cs`: definition-driven record editor row scaffold plus typed query-row composition
 - `BeepBlock.QueryMode.cs`: query-mode state, typed criteria capture, and manager-filter packaging helpers
+- `BeepBlock.TriggerProxy.cs`: host-proxied trigger and UoW activity handling for block-local runtime state
 - `BeepBlock.Validation.cs`: field highlighting hooks plus severity-aware block-level record validation summary feedback, next-step guidance, semantic tooltips, and field-surface status badges
 
 ## Current responsibilities
@@ -48,6 +49,7 @@ Visible block UI should use Beep controls by default. Stock WinForms controls ar
 - Project manager validation and LOV validation messages into generated editors through the shared `BaseControl` error surface plus row-level label/status accents, semantic tooltips, and explicit severity badges
 - Surface record-level validation problems above the block as a headline-plus-detail summary with severity badges and next-step guidance so blocking issues, warnings, and informational notes stay readable even when the current field is out of view
 - Surface manager master/detail context in the workflow strip so coordinated blocks stay understandable without duplicating coordination logic in the UI
+- Surface trigger counts, last trigger activity, and normalized UoW activity in the workflow strip through the BeepForms host proxy so the block can reflect runtime workflow without direct `FormsManager` or raw UoW coupling
 - Suppress record-validation noise while query mode is active so the block can behave as a clean criteria-entry surface
 - Prefer Beep editors and Beep shell controls for record-mode visuals
 

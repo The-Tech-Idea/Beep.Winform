@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Windows.Forms.Design;
+using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// Shared base designer for Beep parent/container controls that still need the common
     /// style and theme smart-tag surface.
     /// </summary>
-    public abstract class BaseBeepParentControlDesigner : ParentControlDesigner, IBeepDesignerActionHost
+    public abstract class BaseBeepParentControlDesigner : Microsoft.DotNet.DesignTools.Designers.ControlDesigner, IBeepDesignerActionHost
     {
         protected IComponentChangeService? ChangeService;
         private DesignerActionListCollection? _actionLists;

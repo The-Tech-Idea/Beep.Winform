@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Editor.Forms.Models;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Contracts;
@@ -38,6 +39,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Contracts
 
         // Phase 7D — raised by InitializeAsync when all blocks are bootstrapped
         event EventHandler<BeepFormsBootstrapEventArgs>? BootstrapCompleted;
+
+        // Manager-owned trigger and UoW activity proxies.
+        event EventHandler<TriggerExecutingEventArgs>? TriggerExecuting;
+        event EventHandler<TriggerExecutedEventArgs>? TriggerExecuted;
+        event EventHandler<TriggerRegisteredEventArgs>? TriggerRegistered;
+        event EventHandler<TriggerUnregisteredEventArgs>? TriggerUnregistered;
+        event EventHandler<TriggerChainCompletedEventArgs>? TriggerChainCompleted;
+        event EventHandler<BeepFormsUnitOfWorkEventArgs>? BlockUnitOfWorkActivity;
 
         // ── Registration / routing ────────────────────────────────────────────────────
         bool RegisterBlock(IBeepBlockView blockView);
@@ -75,6 +84,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Contracts
 
         /// <summary>Returns whether query mode is allowed for the block.</summary>
         bool IsBlockQueryAllowed(string blockName);
+
+        /// <summary>Returns aggregate trigger statistics for the block.</summary>
+        TriggerStatisticsInfo? GetTriggerStatistics(string blockName);
+
+        /// <summary>Returns form-scope triggers available to the block.</summary>
+        IReadOnlyList<TriggerDefinition> GetFormLevelTriggers(string blockName);
+
+        /// <summary>Returns block-scope triggers available to the block.</summary>
+        IReadOnlyList<TriggerDefinition> GetBlockLevelTriggers(string blockName);
+
+        /// <summary>Returns record-scope triggers available to the block.</summary>
+        IReadOnlyList<TriggerDefinition> GetRecordLevelTriggers(string blockName);
+
+        /// <summary>Returns item-scope triggers available to the block.</summary>
+        IReadOnlyList<TriggerDefinition> GetItemLevelTriggers(string blockName);
 
         /// <summary>Returns connection names available from DMEEditor's config.</summary>
         IEnumerable<string> GetAvailableConnectionNames();

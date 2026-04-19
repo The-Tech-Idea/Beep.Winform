@@ -410,7 +410,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         Info,
         Success,
         Warning,
-        Error
+        Error,
+        Progress
     }
 
     public class DockNotificationEventArgs : EventArgs

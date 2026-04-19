@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Editor.Forms.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Contracts;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Contracts
 {
@@ -13,6 +15,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Contracts
         IBeepFormsHost? FormsHost { get; }
         BeepBlockDefinition? Definition { get; set; }
         BeepBlockViewState ViewState { get; }
+
+        event EventHandler<TriggerExecutingEventArgs>? TriggerExecuting;
+        event EventHandler<TriggerExecutedEventArgs>? TriggerExecuted;
+        event EventHandler<TriggerRegisteredEventArgs>? TriggerRegistered;
+        event EventHandler<TriggerUnregisteredEventArgs>? TriggerUnregistered;
+        event EventHandler<BeepFormsUnitOfWorkEventArgs>? UnitOfWorkActivity;
 
         void Bind(IBeepFormsHost formsHost);
         void Unbind();

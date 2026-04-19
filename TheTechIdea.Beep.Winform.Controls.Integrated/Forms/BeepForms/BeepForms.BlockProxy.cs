@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Editor.Forms.Models;
 using TheTechIdea.Beep.Editor.UOWManager.Interfaces;
 using TheTechIdea.Beep.Editor.UOWManager.Models;
 
@@ -60,6 +61,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         {
             if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null) return false;
             return _formsManager.GetBlock(blockName)?.QueryAllowed ?? false;
+        }
+
+        public TriggerStatisticsInfo? GetTriggerStatistics(string blockName)
+        {
+            if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null)
+                return null;
+
+            return _formsManager.Triggers.GetTriggerStatistics(blockName);
+        }
+
+        public IReadOnlyList<TriggerDefinition> GetFormLevelTriggers(string blockName)
+        {
+            if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null)
+                return Array.Empty<TriggerDefinition>();
+
+            return _formsManager.Triggers.GetFormLevelTriggers(blockName) ?? Array.Empty<TriggerDefinition>();
+        }
+
+        public IReadOnlyList<TriggerDefinition> GetBlockLevelTriggers(string blockName)
+        {
+            if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null)
+                return Array.Empty<TriggerDefinition>();
+
+            return _formsManager.Triggers.GetBlockLevelTriggers(blockName) ?? Array.Empty<TriggerDefinition>();
+        }
+
+        public IReadOnlyList<TriggerDefinition> GetRecordLevelTriggers(string blockName)
+        {
+            if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null)
+                return Array.Empty<TriggerDefinition>();
+
+            return _formsManager.Triggers.GetRecordLevelTriggers(blockName) ?? Array.Empty<TriggerDefinition>();
+        }
+
+        public IReadOnlyList<TriggerDefinition> GetItemLevelTriggers(string blockName)
+        {
+            if (string.IsNullOrWhiteSpace(blockName) || _formsManager == null)
+                return Array.Empty<TriggerDefinition>();
+
+            return _formsManager.Triggers.GetItemLevelTriggers(blockName) ?? Array.Empty<TriggerDefinition>();
         }
 
         public IEnumerable<string> GetAvailableConnectionNames()
@@ -159,7 +200,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             var uow = _formsManager.GetUnitOfWork(blockName);
             if (uow == null) return false;
             var result = await uow.Rollback().ConfigureAwait(false);
-            return result?.Flag == TheTechIdea.Beep.ConfigUtil.Errors.Ok;
+            bool success = result?.Flag == TheTechIdea.Beep.ConfigUtil.Errors.Ok;
+            PublishWorkflowState(
+                BuildRollbackWorkflowText(
+                    "Block",
+                    blockName,
+                    result,
+                    $"Block '{blockName}' rollback completed through the host proxy."),
+                ResolveRollbackWorkflowSeverity(result));
+            return success;
         }
 
         public async Task<bool> InsertBlockRecordAsync(string blockName)

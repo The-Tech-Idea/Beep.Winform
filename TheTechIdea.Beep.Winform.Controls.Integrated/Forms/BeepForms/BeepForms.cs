@@ -155,6 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             }
 
             _managerAdapter.SyncBlock(blockView);
+            RefreshUnitOfWorkEventSubscriptions();
             return true;
         }
 
@@ -181,6 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
             }
 
             _definitionBlockNames.Remove(blockName);
+            RefreshUnitOfWorkEventSubscriptions();
 
             return true;
         }
@@ -211,6 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated.Forms
         public void SyncFromManager()
         {
             _managerAdapter.Sync(_viewState);
+            RefreshUnitOfWorkEventSubscriptions();
 
             foreach (var block in _blocks)
             {

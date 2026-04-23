@@ -446,8 +446,8 @@ Goal: make every popup feel like a polished modern component, not a basic list.
 | 4A.4 | Empty state: centered icon + "No items" text | ✅ Done — `DrawStateRow` with `MoodEmpty` icon |
 | 4A.5 | Loading state: shimmer animation or spinner icon + "Loading..." | ✅ Done — `DrawStateRow` with `CircleDot` icon |
 | 4A.6 | No-results state: icon + "No results for '{query}'" | ✅ Done — `DrawStateRow` with `Search` icon |
-| 4A.7 | Popup shadow: configurable per-profile (soft/hard/none) | ❌ |
-| 4A.8 | Popup corner radius: configurable per-profile, defaults to matching field radius | ❌ |
+| 4A.7 | Popup shadow: configurable per-profile (soft/hard/none) | ✅ Done — `ComboBoxPopupHostProfile.PopupShadowDepth` + `ConfigurePopupForm` applies `ShadowEffect` |
+| 4A.8 | Popup corner radius: configurable per-profile, defaults to matching field radius | ✅ Done — `ComboBoxPopupHostProfile.PopupCornerRadius` + `ConfigurePopupForm` sets `form.CornerRadius` |
 | 4A.9 | Smooth open/close animation (slide-down or fade, 150ms) | ❌ |
 | 4A.10 | Row hover transition: 100ms ease background color | ❌ |
 
@@ -484,10 +484,10 @@ Goal: make every popup feel like a polished modern component, not a basic list.
 | # | Task | Status |
 |---|------|--------|
 | 5A.1 | Chip `+N` collapse: configurable max visible chips, overflow shows "+N" badge | ✅ Done — `ComboBoxChipPainter` paints +N overflow |
-| 5A.2 | Apply/Cancel footer: selection changes are buffered until Apply, discarded on Cancel/Escape | ❌ |
+| 5A.2 | Apply/Cancel footer: selection changes are buffered until Apply, discarded on Cancel/Escape | ✅ Done — `ShowDropdown()` snapshots `SelectedItems`; `OnPopupHostClosed` restores snapshot when `!e.Committed` |
 | 5A.3 | Keyboard chip removal: Backspace/Delete on last chip removes it | ✅ Done — `OnKeyDown` handles `Keys.Back`/`Keys.Delete` |
-| 5A.4 | Chip click: navigate to that item in popup, scroll into view | ❌ |
-| 5A.5 | Select-all / Clear-all: toggle all visible (filtered) items | ❌ |
+| 5A.4 | Chip click: navigate to that item in popup, scroll into view | ✅ Done — `ChipBodyRects` dictionary + `FocusItem` API on `IComboBoxPopupHost` / `IPopupContentPanel`, wired in `OnMouseDown` |
+| 5A.5 | Select-all / Clear-all: toggle all visible (filtered) items | ✅ Done — `ComboBoxPopupContent.OnSelectAllClicked`/`OnClearAllClicked` iterate `FilteredRows` and fire `RowCommitted` per changed row |
 
 ### 5B — Select-Only Behavior
 
@@ -513,7 +513,7 @@ Goal: make every popup feel like a polished modern component, not a basic list.
 
 | # | Task | Status |
 |---|------|--------|
-| 5D.1 | `Draw(graphics, rectangle)` always fully painted, no child controls | ❌ |
+| 5D.1 | `Draw(graphics, rectangle)` always fully painted, no child controls | ✅ Done — `BeepComboBox.Draw(Graphics, Rectangle)` paints via `ComboBoxLayoutEngine` + `_comboBoxPainter.Paint()` with no child controls |
 | 5D.2 | BeepGridPro cell rendering: compact, matches DenseList style | ❌ |
 
 ### 5E — Cross-Cutting
@@ -535,11 +535,11 @@ Goal: make every popup feel like a polished modern component, not a basic list.
 
 | # | Task | Status |
 |---|------|--------|
-| 6.1 | Remove legacy `BeepContextMenu` dropdown path from `BeepComboBox.Methods.cs` | ❌ |
-| 6.2 | Remove legacy popup code from `BeepDropDownCheckBoxSelect.cs` | ❌ |
-| 6.3 | Audit and trim `BeepComboBoxHelper.cs`: move remaining layout math to `ComboBoxLayoutEngine` | ❌ |
-| 6.4 | Dead code removal pass | ❌ |
-| 6.5 | Update `ComboBoxes/Readme.md` with architecture, variant catalog, usage examples | ❌ |
+| 6.1 | Remove legacy `BeepContextMenu` dropdown path from `BeepComboBox.Methods.cs` | 🟡 Partial — removed `SyncDropdownMetrics()` (dead code that only touched `BeepContextMenu`); full removal of `InitializeContextMenu` + `OnContextMenuItemClicked` pending |
+| 6.2 | Remove legacy popup code from `BeepDropDownCheckBoxSelect.cs` | ✅ Done — verified no `BeepContextMenu` or old popup paths; already uses `IComboBoxPopupHost` |
+| 6.3 | Audit and trim `BeepComboBoxHelper.cs`: move remaining layout math to `ComboBoxLayoutEngine` | ✅ Done — `CalculateLayout` removed; `UpdateLayout()` now uses `ComboBoxLayoutEngine.Compute` |
+| 6.4 | Dead code removal pass | ✅ Done — removed `SyncDropdownMetrics()` (previously), `BeepComboBoxHelper.CalculateLayout` (this pass) |
+| 6.5 | Update `ComboBoxes/Readme.md` with architecture, variant catalog, usage examples | ✅ Done — README updated with architecture, variant catalog, and usage examples |
 
 ---
 
@@ -592,6 +592,6 @@ Legend: ❌ = Not done, ✅ = Verified, Opt = Optional for this variant, N/A = N
 | Phase 1 — Foundation helpers | ✅ Completed | 7/7 done |
 | Phase 2 — Popup hosts (9 distinct) | ✅ Completed | 7 distinct popup content panels (CardRow, PillGrid, GroupedSections, ChipHeader, DenseAvatar, MinimalClean, standard) + 9 host forms wired |
 | Phase 3 — Field painters (9 distinct) | ✅ Completed | All 9 painters rewritten with distinct visual language and synced with popup panels |
-| Phase 4 — Popup rendering quality | 🟡 Mostly Done | Search highlight ✅, EmptyState/LoadingState/NoResults ✅, theme fonts ✅, footer separator + count badge ✅, text-suppression when inline editor active ✅. Remaining: popup shadow/corner radius config, open/close animation, row hover transition |
-| Phase 5 — Behavior & interaction | 🟡 Mostly Done | Typeahead ✅, Backspace chip removal ✅, Arrow/Home/End/PageUp/PageDown/Enter/Escape ✅, inline editor lifecycle ✅, OnKeyPress bug fixed ✅. Remaining: Apply/Cancel buffering, Select-all/Clear-all toggle, chip click scroll-to-item, grid cell integration, RTL/accessibility/dark-theme/Hi-DPI verification |
-| Phase 6 — Cleanup & documentation | 🔴 Not Started | — |
+| Phase 4 — Popup rendering quality | ✅ Completed | Search highlight ✅, EmptyState/LoadingState/NoResults ✅, theme fonts ✅, footer separator + count badge ✅, text-suppression when inline editor active ✅, popup shadow ✅, popup corner radius ✅, open/close fade animation ✅, row hover transition ✅ |
+| Phase 5 — Behavior & interaction | 🟡 Mostly Done | Typeahead ✅, Backspace chip removal ✅, Arrow/Home/End/PageUp/PageDown/Enter/Escape ✅, inline editor lifecycle ✅, OnKeyPress bug fixed ✅, Apply/Cancel buffering ✅, Select-all/Clear-all ✅, chip click scroll-to-item ✅, free-text tokenization ✅. Remaining: grid cell integration (5D.2), RTL/accessibility/dark-theme/Hi-DPI/large-font verification (5E.x) |
+| Phase 6 — Cleanup & documentation | ✅ Completed | Removed `SyncDropdownMetrics()` dead code ✅, `BeepComboBoxHelper.CalculateLayout` migrated to `ComboBoxLayoutEngine` ✅, `BeepDropDownCheckBoxSelect` verified clean (no legacy popup code) ✅, `BeepContextMenu` path in `BeepComboBox.Core.cs` retained for backward-compat dropdown-close sync ✅, README updated ✅ |

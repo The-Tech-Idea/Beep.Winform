@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -40,17 +40,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_unitOfWork != value)
                 {
-                    if (_unitOfWork != null)
+                if (_unitOfWork != null)
+                {
+                    var units = _unitOfWork.Units;
+                    if (units != null)
                     {
-                        _unitOfWork.Units.CurrentChanged -= Units_CurrentChanged;
+                        var eventInfo = units.GetType().GetEvent("CurrentChanged");
+                        eventInfo?.RemoveEventHandler(units, new EventHandler(Units_CurrentChanged));
                     }
+                }
 
-                    _unitOfWork = value;
+                _unitOfWork = value;
 
-                    if (_unitOfWork != null)
+                if (_unitOfWork != null)
+                {
+                    var units = _unitOfWork.Units;
+                    if (units != null)
                     {
-                        _unitOfWork.Units.CurrentChanged += Units_CurrentChanged;
+                        var eventInfo = units.GetType().GetEvent("CurrentChanged");
+                        eventInfo?.AddEventHandler(units, new EventHandler(Units_CurrentChanged));
                     }
+                }
                     UpdateRecordCountDisplay();
                     UpdateNavigationButtonState();
                 }

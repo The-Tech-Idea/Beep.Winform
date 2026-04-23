@@ -36,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             statusLabelRows     = new System.Windows.Forms.Label();
             statusLabelElapsed  = new System.Windows.Forms.Label();
             lblThroughput       = new System.Windows.Forms.Label();
+            lblBatchInfo        = new System.Windows.Forms.Label();
             buttonPanel         = new System.Windows.Forms.Panel();
             optionsPanel        = new System.Windows.Forms.Panel();
             statusPanel         = new System.Windows.Forms.Panel();
@@ -226,6 +227,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblThroughput.TabIndex = 3;
             lblThroughput.Text     = "";
             statusPanel.Controls.Add(lblThroughput);
+            //
+            // lblBatchInfo
+            //
+            lblBatchInfo.AutoSize = true;
+            lblBatchInfo.Location = new System.Drawing.Point(700, 7);
+            lblBatchInfo.Name     = "lblBatchInfo";
+            lblBatchInfo.Size     = new System.Drawing.Size(80, 15);
+            lblBatchInfo.TabIndex = 4;
+            lblBatchInfo.Text     = "";
+            statusPanel.Controls.Add(lblBatchInfo);
 
             //
             // beepLogBox
@@ -352,6 +363,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private System.Windows.Forms.Label statusLabelRows;
         private System.Windows.Forms.Label statusLabelElapsed;
         private System.Windows.Forms.Label lblThroughput;
+        private System.Windows.Forms.Label lblBatchInfo;
         private System.Windows.Forms.Panel buttonPanel;
         private System.Windows.Forms.Panel optionsPanel;
         private System.Windows.Forms.Panel statusPanel;

@@ -25,6 +25,11 @@ When docs or plans disagree with code, treat the code as authoritative.
 | Dialogs | `GridDialogHelper.cs`, `GridDialogHelper.*.cs`, `BeepGridPro.Dialogs.cs` |
 | Auto-size | `GridSizingHelper.cs` |
 | UOW bridge | `GridUnitOfWorkBinder.cs` |
+| Grouping | `GridGroupEngine.cs`, `GridGroupHeaderRenderer.cs`, `GridGroupSummaryRow.cs`, `DefaultGridGrouper.cs` |
+| Virtualization | `GridRowVirtualizer.cs`, `GridColumnVirtualizer.cs`, `GridVirtualDataSource.cs`, `IVirtualDataSource.cs` |
+| Keyboard / Accessibility | `GridKeyboardNavigator.cs`, `GridFocusManager.cs` |
+| Editor framework | `GridEditHelper.cs`, `GridEditorFactory.cs`, `Editors/*.cs` |
+| Export | `GridExportEngine.cs`, `IGridExporter.cs`, `GridCsvExporter.cs`, `GridJsonExporter.cs`, `GridHtmlExporter.cs`, `GridExcelExporterStub.cs`, `GridPdfExporterStub.cs` |
 
 ## High-Signal Invariants
 
@@ -51,6 +56,59 @@ When docs or plans disagree with code, treat the code as authoritative.
 - `GridInputHelper.HandleMouseDown()` returns early for any click inside `TopFilterRect`.
 - Do not let new logic fall through from top-panel hit tests into cell selection.
 - The inline quick search controls are real `BeepComboBox` and `BeepTextBox` controls painted as static images until activated.
+
+### 6. Grouping and sort pipeline integration
+- When grouping is active, `GridSortFilterHelper.Sort()` does NOT globally reorder rows.
+- Sorting a **group column** updates the descriptor and recomputes groups (affects group ordering).
+- Sorting a **non-group column** calls `GroupEngine.SortWithinGroups()`, preserving group structure.
+- `ApplyLocalSort()` is bypassed entirely when `_grid.GroupEngine.IsGrouped` is true.
+
+### 7. Virtualization owns the visible window
+- In virtual mode, `Data.Rows` contains ONLY the visible window (not all rows).
+- `FirstVisibleRowIndex` returns `0` in virtual mode because `Data.Rows[0]` is always the first visible row.
+- `GridRowVirtualizer.PublishToGrid()` materializes the window and `SyncGridRowCount()` triggers layout recalc.
+- `GridVirtualDataSource` provides factory methods: `FromList()`, `FromDataTable()`, `FromDataView()`.
+
+### 8. Editor framework uses factory pattern
+- `GridEditHelper` no longer contains a big `CreateEditorForColumn()` switch.
+- `GridEditorFactory` resolves `IGridEditor` instances by `BeepColumnType`.
+- Each editor class (`BeepGridTextEditor`, `BeepGridComboBoxEditor`, etc.) encapsulates creation, setup, value access, and event handling.
+- `IGridEditorEvents` bridges editor lifecycle callbacks back into `GridEditHelper.EndEdit()`.
+- Custom editors can be registered at runtime via `GridEditorFactory.Register(BeepColumnType, IGridEditor)`.
+
+### 9. Keyboard navigation delegates to `GridKeyboardNavigator`
+- `GridInputHelper.HandleKeyDown` delegates navigation keys to `KeyboardNavigator`.
+- `ProcessDialogKey` override in `BeepGridPro` intercepts `Tab`/`Shift+Tab` before WinForms moves focus out of the grid.
+- `GridFocusManager` tracks `HasFocus` and draws a focus indicator via `DrawFocusIndicator` in the render pipeline.
+
+### 10. Group summary rows are computed and rendered per group
+- `GridGroupSummaryRow` stores aggregate values per column for each `GridGroup`.
+- `GridGroupAggregateEngine.ComputeForGroup()` computes `Sum`, `Average`, `Count`, `Min`, `Max`, `First`, `Last`, `DistinctCount` using `BeepColumnConfig.AggregationType`.
+- Summary rows participate in total height (`GetTotalContentHeight`) and per-row height-before (`GetTotalHeightBeforeRow`) calculations.
+- `DrawSummaryRows()` renders summary rows in a dedicated pass after both sticky and scrolling column passes.
+- Summary rows only appear when the group is expanded (`IsCollapsed == false`).
+
+### 11. Accessibility uses `Control.ControlAccessibleObject` hierarchy
+- `BeepGridPro.CreateAccessibilityInstance()` returns `GridAccessibleObject` (root, `Role = Table`).
+- `GridRowAccessibleObject` (`Role = Row`) is a child of the root; children are cells.
+- `GridCellAccessibleObject` (`Role = Cell`) exposes `Name` (column caption), `Value` (cell text), `Bounds`, and `State` (Selected/Focused).
+- Navigation: `Next`/`Previous` move between cells; `Up`/`Down`/`Left`/`Right` navigate the grid.
+- `HitTest` maps screen coordinates to the cell accessible object under the cursor.
+
+### 12. Column virtualization skips off-screen scrolling columns
+- `GridColumnVirtualizer` tracks a horizontal window of scrolling (non-sticky) columns.
+- `EnableColumnVirtualization` activates it; disabled by default.
+- `UpdateWindow()` is called from `GridLayoutHelper.Recalculate()` after horizontal scroll changes.
+- `DrawRows()` and `DrawSummaryRowContent()` iterate only `FirstScrollingVisibleIndex`..`LastScrollingVisibleIndex` instead of all scrolling columns.
+- Sticky columns are never virtualized (always rendered).
+
+### 13. Export engine uses plugin discovery for heavy dependencies
+- Built-in exporters (CSV, JSON, HTML) live in the main assembly and are always available.
+- `Excel` and `Pdf` exporters are plugin-based to avoid heavy NuGet dependencies (ClosedXML, EPPlus, PdfSharpCore).
+- `GridExcelExporterStub` and `GridPdfExporterStub` are registered by default with `IsAvailable = false`.
+- `GridExportEngine.DiscoverPlugins()` scans `AppDomain.CurrentDomain.GetAssemblies()` for `IGridExporter` implementations.
+- If a real plugin assembly is loaded (e.g., `TheTechIdea.Beep.Winform.Controls.GridX.Export.Excel`), it replaces the stub.
+- UI menus check `ExportEngine.IsAvailable(format)` to gray out unavailable formats.
 
 ## Public API Notes That Matter
 

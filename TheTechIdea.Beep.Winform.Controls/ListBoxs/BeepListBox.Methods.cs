@@ -122,20 +122,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
-        /// Gets the item at the specified point
+        /// Gets the item at the specified point using the layout cache.
+        /// Handles variable item heights, grouped rows, and hierarchy.
         /// </summary>
         public SimpleItem GetItemAtPoint(System.Drawing.Point point)
         {
-            if (_listBoxPainter == null || _contentAreaRect.IsEmpty)
+            if (_layoutHelper == null)
                 return null;
-            
-            var visibleItems = _helper.GetVisibleItems();
-            int itemHeight = _listBoxPainter.GetPreferredItemHeight();
-            
-            return _helper.GetItemAtPoint(
-                point,
-                _contentAreaRect,
-                itemHeight);
+
+            var cache = _layoutHelper.GetCachedLayout();
+            if (cache == null || cache.Count == 0)
+                return null;
+
+            foreach (var info in cache)
+            {
+                if (info.RowRect.Contains(point))
+                    return info.Item;
+            }
+
+            return null;
         }
         
         #endregion

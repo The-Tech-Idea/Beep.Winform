@@ -420,6 +420,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.FillRectangle(clearBrush, itemRect);
             }
 
+            // Allow painter-specific background customization via DrawItemBackground override.
+            // Called BEFORE selection/hover/focus overlays so the painter provides the base
+            // canvas and overlays are drawn on top (prevents painters from overwriting focus rings).
+            DrawItemBackground(g, itemRect, isHovered, isSelected);
+
             // Compute hover progress using owner helper if available
             float hoverProgress = 0f;
             try
@@ -446,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     g.DrawRectangle(pen, itemRect.X + 1, itemRect.Y + 1, itemRect.Width - 2, itemRect.Height - 2);
                 }
-                
+
                 // Focus outline for focused item
                 if (_owner.Focused && _owner.SelectedItem == item)
                 {
@@ -469,10 +474,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     g.FillRectangle(brush, itemRect);
                 }
             }
-            
-            // Allow painter-specific background customization via DrawItemBackground override
-            // This is called AFTER base clearing to allow painters to add custom styling
-            DrawItemBackground(g, itemRect, isHovered, isSelected);
 
             // ── High-contrast override ───────────────────────────────────────────
             if (_owner.IsHighContrast)

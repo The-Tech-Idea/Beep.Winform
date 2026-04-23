@@ -45,6 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly Dictionary<int, Rectangle> _topFilterClearIconRects = new();
         public Dictionary<int, Rectangle> TopFilterClearIconRects => _topFilterClearIconRects;
 
+        // Group header rectangles for hit-testing (key = group key hash)
+        private readonly Dictionary<string, Rectangle> _groupHeaderRects = new();
+        public Dictionary<string, Rectangle> GroupHeaderRects => _groupHeaderRects;
+        private string? _hoveredGroupHeaderKey;
+
         private IGridFilterPanelPainter? _filterPanelPainter;
         private BeepGridStyle _filterPanelGridStyle = BeepGridStyle.Default;
 

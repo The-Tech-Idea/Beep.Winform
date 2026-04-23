@@ -57,6 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Category("Behavior")]
         [Description("Raised when a context menu item is selected, providing row data context. Set Cancel=true to prevent default action.")]
         public event EventHandler<Models.GridContextMenuEventArgs>? GridContextMenuItemSelected;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised when a toolbar button (add/edit/delete/import/export/print/clearfilter) is clicked.")]
+        public event EventHandler<Models.ToolbarActionEventArgs>? ToolbarAction;
         #endregion
 
         #region Event Trigger Methods
@@ -108,6 +113,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal void OnColumnReordered(int columnIndex, int oldDisplayOrder, int newDisplayOrder)
         {
             ColumnReordered?.Invoke(this, new Models.ColumnReorderedEventArgs(columnIndex, oldDisplayOrder, newDisplayOrder));
+        }
+
+        internal void OnToolbarAction(string action)
+        {
+            ToolbarAction?.Invoke(this, new Models.ToolbarActionEventArgs(action));
         }
         #endregion
     }

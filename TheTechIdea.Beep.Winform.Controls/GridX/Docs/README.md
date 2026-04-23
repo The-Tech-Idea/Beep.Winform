@@ -10,6 +10,7 @@ This folder documents the current `BeepGridPro` implementation in `GridX`.
 ## Document Map
 - [Usage.md](./Usage.md): binding, columns, selection, editing, navigator, clipboard
 - [Classes.md](./Classes.md): class and helper map
+- [DataSource_Compatibility.md](./DataSource_Compatibility.md): supported data sources, binding patterns, gotchas, and troubleshooting
 - [FilteringSorting.md](./FilteringSorting.md): quick filter, advanced filter, Excel-style popup filtering, and sort behavior
 - [Styling.md](./Styling.md): grid style, navigation style, focus styling, layout presets, and current gaps
 - [Events.md](./Events.md): events and what actually raises them

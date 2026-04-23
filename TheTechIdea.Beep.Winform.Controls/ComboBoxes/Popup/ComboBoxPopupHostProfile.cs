@@ -46,11 +46,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         // ── Dense list (DenseList variant) ───────────────────────────────
         public bool UseCircularImages { get; init; }
 
+        // ── Popup chrome (shadow + corner radius) ───────────────────────
+        /// <summary>
+        /// Corner radius for the popup form. 0 = use form default.
+        /// </summary>
+        public int PopupCornerRadius { get; init; }
+
+        /// <summary>
+        /// Shadow depth: 0 = none, 1 = light, 2 = medium, 3 = heavy.
+        /// </summary>
+        public int PopupShadowDepth { get; init; }
+
         public static ComboBoxPopupHostProfile OutlineDefault() => new ComboBoxPopupHostProfile
         {
             Name = "OutlineDefault",
             SearchPlaceholder = "Filter options...",
-            BaseRowHeight = 32
+            BaseRowHeight = 32,
+            PopupCornerRadius = 6,
+            PopupShadowDepth = 1
         };
 
         public static ComboBoxPopupHostProfile OutlineSearchable() => new ComboBoxPopupHostProfile
@@ -59,7 +72,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             ForceSearchVisible = true,
             SearchPlaceholder = "Search options...",
             BaseRowHeight = 32,
-            RowHorizontalInset = 2
+            RowHorizontalInset = 2,
+            PopupCornerRadius = 6,
+            PopupShadowDepth = 1
         };
 
         public static ComboBoxPopupHostProfile FilledSoft() => new ComboBoxPopupHostProfile
@@ -69,7 +84,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             BaseRowHeight = 34,
             UseCardRows = true,
             RowHorizontalInset = 4,
-            RowVerticalInset = 2
+            RowVerticalInset = 2,
+            PopupCornerRadius = 8,
+            PopupShadowDepth = 2
         };
 
         public static ComboBoxPopupHostProfile RoundedPill() => new ComboBoxPopupHostProfile
@@ -83,7 +100,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             SearchPlacement = SearchPlacementMode.Bottom,
             PillHeight = 36,
             PillSpacing = 6,
-            MaxHeight = 400
+            MaxHeight = 400,
+            PopupCornerRadius = 12,
+            PopupShadowDepth = 2
         };
 
         public static ComboBoxPopupHostProfile SegmentedTrigger() => new ComboBoxPopupHostProfile
@@ -92,7 +111,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             SearchPlaceholder = "Filter list...",
             BaseRowHeight = 32,
             FooterLeftAligned = true,
-            ShowRowSeparators = true
+            ShowRowSeparators = true,
+            PopupCornerRadius = 6,
+            PopupShadowDepth = 1
         };
 
         public static ComboBoxPopupHostProfile MultiChipCompact() => new ComboBoxPopupHostProfile
@@ -106,7 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             FooterHeight = 42,
             FooterLeftAligned = true,
             ChipAreaMaxHeight = 80,
-            MaxHeight = 420
+            MaxHeight = 420,
+            PopupCornerRadius = 8,
+            PopupShadowDepth = 2
         };
 
         public static ComboBoxPopupHostProfile MultiChipSearch() => new ComboBoxPopupHostProfile
@@ -121,7 +144,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             FooterHeight = 42,
             ChipAreaMaxHeight = 80,
             MaxHeight = 450,
-            RowHorizontalInset = 2
+            RowHorizontalInset = 2,
+            PopupCornerRadius = 8,
+            PopupShadowDepth = 2
         };
 
         public static ComboBoxPopupHostProfile DenseList() => new ComboBoxPopupHostProfile
@@ -134,7 +159,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             GroupHeaderHeight = 24,
             ShowRowSeparators = false,
             UseCircularImages = true,
-            MaxHeight = 320
+            MaxHeight = 320,
+            PopupCornerRadius = 4,
+            PopupShadowDepth = 1
         };
 
         public static ComboBoxPopupHostProfile MinimalBorderless() => new ComboBoxPopupHostProfile
@@ -147,7 +174,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             RowHorizontalInset = 4,
             RowVerticalInset = 1,
             ListHorizontalPadding = 2,
-            ListVerticalPadding = 4
+            ListVerticalPadding = 4,
+            PopupCornerRadius = 4,
+            PopupShadowDepth = 0
         };
 
         public static ComboBoxPopupHostProfile CommandMenu() => new ComboBoxPopupHostProfile

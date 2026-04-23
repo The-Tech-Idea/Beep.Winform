@@ -35,6 +35,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// The grid handles its own rendering completely
         /// </summary>
         protected override bool AllowBaseControlClear => false;
+
+        /// <summary>
+        /// Returns the custom accessible object for screen reader support.
+        /// </summary>
+        protected override AccessibleObject CreateAccessibilityInstance()
+        {
+            return new Accessibility.GridAccessibleObject(this);
+        }
         #endregion
 
         #region Helper Instances
@@ -54,6 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridDialogHelper Dialog { get; }
         internal Helpers.GridClipboardHelper Clipboard { get; }
         internal Helpers.GridColumnReorderHelper ColumnReorder { get; }
+        internal Helpers.GridKeyboardNavigator KeyboardNavigator { get; }
+        internal Helpers.GridFocusManager FocusManager { get; }
         #endregion
 
         #region Private Fields
@@ -93,6 +103,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ThemeHelper = new Helpers.GridThemeHelper(this);
             Navigator = new Helpers.GridNavigatorHelper(this);
             NavigatorPainter = new Helpers.GridNavigationPainterHelper(this);
+            KeyboardNavigator = new Helpers.GridKeyboardNavigator(this);
+            FocusManager = new Helpers.GridFocusManager(this);
             _uowBinder = new GridUnitOfWorkBinder(this);
             
             // Sync navigation painter properties
@@ -116,6 +128,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Dialog = new Helpers.GridDialogHelper(this);
             Clipboard = new Helpers.GridClipboardHelper(this);
             ColumnReorder = new Helpers.GridColumnReorderHelper(this);
+
+            _toolbarPainter = new Toolbar.BeepGridToolbarPainter(this);
+            _filterEditor = new Filtering.FilterEditorHelper(this);
             
             // Only setup complex initialization if not in design mode
             if (!DesignMode)
@@ -454,6 +469,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     // Set matching navigation style
                     NavigationStyle = navigationStyle.Tailwind;
                     break;
+
+                case BeepGridStyle.Modern:
+                    // Modern: sleek, elevated header with subtle row separation
+                    RowHeight = 28;
+                    ColumnHeaderHeight = 34;
+                    Render.ShowGridLines = false;
+                    Render.ShowRowStripes = false;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseElevation = true;
+                    Render.CardStyle = false;
+                    Render.UseHeaderGradient = true;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 4;
+                    // Set matching navigation style
+                    NavigationStyle = navigationStyle.Fluent;
+                    break;
             }
 
             // Update navigator height based on new navigation style
@@ -700,6 +733,247 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public bool AlternateRowColor { get; internal set; }
         #endregion
 
+        #region Export
+        private Export.GridExportEngine? _exportEngine;
+
+        [Browsable(false)]
+        public Export.GridExportEngine ExportEngine => _exportEngine ??= new Export.GridExportEngine();
+
+        /// <summary>
+        /// Export the grid to a CSV file.
+        /// </summary>
+        public void ExportToCsv(string filePath, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToFile(this, filePath, Export.GridExportFormat.Csv, options);
+
+        /// <summary>
+        /// Export the grid to a JSON file.
+        /// </summary>
+        public void ExportToJson(string filePath, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToFile(this, filePath, Export.GridExportFormat.Json, options);
+
+        /// <summary>
+        /// Export the grid to an HTML file.
+        /// </summary>
+        public void ExportToHtml(string filePath, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToFile(this, filePath, Export.GridExportFormat.Html, options);
+
+        /// <summary>
+        /// Export the grid to an Excel (.xlsx) file.
+        /// Requires the Excel export plugin to be loaded; see <see cref="Export.GridExportEngine.DiscoverPlugins"/>.
+        /// </summary>
+        public void ExportToExcel(string filePath, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToFile(this, filePath, Export.GridExportFormat.Excel, options);
+
+        /// <summary>
+        /// Export the grid to a PDF file.
+        /// Requires the PDF export plugin to be loaded; see <see cref="Export.GridExportEngine.DiscoverPlugins"/>.
+        /// </summary>
+        public void ExportToPdf(string filePath, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToFile(this, filePath, Export.GridExportFormat.Pdf, options);
+
+        /// <summary>
+        /// Export the grid to a stream in the specified format.
+        /// </summary>
+        public void ExportToStream(System.IO.Stream output, Export.GridExportFormat format, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToStream(this, output, format, options);
+
+        /// <summary>
+        /// Export the grid to a string in the specified format.
+        /// </summary>
+        public string ExportToString(Export.GridExportFormat format, Export.ExportOptions? options = null)
+            => ExportEngine.ExportToString(this, format, options);
+        #endregion
+
+        #region Grouping
+        private Grouping.GridGroupEngine? _groupEngine;
+
+        [Browsable(false)]
+        public Grouping.GridGroupEngine GroupEngine => _groupEngine ??= new Grouping.GridGroupEngine(this);
+
+        /// <summary>
+        /// Group rows by the specified column name.
+        /// </summary>
+        public void GroupBy(string columnName, Models.GroupSortDirection direction = Models.GroupSortDirection.Ascending)
+        {
+            GroupEngine.AddDescriptor(new Models.GroupDescriptor
+            {
+                ColumnName = columnName,
+                SortDirection = direction
+            });
+        }
+
+        /// <summary>
+        /// Group rows by multiple column names (nested grouping).
+        /// </summary>
+        public void GroupBy(IEnumerable<string> columnNames)
+        {
+            var descriptors = columnNames.Select(cn => new Models.GroupDescriptor { ColumnName = cn }).ToList();
+            GroupEngine.SetDescriptors(descriptors);
+        }
+
+        /// <summary>
+        /// Remove all grouping and restore original row visibility.
+        /// </summary>
+        public void Ungroup()
+        {
+            GroupEngine.ClearDescriptors();
+        }
+
+        /// <summary>
+        /// Toggle collapse/expand for a group by its key.
+        /// </summary>
+        public bool ToggleGroup(string groupKey)
+        {
+            return GroupEngine.ToggleCollapse(groupKey);
+        }
+
+        /// <summary>
+        /// Expand all groups.
+        /// </summary>
+        public void ExpandAllGroups()
+        {
+            GroupEngine.ExpandAll();
+        }
+
+        /// <summary>
+        /// Collapse all groups.
+        /// </summary>
+        public void CollapseAllGroups()
+        {
+            GroupEngine.CollapseAll();
+        }
+        #endregion
+
+        #region Virtualization
+        private Virtualization.GridRowVirtualizer? _rowVirtualizer;
+        private Virtualization.GridColumnVirtualizer? _columnVirtualizer;
+        private bool _enableVirtualization;
+
+        [Browsable(false)]
+        public Virtualization.GridRowVirtualizer RowVirtualizer => _rowVirtualizer ??= new Virtualization.GridRowVirtualizer(this);
+
+        [Browsable(false)]
+        public Virtualization.GridColumnVirtualizer ColumnVirtualizer => _columnVirtualizer ??= new Virtualization.GridColumnVirtualizer(this);
+
+        /// <summary>
+        /// Enables or disables row virtualization for large datasets.
+        /// When enabled, rows are materialized on-demand via <see cref="VirtualDataSource"/>.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enables on-demand row virtualization for very large datasets.")]
+        [DefaultValue(false)]
+        public bool EnableVirtualization
+        {
+            get => _enableVirtualization;
+            set
+            {
+                if (_enableVirtualization != value)
+                {
+                    _enableVirtualization = value;
+                    if (value)
+                    {
+                        // Virtualization mode: clear in-memory rows, virtualizer takes over
+                        if (_regularDataSource != null && VirtualDataSource == null)
+                        {
+                            Data.Rows.Clear();
+                            var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
+                            VirtualDataSource = CreateVirtualDataSource(_regularDataSource, columnNames);
+                            int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
+                            RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                        }
+                    }
+                    else
+                    {
+                        // Normal mode: restore full data binding
+                        VirtualDataSource = null;
+                        if (_regularDataSource != null)
+                        {
+                            Data.Bind(_regularDataSource);
+                            Navigator.BindTo(_regularDataSource);
+                        }
+                    }
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                }
+            }
+        }
+
+        private bool _enableColumnVirtualization;
+
+        /// <summary>
+        /// Enables or disables column virtualization for wide grids.
+        /// When enabled, only visible scrolling columns are rendered and hit-tested,
+        /// reducing draw calls for grids with many columns.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enables on-demand column virtualization for grids with many columns.")]
+        [DefaultValue(false)]
+        public bool EnableColumnVirtualization
+        {
+            get => _enableColumnVirtualization;
+            set
+            {
+                if (_enableColumnVirtualization != value)
+                {
+                    _enableColumnVirtualization = value;
+                    ColumnVirtualizer.IsActive = value;
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a virtual data source adapter from the given data object and column names.
+        /// </summary>
+        private Virtualization.IVirtualDataSource? CreateVirtualDataSource(object dataSource, System.Collections.Generic.List<string> columnNames)
+        {
+            if (dataSource is System.Data.DataTable dt)
+                return Virtualization.GridVirtualDataSource.FromDataTable(dt, columnNames);
+            if (dataSource is System.Data.DataView dv)
+                return Virtualization.GridVirtualDataSource.FromDataView(dv, columnNames);
+            if (dataSource is System.Windows.Forms.BindingSource bs && bs.List is System.Collections.IList bList)
+                return Virtualization.GridVirtualDataSource.FromList(bList, columnNames);
+            if (dataSource is System.Collections.IList list)
+                return Virtualization.GridVirtualDataSource.FromList(list, columnNames);
+            // Try to extract IList via reflection for common collection types
+            var listProp = dataSource.GetType().GetProperty("List");
+            if (listProp != null && listProp.PropertyType.IsAssignableTo(typeof(System.Collections.IList)))
+            {
+                var innerList = listProp.GetValue(dataSource) as System.Collections.IList;
+                if (innerList != null)
+                    return Virtualization.GridVirtualDataSource.FromList(innerList, columnNames);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets or sets the virtual data source used when virtualization is enabled.
+        /// </summary>
+        [Browsable(false)]
+        public Virtualization.IVirtualDataSource? VirtualDataSource
+        {
+            get => RowVirtualizer.DataSource;
+            set
+            {
+                RowVirtualizer.DataSource = value;
+                if (_enableVirtualization)
+                {
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Total logical row count when virtualization is active.
+        /// </summary>
+        [Browsable(false)]
+        public long VirtualRowCount => RowVirtualizer.TotalRowCount;
+        #endregion
+
         // Context menu related methods in BeepGridPro.ContextMenu.cs partial
         // Clipboard operations in BeepGridPro.ClipboardOps.cs partial
         // Navigation methods in BeepGridPro.Navigation.cs partial
@@ -719,6 +993,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (disposing)
             {
                 DisposeInlineQuickSearchControl();
+                _filterEditor?.Dispose();
                 _uowBinder?.Detach();
                 Dialog?.Dispose();
                 if (_autoSizeDebounceTimer != null)

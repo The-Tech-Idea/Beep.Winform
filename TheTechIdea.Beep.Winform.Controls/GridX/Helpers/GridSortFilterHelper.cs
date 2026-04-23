@@ -27,6 +27,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             col.SortDirection = direction;
 
+            // When grouping is active, do not globally reorder rows — sort within groups instead.
+            if (_grid.GroupEngine.IsGrouped)
+            {
+                var groupDescriptor = _grid.GroupEngine.Descriptors
+                    .FirstOrDefault(d => string.Equals(d.ColumnName, columnName, StringComparison.OrdinalIgnoreCase));
+
+                if (groupDescriptor != null)
+                {
+                    // Sorting a group column: update the group descriptor and recompute groups
+                    var groupDir = direction == SortDirection.Descending
+                        ? GroupSortDirection.Descending
+                        : GroupSortDirection.Ascending;
+                    _grid.GroupEngine.SortGroupsByColumn(columnName, groupDir);
+                }
+                else
+                {
+                    // Sorting a non-group column: sort rows inside each group
+                    _grid.GroupEngine.SortWithinGroups(columnName, direction);
+                }
+                return;
+            }
+
             if (TryApplySourceSort(col, direction))
             {
                 return;

@@ -17,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         void UpdateSearchText(string text);
         void SetKeyboardFocusIndex(int index);
         void FocusSearchBox();
+        void FocusItem(SimpleItem item);
 
         event EventHandler<ComboBoxRowCommittedEventArgs> RowCommitted;
         event EventHandler<ComboBoxSearchChangedEventArgs> SearchTextChanged;

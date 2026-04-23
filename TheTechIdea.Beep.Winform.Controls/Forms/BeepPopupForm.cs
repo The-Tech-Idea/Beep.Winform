@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
@@ -48,6 +48,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isOpeningChild = false; // Flag to prevent closing during child creation
         private bool _justOpened = false; // Flag to indicate the popup was just opened
         private int _closeTimeout = 200; // Time in milliseconds before checking if popup should close
+
+        // ── Open/close animation ──────────────────────────────────────────
+        private System.Windows.Forms.Timer _animationTimer;
+        private double _animationOpacityTarget;
+        private double _animationOpacityStart;
+        private int _animationStep;
+        private int _animationTotalSteps;
+        private const int ANIMATION_INTERVAL_MS = 16; // ~60fps
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Enable smooth fade animation when opening and closing the popup.")]
+        [DefaultValue(true)]
+        public bool EnableAnimation { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Duration of the open/close animation in milliseconds.")]
+        [DefaultValue(150)]
+        public int AnimationDurationMs { get; set; } = 150;
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
@@ -135,6 +155,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _closeTimer = new System.Windows.Forms.Timer { Interval = _closeTimeout };
             _closeTimer.Tick += CloseTimer_Tick;
 
+            _animationTimer = new System.Windows.Forms.Timer { Interval = ANIMATION_INTERVAL_MS };
+            _animationTimer.Tick += AnimationTimer_Tick;
+
             this.MouseEnter += BeepPopupForm_MouseEnter;
             this.MouseLeave += BeepPopupForm_MouseLeave;
 
@@ -165,6 +188,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void StartTimers() { if (_autoclose) _closeTimer.Start(); }
 
         public void StopTimers() => _closeTimer.Stop();
+
+        private void AnimationTimer_Tick(object sender, EventArgs e)
+        {
+            _animationStep++;
+            double t = (double)_animationStep / _animationTotalSteps;
+            // Ease-out cubic: 1 - (1-t)^3 for smooth deceleration
+            t = 1.0 - Math.Pow(1.0 - t, 3);
+            this.Opacity = _animationOpacityStart + (_animationOpacityTarget - _animationOpacityStart) * t;
+
+            if (_animationStep >= _animationTotalSteps)
+            {
+                _animationTimer.Stop();
+                this.Opacity = _animationOpacityTarget;
+                if (_animationOpacityTarget <= 0)
+                {
+                    _isClosing = false;
+                    base.Close();
+                }
+            }
+        }
 
         private void CloseTimer_Tick(object sender, EventArgs e)
         {
@@ -215,8 +258,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TriggerControl.MouseLeave -= TriggerControl_MouseLeave;
             }
 
-            // Close this popup
-            Close();
+            // Close this popup with optional animation
+            if (EnableAnimation && AnimationDurationMs > 0 && this.Opacity > 0)
+            {
+                _animationOpacityStart = this.Opacity;
+                _animationOpacityTarget = 0.0;
+                _animationStep = 0;
+                _animationTotalSteps = Math.Max(1, AnimationDurationMs / ANIMATION_INTERVAL_MS);
+                _animationTimer.Start();
+            }
+            else
+            {
+                Close();
+            }
             OnClose?.Invoke(this, EventArgs.Empty);
 
             // Update the active popup to the parent, if any
@@ -375,7 +429,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Location = location;
             SetAsActive();
-            Show();
+
+            if (EnableAnimation && AnimationDurationMs > 0)
+            {
+                this.Opacity = 0.0;
+                Show();
+                _animationOpacityStart = 0.0;
+                _animationOpacityTarget = 1.0;
+                _animationStep = 0;
+                _animationTotalSteps = Math.Max(1, AnimationDurationMs / ANIMATION_INTERVAL_MS);
+                _animationTimer.Start();
+            }
+            else
+            {
+                this.Opacity = 1.0;
+                Show();
+            }
 
             AttachMouseEvents(this);
 

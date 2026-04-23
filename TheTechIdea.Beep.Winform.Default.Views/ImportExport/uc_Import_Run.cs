@@ -51,6 +51,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             _config = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null);
             if (_config == null) return;
 
+            // ── Validate auto-create / destination readiness ──
+            if (!ImportExportWizardValidation.ValidateAutoCreateSettings(context, out var autoCreateIssues))
+            {
+                foreach (var issue in autoCreateIssues)
+                    AppendLog($"[Pre-flight] {issue}");
+            }
+
             // Restore option checkboxes from config
             cbPreflight.Checked        = _config.RunMigrationPreflight;
             cbAddMissing.Checked       = _config.AddMissingColumns;
@@ -220,6 +227,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             double elapsed = el.TotalSeconds;
             if (elapsed > 0 && status.RecordsProcessed > 0)
                 lblThroughput.Text = $"{status.RecordsProcessed / elapsed:N0} rows/sec";
+            // Batch info
+            if (status.TotalRecords > 0)
+                lblBatchInfo.Text = $"Batch {status.RecordsProcessed:N0} / {status.TotalRecords:N0}";
+            else
+                lblBatchInfo.Text = string.Empty;
         }
 
         private void UpdateProgress(PassedArgs args)

@@ -215,7 +215,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.1443" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.1444" />
     <PackageReference Include="TheTechIdea.Beep.TreeNodes" Version="1.0.16" />
     <PackageReference Include="TheTechIdea.Beep.Vis.Loader" Version="1.0.6" />
   </ItemGroup>

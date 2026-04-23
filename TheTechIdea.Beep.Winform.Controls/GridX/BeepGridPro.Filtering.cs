@@ -53,6 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ? _filteredRowIndices.Count 
             : Data.Rows.Count;
 
+        [Browsable(false)]
+        public IReadOnlyList<int>? FilteredRowIndices => _filteredRowIndices;
+
         #endregion
 
         #region Filter Events
@@ -575,6 +578,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Layout.Recalculate();
             ScrollBars?.UpdateBars();
             SafeInvalidate();
+
+            // Recompute groups when a filter is applied/removed while grouping is active
+            if (GroupEngine?.IsGrouped == true)
+            {
+                GroupEngine.ApplyGrouping();
+            }
         }
 
         private void OnFilterApplied(FilterAppliedEventArgs args)

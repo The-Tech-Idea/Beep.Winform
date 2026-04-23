@@ -12,9 +12,10 @@ using TheTechIdea.Beep.Winform.Controls.Filtering;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
     /// <summary>
-    /// Modern filter row control for building filter expressions
-    /// Uses BeepControls for a consistent modern appearance
+    /// Modern filter row control for building filter expressions.
+    /// <para><b>Obsolete:</b> Use the unified toolbar in <see cref="BeepGridPro"/> (Search + Filter buttons) instead.</para>
     /// </summary>
+    [Obsolete("Use BeepGridPro unified toolbar (ShowToolbar + ShowAdvancedFilterDialog) instead.")]
     public class BeepFilterRow : BaseControl
     {
         private BeepComboBox _columnCombo = null!;

@@ -272,33 +272,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
                 string.Equals(i.Text, text, StringComparison.OrdinalIgnoreCase));
         }
         
-        /// <summary>
-        /// Get the item at a specific point
-        /// </summary>
-        public SimpleItem GetItemAtPoint(Point point, Rectangle contentArea, int itemHeight)
-        {
-            var visibleItems = GetVisibleItems();
-            if (visibleItems == null || visibleItems.Count == 0)
-                return null;
-            
-            int currentY = contentArea.Top;
-            foreach (var item in visibleItems)
-            {
-                Rectangle itemRect = new Rectangle(
-                    contentArea.Left,
-                    currentY,
-                    contentArea.Width,
-                    itemHeight);
-                
-                if (itemRect.Contains(point))
-                    return item;
-                
-                currentY += itemHeight;
-                if (currentY >= contentArea.Bottom)
-                    break;
-            }
-            
-            return null;
-        }
     }
 }

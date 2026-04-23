@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -127,41 +127,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     /// </summary>
     public class GridContextMenuEventArgs : EventArgs
     {
-        /// <summary>
-        /// The menu item that was selected
-        /// </summary>
         public SimpleItem SelectedItem { get; }
-        
-        /// <summary>
-        /// The action/command associated with the menu item (from Tag property)
-        /// </summary>
         public string? Action { get; }
-        
-        /// <summary>
-        /// The currently focused/active row when context menu was invoked
-        /// </summary>
         public BeepRowConfig? CurrentRow { get; }
-        
-        /// <summary>
-        /// All currently selected rows (for multi-select scenarios)
-        /// </summary>
         public List<BeepRowConfig> SelectedRows { get; }
-        
-        /// <summary>
-        /// The row index of the current/focused row
-        /// </summary>
         public int CurrentRowIndex { get; }
-        
-        /// <summary>
-        /// Gets or sets whether the default action should be cancelled
-        /// Set to true in event handler to prevent built-in action from executing
-        /// </summary>
         public bool Cancel { get; set; }
-        
-        /// <summary>
-        /// Gets or sets whether the grid should be refreshed after the action
-        /// Default is true
-        /// </summary>
         public bool RefreshGrid { get; set; } = true;
 
         public GridContextMenuEventArgs(
@@ -175,6 +146,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             CurrentRow = currentRow;
             SelectedRows = selectedRows ?? new List<BeepRowConfig>();
             CurrentRowIndex = currentRowIndex;
+        }
+    }
+
+    public class ToolbarActionEventArgs : EventArgs
+    {
+        public string Action { get; }
+        public bool Cancel { get; set; }
+
+        public ToolbarActionEventArgs(string action)
+        {
+            Action = action;
         }
     }
 }

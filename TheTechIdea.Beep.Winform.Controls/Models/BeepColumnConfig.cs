@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -360,6 +360,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _cellEditor = value; OnPropertyChanged(nameof(CellEditor)); }
         }
         private bool ShouldSerializeCellEditor() => _cellEditor != BeepColumnType.Text;
+
+        private TextBoxMaskFormat _maskFormat = TextBoxMaskFormat.None;
+        [Category("Appearance")]
+        [Description("Mask format for the cell editor when using MaskedTextBox editor.")]
+        public TextBoxMaskFormat MaskFormat
+        {
+            get => _maskFormat;
+            set { _maskFormat = value; OnPropertyChanged(nameof(MaskFormat)); }
+        }
+        private bool ShouldSerializeMaskFormat() => _maskFormat != TextBoxMaskFormat.None;
+
+        private string _customMask = string.Empty;
+        [Category("Appearance")]
+        [Description("Custom mask pattern for the cell editor when MaskFormat is Custom.")]
+        public string CustomMask
+        {
+            get => _customMask;
+            set { _customMask = value; OnPropertyChanged(nameof(CustomMask)); }
+        }
+        private bool ShouldSerializeCustomMask() => !string.IsNullOrEmpty(_customMask);
 
         private string _format;
         [Category("Appearance")]
@@ -827,6 +847,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         ListOfValue,
         NumericUpDown,
         Radio,
+        MaskedTextBox,
         Custom
     }
     [Serializable]

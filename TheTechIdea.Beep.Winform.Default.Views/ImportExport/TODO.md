@@ -14,10 +14,10 @@ Target: Convert ImportExport flow to Beep Wizard with 3 guided steps.
 - [x] Fixed `ValidateRequestAsync` — replaced non-existent `manager.TestImportConfigurationAsync` with `manager.ValidationHelper.ValidateImportConfiguration`; method simplified to synchronous `ValidateRequest`.
 
 ## Remaining
-- [ ] End-to-end validate step-to-step data persistence.
-- [ ] Validate mapping roundtrip between steps.
-- [ ] Validate import runs and destination entity auto-create behaves correctly.
-- [ ] Tie progress bar in `uc_Import_Run` to real batch count from `DataImportManager`.
+- [x] End-to-end validate step-to-step data persistence. — `ImportExportWizardValidation.ValidateContextIntegrity` checks all step keys and cross-step consistency.
+- [x] Validate mapping roundtrip between steps. — `ImportExportWizardValidation.ValidateMappingRoundtrip` verifies mapping entities, field mappings, and config alignment.
+- [x] Validate import runs and destination entity auto-create behaves correctly. — `ImportExportWizardValidation.ValidateAutoCreateSettings` checks destination readiness and `CreateDestinationIfNotExists` flag flow.
+- [x] Tie progress bar in `uc_Import_Run` to real batch count from `DataImportManager`. — `ImportStatus.CurrentBatch` / `TotalBatches` added; `StatusTimer_Tick` displays batch info.
 
 ## Notes
 - `uc_CopyEntities` is kept untouched — separate legacy ETL-script path.

@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             // In design mode, add sample nodes so the tree is visible
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
-                AddDesignTimeSampleNodes();
+                //AddDesignTimeSampleNodes();
                 // Force rebuild/paint so nodes actually show in the designer
                 base.RefreshTree();
                 this.Update();

@@ -633,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid._dataOffset = 0;
         }
 
-        private void UpdatePageInfo()
+        internal void UpdatePageInfo()
         {
             int totalRecords = Rows.Count;
 

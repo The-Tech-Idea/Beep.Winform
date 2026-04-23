@@ -6,41 +6,38 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
-using TheTechIdea.Beep.Winform.Controls.Images;
-using TheTechIdea.Beep.Winform.Controls.Numerics;
-using TheTechIdea.Beep.Winform.Controls.ProgressBars;
-using TheTechIdea.Beep.Winform.Controls.RadioGroup;
-using TheTechIdea.Beep.Winform.Controls.TextFields;
-using TheTechIdea.Beep.Winform.Controls.Dates;
-using static TheTechIdea.Beep.Winform.Controls.BeepControl;
+using TheTechIdea.Beep.Winform.Controls.GridX.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
     internal class GridEditHelper
     {
         private readonly BeepGridPro _grid;
+        private readonly GridEditorFactory _editorFactory = new();
         private Control _editorControl;
+        private IGridEditor _currentEditor;
+        private readonly EditorEvents _editorEvents;
         private BeepCellConfig _editingCell;
         private object _originalValue;
         private bool _suppressLostFocus;
         private bool _isEndingEdit;
-        private IBeepUIComponent _currenteditorUIcomponent;
-        public GridEditHelper(BeepGridPro grid) { _grid = grid; }
+
+        public GridEditHelper(BeepGridPro grid)
+        {
+            _grid = grid;
+            _editorEvents = new EditorEvents(this);
+        }
 
         public void BeginEdit()
         {
-            // Debug output
             System.Diagnostics.Debug.WriteLine($"BeginEdit called. ReadOnly={_grid.ReadOnly}, HasSelection={_grid.Selection.HasSelection}");
-            
+
             if (_grid.ReadOnly)
             {
                 System.Diagnostics.Debug.WriteLine("BeginEdit: Grid is ReadOnly");
                 return;
             }
-            
+
             if (!_grid.Selection.HasSelection)
             {
                 System.Diagnostics.Debug.WriteLine("BeginEdit: No selection");
@@ -50,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int r = _grid.Selection.RowIndex;
             int c = _grid.Selection.ColumnIndex;
             System.Diagnostics.Debug.WriteLine($"BeginEdit: Row={r}, Col={c}, RowCount={_grid.Data.Rows.Count}, ColCount={_grid.Data.Columns.Count}");
-            
+
             if (r < 0 || c < 0 || r >= _grid.Data.Rows.Count || c >= _grid.Data.Columns.Count)
             {
                 System.Diagnostics.Debug.WriteLine("BeginEdit: Invalid row or column index");
@@ -61,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var col = _grid.Data.Columns[c];
             System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}, ColVisible={col.Visible}");
             System.Diagnostics.Debug.WriteLine($"BeginEdit: Cell Rect={cell.Rect}");
-            
+
             if (cell.IsReadOnly || !cell.IsEditable || !col.Visible)
             {
                 System.Diagnostics.Debug.WriteLine("BeginEdit: Cell is readonly or not editable");
@@ -75,145 +72,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.UpdateDrawingRect();
                 _grid.Layout?.EnsureCalculated();
                 _grid.SafeInvalidate();
-                // Re-get the cell after layout recalculation
                 cell = _grid.Data.Rows[r].Cells[c];
                 System.Diagnostics.Debug.WriteLine($"BeginEdit: After recalc, Cell Rect={cell.Rect}");
-                
-                // If still invalid, cannot edit
+
                 if (cell.Rect.Width <= 0 || cell.Rect.Height <= 0)
                 {
                     System.Diagnostics.Debug.WriteLine("BeginEdit: Cell Rect still invalid after recalculation");
                     return;
                 }
             }
-            
+
             System.Diagnostics.Debug.WriteLine("BeginEdit: Creating editor control...");
             cell = _grid.Data.Rows[r].Cells[c];
-            
+
             // Remove previous editor from host - ALWAYS clear completely
-            if (_editorControl != null)
+            CleanupPreviousEditor();
+
+            // Resolve editor from factory
+            _currentEditor = _editorFactory.Resolve(col.CellEditor);
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Factory resolved editor: {_currentEditor?.GetType().Name ?? "NULL"}");
+
+            _editorControl = _currentEditor?.CreateControl();
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: CreateControl returned: {_editorControl?.GetType().Name ?? "NULL"}");
+
+            if (_editorControl == null)
             {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Cleaning up previous editor");
-                try
-                {
-                    _editorControl.KeyDown -= OnEditorKeyDown;
-                    _editorControl.LostFocus -= OnEditorLostFocus;
-                    if (_currenteditorUIcomponent is BeepComboBox oldCb)
-                        oldCb.PopupClosed -= OnComboPopupClosed;
-                    if (_currenteditorUIcomponent is BeepDateDropDown oldDdd)
-                        oldDdd.DropDownClosed -= OnDateDropDownClosed;
-                    
-                    // Remove from its current parent (grid-local hosting for stable repaint behavior)
-                    _editorControl.Parent?.Controls.Remove(_editorControl);
-                    
-                    _editorControl.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"BeginEdit: Error cleaning up previous editor: {ex.Message}");
-                }
-                finally { _editorControl = null; }
-            }
-
-
-
-            // Create editor
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Calling CreateEditorForColumn for column type: {col.ColumnType}");
-            _currenteditorUIcomponent = CreateEditorForColumn(col);
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: CreateEditorForColumn returned: {_currenteditorUIcomponent?.GetType().Name ?? "NULL"}");
-            
-            if (!(_currenteditorUIcomponent is Control editor))
-            {
-                System.Diagnostics.Debug.WriteLine("BeginEdit: Editor is not a Control, exiting");
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Editor control is null, exiting");
                 return;
             }
-            
-            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor created successfully: {editor.GetType().Name}");
-            _editorControl = editor as Control;
+
+            System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor created successfully: {_editorControl.GetType().Name}");
             _editingCell = cell;
             _originalValue = cell.CellValue;
             _isEndingEdit = false;
 
-            // Configure editor with explicit visibility settings
-            // Apply BaseControl-specific properties if editor is a BaseControl
+            // Apply base control styling
             if (_editorControl is BaseControl baseEditor)
             {
                 baseEditor.Theme = _grid.Theme;
                 baseEditor.IsChild = true;
                 baseEditor.ShowAllBorders = false;
             }
-            
+
             _editorControl.Visible = true;
             _editorControl.TabStop = true;
             _editorControl.Enabled = true;
-
-            // Set explicit background and foreground colors for ALL control types
             _editorControl.BackColor = Color.White;
             _editorControl.ForeColor = Color.Black;
 
-            // Populate items and configure specific control types
-            var itemsToUse = GetFilteredItems(col, cell);
-            if (_currenteditorUIcomponent is BeepComboBox combo)
-            {
-                combo.ListItems.Clear();
-                foreach (var item in itemsToUse) combo.ListItems.Add(item);
-                combo.GridMode = false;
-                combo.PopupClosed += OnComboPopupClosed;
-                combo.BackColor = Color.White;
-                combo.ForeColor = Color.Black;
-                combo.BorderStyle = BorderStyle.FixedSingle; // Ensure visible border
-            }
-            else if (_currenteditorUIcomponent is BeepListBox listBox)
-            {
-                listBox.ListItems.Clear();
-                foreach (var item in itemsToUse) listBox.ListItems.Add(item);
-                listBox.GridMode = false;
-                listBox.BackColor = Color.White;
-                listBox.ForeColor = Color.Black;
-                listBox.BorderStyle = BorderStyle.FixedSingle;
-            }
-           
-            else if (_currenteditorUIcomponent is BeepDateDropDown dddEditor)
-            {
-                dddEditor.GridMode = true;
-                dddEditor.BackColor = Color.White;
-                dddEditor.ForeColor = Color.Black;
-                dddEditor.BorderStyle = BorderStyle.FixedSingle;
-                dddEditor.DropDownClosed += OnDateDropDownClosed;
-            }
-            else if (_currenteditorUIcomponent is BeepTextBox st)
-            {
-               // st.ShowAllBorders = false;
-               // st.IsFrameless = true;
-                st.GridMode = true;
-                st.BackColor = Color.White;
-                st.ForeColor = Color.Black;
-                st.BorderStyle = BorderStyle.FixedSingle;
-            }
-            else if (_currenteditorUIcomponent is BeepCheckBoxBool checkBool)
-            {
-                checkBool.BackColor = Color.White;
-                checkBool.ForeColor = Color.Black;
-                checkBool.GridMode = true;
-                checkBool.CheckBoxSize = Math.Min(cell.Rect.Width - 4, cell.Rect.Height - 4);
-            }
-            else if (_currenteditorUIcomponent is BeepCheckBoxChar checkChar)
-            {
-                checkChar.BackColor = Color.White;
-                checkChar.ForeColor = Color.Black;
-                checkChar.GridMode = true;
-                checkChar.CheckBoxSize = Math.Min(cell.Rect.Width - 4, cell.Rect.Height - 4);
-            }
-            else if (_currenteditorUIcomponent is BeepCheckBoxString checkString)
-            {
-                checkString.BackColor = Color.White;
-                checkString.ForeColor = Color.Black;
-                checkString.GridMode = true;
-                checkString.CheckBoxSize = Math.Min(cell.Rect.Width - 4, cell.Rect.Height - 4);
-            }
-
-            if (_editorControl is IBeepUIComponent ic)
-                ic.SetValue(cell.CellValue);
+            // Editor-specific setup via factory pattern
+            _currentEditor.Setup(_editorControl, col, cell, _grid.Theme);
+            _currentEditor.SetValue(_editorControl, cell.CellValue);
+            _currentEditor.AttachEvents(_editorControl, _editorEvents);
 
             // Get the cell rect - convert to grid-relative coordinates
             var rect = cell.Rect;
@@ -226,8 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Calculate editor bounds to perfectly fit within the cell
-            // Add small padding for visual alignment with cell borders
-            int padding = 2; // Padding from cell borders
+            int padding = 2;
             var editorRect = new Rectangle(
                 rect.X + padding,
                 rect.Y + padding,
@@ -235,11 +144,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 rect.Height - (padding * 2)
             );
 
-            // Ensure minimum size for usability
             if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
             if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
 
-            // Always host inline editors inside the grid (same as BeepSimpleGrid) to avoid form-wide flicker.
+            // Always host inline editors inside the grid
             if (_editorControl.Parent != _grid)
             {
                 _editorControl.Parent?.Controls.Remove(_editorControl);
@@ -247,17 +155,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             _editorControl.Bounds = editorRect;
             System.Diagnostics.Debug.WriteLine($"BeginEdit: Editor bounds set to: {_editorControl.Bounds}");
-            
-            _editorControl.Anchor = AnchorStyles.None; // No anchoring - we handle positioning manually
-            
+
+            _editorControl.Anchor = AnchorStyles.None;
+
             // Force the editor to be visible and on top
             System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting editor visible. Current Visible: {_editorControl.Visible}, Enabled: {_editorControl.Enabled}");
             _editorControl.Visible = true;
             _editorControl.Show();
             _editorControl.BringToFront();
             System.Diagnostics.Debug.WriteLine($"BeginEdit: After Show/BringToFront. Visible: {_editorControl.Visible}, Handle created: {_editorControl.IsHandleCreated}");
-            
-         
+
             // Keep in sync with grid visuals
             _grid.Paint -= OnGridPaintReposition;
             _grid.Paint += OnGridPaintReposition;
@@ -268,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // CRITICAL: Suppress LostFocus during initial setup
             _suppressLostFocus = true;
-            
+
             // Attach event handlers AFTER setting suppress flag
             _editorControl.KeyDown += OnEditorKeyDown;
             _editorControl.LostFocus += OnEditorLostFocus;
@@ -279,38 +186,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 System.Diagnostics.Debug.WriteLine($"BeginEdit: BeginInvoke callback executing. _isEndingEdit={_isEndingEdit}, _editorControl!=null={_editorControl != null}");
                 if (!_isEndingEdit && _editorControl != null && !_editorControl.IsDisposed)
                 {
-                    try 
-                    { 
+                    try
+                    {
                         System.Diagnostics.Debug.WriteLine($"BeginEdit: Setting focus. Editor type: {_editorControl.GetType().Name}");
                         _grid.ActiveControl = _editorControl;
                         _editorControl.Focus();
                         System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus set. Focused: {_editorControl.Focused}, ContainsFocus: {_editorControl.ContainsFocus}");
-                        
-                        // Handle ComboBox popup after focus is established
-                        if (_currenteditorUIcomponent is BeepComboBox cb)
-                        {
-                           // try { cb.IsPopupOpen = true; } catch { }
-                        }
-                        
-                        // For BeepDateDropDown: seed value and open calendar popup immediately
-                        if (_currenteditorUIcomponent is BeepDateDropDown ddd)
-                        {
-                            // Seed the current cell value before opening popup
-                            var seedVal = _originalValue;
-                            if (seedVal is DateTime dtSeed)
-                                ddd.SelectedDateTime = dtSeed;
-                            else if (seedVal is string sSeed && DateTime.TryParse(sSeed, out var parsedSeed))
-                                ddd.SelectedDateTime = parsedSeed;
-                            
-                            // Open calendar popup on first click
-                            try { ddd.ShowPopup(); } catch { }
-                        }
-                    } 
+
+                        // Notify editor that editing has begun (e.g., open popups)
+                        _currentEditor?.OnBeginEdit(_editorControl);
+                    }
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"BeginEdit: Focus exception: {ex.Message}");
                     }
-                    
+
                     // IMPORTANT: Only disable suppress AFTER focus is established
                     _suppressLostFocus = false;
                 }
@@ -319,175 +209,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid.SafeInvalidate();
         }
 
-        private void OnDateDropDownClosed(object sender, EventArgs e)
+        private void CleanupPreviousEditor()
         {
-            if (!_isEndingEdit && _currenteditorUIcomponent is BeepDateDropDown ddd)
+            if (_editorControl != null)
             {
-                if (_grid != null && !_grid.IsDisposed && _grid.IsHandleCreated)
-                {
-                    try
-                    {
-                        _grid.BeginInvoke(new Action(() =>
-                        {
-                            if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
-                                EndEdit(true);
-                        }));
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
-                            EndEdit(true);
-                    }
-                }
-                else
-                {
-                    if (!_isEndingEdit && ddd != null && !ddd.IsDisposed)
-                        EndEdit(true);
-                }
-            }
-        }
-
-        private void OnComboPopupClosed(object sender, EventArgs e)
-        {
-            // Don't end edit immediately when popup closes to prevent disposal race
-            if (!_isEndingEdit && _currenteditorUIcomponent is BeepComboBox combo)
-            {
-                // Check if the grid still has a valid handle before attempting BeginInvoke
-                if (_grid != null && !_grid.IsDisposed && _grid.IsHandleCreated)
-                {
-                    try
-                    {
-                        _grid.BeginInvoke(new Action(() =>
-                        {
-                            if (!_isEndingEdit && combo != null && !combo.IsDisposed)
-                            {
-                                EndEdit(true);
-                            }
-                        }));
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        // Handle has been destroyed during the call - end edit synchronously
-                        if (!_isEndingEdit && combo != null && !combo.IsDisposed)
-                        {
-                            EndEdit(true);
-                        }
-                    }
-                }
-                else
-                {
-                    // Grid is disposed or handle not created - end edit synchronously
-                    if (!_isEndingEdit && combo != null && !combo.IsDisposed)
-                    {
-                        EndEdit(true);
-                    }
-                }
-            }
-        }
-
-        private void OnGridPaintReposition(object sender, PaintEventArgs e)
-        {
-            if (_editingCell != null && _editorControl != null && !_editorControl.IsDisposed)
-            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: Cleaning up previous editor");
                 try
                 {
-                    var rect = _editingCell.Rect;
-                    
-                    // Check if cell is still visible (not scrolled out of view)
-                    if (rect.Width > 0 && rect.Height > 0)
-                    {
-                        // Calculate editor bounds with padding (grid-relative)
-                        int padding = 2;
-                        var editorRect = new Rectangle(
-                            rect.X + padding,
-                            rect.Y + padding,
-                            rect.Width - (padding * 2),
-                            rect.Height - (padding * 2)
-                        );
-                        
-                        // Ensure minimum size
-                        if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
-                        if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
-                        
-                        // Only update if position changed to avoid flicker
-                        if (_editorControl.Bounds != editorRect)
-                        {
-                            if (_editorControl.Parent != _grid)
-                            {
-                                _editorControl.Parent?.Controls.Remove(_editorControl);
-                                _grid.Controls.Add(_editorControl);
-                            }
-                            _editorControl.Bounds = editorRect;
-                        }
-                    }
-                    else
-                    {
-                        // Cell scrolled out of view - end editing
-                        EndEdit(true);
-                    }
-                }
-                catch { }
-            }
-        }
+                    _editorControl.KeyDown -= OnEditorKeyDown;
+                    _editorControl.LostFocus -= OnEditorLostFocus;
+                    _currentEditor?.DetachEvents(_editorControl, _editorEvents);
 
-        private void OnGridMovedOrSized(object sender, EventArgs e)
-        {
-            if (_editingCell != null && _editorControl != null && !_editorControl.IsDisposed)
-            {
-                try
+                    _editorControl.Parent?.Controls.Remove(_editorControl);
+                    _editorControl.Dispose();
+                }
+                catch (Exception ex)
                 {
-                    var rect = _editingCell.Rect;
-                    
-                    // Check if cell is still visible
-                    if (rect.Width > 0 && rect.Height > 0)
-                    {
-                        // Calculate editor bounds with padding (grid-relative)
-                        int padding = 2;
-                        var editorRect = new Rectangle(
-                            rect.X + padding,
-                            rect.Y + padding,
-                            rect.Width - (padding * 2),
-                            rect.Height - (padding * 2)
-                        );
-                        
-                        // Ensure minimum size
-                        if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
-                        if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
-                        
-                        if (_editorControl.Parent != _grid)
-                        {
-                            _editorControl.Parent?.Controls.Remove(_editorControl);
-                            _grid.Controls.Add(_editorControl);
-                        }
-                        _editorControl.Bounds = editorRect;
-                    }
-                    else
-                    {
-                        // Cell scrolled out of view - end editing
-                        EndEdit(true);
-                    }
+                    System.Diagnostics.Debug.WriteLine($"BeginEdit: Error cleaning up previous editor: {ex.Message}");
                 }
-                catch { }
+                finally
+                {
+                    _editorControl = null;
+                    _currentEditor = null;
+                }
             }
-        }
-
-        private void OnGridMouseWheel(object sender, MouseEventArgs e)
-        {
-            // Reposition editor when scrolling
-            OnGridPaintReposition(sender, null);
         }
 
         public void EndEdit(bool commit)
         {
             if (_editingCell == null || _editorControl == null || _isEndingEdit) return;
-            
+
             _isEndingEdit = true;
 
             try
             {
-                if (commit && _editorControl is IBeepUIComponent ic && !_editorControl.IsDisposed)
+                if (commit && _currentEditor != null && !_editorControl.IsDisposed)
                 {
-                    var rawValue = ic.GetValue();
+                    var rawValue = _currentEditor.GetValue(_editorControl);
                     var valueToAssign = NormalizeEditorValue(rawValue, _grid.Data.Columns[_grid.Selection.ColumnIndex]);
                     CommitValueToData(valueToAssign);
                 }
@@ -495,13 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Detach all event handlers
                 _editorControl.KeyDown -= OnEditorKeyDown;
                 _editorControl.LostFocus -= OnEditorLostFocus;
-                if (_currenteditorUIcomponent is BeepComboBox combo)
-                {
-                    combo.PopupClosed -= OnComboPopupClosed;
-                   // try { combo.IsPopupOpen = false; } catch { }
-                }
-                if (_currenteditorUIcomponent is BeepDateDropDown dddDetach)
-                    dddDetach.DropDownClosed -= OnDateDropDownClosed;
+                _currentEditor?.DetachEvents(_editorControl, _editorEvents);
 
                 // Detach grid event handlers
                 _grid.Paint -= OnGridPaintReposition;
@@ -510,90 +262,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 // Remove editor from whichever parent currently owns it
                 _editorControl.Parent?.Controls.Remove(_editorControl);
-                
                 _editorControl.Visible = false;
 
                 // Dispose editor asynchronously to prevent blocking
                 var editorToDispose = _editorControl;
-                _grid.BeginInvoke(new Action(() => { 
-                    try { 
-                        editorToDispose?.Dispose(); 
-                    } catch { } 
+                var editorInstance = _currentEditor;
+                _grid.BeginInvoke(new Action(() =>
+                {
+                    try { editorToDispose?.Dispose(); }
+                    catch { }
                 }));
             }
             catch { }
             finally
             {
                 _editorControl = null;
+                _currentEditor = null;
                 _editingCell = null;
                 _isEndingEdit = false;
                 _grid.SafeInvalidate();
             }
         }
 
-        private System.Collections.Generic.List<SimpleItem> GetFilteredItems(BeepColumnConfig column, BeepCellConfig cell)
-        {
-            var baseItems = column?.Items ?? new System.Collections.Generic.List<SimpleItem>();
-            if (baseItems == null || baseItems.Count == 0) return new System.Collections.Generic.List<SimpleItem>();
-
-            if (!string.IsNullOrEmpty(column.ParentColumnName))
-            {
-                object parentValue = cell?.ParentCellValue;
-                if (cell?.FilterdList != null && cell.FilterdList.Count > 0)
-                {
-                    return cell.FilterdList;
-                }
-                if (parentValue != null)
-                {
-                    return baseItems.Where(i => i.ParentValue?.ToString() == parentValue.ToString()).ToList();
-                }
-            }
-            return baseItems.ToList();
-        }
-
-        private IBeepUIComponent CreateEditorForColumn(BeepColumnConfig col)
-        {
-            // Create fresh instances like BeepSimpleGrid.CreateCellControlForEditing
-            IBeepUIComponent editor = col.CellEditor switch
-            {
-                BeepColumnType.Text => new BeepTextBox { IsChild = true,  GridMode = true },
-                BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = true, GridMode = true },
-                BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = true, GridMode = true },
-                BeepColumnType.CheckBoxString => new BeepCheckBoxString { IsChild = true, GridMode = true },
-                BeepColumnType.ComboBox => new BeepComboBox { IsChild = true, GridMode = false },
-                BeepColumnType.DateTime => new BeepDateDropDown { IsChild = true, GridMode = true },
-                BeepColumnType.Image => new BeepImage { IsChild = true },
-                BeepColumnType.Button => new BeepButton { IsChild = true },
-                BeepColumnType.ProgressBar => new BeepProgressBar { IsChild = true },
-                BeepColumnType.NumericUpDown => new BeepNumericUpDown { IsChild = true, GridMode = true },
-                BeepColumnType.Radio => new BeepRadioGroup { IsChild = true, GridMode = true },
-                BeepColumnType.ListBox => new BeepListBox { IsChild = true, GridMode = false },
-                BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = true, GridMode = false },
-                _ => new BeepTextBox { IsChild = true, GridMode = true },
-            };
-
-            return editor;
-        }
-
         private void OnEditorLostFocus(object sender, EventArgs e)
         {
             if (_suppressLostFocus || _isEndingEdit) return;
-            
-            // For ComboBox, don't end edit if popup is open
-            if (sender is BeepComboBox combo)
+
+            // Delegate popup-open check to the current editor strategy
+            if (_currentEditor?.IsPopupOpen(_editorControl) == true)
                 return;
 
-            // For BeepDateDropDown, don't end edit while calendar popup is open
-            if (sender is BeepDateDropDown ddd && ddd._isPopupOpen)
-                return;
-                
             EndEdit(true);
         }
 
         private void OnEditorKeyDown(object sender, KeyEventArgs e)
         {
             if (_isEndingEdit) return;
-            
+
             if (e.KeyCode == Keys.Enter)
             {
                 EndEdit(true);
@@ -613,7 +318,62 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        private object NormalizeEditorValue(object rawValue, BeepColumnConfig col)
+        private void OnGridPaintReposition(object sender, PaintEventArgs e)
+        {
+            RepositionEditor();
+        }
+
+        private void OnGridMovedOrSized(object sender, EventArgs e)
+        {
+            RepositionEditor();
+        }
+
+        private void OnGridMouseWheel(object sender, MouseEventArgs e)
+        {
+            RepositionEditor();
+        }
+
+        private void RepositionEditor()
+        {
+            if (_editingCell != null && _editorControl != null && !_editorControl.IsDisposed)
+            {
+                try
+                {
+                    var rect = _editingCell.Rect;
+
+                    if (rect.Width > 0 && rect.Height > 0)
+                    {
+                        int padding = 2;
+                        var editorRect = new Rectangle(
+                            rect.X + padding,
+                            rect.Y + padding,
+                            rect.Width - (padding * 2),
+                            rect.Height - (padding * 2)
+                        );
+
+                        if (editorRect.Width < 10) editorRect.Width = Math.Max(10, rect.Width - 4);
+                        if (editorRect.Height < 10) editorRect.Height = Math.Max(10, rect.Height - 4);
+
+                        if (_editorControl.Bounds != editorRect)
+                        {
+                            if (_editorControl.Parent != _grid)
+                            {
+                                _editorControl.Parent?.Controls.Remove(_editorControl);
+                                _grid.Controls.Add(_editorControl);
+                            }
+                            _editorControl.Bounds = editorRect;
+                        }
+                    }
+                    else
+                    {
+                        EndEdit(true);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private object NormalizeEditorValue(object rawValue, Models.BeepColumnConfig col)
         {
             var rowIndex = _grid.Selection.RowIndex;
             var dataItem = _grid.Data.Rows[rowIndex].RowData;
@@ -629,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 targetType = pi?.PropertyType;
             }
 
-            if (rawValue is SimpleItem si)
+            if (rawValue is Models.SimpleItem si)
             {
                 if (targetType == null)
                 {
@@ -719,6 +479,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
             try { return System.Convert.ChangeType(value, underlying); }
             catch { return value; }
+        }
+
+        /// <summary>
+        /// Bridges editor lifecycle events back into the GridEditHelper.
+        /// </summary>
+        private sealed class EditorEvents : IGridEditorEvents
+        {
+            private readonly GridEditHelper _helper;
+            public EditorEvents(GridEditHelper helper) => _helper = helper;
+            public void RequestEndEdit(bool commit) => _helper.EndEdit(commit);
+            public void RequestCancelEdit() => _helper.EndEdit(false);
         }
     }
 }

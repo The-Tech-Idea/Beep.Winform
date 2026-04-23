@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -111,7 +112,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         g.FillEllipse(iconBrush, iconRect);
                     }
 
-                    // TODO: Draw actual icon
+                    // Draw actual icon via StyledImagePainter (clipped to ellipse)
+                    using (var clipPath = new GraphicsPath())
+                    {
+                        clipPath.AddEllipse(iconRect);
+                        var state = g.Save();
+                        g.SetClip(clipPath, CombineMode.Intersect);
+                        try
+                        {
+                            StyledImagePainter.Paint(g, iconRect, item.ImagePath, Style);
+                        }
+                        finally
+                        {
+                            g.Restore(state);
+                        }
+                    }
                     leftOffset += iconSize + spacing;
                 }
 

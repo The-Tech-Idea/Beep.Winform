@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.GridX.Selection;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -8,9 +9,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal class GridSelectionHelper
     {
         private readonly BeepGridPro _grid;
+        private ISelectionStrategy _strategy = RowSelectionStrategy.Instance;
+        private readonly SelectionContext _context;
+
         public int RowIndex { get; private set; } = -1;
         public int ColumnIndex { get; private set; } = -1;
         public bool HasSelection => RowIndex >= 0 && ColumnIndex >= 0;
+
+        public ISelectionStrategy Strategy
+        {
+            get => _strategy;
+            set => _strategy = value ?? RowSelectionStrategy.Instance;
+        }
+
         public Rectangle SelectedCellRect
         {
             get
@@ -20,7 +31,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        public GridSelectionHelper(BeepGridPro grid) { _grid = grid; }
+        public GridSelectionHelper(BeepGridPro grid)
+        {
+            _grid = grid;
+            _context = new SelectionContext(grid, this);
+        }
 
         public void SelectCell(int row, int col)
         {
@@ -76,6 +91,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Clear()
         {
+            RowIndex = ColumnIndex = -1;
+        }
+
+        public void HandleCellClick(int row, int col, bool ctrlPressed, bool shiftPressed)
+        {
+            _strategy.HandleCellClick(_context, row, col, ctrlPressed, shiftPressed);
+        }
+
+        public void HandleColumnHeaderClick(int col, bool ctrlPressed, bool shiftPressed)
+        {
+            _strategy.HandleColumnHeaderClick(_context, col, ctrlPressed, shiftPressed);
+        }
+
+        public void HandleKeyboardNavigation(int deltaRow, int deltaCol)
+        {
+            _strategy.HandleKeyboardNavigation(_context, deltaRow, deltaCol);
+        }
+
+        public void ClearSelection()
+        {
+            _strategy.ClearSelection(_context);
             RowIndex = ColumnIndex = -1;
         }
 

@@ -12,9 +12,10 @@ using TheTechIdea.Beep.Winform.Controls.Filtering;
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
     /// <summary>
-    /// Excel-like quick filter bar for BeepGridPro
-    /// Provides instant filtering across all columns
+    /// Excel-like quick filter bar for BeepGridPro.
+    /// <para><b>Obsolete:</b> Use the unified toolbar in <see cref="BeepGridPro"/> (Search + Filter buttons) instead.</para>
     /// </summary>
+    [Obsolete("Use BeepGridPro unified toolbar (ShowToolbar + ApplyQuickFilter) instead.")]
     public class BeepQuickFilterBar : BaseControl
     {
         private BeepTextBox _searchTextBox = null!;

@@ -68,8 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _footer = new ComboBoxPopupFooter { Visible = false };
             _footer.ApplyClicked += (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty);
             _footer.CancelClicked += (s, e) => CancelClicked?.Invoke(this, EventArgs.Empty);
-            _footer.SelectAllClicked += (s, e) => SelectAllClicked?.Invoke(this, EventArgs.Empty);
-            _footer.ClearAllClicked += (s, e) => ClearAllClicked?.Invoke(this, EventArgs.Empty);
+            _footer.SelectAllClicked += OnSelectAllClicked;
+            _footer.ClearAllClicked += OnClearAllClicked;
             _footer.PrimaryActionClicked += (s, e) => ApplyClicked?.Invoke(this, EventArgs.Empty);
             Controls.Add(_footer);
             
@@ -133,6 +133,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             _searchBox.Focus();
             _searchBox.SelectionStart = _searchBox.Text?.Length ?? 0;
+        }
+
+        public void FocusItem(SimpleItem item)
+        {
+            if (item == null || _rows.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var rowItem = _rows[i].Model?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    return;
+                }
+            }
         }
 
         public void ApplyProfile(ComboBoxPopupHostProfile profile)
@@ -437,6 +453,58 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             // Mark as handled
             if (e is HandledMouseEventArgs hme)
                 hme.Handled = true;
+        }
+
+        // ── Select All / Clear All ────────────────────────────────────────
+
+        private void OnSelectAllClicked(object sender, EventArgs e)
+        {
+            if (_model?.FilteredRows == null) return;
+            foreach (var row in _model.FilteredRows)
+            {
+                if (row.IsCheckable && !row.IsChecked && row.IsEnabled
+                    && row.RowKind != ComboBoxPopupRowKind.GroupHeader
+                    && row.RowKind != ComboBoxPopupRowKind.Separator)
+                {
+                    var toggled = new ComboBoxPopupRowModel
+                    {
+                        SourceItem = row.SourceItem, RowKind = row.RowKind,
+                        Text = row.Text, SubText = row.SubText,
+                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
+                        ImagePath = row.ImagePath, GroupName = row.GroupName,
+                        LayoutPreset = row.LayoutPreset,
+                        IsSelected = true, IsEnabled = row.IsEnabled,
+                        IsCheckable = row.IsCheckable, IsChecked = true,
+                        ListIndex = row.ListIndex
+                    };
+                    RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(toggled, closePopup: false));
+                }
+            }
+        }
+
+        private void OnClearAllClicked(object sender, EventArgs e)
+        {
+            if (_model?.FilteredRows == null) return;
+            foreach (var row in _model.FilteredRows)
+            {
+                if (row.IsCheckable && row.IsChecked && row.IsEnabled
+                    && row.RowKind != ComboBoxPopupRowKind.GroupHeader
+                    && row.RowKind != ComboBoxPopupRowKind.Separator)
+                {
+                    var toggled = new ComboBoxPopupRowModel
+                    {
+                        SourceItem = row.SourceItem, RowKind = row.RowKind,
+                        Text = row.Text, SubText = row.SubText,
+                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
+                        ImagePath = row.ImagePath, GroupName = row.GroupName,
+                        LayoutPreset = row.LayoutPreset,
+                        IsSelected = false, IsEnabled = row.IsEnabled,
+                        IsCheckable = row.IsCheckable, IsChecked = false,
+                        ListIndex = row.ListIndex
+                    };
+                    RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(toggled, closePopup: false));
+                }
+            }
         }
     }
 }

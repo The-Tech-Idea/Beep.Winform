@@ -137,6 +137,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         /// </summary>
         void SetKeyboardFocusIndex(int index);
 
+        /// <summary>
+        /// Moves keyboard focus to the row whose <see cref="ComboBoxPopupRowModel.SourceItem"/>
+        /// matches <paramref name="item"/>, and scrolls it into view.
+        /// No-op when the item is not present in the current filtered rows.
+        /// </summary>
+        void FocusItem(SimpleItem item);
+
         // ── Events ─────────────────────────────────────────────────────────
         /// <summary>
         /// Raised when the user commits a row (click, Enter, external accept action).

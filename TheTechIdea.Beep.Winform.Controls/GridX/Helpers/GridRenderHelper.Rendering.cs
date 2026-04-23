@@ -33,6 +33,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 g.FillRectangle(brush, rowsRect);
             }
 
+            // Draw toolbar (unified actions + search + filter + export)
+            if (_grid.ShowToolbar && !_grid.Layout.ToolbarRect.IsEmpty)
+            {
+                try
+                {
+                    var state = _grid.ToolbarState;
+                    state.IsFilterActive = _grid.IsFiltered;
+                    state.ActiveFilterCount = _grid.ActiveFilter?.Criteria.Count ?? 0;
+                    state.DpiScale = _grid.DeviceDpi / 96f;
+                    state.CalculateLayout(_grid.Layout.ToolbarRect);
+                    _grid.ToolbarPainter.Paint(g, _grid.Layout.ToolbarRect, state);
+                }
+                catch (Exception)
+                {
+                }
+            }
+
             // Draw column headers
             if (_grid.ShowColumnHeaders)
             {
@@ -107,6 +124,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     // Silently handle drag feedback errors
                 }
+            }
+
+            // Draw focus indicator when the grid has keyboard focus
+            try
+            {
+                _grid.FocusManager?.DrawFocusIndicator(g, _grid.DrawingRect);
+            }
+            catch (Exception)
+            {
+                // Silently handle focus indicator errors
             }
         }
 
@@ -462,6 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private void DrawRows(Graphics g)
         {
+            _groupHeaderRects.Clear();
             var rowsRect = _grid.Layout.RowsRect;
             
             var theme = Theme;
@@ -495,13 +523,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (!row.IsVisible) continue;  // skip filtered-out rows
                 totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
+            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
+            {
+                totalRowsHeight += (int)(_grid.RowVirtualizer.WindowStart * _grid.RowHeight);
+            }
+            else
+            {
+                // Account for group headers before the first visible row
+                totalRowsHeight += (_grid.GroupEngine?.GetHeaderCountBeforeRow(firstVisibleRowIndex) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+            }
             
             int pixelOffset = _grid.Scroll.VerticalOffset;
             currentY = rowsRect.Top - (pixelOffset - totalRowsHeight);
 
+            var groupRenderer = new Grouping.GridGroupHeaderRenderer(_grid);
+            int groupHeaderHeight = _grid.GroupEngine?.GetHeaderHeight() ?? 0;
+
             int visibleRowStart = firstVisibleRowIndex;
-            int visibleRowEnd = Math.Min(_grid.Data.Rows.Count - 1, 
-                visibleRowStart + GetVisibleRowCount(_grid.Data.Rows, rowsRect.Height, visibleRowStart, pixelOffset));
+            int visibleRowEnd;
+            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
+            {
+                // In virtual mode Data.Rows is the visible window; draw all of it
+                visibleRowEnd = _grid.Data.Rows.Count - 1;
+            }
+            else
+            {
+                visibleRowEnd = Math.Min(_grid.Data.Rows.Count - 1,
+                    visibleRowStart + GetVisibleRowCount(_grid.Data.Rows, rowsRect.Height, visibleRowStart, pixelOffset));
+            }
 
             Rectangle stickyRegion = new Rectangle(rowsRect.Left, rowsRect.Top, stickyWidth, rowsRect.Height);
             Rectangle scrollingRegion = new Rectangle(rowsRect.Left + stickyWidth, rowsRect.Top, 
@@ -518,6 +567,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int drawY = currentY;
             for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
             {
+                if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                    drawY += DrawGroupHeadersAtRow(g, r, drawY, rowsRect, groupRenderer, groupHeaderHeight);
+
                 var row = _grid.Data.Rows[r];
                 if (!row.IsVisible) continue;  // skip filtered-out rows
                 int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
@@ -527,9 +579,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     bool isActiveRow = (_grid.Selection?.RowIndex ?? -1) == r;
                     bool isSelectedRow = row.IsSelected;
                     int x = scrollingRegion.Left - _grid.Scroll.HorizontalOffset;
-                    
-                    foreach (var sc in scrollCols)
+
+                    // If column virtualization is active, skip off-screen columns entirely
+                    int firstScrollCol = 0;
+                    int lastScrollCol = scrollCols.Count - 1;
+                    if (_grid.EnableColumnVirtualization)
                     {
+                        firstScrollCol = _grid.ColumnVirtualizer.FirstScrollingVisibleIndex;
+                        lastScrollCol = _grid.ColumnVirtualizer.LastScrollingVisibleIndex;
+                        // Advance x past skipped columns so coordinates are correct
+                        for (int si = 0; si < firstScrollCol && si < scrollCols.Count; si++)
+                            x += Math.Max(20, scrollCols[si].Col.Width);
+                    }
+
+                    for (int si = firstScrollCol; si <= lastScrollCol && si < scrollCols.Count; si++)
+                    {
+                        var sc = scrollCols[si];
                         int colW = Math.Max(20, sc.Col.Width);
                         if (x + colW > scrollingRegion.Left && x < scrollingRegion.Right)
                         {
@@ -577,10 +642,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         if (x > scrollingRegion.Right) break;
                     }
                 }
-                drawY += rowHeight;
-            }
-            
-            g.Restore(scrollState);
+                    drawY += rowHeight;
+                }
+
+                g.Restore(scrollState);
 
             var stickyCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                 .Where(x => x.Col.Visible && x.Col.Sticked)
@@ -598,6 +663,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 
                 for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
                 {
+                    if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                        drawY += DrawGroupHeadersAtRow(g, r, drawY, rowsRect, groupRenderer, groupHeaderHeight);
+
                     var row = _grid.Data.Rows[r];
                     if (!row.IsVisible) continue;  // skip filtered-out rows
                     int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
@@ -659,6 +727,144 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             
             g.Restore(stickyState);
+
+            // ---- Summary row pass (after sticky + scrolling) ----
+            if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+            {
+                DrawSummaryRows(g, rowsRect, currentY, visibleRowStart, visibleRowEnd,
+                    gridBackColor, gridForeColor, gridLinePen, stickyWidth, scrollingRegion);
+            }
+        }
+
+        /// <summary>
+        /// Draws group summary rows after their respective groups.
+        /// Called once per <see cref="DrawRows"/> after both sticky and scrolling passes.
+        /// </summary>
+        private void DrawSummaryRows(Graphics g, Rectangle rowsRect, int currentY,
+            int visibleRowStart, int visibleRowEnd,
+            Color gridBackColor, Color gridForeColor,
+            Pen gridLinePen, int stickyWidth, Rectangle scrollingRegion)
+        {
+            if (_grid.GroupEngine?.IsGrouped != true) return;
+
+            int groupHeaderHeight = _grid.GroupEngine.GetHeaderHeight();
+            var groupRenderer = new Grouping.GridGroupHeaderRenderer(_grid);
+
+            int drawY = currentY;
+            for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
+            {
+                drawY += DrawGroupHeadersAtRow(g, r, drawY, rowsRect, groupRenderer, groupHeaderHeight);
+
+                var row = _grid.Data.Rows[r];
+                if (!row.IsVisible)
+                {
+                    continue;
+                }
+                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+                drawY += rowHeight;
+
+                // Check if this row is the last row of any group
+                foreach (var group in _grid.GroupEngine.Groups)
+                {
+                    if (group.IsCollapsed || group.SummaryRow == null) continue;
+                    if (group.RowIndices.Count == 0) continue;
+                    int lastRow = group.RowIndices.Max();
+                    if (lastRow != r) continue;
+
+                    int summaryHeight = group.SummaryRow.Height;
+                    if (drawY + summaryHeight > rowsRect.Top && drawY < rowsRect.Bottom)
+                    {
+                        DrawSummaryRowContent(g, group, drawY, rowsRect,
+                            gridBackColor, gridForeColor, gridLinePen, stickyWidth, scrollingRegion);
+                    }
+                    drawY += summaryHeight;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws a single group summary row across all visible columns.
+        /// </summary>
+        private void DrawSummaryRowContent(Graphics g, Models.GridGroup group, int y, Rectangle rowsRect,
+            Color gridBackColor, Color gridForeColor,
+            Pen gridLinePen, int stickyWidth, Rectangle scrollingRegion)
+        {
+            int summaryHeight = group.SummaryRow?.Height ?? 22;
+            var summaryBack = Color.FromArgb(245, 245, 250);
+            var summaryFore = Color.DarkSlateGray;
+            var font = GetSafeCellFont();
+
+            var stickyCols = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).OrderBy(c => c.DisplayOrder).ToList();
+            var scrollCols = _grid.Data.Columns.Where(c => c.Visible && !c.Sticked).OrderBy(c => c.DisplayOrder).ToList();
+
+            // Draw sticky columns portion
+            int x = rowsRect.Left;
+            foreach (var st in stickyCols)
+            {
+                int colW = Math.Max(20, st.Width);
+                var rect = new Rectangle(x, y, colW, summaryHeight);
+                using (var bg = new SolidBrush(summaryBack)) g.FillRectangle(bg, rect);
+
+                object? aggValue = null;
+                group.SummaryRow?.Values.TryGetValue(st.ColumnName, out aggValue);
+                if (aggValue != null)
+                {
+                    string text = FormatAggregateValue(aggValue, st);
+                    TextRenderer.DrawText(g, text, font, rect, summaryFore,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                }
+
+                if (ShowGridLines) g.DrawRectangle(gridLinePen, rect);
+                x += colW;
+            }
+
+            // Draw scrolling columns portion
+            x = scrollingRegion.Left - _grid.Scroll.HorizontalOffset;
+
+            int firstSumCol = 0;
+            int lastSumCol = scrollCols.Count - 1;
+            if (_grid.EnableColumnVirtualization)
+            {
+                firstSumCol = _grid.ColumnVirtualizer.FirstScrollingVisibleIndex;
+                lastSumCol = _grid.ColumnVirtualizer.LastScrollingVisibleIndex;
+                for (int si = 0; si < firstSumCol && si < scrollCols.Count; si++)
+                    x += Math.Max(20, scrollCols[si].Width);
+            }
+
+            for (int si = firstSumCol; si <= lastSumCol && si < scrollCols.Count; si++)
+            {
+                var sc = scrollCols[si];
+                int colW = Math.Max(20, sc.Width);
+                if (x + colW > scrollingRegion.Left && x < scrollingRegion.Right)
+                {
+                    var rect = new Rectangle(x, y, colW, summaryHeight);
+                    using (var bg = new SolidBrush(summaryBack)) g.FillRectangle(bg, rect);
+
+                    object? aggValue = null;
+                    group.SummaryRow?.Values.TryGetValue(sc.ColumnName, out aggValue);
+                    if (aggValue != null)
+                    {
+                        string text = FormatAggregateValue(aggValue, sc);
+                        TextRenderer.DrawText(g, text, font, rect, summaryFore,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                    }
+
+                    if (ShowGridLines) g.DrawRectangle(gridLinePen, rect);
+                }
+                x += colW;
+                if (x > scrollingRegion.Right) break;
+            }
+        }
+
+        /// <summary>
+        /// Formats an aggregate value for display in a summary row cell.
+        /// </summary>
+        private string FormatAggregateValue(object? value, BeepColumnConfig column)
+        {
+            if (value == null) return string.Empty;
+            if (!string.IsNullOrEmpty(column.Format) && value is IFormattable fmt)
+                return fmt.ToString(column.Format, System.Globalization.CultureInfo.CurrentCulture);
+            return value.ToString() ?? string.Empty;
         }
 
         /// <summary>
@@ -722,6 +928,57 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void DrawNavigatorArea(Graphics g)
         {
             _grid.NavigatorPainter.DrawNavigatorArea(g);
+        }
+
+        /// <summary>
+        /// Draws any group headers whose first row is <paramref name="rowIndex"/>
+        /// and advances the Y position. Returns total header height drawn.
+        /// </summary>
+        private int DrawGroupHeadersAtRow(Graphics g, int rowIndex, int y, Rectangle bounds,
+            Grouping.GridGroupHeaderRenderer renderer, int headerHeight)
+        {
+            int totalHeight = 0;
+            if (_grid.GroupEngine?.IsGrouped != true) return totalHeight;
+
+            foreach (var group in _grid.GroupEngine.Groups)
+            {
+                if (group.FirstRowIndex == rowIndex && group.RowIndices.Count > 0)
+                {
+                    if (y + totalHeight + headerHeight > bounds.Top && y + totalHeight < bounds.Bottom)
+                    {
+                        var headerBounds = new Rectangle(bounds.Left, y + totalHeight, bounds.Width, headerHeight);
+                        renderer.PaintHeader(g, headerBounds, group, _hoveredGroupHeaderKey == group.Key, false);
+                        _groupHeaderRects[group.Key] = headerBounds;
+                    }
+                    totalHeight += headerHeight;
+                }
+                else if (group.FirstRowIndex > rowIndex)
+                {
+                    break; // groups are sorted by FirstRowIndex
+                }
+            }
+            return totalHeight;
+        }
+
+        /// <summary>
+        /// Calculate the Y pixel position of a row index within the viewport,
+        /// accounting for group header bands that consume vertical space.
+        /// </summary>
+        internal int CalculateRowY(int rowIndex, int rowsRectTop)
+        {
+            int pixelOffset = _grid.Scroll.VerticalOffset;
+            int totalHeightBefore = 0;
+            for (int i = 0; i < rowIndex && i < _grid.Data.Rows.Count; i++)
+            {
+                var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;
+                totalHeightBefore += row.Height > 0 ? row.Height : _grid.RowHeight;
+            }
+            // Add group header heights placed before this row
+            totalHeightBefore += (_grid.GroupEngine?.GetHeaderCountBeforeRow(rowIndex) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+            // Add summary row heights placed before this row
+            totalHeightBefore += _grid.GroupEngine?.GetSummaryRowHeightBeforeRow(rowIndex) ?? 0;
+            return rowsRectTop - (pixelOffset - totalHeightBefore);
         }
     }
 }

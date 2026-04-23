@@ -123,6 +123,29 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+            // ENH-19b: chip body click — open popup and scroll to that item
+            if (ChipBodyRects.Count > 0)
+            {
+                foreach (var kvp in ChipBodyRects)
+                {
+                    if (!kvp.Value.IsEmpty && kvp.Value.Contains(e.Location))
+                    {
+                        var itemToFocus = _selectedItems?.Find(it =>
+                            string.Equals(GetSimpleItemIdentity(it), kvp.Key, StringComparison.OrdinalIgnoreCase))
+                            ?? _listItems?.FirstOrDefault(it =>
+                            string.Equals(GetSimpleItemIdentity(it), kvp.Key, StringComparison.OrdinalIgnoreCase));
+                        if (itemToFocus != null)
+                        {
+                            HideInlineEditor(false);
+                            ShowDropdown();
+                            // After the popup is built, ask the host to focus the row for this item
+                            _popupHost?.FocusItem(itemToFocus);
+                        }
+                        return;
+                    }
+                }
+            }
+
             // ── Dropdown button (▲) ─────────────────────────────────────────
             // Only this zone opens/closes the dropdown list.
             if (!_dropdownButtonRect.IsEmpty && _dropdownButtonRect.Contains(e.Location))

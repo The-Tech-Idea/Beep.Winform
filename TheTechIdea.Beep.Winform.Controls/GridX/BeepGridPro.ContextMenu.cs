@@ -113,16 +113,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
         private void ExportToExcel()
         {
-            var dialogManager = BeepDialogManager.Instance;
-            dialogManager.SetHostForm(FindForm());
-            dialogManager.NotifyFeaturePending("Export to Excel", dedupeKey: "grid-export-excel-pending");
+            if (!ExportEngine.IsAvailable(Export.GridExportFormat.Excel))
+            {
+                var dialogManager = BeepDialogManager.Instance;
+                dialogManager.SetHostForm(FindForm());
+                dialogManager.NotifyFeaturePending("Export to Excel", dedupeKey: "grid-export-excel-pending");
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                Title = "Export to Excel"
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExportToExcel(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void ExportToCsv()
         {
-            var dialogManager = BeepDialogManager.Instance;
-            dialogManager.SetHostForm(FindForm());
-            dialogManager.NotifyFeaturePending("Export to CSV", dedupeKey: "grid-export-csv-pending");
+            if (!ExportEngine.IsAvailable(Export.GridExportFormat.Csv))
+            {
+                var dialogManager = BeepDialogManager.Instance;
+                dialogManager.SetHostForm(FindForm());
+                dialogManager.NotifyFeaturePending("Export to CSV", dedupeKey: "grid-export-csv-pending");
+                return;
+            }
+
+            using var dialog = new SaveFileDialog
+            {
+                Filter = "CSV files (*.csv)|*.csv",
+                Title = "Export to CSV"
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ExportToCsv(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

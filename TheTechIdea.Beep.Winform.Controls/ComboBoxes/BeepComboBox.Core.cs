@@ -56,6 +56,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipCloseRects
             = new System.Collections.Generic.Dictionary<string, Rectangle>();
 
+        // maps SimpleItem identity → full chip body rect (populated by design-system chip painters)
+        // Used for chip-click → scroll-to-item in popup.
+        internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipBodyRects
+            = new System.Collections.Generic.Dictionary<string, Rectangle>();
+
         // ENH-15: tooltip for truncated display text
         private System.Windows.Forms.ToolTip _overflowTooltip;
         internal System.Windows.Forms.ToolTip OverflowTooltip => _overflowTooltip;
@@ -284,7 +289,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure theme and lifecycle are aligned with the control
             BeepContextMenu.Theme = this.Theme;
             BeepContextMenu.DestroyOnClose = false; // reuse for dropdown
-            SyncDropdownMetrics();
             
             // Wire up events
             BeepContextMenu.ItemClicked += OnContextMenuItemClicked;
@@ -484,23 +488,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
 
             // Always compute fresh — identical to DrawContent pipeline
-            _helper.CalculateLayout(DrawingRect, out _textAreaRect, out _dropdownButtonRect, out _imageRect);
-
-            // Clear-button carve-out
-            if (ShowClearButton && (_selectedItem != null || !string.IsNullOrEmpty(_inputText)))
-            {
-                int cbw = Math.Max(16, Math.Min(ScaleLogicalX(ClearButtonWidthLogical), _textAreaRect.Width / 4));
-                _clearButtonRect = new Rectangle(
-                    _dropdownButtonRect.Left - cbw,
-                    DrawingRect.Y, cbw, DrawingRect.Height);
-                _textAreaRect = new Rectangle(
-                    _textAreaRect.X, _textAreaRect.Y,
-                    Math.Max(1, _textAreaRect.Width - cbw), _textAreaRect.Height);
-            }
-            else
-            {
-                _clearButtonRect = Rectangle.Empty;
-            }
+            var renderState = ComboBoxStateFactory.Build(this);
+            var layout = ComboBoxLayoutEngine.Compute(DrawingRect, renderState, this);
+            _textAreaRect      = layout.TextAreaRect;
+            _dropdownButtonRect = layout.DropdownButtonRect;
+            _clearButtonRect    = layout.ClearButtonRect;
+            _imageRect          = layout.ImageRect;
 
             // RTL mirror
             if (IsRtl && !DrawingRect.IsEmpty)

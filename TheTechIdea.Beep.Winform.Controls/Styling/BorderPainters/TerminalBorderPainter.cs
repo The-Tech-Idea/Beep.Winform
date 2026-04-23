@@ -8,9 +8,9 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
-    /// Terminal border painter — pixel-crisp frame that follows the passed GraphicsPath
-    /// (typically a chamfered rectangle from CreateTerminalPath), with bright corner
-    /// accent lines at each chamfer point for the ASCII bracket aesthetic.
+    /// Terminal border painter — pixel-crisp 2px stroke that follows the passed
+    /// chamfered GraphicsPath (typically from <see cref="PathPainterHelpers.CreateTerminalPath"/>),
+    /// with bright accent marks at each chamfer point for the ASCII bracket aesthetic.
     /// </summary>
     public static class TerminalBorderPainter
     {
@@ -18,59 +18,97 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
+            if (path == null) return path;
+
             const float borderWidth = 2f;
 
-            // Inset the path so the stroke sits inside the original boundary
-            using var insetPath = BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
-            GraphicsPath drawTarget = (insetPath != null && insetPath.PointCount > 2) ? insetPath : path;
-
-            RectangleF bounds = drawTarget.GetBounds();
-            if (bounds.Width <= 0 || bounds.Height <= 0)
-                return path;
-
-            Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(
+            // Terminal green as default; theme override supported
+            Color baseColor = BorderPainterHelpers.GetColorFromStyleOrTheme(
                 theme, useThemeColors, "Border", Color.FromArgb(0, 255, 0));
-            borderColor = BorderPainterHelpers.WithAlpha(borderColor, 200);
 
-            // Brighten on focus
-            if (isFocused || state == ControlState.Focused)
+            // State-driven color and alpha adjustments
+            Color borderColor = state switch
+            {
+                ControlState.Disabled => BorderPainterHelpers.WithAlpha(baseColor, 90),
+                ControlState.Pressed => BorderPainterHelpers.Darken(baseColor, 0.15f),
+                ControlState.Hovered => BorderPainterHelpers.Lighten(baseColor, 0.1f),
+                ControlState.Selected => BorderPainterHelpers.WithAlpha(baseColor, 240),
+                ControlState.Focused => BorderPainterHelpers.WithAlpha(baseColor, 255),
+                _ => BorderPainterHelpers.WithAlpha(baseColor, 200)
+            };
+
+            // Boost alpha when the isFocused flag is set but state is not explicitly Focused
+            if (isFocused && state != ControlState.Focused && state != ControlState.Disabled)
                 borderColor = BorderPainterHelpers.WithAlpha(borderColor, 255);
 
             var oldSmooth = g.SmoothingMode;
             var oldPixel = g.PixelOffsetMode;
+
+            // Pixel-crisp rendering for the retro terminal look
             g.SmoothingMode = SmoothingMode.None;
             g.PixelOffsetMode = PixelOffsetMode.None;
 
-            // Draw the main border following the path shape (chamfered rect)
-            var pen = PaintersFactory.GetPen(borderColor, borderWidth);
-            g.DrawPath(pen, drawTarget);
+            // Primary border follows the chamfered path (convention-compliant).
+            // PaintSimpleBorder insets by half the stroke width so the full 2px
+            // stroke sits inside the original path boundary.
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Corner accent emphasis — draw slightly brighter/thicker marks
-            // at each corner of the bounding rect to evoke ASCII bracket hints
-            Rectangle rect = Rectangle.Round(bounds);
-            int right = rect.Right - 1;
-            int bottom = rect.Bottom - 1;
-            int accent = Math.Max(4, Math.Min(8, Math.Min(rect.Width, rect.Height) / 12));
+            // ASCII bracket corner accents — additive overlay using actual path
+            // vertices so the marks stay consistent with the chamfer geometry even
+            // when the path has been transformed or scaled.
+            PointF[] pts = path.PathPoints;
+            if (pts.Length >= 8)
+            {
+                // Compute accent length proportionally from the path bounds
+                // (only used for sizing; actual coordinates come from path points).
+                RectangleF bounds = path.GetBounds();
+                float accent = Math.Max(3f, Math.Min(8f,
+                    Math.Min(bounds.Width, bounds.Height) / 12f));
 
-            Color accentColor = BorderPainterHelpers.WithAlpha(borderColor, 255);
-            var accentPen = PaintersFactory.GetPen(accentColor, borderWidth + 1f);
+                Color accentColor = state == ControlState.Disabled
+                    ? BorderPainterHelpers.WithAlpha(borderColor, 120)
+                    : BorderPainterHelpers.WithAlpha(borderColor, 255);
 
-            // Top-left accent
-            g.DrawLine(accentPen, rect.Left, rect.Top + accent, rect.Left, rect.Top);
-            g.DrawLine(accentPen, rect.Left, rect.Top, rect.Left + accent, rect.Top);
-            // Top-right accent
-            g.DrawLine(accentPen, right - accent, rect.Top, right, rect.Top);
-            g.DrawLine(accentPen, right, rect.Top, right, rect.Top + accent);
-            // Bottom-left accent
-            g.DrawLine(accentPen, rect.Left, bottom - accent, rect.Left, bottom);
-            g.DrawLine(accentPen, rect.Left, bottom, rect.Left + accent, bottom);
-            // Bottom-right accent
-            g.DrawLine(accentPen, right - accent, bottom, right, bottom);
-            g.DrawLine(accentPen, right, bottom - accent, right, bottom);
+                using var accentPen = new Pen(accentColor, borderWidth + 1f);
+                accentPen.StartCap = LineCap.Square;
+                accentPen.EndCap = LineCap.Square;
+
+                // The terminal path is an octagon created by CreateTerminalPath.
+                // Point order (assuming 8 distinct vertices):
+                // 0 = (L+ch, T)    top edge, near left
+                // 1 = (R-ch, T)    top edge, near right
+                // 2 = (R, T+ch)    right edge, near top
+                // 3 = (R, B-ch)    right edge, near bottom
+                // 4 = (R-ch, B)    bottom edge, near right
+                // 5 = (L+ch, B)    bottom edge, near left
+                // 6 = (L, B-ch)    left edge, near bottom
+                // 7 = (L, T+ch)    left edge, near top
+                //
+                // Accent strokes extend inward (toward shape center) from the
+                // chamfer endpoints along the horizontal/vertical edges.
+
+                // Top-left area
+                g.DrawLine(accentPen, pts[0].X, pts[0].Y, pts[0].X + accent, pts[0].Y);
+                g.DrawLine(accentPen, pts[7].X, pts[7].Y, pts[7].X, pts[7].Y + accent);
+
+                // Top-right area
+                g.DrawLine(accentPen, pts[1].X, pts[1].Y, pts[1].X - accent, pts[1].Y);
+                g.DrawLine(accentPen, pts[2].X, pts[2].Y, pts[2].X, pts[2].Y + accent);
+
+                // Bottom-right area
+                g.DrawLine(accentPen, pts[3].X, pts[3].Y, pts[3].X, pts[3].Y - accent);
+                g.DrawLine(accentPen, pts[4].X, pts[4].Y, pts[4].X - accent, pts[4].Y);
+
+                // Bottom-left area
+                g.DrawLine(accentPen, pts[5].X, pts[5].Y, pts[5].X + accent, pts[5].Y);
+                g.DrawLine(accentPen, pts[6].X, pts[6].Y, pts[6].X, pts[6].Y - accent);
+            }
 
             g.SmoothingMode = oldSmooth;
             g.PixelOffsetMode = oldPixel;
-            return path.CreateInsetPath(borderWidth);
+
+            // Return the content area inside the full 2px stroke
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

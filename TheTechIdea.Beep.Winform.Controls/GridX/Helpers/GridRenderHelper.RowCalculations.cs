@@ -72,6 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             int visibleCount = 0;
             int usedHeight = 0;
+            int headerHeight = _grid.GroupEngine?.GetHeaderHeight() ?? 0;
             
             if (startRow < rows.Count)
             {
@@ -85,6 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (!row.IsVisible) continue;  // skip filtered-out rows
                     totalOffsetToFirstRow += row.Height > 0 ? row.Height : _grid.RowHeight;
                 }
+                totalOffsetToFirstRow += (_grid.GroupEngine?.GetHeaderCountBeforeRow(startRow) ?? 0) * headerHeight;
                 
                 int firstRowVisibleHeight = firstRowHeight - (pixelOffset - totalOffsetToFirstRow);
                 if (firstRowVisibleHeight > 0)
@@ -95,6 +97,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 
                 for (int i = startRow + 1; i < rows.Count && usedHeight < availableHeight; i++)
                 {
+                    // Account for group headers starting at this row
+                    int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
+                    if (newHeaders > 0)
+                    {
+                        int hh = newHeaders * headerHeight;
+                        if (usedHeight + hh > availableHeight)
+                            break;
+                        usedHeight += hh;
+                    }
+
                     var row = rows[i];
                     if (!row.IsVisible) continue;  // skip filtered-out rows
                     int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;

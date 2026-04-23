@@ -45,8 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
             int radius = layout.CornerRadius > 0 ? Math.Max(layout.CornerRadius - 2, 2) : 4;
 
-            // Clear and rebuild hit-test rects for chip close buttons
+            // Clear and rebuild hit-test rects for chip body and close buttons
             owner.ChipCloseRects.Clear();
+            owner.ChipBodyRects.Clear();
 
             foreach (var chip in layout.Chips)
             {
@@ -94,6 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     if (!string.IsNullOrEmpty(key))
                     {
                         owner.ChipCloseRects[key] = chip.CloseButtonRect;
+                        owner.ChipBodyRects[key]  = chip.ChipRect;
                     }
                 }
 

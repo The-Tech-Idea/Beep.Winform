@@ -211,6 +211,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _cachedMaxXOffset = Math.Max(0, totalColumnWidth - (visibleWidth - scrollbarWidth));
         }
 
+        // NOTE: This method is currently unused. GridRenderHelper.RowCalculations.GetVisibleRowCount
+        // is the active implementation and already accounts for row.IsVisible.
         private int GetVisibleRowCount()
         {
             if (_grid.Data.Rows == null || _grid.Data.Rows.Count == 0)
@@ -224,8 +226,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return 1;
             }
 
-            int visibleCount = availableHeight / _grid.RowHeight;
-            return Math.Max(1, Math.Min(visibleCount, _grid.Data.Rows.Count));
+            int visibleCount = 0;
+            int usedHeight = 0;
+            foreach (var row in _grid.Data.Rows)
+            {
+                if (!row.IsVisible) continue;
+                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+                if (usedHeight + rowHeight > availableHeight) break;
+                usedHeight += rowHeight;
+                visibleCount++;
+            }
+            return Math.Max(1, visibleCount);
         }
 
         public void DrawScrollBars(Graphics g)

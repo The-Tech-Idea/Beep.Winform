@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
@@ -96,6 +97,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _contentPanel?.SetKeyboardFocusIndex(index);
         }
 
+        public void FocusItem(SimpleItem item)
+        {
+            if (item == null || _contentPanel == null) return;
+            _contentPanel.FocusItem(item);
+        }
+
         public void Dispose()
         {
             ClosePopup(false);
@@ -149,7 +156,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         /// </summary>
         protected virtual void ConfigurePopupForm(BeepPopupForm form, ComboBoxPopupHostProfile profile, ComboBoxThemeTokens tokens)
         {
-            // Default: no extra configuration
+            // Corner radius
+            if (profile.PopupCornerRadius > 0)
+            {
+                form.CornerRadius = new CornerRadius(profile.PopupCornerRadius);
+            }
+
+            // Shadow effect
+            if (profile.PopupShadowDepth > 0)
+            {
+                var shadow = new ShadowEffect();
+                switch (profile.PopupShadowDepth)
+                {
+                    case 1: // light
+                        shadow.Color = Color.FromArgb(20, 0, 0, 0);
+                        shadow.Blur = 6;
+                        shadow.OffsetY = 2;
+                        break;
+                    case 2: // medium
+                        shadow.Color = Color.FromArgb(35, 0, 0, 0);
+                        shadow.Blur = 12;
+                        shadow.OffsetY = 4;
+                        break;
+                    case 3: // heavy
+                        shadow.Color = Color.FromArgb(50, 0, 0, 0);
+                        shadow.Blur = 20;
+                        shadow.OffsetY = 6;
+                        break;
+                }
+                form.ShadowEffect = shadow;
+            }
         }
 
         private static ComboBoxPopupModel NormalizeModel(ComboBoxPopupModel model, ComboBoxPopupHostProfile profile)

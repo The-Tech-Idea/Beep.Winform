@@ -52,6 +52,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             _config = context.GetValue<DataImportConfiguration?>(WizardKeys.ImportConfig, null);
 
+            // ── Validate upstream step data integrity ──
+            if (!ImportExportWizardValidation.ValidateContextIntegrity(context, out var integrityIssues))
+            {
+                // Log warnings but don't block — user may still correct in earlier steps
+                foreach (var issue in integrityIssues)
+                    System.Diagnostics.Debug.WriteLine($"[Wizard Validation] {issue}");
+            }
+            if (!ImportExportWizardValidation.ValidateMappingRoundtrip(context, out var mappingIssues))
+            {
+                foreach (var issue in mappingIssues)
+                    System.Diagnostics.Debug.WriteLine($"[Wizard Mapping] {issue}");
+            }
+
             // Restore persisted values (or sensible defaults)
             numBatchSize.Value     = context.GetValue<int>(WizardKeys.BatchSize, 50);
             chkDryRun.CurrentValue = context.GetValue<int>(WizardKeys.DryRunRowCount, 0) > 0;

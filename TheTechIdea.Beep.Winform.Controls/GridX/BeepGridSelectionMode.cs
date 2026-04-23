@@ -12,6 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         FullRowSelect,
 
         /// <summary>Clicking a column header selects the entire column.</summary>
-        FullColumnSelect
+        FullColumnSelect,
+
+        /// <summary>Ctrl+click toggles multiple cells; Shift+click selects a range.</summary>
+        MultiCellSelect,
+
+        /// <summary>Ctrl+click toggles multiple rows; Shift+click selects a contiguous range.</summary>
+        MultiRowSelect
     }
 }

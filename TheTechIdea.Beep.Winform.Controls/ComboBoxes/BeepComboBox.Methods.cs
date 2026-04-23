@@ -956,65 +956,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            SyncDropdownMetrics();
             InvalidateOnce(); // batched — SKILL Rule 2.6
         }
 
-        private void SyncDropdownMetrics()
-        {
-            if (BeepContextMenu == null)
-                return;
-
-            BeepContextMenu.Theme = Theme;
-
-            // Never read Control.Font (this.Font) — use TextFont resolved from theme, then safe default
-            Font dropdownFont = TextFont ?? SystemFonts.DefaultFont;
-            if (UseThemeFont && _currentTheme?.ComboBoxListFont != null)
-            {
-                dropdownFont = BeepThemesManager.ToFont(_currentTheme.ComboBoxListFont) ?? SystemFonts.DefaultFont;
-            }
-            if (BeepContextMenu.TextFont != dropdownFont)
-            {
-                BeepContextMenu.TextFont = dropdownFont;
-            }
-            if (BeepContextMenu.ShortcutFont != dropdownFont)
-            {
-                BeepContextMenu.ShortcutFont = dropdownFont;
-            }
-
-            int textHeight;
-            try
-            {
-                textHeight = TextRenderer.MeasureText(
-                    "Ag",
-                    dropdownFont,
-                    new Size(int.MaxValue, int.MaxValue),
-                    TextFormatFlags.NoPadding).Height;
-            }
-            catch
-            {
-                textHeight = Math.Max(16, (int)Math.Ceiling(dropdownFont.Size * 1.35f));
-            }
-
-            int targetItemHeight = Math.Max(28, textHeight + 10);
-            if (BeepContextMenu.MenuItemHeight != targetItemHeight)
-            {
-                BeepContextMenu.MenuItemHeight = targetItemHeight;
-            }
-
-            int targetImageSize = Math.Max(16, Math.Min(textHeight, 24));
-            if (BeepContextMenu.ImageSize != targetImageSize)
-            {
-                BeepContextMenu.ImageSize = targetImageSize;
-            }
-
-            int targetMaxHeight = Math.Max(140, MaxDropdownHeight);
-            if (BeepContextMenu.MaxHeight != targetMaxHeight)
-            {
-                BeepContextMenu.MaxHeight = targetMaxHeight;
-            }
-        }
-         
         #endregion
     }
 }

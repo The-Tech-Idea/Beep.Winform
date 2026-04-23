@@ -95,6 +95,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
             base.OnKeyDown(e);
         }
+
+        /// <summary>
+        /// Intercept Tab/Shift+Tab so they navigate cells instead of moving focus out of the grid.
+        /// </summary>
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (keyData == Keys.Tab || keyData == (Keys.Shift | Keys.Tab))
+            {
+                var e = new KeyEventArgs(keyData);
+                Input.HandleKeyDown(e);
+                if (e.Handled)
+                    return true;
+            }
+            return base.ProcessDialogKey(keyData);
+        }
         #endregion
     }
 }

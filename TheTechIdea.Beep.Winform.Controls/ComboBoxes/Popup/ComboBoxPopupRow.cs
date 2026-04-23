@@ -16,7 +16,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private bool _isHovered;
         private bool _isPressed;
         private bool _isKeyboardFocused;
-        
+
+        // ── Hover transition animation ─────────────────────────────────────
+        private readonly System.Windows.Forms.Timer _hoverTimer;
+        private float _hoverProgress;      // 0.0 = normal, 1.0 = hover
+        private float _hoverTarget;        // where we're animating to
+        private const float HOVER_ANIMATION_STEP = 0.15f; // ~100ms at 16ms interval
+        private const float HOVER_THRESHOLD = 0.01f;
+
         public event EventHandler<ComboBoxPopupRowModel> RowCommitted;
 
         public ComboBoxPopupRowModel Model => _model;
@@ -27,6 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             Height = 32;
             Margin = Padding.Empty;
             TabStop = true;
+
+            _hoverTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _hoverTimer.Tick += OnHoverAnimationTick;
         }
 
         public void SetModel(ComboBoxPopupRowModel model)
@@ -71,6 +81,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         {
             base.OnMouseEnter(e);
             _isHovered = true;
+            _hoverTarget = 1.0f;
+            if (!_hoverTimer.Enabled)
+                _hoverTimer.Start();
             Invalidate();
         }
 
@@ -79,7 +92,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             base.OnMouseLeave(e);
             _isHovered = false;
             _isPressed = false;
+            _hoverTarget = 0.0f;
+            if (!_hoverTimer.Enabled)
+                _hoverTimer.Start();
             Invalidate();
+        }
+
+        private void OnHoverAnimationTick(object sender, EventArgs e)
+        {
+            float step = _hoverTarget > _hoverProgress ? HOVER_ANIMATION_STEP : -HOVER_ANIMATION_STEP;
+            _hoverProgress += step;
+            if (Math.Abs(_hoverTarget - _hoverProgress) < HOVER_THRESHOLD)
+            {
+                _hoverProgress = _hoverTarget;
+                _hoverTimer.Stop();
+            }
+            // Clamp
+            _hoverProgress = Math.Max(0f, Math.Min(1f, _hoverProgress));
+            Invalidate();
+            if (_hoverProgress == _hoverTarget)
+                _hoverTimer.Stop();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -176,10 +208,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 back = _themeTokens.PopupRowSelectedColor;
                 border = _themeTokens.FocusBorderColor;
             }
-            else if (_isHovered)
+            else if (_isHovered || _hoverProgress > 0f)
             {
-                back = _themeTokens.PopupRowHoverColor;
-                border = _themeTokens.HoverBorderColor;
+                // Animate hover background blend
+                Color normalBack = BackColor;
+                if (_isKeyboardFocused || _model.IsKeyboardFocused)
+                    normalBack = _themeTokens.PopupRowFocusColor;
+                else if (_model.IsSelected || _model.RowKind == ComboBoxPopupRowKind.Selected)
+                    normalBack = _themeTokens.PopupRowSelectedColor;
+
+                back = BlendColor(normalBack, _themeTokens.PopupRowHoverColor, _hoverProgress);
+                border = _hoverProgress > 0.5f ? _themeTokens.HoverBorderColor : Color.Transparent;
             }
             else if (_isKeyboardFocused || _model.IsKeyboardFocused)
             {
@@ -506,6 +545,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
 
             return width + marginRight + 4;
+        }
+
+        /// <summary>
+        /// Linearly blends between two colors by factor t (0.0–1.0).
+        /// </summary>
+        private static Color BlendColor(Color from, Color to, float t)
+        {
+            t = Math.Max(0f, Math.Min(1f, t));
+            int r = (int)(from.R + (to.R - from.R) * t);
+            int g = (int)(from.G + (to.G - from.G) * t);
+            int b = (int)(from.B + (to.B - from.B) * t);
+            int a = (int)(from.A + (to.A - from.A) * t);
+            return Color.FromArgb(a, r, g, b);
         }
     }
 }

@@ -249,6 +249,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             Focus();
         }
 
+        public void FocusItem(SimpleItem item)
+        {
+            // Specialized panel — no-op; chip-click scroll is handled by default content.
+        }
+
         /// <summary>
         /// Estimates ideal height.
         /// </summary>

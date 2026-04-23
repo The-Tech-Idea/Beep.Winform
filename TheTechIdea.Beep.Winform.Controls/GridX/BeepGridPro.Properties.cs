@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
+using Math = System.Math;
+using TheTechIdea.Beep.Winform.Controls.GridX.Selection;
 using navigationStyle = TheTechIdea.Beep.Winform.Controls.GridX.Painters.navigationStyle;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Converters;
@@ -105,6 +107,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         Data.Bind(value);
                         Navigator.BindTo(value);
                         Data.InitializeData();
+                        if (EnableVirtualization)
+                        {
+                            Data.Rows.Clear();
+                            var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
+                            VirtualDataSource = CreateVirtualDataSource(value, columnNames);
+                            int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
+                            RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                        }
                         Layout.Recalculate();
                     }
                     SafeInvalidate();
@@ -150,8 +160,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             if (_regularDataSource != null)
             {
-                Data.Bind(_regularDataSource);
-                Data.InitializeData();
+                if (EnableVirtualization)
+                {
+                    Data.Bind(_regularDataSource);
+                    Data.Rows.Clear();
+                    var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
+                    VirtualDataSource = CreateVirtualDataSource(_regularDataSource, columnNames);
+                    int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
+                    RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                }
+                else
+                {
+                    Data.Bind(_regularDataSource);
+                    Data.InitializeData();
+                }
                 Layout.Recalculate();
                 SafeInvalidate();
             }
@@ -644,6 +666,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 GridLayoutPreset.MatrixSimple => new MatrixSimpleTableLayoutHelper(),
                 GridLayoutPreset.MatrixStriped => new MatrixStripedTableLayoutHelper(),
                 GridLayoutPreset.PricingTable => new PricingTableLayoutHelper(),
+                GridLayoutPreset.Material3Surface => new Material3SurfaceTableLayoutHelper(),
+                GridLayoutPreset.Material3Compact => new Material3CompactTableLayoutHelper(),
+                GridLayoutPreset.Material3List => new Material3ListTableLayoutHelper(),
+                GridLayoutPreset.Fluent2Standard => new Fluent2StandardTableLayoutHelper(),
+                GridLayoutPreset.Fluent2Card => new Fluent2CardTableLayoutHelper(),
+                GridLayoutPreset.TailwindProse => new TailwindProseTableLayoutHelper(),
+                GridLayoutPreset.TailwindDashboard => new TailwindDashboardTableLayoutHelper(),
+                GridLayoutPreset.AGGridAlpine => new AGGridAlpineTableLayoutHelper(),
+                GridLayoutPreset.AGGridBalham => new AGGridBalhamTableLayoutHelper(),
+                GridLayoutPreset.AntDesignStandard => new AntDesignStandardTableLayoutHelper(),
+                GridLayoutPreset.AntDesignCompact => new AntDesignCompactTableLayoutHelper(),
+                GridLayoutPreset.DataTablesStandard => new DataTablesStandardTableLayoutHelper(),
                 _ => new DefaultTableLayoutHelper()
             };
             this.ApplyLayoutPreset(impl);
@@ -837,7 +871,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public BeepGridSelectionMode SelectionMode
         {
             get => _selectionMode;
-            set => _selectionMode = value;
+            set
+            {
+                if (_selectionMode != value)
+                {
+                    _selectionMode = value;
+                    Selection.Strategy = value switch
+                    {
+                        BeepGridSelectionMode.CellSelect => CellSelectionStrategy.Instance,
+                        BeepGridSelectionMode.FullRowSelect => RowSelectionStrategy.Instance,
+                        BeepGridSelectionMode.FullColumnSelect => ColumnSelectionStrategy.Instance,
+                        _ => RowSelectionStrategy.Instance
+                    };
+                    Selection.ClearSelection();
+                    SafeInvalidate();
+                }
+            }
         }
 
         /// <summary>
@@ -861,6 +910,89 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         [Browsable(false)]
         public int CurrentRowIndex => Selection.RowIndex;
+
+        #endregion
+
+        #region Toolbar Properties
+
+        private bool _showToolbar = true;
+        private readonly Toolbar.BeepGridToolbarState _toolbarState = new();
+        private Toolbar.BeepGridToolbarPainter _toolbarPainter;
+        private Filtering.FilterEditorHelper _filterEditor;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Shows or hides the unified toolbar (actions + search + filter + export).")]
+        [DefaultValue(true)]
+        public bool ShowToolbar
+        {
+            get => _showToolbar;
+            set
+            {
+                if (_showToolbar != value)
+                {
+                    _showToolbar = value;
+                    Layout.Recalculate();
+                    SafeInvalidate();
+                }
+            }
+        }
+
+        [Browsable(false)]
+        public Toolbar.BeepGridToolbarState ToolbarState => _toolbarState;
+
+        [Browsable(false)]
+        [EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        internal Toolbar.BeepGridToolbarPainter ToolbarPainter => _toolbarPainter;
+
+        [Browsable(false)]
+        [EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        internal Filtering.FilterEditorHelper FilterEditor => _filterEditor;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of the toolbar.")]
+        public Color ToolbarBackColor { get; set; } = Color.FromArgb(248, 249, 250);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Foreground color of toolbar icons and text.")]
+        public Color ToolbarForeColor { get; set; } = Color.FromArgb(33, 37, 41);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Placeholder text color in the search box.")]
+        public Color ToolbarPlaceholderColor { get; set; } = Color.FromArgb(150, 150, 150);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of the search box.")]
+        public Color ToolbarSearchBackColor { get; set; } = Color.White;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of the search box when focused.")]
+        public Color ToolbarSearchFocusBackColor { get; set; } = Color.FromArgb(240, 245, 255);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Border color of the search box.")]
+        public Color ToolbarBorderColor { get; set; } = Color.FromArgb(200, 200, 200);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of toolbar buttons on hover.")]
+        public Color ToolbarButtonHoverBackColor { get; set; } = Color.FromArgb(230, 235, 240);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color of toolbar buttons when pressed.")]
+        public Color ToolbarButtonPressedBackColor { get; set; } = Color.FromArgb(210, 220, 230);
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color of separator lines between toolbar sections.")]
+        public Color ToolbarSeparatorColor { get; set; } = Color.FromArgb(220, 220, 220);
 
         #endregion
     }

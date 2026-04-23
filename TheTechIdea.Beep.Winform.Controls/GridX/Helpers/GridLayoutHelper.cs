@@ -19,6 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public bool ShowColumnHeaders { get; set; } = true;
         public Rectangle HeaderRect { get; private set; }
         public Rectangle TopFilterRect { get; private set; } = Rectangle.Empty;
+        public Rectangle ToolbarRect { get; private set; } = Rectangle.Empty;
+        public int ToolbarHeight { get; set; } = 36;
         public Rectangle ColumnsHeaderRect { get; private set; }
         public Rectangle FooterRect { get; private set; }
         public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
@@ -79,6 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     HeaderRect = Rectangle.Empty;
                     TopFilterRect = Rectangle.Empty;
+                    ToolbarRect = Rectangle.Empty;
                     RowsRect = Rectangle.Empty;
                     NavigatorRect = Rectangle.Empty;
                     HeaderCellRects = System.Array.Empty<Rectangle>();
@@ -88,12 +91,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Pre-calculate if scrollbars will be needed to reserve space
                 // Check if vertical scrollbar is needed (rough estimate)
                 int totalRowHeight = 0;
-                if (_grid.Data?.Rows != null)
+                if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
+                {
+                    long vcount = _grid.RowVirtualizer.TotalRowCount;
+                    totalRowHeight = (int)System.Math.Min(vcount * RowHeight, int.MaxValue);
+                }
+                else if (_grid.Data?.Rows != null)
                 {
                     for (int i = 0; i < _grid.Data.Rows.Count; i++)
                     {
                         var row = _grid.Data.Rows[i];
+                        if (!row.IsVisible) continue;
                         totalRowHeight += row.Height > 0 ? row.Height : RowHeight;
+                    }
+                    // Include group header heights when grouping is active
+                    if (_grid.GroupEngine?.IsGrouped == true)
+                    {
+                        totalRowHeight += _grid.GroupEngine.Groups.Count * _grid.GroupEngine.GetHeaderHeight();
                     }
                 }
                 
@@ -114,6 +128,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int scrollbarHeight = needsHorizontalScrollbar ? SCROLLBAR_HEIGHT : 0;
                 
                 int top = r.Top;
+
+                if (_grid.ShowToolbar && ToolbarHeight > 0)
+                {
+                    int tbHeight = Math.Min(ToolbarHeight, Math.Max(0, r.Height));
+                    if (tbHeight > 0)
+                    {
+                        int tbWidth = Math.Max(0, r.Width - (needsVerticalScrollbar ? SCROLLBAR_WIDTH : 0));
+                        ToolbarRect = new Rectangle(r.Left, top, tbWidth, tbHeight);
+                        top += tbHeight;
+                    }
+                    else
+                    {
+                        ToolbarRect = Rectangle.Empty;
+                    }
+                }
+                else
+                {
+                    ToolbarRect = Rectangle.Empty;
+                }
+
                 int topFilterHeight = (ShowTopFilterPanel && ShowColumnHeaders)
                     ? Math.Min(TopFilterHeight, Math.Max(0, r.Height))
                     : 0;
@@ -181,7 +215,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 LayoutCells();
-                
+
+                // Update column virtualizer window after layout is known
+                if (_grid.EnableColumnVirtualization)
+                {
+                    _grid.ColumnVirtualizer.UpdateWindow(
+                        _grid.Scroll?.HorizontalOffset ?? 0,
+                        RowsRect.Width);
+                }
+
                 // Track scroll position and row count for change detection
                 _lastScrollOffset = _grid.Scroll?.VerticalOffset ?? 0;
                 _lastRowCount = _grid.Data?.Rows?.Count ?? 0;
@@ -305,13 +347,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             
             // FIX: Find the actual visible rows based on pixel offset and available height
             int currentPixelOffset = 0;
+            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
+                currentPixelOffset = (int)(_grid.RowVirtualizer.WindowStart * RowHeight);
             int actualStartRow = 0;
             
-            // Find the first visible row based on pixel offset
+            // Find the first visible row based on pixel offset (accounting for group headers)
             for (int i = 0; i < _grid.Data.Rows.Count; i++)
             {
                 var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;
                 int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+
+                // Inject group header height for any groups whose first row is at this index
+                if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                {
+                    int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
+                    if (newHeaders > 0)
+                        currentPixelOffset += newHeaders * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+                }
                 
                 if (currentPixelOffset + rowHeight > startPixelOffset)
                 {
@@ -337,11 +390,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     usedHeight += firstRowVisibleHeight;
                     endRow = actualStartRow;
                     
-                    // Add more rows if they fit
+                    // Add more rows if they fit (accounting for group headers)
                     for (int i = actualStartRow + 1; i < _grid.Data.Rows.Count && usedHeight < availableHeight; i++)
                     {
                         var row = _grid.Data.Rows[i];
+                        if (!row.IsVisible) continue;
                         int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+
+                        if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                        {
+                            int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
+                            if (newHeaders > 0)
+                            {
+                                int hh = newHeaders * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+                                if (usedHeight + hh > availableHeight)
+                                    break;
+                                usedHeight += hh;
+                            }
+                        }
                         
                         if (usedHeight + rowHeight > availableHeight)
                             break;
@@ -352,12 +418,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Calculate the Y position accounting for partial row visibility
+            // Calculate the Y position accounting for partial row visibility and group headers
             int startRowPixelOffset = 0;
+            if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
+                startRowPixelOffset = (int)(_grid.RowVirtualizer.WindowStart * RowHeight);
             for (int i = 0; i < actualStartRow; i++)
             {
                 var row = _grid.Data.Rows[i];
+                if (!row.IsVisible) continue;
                 startRowPixelOffset += row.Height > 0 ? row.Height : RowHeight;
+            }
+            if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+            {
+                startRowPixelOffset += (_grid.GroupEngine?.GetHeaderCountBeforeRow(actualStartRow) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
             }
             
             int y = RowsRect.Top - (startPixelOffset - startRowPixelOffset);
@@ -369,8 +442,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int r = actualStartRow; r <= endRow && y < RowsRect.Bottom; r++)
             {
                 if (r >= _grid.Data.Rows.Count) break;
+
+                // Inject group header height for any groups whose first row is at this index
+                if (!(_grid.EnableVirtualization && _grid.VirtualDataSource != null))
+                {
+                    int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(r + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(r) ?? 0);
+                    if (newHeaders > 0)
+                        y += newHeaders * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+                }
                 
                 var row = _grid.Data.Rows[r];
+                if (!row.IsVisible) continue;
                 int h = row.Height > 0 ? row.Height : RowHeight; // Use individual row height
                 
                 // Calculate checkbox rect exactly like BeepSimpleGrid

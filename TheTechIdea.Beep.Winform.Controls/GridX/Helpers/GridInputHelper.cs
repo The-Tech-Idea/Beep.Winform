@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseMove(MouseEventArgs e)
         {
+            HandleToolbarMouseMove(e.Location);
+
             // Don't process mouse move while context menu is active
             
             
@@ -192,6 +194,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 // Invalidate the header area for the checkbox itself
                 _grid.SafeInvalidate(_grid.Layout.SelectAllCheckRect);
+                return;
+            }
+
+            // Unified toolbar click handling
+            if (_grid.ShowToolbar && !_grid.Layout.ToolbarRect.IsEmpty && _grid.Layout.ToolbarRect.Contains(e.Location))
+            {
+                HandleToolbarMouseDown(e.Location);
                 return;
             }
 
@@ -391,7 +400,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var (rrow, rcol) = HitTestCell(e.Location);
             if (rrow >= 0 && rcol >= 0)
             {
-                _grid.Selection.SelectCell(rrow, rcol);
+                bool ctrl = (Control.ModifierKeys & Keys.Control) == Keys.Control;
+                bool shift = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+                _grid.Selection.HandleCellClick(rrow, rcol, ctrl, shift);
                 EnsureSelectionVisible();
                 // SelectCell already invalidates affected rows, no need for full grid invalidate
             }
@@ -399,6 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseUp(MouseEventArgs e)
         {
+            HandleToolbarMouseUp();
             System.Diagnostics.Debug.WriteLine($"HandleMouseUp at location: {e.Location}");
             // Don't process mouse up while context menu is active
             
@@ -493,6 +505,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
+            // Group header expand/collapse click
+            if (HandleGroupHeaderClick(e.Location))
+                return;
+
             // Normal cell clicks (not on checkbox)
             System.Diagnostics.Debug.WriteLine($"Normal cell click. ReadOnly={_grid.ReadOnly}, r={r}, c={c}");
             if (r >= 0 && c >= 0 && !_grid.ReadOnly)
@@ -503,7 +519,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 System.Diagnostics.Debug.WriteLine($"Cell found. IsCheckboxCol={isCheckCol}, IsReadOnly={cell.IsReadOnly}, IsEditable={cell.IsEditable}");
 
                 // Select the cell first
-                _grid.Selection.SelectCell(r, c);
+                bool ctrlDown = (Control.ModifierKeys & Keys.Control) == Keys.Control;
+                bool shiftDown = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+                _grid.Selection.HandleCellClick(r, c, ctrlDown, shiftDown);
                 EnsureSelectionVisible();
                 // SelectCell already invalidates affected rows, no need for full grid invalidate
 
@@ -628,92 +646,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            // F2 or Enter starts editing immediately (like BeepSimpleGrid)
-            if ((e.KeyCode == Keys.F2 || e.KeyCode == Keys.Enter) && !_grid.ReadOnly)
+            // Ctrl+A: select all rows (checkbox selection)
+            if (e.Control && e.KeyCode == Keys.A)
             {
-                if (_grid.Selection.HasSelection)
-                {
-                    var cell = _grid.Data.Rows[_grid.Selection.RowIndex].Cells[_grid.Selection.ColumnIndex];
-                    var col = _grid.Data.Columns[_grid.Selection.ColumnIndex];
-                    
-                    // Only start editing if the cell is editable and not a checkbox
-                    if (!cell.IsReadOnly && cell.IsEditable && !col.IsSelectionCheckBox)
-                    {
-                        _grid.Edit.BeginEdit();
-                        e.Handled = true;
-                        return;
-                    }
-                }
-            }
-
-            if (!_grid.Selection.HasSelection)
-            {
-                if (_grid.Data.Rows.Count > 0 && _grid.Data.Columns.Count > 0)
-                {
-                    _grid.Selection.SelectCell(0, 0);
-                    EnsureSelectionVisible();
-                    // SelectCell already invalidates affected rows, no need for full grid invalidate
-                }
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    _grid.Data.Rows[i].IsSelected = true;
+                _grid.SafeInvalidate();
+                e.Handled = true;
                 return;
             }
 
-            int r = _grid.Selection.RowIndex;
-            int c = _grid.Selection.ColumnIndex;
-            int visible = VisibleRowCount();
-            switch (e.KeyCode)
-            {
-                case Keys.Left:
-                    c = Math.Max(0, c - 1);
-                    break;
-                case Keys.Right:
-                    c = Math.Min(_grid.Data.Columns.Count - 1, c + 1);
-                    break;
-                case Keys.Up:
-                    r = Math.Max(0, r - 1);
-                    break;
-                case Keys.Down:
-                    r = Math.Min(_grid.Data.Rows.Count - 1, r + 1);
-                    break;
-                case Keys.Home:
-                    if (e.Control)
-                    {
-                        r = 0;
-                        _grid.Scroll.SetVerticalIndex(0);
-                    }
-                    else
-                    {
-                        c = 0;
-                    }
-                    break;
-                case Keys.End:
-                    if (e.Control)
-                    {
-                        r = Math.Max(0, _grid.Data.Rows.Count - 1);
-                        int newStartEnd = Math.Max(0, r - visible + 1);
-                        _grid.Scroll.SetVerticalIndex(newStartEnd);
-                    }
-                    else
-                    {
-                        c = _grid.Data.Columns.Count - 1;
-                    }
-                    break;
-                case Keys.PageUp:
-                    r = Math.Max(0, r - visible);
-                    _grid.Scroll.SetVerticalIndex(Math.Max(0, _grid.Scroll.FirstVisibleRowIndex - visible));
-                    break;
-                case Keys.PageDown:
-                    r = Math.Min(_grid.Data.Rows.Count - 1, r + visible);
-                    int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
-                    int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
-                    _grid.Scroll.SetVerticalIndex(newStart);
-                    break;
-                default:
-                    return;
-            }
-
-            _grid.Selection.SelectCell(r, c);
-            EnsureSelectionVisible();
-            // SelectCell already invalidates affected rows, no need for full grid invalidate
+            // Delegate navigation and editing keys to the keyboard navigator
+            _grid.KeyboardNavigator?.HandleKeyDown(e);
         }
 
         private void EnsureSelectionVisible()
@@ -821,13 +765,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int firstVisibleRowIndex = _grid.Scroll.FirstVisibleRowIndex;
             int currentY = rowsRect.Top;
             
-            // Calculate pixel offset for positioning
+            // Calculate pixel offset for positioning (accounting for group headers)
             int totalRowsHeight = 0;
             for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
             {
                 var row = _grid.Data.Rows[i];
                 totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
             }
+            totalRowsHeight += (_grid.GroupEngine?.GetHeaderCountBeforeRow(firstVisibleRowIndex) ?? 0) * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
             
             int pixelOffset = _grid.Scroll.VerticalOffset;
             currentY = rowsRect.Top - (pixelOffset - totalRowsHeight);
@@ -835,6 +780,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Check each visible row
             for (int i = firstVisibleRowIndex; i < _grid.Data.Rows.Count; i++)
             {
+                // Inject group header height for any groups starting at this row
+                int newHeaders = (_grid.GroupEngine?.GetHeaderCountBeforeRow(i + 1) ?? 0) - (_grid.GroupEngine?.GetHeaderCountBeforeRow(i) ?? 0);
+                if (newHeaders > 0)
+                    currentY += newHeaders * (_grid.GroupEngine?.GetHeaderHeight() ?? 0);
+
                 var row = _grid.Data.Rows[i];
                 int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
                 
@@ -1027,6 +977,119 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             _grid.Cursor = Cursors.Default;
             return true;
+        }
+
+        private void HandleToolbarMouseDown(Point location)
+        {
+            var state = _grid.ToolbarState;
+            if (state.HitTestSearchBox(location))
+            {
+                state.SearchHasFocus = true;
+                _grid.FilterEditor.ActivateSearchEditor(state.SearchBoxRect);
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+                return;
+            }
+
+            if (state.HitTestFilterButton(location))
+            {
+                state.SearchHasFocus = false;
+                _grid.ShowAdvancedFilterDialog();
+                return;
+            }
+
+            if (state.HitTestAdvancedButton(location))
+            {
+                state.SearchHasFocus = false;
+                _grid.ShowAdvancedFilterDialog();
+                return;
+            }
+
+            var buttonKey = state.HitTest(location);
+            if (buttonKey != null)
+            {
+                state.SearchHasFocus = false;
+                state.PressedButtonKey = buttonKey;
+                HandleToolbarButtonClick(buttonKey);
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+                return;
+            }
+
+            state.SearchHasFocus = false;
+            _grid.FilterEditor.HideSearchEditor();
+            _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+        }
+
+        private void HandleToolbarButtonClick(string buttonKey)
+        {
+            switch (buttonKey)
+            {
+                case "add":
+                    _grid.Navigator.InsertNew();
+                    break;
+                case "edit":
+                    _grid.OnToolbarAction("edit");
+                    break;
+                case "delete":
+                    _grid.Navigator.DeleteCurrent();
+                    break;
+                case "import":
+                    _grid.OnToolbarAction("import");
+                    break;
+                case "export":
+                    _grid.OnToolbarAction("export");
+                    break;
+                case "print":
+                    _grid.OnToolbarAction("print");
+                    break;
+                case "clearfilter":
+                    _grid.ClearFilter();
+                    break;
+            }
+        }
+
+        internal void HandleToolbarMouseMove(Point location)
+        {
+            if (!_grid.ShowToolbar || _grid.Layout.ToolbarRect.IsEmpty) return;
+            if (!_grid.Layout.ToolbarRect.Contains(location))
+            {
+                _grid.ToolbarState.HoveredButtonKey = null;
+                return;
+            }
+
+            var key = _grid.ToolbarState.HitTest(location);
+            if (_grid.ToolbarState.HoveredButtonKey != key)
+            {
+                _grid.ToolbarState.HoveredButtonKey = key;
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+            }
+        }
+
+        internal void HandleToolbarMouseUp()
+        {
+            if (_grid.ToolbarState.PressedButtonKey != null)
+            {
+                _grid.ToolbarState.PressedButtonKey = null;
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+            }
+        }
+
+        private bool HandleGroupHeaderClick(Point location)
+        {
+            if (_grid.GroupEngine?.IsGrouped != true) return false;
+
+            foreach (var pair in _grid.Render.GroupHeaderRects)
+            {
+                if (!pair.Value.Contains(location)) continue;
+
+                // Check if click is on the expand/collapse chevron (left portion of header)
+                var chevronRect = new Rectangle(pair.Value.X + 8, pair.Value.Y + pair.Value.Height / 2 - 8, 16, 16);
+                if (chevronRect.Contains(location) || pair.Value.Contains(location))
+                {
+                    _grid.ToggleGroup(pair.Key);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

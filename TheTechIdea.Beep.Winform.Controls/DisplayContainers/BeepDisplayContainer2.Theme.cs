@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                                                    _currentTheme.TabSelectedForeColor,
                                                    _currentTheme.ButtonForeColor);
                 _hoverTabBackColor = ResolveColor(_currentTheme.TabHoverBackColor,
-                                                  ControlPaint.Light(_activeTabBackColor, 0.2f));
+                                                   ShiftLuminance(_activeTabBackColor, 0.2f));
                 _borderColor = ResolveColor(_currentTheme.TabBorderColor,
                                             _currentTheme.InactiveBorderColor,
                                             _currentTheme.BorderColor);

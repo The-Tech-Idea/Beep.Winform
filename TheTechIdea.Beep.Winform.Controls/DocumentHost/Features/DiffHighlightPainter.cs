@@ -26,6 +26,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
         public Color GutterTextColor    { get; set; } = Color.White;
         public Color LineTextColor      { get; set; } = SystemColors.WindowText;
         public Color LineNumberColor    { get; set; } = SystemColors.GrayText;
+        private bool _isDark;
+        public bool IsDarkMode
+        {
+            get => _isDark;
+            set { _isDark = value; InvalidateColours(); }
+        }
         public Font  LineFont           { get; set; } = new Font("Cascadia Code", 9f, FontStyle.Regular);
 
         public int GutterWidth    { get; set; } = 28;
@@ -52,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
             };
 
             if (isSelected)
-                back = SystemColors.Highlight;
+                back = _isDark ? Color.FromArgb(0, 120, 215) : SystemColors.Highlight;
 
             if (back != Color.Transparent)
                 using (var br = new SolidBrush(back))
@@ -78,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
             // Line numbers
             var sf = new StringFormat { Alignment = StringAlignment.Far,
                 LineAlignment = StringAlignment.Center, FormatFlags = StringFormatFlags.NoWrap };
-            using var lnBrush = new SolidBrush(isSelected ? SystemColors.HighlightText : LineNumberColor);
+            using var lnBrush = new SolidBrush(isSelected ? (_isDark ? Color.White : SystemColors.HighlightText) : LineNumberColor);
 
             var lineNumRect = new Rectangle(GutterWidth, y, LineNumWidth, RowHeight);
             if (line.LineA >= 0)
@@ -91,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
                 totalWidth - GutterWidth - LineNumWidth - TextLeftPad,
                 RowHeight);
 
-            using var textBrush = new SolidBrush(isSelected ? SystemColors.HighlightText : LineTextColor);
+            using var textBrush = new SolidBrush(isSelected ? (_isDark ? Color.White : SystemColors.HighlightText) : LineTextColor);
             var textSf = new StringFormat { FormatFlags = StringFormatFlags.NoWrap,
                 LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
             g.DrawString(line.Text ?? string.Empty, LineFont, textBrush, textRect, textSf);
@@ -100,8 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
         /// <summary>Paints a divider between the two panes of a side-by-side view.</summary>
         public void PaintSplitDivider(Graphics g, int x, int height)
         {
-            using var pen = new Pen(SystemColors.ControlDark, 1f);
+            using var pen = new Pen(_isDark ? Color.FromArgb(70, 70, 75) : SystemColors.ControlDark, 1f);
             g.DrawLine(pen, x, 0, x, height);
         }
+        private void InvalidateColours() { }
     }
 }

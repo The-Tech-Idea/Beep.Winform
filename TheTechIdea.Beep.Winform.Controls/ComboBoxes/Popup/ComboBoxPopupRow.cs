@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 return;
             }
 
-            Color fore = _model.IsEnabled ? SystemColors.ControlText : SystemColors.GrayText;
+            Color fore = _model.IsEnabled ? Sc(BackColor, SystemColors.ControlText) : Sc(BackColor, SystemColors.GrayText);
             Color back = BackColor;
             Color border = Color.Transparent;
             Rectangle surfaceRect = bounds;
@@ -568,6 +568,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             int b = (int)(from.B + (to.B - from.B) * t);
             int a = (int)(from.A + (to.A - from.A) * t);
             return Color.FromArgb(a, r, g, b);
+        }
+
+        private static Color Sc(Color refColor, Color lightColor)
+        {
+            bool dark = refColor.GetBrightness() < 0.5;
+            if (!dark) return lightColor;
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
         }
     }
 }

@@ -327,8 +327,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return defaultColor;
 
             return isForeground
-                ? SystemColors.HighlightText
-                : SystemColors.Highlight;
+                ? Sc(SystemColors.HighlightText)
+                : Sc(SystemColors.Highlight);
+        }
+
+        private static System.Drawing.Color Sc(System.Drawing.Color lightColor)
+        {
+            bool dark = SystemInformation.HighContrast || (TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.IsDarkTheme == true);
+            if (!dark) return lightColor;
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => System.Drawing.Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => System.Drawing.Color.White,
+                var x when x == SystemColors.ControlText => System.Drawing.Color.White,
+                var x when x == SystemColors.GrayText => System.Drawing.Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => System.Drawing.Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => System.Drawing.Color.White,
+                var x when x == SystemColors.Control => System.Drawing.Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => System.Drawing.Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => System.Drawing.Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => System.Drawing.Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => System.Drawing.Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => System.Drawing.Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => System.Drawing.Color.White,
+                _ => lightColor
+            };
         }
     }
 }

@@ -84,11 +84,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
         {
             base.OnPaint(e);
             var g = e.Graphics;
-            g.Clear(SystemColors.Window);
+            g.Clear(ThemeAwareColor(BackColor, SystemColors.Window));
 
             if (_result == null)
             {
-                using var b = new SolidBrush(SystemColors.GrayText);
+                using var b = new SolidBrush(ThemeAwareGrayText(BackColor));
                 g.DrawString("No documents compared.", Font, b, ClientRectangle);
                 return;
             }
@@ -137,9 +137,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
         private void DrawPaneHeader(Graphics g, string title, int x, int w, int h)
         {
             var rect = new Rectangle(x, 0, w, h);
-            using var backBr = new SolidBrush(SystemColors.ControlDark);
+            using var backBr = new SolidBrush(ThemeAwareControlDark(BackColor));
             g.FillRectangle(backBr, rect);
-            using var textBr = new SolidBrush(SystemColors.ControlLightLight);
+            using var textBr = new SolidBrush(ThemeAwareControlLightLight(BackColor));
             var sf = new StringFormat { Alignment = StringAlignment.Center,
                 LineAlignment = StringAlignment.Center };
             g.DrawString(title, Font, textBr, rect, sf);
@@ -187,5 +187,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
 
         private int VisibleRows(int headerHeight)
             => Math.Max(1, (ClientHeight - headerHeight) / Math.Max(1, _painter.RowHeight));
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+        private static Color ThemeAwareColor(Color refColor, Color lightColor) => IsDarkBackground(refColor) ? Color.FromArgb(30, 30, 30) : lightColor;
+        private static Color ThemeAwareGrayText(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(150, 150, 155) : SystemColors.GrayText;
+        private static Color ThemeAwareControlDark(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(70, 70, 75) : SystemColors.ControlDark;
+        private static Color ThemeAwareControlLightLight(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(60, 60, 65) : SystemColors.ControlLightLight;
     }
 }

@@ -60,15 +60,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             ShowInTaskbar   = false;
             KeyPreview      = true;
             TopMost         = true;
-            BackColor       = theme?.PanelBackColor ?? SystemColors.Window;
+            BackColor       = theme?.PanelBackColor ?? Tc(BackColor, SystemColors.Window);
 
             // ── Title bar ─────────────────────────────────────────────────────
             _titleLabel = new Label
             {
                 Text      = "Apply Layout Template",
                 Font      = BeepFontManager.GetCachedFont("Segoe UI Semibold", 10f, FontStyle.Bold),
-                ForeColor = theme?.AppBarTitleForeColor ?? SystemColors.ControlText,
-                BackColor = theme?.AppBarTitleBackColor ?? SystemColors.ActiveCaption,
+                ForeColor = theme?.AppBarTitleForeColor ?? Tc(BackColor, SystemColors.ControlText),
+                BackColor = theme?.AppBarTitleBackColor ?? Tc(BackColor, SystemColors.ActiveCaption),
                 Dock      = DockStyle.Top,
                 Height    = 30,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Dock      = DockStyle.Top,
                 Height    = 28,
                 BorderStyle = BorderStyle.FixedSingle,
-                BackColor = theme?.GridBackColor ?? SystemColors.Window,
-                ForeColor = theme?.GridForeColor ?? SystemColors.WindowText,
+                BackColor = theme?.GridBackColor ?? Tc(BackColor, SystemColors.Window),
+                ForeColor = theme?.GridForeColor ?? Tc(BackColor, SystemColors.WindowText),
             };
             _search.TextChanged += (_, _) => RefreshList();
             Controls.Add(_search);
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _listHost = new Panel
             {
                 Dock      = DockStyle.Fill,
-                BackColor = theme?.PanelBackColor ?? SystemColors.Window,
+                BackColor = theme?.PanelBackColor ?? Tc(BackColor, SystemColors.Window),
             };
             _listHost.Paint        += OnListPaint;
             _listHost.MouseMove    += OnListMouseMove;
@@ -137,13 +137,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var w   = _listHost.Width;
             int y   = 0;
 
-            var backColor   = _theme?.PanelBackColor       ?? SystemColors.Window;
-            var textColor   = _theme?.GridForeColor        ?? SystemColors.WindowText;
-            var subColor    = _theme?.SecondaryTextColor   ?? SystemColors.GrayText;
-            var selBack     = _theme?.SelectedRowBackColor   ?? SystemColors.Highlight;
-            var selFore     = _theme?.SelectedRowForeColor   ?? SystemColors.HighlightText;
-            var divColor    = _theme?.ActiveBorderColor       ?? SystemColors.ControlLight;
-            var accentColor = _theme?.AccentColor          ?? SystemColors.Highlight;
+            var backColor   = _theme?.PanelBackColor       ?? Tc(BackColor, SystemColors.Window);
+            var textColor   = _theme?.GridForeColor        ?? Tc(BackColor, SystemColors.WindowText);
+            var subColor    = _theme?.SecondaryTextColor   ?? Tc(BackColor, SystemColors.GrayText);
+            var selBack     = _theme?.SelectedRowBackColor   ?? Tc(BackColor, SystemColors.Highlight);
+            var selFore     = _theme?.SelectedRowForeColor   ?? Tc(BackColor, SystemColors.HighlightText);
+            var divColor    = _theme?.ActiveBorderColor       ?? Tc(BackColor, SystemColors.ControlLight);
+            var accentColor = _theme?.AccentColor          ?? Tc(BackColor, SystemColors.Highlight);
 
             var titleFont = BeepFontManager.GetCachedFont("Segoe UI", 10f, FontStyle.Regular);
             var descFont  = BeepFontManager.GetCachedFont("Segoe UI", 8.5f, FontStyle.Regular);
@@ -341,5 +341,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             DialogResult     = DialogResult.OK;
             Close();
         }
+
+        private static bool IsDark(Color c) => c.GetBrightness() < 0.5;
+        private static Color Tc(Color refColor, Color lightColor) => IsDark(refColor)
+            ? lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                _ => lightColor
+            }
+            : lightColor;
     }
 }

@@ -495,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // ── Disabled dimming overlay ─────────────────────────────────────────
             if (item is BeepListItem ri && ri.IsDisabled)
             {
-                var bg = _theme?.BackgroundColor ?? SystemColors.Window;
+                var bg = _theme?.BackgroundColor ?? Sc(_owner.BackColor, SystemColors.Window);
                 using var dimBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.DisabledAlpha, bg));
                 g.FillRectangle(dimBrush, itemRect);
             }
@@ -880,5 +880,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         }
 
         #endregion
+
+        private static Color Sc(Color refColor, Color lightColor)
+        {
+            bool dark = refColor.GetBrightness() < 0.5;
+            if (!dark) return lightColor;
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
+        }
     }
 }

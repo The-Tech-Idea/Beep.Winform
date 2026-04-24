@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // ENH-04: Read-only overlay (before text so it sits under the text)
             if (owner.IsReadOnly)
             {
-                using var roBrush = new SolidBrush(_theme?.DisabledBackColor ?? SystemColors.Control);
+                using var roBrush = new SolidBrush(_theme?.DisabledBackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Control));
                 g.FillRectangle(roBrush, textAreaRect);
                 using var hatch = new HatchBrush(HatchStyle.LightUpwardDiagonal,
                     Color.FromArgb(18, _theme?.DisabledForeColor ?? Color.Gray), Color.Transparent);
@@ -187,8 +187,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // Do NOT use _owner.BackColor — base.DrawContent() overwrites it
             // with the generic theme BackColor every paint frame.
             Color bgColor = _theme?.ComboBoxBackColor ?? Color.Empty;
-            if (bgColor == Color.Empty) bgColor = _theme?.BackColor ?? SystemColors.Window;
-            if (bgColor == Color.Empty) bgColor = SystemColors.Window;
+            if (bgColor == Color.Empty) bgColor = _theme?.BackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Window);
+            if (bgColor == Color.Empty) bgColor = ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Window);
             var brush = PaintersFactory.GetSolidBrush(bgColor);
             g.FillRectangle(brush, rect);
         }
@@ -336,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                     textColor = Color.FromArgb(128, baseColor.R, baseColor.G, baseColor.B);
                 }
 
-                var bgColor = _theme?.ComboBoxBackColor ?? _theme?.TextBoxBackColor ?? SystemColors.Window;
+                var bgColor = _theme?.ComboBoxBackColor ?? _theme?.TextBoxBackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Window);
                 if (ThemeContrastHelper.ContrastRatio(textColor, bgColor) < 2.8)
                 {
                     textColor = ThemeContrastHelper.AdjustForegroundToContrast(textColor, bgColor, 2.8);
@@ -616,7 +616,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
             // Semi-transparent haze over the text area
             using (var hazeBrush = new SolidBrush(
-                Color.FromArgb(90, _theme?.ComboBoxBackColor ?? SystemColors.Window)))
+                Color.FromArgb(90, _theme?.ComboBoxBackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Window))))
             {
                 g.FillRectangle(hazeBrush, textAreaRect);
             }
@@ -646,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (owner == null || textAreaRect.Width <= 0) return;
 
             // Base shimmer fill
-            Color baseColor = _theme?.ComboBoxBackColor ?? SystemColors.Control;
+            Color baseColor = _theme?.ComboBoxBackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Control);
             bool isDark = (baseColor.R * 0.299 + baseColor.G * 0.587 + baseColor.B * 0.114) < 128;
             Color shimBase = isDark ? Color.FromArgb(55, Color.White) : Color.FromArgb(55, Color.Gray);
 
@@ -682,6 +682,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         }
 
         #endregion
+    }
+
+    internal static class ComboBoxPainterThemeHelpers
+    {
+        internal static Color Sc(Color refColor, Color lightColor)
+        {
+            bool dark = refColor.GetBrightness() < 0.5;
+            if (!dark) return lightColor;
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
+        }
     }
 }
 

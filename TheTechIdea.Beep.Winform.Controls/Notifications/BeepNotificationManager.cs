@@ -731,7 +731,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         #endregion
-        #endregion
 
         #region Private Methods - Internal Management
 

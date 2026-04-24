@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 _lineColor = Color.FromArgb(40, theme.ForeColor);
                 _textColor = theme.ForeColor;
                 _subtextColor = Color.FromArgb(128, theme.ForeColor);
-                _sidePanelColor = ControlPaint.Dark(theme.BackColor, 0.05f);
+                _sidePanelColor = ColorUtils.ShiftLuminance(theme.BackColor, -0.05f);
             }
             else
             {

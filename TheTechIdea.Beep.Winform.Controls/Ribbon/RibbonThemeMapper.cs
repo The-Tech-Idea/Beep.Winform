@@ -35,8 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // keep text from theme if available
                 t.Text = theme.AppBarTitleForeColor;
                 t.IconColor = theme.AppBarButtonForeColor;
-                t.HoverBack = ControlPaint.Light(theme.AppBarBackColor, .08f);
-                t.PressedBack = ControlPaint.Light(theme.AppBarBackColor, .16f);
+                t.HoverBack = ShiftLuminance(theme.AppBarBackColor, .08f);
+                t.PressedBack = ShiftLuminance(theme.AppBarBackColor, .16f);
                 t.SelectionBack = theme.ButtonSelectedBackColor;
                 t.FocusBorder = theme.FocusIndicatorColor;
                 t.Separator = theme.BorderColor;
@@ -62,10 +62,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Light mapping from Beep theme
             t.Background = theme.AppBarBackColor;
             t.TabActiveBack = theme.ButtonBackColor;
-            t.TabInactiveBack = ControlPaint.Light(theme.AppBarBackColor, .1f);
+            t.TabInactiveBack = ShiftLuminance(theme.AppBarBackColor, .1f);
             t.TabBorder = theme.BorderColor;
-            t.GroupBack = ControlPaint.Light(theme.AppBarBackColor, .15f);
-            t.GroupBorder = ControlPaint.Dark(theme.BorderColor);
+            t.GroupBack = ShiftLuminance(theme.AppBarBackColor, .15f);
+            t.GroupBorder = ShiftLuminance(theme.BorderColor, -0.25f);
             t.HoverBack = theme.ButtonHoverBackColor;
             t.PressedBack = theme.ButtonPressedBackColor;
             t.SelectionBack = theme.ButtonSelectedBackColor;
@@ -76,8 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             t.ItemSpacing = Math.Max(1, theme.PaddingSmall);
             t.Text = theme.AppBarTitleForeColor;
             t.IconColor = theme.ButtonForeColor;
-            t.QuickAccessBack = ControlPaint.Light(theme.AppBarBackColor, .2f);
-            t.QuickAccessBorder = ControlPaint.Dark(theme.BorderColor);
+            t.QuickAccessBack = ShiftLuminance(theme.AppBarBackColor, .2f);
+            t.QuickAccessBorder = ShiftLuminance(theme.BorderColor, -0.25f);
             t.DisabledBack = theme.DisabledBackColor;
             t.DisabledText = theme.DisabledForeColor;
             t.DisabledBorder = theme.DisabledBorderColor;
@@ -345,6 +345,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             return Color.FromArgb(alpha, color.R, color.G, color.B);
+        }
+
+        private static Color ShiftLuminance(Color color, float amount)
+        {
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            l = Math.Max(0, Math.Min(1, l + amount));
+            return ColorFromHsl(h, s, l);
+        }
+        private static void ColorToHsl(Color c, out float h, out float s, out float l)
+        {
+            float r = c.R / 255f, g = c.G / 255f, b = c.B / 255f;
+            float min = Math.Min(r, Math.Min(g, b)), max = Math.Max(r, Math.Max(g, b));
+            l = (max + min) / 2f;
+            if (max == min) { h = s = 0; }
+            else
+            {
+                float d = max - min;
+                s = l > 0.5f ? d / (2f - max - min) : d / (max + min);
+                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max == g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6f;
+            }
+        }
+        private static Color ColorFromHsl(float h, float s, float l)
+        {
+            float r, g, b;
+            if (s == 0) { r = g = b = l; }
+            else
+            {
+                float q = l < 0.5f ? l * (1f + s) : l + s - l * s;
+                float p = 2f * l - q;
+                r = Hue2Rgb(p, q, h + 1f / 3f);
+                g = Hue2Rgb(p, q, h);
+                b = Hue2Rgb(p, q, h - 1f / 3f);
+            }
+            return Color.FromArgb(255, (int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
+        }
+        private static float Hue2Rgb(float p, float q, float t)
+        {
+            if (t < 0) t += 1f; if (t > 1) t -= 1f;
+            if (t < 1f / 6f) return p + (q - p) * 6f * t;
+            if (t < 1f / 2f) return q;
+            if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6f;
+            return p;
         }
     }
 }

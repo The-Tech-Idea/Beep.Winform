@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 {
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             (bgColor, borderColor) = ApplyInteractionStateColors(state, bgColor, borderColor);
             Color effectiveBackground = state.IsChecked || state.IsIndeterminate
                 ? bgColor
-                : ControlPaint.Light(CheckBoxThemeHelpers.GetUncheckedBackgroundColor(options.Theme, options.UseThemeColors), 0.04f);
+                : ColorUtils.ShiftLuminance(CheckBoxThemeHelpers.GetUncheckedBackgroundColor(options.Theme, options.UseThemeColors), 0.04f);
             float borderWidth = state.IsChecked || state.IsIndeterminate
                 ? Math.Max(1.4f, options.BorderWidth)
                 : Math.Max(1f, options.BorderWidth);

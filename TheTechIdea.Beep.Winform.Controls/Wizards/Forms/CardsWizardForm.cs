@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _pendingColor = Color.FromArgb(80, theme.ForeColor);
                 _textColor = theme.ForeColor;
                 _subtextColor = Color.FromArgb(128, theme.ForeColor);
-                _cardBgColor = ControlPaint.Dark(theme.BackColor, 0.03f);
+                _cardBgColor = ColorUtils.ShiftLuminance(theme.BackColor, -0.03f);
             }
             else
             {

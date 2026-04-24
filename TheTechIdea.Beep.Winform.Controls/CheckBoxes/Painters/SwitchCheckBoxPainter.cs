@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 {
@@ -40,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 {
                     uncheckedBase = Color.FromArgb(30, borderColor);
                 }
-                trackColor = state.IsHovered ? ControlPaint.Light(uncheckedBase, 0.05f) : uncheckedBase;
+                trackColor = state.IsHovered ? ColorUtils.ShiftLuminance(uncheckedBase, 0.05f) : uncheckedBase;
             }
 
             if (state.IsDisabled)
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
             }
 
             Color thumbColor = state.IsDisabled
-                ? ControlPaint.Light(CheckBoxThemeHelpers.GetForegroundColor(options.Theme, options.UseThemeColors), 0.35f)
+                ? ColorUtils.ShiftLuminance(CheckBoxThemeHelpers.GetForegroundColor(options.Theme, options.UseThemeColors), 0.35f)
                 : CheckBoxThemeHelpers.GetForegroundColor(options.Theme, options.UseThemeColors);
 
             Rectangle thumbRect = CalculateThumbRect(bounds, state, options.BorderWidth);

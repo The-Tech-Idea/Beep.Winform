@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
@@ -97,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
                     if (theme.MenuItemHoverBackColor != Color.Empty)
                         return theme.MenuItemHoverBackColor;
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.1f);
+                        return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.1f);
                 }
                 // Normal state - transparent background
                 return Color.Transparent;

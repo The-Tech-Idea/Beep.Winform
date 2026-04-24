@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
@@ -73,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
 
                 // Fallback to BorderColor (subtle)
                 if (theme.BorderColor != Color.Empty)
-                    return ControlPaint.Light(theme.BorderColor, 0.5f);
+                    return ColorUtils.ShiftLuminance(theme.BorderColor, 0.5f);
             }
 
             // Priority 3: Default gray color
@@ -202,8 +203,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
                 {
                     // Darken border for ON state, lighten for OFF
                     return isOn
-                        ? ControlPaint.Dark(theme.BorderColor, 0.2f)
-                        : ControlPaint.Light(theme.BorderColor, 0.3f);
+                        ? ColorUtils.ShiftLuminance(theme.BorderColor, -0.2f)
+                        : ColorUtils.ShiftLuminance(theme.BorderColor, 0.3f);
                 }
             }
 

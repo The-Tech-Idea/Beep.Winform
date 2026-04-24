@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Painters;
 using TheTechIdea.Beep.Winform.Controls.Wizards.Layout;
@@ -488,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _lblError.Font = WizardHelpers.GetFont(CurrentTheme, CurrentTheme?.BodyStyle, 9.5f, FontStyle.Regular);
                 
                 // Side panel with slightly different background
-                var sidePanelColor = ControlPaint.Dark(CurrentTheme.BackColor, 0.05f);
+                var sidePanelColor = ColorUtils.ShiftLuminance(CurrentTheme.BackColor, -0.05f);
                 _sidePanel.BackColor = sidePanelColor;
 
                 _btnNext.Theme = CurrentTheme.ThemeName;

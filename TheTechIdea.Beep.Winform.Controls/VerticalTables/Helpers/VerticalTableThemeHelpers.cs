@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
@@ -63,9 +64,9 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
                 else
                 {
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.1f);
+                        return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.1f);
                     if (theme.SecondaryColor != Color.Empty)
-                        return ControlPaint.Light(theme.SecondaryColor, 0.2f);
+                        return ColorUtils.ShiftLuminance(theme.SecondaryColor, 0.2f);
                 }
             }
 
@@ -94,17 +95,17 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
                 if (isSelected)
                 {
                     if (theme.AccentColor != Color.Empty)
-                        return ControlPaint.Light(theme.AccentColor, 0.9f);
+                        return ColorUtils.ShiftLuminance(theme.AccentColor, 0.9f);
                 }
                 else if (isHovered)
                 {
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.05f);
+                        return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.05f);
                 }
                 else if (isAlternate)
                 {
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.02f);
+                        return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.02f);
                 }
                 else
                 {

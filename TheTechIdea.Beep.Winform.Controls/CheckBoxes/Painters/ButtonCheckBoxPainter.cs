@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
 {
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 : surfaceColor;
             if (state.IsHovered && !state.IsDisabled)
             {
-                effectiveBackground = ControlPaint.Light(effectiveBackground, 0.06f);
+                effectiveBackground = ColorUtils.ShiftLuminance(effectiveBackground, 0.06f);
             }
             float borderWidth = state.IsChecked || state.IsIndeterminate
                 ? Math.Max(1.5f, options.BorderWidth)

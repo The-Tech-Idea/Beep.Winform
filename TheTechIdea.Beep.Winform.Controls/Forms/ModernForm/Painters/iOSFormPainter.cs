@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.CompositingMode = CompositingMode.SourceCopy;
             
             // iOS: Smooth vertical gradient with vibrancy overlay (using helper for base gradient)
-            var topColor = ControlPaint.Light(metrics.BackgroundColor, 0.08f);
+            var topColor = ShiftLuminance(metrics.BackgroundColor, 0.08f);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             using (var region = new Region(path))
             {
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Close button (red circle)
             bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
             var closeRect = new Rectangle(startX, buttonY, buttonSize, buttonSize);
-            Color closeColor = closeHovered ? ControlPaint.Light(Color.FromArgb(255, 95, 86), 0.15f) : Color.FromArgb(255, 95, 86);
+            Color closeColor = closeHovered ? ShiftLuminance(Color.FromArgb(255, 95, 86), 0.15f) : Color.FromArgb(255, 95, 86);
             using (var closeBrush = new SolidBrush(closeColor))
             {
                 g.FillEllipse(closeBrush, closeRect);
@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Minimize button (yellow circle)
             bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
             var minRect = new Rectangle(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize);
-            Color minColor = minHovered ? ControlPaint.Light(Color.FromArgb(255, 189, 46), 0.15f) : Color.FromArgb(255, 189, 46);
+            Color minColor = minHovered ? ShiftLuminance(Color.FromArgb(255, 189, 46), 0.15f) : Color.FromArgb(255, 189, 46);
             using (var minBrush = new SolidBrush(minColor))
             {
                 g.FillEllipse(minBrush, minRect);
@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Maximize button (green circle)
             bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
             var maxRect = new Rectangle(startX + (buttonSize + buttonSpacing) * 2, buttonY, buttonSize, buttonSize);
-            Color maxColor = maxHovered ? ControlPaint.Light(Color.FromArgb(39, 201, 63), 0.15f) : Color.FromArgb(39, 201, 63);
+            Color maxColor = maxHovered ? ShiftLuminance(Color.FromArgb(39, 201, 63), 0.15f) : Color.FromArgb(39, 201, 63);
             using (var maxBrush = new SolidBrush(maxColor))
             {
                 g.FillEllipse(maxBrush, maxRect);
@@ -427,6 +427,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             );
             
             owner.CurrentLayout = layout;
+        }
+
+        private static Color ShiftLuminance(Color color, float amount)
+        {
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            l = Math.Max(0, Math.Min(1, l + amount));
+            return ColorFromHsl(h, s, l);
+        }
+
+        private static void ColorToHsl(Color color, out float h, out float s, out float l)
+        {
+            float r = color.R / 255.0f;
+            float g = color.G / 255.0f;
+            float b = color.B / 255.0f;
+            float min = Math.Min(r, Math.Min(g, b));
+            float max = Math.Max(r, Math.Max(g, b));
+            l = (max + min) / 2.0f;
+            if (max == min) { h = s = 0; }
+            else
+            {
+                float d = max - min;
+                s = l > 0.5f ? d / (2.0f - max - min) : d / (max + min);
+                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max == g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6.0f;
+            }
+        }
+
+        private static Color ColorFromHsl(float h, float s, float l)
+        {
+            float r, g, b;
+            if (s == 0) { r = g = b = l; }
+            else
+            {
+                float q = l < 0.5f ? l * (1.0f + s) : l + s - l * s;
+                float p = 2.0f * l - q;
+                r = HueToRgb(p, q, h + 1.0f / 3.0f);
+                g = HueToRgb(p, q, h);
+                b = HueToRgb(p, q, h - 1.0f / 3.0f);
+            }
+            return Color.FromArgb(255, (int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
+        }
+
+        private static float HueToRgb(float p, float q, float t)
+        {
+            if (t < 0) t += 1.0f;
+            if (t > 1) t -= 1.0f;
+            if (t < 1.0f / 6.0f) return p + (q - p) * 6.0f * t;
+            if (t < 1.0f / 2.0f) return q;
+            if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
+            return p;
         }
 
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)

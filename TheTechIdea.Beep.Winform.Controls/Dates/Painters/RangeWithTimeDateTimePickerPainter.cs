@@ -737,7 +737,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             
             return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
         }
-    }
 
     private static Color ShiftLuminance(Color color, float amount)
     {
@@ -799,5 +798,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         if (t < 1.0f / 2.0f) return q;
         if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6;
         return p;
+    }
     }
 }

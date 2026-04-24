@@ -1,5 +1,6 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
@@ -78,13 +79,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         {
             return type switch
             {
-                ToolTipType.Success => ControlPaint.Dark(theme.SuccessColor, 0.2f),
-                ToolTipType.Warning => ControlPaint.Dark(theme.WarningColor, 0.2f),
-                ToolTipType.Error => ControlPaint.Dark(theme.ErrorColor, 0.2f),
-                ToolTipType.Info => ControlPaint.Dark(theme.AccentColor, 0.2f),
-                ToolTipType.Primary => ControlPaint.Dark(theme.PrimaryColor, 0.2f),
-                ToolTipType.Secondary => ControlPaint.Dark(theme.SecondaryColor, 0.2f),
-                ToolTipType.Accent => ControlPaint.Dark(theme.AccentColor, 0.2f),
+                ToolTipType.Success => ColorUtils.ShiftLuminance(theme.SuccessColor, -0.2f),
+                ToolTipType.Warning => ColorUtils.ShiftLuminance(theme.WarningColor, -0.2f),
+                ToolTipType.Error => ColorUtils.ShiftLuminance(theme.ErrorColor, -0.2f),
+                ToolTipType.Info => ColorUtils.ShiftLuminance(theme.AccentColor, -0.2f),
+                ToolTipType.Primary => ColorUtils.ShiftLuminance(theme.PrimaryColor, -0.2f),
+                ToolTipType.Secondary => ColorUtils.ShiftLuminance(theme.SecondaryColor, -0.2f),
+                ToolTipType.Accent => ColorUtils.ShiftLuminance(theme.AccentColor, -0.2f),
                 _ => StyleColors.GetBorder(style)
             };
         }

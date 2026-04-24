@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Icons;
@@ -79,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 using (var brush = new LinearGradientBrush(
                     trackRect,
                     Color.FromArgb(255, trackColor),
-                    Color.FromArgb(255, ControlPaint.Dark(trackColor, 0.1f)),
+                    Color.FromArgb(255, ColorUtils.ShiftLuminance(trackColor, -0.1f)),
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(brush, path);
@@ -126,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             using (var brush = new LinearGradientBrush(
                 thumbRect,
                 thumbColor,
-                ControlPaint.Dark(thumbColor, 0.05f),
+                ColorUtils.ShiftLuminance(thumbColor, -0.05f),
                 LinearGradientMode.Vertical))
             {
                 g.FillEllipse(brush, thumbRect);

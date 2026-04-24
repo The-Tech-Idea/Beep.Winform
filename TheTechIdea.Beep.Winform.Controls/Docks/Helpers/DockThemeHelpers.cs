@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
@@ -99,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docks.Helpers
             if (useThemeColors && theme != null)
             {
                 if (theme.SurfaceColor != Color.Empty)
-                    return ControlPaint.Light(theme.SurfaceColor, 0.1f);
+                    return ColorUtils.ShiftLuminance(theme.SurfaceColor, 0.1f);
             }
 
             return Color.FromArgb(245, 245, 245);

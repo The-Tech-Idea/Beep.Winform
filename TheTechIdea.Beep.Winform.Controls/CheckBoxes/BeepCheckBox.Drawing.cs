@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 {
@@ -196,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             if (!Enabled)
             {
-                backColor = ControlPaint.Light(backColor, 0.25f);
+                backColor = ColorUtils.ShiftLuminance(backColor, 0.25f);
             }
 
             if (!_brushCache.TryGetValue(backColor, out SolidBrush backBrush))
@@ -215,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             if (!Enabled)
             {
-                borderColor = ControlPaint.Light(borderColor, 0.30f);
+                borderColor = ColorUtils.ShiftLuminance(borderColor, 0.30f);
             }
 
             if (!_penCache.TryGetValue(borderColor, out Pen borderPen))
@@ -250,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
                 if (!Enabled)
                 {
-                    textColor = ControlPaint.Light(textColor, 0.35f);
+                    textColor = ColorUtils.ShiftLuminance(textColor, 0.35f);
                 }
 
                 TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor,
@@ -267,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             if (isDisabled)
             {
-                checkColor = ControlPaint.Light(checkColor, 0.35f);
+                checkColor = ColorUtils.ShiftLuminance(checkColor, 0.35f);
             }
 
             if (!_penCache.TryGetValue(checkColor, out Pen checkPen))
@@ -294,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             if (isDisabled)
             {
-                indeterminateColor = ControlPaint.Light(indeterminateColor, 0.35f);
+                indeterminateColor = ColorUtils.ShiftLuminance(indeterminateColor, 0.35f);
             }
 
             if (!_brushCache.TryGetValue(indeterminateColor, out SolidBrush indeterminateBrush))

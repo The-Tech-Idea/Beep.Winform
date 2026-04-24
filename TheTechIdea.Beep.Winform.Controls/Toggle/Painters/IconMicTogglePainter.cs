@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Icons;
@@ -55,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             int radius = trackRect.Height / 2;
 
             using (var path = GetRoundedRectPath(trackRect, radius))
-            using (var brush = new LinearGradientBrush(trackRect, trackColor, ControlPaint.Dark(trackColor, 0.1f), LinearGradientMode.Vertical))
+            using (var brush = new LinearGradientBrush(trackRect, trackColor, ColorUtils.ShiftLuminance(trackColor, -0.1f), LinearGradientMode.Vertical))
             {
                 g.FillPath(brush, path);
             }
@@ -72,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                     g.FillEllipse(shadowBrush, new Rectangle(thumbRect.X + 1, thumbRect.Y + 2, thumbRect.Width, thumbRect.Height));
             }
 
-            using (var brush = new LinearGradientBrush(thumbRect, thumbColor, ControlPaint.Dark(thumbColor, 0.05f), LinearGradientMode.Vertical))
+            using (var brush = new LinearGradientBrush(thumbRect, thumbColor, ColorUtils.ShiftLuminance(thumbColor, -0.05f), LinearGradientMode.Vertical))
                 g.FillEllipse(brush, thumbRect);
 
             using (var pen = new Pen(Color.FromArgb(60, Color.Black), 1.5f))

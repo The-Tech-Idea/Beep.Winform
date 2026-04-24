@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.CompositingMode = CompositingMode.SourceCopy;
             
             // Nordic: Clean with very subtle gradient (5% variation)
-            var lightColor = ControlPaint.Light(metrics.BackgroundColor, 0.05f);
+            var lightColor = ShiftLuminance(metrics.BackgroundColor, 0.05f);
             using (var gradBrush = new LinearGradientBrush(
                 owner.ClientRectangle,
                 lightColor,
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Hover: brighter base color
-            Color effectiveColor = isHovered ? ControlPaint.Light(baseColor, 0.15f) : baseColor;
+            Color effectiveColor = isHovered ? ShiftLuminance(baseColor, 0.15f) : baseColor;
 
             // Wood grain texture background
             DrawWoodGrain(g, rect, effectiveColor);
@@ -144,8 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 // Subtle gradient fill (natural color variation)
                 using (var gradientBrush = new LinearGradientBrush(rect,
-                    ControlPaint.Light(effectiveColor, 0.08f),
-                    ControlPaint.Dark(effectiveColor, 0.05f),
+                    ShiftLuminance(effectiveColor, 0.08f),
+                    ShiftLuminance(effectiveColor, -0.05f),
                     LinearGradientMode.Vertical))
                 {
                     g.FillPath(gradientBrush, path);
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
                 // Natural border - thicker on hover
                 float borderWidth = isHovered ? 1.5f : 1f;
-                using (var borderPen = new Pen(ControlPaint.Dark(effectiveColor, 0.15f), borderWidth))
+                using (var borderPen = new Pen(ShiftLuminance(effectiveColor, -0.15f), borderWidth))
                 {
                     g.DrawPath(borderPen, path);
                 }
@@ -363,6 +363,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (bl > 0) path.AddArc(rect.X, rect.Bottom - bl * 2, bl * 2, bl * 2, 90, 90); else path.AddLine(rect.X, rect.Bottom, rect.X, rect.Bottom);
             path.CloseFigure();
             return path;
+        }
+
+        private static Color ShiftLuminance(Color color, float amount)
+        {
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            l = Math.Max(0, Math.Min(1, l + amount));
+            return ColorFromHsl(h, s, l);
+        }
+        private static void ColorToHsl(Color c, out float h, out float s, out float l)
+        {
+            float r = c.R / 255f, g = c.G / 255f, b = c.B / 255f;
+            float min = Math.Min(r, Math.Min(g, b)), max = Math.Max(r, Math.Max(g, b));
+            l = (max + min) / 2f;
+            if (max == min) { h = s = 0; }
+            else
+            {
+                float d = max - min;
+                s = l > 0.5f ? d / (2f - max - min) : d / (max + min);
+                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max == g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6f;
+            }
+        }
+        private static Color ColorFromHsl(float h, float s, float l)
+        {
+            float r, g, b;
+            if (s == 0) { r = g = b = l; }
+            else
+            {
+                float q = l < 0.5f ? l * (1f + s) : l + s - l * s;
+                float p = 2f * l - q;
+                r = Hue2Rgb(p, q, h + 1f / 3f);
+                g = Hue2Rgb(p, q, h);
+                b = Hue2Rgb(p, q, h - 1f / 3f);
+            }
+            return Color.FromArgb(255, (int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
+        }
+        private static float Hue2Rgb(float p, float q, float t)
+        {
+            if (t < 0) t += 1f; if (t > 1) t -= 1f;
+            if (t < 1f / 6f) return p + (q - p) * 6f * t;
+            if (t < 1f / 2f) return q;
+            if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6f;
+            return p;
         }
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)

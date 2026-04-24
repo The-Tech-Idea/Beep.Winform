@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Ubuntu warm gradient (subtle 6% lighter at top - using helper)
             FormPainterRenderHelper.PaintGradientBackground(g, owner.ClientRectangle,
-                ControlPaint.Light(metrics.BackgroundColor, 0.06f),
+                ShiftLuminance(metrics.BackgroundColor, 0.06f),
                 metrics.BackgroundColor,
                 LinearGradientMode.Vertical);
             
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Caption with subtle gradient (using helper)
             FormPainterRenderHelper.PaintGradientBackground(g, captionRect,
-                ControlPaint.Light(metrics.CaptionColor, 0.04f),
+                ShiftLuminance(metrics.CaptionColor, 0.04f),
                 metrics.CaptionColor,
                 LinearGradientMode.Vertical);
             
@@ -511,6 +511,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             );
             
             owner.CurrentLayout = layout;
+        }
+
+        private static Color ShiftLuminance(Color color, float amount)
+        {
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            l = Math.Max(0, Math.Min(1, l + amount));
+            return ColorFromHsl(h, s, l);
+        }
+        private static void ColorToHsl(Color c, out float h, out float s, out float l)
+        {
+            float r = c.R / 255f, g = c.G / 255f, b = c.B / 255f;
+            float min = Math.Min(r, Math.Min(g, b)), max = Math.Max(r, Math.Max(g, b));
+            l = (max + min) / 2f;
+            if (max == min) { h = s = 0; }
+            else
+            {
+                float d = max - min;
+                s = l > 0.5f ? d / (2f - max - min) : d / (max + min);
+                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max == g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6f;
+            }
+        }
+        private static Color ColorFromHsl(float h, float s, float l)
+        {
+            float r, g, b;
+            if (s == 0) { r = g = b = l; }
+            else
+            {
+                float q = l < 0.5f ? l * (1f + s) : l + s - l * s;
+                float p = 2f * l - q;
+                r = Hue2Rgb(p, q, h + 1f / 3f);
+                g = Hue2Rgb(p, q, h);
+                b = Hue2Rgb(p, q, h - 1f / 3f);
+            }
+            return Color.FromArgb(255, (int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
+        }
+        private static float Hue2Rgb(float p, float q, float t)
+        {
+            if (t < 0) t += 1f; if (t > 1) t -= 1f;
+            if (t < 1f / 6f) return p + (q - p) * 6f * t;
+            if (t < 1f / 2f) return q;
+            if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6f;
+            return p;
         }
 
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)

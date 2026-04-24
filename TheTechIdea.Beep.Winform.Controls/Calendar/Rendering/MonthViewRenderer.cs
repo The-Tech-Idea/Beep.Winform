@@ -24,9 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             for (int i = 0; i < 7; i++)
             {
                 var headerRect = new Rectangle(grid.X + i * cellWidth, grid.Y, cellWidth, dayHeaderHeight);
-                using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
+                using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? ctx.Owner.BackColor))
                     g.FillRectangle(brush, headerRect);
-                using (var brush = new SolidBrush(ctx.Theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(95, 99, 104)))
+                using (var brush = new SolidBrush(ctx.Theme?.CalendarDaysHeaderForColor ?? ctx.Owner.ForeColor))
                     g.DrawString(dayNames[i], ctx.DaysHeaderFont, brush, headerRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
 
@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             bool isToday = cellDate.Date == DateTime.Today;
             bool isSelected = cellDate.Date == ctx.State.SelectedDate.Date;
 
-            Color bgColor = isSelected ? ctx.Theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244) :
+            Color bgColor = isSelected ? ctx.Theme?.CalendarSelectedDateBackColor ?? ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244) :
                            isToday ? ctx.Theme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255) :
                            isCurrentMonth ? ctx.Theme?.CalendarBackColor ?? Color.White :
                            Color.FromArgb(248, 249, 250);
@@ -130,7 +130,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 using (var brush = new SolidBrush(color))
                 using (var path = CommonDrawing.RoundedRect(rect, 3))
                     g.FillPath(brush, path);
-                using (var brush = new SolidBrush(Color.White))
+
+                // Use luminance-aware text color for event labels
+                Color eventText = GetContrastingTextColor(color);
+                using (var brush = new SolidBrush(eventText))
                     g.DrawString(evt.Title, ctx.EventFont, brush, rect, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
                 eventY += eventHeight + eventSpacing;
             }
@@ -140,6 +143,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 using (var brush = new SolidBrush(ctx.Theme?.CalendarForeColor ?? Color.Gray))
                     g.DrawString($"+{events.Count - 3} more", ctx.EventFont, brush, new PointF(cellRect.X + 2, eventY));
             }
+        }
+
+        private static Color GetContrastingTextColor(Color background)
+        {
+            double luminance = (0.299 * background.R + 0.587 * background.G + 0.114 * background.B) / 255.0;
+            return luminance > 0.5 ? Color.FromArgb(220, 220, 220) : Color.White;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
                     if (isHovered)
                     {
                         if (theme.SurfaceColor != Color.Empty)
-                            return ControlPaint.Light(theme.SurfaceColor, 0.1f);
+                            return ShiftLuminance(theme.SurfaceColor, 0.05f);
                     }
                     if (theme.SecondaryColor != Color.Empty)
                         return theme.SecondaryColor;
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
                 if (isOn)
                 {
                     if (theme.SuccessColor != Color.Empty)
-                        return ControlPaint.Dark(theme.SuccessColor, 0.1f);
+                        return ShiftLuminance(theme.SuccessColor, -0.1f);
                 }
                 else
                 {
@@ -227,6 +227,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             b = b <= 0.03928f ? b / 12.92f : (float)Math.Pow((b + 0.055f) / 1.055f, 2.4f);
 
             return 0.2126f * r + 0.7152f * g + 0.0722f * b;
+        }
+
+        private static Color ShiftLuminance(Color color, float shift)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+
+            r = Math.Clamp(r + shift, 0f, 1f);
+            g = Math.Clamp(g + shift, 0f, 1f);
+            b = Math.Clamp(b + shift, 0f, 1f);
+
+            return Color.FromArgb(
+                color.A,
+                (int)(r * 255),
+                (int)(g * 255),
+                (int)(b * 255));
         }
 
         #endregion

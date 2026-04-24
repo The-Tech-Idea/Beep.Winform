@@ -56,27 +56,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
         {
-            // Icon appears on the header in white
             string ip = !string.IsNullOrEmpty(data.IconPath)
                 ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            DrawIcon(g, iconRect, ip, Color.White, S(4));
+            int hh = S(HeaderHeight);
+            bool onHeader = iconRect.Y < hh + S(DefaultRadius);
+            Color iconColor = onHeader ? Color.White : GetContrastIconColor(data.Type);
+            DrawIcon(g, iconRect, ip, iconColor, S(4));
         }
 
         public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
-            // Title is on the gradient header — use white text
             int hh = S(HeaderHeight);
             bool onHeader = rect.Y < hh + S(DefaultRadius);
 
             Font f  = TitleFont ?? SystemFonts.DefaultFont;
-            Color c = onHeader ? Color.White : Color.FromArgb(29, 29, 31);
+            Color c = onHeader ? Color.White : GetTitleColor(data.Type);
             TextRenderer.DrawText(g, title, f, rect, c,
                 TextFormatFlags.Left | TextFormatFlags.Top |
                 TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
         }
 
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
-            => DrawMessage(g, rect, message, Color.FromArgb(80, 80, 90));
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            DrawMessage(g, rect, message, msgColor);
+        }
+
+        private static Color GetContrastIconColor(NotificationType type)
+        {
+            var colors = NotificationThemeHelpers.GetColorsForType(type);
+            float luminance = (0.299f * colors.IconColor.R + 0.587f * colors.IconColor.G + 0.114f * colors.IconColor.B) / 255f;
+            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
+        }
+
+        private static Color GetTitleColor(NotificationType type)
+        {
+            var colors = NotificationThemeHelpers.GetColorsForType(type);
+            return colors.ForeColor;
+        }
 
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {

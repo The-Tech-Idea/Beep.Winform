@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color breezeBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
 
             float borderWidth = StyleBorders.GetBorderWidth(style); // 1.0f
+            if (borderWidth <= 0f) return path;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // State-based border color
@@ -48,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintGlowBorder(g, path, breezeBlue, glowWidth, 0.4f);
             }
 
-            return path;
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

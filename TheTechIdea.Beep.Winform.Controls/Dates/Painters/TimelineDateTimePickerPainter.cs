@@ -78,9 +78,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 14f, FontStyle.Bold);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
 
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 14f, FontStyle.Bold))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f))
+            {
             using (var brush = new SolidBrush(textColor))
             {
                 g.DrawString("Date Range Timeline", boldFont, brush, bounds.X, bounds.Y);
@@ -90,6 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 string subtitle = "Drag handles to adjust range";
                 g.DrawString(subtitle, font, brush, bounds.X, bounds.Y + 24);
+            }
             }
         }
 
@@ -115,8 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Calculate range positions
             DateTime startDate = _owner.RangeStartDate ?? DateTime.Today;
             DateTime endDate = _owner.RangeEndDate ?? DateTime.Today.AddDays(30);
-            DateTime minDate = DateTime.Today.AddMonths(-6);
-            DateTime maxDate = DateTime.Today.AddMonths(6);
+            DateTime minDate = _owner.MinDate != DateTime.MinValue ? _owner.MinDate : DateTime.Today.AddMonths(-6);
+            DateTime maxDate = _owner.MaxDate != DateTime.MaxValue ? _owner.MaxDate : DateTime.Today.AddMonths(6);
 
             float totalDays = (float)(maxDate - minDate).TotalDays;
             float startPos = (float)(startDate - minDate).TotalDays / totalDays;
@@ -193,8 +195,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(150, 150, 150);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
-            var font = new Font("Segoe UI", 7f);
 
+            using (var font = new Font("Segoe UI", 7f))
+            {
             DateTime current = new DateTime(minDate.Year, minDate.Month, 1);
             float totalDays = (float)(maxDate - minDate).TotalDays;
 
@@ -222,15 +225,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
                 current = current.AddMonths(1);
             }
+            }
         }
 
         private void PaintDateLabels(Graphics g, Rectangle bounds)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 11f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 11f, FontStyle.Bold))
+            {
             DateTime startDate = _owner.RangeStartDate ?? DateTime.Today;
             DateTime endDate = _owner.RangeEndDate ?? DateTime.Today.AddDays(30);
             int days = (endDate - startDate).Days + 1;
@@ -253,6 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // End date
             var endRect = new Rectangle(bounds.X + bounds.Width - halfWidth, bounds.Y, halfWidth, bounds.Height);
             PaintDateLabel(g, endRect, "End Date", endDate, days);
+            }
         }
 
         private void PaintDateLabel(Graphics g, Rectangle bounds, string label, DateTime date, int totalDays)
@@ -260,9 +266,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 13f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 13f, FontStyle.Bold))
+            {
             int y = bounds.Y;
 
             // Label
@@ -284,6 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 g.DrawString(date.ToString("dddd"), font, brush, bounds.X, y);
             }
+            }
         }
 
         private void PaintMiniCalendar(Graphics g, Rectangle bounds, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState)
@@ -292,7 +300,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             // Compact header
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold);
+
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -326,8 +335,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var rangeColor = Color.FromArgb(60, accentColor);
             
             // Define distinct colors for start and end dates
-            var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green
-            var endDateColor = accentColor;  // Blue (accent)
+            var startDateColor = Color.FromArgb(34, 139, 34);
+            var endDateColor = accentColor;
 
             cellBounds.Inflate(-1, -1);
 
@@ -386,13 +395,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             // Day number
             var dayText = date.Day.ToString();
-            var font = new Font("Segoe UI", 8f);
-            
+
             if (isDisabled)
             {
                 textColor = Color.FromArgb(180, 180, 180);
             }
 
+            using (var font = new Font("Segoe UI", 8f))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -407,8 +416,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -425,12 +434,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
             var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(128, 128, 128);
-            var font = new Font("Segoe UI", 7f);
 
+            using (var font = new Font("Segoe UI", 7f))
+            {
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
             int startDay = (int)firstDayOfWeek;
             int cellWidth = headerBounds.Width / 7;
-            
+
             for (int i = 0; i < 7; i++)
             {
                 int dayIndex = (startDay + i) % 7;
@@ -450,6 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     };
                     g.DrawString(dayNames[dayIndex].Substring(0, 1), font, brush, cellRect, format);
                 }
+            }
             }
         }
 

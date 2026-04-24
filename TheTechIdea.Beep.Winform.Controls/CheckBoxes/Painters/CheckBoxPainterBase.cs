@@ -45,15 +45,47 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         {
             if (state.IsDisabled)
             {
-                return (ControlPaint.Light(background, 0.18f), ControlPaint.Light(border, 0.30f));
+                return (AdjustAlpha(background, 0.60f), AdjustAlpha(border, 0.50f));
             }
 
             if (state.IsHovered)
             {
-                return (ControlPaint.Light(background, 0.08f), ControlPaint.Light(border, 0.10f));
+                return (ShiftLuminance(background, 0.08f), ShiftLuminance(border, 0.06f));
             }
 
             return (background, border);
+        }
+
+        private static Color AdjustAlpha(Color color, float alphaFactor)
+        {
+            int alpha = (int)(color.A * alphaFactor);
+            return Color.FromArgb(alpha, color.R, color.G, color.B);
+        }
+
+        private static Color ShiftLuminance(Color color, float shift)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+            float max = Math.Max(r, Math.Max(g, b));
+            float min = Math.Min(r, Math.Min(g, b));
+            float l = (max + min) / 2f;
+
+            float delta = shift;
+            if (l > 0.5f)
+            {
+                delta = -shift;
+            }
+
+            r = Math.Clamp(r + delta, 0f, 1f);
+            g = Math.Clamp(g + delta, 0f, 1f);
+            b = Math.Clamp(b + delta, 0f, 1f);
+
+            return Color.FromArgb(
+                color.A,
+                (int)(r * 255),
+                (int)(g * 255),
+                (int)(b * 255));
         }
 
         protected Rectangle GetFocusRingBounds(Rectangle bounds)

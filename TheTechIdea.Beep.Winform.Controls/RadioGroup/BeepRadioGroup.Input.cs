@@ -12,13 +12,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseMove(e);
             if (DesignMode || !Enabled) return;
             
-            // Convert mouse location to be relative to DrawingRect
             var adjustedLocation = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
             
             _hitTestHelper.HandleMouseMove(adjustedLocation);
+            Cursor = _hitTestHelper.HoveredIndex >= 0 ? Cursors.Hand : Cursors.Default;
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             if (DesignMode) return;
             
             _hitTestHelper.HandleMouseLeave();
+            Cursor = Cursors.Default;
         }
 
         protected override void OnMouseClick(MouseEventArgs e)

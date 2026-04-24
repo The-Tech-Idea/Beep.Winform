@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 {
@@ -26,8 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
             foreach (var item in items) combo.ListItems.Add(item);
 
             combo.GridMode = false;
-            combo.BackColor = Color.White;
-            combo.ForeColor = Color.Black;
+            var t = theme as IBeepTheme ?? BeepThemesManager.CurrentTheme;
+            combo.BackColor = t?.BackColor != Color.Empty ? t.BackColor : Color.White;
+            combo.ForeColor = t?.ForeColor != Color.Empty ? t.ForeColor : Color.Black;
             combo.BorderStyle = BorderStyle.FixedSingle;
         }
 

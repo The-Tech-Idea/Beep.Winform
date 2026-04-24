@@ -26,28 +26,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int radius = data.CornerRadiusOverride > 0 ? data.CornerRadiusOverride : S(DefaultRadius);
-            Color back   = data.CustomBackColor ?? Color.White;
-            Color border = Color.FromArgb(229, 231, 235);
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color back   = data.CustomBackColor ?? colors.BackColor;
+            Color border = colors.BorderColor;
             DrawBackground(g, bounds, back, border, radius);
         }
 
-        public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
+        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
-            // Stripe uses a plain colour dot, not an icon image
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            int ds = S(DotSize);
-            var dotRect = new Rectangle(
-                iconRect.X + (iconRect.Width  - ds) / 2,
-                iconRect.Y + (iconRect.Height - ds) / 2,
-                ds, ds);
-            DrawTypeDot(g, dotRect, colors.IconColor);
+            DrawTitle(g, rect, title, colors.ForeColor);
         }
 
-        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
-            => DrawTitle(g, rect, title, Color.FromArgb(15, 23, 42));      // Stripe slate-900
-
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
-            => DrawMessage(g, rect, message, Color.FromArgb(100, 116, 139)); // slate-500
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            DrawMessage(g, rect, message, msgColor);
+        }
 
         public override void PaintActions(Graphics g, Rectangle actionsRect, NotificationAction[] actions, NotificationData data)
         {

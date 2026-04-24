@@ -117,34 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
         }
 
         /// <summary>
-        /// Creates a terminal-style path — sharp rectangle with 45-degree chamfers
-        /// at each corner, evoking a CRT monitor bezel / ASCII bracket frame.
-        /// The chamfer is proportional to the control size (1/10 of smallest side,
-        /// clamped between 4px and 12px).
+        /// Creates a terminal-style path — sharp rectangle with no corner
+        /// chamfers, evoking a classic CRT monitor / ASCII frame.
         /// </summary>
         public static GraphicsPath CreateTerminalPath(Rectangle bounds)
         {
             GraphicsPath path = new GraphicsPath();
-
-            int chamfer = Math.Max(4, Math.Min(12, Math.Min(bounds.Width, bounds.Height) / 10));
-
-            // Top edge (left chamfer → right chamfer)
-            path.AddLine(bounds.Left + chamfer, bounds.Top, bounds.Right - chamfer, bounds.Top);
-            // Top-right chamfer
-            path.AddLine(bounds.Right - chamfer, bounds.Top, bounds.Right, bounds.Top + chamfer);
-            // Right edge
-            path.AddLine(bounds.Right, bounds.Top + chamfer, bounds.Right, bounds.Bottom - chamfer);
-            // Bottom-right chamfer
-            path.AddLine(bounds.Right, bounds.Bottom - chamfer, bounds.Right - chamfer, bounds.Bottom);
-            // Bottom edge
-            path.AddLine(bounds.Right - chamfer, bounds.Bottom, bounds.Left + chamfer, bounds.Bottom);
-            // Bottom-left chamfer
-            path.AddLine(bounds.Left + chamfer, bounds.Bottom, bounds.Left, bounds.Bottom - chamfer);
-            // Left edge
-            path.AddLine(bounds.Left, bounds.Bottom - chamfer, bounds.Left, bounds.Top + chamfer);
-            // Top-left chamfer
-            path.AddLine(bounds.Left, bounds.Top + chamfer, bounds.Left + chamfer, bounds.Top);
-
+            path.AddRectangle(bounds);
             path.CloseFigure();
             return path;
         }

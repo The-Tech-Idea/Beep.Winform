@@ -329,8 +329,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             
             // Define distinct colors for start and end dates
-            var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green
-            var endDateColor = accentColor;  // Blue (accent)
+            var startDateColor = Color.FromArgb(34, 139, 34);
+            var endDateColor = accentColor;
 
             cellBounds.Inflate(-2, -2);
 
@@ -386,13 +386,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
 
             var dayText = date.Day.ToString();
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
 
             if (isDisabled)
             {
                 textColor = Color.FromArgb(180, 180, 180);
             }
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 9f))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -407,8 +407,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 11f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 11f, FontStyle.Bold))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -424,8 +424,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
             var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(128, 128, 128);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 8.5f);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 8.5f))
+            {
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
             int startDay = (int)firstDayOfWeek;
             int cellWidth = headerBounds.Width / 7;
@@ -445,6 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString(dayNames[dayIndex].Substring(0, 2), font, brush, cellRect, format);
                 }
+            }
             }
         }
 

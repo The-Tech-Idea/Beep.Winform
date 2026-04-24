@@ -36,7 +36,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             
             int pad = GetPadding(opt.Size, scale);
             int h = GetHeight(opt.Size, scale);
-            return new Size(sz.Width + pad, h);
+            
+            int extra = 0;
+            if (opt.ShowCloseOnSelected)
+                extra += DpiScalingHelper.ScaleValue(16, scale);
+                
+            return new Size(sz.Width + pad + extra, h);
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)

@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private bool _keyboardFocusVisible;
         private int _minimumHitTargetSize = 32;
         private bool _hideText = false;
-        private Font _textFont = SystemFonts.MessageBoxFont;
+        private Font _textFont;
         private int checkboxsize = 15;
         private int _spacing = 5;
         private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;
@@ -117,7 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             TabStop = true;
 
-            // Initialize painter
+            _textFont = SystemFonts.MessageBoxFont;
+
             _painter = CheckBoxPainterFactory.GetPainter(_checkBoxStyle);
 
             ApplyTheme();

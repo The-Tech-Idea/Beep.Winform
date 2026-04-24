@@ -243,8 +243,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 if (RequireAtLeastOne && _selected.Count == 0)
                 {
                     var err = string.IsNullOrEmpty(ValidationError) ? "(at least one item is required)" : ValidationError;
-                    var lblRect = new Rectangle(contentRect.Left, contentRect.Bottom + 2, contentRect.Width, 18);
-                    TextRenderer.DrawText(g, err, TextFont, lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.Top);
+                    int errHeight = 16;
+                    var lblRect = new Rectangle(contentRect.Left, contentRect.Bottom - errHeight, contentRect.Width, errHeight);
+                    using var errBrush = new SolidBrush(Color.FromArgb(200, Color.Red));
+                    using var errBgBrush = new SolidBrush(Color.FromArgb(20, Color.Red));
+                    g.FillRectangle(errBgBrush, lblRect);
+                    TextRenderer.DrawText(g, err, new Font(TextFont.FontFamily, TextFont.Size * 0.85f), lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
                 }
             }
         }

@@ -34,7 +34,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var font = ResolveFont(opt, scale);
             string text = item?.Text ?? item?.Name ?? item?.DisplayField ?? string.Empty;
             var sz = TextRenderer.MeasureText(g, text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
-            return new Size(sz.Width + GetHorizontalPadding(opt.Size, scale), GetChipHeight(opt.Size, scale));
+            
+            int extra = 0;
+            if (opt.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
+                extra += DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale).Width + DpiScalingHelper.ScaleValue(6, scale);
+            if (opt.ShowSelectionCheck)
+                extra += DpiScalingHelper.ScaleValue(14, scale);
+            if (opt.ShowCloseOnSelected)
+                extra += DpiScalingHelper.ScaleValue(16, scale);
+                
+            return new Size(sz.Width + GetHorizontalPadding(opt.Size, scale) + extra, GetChipHeight(opt.Size, scale));
         }
 
         public void RenderChip(Graphics g, SimpleItem item, Rectangle bounds, ChipVisualState state, ChipRenderOptions opt, out Rectangle closeRect)

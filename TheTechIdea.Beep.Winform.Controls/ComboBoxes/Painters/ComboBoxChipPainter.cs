@@ -26,16 +26,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             var theme = state.ThemeTokens;
             Font font = theme?.LabelFont ?? SystemFonts.DefaultFont;
 
-            // Resolve chip colors from theme tokens
-            Color chipBack = theme?.SelectedBackColor != Color.Empty
-                ? theme.SelectedBackColor
-                : Color.FromArgb(227, 242, 253);
-            Color chipFore = theme?.SelectedForeColor != Color.Empty
-                ? theme.SelectedForeColor
-                : Color.FromArgb(25, 118, 210);
-            Color chipBorder = theme?.SelectedBorderColor != Color.Empty
-                ? theme.SelectedBorderColor
-                : Color.FromArgb(144, 202, 249);
+            Color chipBack, chipFore, chipBorder;
+            if (state.IsDisabled)
+            {
+                chipBack = theme?.DisabledBackColor != Color.Empty
+                    ? theme.DisabledBackColor
+                    : Color.FromArgb(245, 245, 245);
+                chipFore = theme?.DisabledForeColor != Color.Empty
+                    ? theme.DisabledForeColor
+                    : Color.FromArgb(158, 158, 158);
+                chipBorder = theme?.BorderColor != Color.Empty
+                    ? Color.FromArgb(100, theme.BorderColor)
+                    : Color.FromArgb(100, 176, 176, 176);
+            }
+            else
+            {
+                chipBack = theme?.SelectedBackColor != Color.Empty
+                    ? theme.SelectedBackColor
+                    : Color.FromArgb(227, 242, 253);
+                chipFore = theme?.SelectedForeColor != Color.Empty
+                    ? theme.SelectedForeColor
+                    : Color.FromArgb(25, 118, 210);
+                chipBorder = theme?.SelectedBorderColor != Color.Empty
+                    ? theme.SelectedBorderColor
+                    : Color.FromArgb(144, 202, 249);
+            }
 
             // Contrast check
             if (ThemeContrastHelper.ContrastRatio(chipFore, chipBack) < 2.5)

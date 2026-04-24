@@ -179,7 +179,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         public void SelectThisWeek()
         {
             var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            int targetDay = (int)_firstDayOfWeek;
+            int currentDay = (int)today.DayOfWeek;
+            int daysToSubtract = (currentDay - targetDay + 7) % 7;
+            var startOfWeek = today.AddDays(-daysToSubtract);
             var endOfWeek = startOfWeek.AddDays(6);
 
             if (_mode == DatePickerMode.Range)
@@ -284,29 +287,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             Invalidate();
         }
 
-        private void ToggleMultipleDate(DateTime date)
-        {
-            if (date < _minDate || date > _maxDate) return;
-            date = date.Date;
-
-            int idx = _selectedDates.FindIndex(d => d == date);
-            if (idx >= 0)
-            {
-                _selectedDates.RemoveAt(idx);
-            }
-            else
-            {
-                _selectedDates.Add(date);
-                _selectedDates.Sort();
-            }
-            Invalidate();
-        }
-
-        private bool IsMultipleDateSelected(DateTime date)
-        {
-            return _selectedDates?.Any(d => d.Date == date.Date) == true;
-        }
-
         #endregion
 
         #region Time Scrolling Methods (Appointment Mode)
@@ -347,7 +327,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 var themeFont = BeepFontManager.ToFont(_currentTheme.DateFont);
                 if (themeFont != null) _textFont = themeFont;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.ApplyTheme: Failed to apply theme font: {ex.Message}");
+            }
             _textFont ??= BeepFontManager.DefaultFont ?? new Font("Segoe UI", 9.75f);
 
             // Apply calendar-specific theme properties to the control

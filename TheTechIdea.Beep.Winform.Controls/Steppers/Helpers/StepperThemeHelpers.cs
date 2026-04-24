@@ -23,22 +23,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             if (useThemeColors && theme != null)
             {
-                // Try theme-specific property first
                 var property = typeof(IBeepTheme).GetProperty("StepperCompletedColor");
                 if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
                     return themeColor;
 
-                // Fallback to success color
-                return theme.SuccessColor;
+                if (theme.SuccessColor != Color.Empty)
+                    return theme.SuccessColor;
+                if (theme.PrimaryColor != Color.Empty)
+                    return theme.PrimaryColor;
             }
 
-            // Default fallback
-            return SystemColors.Highlight;
+            return Color.FromArgb(34, 197, 94);
         }
 
-        /// <summary>
-        /// Get color for active/current step
-        /// </summary>
         public static Color GetStepActiveColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
             if (customColor.HasValue && customColor.Value != Color.Empty)
@@ -46,22 +43,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             if (useThemeColors && theme != null)
             {
-                // Try theme-specific property first
                 var property = typeof(IBeepTheme).GetProperty("StepperActiveColor");
                 if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
                     return themeColor;
 
-                // Fallback to primary color
-                return theme.PrimaryColor;
+                if (theme.PrimaryColor != Color.Empty)
+                    return theme.PrimaryColor;
+                if (theme.AccentColor != Color.Empty)
+                    return theme.AccentColor;
             }
 
-            // Default fallback
-            return SystemColors.HotTrack;
+            return Color.FromArgb(59, 130, 246);
         }
 
-        /// <summary>
-        /// Get color for pending/future steps
-        /// </summary>
         public static Color GetStepPendingColor(IBeepTheme theme, bool useThemeColors, Color? customColor = null)
         {
             if (customColor.HasValue && customColor.Value != Color.Empty)
@@ -69,17 +63,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             if (useThemeColors && theme != null)
             {
-                // Try theme-specific property first
                 var property = typeof(IBeepTheme).GetProperty("StepperPendingColor");
                 if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
                     return themeColor;
 
-                // Fallback to disabled color
-                return theme.DisabledBackColor;
+                if (theme.DisabledBackColor != Color.Empty)
+                    return theme.DisabledBackColor;
+                if (theme.SurfaceColor != Color.Empty)
+                    return theme.SurfaceColor;
             }
 
-            // Default fallback
-            return SystemColors.ControlDark;
+            return Color.FromArgb(209, 213, 219);
         }
 
         /// <summary>
@@ -158,16 +152,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
             }
 
             // Default fallback
-            return state == StepState.Completed ? SystemColors.Highlight : SystemColors.ControlDark;
+            return state == StepState.Completed
+                ? Color.FromArgb(34, 197, 94)
+                : Color.FromArgb(209, 213, 219);
         }
 
         #endregion
 
         #region Text Colors
 
-        /// <summary>
-        /// Get color for step text (numbers, icons) based on step state
-        /// </summary>
         public static Color GetStepTextColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
             if (customColor.HasValue && customColor.Value != Color.Empty)
@@ -175,7 +168,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             if (useThemeColors && theme != null)
             {
-                // Try theme-specific property first
                 string propertyName = state == StepState.Active
                     ? "StepperActiveTextColor"
                     : "StepperPendingTextColor";
@@ -184,24 +176,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
                     return themeColor;
 
-                // Fallback based on state
                 if (state == StepState.Active)
-                    return theme.PrimaryTextColor;
+                {
+                    if (theme.PrimaryTextColor != Color.Empty)
+                        return theme.PrimaryTextColor;
+                    if (theme.ButtonForeColor != Color.Empty)
+                        return theme.ButtonForeColor;
+                }
                 else if (state == StepState.Completed)
-                    return Color.White; // White text on colored background
+                {
+                    if (theme.ButtonForeColor != Color.Empty)
+                        return theme.ButtonForeColor;
+                }
                 else
-                    return theme.SecondaryTextColor;
+                {
+                    if (theme.SecondaryTextColor != Color.Empty)
+                        return theme.SecondaryTextColor;
+                    if (theme.ForeColor != Color.Empty)
+                        return theme.ForeColor;
+                }
             }
 
-            // Default fallback - white for active/completed, gray for pending
             return state == StepState.Active || state == StepState.Completed
                 ? Color.White
-                : SystemColors.ControlText;
+                : Color.FromArgb(107, 114, 128);
         }
 
-        /// <summary>
-        /// Get color for step labels based on step state
-        /// </summary>
         public static Color GetStepLabelColor(IBeepTheme theme, bool useThemeColors, StepState state, Color? customColor = null)
         {
             if (customColor.HasValue && customColor.Value != Color.Empty)
@@ -209,7 +209,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 
             if (useThemeColors && theme != null)
             {
-                // Try theme-specific property first
                 string propertyName = state == StepState.Active
                     ? "StepperActiveLabelColor"
                     : "StepperPendingLabelColor";
@@ -218,17 +217,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 if (property != null && property.GetValue(theme) is Color themeColor && themeColor != Color.Empty)
                     return themeColor;
 
-                // Fallback based on state
                 if (state == StepState.Active)
-                    return theme.CardTitleForeColor;
+                {
+                    if (theme.CardTitleForeColor != Color.Empty)
+                        return theme.CardTitleForeColor;
+                    if (theme.ForeColor != Color.Empty)
+                        return theme.ForeColor;
+                }
                 else
-                    return theme.CardSubTitleForeColor;
+                {
+                    if (theme.CardSubTitleForeColor != Color.Empty)
+                        return theme.CardSubTitleForeColor;
+                    if (theme.SecondaryTextColor != Color.Empty)
+                        return theme.SecondaryTextColor;
+                }
             }
 
-            // Default fallback
             return state == StepState.Active
-                ? Color.Black
-                : Color.Gray;
+                ? Color.FromArgb(31, 41, 55)
+                : Color.FromArgb(107, 114, 128);
         }
 
         #endregion
@@ -277,9 +284,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                 return theme.BorderColor;
             }
 
-            // Default fallback - white border for active step, transparent for others
+            // Default fallback
             return state == StepState.Active
-                ? Color.White
+                ? Color.FromArgb(59, 130, 246)
                 : Color.Transparent;
         }
 

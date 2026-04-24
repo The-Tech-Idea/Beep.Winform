@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private DateTime _startTime;
         private int _remainingDuration;
         private string _iconPath;
-        private Color _iconTint = Color.Gray;
+        private Color _iconTint = Color.FromArgb(107, 114, 128);
         private Rectangle _iconRect;
         private Rectangle _titleRect;
         private Rectangle _messageRect;

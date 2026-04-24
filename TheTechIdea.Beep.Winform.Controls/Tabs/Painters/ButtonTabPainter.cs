@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             RectangleF buttonRect = new RectangleF(tabRect.X + 2, tabRect.Y + 2, tabRect.Width - 4, tabRect.Height - 4);
 
             Color fillColor = isSelected ? Theme.PrimaryColor : Theme.ButtonBackColor;
-            Color foreColor = isSelected ? Color.White : Theme.ButtonForeColor;
+            Color foreColor = isSelected ? GetContrastColor(Theme.PrimaryColor) : Theme.ButtonForeColor;
             
             if (isHovered && !isSelected)
             {
@@ -68,6 +68,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             {
                 DrawCloseButton(g, buttonRect, vertical);
             }
+        }
+
+        private static Color GetContrastColor(Color background)
+        {
+            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
+            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
         }
     }
 }

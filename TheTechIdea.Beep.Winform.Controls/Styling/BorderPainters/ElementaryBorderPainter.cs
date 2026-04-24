@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = useThemeColors ? theme.BorderColor : StyleColors.GetBorder(style);
             Color subtleBlue = useThemeColors ? theme.AccentColor : StyleColors.GetPrimary(style);
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -29,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, subtleBlue, 2.0f, 2.0f);
             }
 
-            return path;
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

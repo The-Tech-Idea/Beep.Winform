@@ -48,11 +48,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         // ── Popup surface ───────────────────────────────────────────────────
         public Color PopupBackColor         { get; init; }
         public Color PopupBorderColor       { get; init; }
+        public Color PopupRowBackColor      { get; init; }
+        public Color PopupRowBorderColor    { get; init; }
         public Color PopupRowHoverColor     { get; init; }
         public Color PopupRowSelectedColor  { get; init; }
         public Color PopupRowFocusColor     { get; init; }
         public Color PopupGroupHeaderBack   { get; init; }
         public Color PopupGroupHeaderFore   { get; init; }
+        public Color PopupMutedForeColor    { get; init; }
         public Color PopupSeparatorColor    { get; init; }
         public Color PopupSubTextColor      { get; init; }
 
@@ -86,11 +89,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             SelectedBorderColor    = Color.FromArgb(144, 202, 249),
             PopupBackColor         = Color.White,
             PopupBorderColor       = Color.FromArgb(200, 200, 200),
+            PopupRowBackColor      = Color.FromArgb(245, 245, 248),
+            PopupRowBorderColor    = Color.FromArgb(220, 220, 228),
             PopupRowHoverColor     = Color.FromArgb(240, 248, 255),
             PopupRowSelectedColor  = Color.FromArgb(227, 242, 253),
             PopupRowFocusColor     = Color.FromArgb(200, 230, 255),
             PopupGroupHeaderBack   = Color.FromArgb(245, 245, 245),
             PopupGroupHeaderFore   = Color.FromArgb(97, 97, 97),
+            PopupMutedForeColor    = Color.FromArgb(140, 140, 155),
             PopupSeparatorColor    = Color.FromArgb(220, 220, 220),
             PopupSubTextColor      = Color.FromArgb(117, 117, 117),
             LabelFont              = SystemFonts.DefaultFont,

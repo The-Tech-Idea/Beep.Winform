@@ -52,6 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         private void SelectAllUtility()
         {
+            var previousSelected = _selectedItem;
             if (SelectionMode == ChipSelectionMode.Single)
             {
                 if (_chips.Count > 0)
@@ -60,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                     _chips[0].IsSelected = true;
                     _selectedItems.Clear();
                     _selectedItems.Add(_chips[0].Item);
+                    _selectedItem = _chips[0].Item;
                 }
             }
             else
@@ -67,15 +69,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 foreach (var c in _chips) c.IsSelected = true;
                 _selectedItems.Clear();
                 foreach (var c in _chips) _selectedItems.Add(c.Item);
+                _selectedItem = _selectedItems.FirstOrDefault();
             }
+            OnSelectedItemChanged(_selectedItem);
             Invalidate();
         }
 
         private void ClearAllUtility()
         {
+            var previousSelected = _selectedItem;
             foreach (var c in _chips) c.IsSelected = false;
             _selectedItems.Clear();
             _selectedItem = null;
+            OnSelectedItemChanged(null);
             Invalidate();
         }
 
@@ -158,12 +164,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         private void UpdateHoverStates(Point mouseLocation)
         {
             bool needsRedraw = false;
+            bool onInteractive = false;
             foreach (var chip in _chips)
             {
                 bool wasHovered = chip.IsHovered;
                 chip.IsHovered = chip.Bounds.Contains(mouseLocation);
+                if (chip.IsHovered) onInteractive = true;
                 if (wasHovered != chip.IsHovered) needsRedraw = true;
             }
+            if (!_selectAllRect.IsEmpty && _selectAllRect.Contains(mouseLocation)) onInteractive = true;
+            if (!_clearAllRect.IsEmpty && _clearAllRect.Contains(mouseLocation)) onInteractive = true;
+            Cursor = onInteractive ? Cursors.Hand : Cursors.Default;
             if (needsRedraw) Invalidate();
         }
 

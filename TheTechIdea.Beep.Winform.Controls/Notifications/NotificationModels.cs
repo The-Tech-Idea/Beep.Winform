@@ -187,6 +187,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// <summary>UTC timestamp when the notification was created.</summary>
         public DateTime Timestamp { get; set; } = DateTime.Now;
 
+        /// <summary>Whether the notification has been read by the user.</summary>
+        public bool IsRead { get; set; } = false;
+
+        /// <summary>UTC timestamp when the notification was marked as read.</summary>
+        public DateTime? ReadTimestamp { get; set; }
+
+        /// <summary>Whether the notification is pinned (persists until explicitly dismissed).</summary>
+        public bool IsPinned { get; set; } = false;
+
+        /// <summary>Whether the notification should persist after auto-dismiss duration expires.</summary>
+        public bool Persistent { get; set; } = false;
+
+        /// <summary>Number of times this notification has been shown (for grouped/repeated notifications).</summary>
+        public int ShowCount { get; set; } = 1;
+
         // ── Helpers ───────────────────────────────────────────────────────────
 
         public static int GetDefaultDuration(NotificationPriority priority) => priority switch

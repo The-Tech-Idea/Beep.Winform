@@ -65,9 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Return the area inside the border
-                // Return the area inside the border using shape-aware inset
-                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
+            // Return the area inside the border using shape-aware inset
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

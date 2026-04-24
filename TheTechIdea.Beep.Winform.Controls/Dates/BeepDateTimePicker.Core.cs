@@ -63,8 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private DateTimePickerHoverState _hoverState = new DateTimePickerHoverState();
         
         // Hit testing and interaction
-        private bool _isMouseDown = false;
-        private Point _lastMousePosition = Point.Empty;
         
         // Appearance
         private bool _useScaledFont = false;
@@ -157,7 +155,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 {
                     _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
                 }
-                catch { /* fallback to null-safe painters */ }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.InitializePainter: Failed to get default theme: {ex.Message}");
+                }
             }
 
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
@@ -264,7 +265,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 {
                     _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
                 }
-                catch { /* fallback to null-safe painters */ }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"BeepDateTimePicker.UpdatePainter: Failed to get default theme: {ex.Message}");
+                }
             }
 
             // Create painter based on mode - theme provides visual styling

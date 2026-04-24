@@ -26,12 +26,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 // Use theme colors when available
                 return type switch
                 {
-                    NotificationType.Success => Color.FromArgb(240, 255, 240), // Light green
-                    NotificationType.Warning => Color.FromArgb(255, 252, 232), // Light yellow
-                    NotificationType.Error => Color.FromArgb(254, 242, 242), // Light red
-                    NotificationType.Info => Color.FromArgb(239, 246, 255), // Light blue
-                    NotificationType.System => Color.FromArgb(249, 250, 251), // Light gray
-                    _ => theme.BackColor
+                    NotificationType.Success => theme.SuccessColor != Color.Empty 
+                        ? Lighten(theme.SuccessColor, 0.85f) 
+                        : Color.FromArgb(240, 255, 240),
+                    NotificationType.Warning => theme.WarningColor != Color.Empty 
+                        ? Lighten(theme.WarningColor, 0.85f) 
+                        : Color.FromArgb(255, 252, 232),
+                    NotificationType.Error => theme.ErrorColor != Color.Empty 
+                        ? Lighten(theme.ErrorColor, 0.85f) 
+                        : Color.FromArgb(254, 242, 242),
+                    NotificationType.Info => theme.PrimaryColor != Color.Empty 
+                        ? Lighten(theme.PrimaryColor, 0.85f) 
+                        : Color.FromArgb(239, 246, 255),
+                    NotificationType.System => theme.SurfaceColor != Color.Empty 
+                        ? Lighten(theme.SurfaceColor, 0.5f) 
+                        : Color.FromArgb(249, 250, 251),
+                    _ => theme.BackColor != Color.Empty ? theme.BackColor : Color.White
                 };
             }
 
@@ -45,6 +55,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 NotificationType.System => Color.FromArgb(249, 250, 251),
                 _ => Color.White
             };
+        }
+
+        private static Color Lighten(Color color, float factor)
+        {
+            return Color.FromArgb(
+                color.A,
+                Math.Min(255, (int)(color.R + (255 - color.R) * factor)),
+                Math.Min(255, (int)(color.G + (255 - color.G) * factor)),
+                Math.Min(255, (int)(color.B + (255 - color.B) * factor)));
+        }
+
+        private static Color Darken(Color color, float factor)
+        {
+            return Color.FromArgb(
+                color.A,
+                Math.Max(0, (int)(color.R * factor)),
+                Math.Max(0, (int)(color.G * factor)),
+                Math.Max(0, (int)(color.B * factor)));
         }
 
         /// <summary>
@@ -62,12 +90,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             {
                 return type switch
                 {
-                    NotificationType.Success => Color.FromArgb(22, 101, 52), // Dark green
-                    NotificationType.Warning => Color.FromArgb(113, 63, 18), // Dark brown
-                    NotificationType.Error => Color.FromArgb(127, 29, 29), // Dark red
-                    NotificationType.Info => Color.FromArgb(30, 58, 138), // Dark blue
-                    NotificationType.System => Color.FromArgb(55, 65, 81), // Dark gray
-                    _ => theme.ForeColor
+                    NotificationType.Success => theme.SuccessColor != Color.Empty 
+                        ? Darken(theme.SuccessColor, 0.6f) 
+                        : Color.FromArgb(22, 101, 52),
+                    NotificationType.Warning => theme.WarningColor != Color.Empty 
+                        ? Darken(theme.WarningColor, 0.6f) 
+                        : Color.FromArgb(113, 63, 18),
+                    NotificationType.Error => theme.ErrorColor != Color.Empty 
+                        ? Darken(theme.ErrorColor, 0.6f) 
+                        : Color.FromArgb(127, 29, 29),
+                    NotificationType.Info => theme.PrimaryColor != Color.Empty 
+                        ? Darken(theme.PrimaryColor, 0.6f) 
+                        : Color.FromArgb(30, 58, 138),
+                    NotificationType.System => theme.ForeColor != Color.Empty 
+                        ? theme.ForeColor 
+                        : Color.FromArgb(55, 65, 81),
+                    _ => theme.ForeColor != Color.Empty ? theme.ForeColor : Color.Black
                 };
             }
 
@@ -98,12 +136,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             {
                 return type switch
                 {
-                    NotificationType.Success => Color.FromArgb(134, 239, 172), // Green
-                    NotificationType.Warning => Color.FromArgb(251, 191, 36), // Yellow
-                    NotificationType.Error => Color.FromArgb(252, 165, 165), // Red
-                    NotificationType.Info => Color.FromArgb(147, 197, 253), // Blue
-                    NotificationType.System => Color.FromArgb(209, 213, 219), // Gray
-                    _ => theme.BorderColor
+                    NotificationType.Success => theme.SuccessColor != Color.Empty 
+                        ? theme.SuccessColor 
+                        : Color.FromArgb(134, 239, 172),
+                    NotificationType.Warning => theme.WarningColor != Color.Empty 
+                        ? theme.WarningColor 
+                        : Color.FromArgb(251, 191, 36),
+                    NotificationType.Error => theme.ErrorColor != Color.Empty 
+                        ? theme.ErrorColor 
+                        : Color.FromArgb(252, 165, 165),
+                    NotificationType.Info => theme.PrimaryColor != Color.Empty 
+                        ? theme.PrimaryColor 
+                        : Color.FromArgb(147, 197, 253),
+                    NotificationType.System => theme.BorderColor != Color.Empty 
+                        ? theme.BorderColor 
+                        : Color.FromArgb(209, 213, 219),
+                    _ => theme.BorderColor != Color.Empty ? theme.BorderColor : Color.Gray
                 };
             }
 
@@ -134,12 +182,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
             {
                 return type switch
                 {
-                    NotificationType.Success => Color.FromArgb(34, 197, 94), // Green
-                    NotificationType.Warning => Color.FromArgb(245, 158, 11), // Orange
-                    NotificationType.Error => Color.FromArgb(239, 68, 68), // Red
-                    NotificationType.Info => Color.FromArgb(59, 130, 246), // Blue
-                    NotificationType.System => Color.FromArgb(107, 114, 128), // Gray
-                    _ => theme.AccentColor
+                    NotificationType.Success => theme.SuccessColor != Color.Empty 
+                        ? theme.SuccessColor 
+                        : Color.FromArgb(34, 197, 94),
+                    NotificationType.Warning => theme.WarningColor != Color.Empty 
+                        ? theme.WarningColor 
+                        : Color.FromArgb(245, 158, 11),
+                    NotificationType.Error => theme.ErrorColor != Color.Empty 
+                        ? theme.ErrorColor 
+                        : Color.FromArgb(239, 68, 68),
+                    NotificationType.Info => theme.PrimaryColor != Color.Empty 
+                        ? theme.PrimaryColor 
+                        : Color.FromArgb(59, 130, 246),
+                    NotificationType.System => theme.SecondaryColor != Color.Empty 
+                        ? theme.SecondaryColor 
+                        : Color.FromArgb(107, 114, 128),
+                    _ => theme.AccentColor != Color.Empty ? theme.AccentColor : Color.Gray
                 };
             }
 

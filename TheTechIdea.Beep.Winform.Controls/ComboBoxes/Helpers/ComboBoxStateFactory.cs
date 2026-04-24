@@ -174,6 +174,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 PopupBorderColor       = theme.ComboBoxBorderColor != Color.Empty
                                          ? theme.ComboBoxBorderColor
                                          : theme.BorderColor,
+                PopupRowBackColor      = theme.ComboBoxBackColor != Color.Empty
+                                         ? theme.ComboBoxBackColor
+                                         : Color.FromArgb(245, 245, 248),
+                PopupRowBorderColor    = theme.InactiveBorderColor != Color.Empty
+                                         ? theme.InactiveBorderColor
+                                         : Color.FromArgb(220, 220, 228),
                 PopupRowHoverColor     = theme.ComboBoxHoverBackColor != Color.Empty
                                          ? theme.ComboBoxHoverBackColor
                                          : Color.FromArgb(240, 248, 255),
@@ -185,6 +191,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                                          ? theme.GridHeaderBackColor
                                          : Color.FromArgb(245, 245, 245),
                 PopupGroupHeaderFore   = theme.SecondaryColor,
+                PopupMutedForeColor    = theme.DisabledForeColor != Color.Empty
+                                         ? theme.DisabledForeColor
+                                         : Color.FromArgb(140, 140, 155),
                 PopupSeparatorColor    = theme.InactiveBorderColor != Color.Empty
                                          ? theme.InactiveBorderColor
                                          : Color.FromArgb(220, 220, 220),

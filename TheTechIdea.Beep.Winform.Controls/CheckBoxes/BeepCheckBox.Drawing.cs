@@ -87,9 +87,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                         break;
 
                     case TextAlignment.Above:
-                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
+                        int aboveTextWidth = Math.Max(0, rectangle.Width - Padding.Horizontal);
+                        textRect = new Rectangle(rectangle.X + Padding.Left,
                             rectangle.Y + scaledPaddingTop,
-                            textSize.Width, textSize.Height);
+                            aboveTextWidth, textSize.Height);
                         checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
                             textRect.Bottom + scaledSpacing,
                             checkBoxSize, checkBoxSize);
@@ -99,9 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                         checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
                             rectangle.Y + scaledPaddingTop,
                             checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
+                        int belowTextWidth = Math.Max(0, rectangle.Width - Padding.Horizontal);
+                        textRect = new Rectangle(rectangle.X + Padding.Left,
                             checkBoxRect.Bottom + scaledSpacing,
-                            textSize.Width, textSize.Height);
+                            belowTextWidth, textSize.Height);
                         break;
 
                     default:
@@ -167,13 +169,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Calculate checkbox position (centered or left-aligned based on text)
-            int checkBoxSize = Math.Min(16, Math.Min(rectangle.Width, rectangle.Height) - 4); // Smaller for grid
+            int baseSize = CheckBoxSize;
+            int checkBoxSize = DpiScalingHelper.ScaleValue(Math.Min(16, baseSize), this);
+            checkBoxSize = Math.Min(checkBoxSize, Math.Min(rectangle.Width, rectangle.Height) - 4);
             Rectangle checkBoxRect;
 
             if (HideText || string.IsNullOrEmpty(Text))
             {
-                // Center the checkbox
                 checkBoxRect = new Rectangle(
                     rectangle.X + (rectangle.Width - checkBoxSize) / 2,
                     rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
@@ -181,17 +183,21 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             }
             else
             {
-                // Checkbox on left, text on right
+                int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
                 checkBoxRect = new Rectangle(
                     rectangle.X + 2,
                     rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
                     checkBoxSize, checkBoxSize);
             }
 
-            // Draw themed background with cached brush
             Color backColor = _state == CheckBoxState.Checked
                 ? CheckBoxThemeHelpers.GetCheckedBackgroundColor(_currentTheme, UseThemeColors)
                 : CheckBoxThemeHelpers.GetUncheckedBackgroundColor(_currentTheme, UseThemeColors);
+
+            if (!Enabled)
+            {
+                backColor = ControlPaint.Light(backColor, 0.25f);
+            }
 
             if (!_brushCache.TryGetValue(backColor, out SolidBrush backBrush))
             {
@@ -201,12 +207,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             graphics.FillRectangle(backBrush, checkBoxRect);
 
-            // Draw themed border with cached pen
             Color borderColor = CheckBoxThemeHelpers.GetBorderColor(
                 _currentTheme,
                 UseThemeColors,
                 _state == CheckBoxState.Checked,
                 _state == CheckBoxState.Indeterminate);
+
+            if (!Enabled)
+            {
+                borderColor = ControlPaint.Light(borderColor, 0.30f);
+            }
 
             if (!_penCache.TryGetValue(borderColor, out Pen borderPen))
             {
@@ -216,21 +226,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             graphics.DrawRectangle(borderPen, checkBoxRect);
 
-            // Draw themed check mark based on state
             switch (_state)
             {
                 case CheckBoxState.Checked:
-                    DrawThemedCheckMark(graphics, checkBoxRect);
+                    DrawThemedCheckMark(graphics, checkBoxRect, !Enabled);
                     break;
                 case CheckBoxState.Indeterminate:
-                    DrawThemedIndeterminateMark(graphics, checkBoxRect);
-                    break;
-                case CheckBoxState.Unchecked:
-                    // Already drawn background and border
+                    DrawThemedIndeterminateMark(graphics, checkBoxRect, !Enabled);
                     break;
             }
 
-            // Draw themed text if needed
             if (!HideText && !string.IsNullOrEmpty(Text))
             {
                 Rectangle textRect = new Rectangle(
@@ -239,10 +244,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                     rectangle.Width - checkBoxRect.Width - 6,
                     rectangle.Height);
 
-                // Use theme foreground color
                 Color textColor = CheckBoxThemeHelpers.GetForegroundColor(
                     _currentTheme,
                     UseThemeColors);
+
+                if (!Enabled)
+                {
+                    textColor = ControlPaint.Light(textColor, 0.35f);
+                }
 
                 TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
@@ -250,11 +259,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         }
 
         // Add optimized themed drawing methods for grid
-        private void DrawThemedCheckMark(Graphics graphics, Rectangle bounds)
+        private void DrawThemedCheckMark(Graphics graphics, Rectangle bounds, bool isDisabled = false)
         {
             Color checkColor = CheckBoxThemeHelpers.GetCheckMarkColor(
                 _currentTheme,
                 UseThemeColors);
+
+            if (isDisabled)
+            {
+                checkColor = ControlPaint.Light(checkColor, 0.35f);
+            }
 
             if (!_penCache.TryGetValue(checkColor, out Pen checkPen))
             {
@@ -262,7 +276,6 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _penCache[checkColor] = checkPen;
             }
 
-            // Optimized check mark points
             Point[] checkMarkPoints = new Point[]
             {
                 new Point(bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 2),
@@ -273,11 +286,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             graphics.DrawLines(checkPen, checkMarkPoints);
         }
 
-        private void DrawThemedIndeterminateMark(Graphics graphics, Rectangle bounds)
+        private void DrawThemedIndeterminateMark(Graphics graphics, Rectangle bounds, bool isDisabled = false)
         {
             Color indeterminateColor = CheckBoxThemeHelpers.GetIndeterminateMarkColor(
                 _currentTheme,
                 UseThemeColors);
+
+            if (isDisabled)
+            {
+                indeterminateColor = ControlPaint.Light(indeterminateColor, 0.35f);
+            }
 
             if (!_brushCache.TryGetValue(indeterminateColor, out SolidBrush indeterminateBrush))
             {

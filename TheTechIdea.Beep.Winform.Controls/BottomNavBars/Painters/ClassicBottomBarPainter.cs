@@ -9,25 +9,22 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
-            // Draw flat background with slight top border (theme-driven)
-            using (var b = new SolidBrush(context.BarBackColor == Color.Empty ? Color.FromArgb(250, 250, 250) : context.BarBackColor))
+            using (var b = new SolidBrush(ResolveBarBack(context)))
             {
                 context.Graphics.FillRectangle(b, context.Bounds);
             }
-            var borderColor = context.NavigationBorderColor == Color.Empty ? (context.BarHoverBackColor == Color.Empty ? Color.FromArgb(220, 220, 220) : context.BarHoverBackColor) : context.NavigationBorderColor;
+            var borderColor = context.NavigationBorderColor == Color.Empty ? Color.FromArgb(30, ResolveBarFore(context)) : context.NavigationBorderColor;
             using (var p = new Pen(borderColor))
             {
                 context.Graphics.DrawLine(p, context.Bounds.Left, context.Bounds.Top, context.Bounds.Right, context.Bounds.Top);
             }
 
-            // indicator
             var indicator = _layoutHelper.GetIndicatorRect();
-            using (var ib = new SolidBrush(Color.FromArgb(30, context.AccentColor)))
+            using (var ib = new SolidBrush(Color.FromArgb(30, ResolveAccent(context))))
             {
                 context.Graphics.FillRectangle(ib, indicator);
             }
 
-            // Draw items
             var rects = _layoutHelper.GetItemRectangles();
             for (int i = 0; i < rects.Count; i++)
             {

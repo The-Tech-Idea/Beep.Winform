@@ -70,9 +70,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.ForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 18f, FontStyle.Bold);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
 
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 18f, FontStyle.Bold))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 9f))
+            {
             // Navigation buttons
             int buttonSize = 36;
             var prevYearRect = new Rectangle(bounds.X, bounds.Y + 2, buttonSize, buttonSize);
@@ -105,6 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                 g.DrawString("or use navigation buttons", font, brush, labelRect, format);
             }
+            }
         }
 
         private void PaintYearComboBox(Graphics g, Rectangle bounds, int selectedYear, bool isHovered, bool isPressed)
@@ -114,8 +116,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var bgColor = _theme?.CalendarBackColor ?? Color.White;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold))
+            {
             // Background
             using (var brush = new SolidBrush(isPressed || isHovered ? hoverColor : bgColor))
             using (var path = GetRoundedRectPath(bounds, 6))
@@ -149,6 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 int cy = bounds.Y + bounds.Height / 2;
                 g.DrawLine(pen, cx - 3, cy - 2, cx, cy + 1);
                 g.DrawLine(pen, cx, cy + 1, cx + 3, cy - 2);
+            }
             }
         }
 
@@ -237,9 +241,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 12f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 12f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold))
+            {
             // Background
             if (isSelected)
             {
@@ -287,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center };
-                g.DrawString(monthName, isSelected ? boldFont : font, brush, 
+                g.DrawString(monthName, isSelected ? boldFont : font, brush,
                     new Rectangle(bounds.X, bounds.Y + bounds.Height / 2 - 20, bounds.Width, 24), format);
             }
 
@@ -295,9 +300,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             using (var brush = new SolidBrush(secondaryTextColor))
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center };
-                var smallFont = new Font("Segoe UI", 9f);
-                g.DrawString($"Month {month}", smallFont, brush, 
+                using (var smallFont = new Font("Segoe UI", 9f))
+                g.DrawString($"Month {month}", smallFont, brush,
                     new Rectangle(bounds.X, bounds.Y + bounds.Height / 2 + 8, bounds.Width, 16), format);
+            }
             }
         }
 

@@ -81,11 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
                     Invalidate();
                 }
             }
+            
+            Cursor = Enabled ? System.Windows.Forms.Cursors.Hand : System.Windows.Forms.Cursors.Default;
         }
 
-        /// <summary>
-        /// Override mouse leave to clear hover region
-        /// </summary>
         protected override void OnMouseLeave(System.EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -95,6 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
                 _hoveredRegion = ToggleHitRegion.None;
                 Invalidate();
             }
+            
+            Cursor = System.Windows.Forms.Cursors.Default;
         }
 
         /// <summary>

@@ -1004,13 +1004,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             if (_monthViewButton == null) return;
 
-            Color selectedColor = _currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244);
-            Color normalColor = _currentTheme?.CalendarBackColor ?? Color.LightGray;
+            Color selectedColor = _currentTheme?.CalendarSelectedDateBackColor ?? _currentTheme?.PrimaryColor ?? _currentTheme?.AccentColor ?? Color.FromArgb(66, 133, 244);
+            Color normalColor = _currentTheme?.CalendarBackColor ?? _currentTheme?.SurfaceColor ?? _currentTheme?.BackColor ?? BackColor;
+            Color selectedForeColor = _currentTheme?.CalendarSelectedDateForColor ?? _currentTheme?.OnPrimaryColor ?? Color.White;
+            Color normalForeColor = _currentTheme?.CalendarForeColor ?? _currentTheme?.ForeColor ?? ForeColor;
 
             _monthViewButton.BackColor = _state.ViewMode == CalendarViewMode.Month ? selectedColor : normalColor;
+            _monthViewButton.ForeColor = _state.ViewMode == CalendarViewMode.Month ? selectedForeColor : normalForeColor;
             _weekViewButton.BackColor  = _state.ViewMode == CalendarViewMode.Week  ? selectedColor : normalColor;
+            _weekViewButton.ForeColor  = _state.ViewMode == CalendarViewMode.Week  ? selectedForeColor : normalForeColor;
             _dayViewButton.BackColor   = _state.ViewMode == CalendarViewMode.Day   ? selectedColor : normalColor;
+            _dayViewButton.ForeColor   = _state.ViewMode == CalendarViewMode.Day   ? selectedForeColor : normalForeColor;
             _listViewButton.BackColor  = _state.ViewMode == CalendarViewMode.List  ? selectedColor : normalColor;
+            _listViewButton.ForeColor  = _state.ViewMode == CalendarViewMode.List  ? selectedForeColor : normalForeColor;
         }
 
         private void ApplyResponsiveButtonLabels(int availableWidth)
@@ -1126,7 +1132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private int ScaleMetric(int baseValue)
         {
-            return Math.Max(1, (int)Math.Round(baseValue * GetDensityScale()));
+            float dpiScale = BeepThemesManager.DpiScaleX > 0f ? BeepThemesManager.DpiScaleX : 1f;
+            return Math.Max(1, (int)Math.Round(baseValue * GetDensityScale() * dpiScale));
         }
 
         private void MoveFocusedDate(int deltaDays)

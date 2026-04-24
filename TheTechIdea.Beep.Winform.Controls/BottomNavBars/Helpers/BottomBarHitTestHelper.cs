@@ -29,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
 
         public int HoveredIndex => _hoveredIndex;
         public int FocusedIndex { get => _focusedIndex; set => _focusedIndex = value; }
+        public ControlHitTestHelper ControlHitTest => _hitTestHelper;
 
         public event EventHandler IndexChanged;
         public event EventHandler<ItemClickEventArgs> ItemClicked;

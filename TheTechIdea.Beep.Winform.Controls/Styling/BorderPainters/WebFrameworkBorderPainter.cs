@@ -62,33 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
 
-            // Return the area inside the border
-                // Return the area inside the border using shape-aware inset
-                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
-        }
-        
-        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            if (radius == 0)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-            
-            int diameter = radius * 2;
-            System.Drawing.Size size = new System.Drawing.Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-            
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-            return path;
+            // Return the area inside the border using shape-aware inset
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)

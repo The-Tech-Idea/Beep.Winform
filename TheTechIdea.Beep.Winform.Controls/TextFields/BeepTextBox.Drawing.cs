@@ -47,7 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             var textSize = TextUtils.MeasureText(g, countText, font);
             var location = new PointF(Width - textSize.Width - 5, Height - textSize.Height - 2);
             
-            Color textColor = _text.Length > _maxLength * 0.9 ? Color.Red : Color.Gray;
+            Color textColor = _text.Length > _maxLength * 0.9 
+                ? Color.FromArgb(239, 68, 68) 
+                : Color.FromArgb(107, 114, 128);
             using (var brush = new SolidBrush(textColor))
             {
                 g.DrawString(countText, font, brush, location);

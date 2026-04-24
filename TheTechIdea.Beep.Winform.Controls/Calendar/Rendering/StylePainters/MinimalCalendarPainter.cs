@@ -238,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
                 g.FillRectangle(brush, bounds.X + 3, bounds.Y, bounds.Width - 3, bounds.Height);
             }
 
-            // Text
+            // Text - use context foreground color for readability
             using (var brush = new SolidBrush(ctx.ForegroundColor))
             {
                 var format = new StringFormat

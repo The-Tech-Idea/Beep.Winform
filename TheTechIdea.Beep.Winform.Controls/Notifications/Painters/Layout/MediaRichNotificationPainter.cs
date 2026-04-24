@@ -28,14 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             int radius = data.CornerRadiusOverride > 0 ? data.CornerRadiusOverride : S(DefaultRadius);
 
-            // Full card background (white)
-            DrawBackground(g, bounds, Color.White, Color.FromArgb(229, 231, 235), radius);
+            Color backColor = data.CustomBackColor ?? colors.BackColor;
+            Color borderColor = colors.BorderColor;
+            DrawBackground(g, bounds, backColor, borderColor, radius);
 
             // Image zone background (type-colour tinted, top only)
             int imgH = bounds.Height * ImageHeightPct / 100;
             var imgRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, imgH + radius);
             using var clipPath = CreateRoundedPath(imgRect, radius);
-            // Set clip to draw image only in top rounded area
             g.SetClip(clipPath);
 
             if (!string.IsNullOrEmpty(data.EmbeddedImagePath))
@@ -57,18 +57,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
         {
-            // Small icon badge at body seam
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             string ip  = !string.IsNullOrEmpty(data.IconPath)
                 ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            DrawCircleBadgeIcon(g, iconRect, ip, Color.White, colors.IconColor);
+            DrawCircleBadgeIcon(g, iconRect, ip, colors.BackColor, colors.IconColor);
         }
 
         public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
-            => DrawTitle(g, rect, title, Color.FromArgb(17, 24, 39));
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            DrawTitle(g, rect, title, colors.ForeColor);
+        }
 
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
-            => DrawMessage(g, rect, message, Color.FromArgb(107, 114, 128));
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            DrawMessage(g, rect, message, msgColor);
+        }
 
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {

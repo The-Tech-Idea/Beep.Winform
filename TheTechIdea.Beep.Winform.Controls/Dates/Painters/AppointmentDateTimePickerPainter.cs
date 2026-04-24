@@ -113,15 +113,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var font = TextFont ?? BeepFontManager.ToFont(_owner._currentTheme?.CalendarUnSelectedFont) ?? BeepFontManager.DefaultFont;
-            var boldFont = font != null ? new Font(font.FontFamily, Math.Max(9f, font.Size), FontStyle.Bold) : BeepFontManager.DefaultFont;
 
             int padding = DpiScalingHelper.ScaleValue(12, _owner);
             int currentY = bounds.Y + padding;
 
             // Header
+            using (var createdBoldFont = font != null ? new Font(font.FontFamily, Math.Max(9f, font.Size), FontStyle.Bold) : null)
+            {
+            var boldFont = createdBoldFont ?? BeepFontManager.DefaultFont;
             using (var brush = new SolidBrush(secondaryTextColor))
             {
                 g.DrawString("Quick Select", boldFont, brush, bounds.X + padding, currentY);
+            }
             }
             currentY += 32;
 
@@ -226,8 +229,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var font = BeepThemesManager.ToFont(_owner._currentTheme.CalendarUnSelectedFont);
-            var boldFont = BeepFontManager.GetCachedFont(_owner._currentTheme.SelectedDateFont.FontFamily, 9f, FontStyle.Bold);
+
+            using (var createdFont = _owner._currentTheme?.CalendarUnSelectedFont == null && TextFont == null ? new Font("Segoe UI", 9f) : null)
+            using (var createdBoldFont = _owner._currentTheme?.SelectedDateFont == null ? new Font("Segoe UI", 9f, FontStyle.Bold) : null)
+            {
+            var font = _owner._currentTheme?.CalendarUnSelectedFont != null ? BeepThemesManager.ToFont(_owner._currentTheme.CalendarUnSelectedFont) : (TextFont ?? createdFont);
+            var boldFont = _owner._currentTheme?.SelectedDateFont != null ? BeepFontManager.GetCachedFont(_owner._currentTheme.SelectedDateFont.FontFamily, 9f, FontStyle.Bold) : createdBoldFont;
 
             // Draw separator line
             using (var pen = new Pen(borderColor, 1))
@@ -294,6 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             PaintTimeControlSpinner(g, minuteRect, minuteUpRect, minuteDownRect, minute.ToString("D2"),
                 minuteUpHovered, minuteUpPressed, minuteDownHovered, minuteDownPressed);
+            }
         }
 
         private void PaintTimeControlSpinner(Graphics g, Rectangle bounds, Rectangle upRect, Rectangle downRect,
@@ -443,13 +451,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             // Day number
             var dayText = date.Day.ToString();
-            var fontToUse = TextFont ?? BeepFontManager.ToFont(_owner._currentTheme?.CalendarUnSelectedFont) ?? new Font(_theme?.FontName ?? "Segoe UI", 9f);
-            
+
             if (isDisabled)
             {
                 textColor = Color.FromArgb(180, 180, 180);
             }
 
+            using (var createdFont = TextFont == null && _owner._currentTheme?.CalendarUnSelectedFont == null ? new Font(_theme?.FontName ?? "Segoe UI", 9f) : null)
+            {
+            var fontToUse = TextFont ?? BeepFontManager.ToFont(_owner._currentTheme?.CalendarUnSelectedFont) ?? createdFont;
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -458,6 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     LineAlignment = StringAlignment.Center
                 };
                 g.DrawString(dayText, fontToUse, brush, cellBounds, format);
+            }
             }
         }
 

@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                 var decorativeNotchCenter = new Point(center.X, context.Bounds.Top);
                 using (var notchFill = new SolidBrush(barFill))
                 {
-                    var notchPenBase = context.NavigationBorderColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.White : context.BarForeColor) : context.NavigationBorderColor;
+                    var notchPenBase = context.NavigationBorderColor == Color.Empty ? ResolveBarFore(context) : context.NavigationBorderColor;
                     var notchPenColor = Color.FromArgb(200, notchPenBase.R, notchPenBase.G, notchPenBase.B);
                     using (var notchPen = new Pen(notchPenColor, 1f))
                     {
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
 
                     // shadow - use theme hover color with alpha for better dark-mode handling
                     // layered shadow for CTA - use NavigationShadowColor RGB as base but render two fills
-                    var baseShadow = context.NavigationShadowColor == Color.Empty ? Color.FromArgb(100, 0, 0, 0) : context.NavigationShadowColor;
+                    var baseShadow = context.NavigationShadowColor == Color.Empty ? Color.FromArgb(100, ResolveBarFore(context)) : context.NavigationShadowColor;
                     // outer soft halo: larger ellipse + lower alpha
                     var outerAlpha = Math.Max(24, baseShadow.A / 5); // softer outer
                     using (var outer = new SolidBrush(Color.FromArgb(outerAlpha, baseShadow.R, baseShadow.G, baseShadow.B)))

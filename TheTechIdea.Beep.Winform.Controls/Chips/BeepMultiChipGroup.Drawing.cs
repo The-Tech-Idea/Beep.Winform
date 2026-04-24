@@ -21,7 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             _renderOptions.Theme = effectiveTheme;
             _painter?.UpdateTheme(effectiveTheme);
 
-         //   _chartpainter?.RenderGroupBackground(g, availableRect, _renderOptions);
             if (UseThemeColors && effectiveTheme != null)
             {
                 _painter?.RenderGroupBackground(g, availableRect, _renderOptions);

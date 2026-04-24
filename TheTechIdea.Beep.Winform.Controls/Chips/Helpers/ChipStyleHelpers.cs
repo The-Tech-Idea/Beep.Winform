@@ -153,7 +153,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
             return chipStyle switch
             {
                 ChipStyle.Square => 2,
-                ChipStyle.Pill => chipHeight / 2,
                 ChipStyle.Smooth => 12,
                 ChipStyle.Modern => 8,
                 ChipStyle.Classic => 4,

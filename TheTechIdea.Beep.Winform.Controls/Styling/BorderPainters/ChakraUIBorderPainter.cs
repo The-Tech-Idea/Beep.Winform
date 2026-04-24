@@ -70,8 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, focusRing, ringWidth, ringOffset);
             }
 
-                // Return the area inside the border using shape-aware inset
-                return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
+            // Return the area inside the border using shape-aware inset
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

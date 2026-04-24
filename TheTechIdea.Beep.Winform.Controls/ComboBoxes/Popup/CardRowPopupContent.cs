@@ -173,7 +173,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _cards.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _cards.Count; i++)
+            {
+                var rowItem = _cards[i].RowModel?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    EnsureVisible(i);
+                    return;
+                }
+            }
         }
 
         protected override bool IsInputKey(Keys keyData) => keyData switch
@@ -402,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 }
                 else
                 {
-                    cardBack = Color.FromArgb(252, 253, 255);
+                    cardBack = _tokens.PopupRowBackColor;
                     cardBorder = Color.FromArgb(80, _tokens.PopupSeparatorColor);
                 }
 

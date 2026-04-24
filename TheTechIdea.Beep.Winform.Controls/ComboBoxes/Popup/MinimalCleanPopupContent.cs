@@ -74,9 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void ApplyThemeTokens(ComboBoxThemeTokens tokens)
         {
             _themeTokens = tokens ?? ComboBoxThemeTokens.Fallback();
-            BackColor = Color.White;
-            _scrollContainer.BackColor = Color.White;
-            _listPanel.BackColor = Color.White;
+            BackColor = _themeTokens.BackColor;
+            _scrollContainer.BackColor = _themeTokens.BackColor;
+            _listPanel.BackColor = _themeTokens.BackColor;
             if (!string.IsNullOrEmpty(_themeTokens.ThemeName))
                 _vScrollBar.Theme = _themeTokens.ThemeName;
             foreach (var row in _rows) row.ApplyThemeTokens(_themeTokens);
@@ -145,7 +145,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _rows.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var rowItem = _rows[i].RowModel?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    EnsureVisible(i);
+                    return;
+                }
+            }
         }
 
         protected override bool IsInputKey(Keys keyData) => keyData switch
@@ -332,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 if (RowModel.RowKind == ComboBoxPopupRowKind.Separator)
                 {
                     int y = bounds.Top + bounds.Height / 2;
-                    using var pen = new Pen(Color.FromArgb(40, 180, 180, 195));
+                    using var pen = new Pen(_tokens.PopupSeparatorColor);
                     g.DrawLine(pen, bounds.Left + 16, y, bounds.Right - 16, y);
                     return;
                 }
@@ -343,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     var hRect = new Rectangle(bounds.Left + 16, bounds.Top, bounds.Width - 32, bounds.Height);
                     using var hFont = new Font(Font.FontFamily, Font.Size - 1f, FontStyle.Regular);
                     TextRenderer.DrawText(g, (RowModel.GroupName ?? RowModel.Text ?? "").ToUpperInvariant(), hFont, hRect,
-                        Color.FromArgb(140, 140, 155), TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                        _tokens.PopupMutedForeColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                     return;
                 }
 
@@ -353,11 +365,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
                 Color back = Color.Transparent;
                 if (RowModel.IsSelected || RowModel.RowKind == ComboBoxPopupRowKind.Selected)
-                    back = Color.FromArgb(240, 245, 252);
+                    back = _tokens.PopupRowSelectedColor;
                 else if (_focused)
-                    back = Color.FromArgb(242, 246, 252);
+                    back = _tokens.PopupRowFocusColor;
                 else if (_hovered)
-                    back = Color.FromArgb(245, 247, 250);
+                    back = _tokens.PopupRowHoverColor;
 
                 if (back != Color.Transparent)
                 {
@@ -369,8 +381,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 // Text — generous left padding, clean sans-serif
                 var textRect = new Rectangle(rowRect.Left + 16, rowRect.Top, rowRect.Width - 24, rowRect.Height);
                 Color fore = !RowModel.IsEnabled
-                    ? Color.FromArgb(180, 180, 190)
-                    : (RowModel.IsSelected ? _tokens.FocusBorderColor : Color.FromArgb(50, 50, 60));
+                    ? _tokens.DisabledForeColor
+                    : (RowModel.IsSelected ? _tokens.FocusBorderColor : _tokens.ForeColor);
 
                 Font textFont = RowModel.IsSelected ? new Font(Font, FontStyle.Bold) : Font;
                 TextRenderer.DrawText(g, RowModel.Text ?? "", textFont, textRect, fore,

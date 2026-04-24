@@ -251,7 +251,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _rows.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var rowItem = _rows[i].Model?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    EnsureRowVisible(i);
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -418,8 +430,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void OnSelectAllClicked(object sender, EventArgs e)
         {
-            if (_model?.AllRows == null) return;
-            foreach (var row in _model.AllRows)
+            if (_model?.FilteredRows == null) return;
+            foreach (var row in _model.FilteredRows)
             {
                 if (row.IsCheckable && !row.IsChecked && row.IsEnabled
                     && row.RowKind != ComboBoxPopupRowKind.GroupHeader
@@ -443,10 +455,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void OnClearAllClicked(object sender, EventArgs e)
         {
-            if (_model?.AllRows == null) return;
-            foreach (var row in _model.AllRows)
+            if (_model?.FilteredRows == null) return;
+            foreach (var row in _model.FilteredRows)
             {
-                if (row.IsCheckable && row.IsChecked && row.IsEnabled)
+                if (row.IsCheckable && row.IsChecked && row.IsEnabled
+                    && row.RowKind != ComboBoxPopupRowKind.GroupHeader
+                    && row.RowKind != ComboBoxPopupRowKind.Separator)
                 {
                     var toggled = new ComboBoxPopupRowModel
                     {
@@ -574,9 +588,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 Margin = new Padding(3, 3, 3, 3);
                 Cursor = Cursors.Default;
 
-                using var g = CreateGraphics();
-                var textSize = TextRenderer.MeasureText(g, model.Text ?? "", Font);
-                Width = textSize.Width + 30; // text + close button + padding
+                var textSize = TextRenderer.MeasureText(model.Text ?? "", Font, Size.Empty, TextFormatFlags.NoPadding);
+                Width = textSize.Width + 30;
             }
 
             public void ApplyThemeTokens(ComboBoxThemeTokens tokens)
@@ -616,8 +629,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 if (rect.Width <= 0 || rect.Height <= 0) return;
 
                 int radius = Math.Min(rect.Height / 2, 12);
-                Color chipBack = _tokens.FocusBorderColor;
-                Color chipFore = Color.White;
+                Color chipBack = _hoverClose ? _tokens.HoverBorderColor : _tokens.FocusBorderColor;
+                Color chipFore = _tokens.SelectedForeColor;
 
                 using var path = CreateRoundRectPath(rect, radius);
                 using (var brush = new SolidBrush(chipBack))
@@ -636,7 +649,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
 
                 // Close × icon
-                Color closeFore = _hoverClose ? Color.White : Color.FromArgb(200, Color.White);
+                Color closeFore = _hoverClose ? chipFore : Color.FromArgb(180, chipFore);
                 using var closePen = new Pen(closeFore, 1.5f);
                 int cx = _closeRect.Left + _closeRect.Width / 2;
                 int cy = _closeRect.Top + _closeRect.Height / 2;

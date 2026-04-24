@@ -30,25 +30,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
         {
-            // White flat icon on solid background
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             string ip = !string.IsNullOrEmpty(data.IconPath)
                 ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            DrawIcon(g, iconRect, ip, Color.White, 0);
+            Color iconColor = GetContrastColor(colors.IconColor);
+            DrawIcon(g, iconRect, ip, iconColor, 0);
         }
 
         public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
-            // White on coloured background
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = TitleFont ?? SystemFonts.DefaultFont;
-            TextRenderer.DrawText(g, title, f, rect, Color.White,
+            Color titleColor = GetContrastColor(colors.IconColor);
+            TextRenderer.DrawText(g, title, f, rect, titleColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
         }
 
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
         {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = MessageFont ?? SystemFonts.DefaultFont;
-            TextRenderer.DrawText(g, message, f, rect, Color.FromArgb(220, 255, 255, 255),
+            Color titleColor = GetContrastColor(colors.IconColor);
+            Color msgColor = Color.FromArgb(200, titleColor);
+            TextRenderer.DrawText(g, message, f, rect, msgColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
         }
@@ -57,22 +62,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         {
             if (actionsRect.IsEmpty || actions == null || actions.Length == 0) return;
 
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             int btnSpacing = S(8);
             int btnWidth   = (actionsRect.Width - btnSpacing * (actions.Length - 1)) / actions.Length;
             int x          = actionsRect.X;
             Font f         = ButtonFont ?? SystemFonts.DefaultFont;
+            Color textColor = GetContrastColor(colors.IconColor);
 
             foreach (var action in actions)
             {
                 var btnRect = new Rectangle(x, actionsRect.Y, btnWidth, actionsRect.Height);
-                // White-outlined buttons on solid background
-                using var pen = new Pen(Color.FromArgb(180, 255, 255, 255), 1f);
+                using var pen = new Pen(Color.FromArgb(180, textColor), 1f);
                 using var path = CreateRoundedPath(btnRect, S(4));
                 g.DrawPath(pen, path);
 
                 Color c = action.IsPrimary
-                    ? Color.White
-                    : Color.FromArgb(200, 255, 255, 255);
+                    ? textColor
+                    : Color.FromArgb(200, textColor);
                 TextRenderer.DrawText(g, action.Text, f, btnRect, c,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 x += btnWidth + btnSpacing;
@@ -81,13 +87,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {
-            // Subtle white bar on solid background
-            using (var bg = new SolidBrush(Color.FromArgb(60, 255, 255, 255)))
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color barColor = GetContrastColor(colors.IconColor);
+            using (var bg = new SolidBrush(Color.FromArgb(60, barColor)))
                 g.FillRectangle(bg, rect);
             int pw = (int)(rect.Width * (progress / 100f));
             if (pw > 0)
-                using (var fill = new SolidBrush(Color.White))
+                using (var fill = new SolidBrush(barColor))
                     g.FillRectangle(fill, rect.X, rect.Y, pw, rect.Height);
+        }
+
+        private static Color GetContrastColor(Color background)
+        {
+            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
+            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
         }
     }
 }

@@ -850,9 +850,8 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             if (_currentTheme == null)
             {
-               ////MiscFunctions.SendLog("Warning: _currentTheme is null, falling back to default colors.");
-                BackColor = Color.LightGray;
-                ForeColor = Color.Black;
+                BackColor = Color.FromArgb(240, 240, 245);
+                ForeColor = Color.FromArgb(33, 37, 41);
                 return;
             }
             

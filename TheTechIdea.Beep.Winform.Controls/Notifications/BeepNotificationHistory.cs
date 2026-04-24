@@ -27,13 +27,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private readonly Label _titleLabel;
         private readonly TextBox _searchBox;
         private readonly ComboBox _filterCombo;
+        private readonly ComboBox _statusFilterCombo;
         private readonly Button _clearButton;
+        private readonly Button _markAllReadButton;
         private readonly Panel _listPanel;
         private readonly VScrollBar _scrollBar;
         private int _scrollOffset = 0;
         private int _itemHeight = 60;
         private int _maxHistorySize = 100;
         private NotificationType? _filterType = null;
+        private bool? _filterReadStatus = null;
         private Font _textFont;
         #endregion
 
@@ -97,19 +100,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _filterCombo.SelectedIndex = 0;
             _filterCombo.SelectedIndexChanged += FilterCombo_SelectedIndexChanged;
 
+            _statusFilterCombo = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(70, this)),
+                Width = DpiScalingHelper.ScaleValue(100, this),
+                Height = DpiScalingHelper.ScaleValue(24, this)
+            };
+            _statusFilterCombo.Items.Add("All");
+            _statusFilterCombo.Items.Add("Read");
+            _statusFilterCombo.Items.Add("Unread");
+            _statusFilterCombo.SelectedIndex = 0;
+            _statusFilterCombo.SelectedIndexChanged += StatusFilterCombo_SelectedIndexChanged;
+
             _clearButton = new Button
             {
                 Text = "Clear",
-                Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(70, this)),
+                Location = new Point(DpiScalingHelper.ScaleValue(120, this), DpiScalingHelper.ScaleValue(70, this)),
                 Width = DpiScalingHelper.ScaleValue(80, this),
                 Height = DpiScalingHelper.ScaleValue(24, this)
             };
             _clearButton.Click += ClearButton_Click;
 
+            _markAllReadButton = new Button
+            {
+                Text = "Mark All Read",
+                Location = new Point(DpiScalingHelper.ScaleValue(210, this), DpiScalingHelper.ScaleValue(70, this)),
+                Width = DpiScalingHelper.ScaleValue(100, this),
+                Height = DpiScalingHelper.ScaleValue(24, this)
+            };
+            _markAllReadButton.Click += MarkAllReadButton_Click;
+
             _headerPanel.Controls.Add(_titleLabel);
             _headerPanel.Controls.Add(_searchBox);
             _headerPanel.Controls.Add(_filterCombo);
+            _headerPanel.Controls.Add(_statusFilterCombo);
             _headerPanel.Controls.Add(_clearButton);
+            _headerPanel.Controls.Add(_markAllReadButton);
 
             // List panel
             _listPanel = new Panel
@@ -225,6 +252,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 query = query.Where(h => h.Data.Type == _filterType.Value);
             }
 
+            if (_filterReadStatus.HasValue)
+            {
+                query = query.Where(h => h.Data.IsRead == _filterReadStatus.Value);
+            }
+
             // Apply search filter
             var searchText = _searchBox?.Text?.Trim().ToLower();
             if (!string.IsNullOrEmpty(searchText))
@@ -260,6 +292,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             _scrollOffset = 0;
             UpdateScrollBar();
+            _listPanel.Invalidate();
+        }
+
+        private void StatusFilterCombo_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            _filterReadStatus = _statusFilterCombo.SelectedIndex switch
+            {
+                1 => true,
+                2 => false,
+                _ => null
+            };
+
+            _scrollOffset = 0;
+            UpdateScrollBar();
+            _listPanel.Invalidate();
+        }
+
+        private void MarkAllReadButton_Click(object? sender, EventArgs e)
+        {
+            foreach (var item in _history)
+            {
+                if (item.Data != null && !item.Data.IsRead)
+                {
+                    item.Data.IsRead = true;
+                    item.Data.ReadTimestamp = DateTime.Now;
+                }
+            }
             _listPanel.Invalidate();
         }
 

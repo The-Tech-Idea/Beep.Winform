@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
 
         private void TickerTimer_Tick(object? sender, EventArgs e)
         {
-            if (_isDisposed || _tickerTimer == null || !Visible || !IsHandleCreated)
+            if (_isDisposed || _tickerTimer == null || !Visible || !IsHandleCreated || Items == null || Items.Count == 0)
             {
                 return;
             }
@@ -129,12 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             float previousWidth = _indicatorWidth;
             double elapsed = (DateTime.Now - _animationStart).TotalMilliseconds;
             double progress = Math.Min(1.0, elapsed / _animationDuration);
-            double eased = 1 - Math.Pow(1 - progress, 3);
-            // interpolate from start to target using eased progress
-            // optionally use a slightly snappier easing curve (ease out quint)
-            var eased2 = 1 - Math.Pow(1 - progress, 4);
-            _indicatorX = _indicatorStartX + (float)(_indicatorTargetX - _indicatorStartX) * (float)eased2;
-            _indicatorWidth = _indicatorStartWidth + (float)(_indicatorTargetWidth - _indicatorStartWidth) * (float)eased2;
+            var eased = 1 - Math.Pow(1 - progress, 4);
+            _indicatorX = _indicatorStartX + (float)(_indicatorTargetX - _indicatorStartX) * (float)eased;
+            _indicatorWidth = _indicatorStartWidth + (float)(_indicatorTargetWidth - _indicatorStartWidth) * (float)eased;
             InvalidateIndicatorRegion(previousX, previousWidth);
             InvalidateIndicatorRegion(_indicatorX, _indicatorWidth);
             if (progress >= 1.0)
@@ -347,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 Items = Items.ToList(),
                 SelectedIndex = Items.IndexOf(SelectedItem),
                 HoverIndex = _bbHitTestHelper?.HoveredIndex ?? -1,
-                HitTest = _hitTest,
+                HitTest = _bbHitTestHelper?.ControlHitTest,
                 ImagePainter = _imagePainter,
                 DefaultImagePath = DefaultItemImagePath,
                 CTAIndex = CTAIndex,
@@ -382,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 // Derive navigation border and shadow colors from existing theme tokens
                 ctx.NavigationBorderColor = _currentTheme.BorderColor != Color.Empty ? _currentTheme.BorderColor : _currentTheme.ActiveBorderColor;
                 // Prefer NavigationHoverBackColor as the semantic base color for shadows when available
-                var shadowBase = _currentTheme.NavigationHoverBackColor != Color.Empty ? _currentTheme.NavigationHoverBackColor : (_currentTheme.BorderColor != Color.Empty ? _currentTheme.BorderColor : Color.Black);
+                var shadowBase = _currentTheme.NavigationHoverBackColor != Color.Empty ? _currentTheme.NavigationHoverBackColor : (_currentTheme.BorderColor != Color.Empty ? _currentTheme.BorderColor : _currentTheme.SurfaceColor);
                 // Use a slightly stronger alpha to better mimic a soft shadow; painters may use this directly or build layered shadows
                 ctx.NavigationShadowColor = Color.FromArgb(100, shadowBase.R, shadowBase.G, shadowBase.B);
             }
@@ -690,7 +687,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 _imagePainter.ApplyThemeOnImage = true;
                 Invalidate();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BottomBar.ApplyTheme error: {ex.Message}");
+            }
         }
         #endregion
 
@@ -719,32 +719,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             _layoutHelper.EnsureLayout(bounds, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem));
             _bbHitTestHelper?.UpdateItems(Items.ToList(), new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()));
             Invalidate();
-        }
-
-        private void DrawNavItem(Graphics g, SimpleItem item, Rectangle itemRect, int index)
-        {
-            int iconSize = 24;
-            int textHeight = 12;
-            int totalHeight = iconSize + textHeight + 4;
-            int yOffset = itemRect.Top + (itemRect.Height - totalHeight) / 2;
-
-            Rectangle iconRect = new Rectangle(itemRect.Left + (itemRect.Width - iconSize) / 2, yOffset, iconSize, iconSize);
-
-            // ImagePainter render
-            _imagePainter.ImagePath = GetIconPath(item);
-            // Keep current ImagePainter theme settings; do not override here.
-            _imagePainter.ApplyThemeOnImage = false;
-            _imagePainter.ImageEmbededin = ImageEmbededin.Button;
-            _imagePainter.DrawImage(g, iconRect);
-
-            // Draw label
-            using (var font = new Font("Segoe UI", 9f))
-            using (var brush = new SolidBrush(_currentTheme == null ? Color.FromArgb(110, 110, 110) : _currentTheme.NavigationForeColor))
-            {
-                var textRect = new Rectangle(itemRect.Left + 4, iconRect.Bottom + 2, itemRect.Width - 8, textHeight);
-                StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(item.Text, font, brush, textRect, sf);
-            }
         }
 
         private void StartIndicatorAnimationToSelected()
@@ -982,33 +956,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             }
         }
 
-        private string GetIconPath(SimpleItem item)
-        {
-            if (!string.IsNullOrEmpty(item?.ImagePath)) return item.ImagePath;
-            var key = (item?.MenuID ?? item?.Name ?? item?.Text ?? string.Empty).ToLowerInvariant();
-            if (key.Contains("home")) return Svgs.NavDashboard;
-            if (key.Contains("search") || key.Contains("find")) return Svgs.Search;
-            if (key.Contains("settings") || key.Contains("gear")) return Svgs.Settings;
-            if (key.Contains("inbox") || key.Contains("mail")) return Svgs.Mail;
-            return Svgs.Menu; // fallback
-        }
-
-        private GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            if (radius <= 0) { path.AddRectangle(rect); return path; }
-            int d = radius * 2;
-            Rectangle arc = new Rectangle(rect.Location, new Size(d, d));
-            path.AddArc(arc, 180, 90);
-            arc.X = rect.Right - d;
-            path.AddArc(arc, 270, 90);
-            arc.Y = rect.Bottom - d;
-            path.AddArc(arc, 0, 90);
-            arc.X = rect.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
         #endregion
     }
 }

@@ -34,13 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             int vPad = Math.Max(1, scaleY(chipPaddingYLogical));
             int closeSize = Math.Max(8, scaleX(closeSizeLogical));
 
-            int chipHeight = Math.Max(14, Math.Min(availableBounds.Height - (gap * 2), font.Height + (vPad * 2)));
+            int chipHeight = Math.Max(14, Math.Min(availableBounds.Height - (gap * 2), font.Height + (vPad * 2) + scaleY(4)));
             int rowHeight = chipHeight + gap;
             int maxBottom = availableBounds.Y + (rowHeight * Math.Max(1, maxRows));
 
             var items = new List<ChipLayoutItem>(chips.Count + 1);
             int currentX = availableBounds.Left;
-            int currentY = availableBounds.Top + (availableBounds.Height - chipHeight) / 2;
+            int currentY = availableBounds.Top + Math.Max(0, (availableBounds.Height - chipHeight) / 2);
             int overflowAt = -1;
 
             for (int i = 0; i < chips.Count; i++)

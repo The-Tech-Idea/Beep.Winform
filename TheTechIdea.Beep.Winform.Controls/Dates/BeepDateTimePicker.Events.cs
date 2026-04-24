@@ -47,13 +47,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            _isMouseDown = true;
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            _isMouseDown = false;
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -77,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 // Refresh UI
                 Invalidate();
                 
-                // If this is in a dropdown and selection is complete, close it
+                // If this control is hosted in a ToolStripDropDown and selection is complete, close it
                 if (shouldClose && this.Parent is ToolStripDropDown dropdown)
                 {
                     dropdown.Close();
@@ -105,35 +103,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     break;
 
                 case Keys.Left:
-                    if (_selectedDate.HasValue)
-                    {
-                        NavigateDate(-1);
-                        e.Handled = true;
-                    }
+                    NavigateDate(-1);
+                    e.Handled = true;
                     break;
 
                 case Keys.Right:
-                    if (_selectedDate.HasValue)
-                    {
-                        NavigateDate(1);
-                        e.Handled = true;
-                    }
+                    NavigateDate(1);
+                    e.Handled = true;
                     break;
 
                 case Keys.Up:
-                    if (_selectedDate.HasValue)
-                    {
-                        NavigateDate(-7);
-                        e.Handled = true;
-                    }
+                    NavigateDate(-7);
+                    e.Handled = true;
                     break;
 
                 case Keys.Down:
-                    if (_selectedDate.HasValue)
-                    {
-                        NavigateDate(7);
-                        e.Handled = true;
-                    }
+                    NavigateDate(7);
+                    e.Handled = true;
                     break;
 
                 case Keys.PageUp:

@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             Color borderColor = useThemeColors && theme != null ? theme.BorderColor : StyleColors.GetBorder(style);
             Color mintGreen = useThemeColors && theme != null ? theme.AccentColor : StyleColors.GetPrimary(style);
             float borderWidth = StyleBorders.GetBorderWidth(style);
+            if (borderWidth <= 0f) return path;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -42,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 BorderPainterHelpers.PaintRing(g, path, mintGreen, ringWidth, ringOffset);
             }
 
-            return path;
+            return BorderPainterHelpers.CreateStrokeInsetPath(path, borderWidth);
         }
     }
 }

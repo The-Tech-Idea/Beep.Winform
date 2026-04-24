@@ -174,7 +174,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _rows.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var rowItem = _rows[i].RowModel?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    EnsureVisible(i);
+                    return;
+                }
+            }
         }
 
         protected override bool IsInputKey(Keys keyData) => keyData switch

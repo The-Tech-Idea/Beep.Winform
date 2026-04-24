@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 ChipSize.Large  => baseSize * 1.15f,
                 _               => baseSize
             };
-            size = Math.Max(6f, size);
+            size = Math.Max(6f, size * dpiScale);
 
             FontStyle fs = fontStyleOverride ?? FontStyle.Regular;
             if ((fontWeightOverride ?? FontWeight.Normal) >= FontWeight.Bold)
@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 ? BeepThemesManager.CurrentTheme.TitleMedium.FontSize
                 : StyleTypography.GetFontSize(controlStyle) * 1.2f;
 
-            return BeepFontManager.GetFont(ResolveSafeFamily(controlStyle), Math.Max(6f, baseSize), FontStyle.Bold)
+            return BeepFontManager.GetFont(ResolveSafeFamily(controlStyle), Math.Max(6f, baseSize * dpiScale), FontStyle.Bold)
                    ?? BeepFontManager.DefaultFont;
         }
 
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 _               => baseSize * 0.8f
             };
 
-            return BeepFontManager.GetFont(ResolveSafeFamily(controlStyle), Math.Max(6f, size), FontStyle.Regular)
+            return BeepFontManager.GetFont(ResolveSafeFamily(controlStyle), Math.Max(6f, size * dpiScale), FontStyle.Regular)
                    ?? BeepFontManager.DefaultFont;
         }
 

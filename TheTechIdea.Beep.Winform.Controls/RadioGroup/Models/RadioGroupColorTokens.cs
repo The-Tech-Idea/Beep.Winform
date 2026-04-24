@@ -80,20 +80,26 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
                 return FromStyleColors(style);
 
             var primary = Fallback(theme.PrimaryColor, StyleColors.GetPrimary(style));
+            var background = Fallback(theme.BackgroundColor, StyleColors.GetBackground(style));
+            var foreground = Fallback(theme.ForeColor, StyleColors.GetForeground(style));
+            var surface = Fallback(theme.SurfaceColor, background);
+            var borderColor = Fallback(theme.BorderColor, StyleColors.GetBorder(style));
+            var secondaryText = Fallback(theme.SecondaryTextColor, StyleColors.GetForeground(style));
+
             return new RadioGroupColorTokens
             {
-                Surface           = Fallback(theme.BackgroundColor, Color.White),
-                SurfaceVariant    = Fallback(theme.SurfaceColor, Color.FromArgb(247, 247, 252)),
-                SurfaceContainer  = Blend(Fallback(theme.SurfaceColor, Color.White), primary, 0.05f),
+                Surface           = background,
+                SurfaceVariant    = Lighten(surface, 0.03f),
+                SurfaceContainer  = Blend(surface, primary, 0.05f),
 
-                OnSurface         = Fallback(theme.ForeColor, Color.FromArgb(28, 27, 31)),
-                OnSurfaceVariant  = Fallback(theme.SecondaryTextColor, Color.FromArgb(73, 69, 79)),
-                Outline           = Fallback(theme.BorderColor, Color.FromArgb(121, 116, 126)),
-                OutlineVariant    = Lighten(Fallback(theme.BorderColor, Color.FromArgb(202, 196, 208)), 0.4f),
+                OnSurface         = foreground,
+                OnSurfaceVariant  = Blend(secondaryText, Color.Gray, 0.4f),
+                Outline           = borderColor,
+                OutlineVariant    = Lighten(borderColor, 0.4f),
 
                 Primary           = primary,
                 OnPrimary         = Fallback(theme.ButtonForeColor, Color.White),
-                PrimaryContainer  = Blend(Color.White, primary, 0.12f),
+                PrimaryContainer  = Blend(surface, primary, 0.12f),
                 OnPrimaryContainer = Darken(primary, 0.3f),
 
                 HoverStateLayer   = Color.FromArgb(8,  primary),
@@ -112,20 +118,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
         public static RadioGroupColorTokens FromStyleColors(BeepControlStyle style)
         {
             var primary = StyleColors.GetPrimary(style);
+            var background = StyleColors.GetBackground(style);
+            var foreground = StyleColors.GetForeground(style);
+            var border = StyleColors.GetBorder(style);
+
             return new RadioGroupColorTokens
             {
-                Surface           = StyleColors.GetBackground(style),
-                SurfaceVariant    = Lighten(StyleColors.GetBackground(style), 0.03f),
-                SurfaceContainer  = Blend(StyleColors.GetBackground(style), primary, 0.05f),
+                Surface           = background,
+                SurfaceVariant    = Lighten(background, 0.03f),
+                SurfaceContainer  = Blend(background, primary, 0.05f),
 
-                OnSurface         = StyleColors.GetForeground(style),
-                OnSurfaceVariant  = Blend(StyleColors.GetForeground(style), Color.Gray, 0.4f),
-                Outline           = StyleColors.GetBorder(style),
-                OutlineVariant    = Lighten(StyleColors.GetBorder(style), 0.4f),
+                OnSurface         = foreground,
+                OnSurfaceVariant  = Blend(foreground, Color.Gray, 0.4f),
+                Outline           = border,
+                OutlineVariant    = Lighten(border, 0.4f),
 
                 Primary           = primary,
-                OnPrimary         = Color.White,
-                PrimaryContainer  = Blend(Color.White, primary, 0.12f),
+                OnPrimary         = Luminance(primary) > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White,
+                PrimaryContainer  = Blend(background, primary, 0.12f),
                 OnPrimaryContainer = Darken(primary, 0.3f),
 
                 HoverStateLayer   = Color.FromArgb(8,  primary),
@@ -150,21 +160,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
                 SurfaceVariant    = SystemColors.Window,
                 SurfaceContainer  = SystemColors.Window,
 
-                OnSurface         = SystemColors.ControlText,
-                OnSurfaceVariant  = SystemColors.GrayText,
-                Outline           = SystemColors.ControlText,
-                OutlineVariant    = SystemColors.GrayText,
+                OnSurface         = SystemColors.WindowText,
+                OnSurfaceVariant  = SystemColors.WindowText,
+                Outline           = SystemColors.WindowText,
+                OutlineVariant    = SystemColors.WindowText,
 
                 Primary           = SystemColors.Highlight,
                 OnPrimary         = SystemColors.HighlightText,
                 PrimaryContainer  = SystemColors.Highlight,
                 OnPrimaryContainer = SystemColors.HighlightText,
 
-                HoverStateLayer   = Color.FromArgb(32, SystemColors.Highlight),
-                FocusStateLayer   = Color.FromArgb(48, SystemColors.Highlight),
-                PressStateLayer   = Color.FromArgb(48, SystemColors.Highlight),
+                HoverStateLayer   = SystemColors.Highlight,
+                FocusStateLayer   = SystemColors.Highlight,
+                PressStateLayer   = SystemColors.Highlight,
 
-                Error             = SystemColors.ControlText,
+                Error             = Color.Red,
                 Disabled          = SystemColors.GrayText,
                 DisabledContainer = SystemColors.Control
             };
@@ -193,5 +203,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
 
         private static Color Darken(Color c, float amount)
             => Blend(c, Color.Black, amount);
+
+        private static float Luminance(Color c)
+        {
+            float r = c.R / 255f;
+            float g = c.G / 255f;
+            float b = c.B / 255f;
+            return (0.299f * r + 0.587f * g + 0.114f * b);
+        }
     }
 }

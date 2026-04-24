@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         public override void PaintBackground(Graphics g, Rectangle bounds, NotificationData data)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             int radius = data.CornerRadiusOverride > 0 ? data.CornerRadiusOverride : S(DefaultRadius);
 
             // Drop-shadow
@@ -36,32 +37,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 g.FillPath(shadowBrush, shadowPath);
 
             // Card
-            Color back   = data.CustomBackColor ?? Color.White;
-            Color border = Color.FromArgb(20, 0, 0, 0);
+            Color back   = data.CustomBackColor ?? colors.BackColor;
+            Color border = colors.BorderColor;
             DrawBackground(g, bounds, back, border, radius);
-        }
-
-        public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
-        {
-            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            string ip  = !string.IsNullOrEmpty(data.IconPath)
-                ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            // Large centred icon on white card
-            DrawCircleBadgeIcon(g, iconRect, ip, Color.FromArgb(25, colors.IconColor), colors.IconColor);
         }
 
         public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = TitleFont ?? SystemFonts.DefaultFont;
-            TextRenderer.DrawText(g, title, f, rect, Color.FromArgb(17, 24, 39),
+            TextRenderer.DrawText(g, title, f, rect, colors.ForeColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
                 TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
         }
 
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
         {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = MessageFont ?? SystemFonts.DefaultFont;
-            TextRenderer.DrawText(g, message, f, rect, Color.FromArgb(107, 114, 128),
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            TextRenderer.DrawText(g, message, f, rect, msgColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.Top |
                 TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
         }

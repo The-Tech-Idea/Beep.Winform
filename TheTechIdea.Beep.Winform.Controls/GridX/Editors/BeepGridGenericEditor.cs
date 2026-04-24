@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 {
@@ -41,8 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 
         public void Setup(Control control, BeepColumnConfig column, BeepCellConfig cell, object theme)
         {
-            control.BackColor = Color.White;
-            control.ForeColor = Color.Black;
+            var t = theme as IBeepTheme ?? BeepThemesManager.CurrentTheme;
+            control.BackColor = t?.BackColor != Color.Empty ? t.BackColor : Color.White;
+            control.ForeColor = t?.ForeColor != Color.Empty ? t.ForeColor : Color.Black;
 
             if (control is BeepListBox listBox)
             {

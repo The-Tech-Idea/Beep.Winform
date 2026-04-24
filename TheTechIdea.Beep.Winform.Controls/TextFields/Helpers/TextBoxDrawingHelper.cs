@@ -714,9 +714,19 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             var control = _textBox as Control;
             if (control != null)
             {
-                return control.Enabled ? control.ForeColor : SystemColors.GrayText;
+                return control.Enabled ? control.ForeColor : GetDisabledTextColor();
             }
-            return SystemColors.ControlText;
+            return GetDefaultTextColor();
+        }
+        
+        private static Color GetDisabledTextColor()
+        {
+            return Color.FromArgb(158, 157, 162);
+        }
+        
+        private static Color GetDefaultTextColor()
+        {
+            return Color.FromArgb(33, 37, 41);
         }
         
         private TextFormatFlags GetTextFormatFlags()

@@ -83,14 +83,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                     if (theme.TabSelectedBackColor != Color.Empty)
                         return theme.TabSelectedBackColor;
                     if (theme.PrimaryColor != Color.Empty)
-                        return ControlPaint.Light(theme.PrimaryColor, 0.95f);
+                        return ShiftLuminance(theme.PrimaryColor, -0.08f);
                 }
                 else if (isHovered)
                 {
                     if (theme.TabBackColor != Color.Empty)
-                        return ControlPaint.Light(theme.TabBackColor, 0.05f);
+                        return ShiftLuminance(theme.TabBackColor, 0.05f);
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.05f);
+                        return ShiftLuminance(theme.SurfaceColor, 0.05f);
                 }
                 else
                 {
@@ -239,6 +239,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Helpers
                 GetTabTextColor(theme, useThemeColors, isSelected, isHovered),
                 GetTabIndicatorColor(theme, useThemeColors)
             );
+        }
+
+        private static Color ShiftLuminance(Color color, float shift)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+
+            r = Math.Clamp(r + shift, 0f, 1f);
+            g = Math.Clamp(g + shift, 0f, 1f);
+            b = Math.Clamp(b + shift, 0f, 1f);
+
+            return Color.FromArgb(
+                color.A,
+                (int)(r * 255),
+                (int)(g * 255),
+                (int)(b * 255));
         }
     }
 }

@@ -77,6 +77,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             CommitRow();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _hoverTimer?.Stop();
+                _hoverTimer?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);

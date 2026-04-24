@@ -27,9 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             int radius = data.CornerRadiusOverride > 0 ? data.CornerRadiusOverride : S(DefaultRadius);
 
-            // Card: white with subtle gray border
-            Color back   = data.CustomBackColor ?? Color.White;
-            Color border = Color.FromArgb(229, 231, 235);   // Tailwind gray-200
+            Color back   = data.CustomBackColor ?? colors.BackColor;
+            Color border = colors.BorderColor;
             DrawBackground(g, bounds, back, border, radius);
 
             // Optional accent stripe
@@ -42,19 +41,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             }
         }
 
-        public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
+        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            string ip  = !string.IsNullOrEmpty(data.IconPath)
-                ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            DrawIcon(g, iconRect, ip, colors.IconColor, S(4));
+            DrawTitle(g, rect, title, colors.ForeColor);
         }
 
-        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
-            => DrawTitle(g, rect, title, Color.FromArgb(17, 24, 39));      // gray-900
-
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
-            => DrawMessage(g, rect, message, Color.FromArgb(107, 114, 128)); // gray-500
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            DrawMessage(g, rect, message, msgColor);
+        }
 
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {

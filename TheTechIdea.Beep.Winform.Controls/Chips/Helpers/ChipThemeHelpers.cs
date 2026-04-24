@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                     return theme.ForeColor;
             }
 
-            return Color.Black;
+            return theme.ForeColor != Color.Empty ? theme.ForeColor : Color.FromArgb(33, 33, 33);
         }
 
         /// <summary>

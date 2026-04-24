@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
 
                 // Fallback to border color (lighter)
                 if (theme.BorderColor != Color.Empty)
-                    return ControlPaint.Light(theme.BorderColor, 0.7f);
+                    return ShiftLuminance(theme.BorderColor, 0.15f);
 
                 // Fallback to secondary color
                 if (theme.SecondaryColor != Color.Empty)
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
 
                 // Fallback to primary color (lighter)
                 if (theme.PrimaryColor != Color.Empty)
-                    return ControlPaint.Light(theme.PrimaryColor, 0.2f);
+                    return ShiftLuminance(theme.PrimaryColor, 0.1f);
             }
 
             // Priority 3: Default orange
@@ -211,8 +211,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
                     return theme.CardTextForeColor;
             }
 
-            // Priority 3: Default black
-            return Color.Black;
+            // Priority 3: Default dark gray
+            return Color.FromArgb(33, 37, 41);
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private static Color ShiftLuminance(Color color, float shift)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+
+            r = Math.Clamp(r + shift, 0f, 1f);
+            g = Math.Clamp(g + shift, 0f, 1f);
+            b = Math.Clamp(b + shift, 0f, 1f);
+
+            return Color.FromArgb(
+                color.A,
+                (int)(r * 255),
+                (int)(g * 255),
+                (int)(b * 255));
         }
 
         #endregion
@@ -231,7 +252,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Ratings.Helpers
             if (rating == null || theme == null)
                 return;
 
-            // Apply colors based on rating style
             rating.FilledStarColor = GetFilledRatingColor(
                 theme,
                 useThemeColors,

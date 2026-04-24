@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             int imageConsumed = 0;
             if (state.HasLeadingImage)
             {
-                int inset    = Math.Max(2, usableH / 8);
+                int inset    = Math.Max(4, Math.Min(8, usableH / 6));
                 int iconSize = Math.Max(8, usableH - inset * 2);
                 int iconGap  = Math.Max(4, iconSize / 4);
                 imageRect = new Rectangle(
@@ -118,9 +118,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             }
 
             // ── 4. Text area ───────────────────────────────────────────────
-            int textX     = drawingRect.X + imageConsumed;
-            int textW     = Math.Max(1, buttonRect.Left - clearConsumed - textX);
-            var textRect  = new Rectangle(textX, drawingRect.Y, textW, usableH);
+            int leftInset  = imageConsumed;
+            int rightLimit = buttonRect.Left - clearConsumed;
+            int textX      = drawingRect.X + leftInset;
+            int textW      = Math.Max(1, rightLimit - textX);
+            var textRect   = new Rectangle(textX, drawingRect.Y, textW, usableH);
 
             // ── 5. Chip layout (multi-select only) ─────────────────────────
             var chips = (state.IsMultiSelect && state.SelectedChips?.Count > 0)

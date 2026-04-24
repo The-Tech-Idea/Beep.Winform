@@ -689,7 +689,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             var newSelected = _selectedItems.FirstOrDefault();
             if (newSelected != previousSelected)
             {
-                _previousSelectedItem = previousSelected;
                 _selectedItem = newSelected;
                 _selectedIndex = newSelected != null ? _chipItems.IndexOf(newSelected) : -1;
                 OnSelectionChanged(newSelected, newSelected != null);

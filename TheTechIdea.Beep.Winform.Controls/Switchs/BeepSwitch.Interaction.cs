@@ -33,7 +33,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             
-            if (!Enabled || !_dragging) return;
+            if (!Enabled)
+            {
+                Cursor = Cursors.Default;
+                return;
+            }
+
+            if (!_dragging)
+            {
+                Cursor = Cursors.Hand;
+            }
             
             // Calculate drag progress
             int totalDistance = _metrics.ThumbOnRect.X - _metrics.ThumbOffRect.X;
@@ -76,6 +85,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Reset to current state with animation
                 AnimateToggle(_checked);
             }
+        }
+
+        protected override void OnMouseLeave(System.EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Cursor = Cursors.Default;
         }
 
         protected override bool ProcessDialogKey(Keys keyData)

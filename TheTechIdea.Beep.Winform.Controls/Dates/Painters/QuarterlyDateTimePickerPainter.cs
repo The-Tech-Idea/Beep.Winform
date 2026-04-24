@@ -74,9 +74,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.ForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 16f, FontStyle.Bold);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
 
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 16f, FontStyle.Bold))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f))
+            {
             // Year display
             var yearText = $"FY {year}";
             using (var brush = new SolidBrush(textColor))
@@ -103,6 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center };
                 g.DrawString("Select Quarter", font, brush, new Rectangle(bounds.X, bounds.Y + 34, bounds.Width, 16), format);
+            }
             }
         }
 
@@ -171,10 +173,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 20f, FontStyle.Bold);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
-            var smallFont = new Font("Segoe UI", 9f);
 
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 20f, FontStyle.Bold))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f))
+            using (var smallFont = new Font("Segoe UI", 9f))
+            {
             // Background
             if (isSelected)
             {
@@ -244,6 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 var format = new StringFormat { Alignment = StringAlignment.Center };
                 g.DrawString($"{days} days", smallFont, brush, new Rectangle(bounds.X, bounds.Bottom - 26, bounds.Width, 16), format);
             }
+            }
         }
 
         private void PaintSelectedRangeDisplay(Graphics g, Rectangle bounds)
@@ -252,9 +256,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
             var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 12f, FontStyle.Bold))
+            {
             // Background panel
             using (var brush = new SolidBrush(Color.FromArgb(250, 250, 250)))
             using (var path = GetRoundedRectPath(bounds, 8))
@@ -299,6 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString("No quarter selected", font, brush, bounds, format);
                 }
+            }
             }
         }
 

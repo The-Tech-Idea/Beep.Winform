@@ -436,6 +436,301 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             DismissAll();
             ClearQueue();
         }
+
+        /// <summary>
+        /// Mark all active notifications as read
+        /// </summary>
+        public void MarkAllRead()
+        {
+            foreach (var notification in _activeNotifications)
+            {
+                if (notification.NotificationData != null && !notification.NotificationData.IsRead)
+                {
+                    notification.NotificationData.IsRead = true;
+                    notification.NotificationData.ReadTimestamp = DateTime.Now;
+                    notification.Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Mark all active notifications as unread
+        /// </summary>
+        public void MarkAllUnread()
+        {
+            foreach (var notification in _activeNotifications)
+            {
+                if (notification.NotificationData != null && notification.NotificationData.IsRead)
+                {
+                    notification.NotificationData.IsRead = false;
+                    notification.NotificationData.ReadTimestamp = null;
+                    notification.Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Pin all active notifications (prevent auto-dismiss)
+        /// </summary>
+        public void PinAll()
+        {
+            foreach (var notification in _activeNotifications)
+            {
+                if (notification.NotificationData != null)
+                {
+                    notification.NotificationData.IsPinned = true;
+                    notification.Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unpin all active notifications
+        /// </summary>
+        public void UnpinAll()
+        {
+            foreach (var notification in _activeNotifications)
+            {
+                if (notification.NotificationData != null)
+                {
+                    notification.NotificationData.IsPinned = false;
+                    notification.Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Dismiss all read notifications
+        /// </summary>
+        public void DismissAllRead()
+        {
+            var notifications = _activeNotifications
+                .Where(n => n.NotificationData?.IsRead == true)
+                .ToList();
+
+            foreach (var notification in notifications)
+            {
+                DismissNotificationInternal(notification);
+            }
+        }
+
+        /// <summary>
+        /// Dismiss all unread notifications
+        /// </summary>
+        public void DismissAllUnread()
+        {
+            var notifications = _activeNotifications
+                .Where(n => n.NotificationData?.IsRead != true)
+                .ToList();
+
+            foreach (var notification in notifications)
+            {
+                DismissNotificationInternal(notification);
+            }
+        }
+
+        /// <summary>
+        /// Get count of unread notifications
+        /// </summary>
+        public int UnreadCount => _activeNotifications.Count(n => n.NotificationData?.IsRead != true);
+
+        /// <summary>
+        /// Get count of pinned notifications
+        /// </summary>
+        public int PinnedCount => _activeNotifications.Count(n => n.NotificationData?.IsPinned == true);
+
+        #endregion
+
+        #region Notification Templates
+
+        private readonly Dictionary<string, NotificationData> _templates = new Dictionary<string, NotificationData>();
+
+        /// <summary>
+        /// Register a notification template for reuse
+        /// </summary>
+        public void RegisterTemplate(string name, NotificationData template)
+        {
+            if (string.IsNullOrEmpty(name) || template == null)
+                throw new ArgumentNullException(string.IsNullOrEmpty(name) ? nameof(name) : nameof(template));
+
+            _templates[name] = template;
+        }
+
+        /// <summary>
+        /// Show a notification using a registered template
+        /// </summary>
+        public void ShowFromTemplate(string name, Action<NotificationData> customize = null)
+        {
+            if (!_templates.TryGetValue(name, out var template))
+                throw new KeyNotFoundException($"Notification template '{name}' not found.");
+
+            var data = CloneNotificationData(template);
+            customize?.Invoke(data);
+            Show(data);
+        }
+
+        /// <summary>
+        /// Remove a registered template
+        /// </summary>
+        public void RemoveTemplate(string name)
+        {
+            _templates.Remove(name);
+        }
+
+        /// <summary>
+        /// Get all registered template names
+        /// </summary>
+        public IEnumerable<string> GetTemplateNames() => _templates.Keys.ToList();
+
+        private static NotificationData CloneNotificationData(NotificationData source)
+        {
+            return new NotificationData
+            {
+                Title = source.Title,
+                Message = source.Message,
+                Type = source.Type,
+                Priority = source.Priority,
+                Layout = source.Layout,
+                VisualStyle = source.VisualStyle,
+                GroupKey = source.GroupKey,
+                Source = source.Source,
+                IconPath = source.IconPath,
+                IconTint = source.IconTint,
+                EmbeddedImagePath = source.EmbeddedImagePath,
+                ShowAccentStripe = source.ShowAccentStripe,
+                AccentStripeColor = source.AccentStripeColor,
+                CornerRadiusOverride = source.CornerRadiusOverride,
+                EnableRichText = source.EnableRichText,
+                ProgressValue = source.ProgressValue,
+                ProgressText = source.ProgressText,
+                CustomBackColor = source.CustomBackColor,
+                CustomForeColor = source.CustomForeColor,
+                Duration = source.Duration,
+                ShowCloseButton = source.ShowCloseButton,
+                ShowProgressBar = source.ShowProgressBar,
+                PauseOnHover = source.PauseOnHover,
+                PlaySound = source.PlaySound,
+                CustomSoundPath = source.CustomSoundPath,
+                Actions = source.Actions?.ToArray(),
+                Tag = source.Tag,
+                Persistent = source.Persistent,
+                IsPinned = source.IsPinned
+            };
+        }
+
+        #endregion
+
+        #region Notification Scheduling
+
+        private readonly List<ScheduledNotification> _scheduledNotifications = new List<ScheduledNotification>();
+        private Timer _schedulerTimer;
+
+        /// <summary>
+        /// Schedule a notification to be shown at a specific time
+        /// </summary>
+        public void ScheduleNotification(NotificationData data, DateTime showTime)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            _scheduledNotifications.Add(new ScheduledNotification
+            {
+                Data = data,
+                ShowTime = showTime,
+                IsRecurring = false
+            });
+
+            EnsureSchedulerTimerRunning();
+        }
+
+        /// <summary>
+        /// Schedule a recurring notification
+        /// </summary>
+        public void ScheduleRecurringNotification(NotificationData data, TimeSpan interval)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            _scheduledNotifications.Add(new ScheduledNotification
+            {
+                Data = data,
+                ShowTime = DateTime.Now.Add(interval),
+                Interval = interval,
+                IsRecurring = true
+            });
+
+            EnsureSchedulerTimerRunning();
+        }
+
+        /// <summary>
+        /// Cancel a scheduled notification
+        /// </summary>
+        public void CancelScheduledNotification(NotificationData data)
+        {
+            _scheduledNotifications.RemoveAll(s => s.Data == data);
+        }
+
+        /// <summary>
+        /// Cancel all scheduled notifications
+        /// </summary>
+        public void CancelAllScheduledNotifications()
+        {
+            _scheduledNotifications.Clear();
+        }
+
+        /// <summary>
+        /// Get count of pending scheduled notifications
+        /// </summary>
+        public int ScheduledCount => _scheduledNotifications.Count;
+
+        private void EnsureSchedulerTimerRunning()
+        {
+            if (_schedulerTimer == null)
+            {
+                _schedulerTimer = new Timer { Interval = 1000 };
+                _schedulerTimer.Tick += SchedulerTimer_Tick;
+                _schedulerTimer.Start();
+            }
+            else if (!_schedulerTimer.Enabled)
+            {
+                _schedulerTimer.Start();
+            }
+        }
+
+        private void SchedulerTimer_Tick(object sender, EventArgs e)
+        {
+            var now = DateTime.Now;
+            var dueNotifications = _scheduledNotifications.Where(s => s.ShowTime <= now).ToList();
+
+            foreach (var scheduled in dueNotifications)
+            {
+                Show(scheduled.Data);
+
+                if (scheduled.IsRecurring)
+                {
+                    scheduled.ShowTime = scheduled.ShowTime.Add(scheduled.Interval);
+                }
+                else
+                {
+                    _scheduledNotifications.Remove(scheduled);
+                }
+            }
+
+            if (_scheduledNotifications.Count == 0 && _schedulerTimer != null)
+            {
+                _schedulerTimer.Stop();
+            }
+        }
+
+        private class ScheduledNotification
+        {
+            public NotificationData Data { get; set; }
+            public DateTime ShowTime { get; set; }
+            public TimeSpan Interval { get; set; }
+            public bool IsRecurring { get; set; }
+        }
+
+        #endregion
         #endregion
 
         #region Private Methods - Internal Management

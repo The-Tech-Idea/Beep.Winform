@@ -59,10 +59,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (hasChips)
             {
                 Color sepColor = Color.FromArgb(80, _theme?.BorderColor ?? Color.Gray);
-                int btnWidth = GetPreferredButtonWidth();
+                int actualBtnW = _owner.GetDropdownButtonRect().Width;
                 int sepY = drawingRect.Bottom - ScaleY(4);
                 using var dashPen = new Pen(sepColor, 1f) { DashStyle = DashStyle.Dash, DashPattern = new[] { 4f, 3f } };
-                g.DrawLine(dashPen, drawingRect.Left + ScaleX(6), sepY, drawingRect.Right - btnWidth - ScaleX(4), sepY);
+                g.DrawLine(dashPen, drawingRect.Left + ScaleX(6), sepY, drawingRect.Right - actualBtnW - ScaleX(4), sepY);
             }
 
             // Selected-count badge — accent pill matching popup PopupChip accent colors
@@ -74,7 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 var badgeSize = TextRenderer.MeasureText(badge, badgeFont);
                 int badgeW = Math.Max(badgeSize.Width + ScaleX(6), ScaleX(18));
                 int badgeH = ScaleY(16);
-                int badgeX = drawingRect.Right - GetPreferredButtonWidth() - badgeW - ScaleX(4);
+                int actualBtnW = _owner.GetDropdownButtonRect().Width;
+                int badgeX = drawingRect.Right - actualBtnW - badgeW - ScaleX(4);
                 int badgeY = drawingRect.Top + (drawingRect.Height - badgeH) / 2;
 
                 var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);

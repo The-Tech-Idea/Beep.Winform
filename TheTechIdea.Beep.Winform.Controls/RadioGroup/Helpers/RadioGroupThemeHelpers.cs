@@ -31,8 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         /// </summary>
         public static Color GetErrorColor(IBeepTheme theme, bool useThemeColors)
         {
-            if (SystemInformation.HighContrast)
-                return SystemColors.ControlText;
             if (useThemeColors && theme != null && theme.ErrorColor != Color.Empty)
                 return theme.ErrorColor;
             return Color.FromArgb(179, 38, 30); // MD3 error
@@ -83,22 +81,22 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 if (isPressed)
                 {
                     if (theme.PrimaryColor != Color.Empty)
-                        return ControlPaint.Light(theme.PrimaryColor, 0.85f);
+                        return ShiftLuminance(theme.PrimaryColor, -0.15f);
                 }
                 else if (isSelected)
                 {
                     if (theme.PrimaryColor != Color.Empty)
-                        return ControlPaint.Light(theme.PrimaryColor, 0.95f);
+                        return ShiftLuminance(theme.PrimaryColor, -0.08f);
                 }
                 else if (isFocused)
                 {
                     if (theme.PrimaryColor != Color.Empty)
-                        return ControlPaint.Light(theme.PrimaryColor, 0.98f);
+                        return ShiftLuminance(theme.PrimaryColor, -0.04f);
                 }
                 else if (isHovered)
                 {
                     if (theme.SurfaceColor != Color.Empty)
-                        return ControlPaint.Light(theme.SurfaceColor, 0.05f);
+                        return ShiftLuminance(theme.SurfaceColor, 0.05f);
                 }
                 else
                 {
@@ -110,14 +108,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             if (isPressed)
-                return Color.FromArgb(240, 240, 250);
+                return ShiftLuminance(Color.FromArgb(33, 150, 243), -0.15f);
             if (isSelected)
-                return Color.FromArgb(245, 245, 255);
+                return ShiftLuminance(Color.FromArgb(33, 150, 243), -0.08f);
             if (isFocused)
-                return Color.FromArgb(250, 250, 255);
+                return ShiftLuminance(Color.FromArgb(33, 150, 243), -0.04f);
             if (isHovered)
-                return Color.FromArgb(250, 250, 250);
-            return Color.White;
+                return ShiftLuminance(Color.FromArgb(240, 240, 245), 0.02f);
+            return Color.FromArgb(240, 240, 245);
         }
 
         /// <summary>
@@ -218,8 +216,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             }
 
             return isSelected
-                ? Color.FromArgb(33, 37, 41) // Dark gray
-                : Color.FromArgb(73, 80, 87); // Medium gray
+                ? Color.FromArgb(33, 37, 41)
+                : Color.FromArgb(73, 80, 87);
         }
 
         /// <summary>
@@ -257,11 +255,37 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             else
             {
                 baseColor = isPressed || isFocused || isHovered
-                    ? Color.FromArgb(33, 150, 243) // Material Blue
-                    : Color.Black;
+                    ? Color.FromArgb(33, 150, 243)
+                    : Color.FromArgb(0, 0, 0);
             }
 
             return Color.FromArgb(Math.Min(255, opacity), baseColor);
+        }
+
+        private static Color ShiftLuminance(Color color, float shift)
+        {
+            float r = color.R / 255f;
+            float g = color.G / 255f;
+            float b = color.B / 255f;
+            float max = Math.Max(r, Math.Max(g, b));
+            float min = Math.Min(r, Math.Min(g, b));
+            float l = (max + min) / 2f;
+
+            float delta = shift;
+            if (l > 0.5f)
+            {
+                delta = -shift;
+            }
+
+            r = Math.Clamp(r + delta, 0f, 1f);
+            g = Math.Clamp(g + delta, 0f, 1f);
+            b = Math.Clamp(b + delta, 0f, 1f);
+
+            return Color.FromArgb(
+                color.A,
+                (int)(r * 255),
+                (int)(g * 255),
+                (int)(b * 255));
         }
 
         /// <summary>

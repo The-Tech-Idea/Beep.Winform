@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         public static void DrawViewSelectorBackground(Graphics g, CalendarRenderContext ctx)
         {
             var rect = ctx.Rects.ViewSelectorRect;
-            using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
+            using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? ctx.Owner.BackColor))
                 g.FillRectangle(brush, rect);
 
             using (var pen = new Pen(ctx.Theme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
             if (includeActions)
             {
-                DrawListActionChips(g, ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244), ctx.Theme?.CalendarForeColor ?? Color.Black, ctx.EventFont, effectiveRect);
+                DrawListActionChips(g, ctx.Theme?.PrimaryColor ?? ctx.Theme?.CalendarForeColor ?? Color.Black, foreColor, ctx.EventFont, effectiveRect);
             }
         }
 
@@ -305,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var firstDay = new DateTime(displayMonth.Year, displayMonth.Month, 1);
             var firstCalendarDay = firstDay.AddDays(-(int)firstDay.DayOfWeek);
             var primary = ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244);
+            var selectedForeColor = GetContrastingTextColor(primary);
 
             for (int week = 0; week < 6; week++)
             {
@@ -332,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                     }
 
                     var textColor = isSelected
-                        ? Color.White
+                        ? selectedForeColor
                         : !isCurrentMonth
                             ? Color.FromArgb(120, ctx.Theme?.CalendarForeColor ?? Color.Black)
                             : ctx.Theme?.CalendarForeColor ?? Color.Black;
@@ -397,6 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
             var firstDay = new DateTime(displayMonth.Year, displayMonth.Month, 1);
             var firstCalendarDay = firstDay.AddDays(-(int)firstDay.DayOfWeek);
+            var selectedForeColor = GetContrastingTextColor(ctx.PrimaryColor);
 
             for (int week = 0; week < 6; week++)
             {
@@ -424,7 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                     }
 
                     var textColor = isSelected
-                        ? Color.White
+                        ? selectedForeColor
                         : !isCurrentMonth
                             ? Color.FromArgb(120, ctx.ForegroundColor)
                             : ctx.ForegroundColor;
@@ -617,6 +619,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 g.DrawString("Open", font, openText, openRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                 g.DrawString("Edit", font, editText, editRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
+        }
+
+        /// <summary>
+        /// Returns a contrasting text color (light or dark) based on background luminance.
+        /// </summary>
+        public static Color GetContrastingTextColor(Color background)
+        {
+            double luminance = (0.299 * background.R + 0.587 * background.G + 0.114 * background.B) / 255.0;
+            return luminance > 0.5 ? Color.FromArgb(220, 220, 220) : Color.White;
         }
 
         private static Color Blend(Color a, Color b, float amount)

@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     {
         public override string Name => "GlassAcrylic";
         public float AcrylicOpacity { get; set; } = 0.6f;
-        public Color HighlightColor { get; set; } = Color.FromArgb(60, 255, 255, 255);
+        public Color HighlightColor { get; set; } = Color.Empty;
         public override void Paint(BottomBarPainterContext context)
         {
             base.CalculateLayout(context);
@@ -17,15 +17,15 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             var rect = context.Bounds;
 
             // simulate a glass effect with a translucent gradient and inner highlight
-            var baseColor = context.BarBackColor == Color.Empty ? Color.FromArgb(250,250,250) : context.BarBackColor;
+            var baseColor = ResolveBarBack(context);
             using (var lg = new LinearGradientBrush(rect, Color.FromArgb((int)(AcrylicOpacity*255), baseColor), Color.FromArgb((int)(AcrylicOpacity*255*0.9), baseColor), LinearGradientMode.Vertical))
             {
                 g.FillRectangle(lg, rect);
             }
 
-            // inner top highlight
+            var highlightColor = HighlightColor == Color.Empty ? Color.FromArgb(25, ResolveBarFore(context)) : HighlightColor;
             var topRect = new Rectangle(rect.Left, rect.Top, rect.Width, rect.Height / 2);
-            using (var br = new SolidBrush(Color.FromArgb(25, 255,255,255)))
+            using (var br = new SolidBrush(highlightColor))
             {
                 g.FillRectangle(br, topRect);
             }

@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.Notifications.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -552,15 +553,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private (Color bgColor, Color borderColor, Color textColor) GetColorsForType(NotificationType type)
         {
-            return type switch
-            {
-                NotificationType.Success => (Color.FromArgb(76, 175, 80), Color.FromArgb(56, 142, 60), Color.White),
-                NotificationType.Warning => (Color.FromArgb(255, 152, 0), Color.FromArgb(245, 124, 0), Color.White),
-                NotificationType.Error => (Color.FromArgb(244, 67, 54), Color.FromArgb(211, 47, 47), Color.White),
-                NotificationType.Info => (Color.FromArgb(33, 150, 243), Color.FromArgb(25, 118, 210), Color.White),
-                NotificationType.System => (Color.FromArgb(158, 158, 158), Color.FromArgb(117, 117, 117), Color.White),
-                _ => (Color.FromArgb(128, 128, 128), Color.FromArgb(96, 96, 96), Color.White)
-            };
+            var colors = NotificationThemeHelpers.GetColorsForType(type, _currentTheme);
+            return (colors.IconColor, colors.BorderColor, GetContrastColor(colors.IconColor));
+        }
+
+        private static Color GetContrastColor(Color background)
+        {
+            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
+            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
         }
         #endregion
 

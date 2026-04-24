@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Dates;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 {
@@ -22,8 +23,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
         {
             if (control is not BeepDateDropDown ddd) return;
             ddd.GridMode = true;
-            ddd.BackColor = Color.White;
-            ddd.ForeColor = Color.Black;
+            var t = theme as IBeepTheme ?? BeepThemesManager.CurrentTheme;
+            ddd.BackColor = t?.BackColor != Color.Empty ? t.BackColor : Color.White;
+            ddd.ForeColor = t?.ForeColor != Color.Empty ? t.ForeColor : Color.Black;
             ddd.BorderStyle = BorderStyle.FixedSingle;
         }
 

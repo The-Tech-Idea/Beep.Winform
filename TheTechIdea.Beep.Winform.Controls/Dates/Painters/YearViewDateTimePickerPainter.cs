@@ -73,9 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 18f, FontStyle.Bold);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
 
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 18f, FontStyle.Bold))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 9f))
+            {
             // Navigation buttons
             int buttonSize = 36;
             var prevDecadeRect = new Rectangle(bounds.X, bounds.Y + 2, buttonSize, buttonSize);
@@ -108,6 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                 g.DrawString("or use navigation buttons", font, brush, labelRect, format);
             }
+            }
         }
 
         private void PaintYearComboBox(Graphics g, Rectangle bounds, int selectedYear, bool isHovered, bool isPressed)
@@ -117,8 +119,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var bgColor = _theme?.CalendarBackColor ?? Color.White;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold))
+            {
             // Background
             using (var brush = new SolidBrush(isPressed || isHovered ? hoverColor : bgColor))
             using (var path = GetRoundedRectPath(bounds, 6))
@@ -152,6 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 int cy = bounds.Y + bounds.Height / 2;
                 g.DrawLine(pen, cx - 3, cy - 2, cx, cy + 1);
                 g.DrawLine(pen, cx, cy + 1, cx + 3, cy - 2);
+            }
             }
         }
 
@@ -243,9 +247,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 16f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 16f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 16f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 16f, FontStyle.Bold))
+            {
             // Out of decade years are slightly faded
             if (isOutOfDecade)
             {
@@ -300,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(year.ToString(), isSelected ? boldFont : font, brush, bounds, format);
+            }
             }
         }
 

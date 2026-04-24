@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 {
@@ -20,8 +21,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
         {
             if (control is not BeepNumericUpDown num) return;
             num.GridMode = true;
-            num.BackColor = Color.White;
-            num.ForeColor = Color.Black;
+            var t = theme as IBeepTheme ?? BeepThemesManager.CurrentTheme;
+            num.BackColor = t?.BackColor != Color.Empty ? t.BackColor : Color.White;
+            num.ForeColor = t?.ForeColor != Color.Empty ? t.ForeColor : Color.Black;
         }
 
         public void SetValue(Control control, object value)

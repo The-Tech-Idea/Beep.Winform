@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                             context.Graphics.FillPath(br, gp);
                         }
                         // optional stroke
-                        var penBase = context.NavigationBorderColor == Color.Empty ? (context.BarForeColor == Color.Empty ? Color.Black : context.BarForeColor) : context.NavigationBorderColor;
+                        var penBase = context.NavigationBorderColor == Color.Empty ? (context.BarForeColor == Color.Empty ? ResolveBarFore(context) : context.BarForeColor) : context.NavigationBorderColor;
                         var pillStrokeColor = Color.FromArgb(40, penBase.R, penBase.G, penBase.B);
                         using (var pen = new Pen(pillStrokeColor, 1f))
                         {
@@ -157,7 +157,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                     int badgeY = iconRect.Top - badgeH / 2;
 
                     var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
-                    using (var brush = new SolidBrush(item.BadgeBackColor))
+                    var badgeBack = item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : item.BadgeBackColor;
+                    var badgeFore = item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : item.BadgeForeColor;
+                    using (var brush = new SolidBrush(badgeBack))
                     {
                         using (var path = new GraphicsPath())
                         {
@@ -165,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
                             g.FillPath(brush, path);
                         }
                     }
-                    using (var brushFore = new SolidBrush(item.BadgeForeColor))
+                    using (var brushFore = new SolidBrush(badgeFore))
                     {
                         var sf2 = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                         g.DrawString(item.BadgeText, badgeFont, brushFore, badgeRect, sf2);

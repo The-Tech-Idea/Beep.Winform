@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             {
                 ComboBoxType.OutlineSearchable => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 34,
+                    ButtonWidth = 36,
                     InnerPadding = new Padding(12, 6, 8, 6),
                     CornerRadius = 6,
                     TextInset = 8,
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 },
                 ComboBoxType.FilledSoft => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 34,
+                    ButtonWidth = 36,
                     InnerPadding = new Padding(12, 8, 8, 8),
                     CornerRadius = 8,
                     TextInset = 8,
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 },
                 ComboBoxType.RoundedPill => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 36,
+                    ButtonWidth = 38,
                     InnerPadding = new Padding(16, 8, 12, 8),
                     CornerRadius = 18,
                     TextInset = 10,
@@ -65,13 +65,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 },
                 ComboBoxType.SegmentedTrigger => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 36,
+                    ButtonWidth = 40,
                     InnerPadding = new Padding(12, 6, 8, 6),
                     CornerRadius = 8,
                     TextInset = 8,
                     RowDensity = 34,
                     ChipHeight = 24,
-                    ShowButtonSeparator = true,
+                    ShowButtonSeparator = false,
                     UseSegmentedTrigger = true
                 },
                 ComboBoxType.MultiChipCompact => new ComboBoxVisualTokens
@@ -96,8 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 },
                 ComboBoxType.DenseList => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 32,
-                    InnerPadding = new Padding(8, 4, 6, 4),
+                    ButtonWidth = 28,
+                    InnerPadding = new Padding(6, 3, 4, 3),
                     CornerRadius = 4,
                     TextInset = 6,
                     RowDensity = 30,
@@ -106,9 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 },
                 ComboBoxType.MinimalBorderless => new ComboBoxVisualTokens
                 {
-                    ButtonWidth = 24,
+                    ButtonWidth = 22,
                     InnerPadding = new Padding(4, 6, 4, 6),
-                    CornerRadius = 4,
+                    CornerRadius = 6,
                     TextInset = 6,
                     RowDensity = 32,
                     ChipHeight = 22,
@@ -164,13 +164,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         public static bool SupportsSearch(ComboBoxType type)
             => type == ComboBoxType.OutlineSearchable
-            || type == ComboBoxType.MultiChipSearch;
+            || type == ComboBoxType.MultiChipSearch
+            || type == ComboBoxType.CommandMenu;
 
         /// <summary>
         /// Returns true only for types that use an inline text editor in the field.
         /// MultiChipSearch has its search box in the popup, not inline.
+        /// CommandMenu uses inline search for command palette behavior.
         /// </summary>
         public static bool SupportsInlineEditor(ComboBoxType type)
-            => type == ComboBoxType.OutlineSearchable;
+            => type == ComboBoxType.OutlineSearchable
+            || type == ComboBoxType.CommandMenu;
     }
 }

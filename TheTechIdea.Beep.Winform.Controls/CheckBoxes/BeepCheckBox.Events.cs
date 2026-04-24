@@ -25,9 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             {
                 if (Enabled)
                 {
-                    // Keyboard toggle keeps parity with mouse behavior.
                     _keyboardFocusVisible = true;
-                    State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                    ToggleState();
                     e.Handled = true;
                 }
             }
@@ -79,21 +78,21 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             // Users expect to be able to click anywhere on the control (text or checkbox) to toggle
             if (Enabled)
             {
-                // Keep two-state click behavior, but route through State property
-                // so mappings, submit notifications, and painters stay in sync.
-                State = State == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                ToggleState();
             }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+            Cursor = Enabled ? Cursors.Hand : Cursors.Default;
             RequestVisualRefresh(includeText: false);
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            Cursor = Cursors.Default;
             RequestVisualRefresh(includeText: false);
         }
 

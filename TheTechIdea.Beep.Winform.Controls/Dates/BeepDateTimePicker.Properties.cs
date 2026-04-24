@@ -426,7 +426,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         [Category("Behavior")]
         [Description("Maximum number of dates that can be selected in Multiple mode")]
-        public int? MaxMultipleSelectionCount { get; set; }
+        public int? MaxMultipleSelectionCount 
+        { 
+            get => _maxMultipleSelectionCount; 
+            set 
+            { 
+                _maxMultipleSelectionCount = value;
+                Invalidate();
+            } 
+        }
+        private int? _maxMultipleSelectionCount;
 
         [Category("Data")]
         [Description("Combined date and time value (used in Appointment mode)")]
@@ -454,7 +463,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         [Category("Behavior")]
         [Description("Indicates if flexible range mode is active (FlexibleRange mode)")]
-        public bool IsFlexibleRangeMode { get; set; }
+        public bool IsFlexibleRangeMode 
+        { 
+            get => _isFlexibleRangeMode; 
+            set 
+            { 
+                _isFlexibleRangeMode = value;
+                Invalidate();
+            } 
+        }
+        private bool _isFlexibleRangeMode;
 
         [Category("Data")]
         [Description("List of filtered/disabled dates (FilteredRange mode)")]
@@ -470,7 +488,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         [Category("Behavior")]
         [Description("Start hour for time slots (Appointment mode, 0-23)")]
-        public int TimeStartHour { get; set; } = 0;
+        public int TimeStartHour 
+        { 
+            get => _timeStartHour; 
+            set 
+            { 
+                _timeStartHour = Math.Max(0, Math.Min(23, value));
+                Invalidate();
+            } 
+        }
+        private int _timeStartHour = 0;
 
        
 

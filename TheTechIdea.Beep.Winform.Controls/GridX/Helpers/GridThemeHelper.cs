@@ -16,14 +16,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.BackColor = t.GridBackColor;
                 _grid.ForeColor = t.GridForeColor;
-                // Align font sizing with BeepSimpleGrid: use theme grid cell font
                 var cellFont = BeepThemesManager.ToFont(t.GridCellFont);
+
                 _grid.ScrollBars.ApplyTheme(_grid.Theme);
-                //if (cellFont != null)
-                //{
-                //    _grid.Font = cellFont;
-                //}
+
+                ApplyToolbarTheme(t);
             }
+        }
+
+        private void ApplyToolbarTheme(IBeepTheme theme)
+        {
+            _grid.ToolbarBackColor = theme.GridHeaderBackColor;
+            _grid.ToolbarForeColor = theme.GridHeaderForeColor;
+            _grid.ToolbarBorderColor = theme.GridLineColor;
+            _grid.ToolbarButtonHoverBackColor = theme.GridRowHoverBackColor;
+            _grid.ToolbarButtonPressedBackColor = theme.GridRowSelectedBackColor;
+            _grid.ToolbarSeparatorColor = theme.GridLineColor;
+            _grid.ToolbarSearchBackColor = theme.GridBackColor;
+            _grid.ToolbarPlaceholderColor = Color.FromArgb(
+                Math.Min(180, theme.GridForeColor.A),
+                theme.GridForeColor.R,
+                theme.GridForeColor.G,
+                theme.GridForeColor.B);
+
+            bool isDark = theme.GridBackColor.GetBrightness() < 0.5;
+            _grid.ToolbarSearchFocusBackColor = isDark
+                ? Color.FromArgb(40, 50, 65)
+                : Color.FromArgb(240, 245, 255);
         }
     }
 }

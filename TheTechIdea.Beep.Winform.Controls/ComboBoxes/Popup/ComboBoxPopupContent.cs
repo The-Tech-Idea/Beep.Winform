@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             {
                 foreach (var rowModel in model.FilteredRows)
                 {
-                    var row = new ComboBoxPopupRow { Width = rowWidth, Height = 32 };
+                    var row = new ComboBoxPopupRow { Width = rowWidth };
                     row.ApplyProfile(_profile);
                     row.ApplyThemeTokens(_themeTokens);
                     row.SetModel(rowModel);
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             // Set list panel size to contain all rows
             _listPanel.Size = new Size(rowWidth, yOffset);
             UpdateScrollBar();
-            SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
+            SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : FindFirstSelectableRowIndex());
         }
 
         public void FocusSearchBox()
@@ -339,6 +339,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             }
         }
 
+        private int FindFirstSelectableRowIndex()
+        {
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var m = _rows[i].Model;
+                if (m != null && m.IsEnabled && m.RowKind == ComboBoxPopupRowKind.Normal)
+                    return i;
+            }
+            return _rows.Count > 0 ? 0 : -1;
+        }
+
         private void MoveFocus(int delta)
         {
             if (_rows.Count == 0)
@@ -346,8 +357,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 return;
             }
 
-            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : 0;
-            SetKeyboardFocusIndex(start + delta);
+            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : FindFirstSelectableRowIndex();
+            if (start < 0) return;
+
+            int next = start + delta;
+            next = Math.Max(0, Math.Min(next, _rows.Count - 1));
+
+            // Skip non-selectable rows (group headers, separators)
+            int guard = 0;
+            while (guard < _rows.Count)
+            {
+                var m = _rows[next].Model;
+                if (m != null && m.IsEnabled && m.RowKind == ComboBoxPopupRowKind.Normal)
+                    break;
+                next += delta > 0 ? 1 : -1;
+                if (next < 0 || next >= _rows.Count)
+                {
+                    next = Math.Max(0, Math.Min(start, _rows.Count - 1));
+                    break;
+                }
+                guard++;
+            }
+
+            SetKeyboardFocusIndex(next);
         }
 
         private void CommitFocusedRow()

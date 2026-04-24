@@ -215,7 +215,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
 
         public void PaintDayHeader(Graphics g, Rectangle bounds, string dayName, bool isToday, CalendarPainterContext ctx)
         {
-            // Surface tint for header
             using (var brush = new SolidBrush(Color.FromArgb(245, ctx.BackgroundColor)))
             {
                 g.FillRectangle(brush, bounds);
@@ -236,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
         public void PaintWeekDayHeader(Graphics g, Rectangle bounds, DateTime date, bool isToday, CalendarPainterContext ctx)
         {
             Color bgColor = isToday ? ctx.PrimaryColor : Color.FromArgb(248, ctx.BackgroundColor);
-            Color textColor = isToday ? Color.White : ctx.ForegroundColor;
+            Color textColor = isToday ? CommonDrawing.GetContrastingTextColor(ctx.PrimaryColor) : ctx.ForegroundColor;
 
             using (var brush = new SolidBrush(bgColor))
             {
@@ -284,14 +283,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
             if (isSelected)
             {
                 using (var path = CreatePillPath(bounds))
-                using (var pen = new Pen(Color.White, 2))
+                using (var pen = new Pen(CommonDrawing.GetContrastingTextColor(eventColor), 2))
                 {
                     g.DrawPath(pen, path);
                 }
             }
 
-            // Event title
-            using (var brush = new SolidBrush(Color.White))
+            // Event title - use contrasting text color
+            Color eventTextColor = CommonDrawing.GetContrastingTextColor(eventColor);
+            using (var brush = new SolidBrush(eventTextColor))
             {
                 var format = new StringFormat
                 {
@@ -341,7 +341,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
 
             // Event content
             var contentRect = new Rectangle(bounds.X + 10, bounds.Y + 4, bounds.Width - 14, bounds.Height - 8);
-            using (var brush = new SolidBrush(Color.White))
+            Color blockTextColor = CommonDrawing.GetContrastingTextColor(bgColor);
+            using (var brush = new SolidBrush(blockTextColor))
             {
                 string text = $"{evt.Title}\n{evt.StartTime:HH:mm} - {evt.EndTime:HH:mm}";
                 g.DrawString(text, ctx.EventFont, brush, contentRect);

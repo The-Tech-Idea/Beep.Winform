@@ -25,25 +25,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             int radius = data.CornerRadiusOverride > 0 ? data.CornerRadiusOverride : S(DefaultRadius);
-            Color back   = data.CustomBackColor ?? Color.White;
-            Color border = Color.FromArgb(233, 233, 231);   // Notion divider colour
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color back   = data.CustomBackColor ?? colors.BackColor;
+            Color border = colors.BorderColor;
             DrawBackground(g, bounds, back, border, radius);
         }
 
-        public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)
+        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
         {
-            // Small flat icon — Notion uses emoji, we use SVG without any container
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            string ip  = !string.IsNullOrEmpty(data.IconPath)
-                ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            DrawIcon(g, iconRect, ip, Color.FromArgb(170, colors.IconColor), 0);
+            DrawTitle(g, rect, title, colors.ForeColor);
         }
 
-        public override void PaintTitle(Graphics g, Rectangle rect, string title, NotificationData data)
-            => DrawTitle(g, rect, title, Color.FromArgb(37, 37, 38));      // Notion near-black
-
         public override void PaintMessage(Graphics g, Rectangle rect, string message, NotificationData data)
-            => DrawMessage(g, rect, message, Color.FromArgb(155, 155, 155));// Notion muted gray
+        {
+            var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
+            Color msgColor = Color.FromArgb(185, colors.ForeColor);
+            DrawMessage(g, rect, message, msgColor);
+        }
 
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {

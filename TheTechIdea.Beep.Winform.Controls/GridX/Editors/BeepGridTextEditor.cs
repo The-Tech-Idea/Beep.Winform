@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
 {
@@ -20,8 +21,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Editors
         {
             if (control is not BeepTextBox st) return;
             st.GridMode = true;
-            st.BackColor = Color.White;
-            st.ForeColor = Color.Black;
+            var t = theme as IBeepTheme ?? BeepThemesManager.CurrentTheme;
+            st.BackColor = t?.BackColor != Color.Empty ? t.BackColor : Color.White;
+            st.ForeColor = t?.ForeColor != Color.Empty ? t.ForeColor : Color.Black;
             st.BorderStyle = BorderStyle.FixedSingle;
         }
 

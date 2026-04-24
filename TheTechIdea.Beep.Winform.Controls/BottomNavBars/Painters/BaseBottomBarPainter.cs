@@ -143,6 +143,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             }
         }
 
+        protected virtual Font ResolveItemFont(BottomBarPainterContext context)
+        {
+            return new Font("Segoe UI", 9f);
+        }
+
         protected Color ResolveBarBack(BottomBarPainterContext context)
             => context.BarBackColor != Color.Empty ? context.BarBackColor : Color.White;
 

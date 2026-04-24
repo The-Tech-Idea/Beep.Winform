@@ -174,12 +174,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.Empty;
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold))
+            {
             // Check if THIS specific combo box (by gridIndex) is hovered/pressed
-            bool isHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.YearComboBox) == true && 
+            bool isHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.YearComboBox) == true &&
                            hoverState?.HoveredGridIndex == gridIndex;
-            bool isPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.YearComboBox) == true && 
+            bool isPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.YearComboBox) == true &&
                            hoverState?.PressedGridIndex == gridIndex;
 
             // Background
@@ -222,6 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 g.DrawLine(pen, arrowX - arrowSize, arrowY - 2, arrowX, arrowY + 2);
                 g.DrawLine(pen, arrowX, arrowY + 2, arrowX + arrowSize, arrowY - 2);
             }
+            }
         }
 
         private void PaintRangeInfo(Graphics g, Rectangle bounds)
@@ -231,9 +233,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.Empty;
             var bgColor = Color.FromArgb(250, 250, 250);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
-            var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f))
+            using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 10f, FontStyle.Bold))
+            {
             // Background
             using (var brush = new SolidBrush(bgColor))
             using (var pen = new Pen(borderColor, 1))
@@ -253,6 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     g.DrawString(rangeText, boldFont, brush, bounds, format);
                 }
             }
+            }
         }
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
@@ -264,8 +268,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var rangeColor = PathPainterHelpers.WithAlphaIfNotEmpty(accentColor, 50);
             
             // Define distinct colors for start and end dates
-            var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green
-            var endDateColor = accentColor;  // Blue (accent)
+            var startDateColor = Color.FromArgb(34, 139, 34);
+            var endDateColor = accentColor;
 
             cellBounds.Inflate(-1, -1);
 
@@ -332,13 +336,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             // Day number
             var dayText = date.Day.ToString();
-            var font = new Font("Segoe UI", 9f);
 
             if (isDisabled)
             {
                 textColor = Color.FromArgb(180, 180, 180);
             }
 
+            using (var font = new Font("Segoe UI", 9f))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -353,8 +357,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
             var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 11f, FontStyle.Bold);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 11f, FontStyle.Bold))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat
@@ -404,8 +408,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
             var textColor = _theme?.SecondaryTextColor ?? Color.FromArgb(128, 128, 128);
-            var font = new Font("Segoe UI", 8f);
 
+            using (var font = new Font("Segoe UI", 8f))
+            {
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
             int startDay = (int)firstDayOfWeek;
             int cellWidth = headerBounds.Width / 7;
@@ -429,6 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     };
                     g.DrawString(dayNames[dayIndex].Substring(0, 2), font, brush, cellRect, format);
                 }
+            }
             }
         }
 
@@ -631,8 +637,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var bgColor = isPrimary ? accentColor : (_theme?.BackgroundColor ?? Color.White);
             var hoverColor = isPrimary ? ControlPaint.Light(accentColor, 0.1f) : Color.FromArgb(240, 240, 240);
             var pressedColor = isPrimary ? ControlPaint.Dark(accentColor, 0.1f) : Color.FromArgb(230, 230, 230);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
 
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 9f))
+            {
             // Background
             Color currentBgColor = bgColor;
             if (isPressed)
@@ -660,6 +667,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     LineAlignment = StringAlignment.Center
                 };
                 g.DrawString(text, font, brush, buttonBounds, format);
+            }
             }
         }
         public void PaintWeekNumbers(Graphics g, Rectangle weekColumnBounds, DateTime displayMonth, DatePickerFirstDayOfWeek firstDayOfWeek, DateTimePickerHoverState hoverState) { }

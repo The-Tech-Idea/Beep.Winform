@@ -68,14 +68,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             switch (e.KeyCode)
             {
                 case Keys.Escape:
-                    // Escape key dismisses notification
                     Dismiss();
                     e.Handled = true;
                     break;
 
                 case Keys.Enter:
                 case Keys.Space:
-                    // Enter/Space triggers primary action or dismisses
                     if (_notificationData?.Actions != null && _notificationData.Actions.Length > 0)
                     {
                         var primaryAction = Array.Find(_notificationData.Actions, a => a.IsPrimary) 
@@ -114,6 +112,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     TriggerActionByIndex(2);
                     e.Handled = true;
                     break;
+
+                case Keys.P:
+                    if (e.Control)
+                    {
+                        TogglePin();
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.M:
+                    if (e.Control)
+                    {
+                        MarkAsRead();
+                        e.Handled = true;
+                    }
+                    break;
             }
         }
 
@@ -131,6 +145,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             ActionClicked?.Invoke(this, args);
             action.OnClick?.Invoke(_notificationData);
+        }
+
+        private void TogglePin()
+        {
+            if (_notificationData != null)
+            {
+                _notificationData.IsPinned = !_notificationData.IsPinned;
+                Invalidate();
+            }
+        }
+
+        private void MarkAsRead()
+        {
+            if (_notificationData != null && !_notificationData.IsRead)
+            {
+                _notificationData.IsRead = true;
+                _notificationData.ReadTimestamp = DateTime.Now;
+                Invalidate();
+            }
         }
         #endregion
 

@@ -41,12 +41,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             PaintHeader(g, layout.HeaderRect, displayMonth.ToString("MMMM yyyy"), true, false);
             
             PaintNavigationButton(g, layout.PreviousButtonRect, false, 
-                hoverState.IsAreaHovered(DateTimePickerHitArea.PreviousButton),
-                hoverState.IsAreaPressed(DateTimePickerHitArea.PreviousButton));
+                hoverState?.IsAreaHovered(DateTimePickerHitArea.PreviousButton) ?? false,
+                hoverState?.IsAreaPressed(DateTimePickerHitArea.PreviousButton) ?? false);
             
             PaintNavigationButton(g, layout.NextButtonRect, true,
-                hoverState.IsAreaHovered(DateTimePickerHitArea.NextButton),
-                hoverState.IsAreaPressed(DateTimePickerHitArea.NextButton));
+                hoverState?.IsAreaHovered(DateTimePickerHitArea.NextButton) ?? false,
+                hoverState?.IsAreaPressed(DateTimePickerHitArea.NextButton) ?? false);
 
             PaintDayNamesHeader(g, layout.DayNamesRect, properties.FirstDayOfWeek);
             PaintCalendarGrid(g, layout, displayMonth, properties, hoverState);
@@ -73,59 +73,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
-
-            // Draw separator line
-            using (var pen = new Pen(borderColor, 1))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f))
             {
-                g.DrawLine(pen, layout.TimePickerRect.X, layout.TimePickerRect.Y, 
-                    layout.TimePickerRect.Right, layout.TimePickerRect.Y);
-            }
-
-            // Draw "Time:" label
-            var labelRect = new Rectangle(layout.TimePickerRect.X, layout.TimePickerRect.Y + 12, 60, 24);
-            using (var brush = new SolidBrush(secondaryTextColor))
-            {
-                g.DrawString("Time:", font, brush, labelRect);
-            }
-
-            // Get hour and minute
-            int hour = selectedTime.Hours;
-            int minute = selectedTime.Minutes;
-
-            // Draw hour spinner
-            if (layout.TimeHourRect != Rectangle.Empty)
-            {
-                bool hourUpHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartHourUpButton) == true;
-                bool hourUpPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartHourUpButton) == true;
-                bool hourDownHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartHourDownButton) == true;
-                bool hourDownPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartHourDownButton) == true;
-
-                PaintTimeSpinner(g, layout.TimeHourRect, layout.TimeHourUpRect, layout.TimeHourDownRect,
-                    hour.ToString("D2"), hourUpHovered, hourUpPressed, hourDownHovered, hourDownPressed);
-            }
-
-            // Draw colon separator
-            if (layout.TimeColonRect != Rectangle.Empty)
-            {
-                using (var brush = new SolidBrush(textColor))
+                // Draw separator line
+                using (var pen = new Pen(borderColor, 1))
                 {
-                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 14f, FontStyle.Bold);
-                    g.DrawString(":", boldFont, brush, layout.TimeColonRect, format);
+                    g.DrawLine(pen, layout.TimePickerRect.X, layout.TimePickerRect.Y, 
+                        layout.TimePickerRect.Right, layout.TimePickerRect.Y);
                 }
-            }
 
-            // Draw minute spinner
-            if (layout.TimeMinuteRect != Rectangle.Empty)
-            {
-                bool minuteUpHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartMinuteUpButton) == true;
-                bool minuteUpPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartMinuteUpButton) == true;
-                bool minuteDownHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartMinuteDownButton) == true;
-                bool minuteDownPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartMinuteDownButton) == true;
+                // Draw "Time:" label
+                var labelRect = new Rectangle(layout.TimePickerRect.X, layout.TimePickerRect.Y + 12, 60, 24);
+                using (var brush = new SolidBrush(secondaryTextColor))
+                {
+                    g.DrawString("Time:", font, brush, labelRect);
+                }
 
-                PaintTimeSpinner(g, layout.TimeMinuteRect, layout.TimeMinuteUpRect, layout.TimeMinuteDownRect,
-                    minute.ToString("D2"), minuteUpHovered, minuteUpPressed, minuteDownHovered, minuteDownPressed);
+                // Get hour and minute
+                int hour = selectedTime.Hours;
+                int minute = selectedTime.Minutes;
+
+                // Draw hour spinner
+                if (layout.TimeHourRect != Rectangle.Empty)
+                {
+                    bool hourUpHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartHourUpButton) == true;
+                    bool hourUpPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartHourUpButton) == true;
+                    bool hourDownHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartHourDownButton) == true;
+                    bool hourDownPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartHourDownButton) == true;
+
+                    PaintTimeSpinner(g, layout.TimeHourRect, layout.TimeHourUpRect, layout.TimeHourDownRect,
+                        hour.ToString("D2"), hourUpHovered, hourUpPressed, hourDownHovered, hourDownPressed);
+                }
+
+                // Draw colon separator
+                if (layout.TimeColonRect != Rectangle.Empty)
+                {
+                    using (var brush = new SolidBrush(textColor))
+                    {
+                        var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                        using (var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold))
+                        {
+                            g.DrawString(":", boldFont, brush, layout.TimeColonRect, format);
+                        }
+                    }
+                }
+
+                // Draw minute spinner
+                if (layout.TimeMinuteRect != Rectangle.Empty)
+                {
+                    bool minuteUpHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartMinuteUpButton) == true;
+                    bool minuteUpPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartMinuteUpButton) == true;
+                    bool minuteDownHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.StartMinuteDownButton) == true;
+                    bool minuteDownPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.StartMinuteDownButton) == true;
+
+                    PaintTimeSpinner(g, layout.TimeMinuteRect, layout.TimeMinuteUpRect, layout.TimeMinuteDownRect,
+                        minute.ToString("D2"), minuteUpHovered, minuteUpPressed, minuteDownHovered, minuteDownPressed);
+                }
             }
         }
 
@@ -140,63 +143,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var pressedColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 12f);
-
-            // Draw spinner border
-            using (var pen = new Pen(borderColor, 1))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f))
             {
-                g.DrawRectangle(pen, bounds);
-            }
-
-            // Draw up button background
-            if (!upRect.IsEmpty && (upHovered || upPressed))
-            {
-                using (var brush = new SolidBrush(upPressed ? pressedColor : hoverColor))
+                // Draw spinner border
+                using (var pen = new Pen(borderColor, 1))
                 {
-                    g.FillRectangle(brush, upRect);
-                }
-            }
-
-            // Draw down button background
-            if (!downRect.IsEmpty && (downHovered || downPressed))
-            {
-                using (var brush = new SolidBrush(downPressed ? pressedColor : hoverColor))
-                {
-                    g.FillRectangle(brush, downRect);
-                }
-            }
-
-            // Draw up/down arrow icons
-            using (var pen = new Pen(upPressed || downPressed ? Color.White : secondaryTextColor, 1.5f))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                // Up arrow
-                if (!upRect.IsEmpty)
-                {
-                    int cx = upRect.X + upRect.Width / 2;
-                    int cy = upRect.Y + upRect.Height / 2;
-                    g.DrawLine(pen, cx - 4, cy + 2, cx, cy - 2);
-                    g.DrawLine(pen, cx, cy - 2, cx + 4, cy + 2);
+                    g.DrawRectangle(pen, bounds);
                 }
 
-                // Down arrow
-                if (!downRect.IsEmpty)
+                // Draw up button background
+                if (!upRect.IsEmpty && (upHovered || upPressed))
                 {
-                    int cx = downRect.X + downRect.Width / 2;
-                    int cy = downRect.Y + downRect.Height / 2;
-                    g.DrawLine(pen, cx - 4, cy - 2, cx, cy + 2);
-                    g.DrawLine(pen, cx, cy + 2, cx + 4, cy - 2);
+                    using (var brush = new SolidBrush(upPressed ? pressedColor : hoverColor))
+                    {
+                        g.FillRectangle(brush, upRect);
+                    }
                 }
-            }
 
-            // Draw value text (centered between up and down buttons)
-            var valueRect = new Rectangle(bounds.X, bounds.Y + 18, bounds.Width, 18);
-            using (var brush = new SolidBrush(textColor))
-            {
-                var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(value, font, brush, valueRect, format);
+                // Draw down button background
+                if (!downRect.IsEmpty && (downHovered || downPressed))
+                {
+                    using (var brush = new SolidBrush(downPressed ? pressedColor : hoverColor))
+                    {
+                        g.FillRectangle(brush, downRect);
+                    }
+                }
+
+                // Draw up/down arrow icons
+                using (var pen = new Pen(upPressed || downPressed ? Color.White : secondaryTextColor, 1.5f))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    // Up arrow
+                    if (!upRect.IsEmpty)
+                    {
+                        int cx = upRect.X + upRect.Width / 2;
+                        int cy = upRect.Y + upRect.Height / 2;
+                        g.DrawLine(pen, cx - 4, cy + 2, cx, cy - 2);
+                        g.DrawLine(pen, cx, cy - 2, cx + 4, cy + 2);
+                    }
+
+                    // Down arrow
+                    if (!downRect.IsEmpty)
+                    {
+                        int cx = downRect.X + downRect.Width / 2;
+                        int cy = downRect.Y + downRect.Height / 2;
+                        g.DrawLine(pen, cx - 4, cy - 2, cx, cy + 2);
+                        g.DrawLine(pen, cx, cy + 2, cx + 4, cy - 2);
+                    }
+                }
+
+                // Draw value text (centered between up and down buttons)
+                var valueRect = new Rectangle(bounds.X, bounds.Y + 18, bounds.Width, 18);
+                using (var brush = new SolidBrush(textColor))
+                {
+                    var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                    g.DrawString(value, font, brush, valueRect, format);
+                }
             }
         }
 
@@ -204,44 +208,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
             var textColor = _theme?.ForeColor ?? Color.Black;
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
-
-            // Draw separator line
-            using (var pen = new Pen(borderColor, 1))
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f))
             {
-                g.DrawLine(pen, timePickerBounds.X, timePickerBounds.Y, timePickerBounds.Right, timePickerBounds.Y);
-            }
-
-            // Draw "Time:" label
-            var labelRect = new Rectangle(timePickerBounds.X, timePickerBounds.Y + 8, 60, 24);
-            using (var brush = new SolidBrush(textColor))
-            {
-                g.DrawString("Time:", font, brush, labelRect);
-            }
-
-            // Draw time slots horizontally
-            int slotWidth = 70;
-            int slotHeight = 32;
-            int startX = timePickerBounds.X + 70;
-            int currentX = startX;
-            int currentY = timePickerBounds.Y + 8;
-            int maxWidth = timePickerBounds.Width - 70;
-
-            for (int i = 0; i < Math.Min(timeSlots.Count, 8); i++)
-            {
-                var time = timeSlots[i * (timeSlots.Count / 8)];
-                var slotRect = new Rectangle(currentX, currentY, slotWidth, slotHeight);
-                
-                bool isSelected = selectedTime.HasValue && selectedTime.Value == time;
-                bool isHovered = hoverState.IsAreaHovered(DateTimePickerHitArea.TimeSlot);
-                
-                PaintTimeSlot(g, slotRect, time, isSelected, isHovered, false);
-                
-                currentX += slotWidth + 4;
-                if (currentX + slotWidth > timePickerBounds.Right)
+                // Draw separator line
+                using (var pen = new Pen(borderColor, 1))
                 {
-                    currentX = startX;
-                    currentY += slotHeight + 4;
+                    g.DrawLine(pen, timePickerBounds.X, timePickerBounds.Y, timePickerBounds.Right, timePickerBounds.Y);
+                }
+
+                // Draw "Time:" label
+                var labelRect = new Rectangle(timePickerBounds.X, timePickerBounds.Y + 8, 60, 24);
+                using (var brush = new SolidBrush(textColor))
+                {
+                    g.DrawString("Time:", font, brush, labelRect);
+                }
+
+                // Draw time slots horizontally
+                int slotWidth = 70;
+                int slotHeight = 32;
+                int startX = timePickerBounds.X + 70;
+                int currentX = startX;
+                int currentY = timePickerBounds.Y + 8;
+                int maxWidth = timePickerBounds.Width - 70;
+
+                for (int i = 0; i < Math.Min(timeSlots.Count, 8); i++)
+                {
+                    var time = timeSlots[i * (timeSlots.Count / 8)];
+                    var slotRect = new Rectangle(currentX, currentY, slotWidth, slotHeight);
+                    
+                    bool isSelected = selectedTime.HasValue && selectedTime.Value == time;
+                    bool isHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.TimeSlot) == true;
+                    
+                    PaintTimeSlot(g, slotRect, time, isSelected, isHovered, false);
+                    
+                    currentX += slotWidth + 4;
+                    if (currentX + slotWidth > timePickerBounds.Right)
+                    {
+                        currentX = startX;
+                        currentY += slotHeight + 4;
+                    }
                 }
             }
         }
@@ -252,38 +257,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(200, 200, 200);
-            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
-
-            if (isSelected)
+            using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f))
             {
-                using (var brush = new SolidBrush(accentColor))
+                if (isSelected)
                 {
-                    g.FillRectangle(brush, slotBounds);
+                    using (var brush = new SolidBrush(accentColor))
+                    {
+                        g.FillRectangle(brush, slotBounds);
+                    }
+                    textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
                 }
-                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
-            }
-            else if (isHovered)
-            {
-                using (var brush = new SolidBrush(hoverColor))
+                else if (isHovered)
                 {
-                    g.FillRectangle(brush, slotBounds);
+                    using (var brush = new SolidBrush(hoverColor))
+                    {
+                        g.FillRectangle(brush, slotBounds);
+                    }
                 }
-            }
 
-            using (var pen = new Pen(isSelected ? accentColor : borderColor, 1))
-            {
-                g.DrawRectangle(pen, slotBounds.X, slotBounds.Y, slotBounds.Width - 1, slotBounds.Height - 1);
-            }
-
-            var timeText = time.ToString(@"hh\:mm");
-            using (var brush = new SolidBrush(textColor))
-            {
-                var format = new StringFormat
+                using (var pen = new Pen(isSelected ? accentColor : borderColor, 1))
                 {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(timeText, font, brush, slotBounds, format);
+                    g.DrawRectangle(pen, slotBounds.X, slotBounds.Y, slotBounds.Width - 1, slotBounds.Height - 1);
+                }
+
+                var timeText = time.ToString(@"hh\:mm");
+                using (var brush = new SolidBrush(textColor))
+                {
+                    var format = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(timeText, font, brush, slotBounds, format);
+                }
             }
         }
 

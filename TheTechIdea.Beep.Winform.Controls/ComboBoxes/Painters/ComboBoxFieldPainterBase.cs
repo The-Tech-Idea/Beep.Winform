@@ -318,9 +318,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             string displayText = _helper.GetDisplayText();
             if (string.IsNullOrEmpty(displayText)) return;
             
-            // Use muted color for placeholder text, normal color for selected item text
             Color textColor;
-            if (_helper.IsShowingPlaceholder())
+            if (!_owner.Enabled)
+            {
+                textColor = _theme?.DisabledForeColor ?? Color.FromArgb(158, 158, 158);
+            }
+            else if (_helper.IsShowingPlaceholder())
             {
                 Color placeholderColor = _theme?.TextBoxPlaceholderColor ?? Color.Empty;
                 if (placeholderColor != Color.Empty)
@@ -346,14 +349,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             Font textFont = _owner.TextFont ?? BeepThemesManager.ToFont(_theme?.LabelFont) ?? SystemFonts.DefaultFont;
             
-            // Calculate text bounds with padding
-            var textBounds = textAreaRect;
+            // Calculate text bounds with padding — horizontal inset from tokens,
+            // vertical centering computed from measured text height so it sits
+            // exactly in the middle regardless of DPI or font size.
             int horizontalInset = ScaleX(_tokens?.TextInset ?? 6);
-            textBounds = new Rectangle(
-                textBounds.X + horizontalInset,
-                textBounds.Y,
-                Math.Max(1, textBounds.Width - (horizontalInset * 2)),
-                textBounds.Height);
+            int availW = Math.Max(1, textAreaRect.Width - (horizontalInset * 2));
+
+            Size textSize = TextRenderer.MeasureText(g, displayText, textFont, new Size(availW, int.MaxValue),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+
+            int textY = textAreaRect.Y + Math.Max(0, (textAreaRect.Height - textSize.Height) / 2);
+            var textBounds = new Rectangle(
+                textAreaRect.X + horizontalInset,
+                textY,
+                availW,
+                textSize.Height);
             
             // Draw text
             TextFormatFlags flags = TextFormatFlags.Left | 

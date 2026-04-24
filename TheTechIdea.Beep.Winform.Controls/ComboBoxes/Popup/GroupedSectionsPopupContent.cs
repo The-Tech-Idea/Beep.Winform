@@ -184,7 +184,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _allItems.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            int selectableIndex = 0;
+            for (int i = 0; i < _allItems.Count; i++)
+            {
+                var si = _allItems[i];
+                if (!si.IsSelectable) continue;
+                var rowItem = si.RowModel?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(selectableIndex);
+                    if (_allItems[i] is Control ctrl)
+                        EnsureControlVisible(ctrl);
+                    return;
+                }
+                selectableIndex++;
+            }
         }
 
         protected override bool IsInputKey(Keys keyData) => keyData switch
@@ -518,8 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 Margin = new Padding(4);
                 TabStop = false;
 
-                using var g = CreateGraphics();
-                var sz = TextRenderer.MeasureText(g, model.Text ?? "", Font);
+                var sz = TextRenderer.MeasureText(model.Text ?? "", Font, Size.Empty, TextFormatFlags.NoPadding);
                 Width = sz.Width + 28;
             }
 
@@ -561,8 +577,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 }
                 else
                 {
-                    back = Color.FromArgb(240, 244, 250);
-                    border = Color.FromArgb(220, 224, 232);
+                    back = _tokens.PopupBackColor;
+                    border = _tokens.PopupBorderColor;
                     fore = _tokens.ForeColor;
                 }
 

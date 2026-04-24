@@ -157,7 +157,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void FocusItem(SimpleItem item)
         {
-            // Specialized panel — no-op; chip-click scroll is handled by default content.
+            if (item == null || _pills.Count == 0) return;
+            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            for (int i = 0; i < _pills.Count; i++)
+            {
+                var rowItem = _pills[i].RowModel?.SourceItem;
+                if (rowItem != null &&
+                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    SetKeyboardFocusIndex(i);
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -274,9 +285,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 int spacing = profile.PillSpacing > 0 ? profile.PillSpacing : 4;
                 Margin = new Padding(spacing);
 
-                using var g = CreateGraphics();
-                var textSize = TextRenderer.MeasureText(g, model.Text ?? "", Font);
-                Width = textSize.Width + 28; // 14px left + 14px right padding
+                var textSize = TextRenderer.MeasureText(model.Text ?? "", Font, Size.Empty, TextFormatFlags.NoPadding);
+                Width = textSize.Width + 28;
             }
 
             public void ApplyThemeTokens(ComboBoxThemeTokens tokens)
@@ -343,8 +353,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 }
                 else
                 {
-                    back = Color.FromArgb(245, 245, 248);
-                    border = Color.FromArgb(220, 220, 228);
+                    back = _tokens.PopupRowBackColor;
+                    border = _tokens.PopupRowBorderColor;
                     fore = _tokens.ForeColor;
                 }
 

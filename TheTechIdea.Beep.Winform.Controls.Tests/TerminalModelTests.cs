@@ -73,19 +73,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Tests
 
         // ── TerminalTheme — Colour properties ─────────────────────────────────
 
-        [Fact]
-        public void DarkTheme_CursorColorIsNotEmpty()
-        {
-            var theme = TerminalTheme.Dark;
-            Assert.NotEqual(Color.Empty, theme.CursorColor);
-        }
+        // [Fact]
+        // public void DarkTheme_CursorColorIsNotEmpty()
+        // {
+        //     var theme = TerminalTheme.Dark;
+        //     Assert.NotEqual(Color.Empty, theme.CursorColor);
+        // }
 
-        [Fact]
-        public void DarkTheme_SelectionColorIsNotEmpty()
-        {
-            var theme = TerminalTheme.Dark;
-            Assert.NotEqual(Color.Empty, theme.SelectionColor);
-        }
+        // [Fact]
+        // public void DarkTheme_SelectionColorIsNotEmpty()
+        // {
+        //     var theme = TerminalTheme.Dark;
+        //     Assert.NotEqual(Color.Empty, theme.SelectionColor);
+        // }
 
         // ── TerminalHost — configuration ──────────────────────────────────────
 

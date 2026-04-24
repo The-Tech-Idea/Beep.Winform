@@ -60,7 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
             int hh = S(HeaderHeight);
             bool onHeader = iconRect.Y < hh + S(DefaultRadius);
-            Color iconColor = onHeader ? Color.White : GetContrastIconColor(data.Type);
+            Color iconColor = onHeader 
+                ? NotificationThemeHelpers.GetContrastColor(GetIconColorForType(data.Type)) 
+                : GetContrastIconColor(data.Type);
             DrawIcon(g, iconRect, ip, iconColor, S(4));
         }
 
@@ -70,7 +72,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             bool onHeader = rect.Y < hh + S(DefaultRadius);
 
             Font f  = TitleFont ?? SystemFonts.DefaultFont;
-            Color c = onHeader ? Color.White : GetTitleColor(data.Type);
+            Color c = onHeader 
+                ? NotificationThemeHelpers.GetContrastColor(GetIconColorForType(data.Type)) 
+                : GetTitleColor(data.Type);
             TextRenderer.DrawText(g, title, f, rect, c,
                 TextFormatFlags.Left | TextFormatFlags.Top |
                 TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
@@ -86,8 +90,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         private static Color GetContrastIconColor(NotificationType type)
         {
             var colors = NotificationThemeHelpers.GetColorsForType(type);
-            float luminance = (0.299f * colors.IconColor.R + 0.587f * colors.IconColor.G + 0.114f * colors.IconColor.B) / 255f;
-            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
+            return NotificationThemeHelpers.GetContrastColor(colors.IconColor);
+        }
+
+        private static Color GetIconColorForType(NotificationType type)
+        {
+            var colors = NotificationThemeHelpers.GetColorsForType(type);
+            return colors.IconColor;
         }
 
         private static Color GetTitleColor(NotificationType type)

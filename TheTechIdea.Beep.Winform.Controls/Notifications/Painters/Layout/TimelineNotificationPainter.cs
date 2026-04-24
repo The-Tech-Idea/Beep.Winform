@@ -46,15 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             int innerS = nodeS / 2;
             int innerX = nodeX + (nodeS - innerS) / 2;
             int innerY = nodeY + (nodeS - innerS) / 2;
-            Color innerColor = GetContrastColor(colors.IconColor);
+            Color innerColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
             using var innerBrush = new SolidBrush(innerColor);
             g.FillEllipse(innerBrush, innerX, innerY, innerS, innerS);
-        }
-
-        private static Color GetContrastColor(Color background)
-        {
-            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
-            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data) { }

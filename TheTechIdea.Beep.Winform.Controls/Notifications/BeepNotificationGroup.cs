@@ -414,8 +414,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 g.FillEllipse(brush, _badgeRect);
             }
 
+            var badgeTextColor = NotificationThemeHelpers.GetContrastColor(bgColor, _currentTheme);
+            var badgeBorderColor = NotificationThemeHelpers.ShiftLuminance(bgColor, -0.2f);
+
             // Badge border
-            using (var pen = new Pen(Color.White, 2))
+            using (var pen = new Pen(badgeBorderColor, 2))
             {
                 g.DrawEllipse(pen, _badgeRect);
             }
@@ -425,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             Font countFont = _textFont != null ? new Font(_textFont, FontStyle.Bold) : new Font("Segoe UI", 9, FontStyle.Bold);
             try
             {
-            using (var brush = new SolidBrush(Color.White))
+            using (var brush = new SolidBrush(badgeTextColor))
             {
                 var size = g.MeasureString(countText, countFont);
                 var x = _badgeRect.X + (_badgeRect.Width - size.Width) / 2;
@@ -559,8 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private static Color GetContrastColor(Color background)
         {
-            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
-            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
+            return NotificationThemeHelpers.GetContrastColor(background);
         }
         #endregion
 

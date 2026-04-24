@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             string ip = !string.IsNullOrEmpty(data.IconPath)
                 ? data.IconPath : NotificationData.GetDefaultIconForType(data.Type);
-            Color iconColor = GetContrastColor(colors.IconColor);
+            Color iconColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
             DrawIcon(g, iconRect, ip, iconColor, 0);
         }
 
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         {
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = TitleFont ?? SystemFonts.DefaultFont;
-            Color titleColor = GetContrastColor(colors.IconColor);
+            Color titleColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
             TextRenderer.DrawText(g, title, f, rect, titleColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
                 TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         {
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             Font f = MessageFont ?? SystemFonts.DefaultFont;
-            Color titleColor = GetContrastColor(colors.IconColor);
+            Color titleColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
             Color msgColor = Color.FromArgb(200, titleColor);
             TextRenderer.DrawText(g, message, f, rect, msgColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             int btnWidth   = (actionsRect.Width - btnSpacing * (actions.Length - 1)) / actions.Length;
             int x          = actionsRect.X;
             Font f         = ButtonFont ?? SystemFonts.DefaultFont;
-            Color textColor = GetContrastColor(colors.IconColor);
+            Color textColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
 
             foreach (var action in actions)
             {
@@ -88,19 +88,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
         public override void PaintProgressBar(Graphics g, Rectangle rect, float progress, NotificationData data)
         {
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            Color barColor = GetContrastColor(colors.IconColor);
+            Color barColor = NotificationThemeHelpers.GetContrastColor(colors.IconColor);
             using (var bg = new SolidBrush(Color.FromArgb(60, barColor)))
                 g.FillRectangle(bg, rect);
             int pw = (int)(rect.Width * (progress / 100f));
             if (pw > 0)
                 using (var fill = new SolidBrush(barColor))
                     g.FillRectangle(fill, rect.X, rect.Y, pw, rect.Height);
-        }
-
-        private static Color GetContrastColor(Color background)
-        {
-            float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
-            return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
         }
     }
 }

@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             // Separator line — right edge in vertical mode, bottom edge otherwise
-            using (var sep = new Pen(_currentTheme?.BorderColor ?? SystemColors.ControlDark, 1))
+            using (var sep = new Pen(_currentTheme?.BorderColor ?? TabStripThemeHelpers.ThemeAwareControlDark(), 1))
             {
                 if (IsVertical)
                     g.DrawLine(sep, Width - 1, 0, Width - 1, Height);

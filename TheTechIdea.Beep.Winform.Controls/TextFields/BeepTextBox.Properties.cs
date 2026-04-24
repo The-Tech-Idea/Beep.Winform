@@ -699,7 +699,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Background color for selected text.")]
-        public Color SelectionBackColor { get; set; } = SystemColors.Highlight;
+        public Color SelectionBackColor { get; set; } = TextBoxThemeHelpers.ThemeAwareHighlight();
         
         #endregion
         
@@ -965,5 +965,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool DisableMaterialConstraints { get; set; } = false;
         
         #endregion
+    }
+
+    internal static class TextBoxThemeHelpers
+    {
+        internal static Color ThemeAwareHighlight()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+        }
     }
 }

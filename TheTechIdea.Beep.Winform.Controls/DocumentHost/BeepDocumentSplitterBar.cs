@@ -41,7 +41,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Applies the Beep theme's border colour to the bar.</summary>
         public void ApplyTheme(IBeepTheme? theme)
         {
-            BackColor = theme?.BorderColor ?? System.Drawing.SystemColors.ControlDark;
+            BackColor = theme?.BorderColor ?? SplitterBarThemeHelpers.ThemeAwareControlDark();
+        }
+    }
+
+    internal static class SplitterBarThemeHelpers
+    {
+        internal static Color ThemeAwareControlDark()
+        {
+            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(70, 70, 75);
         }
     }
 }

@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Size            = new Size(PopupWidth, PopupHeight);
             Location        = screenPosition;
             KeyPreview      = true;
-            BackColor       = theme?.PanelBackColor ?? SystemColors.Window;
+            BackColor       = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window);
 
             // Mode hint label
             var modeLabel = new Label
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Text      = mode == CommandPaletteMode.Commands
                                 ? "Command Palette  (Ctrl+Shift+P)"
                                 : "Go to File  (Ctrl+P  ·  Ctrl+Enter = open in split)",
-                ForeColor = theme?.SecondaryTextColor ?? SystemColors.GrayText,
+                ForeColor = theme?.SecondaryTextColor ?? ThemeAwareGrayText(_theme?.PanelBackColor),
                 Font      = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Regular),
                 TextAlign = ContentAlignment.MiddleLeft,
                 BackColor = Color.Transparent,
@@ -114,8 +114,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 PlaceholderText = mode == CommandPaletteMode.Commands
                                       ? "Type command name…"
                                       : "Type file name…",
-                BackColor       = theme?.BackgroundColor ?? SystemColors.Window,
-                ForeColor       = theme?.ForeColor       ?? SystemColors.WindowText,
+                BackColor       = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.Window),
+                ForeColor       = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText),
             };
 
             // Owner-draw list panel
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 Bounds    = new Rectangle(Pad, listTop, PopupWidth - Pad * 2, PopupHeight - listTop - Pad),
                 Anchor    = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                BackColor = theme?.PanelBackColor ?? SystemColors.Window,
+                BackColor = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window),
             };
 
             Controls.Add(modeLabel);
@@ -202,11 +202,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            Color back    = _theme?.PanelBackColor     ?? SystemColors.Window;
-            Color fore    = _theme?.ForeColor          ?? SystemColors.WindowText;
-            Color selBack = _theme?.PrimaryColor       ?? SystemColors.Highlight;
-            Color selFore = _theme?.BackgroundColor    ?? SystemColors.HighlightText;
-            Color dim     = _theme?.SecondaryTextColor ?? SystemColors.GrayText;
+            Color back    = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window);
+            Color fore    = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText);
+            Color selBack = ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight);
+            Color selFore = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.HighlightText);
+            Color dim     = ThemeAwareGrayText(_theme?.PanelBackColor);
             Color sep     = _theme?.BorderColor        ?? Color.FromArgb(40, fore);
 
             var titleFont = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular);
@@ -352,6 +352,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 }
             }
             Close();
+        }
+
+        // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+        private static Color ThemeAwareColor(Color? themeColor, Color lightColor)
+        {
+            if (themeColor.HasValue && themeColor.Value != Color.Empty)
+                return themeColor.Value;
+            return Sc(lightColor);
+        }
+
+        private static Color ThemeAwareGrayText(Color? refColor)
+        {
+            if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                return Color.FromArgb(150, 150, 155);
+            return SystemColors.GrayText;
+        }
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+
+        private static Color Sc(Color lightColor)
+        {
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
         }
     }
 }

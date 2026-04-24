@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             ContentArea = new DoubleBufferedContentPanel
             {
                 Dock      = DockStyle.None,
-                BackColor = theme?.BackgroundColor ?? System.Drawing.SystemColors.Window
+                BackColor = theme?.BackgroundColor ?? DocumentGroupThemeHelpers.ThemeAwareWindow()
             };
 
             WireEvents();
@@ -207,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             TabStrip.ThemeName      = themeName;
             ContentArea.BackColor   = theme?.BackgroundColor
-                                      ?? System.Drawing.SystemColors.Window;
+                                      ?? DocumentGroupThemeHelpers.ThemeAwareWindow();
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -229,6 +229,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 TabStrip.Dispose();
                 ContentArea.Dispose();
             }
+        }
+    }
+
+    internal static class DocumentGroupThemeHelpers
+    {
+        internal static Color ThemeAwareWindow()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Window : Color.FromArgb(30, 30, 30);
         }
     }
 }

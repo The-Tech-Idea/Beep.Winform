@@ -67,14 +67,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Location        = screenPosition;
             KeyPreview      = true;
 
-            BackColor = theme?.PanelBackColor ?? SystemColors.Window;
+            BackColor = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window);
 
             // ── Outer frame panel ────────────────────────────────────────────
             _frame = new Panel
             {
                 Dock        = DockStyle.Fill,
                 Padding     = new Padding(Pad),
-                BackColor   = theme?.PanelBackColor ?? SystemColors.Window
+                BackColor   = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window)
             };
 
             // ── Search box ───────────────────────────────────────────────────
@@ -85,8 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 BorderStyle    = BorderStyle.FixedSingle,
                 Font           = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular),
                 PlaceholderText= "Type to filter…",
-                BackColor      = theme?.BackgroundColor ?? SystemColors.Window,
-                ForeColor      = theme?.ForeColor       ?? SystemColors.WindowText,
+                BackColor      = ThemeAwareColor(_currentTheme?.BackgroundColor, SystemColors.Window),
+                ForeColor      = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
             };
 
             // ── Results list ─────────────────────────────────────────────────
@@ -99,8 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 DrawMode       = DrawMode.OwnerDrawFixed,
                 ItemHeight     = ItemH,
                 BorderStyle    = BorderStyle.None,
-                BackColor      = theme?.PanelBackColor ?? SystemColors.Window,
-                ForeColor      = theme?.ForeColor ?? SystemColors.WindowText,
+                BackColor      = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window),
+                ForeColor      = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
                 ScrollAlwaysVisible = false,
                 IntegralHeight = false,
             };
@@ -222,14 +222,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool sel    = (e.State & DrawItemState.Selected) != 0;
 
             Color backCol = sel
-                ? (_currentTheme?.PrimaryColor ?? SystemColors.Highlight)
-                : (_currentTheme?.PanelBackColor ?? SystemColors.Window);
+                ? ThemeAwareColor(_currentTheme?.PrimaryColor, SystemColors.Highlight)
+                : ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window);
             Color foreCol = sel
-                ? (_currentTheme?.BackgroundColor ?? SystemColors.HighlightText)
-                : (_currentTheme?.ForeColor   ?? SystemColors.WindowText);
+                ? ThemeAwareColor(_currentTheme?.BackgroundColor, SystemColors.HighlightText)
+                : ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText);
             Color dimCol  = sel
                 ? Color.FromArgb(200, foreCol)
-                : (_currentTheme?.SecondaryTextColor ?? SystemColors.GrayText);
+                : ThemeAwareGrayText(_currentTheme?.PanelBackColor);
 
             e.Graphics.FillRectangle(new SolidBrush(backCol), e.Bounds);
 
@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            Color borderCol = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
+            Color borderCol = ThemeAwareColor(_currentTheme?.BorderColor, SystemColors.ControlDark);
             using var pen = new Pen(borderCol, 1);
             e.Graphics.DrawRectangle(pen,
                 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
@@ -300,6 +300,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 cp.ClassStyle |= 0x20000; // CS_DROPSHADOW
                 return cp;
             }
+        }
+
+        // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+        private static Color ThemeAwareColor(Color? themeColor, Color lightColor)
+        {
+            if (themeColor.HasValue && themeColor.Value != Color.Empty)
+                return themeColor.Value;
+            return Sc(lightColor);
+        }
+
+        private static Color ThemeAwareGrayText(Color? refColor)
+        {
+            if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                return Color.FromArgb(150, 150, 155);
+            return SystemColors.GrayText;
+        }
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+
+        private static Color Sc(Color lightColor)
+        {
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
         }
     }
 }

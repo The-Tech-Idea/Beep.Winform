@@ -69,13 +69,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             TopMost         = true;
             Width           = PopupWidth;
             Height          = PopupHeight;
-            BackColor       = theme?.PanelBackColor ?? SystemColors.Window;
+            BackColor       = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window);
 
             // Thin themed border panel
             _border         = new Panel
             {
                 Dock      = DockStyle.Fill,
-                BackColor = theme?.BorderColor ?? SystemColors.ControlDark,
+                BackColor = ThemeAwareColor(_currentTheme?.BorderColor, SystemColors.ControlDark),
                 Padding   = new Padding(1)
             };
             Controls.Add(_border);
@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var inner = new Panel
             {
                 Dock      = DockStyle.Fill,
-                BackColor = theme?.PanelBackColor ?? SystemColors.Window,
+                BackColor = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window),
                 Padding   = new Padding(0)
             };
             _border.Controls.Add(inner);
@@ -95,8 +95,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Height      = SearchH,
                 BorderStyle = BorderStyle.None,
                 Font        = new Font("Segoe UI", 10f),
-                BackColor   = theme?.PanelBackColor ?? SystemColors.Window,
-                ForeColor   = theme?.ForeColor ?? SystemColors.WindowText,
+                BackColor   = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window),
+                ForeColor   = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
                 Padding     = new Padding(Padding, 0, Padding, 0)
             };
             SetPlaceholder(_search, "Search tabs…");
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 Dock      = DockStyle.Top,
                 Height    = 1,
-                BackColor = theme?.BorderColor ?? SystemColors.ControlDark
+                BackColor = ThemeAwareColor(_currentTheme?.BorderColor, SystemColors.ControlDark)
             };
             inner.Controls.Add(sep);
 
@@ -119,8 +119,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 DrawMode    = DrawMode.OwnerDrawVariable,
                 ScrollAlwaysVisible = false,
                 BorderStyle = BorderStyle.None,
-                BackColor   = theme?.PanelBackColor ?? SystemColors.Window,
-                ForeColor   = theme?.ForeColor ?? SystemColors.WindowText,
+                BackColor   = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window),
+                ForeColor   = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
                 Font        = BeepFontManager.GetCachedFont("Segoe UI", 9.5f, FontStyle.Regular),
                 ItemHeight  = ItemH
             };
@@ -250,10 +250,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var g   = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            Color back   = _currentTheme?.PanelBackColor ?? SystemColors.Window;
-            Color fore   = _currentTheme?.ForeColor ?? SystemColors.WindowText;
-            Color accent = _currentTheme?.PrimaryColor ?? SystemColors.Highlight;
-            Color subFore= _currentTheme?.SecondaryTextColor ?? SystemColors.GrayText;
+            Color back   = ThemeAwareColor(_currentTheme?.PanelBackColor, SystemColors.Window);
+            Color fore   = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText);
+            Color accent = ThemeAwareColor(_currentTheme?.PrimaryColor, SystemColors.Highlight);
+            Color subFore= ThemeAwareGrayText(_currentTheme?.PanelBackColor);
 
             var r = e.Bounds;
 
@@ -455,6 +455,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             base.OnShown(e);
             _search.SelectAll();
+        }
+
+        // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+        private static Color ThemeAwareColor(Color? themeColor, Color lightColor)
+        {
+            if (themeColor.HasValue && themeColor.Value != Color.Empty)
+                return themeColor.Value;
+            return Sc(lightColor);
+        }
+
+        private static Color ThemeAwareGrayText(Color? refColor)
+        {
+            if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                return Color.FromArgb(150, 150, 155);
+            return SystemColors.GrayText;
+        }
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+
+        private static Color Sc(Color lightColor)
+        {
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
         }
     }
 }

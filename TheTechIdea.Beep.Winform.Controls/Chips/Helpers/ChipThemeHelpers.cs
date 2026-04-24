@@ -280,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                     return theme.BackgroundColor;
             }
 
-            return SystemColors.Window;
+            return ChipThemeFallbacks.ThemeAwareWindow();
         }
 
         /// <summary>
@@ -299,6 +299,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
                 GetChipForegroundColor(theme, useThemeColors, variant, chipColor, isSelected),
                 GetChipBorderColor(theme, useThemeColors, variant, chipColor, isSelected, isHovered)
             );
+        }
+    }
+
+    internal static class ChipThemeFallbacks
+    {
+        internal static Color ThemeAwareWindow()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Window : Color.FromArgb(30, 30, 30);
         }
     }
 }

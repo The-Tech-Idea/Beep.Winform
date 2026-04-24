@@ -293,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 barX = (leftRight + rightLeft) / 2;
             }
 
-            Color accentColor = _currentTheme?.PrimaryColor ?? SystemColors.Highlight;
+            Color accentColor = _currentTheme?.PrimaryColor ?? TabStripThemeHelpers.ThemeAwareHighlight();
             int   barH        = Height - 4;
             int   barW        = S(3);
 
@@ -391,6 +391,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _hitTestHelper.ClearHitAreas();
             }
             base.Dispose(disposing);
+        }
+    }
+
+    internal static class TabStripThemeHelpers
+    {
+        internal static Color ThemeAwareHighlight()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+        }
+
+        internal static Color ThemeAwareControlDark()
+        {
+            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(70, 70, 75);
         }
     }
 }

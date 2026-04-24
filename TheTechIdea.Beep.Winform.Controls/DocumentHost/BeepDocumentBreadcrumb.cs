@@ -64,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal void ApplyTheme(IBeepTheme? theme)
         {
             _theme    = theme;
-            BackColor = theme?.PanelBackColor ?? SystemColors.Control;
-            ForeColor = theme?.ForeColor      ?? SystemColors.ControlText;
+            BackColor = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Control);
+            ForeColor = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.ForeColor, SystemColors.ControlText);
             Invalidate();
         }
 
@@ -106,11 +106,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            Color back   = _theme?.PanelBackColor     ?? BackColor;
-            Color fore   = _theme?.ForeColor          ?? ForeColor;
-            Color hover  = _theme?.PrimaryColor       ?? SystemColors.Highlight;
-            Color dim    = _theme?.SecondaryTextColor ?? SystemColors.GrayText;
-            Color accent = _theme?.PrimaryColor       ?? SystemColors.Highlight;
+            Color back   = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Control);
+            Color fore   = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.ForeColor, SystemColors.ControlText);
+            Color hover  = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight);
+            Color dim    = BreadcrumbThemeHelpers.ThemeAwareGrayText(_theme?.PanelBackColor);
+            Color accent = BreadcrumbThemeHelpers.ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight);
 
             using var backBr = new SolidBrush(back);
             g.FillRectangle(backBr, ClientRectangle);
@@ -284,5 +284,47 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         internal BreadcrumbSegment Segment { get; }
         internal BreadcrumbSegmentEventArgs(BreadcrumbSegment segment) => Segment = segment;
+    }
+
+    // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+    internal static class BreadcrumbThemeHelpers
+    {
+        internal static Color ThemeAwareColor(Color? themeColor, Color lightColor)
+        {
+            if (themeColor.HasValue && themeColor.Value != Color.Empty)
+                return themeColor.Value;
+            return Sc(lightColor);
+        }
+
+        internal static Color ThemeAwareGrayText(Color? refColor)
+        {
+            if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                return Color.FromArgb(150, 150, 155);
+            return SystemColors.GrayText;
+        }
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+
+        private static Color Sc(Color lightColor)
+        {
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
+        }
     }
 }

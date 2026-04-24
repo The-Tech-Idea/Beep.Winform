@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Size            = new Size(PopupWidth, PopupHeight);
             Location        = screenPosition;
             KeyPreview      = true;
-            BackColor       = theme?.PanelBackColor ?? SystemColors.Window;
+            BackColor       = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window);
 
             // Title bar
             var titleLabel = new Label
@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Bounds    = new Rectangle(Pad, Pad, PopupWidth - 80, TitleH),
                 Text      = "Keyboard Shortcuts",
                 Font      = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Bold),
-                ForeColor = theme?.ForeColor ?? SystemColors.WindowText,
+                ForeColor = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText),
                 BackColor = Color.Transparent,
                 AutoSize  = false,
             };
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Text       = "✕",
                 FlatStyle  = FlatStyle.Flat,
                 Font       = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Regular),
-                ForeColor  = theme?.ForeColor ?? SystemColors.WindowText,
+                ForeColor  = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText),
                 BackColor  = Color.Transparent,
                 DialogResult = DialogResult.Cancel,
             };
@@ -94,8 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 BorderStyle     = BorderStyle.FixedSingle,
                 Font            = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Regular),
                 PlaceholderText = "Search shortcuts…",
-                BackColor       = theme?.BackgroundColor ?? SystemColors.Window,
-                ForeColor       = theme?.ForeColor       ?? SystemColors.WindowText,
+                BackColor       = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.Window),
+                ForeColor       = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText),
             };
 
             // Scrollable list panel
@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 Bounds     = new Rectangle(Pad, listTop, PopupWidth - Pad * 2, listH),
                 AutoScroll = true,
-                BackColor  = theme?.PanelBackColor ?? SystemColors.Window,
+                BackColor  = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window),
             };
 
             // Export buttons
@@ -116,8 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Text       = "Export JSON",
                 FlatStyle  = FlatStyle.Flat,
                 Font       = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Regular),
-                BackColor  = theme?.PrimaryColor ?? SystemColors.Highlight,
-                ForeColor  = theme?.BackgroundColor ?? SystemColors.HighlightText,
+                BackColor  = ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight),
+                ForeColor  = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.HighlightText),
             };
             _btnExportJson.FlatAppearance.BorderSize = 0;
 
@@ -127,8 +127,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Text       = "Export CSV",
                 FlatStyle  = FlatStyle.Flat,
                 Font       = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Regular),
-                BackColor  = theme?.PrimaryColor ?? SystemColors.Highlight,
-                ForeColor  = theme?.BackgroundColor ?? SystemColors.HighlightText,
+                BackColor  = ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight),
+                ForeColor  = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.HighlightText),
             };
             _btnExportCsv.FlatAppearance.BorderSize = 0;
 
@@ -176,12 +176,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _listHost.SuspendLayout();
             _listHost.Controls.Clear();
 
-            Color fore    = _theme?.ForeColor          ?? SystemColors.WindowText;
-            Color dim     = _theme?.SecondaryTextColor ?? SystemColors.GrayText;
-            Color catBack = _theme?.PrimaryColor       ?? SystemColors.Highlight;
-            Color catFore = _theme?.BackgroundColor    ?? SystemColors.HighlightText;
-            Color accent  = _theme?.PrimaryColor       ?? SystemColors.Highlight;
-            Color itemBk  = _theme?.PanelBackColor     ?? SystemColors.Window;
+            Color fore    = ThemeAwareColor(_theme?.ForeColor, SystemColors.WindowText);
+            Color dim     = ThemeAwareGrayText(_theme?.PanelBackColor);
+            Color catBack = ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight);
+            Color catFore = ThemeAwareColor(_theme?.BackgroundColor, SystemColors.HighlightText);
+            Color accent  = ThemeAwareColor(_theme?.PrimaryColor, SystemColors.Highlight);
+            Color itemBk  = ThemeAwareColor(_theme?.PanelBackColor, SystemColors.Window);
 
             var catFont  = BeepFontManager.GetCachedFont("Segoe UI",  9f, FontStyle.Bold);
             var nameFont = BeepFontManager.GetCachedFont("Segoe UI", 10f, FontStyle.Regular);
@@ -319,5 +319,44 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         private static string Escape(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+        // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+        private static Color ThemeAwareColor(Color? themeColor, Color lightColor)
+        {
+            if (themeColor.HasValue && themeColor.Value != Color.Empty)
+                return themeColor.Value;
+            return Sc(lightColor);
+        }
+
+        private static Color ThemeAwareGrayText(Color? refColor)
+        {
+            if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                return Color.FromArgb(150, 150, 155);
+            return SystemColors.GrayText;
+        }
+
+        private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
+
+        private static Color Sc(Color lightColor)
+        {
+            return lightColor switch
+            {
+                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
+                var x when x == SystemColors.WindowText => Color.White,
+                var x when x == SystemColors.ControlText => Color.White,
+                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
+                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
+                var x when x == SystemColors.HighlightText => Color.White,
+                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
+                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
+                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
+                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
+                var x when x == SystemColors.InfoText => Color.White,
+                _ => lightColor
+            };
+        }
     }
 }

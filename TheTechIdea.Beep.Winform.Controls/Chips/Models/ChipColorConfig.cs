@@ -41,8 +41,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Models
 
         [Category("Colors")]
         [Description("Group background color")]
-        public Color GroupBackgroundColor { get; set; } = SystemColors.Window;
+        public Color GroupBackgroundColor { get; set; } = ChipModelThemeHelpers.ThemeAwareWindow();
 
         public override string ToString() => $"BG: {BackgroundColor}, Text: {ForegroundColor}, Selected: {SelectedBackgroundColor}";
+    }
+
+    internal static class ChipModelThemeHelpers
+    {
+        internal static Color ThemeAwareWindow()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Window : Color.FromArgb(30, 30, 30);
+        }
     }
 }

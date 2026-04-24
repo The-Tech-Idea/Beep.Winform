@@ -74,8 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _chordHintLabel.BringToFront();
             }
 
-            _chordHintLabel.BackColor = _currentTheme?.PanelBackColor    ?? SystemColors.Info;
-            _chordHintLabel.ForeColor = _currentTheme?.SecondaryTextColor ?? SystemColors.InfoText;
+            _chordHintLabel.BackColor = KeyboardThemeHelpers.ThemeAwareInfo(_currentTheme?.PanelBackColor);
+            _chordHintLabel.ForeColor = KeyboardThemeHelpers.ThemeAwareInfoText(_currentTheme?.PanelBackColor);
             _chordHintLabel.Text      = text;
             _chordHintLabel.SetBounds(0, Height - 26, Width, 26);
             _chordHintLabel.Visible   = true;
@@ -212,6 +212,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             int next = (idx + direction + _groups.Count) % _groups.Count;
             _activeGroup = _groups[next];
             _activeGroup.TabStrip.Focus();
+        }
+
+        // ── Theme-aware color fallbacks ──────────────────────────────────────
+
+        private static class KeyboardThemeHelpers
+        {
+            internal static Color ThemeAwareInfo(Color? refColor)
+            {
+                if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                    return Color.FromArgb(50, 50, 55);
+                return SystemColors.Info;
+            }
+
+            internal static Color ThemeAwareInfoText(Color? refColor)
+            {
+                if (refColor.HasValue && IsDarkBackground(refColor.Value))
+                    return Color.White;
+                return SystemColors.InfoText;
+            }
+
+            private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
         }
     }
 }

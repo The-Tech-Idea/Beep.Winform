@@ -262,10 +262,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             using var focusPen = FocusIndicatorStyle switch
             {
-                FocusIndicatorStyle.Subtle => new Pen(Color.FromArgb(100, SystemColors.Highlight), 1),
-                FocusIndicatorStyle.Prominent => new Pen(SystemColors.Highlight, 2),
-                FocusIndicatorStyle.HighContrast => new Pen(SystemColors.WindowText, 2),
-                _ => new Pen(SystemColors.Highlight, 1)
+                FocusIndicatorStyle.Subtle => new Pen(Color.FromArgb(100, ThemeAwareHighlight()), 1),
+                FocusIndicatorStyle.Prominent => new Pen(ThemeAwareHighlight(), 2),
+                FocusIndicatorStyle.HighContrast => new Pen(ThemeAwareWindowText(), 2),
+                _ => new Pen(ThemeAwareHighlight(), 1)
             };
 
             // Draw focus rectangle with rounded corners for modern look
@@ -461,6 +461,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
                 catch { }
             }
+        }
+
+        private static Color ThemeAwareHighlight()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+        }
+
+        private static Color ThemeAwareWindowText()
+        {
+            return SystemInformation.HighContrast ? SystemColors.WindowText : Color.FromArgb(33, 33, 33);
         }
     }
 }

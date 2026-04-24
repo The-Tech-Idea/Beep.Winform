@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
+                using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? GridThemeHelpers.ThemeAwareControl()))
                 {
                     g.FillRectangle(brush, headerRect);
                 }
@@ -84,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw bottom border if grid lines enabled
             if (ShowGridLines)
             {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(Theme?.GridLineColor ?? GridThemeHelpers.ThemeAwareControlDark()))
                 {
                     pen.DashStyle = GridLineStyle;
                     g.DrawLine(pen, headerRect.Left, headerRect.Bottom, headerRect.Right, headerRect.Bottom);
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             string hint = "Header Toolbar (Assign HeaderPainter to customize)";
             var font = SystemFonts.DefaultFont;
-            var color = Color.FromArgb(150, SystemColors.ControlText);
+            var color = Color.FromArgb(150, GridThemeHelpers.ThemeAwareControlText());
             var format = new StringFormat
             {
                 Alignment = StringAlignment.Center,
@@ -131,6 +131,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public Rectangle GetBounds()
         {
             return _grid?.Layout?.HeaderRect ?? Rectangle.Empty;
+        }
+    }
+
+    internal static class GridThemeHelpers
+    {
+        internal static Color ThemeAwareControl()
+        {
+            return SystemInformation.HighContrast ? SystemColors.Control : Color.FromArgb(245, 245, 245);
+        }
+
+        internal static Color ThemeAwareControlDark()
+        {
+            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(200, 200, 200);
+        }
+
+        internal static Color ThemeAwareControlText()
+        {
+            return SystemInformation.HighContrast ? SystemColors.ControlText : Color.FromArgb(33, 33, 33);
         }
     }
 }

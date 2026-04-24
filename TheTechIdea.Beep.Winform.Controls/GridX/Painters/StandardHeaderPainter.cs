@@ -37,14 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (g == null || grid?.Layout == null || headerRect.IsEmpty) return;
 
+            var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+
             // Fill background
-            using (var brush = new SolidBrush(theme?.GridHeaderBackColor ?? SystemColors.Control))
+            using (var brush = new SolidBrush(theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240))))
             {
                 g.FillRectangle(brush, headerRect);
             }
 
             // Draw bottom border
-            using (var pen = new Pen(theme?.GridLineColor ?? SystemColors.ControlDark))
+            using (var pen = new Pen(theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
             {
                 g.DrawLine(pen, headerRect.Left, headerRect.Bottom - 1, 
                     headerRect.Right, headerRect.Bottom - 1);
@@ -94,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             // Vertical separator after sticky section
             if (stickyWidth > 0)
             {
-                using (var pen = new Pen(theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
                 {
                     g.DrawLine(pen, headerRect.Left + stickyWidth, headerRect.Top, 
                         headerRect.Left + stickyWidth, headerRect.Bottom);
@@ -111,6 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (g == null || column == null || cellRect.IsEmpty) return;
 
             bool isHovered = grid.Layout.HoveredHeaderColumnIndex == columnIndex;
+            var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
             int padding = CalculateHeaderPadding();
 
             // Background
@@ -172,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             }
 
             // Border
-            using (var pen = new Pen(theme?.GridLineColor ?? SystemColors.ControlDark))
+            using (var pen = new Pen(theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
             {
                 g.DrawRectangle(pen, cellRect);
             }

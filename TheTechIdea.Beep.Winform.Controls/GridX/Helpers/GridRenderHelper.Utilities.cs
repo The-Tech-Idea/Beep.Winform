@@ -50,6 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
 
         /// <summary>
+        /// Determines if the current theme is dark based on background color brightness.
+        /// </summary>
+        private bool IsDarkTheme => (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+
+        /// <summary>
         /// Resolves the focus indicator color from theme
         /// </summary>
         private Color ResolveThemeFocusColor()
@@ -58,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (theme != null && theme.FocusIndicatorColor != Color.Empty)
                 return theme.FocusIndicatorColor;
 
-            return _grid?.FocusIndicatorColor ?? SystemColors.Highlight;
+            return theme?.PrimaryColor != Color.Empty && theme?.PrimaryColor != null ? theme!.PrimaryColor : Color.FromArgb(0, 120, 212);
         }
 
         /// <summary>

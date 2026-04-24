@@ -27,10 +27,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Grouping
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
 
             var theme = _grid.Theme != null ? BeepThemesManager.GetTheme(_grid.Theme) : BeepThemesManager.GetDefaultTheme();
-            var backColor = theme?.GridHeaderBackColor ?? SystemColors.Control;
-            var foreColor = theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+            var backColor = theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240));
+            var foreColor = theme?.GridHeaderForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
             var accentColor = theme?.AccentColor ?? Color.DeepSkyBlue;
-            var lineColor = theme?.GridLineColor ?? SystemColors.ControlDark;
+            var lineColor = theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180));
 
             // Background
             using var bgBrush = new SolidBrush(backColor);

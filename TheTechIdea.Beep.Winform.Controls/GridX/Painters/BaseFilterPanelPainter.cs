@@ -724,10 +724,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
         protected virtual FilterPanelStyleTokens CreateStyleTokens(IBeepTheme? theme)
         {
-            Color headerBack = theme?.GridHeaderBackColor ?? SystemColors.Control;
-            Color gridBack = theme?.GridBackColor ?? SystemColors.Window;
-            Color headerFore = theme?.GridHeaderForeColor ?? SystemColors.ControlText;
-            Color gridLine = theme?.GridLineColor ?? SystemColors.ControlDark;
+            var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+            Color headerBack = theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240));
+            Color gridBack = theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White);
+            Color headerFore = theme?.GridHeaderForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
+            Color gridLine = theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180));
             Color accent = (theme?.FocusIndicatorColor ?? Color.Empty) != Color.Empty
                 ? theme!.FocusIndicatorColor
                 : Color.FromArgb(59, 130, 246); // Default blue

@@ -27,7 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
 
             // Draw background
-            var gridBackColor = Theme?.GridBackColor ?? SystemColors.Window;
+            var isDark = IsDarkTheme;
+            var gridBackColor = Theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White);
             using (var brush = new SolidBrush(gridBackColor))
             {
                 g.FillRectangle(brush, rowsRect);
@@ -148,14 +149,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _headerFilterIconRects.Clear();
             _headerSortIconRects.Clear();
 
-            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
+            var isDark = IsDarkTheme;
+            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240))))
             {
                 g.FillRectangle(brush, headerRect);
             }
 
             if (ShowGridLines)
             {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(Theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
                 {
                     pen.DashStyle = GridLineStyle;
                     g.DrawLine(pen, headerRect.Left, headerRect.Bottom, headerRect.Right, headerRect.Bottom);
@@ -213,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Vertical separator after sticky section
             if (stickyWidth > 0 && ShowGridLines)
             {
-                using var pen2 = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark);
+                using var pen2 = new Pen(Theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180)));
                 pen2.DashStyle = GridLineStyle;
                 g.DrawLine(pen2, headerRect.Left + stickyWidth, headerRect.Top, headerRect.Left + stickyWidth, headerRect.Bottom);
             }
@@ -249,7 +251,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
         {
-            Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? SystemColors.ControlText);
+            var isDark = IsDarkTheme;
+            Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55)));
             
             using (Pen pen = new Pen(active ? iconColor : Color.FromArgb(180, iconColor), active ? 1.6f : 1.25f))
             using (Brush brush = new SolidBrush(active ? iconColor : Color.FromArgb(120, iconColor)))
@@ -296,7 +299,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
-            var color = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var isDark = IsDarkTheme;
+            var color = Theme?.GridHeaderForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
 
             using (Pen pen = new Pen(color, 1.5f))
             using (Brush brush = new SolidBrush(color))
@@ -353,11 +357,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
 
             bool isHovered = UseHeaderHoverEffects && _grid.Layout.HoveredHeaderColumnIndex == columnIndex;
+            var isDark = IsDarkTheme;
 
             // Background with gradient support
             if (UseHeaderGradient)
             {
-                var baseColor = Theme?.GridHeaderBackColor ?? SystemColors.Control;
+                var baseColor = Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240));
                 var lightColor = Color.FromArgb(
                     Math.Min(255, baseColor.R + 20),
                     Math.Min(255, baseColor.G + 20),
@@ -373,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                var backColor = Theme?.GridHeaderBackColor ?? SystemColors.Control;
+                var backColor = Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240));
                 if (isHovered && UseHeaderHoverEffects)
                 {
                     backColor = Color.FromArgb(
@@ -400,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Text rendering
-            var textColor = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var textColor = Theme?.GridHeaderForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
 
             var baseFont = GetSafeHeaderFont();
@@ -473,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Border
             if (ShowGridLines)
             {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(Theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
                 {
                     pen.DashStyle = GridLineStyle;
                     g.DrawRectangle(pen, cellRect);
@@ -493,13 +498,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var rowsRect = _grid.Layout.RowsRect;
             
             var theme = Theme;
-            var gridBackColor = theme?.GridBackColor ?? SystemColors.Window;
-            var gridForeColor = theme?.GridForeColor ?? SystemColors.WindowText;
-            var gridLineColor = theme?.GridLineColor ?? SystemColors.ControlDark;
+            var isDark = (theme?.GridBackColor != null && theme.GridBackColor != Color.Empty ? theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+            var gridBackColor = theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White);
+            var gridForeColor = theme?.GridForeColor ?? (isDark ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55));
+            var gridLineColor = theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180));
             var selectedBackColor = (theme?.GridRowSelectedBackColor == Color.Empty || theme?.GridRowSelectedBackColor == null) ? 
-                (theme?.SelectedRowBackColor ?? SystemColors.Highlight) : (theme?.GridRowSelectedBackColor ?? SystemColors.Highlight);
+                (theme?.PrimaryColor != Color.Empty && theme?.PrimaryColor != null ? theme!.PrimaryColor : Color.FromArgb(0, 120, 212)) : (theme?.GridRowSelectedBackColor ?? (theme?.PrimaryColor != Color.Empty && theme?.PrimaryColor != null ? theme!.PrimaryColor : Color.FromArgb(0, 120, 212)));
             var hoverBackColor = (theme?.GridRowHoverBackColor == Color.Empty || theme?.GridRowHoverBackColor == null) ? 
-                SystemColors.ControlLight : (theme?.GridRowHoverBackColor ?? SystemColors.ControlLight);
+                (isDark ? Color.FromArgb(55, 65, 81) : Color.FromArgb(229, 229, 229)) : (theme?.GridRowHoverBackColor ?? (isDark ? Color.FromArgb(55, 65, 81) : Color.FromArgb(229, 229, 229)));
             var altRowBackColor = theme?.AltRowBackColor ?? Color.FromArgb(250, 250, 250);
             var focusColor = ResolveThemeFocusColor();
             var focusedRowBackColor = ResolveFocusedRowBackColor(hoverBackColor, focusColor);

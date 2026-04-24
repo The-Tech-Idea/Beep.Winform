@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             PaintExportButtons(g, state);
             PaintSeparators(g, state);
 
-            using var borderPen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark, 1);
+            using var borderPen = new Pen(Theme?.GridLineColor ?? ((Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5 ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180)), 1);
             g.DrawLine(borderPen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
         }
 

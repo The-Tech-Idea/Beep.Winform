@@ -97,7 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Handle None Style - paint blank background only
                 if (_navigationStyle == navigationStyle.None)
                 {
-                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
+                    var isDark = (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White)))
                     {
                         g.FillRectangle(brush, navRect);
                     }
@@ -119,7 +120,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (_currentPainter == null)
                 {
                     // Fallback - paint background using theme color
-                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
+                    var isDark = (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? (isDark ? Color.FromArgb(31, 41, 55) : Color.White)))
                     {
                         g.FillRectangle(brush, navRect);
                     }
@@ -183,8 +185,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Clear existing navigator hit tests
             _grid.ClearHitList();
 
+            var isDark = (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
+
             // Fill navigator background
-            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
+            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? (isDark ? Color.FromArgb(45, 55, 72) : Color.FromArgb(240, 240, 240))))
             {
                 g.FillRectangle(brush, navRect);
             }
@@ -192,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Top border
             if (ShowGridLines)
             {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(Theme?.GridLineColor ?? (isDark ? Color.FromArgb(60, 70, 85) : Color.FromArgb(180, 180, 180))))
                 {
                     pen.DashStyle = GridLineStyle;
                     g.DrawLine(pen, navRect.Left, navRect.Top, navRect.Right, navRect.Top);
@@ -367,8 +371,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             RegisterAndDrawButton(g, "Last", lastRect, _btnLast, () => _grid.MoveLast());
 
             // Draw counter
+            var isDark1 = (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
             TextRenderer.DrawText(g, recordCounter, headerFont, counterRect,
-                Theme?.GridHeaderForeColor ?? SystemColors.ControlText,
+                Theme?.GridHeaderForeColor ?? (isDark1 ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55)),
                 TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
 
             // Right: Utility buttons
@@ -446,8 +451,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             RegisterAndDrawButton(g, "Last", lastRect, _btnLast, () => _grid.MoveLast());
 
             // Draw counter
+            var isDark2 = (Theme?.GridBackColor != null && Theme.GridBackColor != Color.Empty ? Theme.GridBackColor : Color.White).GetBrightness() < 0.5;
             TextRenderer.DrawText(g, recordCounter, headerFont, counterRect,
-                Theme?.GridHeaderForeColor ?? SystemColors.ControlText,
+                Theme?.GridHeaderForeColor ?? (isDark2 ? Color.FromArgb(229, 231, 235) : Color.FromArgb(31, 41, 55)),
                 TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
 
             // Right: Page info and utilities

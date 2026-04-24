@@ -455,15 +455,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Internal
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             Color textColor = ForeColor;
-            Color dimText = ControlPaint.Light(textColor, 0.6f);
+            Color dimText = ShiftLuminance(textColor, 0.6f);
          
          
             Color todayBack = Color.FromArgb(32, FocusBackColor);
         
             // Use calendar colors/fonts set by ApplyTheme
             Color normalText = CalendarForeColor.IsEmpty ? ForeColor : CalendarForeColor;
-            Color outMonthText = ControlPaint.Light(normalText, 0.5f);
-            Color disabledText = ControlPaint.LightLight(normalText);
+            Color outMonthText = ShiftLuminance(normalText, 0.5f);
+            Color disabledText = ShiftLuminance(normalText, 0.75f);
             Color selectedText = CalendarSelectedDateForColor.IsEmpty ? normalText : CalendarSelectedDateForColor;
 
             Color hoverBack = CalendarHoverBackColor.IsEmpty ? HoverBackColor : CalendarHoverBackColor;
@@ -569,6 +569,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Internal
             var e = _rangeenddate.Date;
             if (s > e) (s, e) = (e, s);
             return date.Date >= s && date.Date <= e;
+        }
+
+        private static Color ShiftLuminance(Color color, float amount)
+        {
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            l = Math.Max(0, Math.Min(1, l + amount));
+            return ColorFromHsl(h, s, l);
+        }
+
+        private static void ColorToHsl(Color color, out float h, out float s, out float l)
+        {
+            float r = color.R / 255.0f;
+            float g = color.G / 255.0f;
+            float b = color.B / 255.0f;
+            float min = Math.Min(r, Math.Min(g, b));
+            float max = Math.Max(r, Math.Max(g, b));
+            l = (max + min) / 2.0f;
+            if (max == min)
+            {
+                h = s = 0;
+            }
+            else
+            {
+                float d = max - min;
+                s = l > 0.5f ? d / (2.0f - max - min) : d / (max + min);
+                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max == g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6.0f;
+            }
+        }
+
+        private static Color ColorFromHsl(float h, float s, float l)
+        {
+            float r, g, b;
+            if (s == 0)
+            {
+                r = g = b = l;
+            }
+            else
+            {
+                float q = l < 0.5f ? l * (1 + s) : l + s - l * s;
+                float p = 2 * l - q;
+                r = HueToRgb(p, q, h + 1.0f / 3.0f);
+                g = HueToRgb(p, q, h);
+                b = HueToRgb(p, q, h - 1.0f / 3.0f);
+            }
+            return Color.FromArgb(
+                Math.Max(0, Math.Min(255, (int)(r * 255 + 0.5f))),
+                Math.Max(0, Math.Min(255, (int)(g * 255 + 0.5f))),
+                Math.Max(0, Math.Min(255, (int)(b * 255 + 0.5f))));
+        }
+
+        private static float HueToRgb(float p, float q, float t)
+        {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1.0f / 6.0f) return p + (q - p) * 6 * t;
+            if (t < 1.0f / 2.0f) return q;
+            if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6;
+            return p;
         }
     }
 }

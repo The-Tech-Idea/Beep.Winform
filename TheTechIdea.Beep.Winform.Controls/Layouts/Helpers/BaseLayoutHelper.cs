@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
             if (options.UseThemeColors && options.Theme != null)
                 return options.Theme.BackColor;
 
-            return SystemColors.Control;
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
             if (options.UseThemeColors && options.Theme != null)
                 return options.Theme.ForeColor;
 
-            return SystemColors.ControlText;
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
             if (options.UseThemeColors && options.Theme != null)
                 return GetThemeColor(options, "Border", options.Theme.BorderColor);
 
-            return SystemColors.ControlDark;
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
 
         /// <summary>

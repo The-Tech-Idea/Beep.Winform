@@ -216,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Border
             if (ShowGridLines)
             {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
+                using (var pen = new Pen(Theme?.GridLineColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark)))
                 {
                     pen.DashStyle = GridLineStyle;
                     g.DrawRectangle(pen, cellRect);
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (UseHeaderGradient)
             {
-                var baseColor = Theme?.GridHeaderBackColor ?? SystemColors.Control;
+                var baseColor = Theme?.GridHeaderBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
                 var lightColor = Color.FromArgb(
                     Math.Min(255, baseColor.R + 20),
                     Math.Min(255, baseColor.G + 20),
@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                var backColor = Theme?.GridHeaderBackColor ?? SystemColors.Control;
+                var backColor = Theme?.GridHeaderBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
                 if (isHovered && UseHeaderHoverEffects)
                 {
                     backColor = Color.FromArgb(
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void DrawHeaderText(Graphics g, Rectangle textRect, BeepColumnConfig column)
         {
-            var textColor = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var textColor = Theme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
             
             if (!string.IsNullOrEmpty(text))
@@ -288,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
         {
-            Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? SystemColors.ControlText);
+            Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText));
             using (var pen = new Pen(iconColor, 2))
             {
                 Point[] funnel = new[]
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
-            var color = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var color = Theme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
 
             using (var pen = new Pen(color, 2f))
             {

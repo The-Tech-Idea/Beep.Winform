@@ -84,8 +84,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     /// </summary>
     public class SelectionSettings
     {
-        public System.Drawing.Color BackColor { get; set; } = System.Drawing.SystemColors.Highlight;
-        public System.Drawing.Color ForeColor { get; set; } = System.Drawing.SystemColors.HighlightText;
+        public System.Drawing.Color BackColor { get; set; } = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(System.Drawing.SystemColors.Highlight);
+        public System.Drawing.Color ForeColor { get; set; } = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(System.Drawing.SystemColors.HighlightText);
         public bool AllowMultipleSelections { get; set; } = false;
         public bool HideWhenNotFocused { get; set; } = true;
     }

@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Models
 {
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Models
     {
         [Category("Colors")]
         [Description("Numeric control background color")]
-        public Color BackgroundColor { get; set; } = SystemColors.Window;
+        public Color BackgroundColor { get; set; } = ColorUtils.MapSystemColor(SystemColors.Window);
 
         [Category("Colors")]
         [Description("Background color (hovered)")]

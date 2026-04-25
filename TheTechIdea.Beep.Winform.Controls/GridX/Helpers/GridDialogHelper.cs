@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 ShowInTaskbar = false,
                 StartPosition = FormStartPosition.Manual,
                 TopMost = false,
-                BackColor = SystemColors.Window
+                BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window)
             };
 
             // Determine cell rectangle in screen coordinates

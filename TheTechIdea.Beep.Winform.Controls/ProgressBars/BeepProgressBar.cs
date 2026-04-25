@@ -854,7 +854,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             if (Focused && _keyboardFocusVisible && ProgressPainterRegistry.GetMetadata(PainterKind).SupportsFocusVisual)
             {
-                using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
+                using (var pen = new Pen(_currentTheme?.PrimaryColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight), 2))
                 {
                     // Draw focus rectangle with some padding
                     var focusRect = bounds;

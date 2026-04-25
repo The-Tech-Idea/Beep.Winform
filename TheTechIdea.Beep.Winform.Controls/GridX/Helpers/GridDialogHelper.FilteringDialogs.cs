@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -357,12 +358,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 container is Form ? theme.DialogBackColor : theme.PanelBackColor,
                 theme.GridBackColor,
                 theme.BackColor,
-                SystemColors.Control);
+                ColorUtils.MapSystemColor(SystemColors.Control));
 
             var containerFore = ResolveColor(
                 container is Form ? theme.DialogForeColor : theme.GridForeColor,
                 theme.ForeColor,
-                SystemColors.ControlText);
+                ColorUtils.MapSystemColor(SystemColors.ControlText));
 
             container.BackColor = containerBack;
             container.ForeColor = containerFore;
@@ -379,53 +380,53 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             switch (control)
             {
                 case Panel:
-                    control.BackColor = ResolveColor(theme.PanelBackColor, theme.GridBackColor, parentBack, SystemColors.Control);
-                    control.ForeColor = ResolveColor(theme.GridForeColor, parentFore, SystemColors.ControlText);
+                    control.BackColor = ResolveColor(theme.PanelBackColor, theme.GridBackColor, parentBack, ColorUtils.MapSystemColor(SystemColors.Control));
+                    control.ForeColor = ResolveColor(theme.GridForeColor, parentFore, ColorUtils.MapSystemColor(SystemColors.ControlText));
                     control.Font = bodyFont;
                     break;
 
                 case Label:
-                    control.BackColor = ResolveColor(theme.LabelBackColor, parentBack, SystemColors.Control);
-                    control.ForeColor = ResolveColor(theme.LabelForeColor, theme.GridHeaderForeColor, parentFore, SystemColors.ControlText);
+                    control.BackColor = ResolveColor(theme.LabelBackColor, parentBack, ColorUtils.MapSystemColor(SystemColors.Control));
+                    control.ForeColor = ResolveColor(theme.LabelForeColor, theme.GridHeaderForeColor, parentFore, ColorUtils.MapSystemColor(SystemColors.ControlText));
                     control.Font = headerFont;
                     break;
 
                 case TextBox:
-                    control.BackColor = ResolveColor(theme.TextBoxBackColor, theme.GridBackColor, SystemColors.Window);
-                    control.ForeColor = ResolveColor(theme.TextBoxForeColor, theme.GridForeColor, SystemColors.WindowText);
+                    control.BackColor = ResolveColor(theme.TextBoxBackColor, theme.GridBackColor, ColorUtils.MapSystemColor(SystemColors.Window));
+                    control.ForeColor = ResolveColor(theme.TextBoxForeColor, theme.GridForeColor, ColorUtils.MapSystemColor(SystemColors.WindowText));
                     control.Font = bodyFont;
                     break;
 
                 case ComboBox:
-                    control.BackColor = ResolveColor(theme.ComboBoxBackColor, theme.TextBoxBackColor, theme.GridBackColor, SystemColors.Window);
-                    control.ForeColor = ResolveColor(theme.ComboBoxForeColor, theme.TextBoxForeColor, theme.GridForeColor, SystemColors.WindowText);
+                    control.BackColor = ResolveColor(theme.ComboBoxBackColor, theme.TextBoxBackColor, theme.GridBackColor, ColorUtils.MapSystemColor(SystemColors.Window));
+                    control.ForeColor = ResolveColor(theme.ComboBoxForeColor, theme.TextBoxForeColor, theme.GridForeColor, ColorUtils.MapSystemColor(SystemColors.WindowText));
                     control.Font = bodyFont;
                     break;
 
                 case CheckedListBox:
-                    control.BackColor = ResolveColor(theme.ListBackColor, theme.GridBackColor, SystemColors.Window);
-                    control.ForeColor = ResolveColor(theme.ListForeColor, theme.GridForeColor, SystemColors.WindowText);
+                    control.BackColor = ResolveColor(theme.ListBackColor, theme.GridBackColor, ColorUtils.MapSystemColor(SystemColors.Window));
+                    control.ForeColor = ResolveColor(theme.ListForeColor, theme.GridForeColor, ColorUtils.MapSystemColor(SystemColors.WindowText));
                     control.Font = bodyFont;
                     break;
 
                 case NumericUpDown:
-                    control.BackColor = ResolveColor(theme.TextBoxBackColor, theme.GridBackColor, SystemColors.Window);
-                    control.ForeColor = ResolveColor(theme.TextBoxForeColor, theme.GridForeColor, SystemColors.WindowText);
+                    control.BackColor = ResolveColor(theme.TextBoxBackColor, theme.GridBackColor, ColorUtils.MapSystemColor(SystemColors.Window));
+                    control.ForeColor = ResolveColor(theme.TextBoxForeColor, theme.GridForeColor, ColorUtils.MapSystemColor(SystemColors.WindowText));
                     control.Font = bodyFont;
                     break;
 
                 case Button button:
                     button.UseVisualStyleBackColor = false;
                     button.FlatStyle = FlatStyle.Flat;
-                    button.BackColor = ResolveColor(theme.ButtonBackColor, theme.GridHeaderBackColor, parentBack, SystemColors.Control);
-                    button.ForeColor = ResolveColor(theme.ButtonForeColor, theme.GridHeaderForeColor, parentFore, SystemColors.ControlText);
-                    button.FlatAppearance.BorderColor = ResolveColor(theme.ButtonBorderColor, theme.GridLineColor, SystemColors.ControlDark);
+                    button.BackColor = ResolveColor(theme.ButtonBackColor, theme.GridHeaderBackColor, parentBack, ColorUtils.MapSystemColor(SystemColors.Control));
+                    button.ForeColor = ResolveColor(theme.ButtonForeColor, theme.GridHeaderForeColor, parentFore, ColorUtils.MapSystemColor(SystemColors.ControlText));
+                    button.FlatAppearance.BorderColor = ResolveColor(theme.ButtonBorderColor, theme.GridLineColor, ColorUtils.MapSystemColor(SystemColors.ControlDark));
                     button.Font = bodyFont;
                     break;
 
                 default:
-                    control.BackColor = ResolveColor(control.BackColor, parentBack, SystemColors.Control);
-                    control.ForeColor = ResolveColor(control.ForeColor, parentFore, SystemColors.ControlText);
+                    control.BackColor = ResolveColor(control.BackColor, parentBack, ColorUtils.MapSystemColor(SystemColors.Control));
+                    control.ForeColor = ResolveColor(control.ForeColor, parentFore, ColorUtils.MapSystemColor(SystemColors.ControlText));
                     control.Font = bodyFont;
                     break;
             }
@@ -460,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            return SystemColors.Control;
+            return ColorUtils.MapSystemColor(SystemColors.Control);
         }
 
         private void ApplyFilter(string columnName, string filterText)

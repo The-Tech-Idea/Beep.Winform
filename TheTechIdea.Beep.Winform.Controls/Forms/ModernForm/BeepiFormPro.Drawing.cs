@@ -465,12 +465,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         private static Color ThemeAwareHighlight()
         {
-            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+            return SystemInformation.HighContrast ? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight) : Color.FromArgb(0, 120, 215);
         }
 
         private static Color ThemeAwareWindowText()
         {
-            return SystemInformation.HighContrast ? SystemColors.WindowText : Color.FromArgb(33, 33, 33);
+            return SystemInformation.HighContrast ? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.WindowText) : Color.FromArgb(33, 33, 33);
         }
     }
 }

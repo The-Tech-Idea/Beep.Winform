@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -290,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Draw column text
-            var textColor = _grid._currentTheme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var textColor = _grid._currentTheme?.GridHeaderForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
             string text = column.ColumnCaption ?? column.ColumnName ?? "";
             
             if (!string.IsNullOrEmpty(text))

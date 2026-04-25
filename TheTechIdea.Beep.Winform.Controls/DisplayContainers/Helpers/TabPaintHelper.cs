@@ -227,11 +227,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                 // Fallback to simple rectangle drawing
                 try
                 {
-                    using (var brush = new SolidBrush(isActive ? SystemColors.ControlLight : SystemColors.Control))
+                    using (var brush = new SolidBrush(isActive ? ColorUtils.MapSystemColor(SystemColors.ControlLight) : ColorUtils.MapSystemColor(SystemColors.Control)))
                     {
                         g.FillRectangle(brush, bounds);
                     }
-                    using (var pen = new Pen(SystemColors.ControlDark))
+                    using (var pen = new Pen(ColorUtils.MapSystemColor(SystemColors.ControlDark)))
                     {
                         g.DrawRectangle(pen, bounds);
                     }
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                     if (!string.IsNullOrEmpty(title) && bounds.Width > 20 && bounds.Height > 10)
                     {
                         var textRect = new Rectangle(bounds.X + 4, bounds.Y + 2, bounds.Width - 8, bounds.Height - 4);
-                        TextRenderer.DrawText(g, title, font, textRect, SystemColors.ControlText, 
+                        TextRenderer.DrawText(g, title, font, textRect, ColorUtils.MapSystemColor(SystemColors.ControlText), 
                             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | 
                             TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
                     }

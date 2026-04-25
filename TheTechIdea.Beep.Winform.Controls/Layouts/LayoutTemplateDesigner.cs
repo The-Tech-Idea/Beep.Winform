@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     headerPanel.Dock = DockStyle.Top;
                     headerPanel.Height = 100;
-                    headerPanel.BackColor = SystemColors.ControlLight;
+                    headerPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight);
 
                     // Invoice number label.
                     string invoiceLabelGuid;
@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     footerPanel.Dock = DockStyle.Bottom;
                     footerPanel.Height = 50;
-                    footerPanel.BackColor = SystemColors.ControlDark;
+                    footerPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlDark);
 
                     // Total label.
                     string totalLabelGuid;
@@ -581,7 +581,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     topPanel.Dock = DockStyle.Top;
                     topPanel.Height = 50;
-                    topPanel.BackColor = SystemColors.ControlLight;
+                    topPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight);
                 }
 
                 // Bottom Panel.
@@ -592,7 +592,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     bottomPanel.Dock = DockStyle.Bottom;
                     bottomPanel.Height = 50;
-                    bottomPanel.BackColor = SystemColors.ControlDark;
+                    bottomPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlDark);
                 }
 
                 // Left Panel.
@@ -603,7 +603,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     leftPanel.Dock = DockStyle.Left;
                     leftPanel.Width = 100;
-                    leftPanel.BackColor = SystemColors.ControlLightLight;
+                    leftPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLightLight);
                 }
 
                 // Right Panel.
@@ -614,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 {
                     rightPanel.Dock = DockStyle.Right;
                     rightPanel.Width = 100;
-                    rightPanel.BackColor = SystemColors.ControlLightLight;
+                    rightPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLightLight);
                 }
 
                 // Center (Fill) Panel.
@@ -624,7 +624,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
                 if (fillPanel != null)
                 {
                     fillPanel.Dock = DockStyle.Fill;
-                    fillPanel.BackColor = SystemColors.Window;
+                    fillPanel.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window);
                 }
             }
             return containerControl;

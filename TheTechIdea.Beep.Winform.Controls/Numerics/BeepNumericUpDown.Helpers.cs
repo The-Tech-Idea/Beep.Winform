@@ -183,8 +183,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                 _textBox = new TextBox
                 {
                     BorderStyle = BorderStyle.None,
-                    BackColor = _currentTheme?.TextBoxBackColor ?? SystemColors.Window,
-                    ForeColor = _currentTheme?.TextBoxForeColor ?? SystemColors.ControlText,
+                    BackColor = _currentTheme?.TextBoxBackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window),
+                    ForeColor = _currentTheme?.TextBoxForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText),
                     Font = Font
                 };
 

@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
@@ -412,13 +413,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             if (theme == null)
                 return;
 
-            BackColor = theme.BackColor != Color.Empty ? theme.BackColor : SystemColors.Control;
-            ForeColor = theme.ForeColor != Color.Empty ? theme.ForeColor : SystemColors.ControlText;
+            BackColor = theme.BackColor != Color.Empty ? theme.BackColor : ColorUtils.MapSystemColor(SystemColors.Control);
+            ForeColor = theme.ForeColor != Color.Empty ? theme.ForeColor : ColorUtils.MapSystemColor(SystemColors.ControlText);
 
             var surfaceBack = theme.PanelBackColor != Color.Empty
                 ? theme.PanelBackColor
-                : (theme.BackColor != Color.Empty ? theme.BackColor : SystemColors.Control);
-            var surfaceFore = theme.ForeColor != Color.Empty ? theme.ForeColor : SystemColors.ControlText;
+                : (theme.BackColor != Color.Empty ? theme.BackColor : ColorUtils.MapSystemColor(SystemColors.Control));
+            var surfaceFore = theme.ForeColor != Color.Empty ? theme.ForeColor : ColorUtils.MapSystemColor(SystemColors.ControlText);
 
             if (_logicPanel != null)
             {

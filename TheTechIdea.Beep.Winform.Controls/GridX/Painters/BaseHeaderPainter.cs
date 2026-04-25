@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (rect.Width <= 0 || rect.Height <= 0 || direction == SortDirection.None) return;
 
-            var color = theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var color = theme?.GridHeaderForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
 
             using (var pen = new Pen(color, 2f))
             {
@@ -122,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             Color iconColor = active 
                 ? Color.DodgerBlue 
-                : (theme?.GridHeaderForeColor ?? SystemColors.ControlText);
+                : (theme?.GridHeaderForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText));
 
             using (var pen = new Pen(iconColor, 2))
             {
@@ -149,8 +149,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
             if (rect.Width <= 0 || rect.Height <= 0) return;
 
             var backColor = isHovered 
-                ? (theme?.GridHeaderHoverBackColor ?? SystemColors.ControlLight)
-                : (theme?.GridHeaderBackColor ?? SystemColors.Control);
+                ? (theme?.GridHeaderHoverBackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight))
+                : (theme?.GridHeaderBackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control));
 
             using (var brush = new SolidBrush(backColor))
             {
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
         {
             if (rect.Width <= 0 || rect.Height <= 0 || string.IsNullOrEmpty(text)) return;
 
-            var textColor = theme?.GridHeaderForeColor ?? SystemColors.ControlText;
+            var textColor = theme?.GridHeaderForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             var flags = GetTextFormatFlags(alignment);
 
             TextRenderer.DrawText(g, text, font, rect, textColor, flags);

@@ -712,9 +712,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     g.FillRectangle(shadowBrush, shadowRect);
 
                 // Card background
-                Color cardBg  = _currentTheme?.BackColor ?? SystemColors.Info;
-                Color cardFg  = _currentTheme?.ForeColor ?? SystemColors.InfoText;
-                Color borderC = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
+                Color cardBg  = _currentTheme?.BackColor ?? ColorUtils.MapSystemColor(SystemColors.Info);
+                Color cardFg  = _currentTheme?.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.InfoText);
+                Color borderC = _currentTheme?.BorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
 
                 using (var bgBrush = new SolidBrush(cardBg))
                     g.FillRectangle(bgBrush, cardRect);
@@ -1029,7 +1029,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
 
                 // Draw a thin accent border around the ghost to make it obvious.
-                Color borderCol = _currentTheme?.ActiveBorderColor ?? SystemColors.Highlight;
+                Color borderCol = _currentTheme?.ActiveBorderColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
                 using (var pen = new Pen(Color.FromArgb(160, borderCol), 1.5f))
                 {
                     int r = DpiScalingHelper.ScaleValue(4, this);
@@ -1052,7 +1052,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             if (_tabs.Count == 0) return;
 
             bool vertical = _tabPosition == TabPosition.Left || _tabPosition == TabPosition.Right;
-            Color indColor = _currentTheme?.ActiveBorderColor ?? SystemColors.Highlight;
+            Color indColor = _currentTheme?.ActiveBorderColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
 
             int lineX, lineY, lineW, lineH;
 

@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
@@ -367,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
 
             if (SystemInformation.HighContrast)
             {
-                using var pen = new Pen(SystemColors.Highlight, 3f);
+                using var pen = new Pen(ColorUtils.MapSystemColor(SystemColors.Highlight), 3f);
                 int r = System.Math.Min(context.TabRadius, focusRect.Width / 2);
                 using var path = CreateRoundedRect(focusRect, r);
                 g.DrawPath(pen, path);

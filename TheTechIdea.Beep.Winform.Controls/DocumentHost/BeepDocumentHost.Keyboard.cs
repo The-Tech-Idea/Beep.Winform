@@ -222,14 +222,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 if (refColor.HasValue && IsDarkBackground(refColor.Value))
                     return Color.FromArgb(50, 50, 55);
-                return SystemColors.Info;
+                return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Info);
             }
 
             internal static Color ThemeAwareInfoText(Color? refColor)
             {
                 if (refColor.HasValue && IsDarkBackground(refColor.Value))
                     return Color.White;
-                return SystemColors.InfoText;
+                return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.InfoText);
             }
 
             private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;

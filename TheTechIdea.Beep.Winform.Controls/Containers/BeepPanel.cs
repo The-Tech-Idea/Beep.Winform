@@ -793,8 +793,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (InDesignMode)
             {
                 this.Size = new Size(400, 300);
-                this.BackColor = SystemColors.Control;
-                this.ForeColor = SystemColors.ControlText;
+                this.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control);
+                this.ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
                 return;
             }
 
@@ -835,8 +835,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             try { ApplyTheme(); }
             catch
             {
-                this.BackColor = SystemColors.Control;
-                this.ForeColor = SystemColors.ControlText;
+                this.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control);
+                this.ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             }
         }
         #endregion
@@ -1337,7 +1337,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch
             {
-                BackColor = SystemColors.Control; ForeColor = SystemColors.ControlText; _titleLineColor = SystemColors.ControlDark;
+                this.BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control); ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             }
             finally { this.ResumeLayout(false); }
 

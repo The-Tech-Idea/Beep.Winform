@@ -817,7 +817,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 TextColor = intentTokens.Foreground,
                 IconColor = intentTokens.Foreground,
                 SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
-                FocusRingColor = theme?.PrimaryColor ?? SystemColors.Highlight,
+                FocusRingColor = theme?.PrimaryColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight),
                 
                 // Glow and effects
                 GlowColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
@@ -908,7 +908,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             Rectangle bounds = ClientRectangle;
 
             // Background
-            Color bgColor = _solidBackground != Color.Empty ? _solidBackground : SystemColors.Control;
+            Color bgColor = _solidBackground != Color.Empty ? _solidBackground : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Control);
             using (var bgBrush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(bgBrush, bounds);
@@ -923,7 +923,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
             // Text
             if (!string.IsNullOrEmpty(Text))
             {
-                Color textColor = _solidForeground != Color.Empty ? _solidForeground : SystemColors.ControlText;
+                Color textColor = _solidForeground != Color.Empty ? _solidForeground : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
                 using (var textBrush = new SolidBrush(textColor))
                 using (var textFont = new Font("Segoe UI", 9f))
                 {

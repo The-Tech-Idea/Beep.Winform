@@ -1202,7 +1202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 if (!starRect.IsEmpty)
                 {
-                    using (var pen = new Pen(_currentTheme?.PrimaryColor ?? SystemColors.Highlight, 2))
+                    using (var pen = new Pen(_currentTheme?.PrimaryColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight), 2))
                     {
                         // Draw focus rectangle around the focused star
                         var focusRect = starRect;

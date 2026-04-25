@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Lovs.Models
     {
         [Category("Colors")]
         [Description("LOV control background color")]
-        public Color BackgroundColor { get; set; } = SystemColors.Window;
+        public Color BackgroundColor { get; set; } = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window);
 
         [Category("Colors")]
         [Description("LOV control foreground/text color")]

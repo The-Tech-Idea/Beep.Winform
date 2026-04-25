@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
             if (IsFilled)
             {
-                Color fillBase = _theme?.ComboBoxBackColor ?? _theme?.BackColor ?? SystemColors.Window;
+                Color fillBase = _theme?.ComboBoxBackColor ?? _theme?.BackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window);
                 Color fillTint = Color.FromArgb(_owner.Focused ? 30 : 20, fillBase.R, fillBase.G, fillBase.B);
                 using var path = GetRoundedRectPath(textAreaRect, ScaleX(CornerRadius));
                 g.FillPath(PaintersFactory.GetSolidBrush(fillTint), path);

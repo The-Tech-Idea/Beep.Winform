@@ -971,7 +971,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         internal static Color ThemeAwareHighlight()
         {
-            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ApplyFallbackDefaults()
         {
-            Background = SystemColors.ControlLight;
+            Background = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight);
             TabActiveBack = Color.White;
             TabInactiveBack = Color.FromArgb(235, 235, 235);
             TabBorder = Color.FromArgb(180, 180, 180);
@@ -57,8 +57,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             PressedBack = Color.FromArgb(217, 234, 252);
             FocusBorder = Color.FromArgb(0, 120, 215);
             Separator = Color.FromArgb(210, 210, 210);
-            Text = SystemColors.ControlText;
-            IconColor = SystemColors.ControlText;
+            Text = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
+            IconColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
             QuickAccessBack = Color.FromArgb(228, 240, 252);
             QuickAccessBorder = Color.FromArgb(120, 160, 200);
             DisabledBack = Color.FromArgb(232, 232, 232);

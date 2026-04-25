@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
 
         private static Color Sc(Color lightColor)
         {
-            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(lightColor);
+            return ColorUtils.MapSystemColor(lightColor);
         }
 
         /// <summary>

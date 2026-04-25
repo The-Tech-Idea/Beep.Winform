@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly ToolStripDropDownButton _backstageButton;
         private readonly ToolStripDropDown _backstageDropDown;
         private readonly ToolStripControlHost _backstageHost;
-        private readonly Panel _backstagePanelContent = new() { BackColor = SystemColors.ControlLightLight, Size = new Size(600, 400) };
+        private readonly Panel _backstagePanelContent = new() { BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLightLight), Size = new Size(600, 400) };
         private readonly BindingList<SimpleItem> _backstageItems = new();
         private readonly BindingList<SimpleItem> _backstageRecentItems = new();
         private readonly BindingList<SimpleItem> _backstagePinnedItems = new();

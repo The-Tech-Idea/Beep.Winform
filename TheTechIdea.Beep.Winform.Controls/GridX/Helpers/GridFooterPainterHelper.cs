@@ -173,17 +173,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     {
         internal static Color ThemeAwareControl()
         {
-            return SystemInformation.HighContrast ? SystemColors.Control : Color.FromArgb(245, 245, 245);
+            return ColorUtils.MapSystemColor(SystemColors.Control);
         }
 
         internal static Color ThemeAwareControlDark()
         {
-            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(200, 200, 200);
+            return ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
 
         internal static Color ThemeAwareControlText()
         {
-            return SystemInformation.HighContrast ? SystemColors.ControlText : Color.FromArgb(33, 33, 33);
+            return ColorUtils.MapSystemColor(SystemColors.ControlText);
         }
     }
 }

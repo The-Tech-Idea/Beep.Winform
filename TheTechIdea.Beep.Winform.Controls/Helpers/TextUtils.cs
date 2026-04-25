@@ -600,11 +600,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         public static void DrawText(Graphics g, string text, Font font, Rectangle layoutRect)
         {
-            DrawText(g, text, font, layoutRect, SystemColors.ControlText, TextFormatFlags.WordBreak);
+            DrawText(g, text, font, layoutRect, ColorUtils.MapSystemColor(SystemColors.ControlText), TextFormatFlags.WordBreak);
         }
         public static void DrawText(Graphics g, string text, Font font, Point location)
         {
-            DrawText(g, text, font, location, SystemColors.ControlText, TextFormatFlags.WordBreak);
+            DrawText(g, text, font, location, ColorUtils.MapSystemColor(SystemColors.ControlText), TextFormatFlags.WordBreak);
         }
 
         /// <summary>

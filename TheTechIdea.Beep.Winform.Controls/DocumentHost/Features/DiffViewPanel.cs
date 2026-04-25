@@ -189,9 +189,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
             => Math.Max(1, (ClientHeight - headerHeight) / Math.Max(1, _painter.RowHeight));
 
         private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
-        private static Color ThemeAwareColor(Color refColor, Color lightColor) => IsDarkBackground(refColor) ? Color.FromArgb(30, 30, 30) : lightColor;
-        private static Color ThemeAwareGrayText(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(150, 150, 155) : SystemColors.GrayText;
-        private static Color ThemeAwareControlDark(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(70, 70, 75) : SystemColors.ControlDark;
-        private static Color ThemeAwareControlLightLight(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(60, 60, 65) : SystemColors.ControlLightLight;
+        private static Color ThemeAwareColor(Color refColor, Color lightColor) => IsDarkBackground(refColor) ? Color.FromArgb(30, 30, 30) : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(lightColor);
+        private static Color ThemeAwareGrayText(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(150, 150, 155) : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.GrayText);
+        private static Color ThemeAwareControlDark(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(70, 70, 75) : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlDark);
+        private static Color ThemeAwareControlLightLight(Color refColor) => IsDarkBackground(refColor) ? Color.FromArgb(60, 60, 65) : TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLightLight);
     }
 }

@@ -415,16 +415,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private static void SetPlaceholder(TextBox tb, string placeholder)
         {
             tb.Text      = placeholder;
-            tb.ForeColor = SystemColors.GrayText;
+            tb.ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.GrayText);
             tb.GotFocus  += (s, e) =>
             {
                 if (tb.Text == placeholder)
-                { tb.Text = ""; tb.ForeColor = tb.Parent?.ForeColor ?? SystemColors.WindowText; }
+                { tb.Text = ""; tb.ForeColor = tb.Parent?.ForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.WindowText); }
             };
             tb.LostFocus += (s, e) =>
             {
                 if (string.IsNullOrWhiteSpace(tb.Text))
-                { tb.Text = placeholder; tb.ForeColor = SystemColors.GrayText; }
+                { tb.Text = placeholder; tb.ForeColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.GrayText); }
             };
         }
 
@@ -463,37 +463,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (themeColor.HasValue && themeColor.Value != Color.Empty)
                 return themeColor.Value;
-            return Sc(lightColor);
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(lightColor);
         }
 
         private static Color ThemeAwareGrayText(Color? refColor)
         {
             if (refColor.HasValue && IsDarkBackground(refColor.Value))
                 return Color.FromArgb(150, 150, 155);
-            return SystemColors.GrayText;
+            return TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.GrayText);
         }
 
         private static bool IsDarkBackground(Color c) => c.GetBrightness() < 0.5;
-
-        private static Color Sc(Color lightColor)
-        {
-            return lightColor switch
-            {
-                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
-                var x when x == SystemColors.WindowText => Color.White,
-                var x when x == SystemColors.ControlText => Color.White,
-                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
-                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
-                var x when x == SystemColors.HighlightText => Color.White,
-                var x when x == SystemColors.Control => Color.FromArgb(45, 45, 48),
-                var x when x == SystemColors.ControlDark => Color.FromArgb(70, 70, 75),
-                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
-                var x when x == SystemColors.ControlLightLight => Color.FromArgb(60, 60, 65),
-                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
-                var x when x == SystemColors.Info => Color.FromArgb(50, 50, 55),
-                var x when x == SystemColors.InfoText => Color.White,
-                _ => lightColor
-            };
-        }
     }
 }

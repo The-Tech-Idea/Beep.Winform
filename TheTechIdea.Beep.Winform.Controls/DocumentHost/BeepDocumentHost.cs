@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _contentArea = new Panel
             {
                 Dock = DockStyle.None,
-                BackColor = SystemColors.Window
+                BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window)
             };
             typeof(Panel).GetProperty("DoubleBuffered",
                 System.Reflection.BindingFlags.NonPublic |

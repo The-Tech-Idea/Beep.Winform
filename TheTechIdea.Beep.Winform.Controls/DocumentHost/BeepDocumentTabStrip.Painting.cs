@@ -11,6 +11,7 @@ using System.Drawing.Text;
 using System.IO;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -1031,7 +1032,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (SystemInformation.HighContrast)
             {
                 // High-contrast: solid 3 px rounded rect in system Highlight colour
-                using var pen = new Pen(SystemColors.Highlight, 3f);
+                using var pen = new Pen(ColorUtils.MapSystemColor(SystemColors.Highlight), 3f);
                 int r = Math.Min(TabRadius, focusRect.Width / 2);
                 using var path = new System.Drawing.Drawing2D.GraphicsPath();
                 path.AddArc(focusRect.Left,                       focusRect.Top,                        r * 2, r * 2, 180, 90);

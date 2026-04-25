@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -196,11 +197,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (_ahOverlay == null)
             {
-                _ahOverlay = new Panel { BackColor = _currentTheme?.PanelBackColor ?? SystemColors.Control };
+                _ahOverlay = new Panel { BackColor = _currentTheme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control) };
                 Controls.Add(_ahOverlay);
             }
 
-            _ahOverlay.BackColor = _currentTheme?.PanelBackColor ?? SystemColors.Control;
+            _ahOverlay.BackColor = _currentTheme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
 
             // Remove panel from hidden parent and dock it inside the overlay
             this.Controls.Remove(panel);
@@ -444,10 +445,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             base.OnPaint(e);
             var g = e.Graphics;
 
-            Color bg     = _currentTheme?.PanelBackColor    ?? SystemColors.Control;
-            Color border = _currentTheme?.BorderColor       ?? SystemColors.ControlDark;
-            Color fg     = _currentTheme?.ForeColor         ?? SystemColors.ControlText;
-            Color hover  = _currentTheme?.BackgroundColor   ?? SystemColors.ControlLight;
+            Color bg     = _currentTheme?.PanelBackColor    ?? ColorUtils.MapSystemColor(SystemColors.Control);
+            Color border = _currentTheme?.BorderColor       ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
+            Color fg     = _currentTheme?.ForeColor         ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
+            Color hover  = _currentTheme?.BackgroundColor   ?? ColorUtils.MapSystemColor(SystemColors.ControlLight);
 
             g.Clear(bg);
 

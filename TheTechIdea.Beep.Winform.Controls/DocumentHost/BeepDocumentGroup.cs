@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -236,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         internal static Color ThemeAwareWindow()
         {
-            return SystemInformation.HighContrast ? SystemColors.Window : Color.FromArgb(30, 30, 30);
+            return SystemInformation.HighContrast ? SystemColors.Window : ColorUtils.MapSystemColor(SystemColors.Window);
         }
     }
 }

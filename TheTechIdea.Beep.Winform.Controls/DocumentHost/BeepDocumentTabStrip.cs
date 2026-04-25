@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -398,12 +399,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         internal static Color ThemeAwareHighlight()
         {
-            return SystemInformation.HighContrast ? SystemColors.Highlight : Color.FromArgb(0, 120, 215);
+            return SystemInformation.HighContrast ? SystemColors.Highlight : ColorUtils.MapSystemColor(SystemColors.Highlight);
         }
 
         internal static Color ThemeAwareControlDark()
         {
-            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(70, 70, 75);
+            return SystemInformation.HighContrast ? SystemColors.ControlDark : ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
     }
 }

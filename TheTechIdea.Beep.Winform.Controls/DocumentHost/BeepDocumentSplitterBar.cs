@@ -2,7 +2,9 @@
 // Typed splitter-bar Panel used between document groups in BeepDocumentHost.
 // Replaces the anonymous Panel used in earlier versions.
 // ─────────────────────────────────────────────────────────────────────────────
+using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Themes;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -49,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         internal static Color ThemeAwareControlDark()
         {
-            return SystemInformation.HighContrast ? SystemColors.ControlDark : Color.FromArgb(70, 70, 75);
+            return SystemInformation.HighContrast ? SystemColors.ControlDark : ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
     }
 }

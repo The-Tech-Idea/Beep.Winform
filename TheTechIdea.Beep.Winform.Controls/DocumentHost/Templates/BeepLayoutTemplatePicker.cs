@@ -9,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -344,18 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private static bool IsDark(Color c) => c.GetBrightness() < 0.5;
         private static Color Tc(Color refColor, Color lightColor) => IsDark(refColor)
-            ? lightColor switch
-            {
-                var x when x == SystemColors.Window => Color.FromArgb(30, 30, 30),
-                var x when x == SystemColors.WindowText => Color.White,
-                var x when x == SystemColors.ControlText => Color.White,
-                var x when x == SystemColors.GrayText => Color.FromArgb(150, 150, 155),
-                var x when x == SystemColors.Highlight => Color.FromArgb(0, 120, 215),
-                var x when x == SystemColors.HighlightText => Color.White,
-                var x when x == SystemColors.ActiveCaption => Color.FromArgb(45, 45, 48),
-                var x when x == SystemColors.ControlLight => Color.FromArgb(70, 70, 75),
-                _ => lightColor
-            }
+            ? ColorUtils.MapSystemColor(lightColor)
             : lightColor;
     }
 }

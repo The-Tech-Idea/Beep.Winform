@@ -7,6 +7,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 {
@@ -22,15 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         /// <summary>Background colour for the tab strip area.</summary>
         public static Color StripBackground(IBeepTheme? theme)
-            => theme?.PanelBackColor ?? SystemColors.Control;
+            => theme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
 
         /// <summary>Background colour for the document content area.</summary>
         public static Color ContentBackground(IBeepTheme? theme)
-            => theme?.BackgroundColor ?? SystemColors.Window;
+            => theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window);
 
         /// <summary>Primary foreground colour for tab titles.</summary>
         public static Color TabForeground(IBeepTheme? theme)
-            => theme?.ForeColor ?? SystemColors.WindowText;
+            => theme?.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.WindowText);
 
         /// <summary>Foreground colour for inactive/secondary tab text.</summary>
         public static Color TabForegroundInactive(IBeepTheme? theme)
@@ -41,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         /// <summary>Background fill for the active tab.</summary>
         public static Color ActiveTabBackground(IBeepTheme? theme)
-            => theme?.BackgroundColor ?? SystemColors.Window;
+            => theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window);
 
         /// <summary>Background fill for an inactive tab (transparent by convention).</summary>
         public static Color InactiveTabBackground(IBeepTheme? theme)
@@ -49,11 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         /// <summary>Accent / primary colour used for the active indicator bar, badge fill, etc.</summary>
         public static Color Accent(IBeepTheme? theme)
-            => theme?.PrimaryColor ?? SystemColors.Highlight;
+            => theme?.PrimaryColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
 
         /// <summary>Border / separator line colour.</summary>
         public static Color Border(IBeepTheme? theme)
-            => theme?.BorderColor ?? SystemColors.ControlDark;
+            => theme?.BorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
 
         /// <summary>Hover overlay tint (semi-transparent).</summary>
         public static Color HoverOverlay(IBeepTheme? theme)
@@ -64,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         /// <summary>Close-button foreground colour.</summary>
         public static Color CloseButtonFore(IBeepTheme? theme)
-            => theme?.ForeColor ?? SystemColors.WindowText;
+            => theme?.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.WindowText);
 
         /// <summary>Close-button background on hover.</summary>
         public static Color CloseButtonHoverBackground(IBeepTheme? theme)

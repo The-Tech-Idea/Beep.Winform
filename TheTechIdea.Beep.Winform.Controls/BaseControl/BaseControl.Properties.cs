@@ -102,8 +102,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 InvalidateOnce();
             }
         }
-        public bool EnableMaterialStyle { get;set; } = false;
-
         #endregion
 
         #region Text Property Override
@@ -490,30 +488,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
        
         #endregion
 
-        #region Direct Appearance Properties (Previously Delegated)
-        /// <summary>
-        /// Alternative sizing mode for Material Design - preserves content area instead of following Material specs
-        /// </summary>
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Category("Material Design")]
-        [Description("When enabled, preserves the original content area size instead of following Material Design size specifications")]
-        [DefaultValue(false)]
-        public bool MaterialPreserveContentArea
-        {
-            get => _materialPreserveContentArea;
-            set
-            {
-                if (_materialPreserveContentArea == value) return;
-                _materialPreserveContentArea = value;
-                OnMaterialPropertyChanged();
-                UpdateMaterialLayout();
-                Invalidate();
-            }
-        }
-        private bool _materialPreserveContentArea = false;
-
+        #region Direct Appearance Properties
         // Basic appearance
         [Browsable(true)]
         public bool ShowAllBorders
@@ -756,28 +731,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         private float _glassmorphismOpacity = 0.1f;
 
-        // Material UI - kept for compatibility (material painter removed)
-        [Browsable(false)] // Hidden - use StylePreset instead 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MaterialTextFieldVariant MaterialBorderVariant
-        {
-            get => _materialBorderVariant;
-            set
-            {
-                if (_materialBorderVariant == value) return;
-                _materialBorderVariant = value;
-                OnMaterialPropertyChanged();
-                UpdateMaterialLayout();
-                Invalidate();
-            }
-        }
-        private MaterialTextFieldVariant _materialBorderVariant = MaterialTextFieldVariant.Standard;
-
         [Browsable(true)]
         public bool FloatingLabel
         {
             get => _floatingLabel;
-            set { if (_floatingLabel == value) return; _floatingLabel = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+            set { if (_floatingLabel == value) return; _floatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
         }
         private bool _floatingLabel = true;
 
@@ -785,7 +743,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool LabelTextOn
         {
             get => _showLabelText;
-            set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+            set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
         }
 
 
@@ -793,7 +751,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string LabelText
         {
             get => _labelText;
-            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
+            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
         }
         private string _labelText = string.Empty;
 
@@ -803,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool ShowLabelAboveBorder
         {
             get => _showLabelAboveBorder;
-            set { if (_showLabelAboveBorder == value) return; _showLabelAboveBorder = value; UpdateMaterialLayout(); Invalidate(); }
+            set { if (_showLabelAboveBorder == value) return; _showLabelAboveBorder = value; UpdatePainterLayout(); Invalidate(); }
         }
         private bool _showLabelAboveBorder = false;
 
@@ -821,14 +779,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool HelperTextOn
         {
             get => _showHelperText;
-            set { if (_showHelperText == value) return; _showHelperText = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+            set { if (_showHelperText == value) return; _showHelperText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
         }
 
         [Browsable(true)]
         public string HelperText
         {
             get => _helperText;
-            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
+            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
         }
         private string _helperText = string.Empty;
 
@@ -1131,9 +1089,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         /// <summary>
-        /// Updates painter layout (replaces material helper usage)
+        /// Updates painter layout when style-related properties change.
         /// </summary>
-        private void UpdateMaterialLayout()
+        private void UpdatePainterLayout()
         {
             EnsurePainter();
             _painter?.UpdateLayout(this);

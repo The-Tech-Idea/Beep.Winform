@@ -1120,9 +1120,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.LabelText = "";
             beepSimpleGrid1.LeftoffsetForDrawingRect = 0;
             beepSimpleGrid1.LinkedProperty = null;
-            beepSimpleGrid1.Location = new Point(0, 0);
-            beepSimpleGrid1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
+            beepSimpleGrid1.Location = new Point(0, 0);            beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
             beepSimpleGrid1.ModernGradientType = ModernGradientType.None;
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;

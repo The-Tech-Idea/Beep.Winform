@@ -99,6 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             RegisterControl(typeof(BeepMenuBar), typeof(BeepMenuBarDesigner));
             RegisterControl(typeof(BeepAccordionMenu), typeof(BeepAccordionMenuDesigner));
 
+            // AppBar Controls
+            RegisterControl(typeof(BeepWebHeaderAppBar), typeof(BeepWebHeaderAppBarDesigner));
+
             // Display Controls
             RegisterControl(typeof(BeepMarquee), typeof(BeepMarqueeDesigner));
 

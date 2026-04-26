@@ -1,8 +1,10 @@
 // DocumentHostActionList.cs
 // Smart-tag action list for BeepDocumentHost.
 // Exposes all major properties and design-time document actions.
+// Supports nested splits (Sprint 19).
 // ─────────────────────────────────────────────────────────────────────────────
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
@@ -128,6 +130,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         {
             get => _designer.GetProperty<float>("SplitRatio");
             set => _designer.SetProperty("SplitRatio", value);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Nested Splits  group (Sprint 19)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Read-only summary of the current layout tree structure.
+        /// Shows the nesting hierarchy and group count at design time.
+        /// </summary>
+        [Category("Nested Splits")]
+        [Description("Current layout tree structure (read-only). Shows nesting hierarchy and group count.")]
+        public string LayoutTreeInfo
+        {
+            get
+            {
+                if (Host == null) return "No host";
+                var root = Host.LayoutRoot;
+                if (root == null) return "No layout tree";
+                return FormatLayoutNode(root, 0);
+            }
+        }
+
+        /// <summary>
+        /// Per-group tab strip positions for asymmetric layouts.
+        /// Format: "GroupId=Position;..." — edit to change individual group tab positions.
+        /// </summary>
+        [Category("Nested Splits")]
+        [Description("Per-group tab strip positions. Format: GroupId=Position;...")]
+        public string GroupTabPositions
+        {
+            get
+            {
+                if (Host == null) return string.Empty;
+                var parts = new System.Collections.Generic.List<string>();
+                foreach (var grp in Host.Groups)
+                {
+                    parts.Add($"{grp.GroupId.Substring(0, 8)}={grp.TabPosition}");
+                }
+                return string.Join("; ", parts);
+            }
+            set
+            {
+                if (Host == null) return;
+                var entries = value.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var entry in entries)
+                {
+                    var kv = entry.Split('=');
+                    if (kv.Length == 2 && Enum.TryParse<TabStripPosition>(kv[1].Trim(), true, out var pos))
+                    {
+                        var prefix = kv[0].Trim();
+                        foreach (var grp in Host.Groups)
+                        {
+                            if (grp.GroupId.StartsWith(prefix))
+                            {
+                                Host.SetGroupTabPosition(grp.GroupId, pos);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string FormatLayoutNode(TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.ILayoutNode node, int depth)
+        {
+            var indent = new string(' ', depth * 2);
+            if (node is TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.GroupLayoutNode g)
+            {
+                return $"{indent}Group({g.DocumentIds.Count} docs){(g.SelectedDocumentId != null ? $" [{g.SelectedDocumentId}]" : "")}";
+            }
+            if (node is TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.SplitLayoutNode s)
+            {
+                var orient = s.Orientation == System.Windows.Forms.Orientation.Horizontal ? "H" : "V";
+                return $"{indent}Split({orient}, {s.Ratio:P0})\n{FormatLayoutNode(s.First, depth + 1)}\n{FormatLayoutNode(s.Second, depth + 1)}";
+            }
+            return $"{indent}Unknown";
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -368,6 +447,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 
         /// <summary>
         /// Opens the layout preset picker and applies the chosen multi-group template.
+        /// Supports nested splits (Sprint 19).
         /// </summary>
         public void ApplyLayoutPreset()
         {
@@ -389,8 +469,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
                         break;
+                    case LayoutPreset.ThreeWayNested:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
+                        break;
                     case LayoutPreset.FourUp:
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        break;
+                    case LayoutPreset.ThreeColumn:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        break;
+                    case LayoutPreset.FiveWay:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
                         break;
@@ -492,10 +586,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                 "Collapses all split groups back to a single group.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(ApplyLayoutPreset),
                 "Apply Layout Preset\u2026", "Split View",
-                "Opens the visual layout preset picker to seed a multi-group layout.", true));
+                "Opens the visual layout preset picker (8 templates including nested splits).", true));
             items.Add(new DesignerActionPropertyItem(nameof(MaxGroups),       "Max Groups:",       "Split View", "Maximum number of simultaneous split groups."));
             items.Add(new DesignerActionPropertyItem(nameof(SplitHorizontal), "Horizontal Split:",  "Split View", "True = side-by-side; False = top/bottom."));
             items.Add(new DesignerActionPropertyItem(nameof(SplitRatio),      "Split Ratio:",      "Split View", "Fraction of space for the first group (0.1\u20130.9)."));
+
+            // ── Nested Splits ────────────────────────────────────────────────
+            items.Add(new DesignerActionHeaderItem("Nested Splits"));
+            items.Add(new DesignerActionPropertyItem(nameof(GroupTabPositions), "Group Tab Positions:", "Nested Splits",
+                "Per-group tab strip positions for asymmetric layouts."));
+            items.Add(new DesignerActionPropertyItem(nameof(LayoutTreeInfo), "Layout Tree:", "Nested Splits",
+                "Current layout tree structure (read-only)."));
 
             // ── Tabs ─────────────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Tabs"));

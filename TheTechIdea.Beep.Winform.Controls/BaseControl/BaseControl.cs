@@ -408,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public void ShowToolTip(string text)
         {
-            ShowToolTip("Title", "Test");
+            ShowToolTip("Title", text);
         }
         #endregion
         protected override CreateParams CreateParams

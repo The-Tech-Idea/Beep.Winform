@@ -203,15 +203,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Beep theme name propagated to the tab strip and all document panels.</summary>
         [DefaultValue("")]
         [Description("Beep theme name propagated to the tab strip and document panels.")]
+        private string _themeName = string.Empty;
         public string ThemeName
         {
-            get => ThemeName;
+            get => _themeName;
             set
             {
-                ThemeName = value ?? string.Empty;
-                _currentTheme = ThemeManagement.BeepThemesManager.GetTheme(ThemeName)
+                if (_themeName == value) return;
+                _themeName = value ?? string.Empty;
+                _currentTheme = ThemeManagement.BeepThemesManager.GetTheme(_themeName)
                          ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
-                PropagateTheme(ThemeName);
+                PropagateTheme(_themeName);
                 Invalidate();
             }
         }
@@ -902,6 +904,35 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public System.Collections.Generic.IReadOnlyList<BeepDocumentGroup> Groups
             => _groups.AsReadOnly();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Layout tree access (nested splits)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// The root of the hierarchical layout tree.  When there is only one group,
+        /// this is a <see cref="Layout.GroupLayoutNode"/>.  When there are splits,
+        /// it is a <see cref="Layout.SplitLayoutNode"/> whose leaves are group nodes.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Layout.ILayoutNode LayoutRoot => _layoutRoot;
+
+        /// <summary>
+        /// Sets the tab strip position for a specific group, overriding the host's
+        /// global <see cref="TabPosition"/>.  Useful for asymmetric layouts
+        /// (e.g. left group tabs on top, right group tabs on bottom).
+        /// </summary>
+        /// <param name="groupId">The group to configure.</param>
+        /// <param name="position">Desired tab strip position for this group.</param>
+        /// <returns>False if the group was not found.</returns>
+        public bool SetGroupTabPosition(string groupId, TabStripPosition position)
+        {
+            if (!_groupById.TryGetValue(groupId, out var grp)) return false;
+            grp.TabPosition = position;
+            RecalculateLayout();
+            return true;
+        }
 
         // ─────────────────────────────────────────────────────────────────────
         // Tab-strip pass-through properties

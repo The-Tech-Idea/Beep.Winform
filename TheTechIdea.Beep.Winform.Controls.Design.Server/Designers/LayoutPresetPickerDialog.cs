@@ -24,7 +24,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// <summary>Three groups in an L-pattern (top-split + right column).</summary>
         ThreeWay,
         /// <summary>Four groups in a 2×2 grid.</summary>
-        FourUp
+        FourUp,
+        /// <summary>Three groups in a nested split (left | top-right / bottom-right).</summary>
+        ThreeWayNested,
+        /// <summary>Five groups: left | right with 4-way grid.</summary>
+        FiveWay,
+        /// <summary>Three equal columns.</summary>
+        ThreeColumn
     }
 
     /// <summary>
@@ -51,7 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             LayoutPreset.SideBySide,
             LayoutPreset.Stacked,
             LayoutPreset.ThreeWay,
-            LayoutPreset.FourUp
+            LayoutPreset.ThreeWayNested,
+            LayoutPreset.FourUp,
+            LayoutPreset.ThreeColumn,
+            LayoutPreset.FiveWay
         };
 
         private readonly string[] _labels =
@@ -60,7 +69,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             "Side-by-Side",
             "Stacked",
             "Three-Way",
-            "Four-Up"
+            "Three-Way Nested",
+            "Four-Up",
+            "Three Column",
+            "Five-Way"
         };
 
         private readonly string[] _descriptions =
@@ -69,7 +81,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             "Two groups split left/right",
             "Two groups split top/bottom",
             "Three groups in L-pattern",
-            "Four groups in 2 × 2 grid"
+            "Three groups: left | right (nested top/bottom)",
+            "Four groups in 2 × 2 grid",
+            "Three equal columns",
+            "Five groups: left | 2×2 right grid"
         };
 
         private int _hovered = -1;
@@ -309,6 +324,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                             g.FillRectangle(fillBrush, rr);
                             g.DrawRectangle(framePen, rr);
                         }
+                        break;
+                    }
+                    case LayoutPreset.ThreeWayNested:
+                    {
+                        int lw = r.Width * 5 / 10;
+                        int rw = r.Width - lw - 2;
+                        int th = r.Height / 2 - 1;
+                        var l  = new Rectangle(r.X,          r.Y, lw, r.Height);
+                        var rt = new Rectangle(r.X + lw + 2, r.Y, rw, th);
+                        var rb = new Rectangle(r.X + lw + 2, r.Y + th + 2, rw, r.Height - th - 2);
+                        g.FillRectangle(fillBrush, l);  g.DrawRectangle(framePen, l);
+                        g.FillRectangle(fillBrush, rt); g.DrawRectangle(framePen, rt);
+                        g.FillRectangle(fillBrush, rb); g.DrawRectangle(framePen, rb);
+                        break;
+                    }
+                    case LayoutPreset.ThreeColumn:
+                    {
+                        int tw = r.Width / 3 - 1;
+                        var c1 = new Rectangle(r.X,                  r.Y, tw, r.Height);
+                        var c2 = new Rectangle(r.X + tw + 2,         r.Y, tw, r.Height);
+                        var c3 = new Rectangle(r.X + tw * 2 + 4,     r.Y, r.Width - tw * 2 - 4, r.Height);
+                        g.FillRectangle(fillBrush, c1); g.DrawRectangle(framePen, c1);
+                        g.FillRectangle(fillBrush, c2); g.DrawRectangle(framePen, c2);
+                        g.FillRectangle(fillBrush, c3); g.DrawRectangle(framePen, c3);
+                        break;
+                    }
+                    case LayoutPreset.FiveWay:
+                    {
+                        int lw = r.Width * 3 / 10;
+                        int rw = r.Width - lw - 2;
+                        int hw = rw / 2 - 1;
+                        int hh = r.Height / 2 - 1;
+                        var l  = new Rectangle(r.X,          r.Y, lw, r.Height);
+                        var rt = new Rectangle(r.X + lw + 2, r.Y, hw, hh);
+                        var rb = new Rectangle(r.X + lw + 2, r.Y + hh + 2, hw, r.Height - hh - 2);
+                        var rr = new Rectangle(r.X + lw + hw + 4, r.Y, rw - hw - 2, r.Height);
+                        g.FillRectangle(fillBrush, l);  g.DrawRectangle(framePen, l);
+                        g.FillRectangle(fillBrush, rt); g.DrawRectangle(framePen, rt);
+                        g.FillRectangle(fillBrush, rb); g.DrawRectangle(framePen, rb);
+                        g.FillRectangle(fillBrush, rr); g.DrawRectangle(framePen, rr);
                         break;
                     }
                 }

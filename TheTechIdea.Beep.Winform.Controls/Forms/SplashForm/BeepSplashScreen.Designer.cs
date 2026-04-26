@@ -145,9 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.LeftoffsetForDrawingRect = 0;
             _logoImage.LinkedProperty = null;
             _logoImage.Location = new Point(129, 95);
-            _logoImage.ManualRotationAngle = 0F;
-            _logoImage.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            _logoImage.MaxHitListDrawPerFrame = 0;
+            _logoImage.ManualRotationAngle = 0F;            _logoImage.MaxHitListDrawPerFrame = 0;
             _logoImage.ModernGradientType = ModernGradientType.None;
             _logoImage.Name = "_logoImage";
             _logoImage.Opacity = 1F;

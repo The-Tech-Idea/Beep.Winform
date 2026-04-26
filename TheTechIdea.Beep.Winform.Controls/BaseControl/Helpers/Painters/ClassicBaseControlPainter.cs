@@ -22,16 +22,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _borderRect;
         private Rectangle _contentRect;
 
-        // Note: These fields cache the paths locally for the painter's internal use,
-        // but the Source of Truth is now the owner's properties (BorderPath, InnerShape, ContentShape).
         private GraphicsPath _borderPath;
         private GraphicsPath _innerPath;
         private GraphicsPath _contentPath;
 
-        // Cached label properties for shared use between drawing and border functions
         private int _labelLeft;
         private int _labelWidth;
         private int _labelHeight;
+
+        private BaseControlIconsHelper _iconsHelper;
 
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
@@ -49,6 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             _borderPath?.Dispose();
             _innerPath?.Dispose();
             _contentPath?.Dispose();
+            _iconsHelper = null;
 
             // 2. Calculate Metrics (Shadow, Border, Padding)
             int shadow = 0;
@@ -171,11 +171,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             
             if (hasLeading || hasTrailing)
             {
-                var icons = new BaseControlIconsHelper(owner);
-                icons.UpdateLayout(_drawingRect);
-                _contentRect = icons.AdjustedContentRect; // Further shrink content rect
-                // Note: owner.DrawingRect usually stays as the background area, while ContentRect is for text/children.
-                // But for safety, we might keep DrawingRect as is.
+                _iconsHelper = new BaseControlIconsHelper(owner);
+                _iconsHelper.UpdateLayout(_drawingRect);
+                _contentRect = _iconsHelper.AdjustedContentRect;
             }
         }
 
@@ -234,9 +232,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
             if (hasLeading || hasTrailing)
             {
-                var icons = new BaseControlIconsHelper(owner);
-                icons.UpdateLayout(owner.DrawingRect); // Use the calculated drawing rect
-                icons.Draw(g);
+                if (_iconsHelper == null)
+                {
+                    _iconsHelper = new BaseControlIconsHelper(owner);
+                    _iconsHelper.UpdateLayout(owner.DrawingRect);
+                }
+                _iconsHelper.Draw(g);
             }
 
             // 4. Label/Helper Text (Common or Classic only? BeepStyling handles text separately)
@@ -252,10 +253,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
             if (!(hasLeading || hasTrailing)) return;
 
-            var icons = new BaseControlIconsHelper(owner);
-            icons.UpdateLayout(_drawingRect);
-            var lead = icons.LeadingRect;
-            var trail = icons.TrailingRect;
+            if (_iconsHelper == null)
+            {
+                _iconsHelper = new BaseControlIconsHelper(owner);
+                _iconsHelper.UpdateLayout(_drawingRect);
+            }
+            var lead = _iconsHelper.LeadingRect;
+            var trail = _iconsHelper.TrailingRect;
             if (!lead.IsEmpty && owner.LeadingIconClickable) register("ClassicLeadingIcon", lead, owner.TriggerLeadingIconClick);
             if (!trail.IsEmpty && owner.TrailingIconClickable) register("ClassicTrailingIcon", trail, owner.TriggerTrailingIconClick);
         }

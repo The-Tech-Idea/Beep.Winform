@@ -1631,9 +1631,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Dock = DockStyle.Fill;
             beepGridPro1.DrawingRect = new Rectangle(23, 23, 2097, 1499);
             beepGridPro1.Easing = EasingType.Linear;
-            beepGridPro1.EnableHighQualityRendering = true;
-            beepGridPro1.EnableMaterialStyle = false;
-            beepGridPro1.EnableRippleEffect = false;
+            beepGridPro1.EnableHighQualityRendering = true;            beepGridPro1.EnableRippleEffect = false;
             beepGridPro1.EnableSplashEffect = false;
             beepGridPro1.ErrorColor = Color.Empty;
             beepGridPro1.ErrorText = "";
@@ -1705,9 +1703,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.LeadingImagePath = "";
             beepGridPro1.LeftoffsetForDrawingRect = 0;
             beepGridPro1.LinkedProperty = null;
-            beepGridPro1.Location = new Point(0, 0);
-            beepGridPro1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepGridPro1.MaxHitListDrawPerFrame = 0;
+            beepGridPro1.Location = new Point(0, 0);            beepGridPro1.MaxHitListDrawPerFrame = 0;
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
             beepGridPro1.OuterShape = null;

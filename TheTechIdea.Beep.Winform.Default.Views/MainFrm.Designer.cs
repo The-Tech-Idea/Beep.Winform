@@ -107,9 +107,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.DrawingRect = new Rectangle(4, 4, 392, 613);
             beepAppTree1.DropHandler = null;
             beepAppTree1.Easing = EasingType.Linear;
-            beepAppTree1.EnableHighQualityRendering = true;
-            beepAppTree1.EnableMaterialStyle = false;
-            beepAppTree1.EnableRippleEffect = false;
+            beepAppTree1.EnableHighQualityRendering = true;            beepAppTree1.EnableRippleEffect = false;
             beepAppTree1.EnableSplashEffect = false;
             beepAppTree1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepAppTree1.ErrorText = "";
@@ -180,9 +178,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.LeadingImagePath = "";
             beepAppTree1.LeftoffsetForDrawingRect = 0;
             beepAppTree1.LinkedProperty = null;
-            beepAppTree1.Location = new Point(12, 153);
-            beepAppTree1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepAppTree1.MaxHitListDrawPerFrame = 0;
+            beepAppTree1.Location = new Point(12, 153);            beepAppTree1.MaxHitListDrawPerFrame = 0;
             beepAppTree1.ModernGradientType = ModernGradientType.None;
             beepAppTree1.Name = "beepAppTree1";
             beepAppTree1.ObjectType = "Beep";
@@ -296,9 +292,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.Dock = DockStyle.Top;
             beepMenuAppBar1.DrawingRect = new Rectangle(14, 14, 1134, 69);
             beepMenuAppBar1.Easing = EasingType.Linear;
-            beepMenuAppBar1.EnableHighQualityRendering = true;
-            beepMenuAppBar1.EnableMaterialStyle = false;
-            beepMenuAppBar1.EnableRippleEffect = false;
+            beepMenuAppBar1.EnableHighQualityRendering = true;            beepMenuAppBar1.EnableRippleEffect = false;
             beepMenuAppBar1.EnableSplashEffect = false;
             beepMenuAppBar1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepMenuAppBar1.ErrorText = "";
@@ -367,9 +361,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.LeadingImagePath = "";
             beepMenuAppBar1.LeftoffsetForDrawingRect = 0;
             beepMenuAppBar1.LinkedProperty = null;
-            beepMenuAppBar1.Location = new Point(12, 56);
-            beepMenuAppBar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepMenuAppBar1.MaxHitListDrawPerFrame = 0;
+            beepMenuAppBar1.Location = new Point(12, 56);            beepMenuAppBar1.MaxHitListDrawPerFrame = 0;
             beepMenuAppBar1.MenuItemHeight = 32;
             beepMenuAppBar1.MenuItemWidth = 60;
             beepMenuAppBar1.ModernGradientType = ModernGradientType.None;
@@ -469,9 +461,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Dock = DockStyle.Fill;
             beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 762, 621);
             beepDisplayContainer1.Easing = EasingType.Linear;
-            beepDisplayContainer1.EnableHighQualityRendering = true;
-            beepDisplayContainer1.EnableMaterialStyle = false;
-            beepDisplayContainer1.EnableRippleEffect = false;
+            beepDisplayContainer1.EnableHighQualityRendering = true;            beepDisplayContainer1.EnableRippleEffect = false;
             beepDisplayContainer1.EnableSplashEffect = false;
             beepDisplayContainer1.ErrorColor = Color.Empty;
             beepDisplayContainer1.ErrorText = "";
@@ -540,9 +530,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.LeadingImagePath = "";
             beepDisplayContainer1.LeftoffsetForDrawingRect = 0;
             beepDisplayContainer1.LinkedProperty = null;
-            beepDisplayContainer1.Location = new Point(412, 153);
-            beepDisplayContainer1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDisplayContainer1.MaxHitListDrawPerFrame = 0;
+            beepDisplayContainer1.Location = new Point(412, 153);            beepDisplayContainer1.MaxHitListDrawPerFrame = 0;
             beepDisplayContainer1.ModernGradientType = ModernGradientType.None;
             beepDisplayContainer1.Name = "beepDisplayContainer1";
             beepDisplayContainer1.OuterShape = null;

@@ -78,9 +78,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //beepLabel1.DisableDpiAndScaling = false;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 298, 84);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
-            beepLabel1.EnableHighQualityRendering = true;
-          //  beepLabel1.EnableMaterialStyle = false;
-            beepLabel1.EnableRippleEffect = false;
+            beepLabel1.EnableHighQualityRendering = true;            beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepLabel1.ErrorText = "";
@@ -303,9 +301,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.LeftoffsetForDrawingRect = 0;
             beepLogin1.LinkedProperty = null;
             beepLogin1.Location = new Point(238, 89);
-            beepLogin1.LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cool.svg";
-            beepLogin1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            beepLogin1.MaxHitListDrawPerFrame = 0;
+            beepLogin1.LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cool.svg";            beepLogin1.MaxHitListDrawPerFrame = 0;
             beepLogin1.ModernGradientType = Vis.Modules.ModernGradientType.Subtle;
             beepLogin1.Name = "beepLogin1";
             beepLogin1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -463,9 +459,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.LeftoffsetForDrawingRect = 0;
             CancelbeepButton.LinkedProperty = null;
             CancelbeepButton.Location = new Point(240, 360);
-            CancelbeepButton.Margin = new Padding(0);
-            CancelbeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            CancelbeepButton.MaxHitListDrawPerFrame = 0;
+            CancelbeepButton.Margin = new Padding(0);            CancelbeepButton.MaxHitListDrawPerFrame = 0;
             CancelbeepButton.MaxImageSize = new Size(32, 32);
             CancelbeepButton.MinimumSize = new Size(96, 40);
             CancelbeepButton.ModernGradientType = Vis.Modules.ModernGradientType.Linear;

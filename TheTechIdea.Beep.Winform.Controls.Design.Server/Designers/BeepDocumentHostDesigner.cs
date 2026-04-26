@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Behaviors;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
+using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
 
@@ -116,6 +118,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     {
                         if (Component is BeepDocumentHost host)
                             PickAndApplyLayoutPreset(host);
+                    }),
+                    // Sprint 19: Nested split verbs
+                    new DesignerVerb("Set Group Tab Position\u2026", (s, e) =>
+                    {
+                        if (Component is BeepDocumentHost host && host.Groups.Count > 1)
+                            EditGroupTabPositions(host);
+                    }),
+                    new DesignerVerb("View Layout Tree\u2026", (s, e) =>
+                    {
+                        if (Component is BeepDocumentHost host)
+                            ShowLayoutTreeDialog(host);
                     }),
                 };
                 return _verbs;
@@ -292,7 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Centred hint text
             const string Line1 = "BeepDocumentHost";
             const string Line2 = "Double-click to add a document";
-            const string Line3 = "Drag to split  |  Smart-Tag (►) for all options";
+            const string Line3 = "Drag to split  |  Smart-Tag (►) for all options  |  Nested splits supported";
 
             using var titleFont = new Font("Segoe UI", 11f, FontStyle.Bold);
             using var hintFont  = new Font("Segoe UI",  8f);
@@ -382,6 +395,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 SetProperty("DesignTimeDocuments", newVal);
         }
 
+        /// <summary>Shows a dialog to edit per-group tab positions for nested splits.</summary>
+        private void EditGroupTabPositions(BeepDocumentHost host)
+        {
+            using var dlg = new GroupTabPositionDialog(host);
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                ExecuteAction("Set Group Tab Positions", h =>
+                {
+                    foreach (var (groupId, position) in dlg.ChangedPositions)
+                        h.SetGroupTabPosition(groupId, position);
+                });
+            }
+        }
+
+        /// <summary>Shows the layout tree structure in a read-only dialog.</summary>
+        private void ShowLayoutTreeDialog(BeepDocumentHost host)
+        {
+            using var dlg = new LayoutTreeDialog(host);
+            dlg.ShowDialog();
+        }
+
         /// <summary>Shows the layout preset picker and applies the chosen preset.</summary>
         private void PickAndApplyLayoutPreset(BeepDocumentHost host)
         {
@@ -406,9 +440,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId))
                             h.SplitDocumentVertical(h.ActiveDocumentId);
                         break;
+                    case LayoutPreset.ThreeWayNested:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentVertical(h.ActiveDocumentId);
+                        break;
                     case LayoutPreset.FourUp:
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId))
                             h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentVertical(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        break;
+                    case LayoutPreset.ThreeColumn:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        break;
+                    case LayoutPreset.FiveWay:
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
+                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
+                            h.SplitDocumentVertical(h.ActiveDocumentId);
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId))
                             h.SplitDocumentVertical(h.ActiveDocumentId);
                         if (!string.IsNullOrEmpty(h.ActiveDocumentId))
@@ -675,5 +731,165 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         // IServiceProvider
         public object? GetService(Type serviceType) => _services.GetService(serviceType);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 19: Per-group tab position editor dialog
+    // ─────────────────────────────────────────────────────────────────────────
+
+    internal sealed class GroupTabPositionDialog : Form
+    {
+        public Dictionary<string, TabStripPosition> ChangedPositions { get; } = new();
+
+        private readonly Dictionary<string, ComboBox> _positionCombos = new();
+
+        public GroupTabPositionDialog(BeepDocumentHost host)
+        {
+            Text = "Set Group Tab Positions";
+            Size = new Size(420, 160 + host.Groups.Count * 36);
+            MinimumSize = new Size(380, 200);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            BackColor = SystemColors.Window;
+            Font = new Font("Segoe UI", 9f);
+
+            var titleLabel = new Label
+            {
+                Text = "Per-group tab strip position:",
+                Dock = DockStyle.Top,
+                Height = 28,
+                Padding = new Padding(8, 4, 0, 0),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold)
+            };
+
+            var panel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                AutoScroll = true,
+                Padding = new Padding(12, 8, 12, 0)
+            };
+
+            foreach (var grp in host.Groups)
+            {
+                var row = new Panel { Height = 32, Width = 360 };
+                var label = new Label
+                {
+                    Text = $"Group {grp.GroupId.Substring(0, 8)}{(grp.IsPrimary ? " (Primary)" : "")}:",
+                    Location = new Point(0, 6),
+                    Width = 180,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
+                var combo = new ComboBox
+                {
+                    Location = new Point(190, 4),
+                    Width = 150,
+                    DropDownStyle = ComboBoxStyle.DropDownList
+                };
+                combo.Items.AddRange(Enum.GetNames<TabStripPosition>());
+                combo.SelectedItem = grp.TabPosition.ToString();
+                _positionCombos[grp.GroupId] = combo;
+
+                row.Controls.Add(label);
+                row.Controls.Add(combo);
+                panel.Controls.Add(row);
+            }
+
+            var btnPanel = new Panel { Dock = DockStyle.Bottom, Height = 48 };
+            var okBtn = new Button { Text = "OK", Width = 80, Height = 28, DialogResult = DialogResult.OK };
+            var cancelBtn = new Button { Text = "Cancel", Width = 80, Height = 28, DialogResult = DialogResult.Cancel };
+            okBtn.Location = new Point(btnPanel.Width - 176, 10);
+            cancelBtn.Location = new Point(btnPanel.Width - 88, 10);
+            okBtn.Click += (s, e) => CollectChanges(host);
+            btnPanel.Controls.Add(okBtn);
+            btnPanel.Controls.Add(cancelBtn);
+
+            AcceptButton = okBtn;
+            CancelButton = cancelBtn;
+
+            Controls.Add(panel);
+            Controls.Add(btnPanel);
+            Controls.Add(titleLabel);
+        }
+
+        private void CollectChanges(BeepDocumentHost host)
+        {
+            foreach (var grp in host.Groups)
+            {
+                if (_positionCombos.TryGetValue(grp.GroupId, out var combo)
+                    && Enum.TryParse<TabStripPosition>(combo.SelectedItem?.ToString(), out var pos)
+                    && pos != grp.TabPosition)
+                {
+                    ChangedPositions[grp.GroupId] = pos;
+                }
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 19: Layout tree viewer dialog
+    // ─────────────────────────────────────────────────────────────────────────
+
+    internal sealed class LayoutTreeDialog : Form
+    {
+        public LayoutTreeDialog(BeepDocumentHost host)
+        {
+            Text = "Layout Tree Structure";
+            Size = new Size(480, 360);
+            MinimumSize = new Size(380, 280);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            BackColor = SystemColors.Window;
+            Font = new Font("Segoe UI", 9f);
+
+            var titleLabel = new Label
+            {
+                Text = $"Layout Tree ({host.Groups.Count} groups)",
+                Dock = DockStyle.Top,
+                Height = 28,
+                Padding = new Padding(8, 4, 0, 0),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold)
+            };
+
+            var treeBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Multiline = true,
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Both,
+                Font = new Font("Consolas", 9f),
+                BackColor = SystemColors.ControlLightLight,
+                Text = FormatLayoutTree(host.LayoutRoot)
+            };
+
+            var btnPanel = new Panel { Dock = DockStyle.Bottom, Height = 48 };
+            var closeBtn = new Button { Text = "Close", Width = 80, Height = 28, DialogResult = DialogResult.OK };
+            closeBtn.Location = new Point(btnPanel.Width - 92, 10);
+            btnPanel.Controls.Add(closeBtn);
+            AcceptButton = closeBtn;
+
+            Controls.Add(treeBox);
+            Controls.Add(btnPanel);
+            Controls.Add(titleLabel);
+        }
+
+        private static string FormatLayoutTree(ILayoutNode node, int depth = 0)
+        {
+            var indent = new string(' ', depth * 3);
+            if (node is GroupLayoutNode g)
+            {
+                return $"{indent}[Group] {g.DocumentIds.Count} docs{(g.SelectedDocumentId != null ? $" (active: {g.SelectedDocumentId})" : "")}";
+            }
+            if (node is SplitLayoutNode s)
+            {
+                var orient = s.Orientation == Orientation.Horizontal ? "Horizontal" : "Vertical";
+                return $"{indent}[Split] {orient} ({s.Ratio:P0})\n{FormatLayoutTree(s.First, depth + 1)}\n{FormatLayoutTree(s.Second, depth + 1)}";
+            }
+            return $"{indent}[Unknown]";
+        }
     }
 }

@@ -1,6 +1,7 @@
 // LayoutTreeBuilder.cs
 // Captures the current group topology of a BeepDocumentHost as an ILayoutNode tree.
 // The tree can be serialised to JSON and later restored via LayoutTreeApplier.
+// Supports arbitrary nested splits (Sprint 19).
 // ─────────────────────────────────────────────────────────────────────────────
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -16,51 +17,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
         /// <summary>
         /// Captures the current group topology of <paramref name="host"/> and
         /// returns the root of an <see cref="ILayoutNode"/> tree.
+        /// Supports arbitrary nested splits.
         /// </summary>
-        /// <remarks>
-        /// With the Sprint-12 layout engine (2-group max), the result is either
-        /// a single <see cref="GroupLayoutNode"/> or a one-level
-        /// <see cref="SplitLayoutNode"/> with two <see cref="GroupLayoutNode"/> leaves.
-        /// When the engine is extended to support deeper trees, this method will
-        /// produce arbitrarily nested <see cref="SplitLayoutNode"/>s.
-        /// </remarks>
         public static ILayoutNode BuildFromHost(BeepDocumentHost host)
         {
-            var groups = host.Groups;   // IReadOnlyList<BeepDocumentGroup>
+            var groups = host.Groups;
 
             if (groups.Count <= 1)
                 return BuildGroupNode(host, groups[0]);
 
-            if (groups.Count == 2)
+            // Build a left-leaning binary tree from the group list:
+            //   Split(Group0, Split(Group1, Split(Group2, Group3)))
+            ILayoutNode BuildSubtree(int startIdx)
             {
-                var orientation = host.SplitHorizontal
-                    ? Orientation.Horizontal
-                    : Orientation.Vertical;
+                if (startIdx >= groups.Count)
+                    throw new System.InvalidOperationException("Not enough groups.");
 
-                return new SplitLayoutNode(
-                    BuildGroupNode(host, groups[0]),
-                    BuildGroupNode(host, groups[1]),
-                    orientation,
+                if (startIdx == groups.Count - 1)
+                    return BuildGroupNode(host, groups[startIdx]);
+
+                if (startIdx == groups.Count - 2)
+                {
+                    return new SplitLayoutNode(
+                        BuildGroupNode(host, groups[startIdx]),
+                        BuildGroupNode(host, groups[startIdx + 1]),
+                        host.SplitHorizontal ? Orientation.Horizontal : Orientation.Vertical,
+                        host.SplitRatio);
+                }
+
+                var current = BuildGroupNode(host, groups[startIdx]);
+                var rest    = BuildSubtree(startIdx + 1);
+                return new SplitLayoutNode(current, rest,
+                    host.SplitHorizontal ? Orientation.Horizontal : Orientation.Vertical,
                     host.SplitRatio);
             }
 
-            // > 2 groups — build a degenerate right-leaning chain until the
-            // layout engine supports arbitrary depth.
-            ILayoutNode rightChain = BuildGroupNode(host, groups[groups.Count - 1]);
-            for (int i = groups.Count - 2; i >= 1; i--)
-            {
-                rightChain = new SplitLayoutNode(
-                    BuildGroupNode(host, groups[i]),
-                    rightChain,
-                    Orientation.Horizontal,
-                    1.0f / (groups.Count - i));
-            }
-
-            return new SplitLayoutNode(
-                BuildGroupNode(host, groups[0]),
-                rightChain,
-                host.SplitHorizontal ? Orientation.Horizontal : Orientation.Vertical,
-                host.SplitRatio);
+            return BuildSubtree(0);
         }
 
         // ─────────────────────────────────────────────────────────────────────

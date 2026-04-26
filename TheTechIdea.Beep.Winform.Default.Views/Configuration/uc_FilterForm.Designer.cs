@@ -84,9 +84,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //beepLabel1.DisableDpiAndScaling = false;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 220, 54);
             beepLabel1.Easing = EasingType.Linear;
-            beepLabel1.EnableHighQualityRendering = true;
-          //  beepLabel1.EnableMaterialStyle = false;
-            beepLabel1.EnableRippleEffect = false;
+            beepLabel1.EnableHighQualityRendering = true;            beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepLabel1.ErrorText = "";
@@ -260,9 +258,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             //beepTextBox1.DisableDpiAndScaling = false;
             beepTextBox1.DrawingRect = new Rectangle(4, 4, 192, 20);
             beepTextBox1.Easing = EasingType.Linear;
-            beepTextBox1.EnableHighQualityRendering = true;
-         //   beepTextBox1.EnableMaterialStyle = false;
-            beepTextBox1.EnableRippleEffect = false;
+            beepTextBox1.EnableHighQualityRendering = true;            beepTextBox1.EnableRippleEffect = false;
             beepTextBox1.EnableSplashEffect = false;
             beepTextBox1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepTextBox1.ErrorText = "";
@@ -664,9 +660,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.LabelText = "";
             beepSimpleGrid1.LeftoffsetForDrawingRect = 0;
             beepSimpleGrid1.LinkedProperty = null;
-            beepSimpleGrid1.Location = new Point(0, 0);
-            beepSimpleGrid1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
+            beepSimpleGrid1.Location = new Point(0, 0);            beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
             beepSimpleGrid1.ModernGradientType = ModernGradientType.Subtle;
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;

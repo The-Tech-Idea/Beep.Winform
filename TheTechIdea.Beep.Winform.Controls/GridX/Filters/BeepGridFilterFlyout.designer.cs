@@ -1226,9 +1226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             rbOrder.LeftoffsetForDrawingRect = 0;
             rbOrder.LinkedProperty = null;
             rbOrder.Location = new Point(123, 382);
-            rbOrder.Margin = new Padding(3, 0, 3, 6);
-            rbOrder.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
-            rbOrder.MaxHitListDrawPerFrame = 0;
+            rbOrder.Margin = new Padding(3, 0, 3, 6);            rbOrder.MaxHitListDrawPerFrame = 0;
             rbOrder.ModernGradientType = Vis.Modules.ModernGradientType.None;
             rbOrder.Name = "rbOrder";
             rbOrder.Orientation = RadioGroup.Helpers.RadioGroupOrientation.Vertical;

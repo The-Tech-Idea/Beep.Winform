@@ -12,10 +12,6 @@ using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars
 {
-    /// <summary>
-    /// Modern website-style header control with painter-based rendering
-    /// Uses SimpleItem for tabs with support for nested menus
-    /// </summary>
     [ToolboxItem(true)]
     [DisplayName("Beep WebHeader AppBar")]
     [Category("Beep Controls")]
@@ -24,14 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     {
         #region Events
 
-        /// <summary>Raised when a tab is selected</summary>
         public event EventHandler<SelectedItemChangedEventArgs> TabSelected;
-
-        /// <summary>Raised when an action button is clicked</summary>
         public event EventHandler<SelectedItemChangedEventArgs> ActionButtonClicked;
-
-        /// <summary>Raised when search text changes</summary>
         public event EventHandler<SearchChangedEventArgs> SearchBoxChanged;
+        public event EventHandler<SelectedTabChangedEventArgs> SelectedTabChanged;
 
         #endregion
 
@@ -55,38 +47,52 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private Font _tabFont = new Font("Segoe UI", 12);
         private Font _buttonFont = new Font("Segoe UI", 11);
 
-        // Interaction state
-        private string _hoveredTabName = null;
-        private string _hoveredButtonName = null;
+        // Interaction state (index-based)
+        private int _hoveredTabIndex = -1;
+        private int _hoveredButtonIndex = -1;
+
+        // Search box interaction
+        private bool _searchBoxActive = false;
+        private bool _searchBoxHovered = false;
+        private Rectangle _searchBounds = Rectangle.Empty;
 
         // Painter and colors
         private IWebHeaderStylePainter _painter;
         private WebHeaderColors _colors;
         private SimpleItem _selectedTab;
+
         // Underline animation state
         private RectangleF _currentUnderlineRect = RectangleF.Empty;
         private RectangleF _targetUnderlineRect = RectangleF.Empty;
         private RectangleF _startUnderlineRect = RectangleF.Empty;
         private bool _isUnderlineAnimating = false;
-        private System.Windows.Forms.Timer _underlineTimer = null;
-        private const int UnderlineAnimationDurationMs = 220; // ms
+        private Timer _underlineTimer = null;
+        private const int UnderlineAnimationDurationMs = 220;
         private DateTime _underlineAnimStartedAt = DateTime.MinValue;
 
+        // Tab overflow scrolling
+        private int _tabScrollOffset = 0;
+        private bool _needsTabScroll = false;
+        private Rectangle _scrollLeftBounds = Rectangle.Empty;
+        private Rectangle _scrollRightBounds = Rectangle.Empty;
+        private bool _scrollLeftHovered = false;
+        private bool _scrollRightHovered = false;
+
+        // ID generation
+        private static int _nextId = 1;
+        private static int NextId => System.Threading.Interlocked.Increment(ref _nextId);
+
         #endregion
-        
+
         #region Design-Time Safety
-        /// <summary>
-        /// Safe design-time detection that works in all scenarios
-        /// </summary>
-        private bool IsDesignModeSafe => 
-            LicenseManager.UsageMode == LicenseUsageMode.Designtime || 
-            DesignMode || 
+        private bool IsDesignModeSafe =>
+            LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
+            DesignMode ||
             (Site?.DesignMode ?? false);
         #endregion
 
         #region Constructor
 
-        /// <summary>Initialize the control</summary>
         public BeepWebHeaderAppBar()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
@@ -100,28 +106,37 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             UseThemeFont = false;
             EnableSplashEffect = false;
             EnableRippleEffect = false;
-            CanBeFocused = false;
+            CanBeFocused = true;
             CanBeSelected = false;
             CanBePressed = false;
-            CanBeHovered = false;
+            CanBeHovered = true;
 
-            // Only initialize animation timer at runtime to prevent design-time flickering
+            _tabs.ListChanged += Tabs_ListChanged;
+            _buttons.ListChanged += Buttons_ListChanged;
+
             if (!IsDesignModeSafe)
             {
                 InitializeAnimationTimer();
             }
         }
-        
-        /// <summary>
-        /// Initialize the underline animation timer (runtime only)
-        /// </summary>
+
+        private void Tabs_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            RecalculateScroll();
+            Invalidate();
+        }
+
+        private void Buttons_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            Invalidate();
+        }
+
         private void InitializeAnimationTimer()
         {
-            _underlineTimer = new System.Windows.Forms.Timer();
-            _underlineTimer.Interval = 15; // ~60 fps
+            _underlineTimer = new Timer { Interval = 15 };
             _underlineTimer.Tick += UnderlineTimer_Tick;
         }
-        
+
         private void UnderlineTimer_Tick(object sender, EventArgs e)
         {
             if (!_isUnderlineAnimating || IsDesignModeSafe)
@@ -132,7 +147,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
             var elapsed = (DateTime.Now - _underlineAnimStartedAt).TotalMilliseconds;
             double t = Math.Min(1.0, elapsed / UnderlineAnimationDurationMs);
-            // Use ease-out cubic easing
             double tt = 1 - Math.Pow(1 - t, 3);
 
             _currentUnderlineRect = Lerp(_startUnderlineRect, _targetUnderlineRect, tt);
@@ -149,11 +163,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         #region Properties
 
-        /// <summary>Gets or sets the header style variant</summary>
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(WebHeaderStyle.ShoppyStore1)]
-        [Description("The visual style for the web header.")]
         public WebHeaderStyle HeaderStyle
         {
             get => _headerStyle;
@@ -163,43 +175,29 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 {
                     _headerStyle = value;
                     if (!IsDesignModeSafe)
-                    {
                         _painter = CreatePainterForStyle(value);
-                    }
                     Invalidate();
                 }
             }
         }
-        
-        /// <summary>Gets or sets the logo text (displayed when no logo image)</summary>
+
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Text to display as logo when no logo image is set.")]
         public string LogoText
         {
             get => _logoText;
-            set
-            {
-                _logoText = value;
-                Invalidate();
-            }
+            set { _logoText = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets the tab indicator style</summary>
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(TabIndicatorStyle.UnderlineSimple)]
         public TabIndicatorStyle IndicatorStyle
         {
             get => _indicatorStyle;
-            set
-            {
-                _indicatorStyle = value;
-                Invalidate();
-            }
+            set { _indicatorStyle = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets the tabs collection</summary>
         [Browsable(true)]
         [Category("Data")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -208,12 +206,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             get => _tabs;
             set
             {
+                _tabs.ListChanged -= Tabs_ListChanged;
                 _tabs = value ?? new BindingList<SimpleItem>();
+                _tabs.ListChanged += Tabs_ListChanged;
+                RecalculateScroll();
                 Invalidate();
             }
         }
 
-        /// <summary>Gets or sets the action buttons collection</summary>
         [Browsable(true)]
         [Category("Data")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -222,82 +222,57 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             get => _buttons;
             set
             {
+                _buttons.ListChanged -= Buttons_ListChanged;
                 _buttons = value ?? new BindingList<SimpleItem>();
+                _buttons.ListChanged += Buttons_ListChanged;
                 Invalidate();
             }
         }
 
-        /// <summary>Gets or sets the logo image path</summary>
         [Browsable(true)]
         [Category("Appearance")]
         public string LogoImagePath
         {
             get => _logoImagePath;
-            set
-            {
-                _logoImagePath = value;
-                Invalidate();
-            }
+            set { _logoImagePath = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets the logo width</summary>
         [Browsable(true)]
         [Category("Layout")]
         [DefaultValue(40)]
         public int LogoWidth
         {
             get => _logoWidth;
-            set
-            {
-                _logoWidth = value;
-                Invalidate();
-            }
+            set { _logoWidth = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets the header height</summary>
         [Browsable(true)]
         [Category("Layout")]
         [DefaultValue(60)]
         public int HeaderHeight
         {
             get => _headerHeight;
-            set
-            {
-                _headerHeight = value;
-                Height = value;
-                Invalidate();
-            }
+            set { _headerHeight = value; Height = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets whether to show the logo</summary>
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(true)]
         public bool ShowLogo
         {
             get => _showLogo;
-            set
-            {
-                _showLogo = value;
-                Invalidate();
-            }
+            set { _showLogo = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets whether to show the search box</summary>
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(true)]
         public bool ShowSearchBox
         {
             get => _showSearchBox;
-            set
-            {
-                _showSearchBox = value;
-                Invalidate();
-            }
+            set { _showSearchBox = value; Invalidate(); }
         }
 
-        /// <summary>Gets or sets the selected tab</summary>
         [Browsable(false)]
         public SimpleItem SelectedTab
         {
@@ -306,92 +281,116 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 if (_selectedTab != value)
                 {
+                    var old = _selectedTab;
                     _selectedTab = value;
+                    int idx = _tabs.IndexOf(value);
+                    if (idx >= 0) _selectedTabIndex = idx;
+                    SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(old, value, _selectedTabIndex));
                     TabSelected?.Invoke(this, new SelectedItemChangedEventArgs(_selectedTab));
                     Invalidate();
                 }
             }
         }
 
-        /// <summary>Gets or sets the selected tab index</summary>
         [Browsable(false)]
         public int SelectedTabIndex
         {
             get => _selectedTabIndex;
             set
             {
-                if (value >= 0 && value < _tabs.Count)
+                if (value >= 0 && value < _tabs.Count && value != _selectedTabIndex)
                 {
+                    var old = _selectedTab;
                     _selectedTabIndex = value;
-                    SelectedTab = _tabs[value];
-                    // After selection, animate underline to the selected rect
+                    _selectedTab = _tabs[value];
+                    SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(old, _selectedTab, value));
+                    TabSelected?.Invoke(this, new SelectedItemChangedEventArgs(_selectedTab));
                     StartUnderlineAnimationToTab(value);
                 }
             }
         }
 
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        public bool AllowTabScroll { get; set; } = true;
+
         #endregion
 
         #region Methods
 
-        /// <summary>Add a tab</summary>
         public void AddTab(string text, string imagePath = "")
         {
-            var tab = new SimpleItem { Text = text, ImagePath = imagePath };
+            var tab = new SimpleItem { Text = text, ImagePath = imagePath, ID = NextId };
             _tabs.Add(tab);
-            Invalidate();
         }
 
-        /// <summary>Add a tab with children (submenu)</summary>
         public void AddTab(string text, BindingList<SimpleItem> children, string imagePath = "")
         {
-            var tab = new SimpleItem { Text = text, ImagePath = imagePath, Children = children };
+            var tab = new SimpleItem { Text = text, ImagePath = imagePath, Children = children, ID = NextId };
             _tabs.Add(tab);
-            Invalidate();
         }
 
-        /// <summary>Remove a tab by index</summary>
         public void RemoveTabAt(int index)
         {
             if (index >= 0 && index < _tabs.Count)
             {
                 _tabs.RemoveAt(index);
-                Invalidate();
+                if (_selectedTabIndex >= _tabs.Count) _selectedTabIndex = _tabs.Count - 1;
             }
         }
 
-        /// <summary>Clear all tabs</summary>
         public void ClearTabs()
         {
             _tabs.Clear();
             _selectedTabIndex = -1;
             _selectedTab = null;
-            Invalidate();
         }
 
-        /// <summary>Add an action button</summary>
         public void AddActionButton(string text, string imagePath = "")
         {
-            var btn = new SimpleItem { Text = text, ImagePath = imagePath };
+            var btn = new SimpleItem { Text = text, ImagePath = imagePath, ID = NextId };
             _buttons.Add(btn);
-            Invalidate();
         }
 
-        /// <summary>Remove an action button by index</summary>
         public void RemoveActionButtonAt(int index)
         {
             if (index >= 0 && index < _buttons.Count)
-            {
                 _buttons.RemoveAt(index);
-                Invalidate();
-            }
         }
 
-        /// <summary>Clear all action buttons</summary>
         public void ClearActionButtons()
         {
             _buttons.Clear();
-            Invalidate();
+        }
+
+        private void RecalculateScroll()
+        {
+            if (!AllowTabScroll || _tabs.Count == 0)
+            {
+                _needsTabScroll = false;
+                _tabScrollOffset = 0;
+                return;
+            }
+
+            int totalWidth = 0;
+            foreach (var tab in _tabs)
+            {
+                using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                var size = TextRenderer.MeasureText(tab.Text, _tabFont);
+                totalWidth += size.Width + _elementPadding * 2 + _tabSpacing;
+            }
+
+            int availableWidth = Width - 160;
+            _needsTabScroll = totalWidth > availableWidth;
+            if (!_needsTabScroll)
+                _tabScrollOffset = 0;
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            RecalculateScroll();
         }
 
         #endregion
@@ -401,8 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
-            // Design-time: render simple placeholder to prevent flickering
+
             if (IsDesignModeSafe)
             {
                 PaintDesignTimePlaceholder(e.Graphics);
@@ -411,12 +409,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
             if (_painter == null)
                 _painter = CreatePainterForStyle(_headerStyle);
-            
-            // Ensure colors are initialized
+
             if (_colors == null)
                 _colors = WebHeaderColors.FromTheme(_currentTheme);
 
-            // Convert SimpleItem to WebHeaderTab for painter (adaptor pattern)
             var tabsList = ConvertTabsForPainter();
             var buttonsList = ConvertButtonsForPainter();
 
@@ -437,7 +433,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 _buttonFont,
                 IsTransparentBackground);
 
-            // Draw sliding indicator overlay if enabled
             if (_indicatorStyle == TabIndicatorStyle.SlidingUnderline)
             {
                 if (_currentUnderlineRect.IsEmpty && _selectedTabIndex >= 0)
@@ -445,39 +440,73 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     var tabsList2 = ConvertTabsForPainter();
                     var rectInit = _painter.GetTabBounds(_selectedTabIndex, new Rectangle(0, 0, Width, Height), tabsList2);
                     if (rectInit != Rectangle.Empty)
-                    {
                         _currentUnderlineRect = new RectangleF(rectInit.Left, rectInit.Bottom - _indicatorThickness, rectInit.Width, _indicatorThickness);
-                    }
                 }
 
                 if (!_currentUnderlineRect.IsEmpty)
                 {
-                    using (var pen = new Pen(_currentTheme?.ForeColor ?? Color.Black, _indicatorThickness))
-                    using (var brush = new SolidBrush((_currentTheme?.ForeColor ?? Color.Black)))
-                    {
-                        var rect = Rectangle.Round(_currentUnderlineRect);
-                        // draw filled underline
-                        e.Graphics.FillRectangle(brush, rect);
-                    }
+                    using var brush = new SolidBrush(_currentTheme?.ForeColor ?? Color.Black);
+                    e.Graphics.FillRectangle(brush, Rectangle.Round(_currentUnderlineRect));
                 }
             }
+
+            if (_needsTabScroll && AllowTabScroll)
+            {
+                DrawScrollArrows(e.Graphics);
+            }
         }
-        
-        /// <summary>
-        /// Simple placeholder rendering for Visual Studio Designer
-        /// </summary>
+
+        private void DrawScrollArrows(Graphics g)
+        {
+            int arrowSize = 24;
+            int y = (Height - arrowSize) / 2;
+
+            _scrollLeftBounds = new Rectangle(2, y, arrowSize, arrowSize);
+            _scrollRightBounds = new Rectangle(Width - arrowSize - 2, y, arrowSize, arrowSize);
+
+            var color = _scrollLeftHovered ? Color.FromArgb(200, 0, 0, 0) : Color.FromArgb(100, 0, 0, 0);
+            using var brush = new SolidBrush(color);
+            using var path = new System.Drawing.Drawing2D.GraphicsPath();
+
+            if (_tabScrollOffset > 0)
+            {
+                path.AddPolygon(new[] {
+                    new Point(_scrollLeftBounds.Right - 8, _scrollLeftBounds.Top + 4),
+                    new Point(_scrollLeftBounds.Left + 8, _scrollLeftBounds.Top + arrowSize / 2),
+                    new Point(_scrollLeftBounds.Right - 8, _scrollLeftBounds.Bottom - 4)
+                });
+                g.FillPath(brush, path);
+            }
+
+            path.Reset();
+            if (_tabScrollOffset < GetMaxScrollOffset())
+            {
+                path.AddPolygon(new[] {
+                    new Point(_scrollRightBounds.Left + 8, _scrollRightBounds.Top + 4),
+                    new Point(_scrollRightBounds.Right - 8, _scrollRightBounds.Top + arrowSize / 2),
+                    new Point(_scrollRightBounds.Left + 8, _scrollRightBounds.Bottom - 4)
+                });
+                g.FillPath(brush, path);
+            }
+        }
+
+        private int GetMaxScrollOffset()
+        {
+            int totalWidth = 0;
+            foreach (var tab in _tabs)
+            {
+                var size = TextRenderer.MeasureText(tab.Text, _tabFont);
+                totalWidth += size.Width + _elementPadding * 2 + _tabSpacing;
+            }
+            return Math.Max(0, totalWidth - (Width - 160));
+        }
+
         private void PaintDesignTimePlaceholder(Graphics g)
         {
-            // Background
             g.Clear(Color.FromArgb(255, 255, 255));
-            
-            // Bottom border line
             using (var pen = new Pen(Color.FromArgb(230, 230, 230), 1))
-            {
                 g.DrawLine(pen, 0, Height - 1, Width, Height - 1);
-            }
-            
-            // Logo placeholder
+
             int logoX = 16;
             int logoY = (Height - 32) / 2;
             using (var brush = new SolidBrush(Color.FromArgb(66, 133, 244)))
@@ -486,12 +515,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 string logoDisplay = !string.IsNullOrEmpty(_logoText) ? _logoText : "Logo";
                 g.DrawString(logoDisplay, font, brush, logoX, logoY + 6);
             }
-            
-            // Tab placeholders
+
             int tabX = 120;
             int tabCount = _tabs?.Count ?? 0;
-            if (tabCount == 0) tabCount = 4; // Show sample tabs in design mode
-            
+            if (tabCount == 0) tabCount = 4;
+
             using (var font = new Font("Segoe UI", 10))
             using (var brush = new SolidBrush(Color.FromArgb(80, 80, 80)))
             using (var activeBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
@@ -505,15 +533,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     tabX += 80;
                 }
             }
-            
-            // Action button placeholders (right side)
+
             int btnX = Width - 120;
             int btnCount = _buttons?.Count ?? 0;
             if (btnCount == 0) btnCount = 2;
-            
+
             using (var font = new Font("Segoe UI", 9))
             {
-                // Sign In button (outline)
                 var signInRect = new Rectangle(btnX - 80, (Height - 32) / 2, 70, 32);
                 using (var pen = new Pen(Color.FromArgb(200, 200, 200), 1))
                 using (var brush = new SolidBrush(Color.FromArgb(80, 80, 80)))
@@ -521,8 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     g.DrawRectangle(pen, signInRect);
                     g.DrawString("Sign In", font, brush, signInRect.X + 12, signInRect.Y + 8);
                 }
-                
-                // Get Started button (solid)
+
                 var ctaRect = new Rectangle(btnX, (Height - 32) / 2, 90, 32);
                 using (var fillBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
                 using (var textBrush = new SolidBrush(Color.White))
@@ -531,44 +556,32 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     g.DrawString("Get Started", font, textBrush, ctaRect.X + 8, ctaRect.Y + 8);
                 }
             }
-            
-            // Design mode label
+
             using (var font = new Font("Segoe UI", 8))
             using (var brush = new SolidBrush(Color.FromArgb(180, 180, 180)))
-            {
                 g.DrawString($"BeepWebHeaderAppBar (Design Mode) - Style: {_headerStyle}", font, brush, 4, Height - 16);
-            }
         }
 
         private void StartUnderlineAnimationToTab(int tabIndex)
         {
-            // Skip animation during design-time
-            if (IsDesignModeSafe)
-                return;
-                
-            if (_painter == null || tabIndex < 0 || tabIndex >= _tabs.Count)
+            if (IsDesignModeSafe || _painter == null || tabIndex < 0 || tabIndex >= _tabs.Count)
                 return;
 
             var tabsList = ConvertTabsForPainter();
             var rect = _painter.GetTabBounds(tabIndex, new Rectangle(0, 0, Width, Height), tabsList);
-            if (rect == Rectangle.Empty)
-                return;
+            if (rect == Rectangle.Empty) return;
 
             var target = new RectangleF(rect.Left, rect.Bottom - _indicatorThickness, rect.Width, _indicatorThickness);
             if (_currentUnderlineRect.IsEmpty)
-            {
                 _currentUnderlineRect = target;
-            }
+
             _startUnderlineRect = _currentUnderlineRect;
             _targetUnderlineRect = target;
             _underlineAnimStartedAt = DateTime.Now;
             _isUnderlineAnimating = true;
-            
-            // Initialize timer if not already done
+
             if (_underlineTimer == null)
-            {
                 InitializeAnimationTimer();
-            }
             _underlineTimer?.Start();
         }
 
@@ -578,8 +591,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 (float)(a.Left + (b.Left - a.Left) * t),
                 (float)(a.Top + (b.Top - a.Top) * t),
                 (float)(a.Width + (b.Width - a.Width) * t),
-                (float)(a.Height + (b.Height - a.Height) * t)
-            );
+                (float)(a.Height + (b.Height - a.Height) * t));
         }
 
         private List<WebHeaderTab> ConvertTabsForPainter()
@@ -588,15 +600,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             for (int i = 0; i < _tabs.Count; i++)
             {
                 var item = _tabs[i];
-                var tab = new WebHeaderTab(item.Text, item.ImagePath, item.ID)
+                result.Add(new WebHeaderTab(item.Text, item.ImagePath, item.ID)
                 {
                     IsActive = (i == _selectedTabIndex),
-                    IsHovered = (_hoveredTabName == $"Tab_{i}"),
+                    IsHovered = (i == _hoveredTabIndex),
                     Tooltip = item.Description,
-                    // Set HasChildren so painters can show dropdown indicator
                     HasChildren = item.Children != null && item.Children.Count > 0
-                };
-                result.Add(tab);
+                });
             }
             return result;
         }
@@ -607,34 +617,19 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             for (int i = 0; i < _buttons.Count; i++)
             {
                 var item = _buttons[i];
-                var btn = new WebHeaderActionButton(item.Text, item.ImagePath, WebHeaderButtonStyle.Solid, item.ID)
+                result.Add(new WebHeaderActionButton(item.Text, item.ImagePath, WebHeaderButtonStyle.Solid, item.ID)
                 {
-                    IsHovered = (_hoveredButtonName == $"Button_{i}"),
-                    // Set BadgeCount from the item's badge property (if available via Tag or custom property)
+                    IsHovered = (i == _hoveredButtonIndex),
                     BadgeCount = GetBadgeCount(item)
-                };
-                result.Add(btn);
+                });
             }
             return result;
         }
-        
-        /// <summary>
-        /// Gets the badge count for a button item.
-        /// Override this method to provide custom badge count logic.
-        /// </summary>
+
         protected virtual int GetBadgeCount(SimpleItem item)
         {
-            // Check if Tag contains a badge count
             if (item.Tag is int count)
                 return count;
-            
-            // Check if Tag is a dictionary with BadgeCount key
-            if (item.Tag is Dictionary<string, object> dict && dict.TryGetValue("BadgeCount", out var value))
-            {
-                if (value is int badgeCount)
-                    return badgeCount;
-            }
-            
             return 0;
         }
 
@@ -645,13 +640,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            
-            // Skip during design-time
-            if (IsDesignModeSafe)
-                return;
-
-            if (_painter == null)
-                return;
+            if (IsDesignModeSafe || _painter == null) return;
 
             var tabsList = ConvertTabsForPainter();
             var buttonsList = ConvertButtonsForPainter();
@@ -662,39 +651,62 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 tabsList,
                 buttonsList);
 
-            // Update hover states
             bool needsInvalidate = false;
-            string previousTab = _hoveredTabName;
-            string previousBtn = _hoveredButtonName;
+            int prevTab = _hoveredTabIndex;
+            int prevBtn = _hoveredButtonIndex;
+            bool prevSearch = _searchBoxHovered;
 
-            _hoveredTabName = null;
-            _hoveredButtonName = null;
+            _hoveredTabIndex = -1;
+            _hoveredButtonIndex = -1;
+            _searchBoxHovered = false;
 
-            // Check if hovering over tab
-            if (hit >= 0 && hit < _tabs.Count)
+            if (_needsTabScroll && AllowTabScroll)
             {
-                _hoveredTabName = $"Tab_{hit}";
-                Cursor = Cursors.Hand;
-                if (previousTab != _hoveredTabName)
+                if (_scrollLeftBounds.Contains(e.Location))
+                {
+                    _scrollLeftHovered = true;
+                    Cursor = Cursors.Hand;
                     needsInvalidate = true;
+                }
+                else if (_scrollRightBounds.Contains(e.Location))
+                {
+                    _scrollRightHovered = true;
+                    Cursor = Cursors.Hand;
+                    needsInvalidate = true;
+                }
+                else
+                {
+                    _scrollLeftHovered = false;
+                    _scrollRightHovered = false;
+                }
             }
-            // Check if hovering over button
+
+            if (_showSearchBox && _searchBounds.Contains(e.Location))
+            {
+                _searchBoxHovered = true;
+                Cursor = _searchBoxActive ? Cursors.IBeam : Cursors.Hand;
+                needsInvalidate = true;
+            }
+            else if (hit >= 0 && hit < _tabs.Count)
+            {
+                _hoveredTabIndex = hit;
+                Cursor = Cursors.Hand;
+                if (prevTab != hit) needsInvalidate = true;
+            }
             else if (hit < -1)
             {
                 int btnIndex = -(hit + 1);
                 if (btnIndex >= 0 && btnIndex < _buttons.Count)
                 {
-                    _hoveredButtonName = $"Button_{btnIndex}";
+                    _hoveredButtonIndex = btnIndex;
                     Cursor = Cursors.Hand;
-                    if (previousBtn != _hoveredButtonName)
-                        needsInvalidate = true;
+                    if (prevBtn != btnIndex) needsInvalidate = true;
                 }
             }
             else
             {
                 Cursor = Cursors.Default;
-                if (previousTab != null || previousBtn != null)
-                    needsInvalidate = true;
+                if (prevTab != -1 || prevBtn != -1 || prevSearch) needsInvalidate = true;
             }
 
             if (needsInvalidate)
@@ -704,13 +716,34 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            
-            // Skip during design-time
-            if (IsDesignModeSafe)
-                return;
+            if (IsDesignModeSafe || _painter == null || e.Button != MouseButtons.Left) return;
 
-            if (e.Button != MouseButtons.Left || _painter == null)
+            if (_needsTabScroll && AllowTabScroll)
+            {
+                if (_scrollLeftBounds.Contains(e.Location) && _tabScrollOffset > 0)
+                {
+                    _tabScrollOffset = Math.Max(0, _tabScrollOffset - 50);
+                    Invalidate();
+                    return;
+                }
+                if (_scrollRightBounds.Contains(e.Location) && _tabScrollOffset < GetMaxScrollOffset())
+                {
+                    _tabScrollOffset = Math.Min(GetMaxScrollOffset(), _tabScrollOffset + 50);
+                    Invalidate();
+                    return;
+                }
+            }
+
+            if (_showSearchBox && _searchBounds.Contains(e.Location))
+            {
+                _searchBoxActive = !_searchBoxActive;
+                if (_searchBoxActive)
+                {
+                    Focus();
+                    Invalidate();
+                }
                 return;
+            }
 
             var tabsList = ConvertTabsForPainter();
             var buttonsList = ConvertButtonsForPainter();
@@ -722,39 +755,113 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 buttonsList);
 
             if (hit >= 0 && hit < _tabs.Count)
-            {
                 HandleTabClick(hit);
-            }
             else if (hit < -1)
             {
                 int btnIndex = -(hit + 1);
                 if (btnIndex >= 0 && btnIndex < _buttons.Count)
-                {
                     HandleActionButtonClick(btnIndex);
-                }
             }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            
-            // Skip during design-time
-            if (IsDesignModeSafe)
-                return;
+            if (IsDesignModeSafe) return;
 
-            bool needsInvalidate = false;
-
-            if (_hoveredTabName != null || _hoveredButtonName != null)
-            {
-                _hoveredTabName = null;
-                _hoveredButtonName = null;
-                Cursor = Cursors.Default;
-                needsInvalidate = true;
-            }
+            bool needsInvalidate = _hoveredTabIndex != -1 || _hoveredButtonIndex != -1 || _searchBoxHovered;
+            _hoveredTabIndex = -1;
+            _hoveredButtonIndex = -1;
+            _searchBoxHovered = false;
+            _scrollLeftHovered = false;
+            _scrollRightHovered = false;
+            Cursor = Cursors.Default;
 
             if (needsInvalidate)
                 Invalidate();
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (!_needsTabScroll || !AllowTabScroll) return;
+
+            int delta = e.Delta > 0 ? -50 : 50;
+            _tabScrollOffset = Math.Max(0, Math.Min(GetMaxScrollOffset(), _tabScrollOffset + delta));
+            Invalidate();
+        }
+
+        #endregion
+
+        #region Keyboard Navigation
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (IsDesignModeSafe) return base.ProcessCmdKey(ref msg, keyData);
+
+            if (_searchBoxActive)
+            {
+                if (keyData == Keys.Escape)
+                {
+                    _searchBoxActive = false;
+                    Invalidate();
+                    return true;
+                }
+                if (keyData == Keys.Enter)
+                {
+                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                    return true;
+                }
+                if (keyData == Keys.Back && _searchText.Length > 0)
+                {
+                    _searchText = _searchText.Substring(0, _searchText.Length - 1);
+                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                    Invalidate();
+                    return true;
+                }
+                if (keyData >= Keys.A && keyData <= Keys.Z)
+                {
+                    char c = (char)('a' + (keyData - Keys.A));
+                    _searchText += c;
+                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                    Invalidate();
+                    return true;
+                }
+                if (keyData == Keys.Space)
+                {
+                    _searchText += " ";
+                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                    Invalidate();
+                    return true;
+                }
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            switch (keyData)
+            {
+                case Keys.Left:
+                    if (_selectedTabIndex > 0)
+                        SelectedTabIndex = _selectedTabIndex - 1;
+                    return true;
+                case Keys.Right:
+                    if (_selectedTabIndex < _tabs.Count - 1)
+                        SelectedTabIndex = _selectedTabIndex + 1;
+                    return true;
+                case Keys.Home:
+                    if (_tabs.Count > 0)
+                        SelectedTabIndex = 0;
+                    return true;
+                case Keys.End:
+                    if (_tabs.Count > 0)
+                        SelectedTabIndex = _tabs.Count - 1;
+                    return true;
+                case Keys.Enter:
+                    if (_selectedTabIndex >= 0 && _selectedTabIndex < _tabs.Count)
+                        HandleTabClick(_selectedTabIndex);
+                    return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         #endregion
@@ -763,92 +870,64 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private void HandleTabClick(int tabIndex)
         {
-            if (tabIndex < 0 || tabIndex >= _tabs.Count)
-                return;
+            if (tabIndex < 0 || tabIndex >= _tabs.Count) return;
 
             var tab = _tabs[tabIndex];
             SelectedTabIndex = tabIndex;
 
-            // If tab has children, show context menu
             if (tab.Children != null && tab.Children.Count > 0)
-            {
                 ShowTabMenu(tabIndex);
-            }
             else if (!string.IsNullOrEmpty(tab.MethodName))
-            {
                 RunMethodFromGlobalFunctions(tab, tab.Text);
-            }
         }
 
         private void HandleActionButtonClick(int btnIndex)
         {
-            if (btnIndex < 0 || btnIndex >= _buttons.Count)
-                return;
+            if (btnIndex < 0 || btnIndex >= _buttons.Count) return;
 
             var btn = _buttons[btnIndex];
-            
-            // If button has children, show popup menu (like BeepMenuBar does)
+
             if (btn.Children != null && btn.Children.Count > 0)
-            {
                 ShowButtonMenu(btnIndex);
-            }
             else
             {
-                // Fire event for buttons without children
                 ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(btn));
-
                 if (!string.IsNullOrEmpty(btn.MethodName))
-                {
                     RunMethodFromGlobalFunctions(btn, btn.Text);
-                }
             }
         }
-        
-        /// <summary>
-        /// Shows a popup menu for an action button with children
-        /// </summary>
+
         private void ShowButtonMenu(int btnIndex)
         {
-            if (btnIndex < 0 || btnIndex >= _buttons.Count)
-                return;
+            if (btnIndex < 0 || btnIndex >= _buttons.Count) return;
 
             var btn = _buttons[btnIndex];
-            if (btn.Children == null || btn.Children.Count == 0)
-                return;
+            if (btn.Children == null || btn.Children.Count == 0) return;
 
-            // Get button bounds for positioning
             var buttonsList = ConvertButtonsForPainter();
             var rect = _painter.GetButtonBounds(btnIndex, new Rectangle(0, 0, Width, Height), buttonsList);
 
             if (rect != Rectangle.Empty)
             {
-                // Position menu below the button
                 var screenLocation = this.PointToScreen(new Point(rect.Left, rect.Bottom + 2));
                 var selectedItem = base.ShowContextMenu(new List<SimpleItem>(btn.Children), screenLocation, multiSelect: false);
 
                 if (selectedItem != null)
                 {
-                    // Fire event with selected child item
                     ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
-                    
                     if (!string.IsNullOrEmpty(selectedItem.MethodName))
-                    {
                         RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
-                    }
                 }
             }
         }
 
         private void ShowTabMenu(int tabIndex)
         {
-            if (tabIndex < 0 || tabIndex >= _tabs.Count)
-                return;
+            if (tabIndex < 0 || tabIndex >= _tabs.Count) return;
 
             var tab = _tabs[tabIndex];
-            if (tab.Children == null || tab.Children.Count == 0)
-                return;
+            if (tab.Children == null || tab.Children.Count == 0) return;
 
-            // Get tab bounds for positioning
             var tabsList = ConvertTabsForPainter();
             var rect = _painter.GetTabBounds(tabIndex, new Rectangle(0, 0, Width, Height), tabsList);
 
@@ -861,9 +940,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 {
                     SelectedTab = selectedItem;
                     if (!string.IsNullOrEmpty(selectedItem.MethodName))
-                    {
                         RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
-                    }
                 }
             }
         }
@@ -872,7 +949,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         #region Helpers
 
-        /// <summary>Create painter instance for WebHeaderStyle</summary>
         private IWebHeaderStylePainter CreatePainterForStyle(WebHeaderStyle style)
         {
             return style switch
@@ -915,18 +991,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         #endregion
 
         #region Theme Support
-        
-        /// <summary>
-        /// Applies the current theme to the control
-        /// </summary>
+
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            // Update colors from theme
             _colors = WebHeaderColors.FromTheme(_currentTheme);
-            
-            // Update fonts from theme if enabled
+
             if (UseThemeFont && _currentTheme != null)
             {
                 if (_currentTheme.LabelFont != null)
@@ -940,16 +1010,18 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     _buttonFont = FontListHelper.CreateFontFromTypography(_currentTheme.ButtonFont);
                 }
             }
-            
+
             Invalidate();
         }
-        
+
         #endregion
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                _tabs.ListChanged -= Tabs_ListChanged;
+                _buttons.ListChanged -= Buttons_ListChanged;
                 _tabFont?.Dispose();
                 _buttonFont?.Dispose();
                 if (_underlineTimer != null)
@@ -960,6 +1032,20 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 }
             }
             base.Dispose(disposing);
+        }
+    }
+
+    public class SelectedTabChangedEventArgs : EventArgs
+    {
+        public SimpleItem OldTab { get; }
+        public SimpleItem NewTab { get; }
+        public int NewTabIndex { get; }
+
+        public SelectedTabChangedEventArgs(SimpleItem oldTab, SimpleItem newTab, int newTabIndex)
+        {
+            OldTab = oldTab;
+            NewTab = newTab;
+            NewTabIndex = newTabIndex;
         }
     }
 }

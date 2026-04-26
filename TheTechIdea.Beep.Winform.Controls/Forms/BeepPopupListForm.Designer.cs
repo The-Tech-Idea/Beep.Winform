@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -143,9 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.LeadingImagePath = "";
             _beepListBox.LeftoffsetForDrawingRect = 0;
             _beepListBox.LinkedProperty = null;
-            _beepListBox.Location = new Point(1, 1);
-            _beepListBox.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
-            
+            _beepListBox.Location = new Point(1, 1);            
             _beepListBox.MaxHitListDrawPerFrame = 0;
             _beepListBox.MenuItemHeight = 20;
             _beepListBox.MinimumSize = new Size(136, 56);

@@ -722,30 +722,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!_panels.ContainsKey(documentId)) return false;
             if (_groups.Count >= _maxGroups) return false;
 
-            // Push undo state before structural change
             PushUndoState();
             if (_trackLayoutHistory) PushLayoutVersion($"Before split ({(horizontal ? "H" : "V")})");
 
-            // Create a fresh secondary group
             var grp = new BeepDocumentGroup(
                 Guid.NewGuid().ToString(),
                 ThemeName,
                 _showAddButton,
                 _closeMode,
                 _tabStyle,
-                _currentTheme);
+                _currentTheme)
+            {
+                TabPosition = _tabPosition
+            };
 
-            // Register the group's new controls with this host
             Controls.Add(grp.ContentArea);
             Controls.Add(grp.TabStrip);
 
-            // Wire events from this group back to the host's handlers
             WireSecondaryGroup(grp);
 
             _groups.Add(grp);
+            _groupById[grp.GroupId] = grp;
             _splitHorizontal = horizontal;
 
-            // Move the document into the new group
             MoveDocumentToGroup(documentId, grp.GroupId);
 
             RecalculateLayout();
@@ -789,7 +788,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             targetGroup.DocumentIds.Add(documentId);
             _docGroupMap[documentId] = targetGroupId;
 
-            panel.ModifiedChanged -= null; // avoid duplicate wiring
             panel.ModifiedChanged += (s, _) =>
                 targetGroup.TabStrip.SetTabModified(documentId, panel.IsModified);
 

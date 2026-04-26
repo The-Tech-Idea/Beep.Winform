@@ -100,53 +100,32 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     /// </summary>
     public class WebHeaderTab
     {
-        /// <summary>Gets or sets the tab text</summary>
+        private static int _nextId = 1;
+        private static int NextId => System.Threading.Interlocked.Increment(ref _nextId);
+
         public string Text { get; set; } = "";
-
-        /// <summary>Gets or sets the optional icon image path (SVG embedded resource path)</summary>
         public string ImagePath { get; set; } = "";
-
-        /// <summary>Gets or sets the tooltip text shown on hover</summary>
         public string Tooltip { get; set; } = "";
-
-        /// <summary>Gets or sets the unique tab identifier</summary>
         public int Id { get; set; } = -1;
-
-        /// <summary>Gets or sets whether this tab is currently active/selected</summary>
         public bool IsActive { get; set; } = false;
-
-        /// <summary>Gets or sets whether this tab is currently hovered</summary>
         public bool IsHovered { get; set; } = false;
-
-        /// <summary>Gets or sets the calculated rectangle for this tab (set at draw time)</summary>
         public Rectangle Bounds { get; set; } = Rectangle.Empty;
-
-        /// <summary>Gets or sets custom data associated with this tab</summary>
         public object? Tag { get; set; }
-
-        /// <summary>Gets or sets whether this tab has child items (dropdown)</summary>
         public bool HasChildren { get; set; } = false;
 
-        /// <summary>
-        /// Creates a new WebHeaderTab with the specified text
-        /// </summary>
         public WebHeaderTab(string text, int id = -1)
         {
             Text = text;
-            Id = id >= 0 ? id : new Random().Next();
+            Id = id >= 0 ? id : NextId;
         }
 
-        /// <summary>
-        /// Creates a new WebHeaderTab with text and icon
-        /// </summary>
         public WebHeaderTab(string text, string imagePath, int id = -1)
         {
             Text = text;
             ImagePath = imagePath;
-            Id = id >= 0 ? id : new Random().Next();
+            Id = id >= 0 ? id : NextId;
         }
 
-        /// <summary>Returns the tab text</summary>
         public override string ToString() => Text;
     }
 
@@ -155,55 +134,34 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     /// </summary>
     public class WebHeaderActionButton
     {
-        /// <summary>Gets or sets the button text</summary>
+        private static int _nextId = 1;
+        private static int NextId => System.Threading.Interlocked.Increment(ref _nextId);
+
         public string Text { get; set; } = "";
-
-        /// <summary>Gets or sets the button icon image path (SVG embedded resource path)</summary>
         public string ImagePath { get; set; } = "";
-
-        /// <summary>Gets or sets the preferred button width in pixels</summary>
         public int Width { get; set; } = 100;
-
-        /// <summary>Gets or sets the button style (Outline, Solid, Minimal, Ghost)</summary>
         public WebHeaderButtonStyle Style { get; set; } = WebHeaderButtonStyle.Outline;
-
-        /// <summary>Gets or sets the calculated rectangle for this button (set at draw time)</summary>
         public Rectangle Bounds { get; set; } = Rectangle.Empty;
-
-        /// <summary>Gets or sets whether this button is currently hovered</summary>
         public bool IsHovered { get; set; } = false;
-
-        /// <summary>Gets or sets the unique button identifier</summary>
         public int Id { get; set; } = -1;
-
-        /// <summary>Gets or sets custom data associated with this button</summary>
         public object? Tag { get; set; }
-
-        /// <summary>Gets or sets the badge count for notification icons (0 = no badge)</summary>
         public int BadgeCount { get; set; } = 0;
 
-        /// <summary>
-        /// Creates a new WebHeaderActionButton
-        /// </summary>
         public WebHeaderActionButton(string text, WebHeaderButtonStyle style = WebHeaderButtonStyle.Outline, int id = -1)
         {
             Text = text;
             Style = style;
-            Id = id >= 0 ? id : new Random().Next();
+            Id = id >= 0 ? id : NextId;
         }
 
-        /// <summary>
-        /// Creates a new WebHeaderActionButton with icon
-        /// </summary>
         public WebHeaderActionButton(string text, string imagePath, WebHeaderButtonStyle style = WebHeaderButtonStyle.Outline, int id = -1)
         {
             Text = text;
             ImagePath = imagePath;
             Style = style;
-            Id = id >= 0 ? id : new Random().Next();
+            Id = id >= 0 ? id : NextId;
         }
 
-        /// <summary>Returns the button text</summary>
         public override string ToString() => Text;
     }
 

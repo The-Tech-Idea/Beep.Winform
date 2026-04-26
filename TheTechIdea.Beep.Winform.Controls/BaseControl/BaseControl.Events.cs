@@ -97,11 +97,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             if (Parent != null && IsChild)
             {
-                // Read-only snapshot for painting transparency — do NOT assign BackColor here
-                // to avoid triggering IComponentChangeService and designer file writes on every frame.
-                // BackColor is set once in ApplyTheme() and OnParentChanged().
-                ParentBackColor = Parent.BackColor;
-                BackColor = ParentBackColor;
+                ParentBackColor = ResolveUsableParentBackColor(Parent);
+                if (BackColor != ParentBackColor)
+                {
+                    BackColor = ParentBackColor;
+                }
             }
 
             if (IsTransparentBackground)

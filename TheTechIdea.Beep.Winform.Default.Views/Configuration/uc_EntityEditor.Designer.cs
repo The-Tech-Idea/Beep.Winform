@@ -2523,9 +2523,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.DropdownButtonWidth = 34;
             DatasourcebeepComboBox.DropdownIconPath = "dropdown_arrow";
             DatasourcebeepComboBox.Easing = EasingType.Linear;
-            DatasourcebeepComboBox.EnableHighQualityRendering = true;
-            DatasourcebeepComboBox.EnableMaterialStyle = false;
-            DatasourcebeepComboBox.EnableRippleEffect = false;
+            DatasourcebeepComboBox.EnableHighQualityRendering = true;            DatasourcebeepComboBox.EnableRippleEffect = false;
             DatasourcebeepComboBox.EnableSplashEffect = false;
             DatasourcebeepComboBox.ErrorColor = Color.FromArgb(176, 0, 32);
             DatasourcebeepComboBox.ErrorText = "";
@@ -2593,9 +2591,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.LeadingImagePath = "";
             DatasourcebeepComboBox.LeftoffsetForDrawingRect = 0;
             DatasourcebeepComboBox.LinkedProperty = null;
-            DatasourcebeepComboBox.Location = new Point(339, 33);
-            DatasourcebeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            DatasourcebeepComboBox.MaxHitListDrawPerFrame = 0;
+            DatasourcebeepComboBox.Location = new Point(339, 33);            DatasourcebeepComboBox.MaxHitListDrawPerFrame = 0;
             DatasourcebeepComboBox.ModernGradientType = ModernGradientType.None;
             DatasourcebeepComboBox.Name = "DatasourcebeepComboBox";
             DatasourcebeepComboBox.OuterShape = null;
@@ -2741,9 +2737,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.DropdownButtonWidth = 34;
             EntitiesbeepComboBox.DropdownIconPath = "dropdown_arrow";
             EntitiesbeepComboBox.Easing = EasingType.Linear;
-            EntitiesbeepComboBox.EnableHighQualityRendering = true;
-            EntitiesbeepComboBox.EnableMaterialStyle = false;
-            EntitiesbeepComboBox.EnableRippleEffect = false;
+            EntitiesbeepComboBox.EnableHighQualityRendering = true;            EntitiesbeepComboBox.EnableRippleEffect = false;
             EntitiesbeepComboBox.EnableSplashEffect = false;
             EntitiesbeepComboBox.ErrorColor = Color.FromArgb(176, 0, 32);
             EntitiesbeepComboBox.ErrorText = "";
@@ -2811,9 +2805,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.LeadingImagePath = "";
             EntitiesbeepComboBox.LeftoffsetForDrawingRect = 0;
             EntitiesbeepComboBox.LinkedProperty = null;
-            EntitiesbeepComboBox.Location = new Point(339, 85);
-            EntitiesbeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            EntitiesbeepComboBox.MaxHitListDrawPerFrame = 0;
+            EntitiesbeepComboBox.Location = new Point(339, 85);            EntitiesbeepComboBox.MaxHitListDrawPerFrame = 0;
             EntitiesbeepComboBox.ModernGradientType = ModernGradientType.None;
             EntitiesbeepComboBox.Name = "EntitiesbeepComboBox";
             EntitiesbeepComboBox.OuterShape = null;
@@ -4928,9 +4920,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntityFieldsbeepGridPro.DisabledForeColor = Color.Gray;
             EntityFieldsbeepGridPro.DrawingRect = new Rectangle(7, 7, 882, 540);
             EntityFieldsbeepGridPro.Easing = EasingType.Linear;
-            EntityFieldsbeepGridPro.EnableHighQualityRendering = true;
-            EntityFieldsbeepGridPro.EnableMaterialStyle = false;
-            EntityFieldsbeepGridPro.EnableRippleEffect = false;
+            EntityFieldsbeepGridPro.EnableHighQualityRendering = true;            EntityFieldsbeepGridPro.EnableRippleEffect = false;
             EntityFieldsbeepGridPro.EnableSplashEffect = false;
             EntityFieldsbeepGridPro.ErrorColor = Color.Empty;
             EntityFieldsbeepGridPro.ErrorText = "";
@@ -5003,9 +4993,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntityFieldsbeepGridPro.LeadingImagePath = "";
             EntityFieldsbeepGridPro.LeftoffsetForDrawingRect = 0;
             EntityFieldsbeepGridPro.LinkedProperty = null;
-            EntityFieldsbeepGridPro.Location = new Point(8, 153);
-            EntityFieldsbeepGridPro.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            EntityFieldsbeepGridPro.MaxHitListDrawPerFrame = 0;
+            EntityFieldsbeepGridPro.Location = new Point(8, 153);            EntityFieldsbeepGridPro.MaxHitListDrawPerFrame = 0;
             EntityFieldsbeepGridPro.ModernGradientType = ModernGradientType.None;
             EntityFieldsbeepGridPro.Name = "EntityFieldsbeepGridPro";
             EntityFieldsbeepGridPro.NavigationStyle = Winform.Controls.GridX.Painters.navigationStyle.Tailwind;
@@ -5112,9 +5100,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.DisabledForeColor = Color.Gray;
             ApplybeepButton.DrawingRect = new Rectangle(0, 0, 100, 36);
             ApplybeepButton.Easing = EasingType.Linear;
-            ApplybeepButton.EnableHighQualityRendering = true;
-            ApplybeepButton.EnableMaterialStyle = false;
-            ApplybeepButton.EnableRippleEffect = false;
+            ApplybeepButton.EnableHighQualityRendering = true;            ApplybeepButton.EnableRippleEffect = false;
             ApplybeepButton.EnableSplashEffect = false;
             ApplybeepButton.ErrorColor = Color.Empty;
             ApplybeepButton.ErrorText = "";
@@ -5194,9 +5180,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.LeftoffsetForDrawingRect = 0;
             ApplybeepButton.LinkedProperty = null;
             ApplybeepButton.Location = new Point(765, 711);
-            ApplybeepButton.Margin = new Padding(0);
-            ApplybeepButton.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            ApplybeepButton.MaxHitListDrawPerFrame = 0;
+            ApplybeepButton.Margin = new Padding(0);            ApplybeepButton.MaxHitListDrawPerFrame = 0;
             ApplybeepButton.MaxImageSize = new Size(32, 32);
             ApplybeepButton.ModernGradientType = ModernGradientType.None;
             ApplybeepButton.Name = "ApplybeepButton";

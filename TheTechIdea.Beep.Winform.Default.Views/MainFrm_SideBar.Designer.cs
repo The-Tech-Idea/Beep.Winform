@@ -142,9 +142,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.ListImageSize = new Size(20, 20);
             beepSideMenu1.Location = new Point(4, 48);
             beepSideMenu1.LogoImage = "";
-            beepSideMenu1.LogoSize = new Size(100, 100);
-            beepSideMenu1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepSideMenu1.MaxHitListDrawPerFrame = 0;
+            beepSideMenu1.LogoSize = new Size(100, 100);            beepSideMenu1.MaxHitListDrawPerFrame = 0;
             beepSideMenu1.ModernGradientType = ModernGradientType.None;
             beepSideMenu1.Name = "beepSideMenu1";
             beepSideMenu1.OverrideFontSize = TypeStyleFontSize.None;
@@ -235,9 +233,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Dock = DockStyle.Fill;
             beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 640, 578);
             beepDisplayContainer1.Easing = EasingType.Linear;
-            beepDisplayContainer1.EnableHighQualityRendering = true;
-            beepDisplayContainer1.EnableMaterialStyle = false;
-            beepDisplayContainer1.EnableRippleEffect = true;
+            beepDisplayContainer1.EnableHighQualityRendering = true;            beepDisplayContainer1.EnableRippleEffect = true;
             beepDisplayContainer1.EnableSplashEffect = false;
             beepDisplayContainer1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepDisplayContainer1.ErrorText = "";
@@ -303,9 +299,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.LeadingImagePath = "";
             beepDisplayContainer1.LeftoffsetForDrawingRect = 0;
             beepDisplayContainer1.LinkedProperty = null;
-            beepDisplayContainer1.Location = new Point(160, 48);
-            beepDisplayContainer1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDisplayContainer1.MaxHitListDrawPerFrame = 0;
+            beepDisplayContainer1.Location = new Point(160, 48);            beepDisplayContainer1.MaxHitListDrawPerFrame = 0;
             beepDisplayContainer1.ModernGradientType = ModernGradientType.None;
             beepDisplayContainer1.Name = "beepDisplayContainer1";
             beepDisplayContainer1.OverrideFontSize = TypeStyleFontSize.None;

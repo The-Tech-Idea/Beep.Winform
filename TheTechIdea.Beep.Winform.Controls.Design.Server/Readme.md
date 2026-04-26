@@ -9,7 +9,7 @@ Design-time extensions for Beep WinForms controls, including `BeepDocumentHost` 
 | Folder | Contents |
 |---|---|
 | `ActionLists/` | Shared smart-tag infrastructure such as `CommonBeepControlActionList`, `ImagePathDesignerActionList`, `ContainerControlActionList`, `DataControlActionList`, `DocumentHostActionList`, and `WizardConfigActionList` |
-| `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `ThemePickerDialog` |
+| `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `ThemePickerDialog`, **`GroupTabPositionDialog`**, **`LayoutTreeDialog`** |
 | `Editors/` | `DocumentDescriptorCollectionEditor`, `DesignTimeDocumentsEditor`, `IconPickerDialog`, `IntegratedFormsDefinitionEditors` |
 | `Helpers/` | Internal utilities used by designers |
 
@@ -82,11 +82,17 @@ Wizard / editor support:
 ### `BeepDocumentHostDesigner` (Designers/)
 Extends `ParentControlDesigner`. Provides:
 - Locked child controls (tab strip, content panel cannot be moved/deleted)
-- 7 designer verbs (Add, Close, Split H/V, Merge, Edit Docs, Apply Preset)
+- 9 designer verbs (Add, Close, Split H/V, Merge, Edit Docs, Apply Preset, **Set Group Tab Position**, **View Layout Tree**)
 - `OnPaintAdornments` — empty-state hint + **Sprint 17 docking compass** during drag
 - `SnapLines` — content area edges for sibling alignment
 - `PreFilterProperties` / `PreFilterEvents` — hides irrelevant base properties/events
 - `DoDefaultAction` — double-click adds a document
+
+#### Sprint 19 — Nested Split Design-Time Support
+- `GroupTabPositionDialog` — per-group tab strip position editor for asymmetric nested layouts
+- `LayoutTreeDialog` — read-only tree viewer showing the current `ILayoutNode` structure
+- Smart-tag **Nested Splits** group with `GroupTabPositions` (editable) and `LayoutTreeInfo` (read-only)
+- 3 new layout presets: **Three-Way Nested**, **Three Column**, **Five-Way**
 
 #### Sprint 17.1 — Docking Guide Adorner
 When a control is dragged onto the host, `OnPaintAdornments` draws a 5-point compass:
@@ -103,10 +109,11 @@ The split is wrapped in a `DesignerTransaction` for full undo/redo support.
 ---
 
 ### `DocumentHostActionList` (ActionLists/)
-`DesignerActionList` with 11 groups:
+`DesignerActionList` with 13 groups:
 - **Documents** — Add, Close, Close All, Reopen, Quick Switch, Float, Pin/Unpin
 - **Design-Time** — Edit Design-Time Documents…
-- **Split View** — Split H/V, Merge, Apply Layout Preset…, MaxGroups, SplitRatio
+- **Split View** — Split H/V, Merge, Apply Layout Preset…, MaxGroups, SplitHorizontal, SplitRatio
+- **Nested Splits** — GroupTabPositions (editable), LayoutTreeInfo (read-only tree view)
 - **Tabs** — TabStyle, TabPosition, CloseMode, ShowAddButton, TabColorMode
 - **Tab Sizing** — TabSizeMode, FixedTabWidth
 - **Interaction** — TabTooltipMode, AllowDragFloat
@@ -114,6 +121,7 @@ The split is wrapped in a `DesignerTransaction` for full undo/redo support.
 - **Appearance** — ControlStyle, Theme, **Choose Theme… (Sprint 17.4)**
 - **Preview** — TabPreviewEnabled
 - **History** — MaxRecent/MaxClosed
+- **Cross-Host Drag** — AllowDragBetweenHosts
 - **Session** — AutoSaveLayout, SessionFile
 
 ---
@@ -146,8 +154,8 @@ Visual theme picker with:
 
 ---
 
-### `LayoutPresetPickerDialog` (Designers/) — Sprint 12/17.3
-5 visual preset tiles:
+### `LayoutPresetPickerDialog` (Designers/) — Sprint 12/17.3/19
+8 visual preset tiles:
 
 | Preset | Description |
 |---|---|
@@ -155,7 +163,10 @@ Visual theme picker with:
 | Side-by-Side | Two groups, horizontal split |
 | Stacked | Two groups, vertical split |
 | Three-Way | Three groups in L-pattern |
+| **Three-Way Nested** | **Three groups: left | right (nested top/bottom)** |
 | Four-Up | Four groups in 2×2 grid |
+| **Three Column** | **Three equal columns** |
+| **Five-Way** | **Five groups: left | 2×2 right grid** |
 
 ---
 
@@ -169,7 +180,8 @@ Visual theme picker with:
 | 14 | Fluent tab style |
 | 15–16 | Status bar, MVVM, command service, options |
 | **17** | **Docking guide compass (OnPaintAdornments), `DocumentDescriptorCollectionEditor` v2 (grid+icon+color+reorder+preview), `ThemePickerDialog`, "Choose Theme…" smart-tag action** |
+| **19** | **Nested split design-time: `GroupTabPositionDialog`, `LayoutTreeDialog`, 3 new presets, Nested Splits smart-tag group, 2 new designer verbs** |
 
 ---
 
-*Last updated: Sprint 17*
+*Last updated: Sprint 19*

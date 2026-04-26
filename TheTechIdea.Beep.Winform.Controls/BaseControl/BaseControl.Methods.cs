@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                System.Diagnostics.Debug.WriteLine($"BaseControl.ApplyTheme error: {ex.Message}");
             }
         }
 

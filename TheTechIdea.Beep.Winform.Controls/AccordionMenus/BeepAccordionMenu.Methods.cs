@@ -24,7 +24,38 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         private void Items_ListChanged(object sender, ListChangedEventArgs e)
         {
             InitializeMenuItemState();
+            if (AutoFitHeight)
+            {
+                AdjustHeightToFit();
+            }
             Invalidate();
+        }
+
+        private int CalculateRequiredHeight()
+        {
+            int totalHeight = headerHeight;
+            foreach (var item in items)
+            {
+                totalHeight += itemHeight + spacing;
+                if (expandedState.ContainsKey(item) && expandedState[item] && !isCollapsed)
+                {
+                    foreach (var child in item.Children)
+                    {
+                        totalHeight += childItemHeight + spacing;
+                    }
+                }
+            }
+            return totalHeight + Padding.Bottom;
+        }
+
+        private void AdjustHeightToFit()
+        {
+            if (!AutoFitHeight) return;
+            int requiredHeight = CalculateRequiredHeight();
+            if (Height != requiredHeight)
+            {
+                Height = requiredHeight;
+            }
         }
 
         private void InitializeMenu()
@@ -38,16 +69,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
 
         private void InitializeMenuItemState()
         {
-            // Initialize expanded state for accordion headers
             foreach (var item in items)
             {
-                // If it's not in the dictionary, add it (default to collapsed)
                 if (!expandedState.ContainsKey(item))
                 {
                     expandedState[item] = false;
                 }
 
-                // Also initialize any child items that have their own children
                 foreach (var childItem in item.Children)
                 {
                     if (childItem.Children.Count > 0 && !expandedState.ContainsKey((SimpleItem)childItem))
@@ -56,6 +84,21 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
                     }
                 }
             }
+        }
+
+        public bool IsItemExpanded(SimpleItem item)
+        {
+            return expandedState.ContainsKey(item) && expandedState[item];
+        }
+
+        public void SetItemExpanded(SimpleItem item, bool expanded)
+        {
+            if (!expandedState.ContainsKey(item))
+                expandedState[item] = false;
+
+            expandedState[item] = expanded;
+            HeaderExpandedChanged?.Invoke(this, new BeepMouseEventArgs(item.Text, item));
+            Invalidate();
         }
 
         private void StartAccordionAnimation()

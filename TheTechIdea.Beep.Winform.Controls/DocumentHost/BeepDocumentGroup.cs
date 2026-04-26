@@ -69,6 +69,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Bounds (relative to the host) assigned by <see cref="BeepDocumentHost.RecalculateLayout"/>.</summary>
         internal Rectangle GroupBounds { get; set; }
 
+        /// <summary>
+        /// Per-group tab strip position.  Defaults to the host's global <c>TabPosition</c>
+        /// but can be overridden per group (e.g. left group tabs on top, right group tabs on bottom).
+        /// </summary>
+        internal TabStripPosition TabPosition { get; set; } = TabStripPosition.Top;
+
         // ─────────────────────────────────────────────────────────────────────
         // Events forwarded to BeepDocumentHost
         // ─────────────────────────────────────────────────────────────────────
@@ -152,14 +158,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>
         /// Positions the tab strip and content area within <see cref="GroupBounds"/>
-        /// according to the given <paramref name="tabPosition"/>.
+        /// according to this group's <see cref="TabPosition"/>.
         /// </summary>
-        internal void ApplyBounds(TabStripPosition tabPosition, int stripH)
+        internal void ApplyBounds(int stripH)
         {
             var b = GroupBounds;
             if (b.Width <= 0 || b.Height <= 0) return;
 
-            switch (tabPosition)
+            var tabPos = TabPosition;
+            switch (tabPos)
             {
                 case TabStripPosition.Top:
                     TabStrip.IsVertical = false;

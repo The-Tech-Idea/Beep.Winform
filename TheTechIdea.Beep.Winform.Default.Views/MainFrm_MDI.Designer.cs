@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class MainFrm_MDI
     {
@@ -281,9 +281,7 @@
             beepAdvancedButton1.DisabledForeColor = Color.Gray;
             beepAdvancedButton1.DrawingRect = new Rectangle(14, 14, 87, 55);
             beepAdvancedButton1.Easing = EasingType.Linear;
-            beepAdvancedButton1.EnableHighQualityRendering = true;
-            beepAdvancedButton1.EnableMaterialStyle = false;
-            beepAdvancedButton1.EnableRippleEffect = false;
+            beepAdvancedButton1.EnableHighQualityRendering = true;            beepAdvancedButton1.EnableRippleEffect = false;
             beepAdvancedButton1.EnableSplashEffect = true;
             beepAdvancedButton1.ErrorColor = Color.Empty;
             beepAdvancedButton1.ErrorText = "";
@@ -356,9 +354,7 @@
             beepAdvancedButton1.LeftoffsetForDrawingRect = 0;
             beepAdvancedButton1.LinkedProperty = null;
             beepAdvancedButton1.Location = new Point(505, 141);
-            beepAdvancedButton1.LowerThirdVariant = Winform.Controls.Buttons.BeepAdvancedButton.Enums.LowerThirdVariant.LiveTagHeadline;
-            beepAdvancedButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepAdvancedButton1.MaxHitListDrawPerFrame = 0;
+            beepAdvancedButton1.LowerThirdVariant = Winform.Controls.Buttons.BeepAdvancedButton.Enums.LowerThirdVariant.LiveTagHeadline;            beepAdvancedButton1.MaxHitListDrawPerFrame = 0;
             beepAdvancedButton1.MinimumSize = new Size(80, 32);
             beepAdvancedButton1.ModernGradientType = ModernGradientType.None;
             beepAdvancedButton1.Name = "beepAdvancedButton1";
@@ -483,9 +479,7 @@
             beepTextBox1.DisabledForeColor = Color.Gray;
             beepTextBox1.DrawingRect = new Rectangle(28, 28, 167, 11);
             beepTextBox1.Easing = EasingType.Linear;
-            beepTextBox1.EnableHighQualityRendering = true;
-            beepTextBox1.EnableMaterialStyle = false;
-            beepTextBox1.EnableRippleEffect = false;
+            beepTextBox1.EnableHighQualityRendering = true;            beepTextBox1.EnableRippleEffect = false;
             beepTextBox1.EnableSplashEffect = false;
             beepTextBox1.ErrorColor = Color.Empty;
             beepTextBox1.ErrorText = "";
@@ -562,9 +556,7 @@
             beepTextBox1.LineNumberFont = new Font("Segoe UI", 8F);
             beepTextBox1.LineNumberForeColor = Color.Gray;
             beepTextBox1.LinkedProperty = null;
-            beepTextBox1.Location = new Point(493, 158);
-            beepTextBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepTextBox1.MaxHitListDrawPerFrame = 0;
+            beepTextBox1.Location = new Point(493, 158);            beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
             beepTextBox1.MinimumSize = new Size(0, 21);
             beepTextBox1.ModernGradientType = ModernGradientType.None;
@@ -683,9 +675,7 @@
             beepStepperBar1.DisabledForeColor = Color.Gray;
             beepStepperBar1.DrawingRect = new Rectangle(0, 0, 146, 44);
             beepStepperBar1.Easing = EasingType.Linear;
-            beepStepperBar1.EnableHighQualityRendering = true;
-            beepStepperBar1.EnableMaterialStyle = false;
-            beepStepperBar1.EnableRippleEffect = false;
+            beepStepperBar1.EnableHighQualityRendering = true;            beepStepperBar1.EnableRippleEffect = false;
             beepStepperBar1.EnableSplashEffect = false;
             beepStepperBar1.ErrorColor = Color.Empty;
             beepStepperBar1.ErrorText = "";
@@ -755,9 +745,7 @@
             beepStepperBar1.LeftoffsetForDrawingRect = 0;
             beepStepperBar1.LinkedProperty = null;
             beepStepperBar1.ListItems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepStepperBar1.ListItems");
-            beepStepperBar1.Location = new Point(123, 263);
-            beepStepperBar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepStepperBar1.MaxHitListDrawPerFrame = 0;
+            beepStepperBar1.Location = new Point(123, 263);            beepStepperBar1.MaxHitListDrawPerFrame = 0;
             beepStepperBar1.MinimumSize = new Size(44, 44);
             beepStepperBar1.ModernGradientType = ModernGradientType.None;
             beepStepperBar1.Name = "beepStepperBar1";
@@ -3066,9 +3054,7 @@
             beepComboBox1.DropdownButtonWidth = 34;
             beepComboBox1.DropdownIconPath = "dropdown_arrow";
             beepComboBox1.Easing = EasingType.Linear;
-            beepComboBox1.EnableHighQualityRendering = true;
-            beepComboBox1.EnableMaterialStyle = false;
-            beepComboBox1.EnableRippleEffect = false;
+            beepComboBox1.EnableHighQualityRendering = true;            beepComboBox1.EnableRippleEffect = false;
             beepComboBox1.EnableSplashEffect = false;
             beepComboBox1.ErrorColor = Color.Empty;
             beepComboBox1.ErrorText = "";
@@ -3136,9 +3122,7 @@
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(256, 252);
-            beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepComboBox1.MaxHitListDrawPerFrame = 0;
+            beepComboBox1.Location = new Point(256, 252);            beepComboBox1.MaxHitListDrawPerFrame = 0;
             beepComboBox1.ModernGradientType = ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OuterShape = null;
@@ -3244,9 +3228,7 @@
             beepButton1.DisabledForeColor = Color.FromArgb(50, 50, 60);
             beepButton1.DrawingRect = new Rectangle(32, 32, 138, 11);
             beepButton1.Easing = EasingType.Linear;
-            beepButton1.EnableHighQualityRendering = true;
-            beepButton1.EnableMaterialStyle = false;
-            beepButton1.EnableRippleEffect = false;
+            beepButton1.EnableHighQualityRendering = true;            beepButton1.EnableRippleEffect = false;
             beepButton1.EnableSplashEffect = false;
             beepButton1.ErrorColor = Color.Empty;
             beepButton1.ErrorText = "";
@@ -3326,9 +3308,7 @@
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
             beepButton1.Location = new Point(137, 158);
-            beepButton1.Margin = new Padding(0);
-            beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepButton1.MaxHitListDrawPerFrame = 0;
+            beepButton1.Margin = new Padding(0);            beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 32);
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
@@ -3435,9 +3415,7 @@
             beepButton2.DisabledForeColor = Color.FromArgb(216, 222, 233);
             beepButton2.DrawingRect = new Rectangle(20, 20, 72, 8);
             beepButton2.Easing = EasingType.Linear;
-            beepButton2.EnableHighQualityRendering = true;
-            beepButton2.EnableMaterialStyle = false;
-            beepButton2.EnableRippleEffect = false;
+            beepButton2.EnableHighQualityRendering = true;            beepButton2.EnableRippleEffect = false;
             beepButton2.EnableSplashEffect = false;
             beepButton2.ErrorColor = Color.Empty;
             beepButton2.ErrorText = "";
@@ -3517,9 +3495,7 @@
             beepButton2.LeftoffsetForDrawingRect = 0;
             beepButton2.LinkedProperty = null;
             beepButton2.Location = new Point(83, 132);
-            beepButton2.Margin = new Padding(0);
-            beepButton2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepButton2.MaxHitListDrawPerFrame = 0;
+            beepButton2.Margin = new Padding(0);            beepButton2.MaxHitListDrawPerFrame = 0;
             beepButton2.MaxImageSize = new Size(32, 32);
             beepButton2.ModernGradientType = ModernGradientType.None;
             beepButton2.Name = "beepButton2";
@@ -3631,9 +3607,7 @@
             beepDatePicker1.DisabledForeColor = Color.Gray;
             beepDatePicker1.DrawingRect = new Rectangle(0, 0, 203, 26);
             beepDatePicker1.Easing = EasingType.Linear;
-            beepDatePicker1.EnableHighQualityRendering = true;
-            beepDatePicker1.EnableMaterialStyle = false;
-            beepDatePicker1.EnableRippleEffect = false;
+            beepDatePicker1.EnableHighQualityRendering = true;            beepDatePicker1.EnableRippleEffect = false;
             beepDatePicker1.EnableSplashEffect = false;
             beepDatePicker1.ErrorColor = Color.Empty;
             beepDatePicker1.ErrorText = "";
@@ -3704,9 +3678,7 @@
             beepDatePicker1.LeadingImagePath = "";
             beepDatePicker1.LeftoffsetForDrawingRect = 0;
             beepDatePicker1.LinkedProperty = null;
-            beepDatePicker1.Location = new Point(126, 213);
-            beepDatePicker1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDatePicker1.MaxDate = null;
+            beepDatePicker1.Location = new Point(126, 213);            beepDatePicker1.MaxDate = null;
             beepDatePicker1.MaxHitListDrawPerFrame = 0;
             beepDatePicker1.MinDate = null;
             beepDatePicker1.MinimumSize = new Size(141, 26);
@@ -3812,9 +3784,7 @@
             beepLabel1.DisabledForeColor = Color.Gray;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 84, 24);
             beepLabel1.Easing = EasingType.Linear;
-            beepLabel1.EnableHighQualityRendering = true;
-            beepLabel1.EnableMaterialStyle = false;
-            beepLabel1.EnableRippleEffect = false;
+            beepLabel1.EnableHighQualityRendering = true;            beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.Empty;
             beepLabel1.ErrorText = "";
@@ -3888,9 +3858,7 @@
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
             beepLabel1.Location = new Point(108, 328);
-            beepLabel1.Margin = new Padding(0);
-            beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepLabel1.MaxHitListDrawPerFrame = 0;
+            beepLabel1.Margin = new Padding(0);            beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
             beepLabel1.MinimumSize = new Size(86, 26);
             beepLabel1.ModernGradientType = ModernGradientType.None;

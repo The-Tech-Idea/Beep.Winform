@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
@@ -16,7 +17,7 @@ using TheTechIdea.Beep.Winform.Controls.Themes;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
-    public partial class BeepDocumentHost : BaseControl
+    public partial class BeepDocumentHost
     {
         private readonly BeepDocumentTabStrip _tabStrip;
         private readonly Panel _contentArea;
@@ -30,7 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private string? _activeDocumentId;
         private BeepDocumentDockOverlay? _dockOverlay;
 
+        // ── Layout tree (nested splits) ──────────────────────────────────────
+        // The layout tree is the source of truth for runtime layout.
+        // _groups is kept as a flat index for backward compatibility and quick lookups.
+        private ILayoutNode _layoutRoot = null!;
         private readonly List<BeepDocumentGroup> _groups = new List<BeepDocumentGroup>();
+        private readonly Dictionary<string, BeepDocumentGroup> _groupById
+            = new Dictionary<string, BeepDocumentGroup>(StringComparer.Ordinal);
+
         private BeepDocumentGroup _primaryGroup = null!;
         private BeepDocumentGroup _activeGroup = null!;
         private int _maxGroups = 4;
@@ -39,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private BeepDocumentSplitterBar? _splitterBar;
         private readonly Dictionary<string, string> _docGroupMap
             = new Dictionary<string, string>(StringComparer.Ordinal);
+        private readonly List<BeepDocumentSplitterBar> _extraSplitters = new();
 
         private bool _batchAdding;
         private bool _layoutSuspended;
@@ -100,10 +109,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _contentArea.Resize += (s, ea) => SyncPanelBounds();
             _contentArea.Paint += OnContentAreaPaint;
 
+            // Initialize layout tree with a single root group
             _primaryGroup = new BeepDocumentGroup(
                 System.Guid.NewGuid().ToString(), _tabStrip, _contentArea);
             _groups.Add(_primaryGroup);
+            _groupById[_primaryGroup.GroupId] = _primaryGroup;
             _activeGroup = _primaryGroup;
+
+            _layoutRoot = new GroupLayoutNode(_primaryGroup.GroupId);
         }
 
         protected override bool IsContainerControl => true;

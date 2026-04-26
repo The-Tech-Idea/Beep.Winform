@@ -35,6 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         private bool isAnimating = false;
         private SimpleItem _hoveredItem;
         private SimpleItem _selectedItem;
+        private SimpleItem _focusedItem;
         private int headerHeight = 40;
         private int spacing = 1;
         private Rectangle _toggleButtonRect;
@@ -58,6 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             DoubleBuffered = true;
             TabStop = true;
             Padding = new Padding(5);
+            AllowDrop = true;
 
             // Configure BaseControl properties
             IsChild = false;
@@ -133,6 +135,22 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             }
         }
 
+        [Category("Behavior")]
+        [Description("Auto-adjust height to fit all items")]
+        public bool AutoFitHeight { get; set; } = false;
+
+        [Category("Behavior")]
+        [Description("Enable vertical scrolling when items exceed height")]
+        public bool AutoScrollEnabled { get; set; } = true;
+
+        [Category("Behavior")]
+        [Description("Enable drag and drop reordering of items")]
+        public bool AllowItemDragDrop { get; set; } = true;
+
+        [Category("Behavior")]
+        [Description("Enable icons for items that have ImagePath set")]
+        public bool HasItemIcons { get; set; } = true;
+
         [Category("Appearance")]
         [Description("Accordion visual style")]
         public AccordionStyle AccordionStyle
@@ -205,6 +223,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         public event EventHandler<BeepMouseEventArgs> ItemClick;
         public event EventHandler<BeepMouseEventArgs> ToggleClicked;
         public event EventHandler<BeepMouseEventArgs> HeaderExpandedChanged;
+        public event EventHandler<AccordionItemIconEventArgs> ItemIconNeeded;
+        #endregion
+
+        public virtual void OnItemIconNeeded(SimpleItem item, AccordionItemIconEventArgs e)
+        {
+            ItemIconNeeded?.Invoke(this, e);
+        }
         #endregion
     }
 }

@@ -1,7 +1,7 @@
 // BeepDocumentHost.Layout.cs
 // Layout calculation for BeepDocumentHost — positions the tab strip and content area,
 // and keeps all visible document panels sized to fill the content area.
-// Supports single-group (original) and multi-group split-view (feature 2.1).
+// Supports single-group (original) and multi-group nested split-view via ILayoutNode tree.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Collections.Generic;
@@ -23,15 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if (!IsHandleCreated) return;  // safe — no layout before handle
+            if (!IsHandleCreated) return;
             RecalculateLayout();
         }
 
         protected override void OnLayout(LayoutEventArgs levent)
         {
             base.OnLayout(levent);
-            if (!IsHandleCreated) return;  // safe — no layout before handle
-            if (_inLayoutRecalc) return;   // 5.3: already inside RecalculateLayout
+            if (!IsHandleCreated) return;
+            if (_inLayoutRecalc) return;
             RecalculateLayout();
             SyncPanelBounds();
         }
@@ -40,11 +40,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Splitter mouse handling
         // ─────────────────────────────────────────────────────────────────────
 
-        private const int SplitterThickness = 5;
         private bool _draggingSplitter;
         private int  _splitterDragStart;
         private float _splitRatioAtDragStart;
-        private readonly List<BeepDocumentSplitterBar> _extraSplitters = new();
+        private SplitLayoutNode? _draggedSplitNode;
 
         private void EnsureSplitterBar()
         {
@@ -67,6 +66,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 ? _splitterBar!.Left + e.X
                 : _splitterBar!.Top  + e.Y;
             _splitRatioAtDragStart = _splitRatio;
+
+            // Find the split node associated with this splitter
+            if (_layoutRoot is SplitLayoutNode rootSplit)
+                _draggedSplitNode = rootSplit;
         }
 
         private void Splitter_MouseMove(object? sender, MouseEventArgs e)
@@ -76,29 +79,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 ? (_splitterBar!.Left + e.X)
                 : (_splitterBar!.Top  + e.Y);
             int total = _splitHorizontal ? ClientSize.Width : ClientSize.Height;
-            if (total <= SplitterThickness * 2) return;
-            _splitRatio = Math.Max(0.1f,
-                          Math.Min(0.9f, (float)pos / total));
+            int thickness = DocTokens.SplitterBarThickness;
+            if (total <= thickness * 2) return;
+
+            float newRatio = Math.Max(0.1f,
+                           Math.Min(0.9f, (float)pos / total));
+
+            // Update the ratio on the dragged split node
+            if (_draggedSplitNode != null)
+                _draggedSplitNode.Ratio = newRatio;
+            else
+                _splitRatio = newRatio;
+
             RecalculateLayout();
         }
 
         private void Splitter_MouseUp(object? sender, MouseEventArgs e)
-            => _draggingSplitter = false;
+        {
+            _draggingSplitter = false;
+            _draggedSplitNode = null;
+        }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Layout engine
+        // Layout engine — tree-based
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Positions the tab strip(s) and content area(s) according to <see cref="TabPosition"/>
-        /// and the active group split.
+        /// Positions the tab strip(s) and content area(s) according to the
+        /// <see cref="_layoutRoot"/> tree.  Falls back to flat layout when the
+        /// tree is a single leaf.
         /// </summary>
         public void RecalculateLayout()
         {
-            // Performance guard: skip while a batch add is in progress
             if (_layoutSuspended) return;
-            // 5.3: Prevent re-entrant layout pass (ResumeLayout(true) may re-trigger OnLayout
-            //      synchronously, causing an identical second pass with no work to do).
             if (_inLayoutRecalc) return;
             if (_tabStrip == null || _contentArea == null) return;
 
@@ -106,12 +119,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             SuspendLayout();
             try
             {
-                if (_groups.Count <= 1)
-                    RecalculateSingleGroupLayout();
-                else
-                    RecalculateMultiGroupLayout();
+                // Sync the tree with the current group topology
+                SyncLayoutTree();
 
-                // Position auto-hide strips along content area edges (3.3)
+                _layoutRoot.Bounds = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+
+                if (_layoutRoot is SplitLayoutNode rootSplit)
+                    ApplyTreeLayout(rootSplit);
+                else
+                    ApplySingleGroupLayout();
+
                 PositionAutoHideStrips();
             }
             finally
@@ -122,122 +139,96 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Single-group layout (original behaviour)
+        // Tree sync — builds/updates the layout tree from the flat group list
         // ─────────────────────────────────────────────────────────────────────
 
-        private void RecalculateSingleGroupLayout()
+        /// <summary>
+        /// Synchronises <see cref="_layoutRoot"/> with the current <see cref="_groups"/> list.
+        /// When there is only one group, the root is a <see cref="GroupLayoutNode"/>.
+        /// When there are multiple groups, the root is a <see cref="SplitLayoutNode"/>
+        /// with the primary group on the left/top and a nested subtree for the rest.
+        /// </summary>
+        private void SyncLayoutTree()
         {
-            // Hide all splitter bars when in single-group mode
-            if (_splitterBar != null) _splitterBar.Visible = false;
-            foreach (var b in _extraSplitters) b.Visible = false;
-
-            int stripH = AhS(LogicalStripH);
-            int w = ClientSize.Width;
-            int h = ClientSize.Height;
-
-            switch (_tabPosition)
+            if (_groups.Count <= 1)
             {
-                case TabStripPosition.Top:
-                {
-                    int bcH = _showBreadcrumb && _breadcrumb != null ? _breadcrumb.Height : 0;
-                    _tabStrip.IsVertical = false;
-                    _tabStrip.SetBounds(0, 0, w, stripH);
-                    if (_showBreadcrumb && _breadcrumb != null)
-                    {
-                        _breadcrumb.SetBounds(0, stripH, w, _breadcrumb.Height);
-                        _breadcrumb.Visible = true;
-                    }
-                    _contentArea.SetBounds(0, stripH + bcH, w, Math.Max(0, h - stripH - bcH));
-                    _tabStrip.Visible = true;
-                    break;
-                }
-
-                case TabStripPosition.Bottom:
-                    _tabStrip.IsVertical = false;
-                    _contentArea.SetBounds(0, 0, w, Math.Max(0, h - stripH));
-                    _tabStrip.SetBounds(0, h - stripH, w, stripH);
-                    _tabStrip.Visible = true;
-                    if (_breadcrumb != null) _breadcrumb.Visible = false;
-                    break;
-
-                case TabStripPosition.Left:
-                    _tabStrip.IsVertical = true;
-                    _tabStrip.SetBounds(0, 0, stripH, h);
-                    _contentArea.SetBounds(stripH, 0, Math.Max(0, w - stripH), h);
-                    _tabStrip.Visible = true;
-                    if (_breadcrumb != null) _breadcrumb.Visible = false;
-                    break;
-
-                case TabStripPosition.Right:
-                    _tabStrip.IsVertical = true;
-                    _contentArea.SetBounds(0, 0, Math.Max(0, w - stripH), h);
-                    _tabStrip.SetBounds(w - stripH, 0, stripH, h);
-                    _tabStrip.Visible = true;
-                    if (_breadcrumb != null) _breadcrumb.Visible = false;
-                    break;
-
-                case TabStripPosition.Hidden:
-                    _tabStrip.IsVertical = false;
-                    _tabStrip.Visible = false;
-                    _contentArea.SetBounds(0, 0, w, h);
-                    if (_breadcrumb != null) _breadcrumb.Visible = false;
-                    break;
+                _layoutRoot = new GroupLayoutNode(_primaryGroup.GroupId);
+                return;
             }
 
-            _primaryGroup.GroupBounds = new Rectangle(0, 0, w, h);
-            _tabStrip.CalculateTabLayout();
+            // Build a left-leaning binary tree from the group list:
+            //   Split(Primary, Split(Group2, Split(Group3, Group4)))
+            // This preserves the flat ordering while enabling nested layout.
+            ILayoutNode BuildSubtree(int startIdx)
+            {
+                if (startIdx >= _groups.Count)
+                    throw new InvalidOperationException("Not enough groups to build layout tree.");
+
+                if (startIdx == _groups.Count - 1)
+                {
+                    var leaf = new GroupLayoutNode(_groups[startIdx].GroupId);
+                    return leaf;
+                }
+
+                // If exactly 2 groups remain, create a simple split
+                if (startIdx == _groups.Count - 2)
+                {
+                    var left  = new GroupLayoutNode(_groups[startIdx].GroupId);
+                    var right = new GroupLayoutNode(_groups[startIdx + 1].GroupId);
+                    return new SplitLayoutNode(left, right,
+                        _splitHorizontal ? Orientation.Horizontal : Orientation.Vertical,
+                        _splitRatio);
+                }
+
+                // Otherwise: Split(current, BuildSubtree(startIdx + 1))
+                var current = new GroupLayoutNode(_groups[startIdx].GroupId);
+                var rest    = BuildSubtree(startIdx + 1);
+                return new SplitLayoutNode(current, rest,
+                    _splitHorizontal ? Orientation.Horizontal : Orientation.Vertical,
+                    _splitRatio);
+            }
+
+            _layoutRoot = BuildSubtree(0);
         }
 
         // ─────────────────────────────────────────────────────────────────────
-        // Multi-group layout (feature 2.1)
+        // Tree layout application
         // ─────────────────────────────────────────────────────────────────────
 
-        private const int LogicalStripH   = 36;
-        private const int LogicalSplitterH = SplitterThickness;
-
-        private void RecalculateMultiGroupLayout()
+        private void ApplyTreeLayout(SplitLayoutNode rootSplit)
         {
             EnsureSplitterBar();
 
-            // Build the layout tree from current group topology
-            var root = LayoutTreeBuilder.BuildFromHost(this);
-            root.Bounds = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+            var (fb, sb, rb) = rootSplit.ComputeChildBounds(DocTokens.SplitterBarThickness);
 
-            if (root is SplitLayoutNode rootSplit)
-            {
-                var (fb, sb, rb) = rootSplit.ComputeChildBounds(SplitterThickness);
+            // Root split uses the primary interactive splitter bar
+            _splitterBar!.IsHorizontal = rootSplit.Orientation == Orientation.Horizontal;
+            _splitterBar.SetBounds(sb.X, sb.Y, sb.Width, sb.Height);
+            _splitterBar.Visible = true;
+            _splitterBar.BringToFront();
+            _splitterBar.Tag = rootSplit;
 
-                // Root split uses the primary interactive (draggable) splitter bar
-                _splitterBar!.IsHorizontal = rootSplit.Orientation == Orientation.Horizontal;
-                _splitterBar.SetBounds(sb.X, sb.Y, sb.Width, sb.Height);
-                _splitterBar.Visible = true;
-                _splitterBar.BringToFront();
+            rootSplit.First.Bounds  = fb;
+            rootSplit.Second.Bounds = rb;
 
-                rootSplit.First.Bounds  = fb;
-                rootSplit.Second.Bounds = rb;
+            int extraIdx = 0;
+            ApplyNodeBounds(rootSplit.First, ref extraIdx);
+            ApplyNodeBounds(rootSplit.Second, ref extraIdx);
 
-                int extraIdx = 0;
-                ApplyNestedNodeBounds(rootSplit.First, ref extraIdx);
-                ApplyNestedNodeBounds(rootSplit.Second, ref extraIdx);
-
-                // Hide extra splitters that are no longer needed
-                for (int i = extraIdx; i < _extraSplitters.Count; i++)
-                    _extraSplitters[i].Visible = false;
-            }
+            // Hide extra splitters that are no longer needed
+            for (int i = extraIdx; i < _extraSplitters.Count; i++)
+                _extraSplitters[i].Visible = false;
         }
 
         /// <summary>
-        /// Recursively applies bounds from the layout tree.  The root split is already
-        /// handled by <see cref="RecalculateMultiGroupLayout"/>; this method handles
-        /// every child node (nested splits and leaf groups).
+        /// Recursively applies bounds from the layout tree to groups and splitter bars.
         /// </summary>
-        private void ApplyNestedNodeBounds(ILayoutNode node, ref int extraIdx)
+        private void ApplyNodeBounds(ILayoutNode node, ref int extraIdx)
         {
             if (node is SplitLayoutNode split)
             {
-                var (fb, sb, rb) = split.ComputeChildBounds(SplitterThickness);
+                var (fb, sb, rb) = split.ComputeChildBounds(DocTokens.SplitterBarThickness);
 
-                // Get or lazily create an extra (read-only visual) splitter bar
                 BeepDocumentSplitterBar bar;
                 if (extraIdx < _extraSplitters.Count)
                 {
@@ -247,6 +238,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 {
                     bar = new BeepDocumentSplitterBar();
                     bar.ApplyTheme(_currentTheme);
+                    bar.MouseDown  += ExtraSplitter_MouseDown;
+                    bar.MouseMove  += ExtraSplitter_MouseMove;
+                    bar.MouseUp    += ExtraSplitter_MouseUp;
                     Controls.Add(bar);
                     _extraSplitters.Add(bar);
                 }
@@ -256,41 +250,88 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 bar.SetBounds(sb.X, sb.Y, sb.Width, sb.Height);
                 bar.Visible = true;
                 bar.BringToFront();
+                bar.Tag = split;
 
                 split.First.Bounds  = fb;
                 split.Second.Bounds = rb;
 
-                ApplyNestedNodeBounds(split.First, ref extraIdx);
-                ApplyNestedNodeBounds(split.Second, ref extraIdx);
+                ApplyNodeBounds(split.First, ref extraIdx);
+                ApplyNodeBounds(split.Second, ref extraIdx);
             }
             else if (node is GroupLayoutNode grpNode)
             {
-                var grp = _groups.Find(g => g.GroupId == grpNode.GroupId);
+                var grp = _groupById.TryGetValue(grpNode.GroupId, out var g) ? g : null;
                 if (grp != null)
                 {
                     grp.GroupBounds = node.Bounds;
-                    grp.ApplyBounds(_tabPosition, AhS(LogicalStripH));
+                    grp.ApplyBounds(AhS(LogicalStripH));
                 }
             }
+        }
+
+        // ── Extra splitter mouse handlers (for nested splits) ────────────────
+
+        private void ExtraSplitter_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || sender is not BeepDocumentSplitterBar bar) return;
+            _draggingSplitter = true;
+            _splitterDragStart = bar.IsHorizontal ? bar.Left + e.X : bar.Top + e.Y;
+            _draggedSplitNode = bar.Tag as SplitLayoutNode;
+            if (_draggedSplitNode != null)
+                _splitRatioAtDragStart = _draggedSplitNode.Ratio;
+        }
+
+        private void ExtraSplitter_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (!_draggingSplitter || _draggedSplitNode == null) return;
+            if (sender is not BeepDocumentSplitterBar bar) return;
+
+            int pos = bar.IsHorizontal ? bar.Left + e.X : bar.Top + e.Y;
+            int total = bar.IsHorizontal ? ClientSize.Width : ClientSize.Height;
+            int thickness = DocTokens.SplitterBarThickness;
+            if (total <= thickness * 2) return;
+
+            _draggedSplitNode.Ratio = Math.Max(0.1f,
+                                      Math.Min(0.9f, (float)pos / total));
+            RecalculateLayout();
+        }
+
+        private void ExtraSplitter_MouseUp(object? sender, MouseEventArgs e)
+        {
+            _draggingSplitter = false;
+            _draggedSplitNode = null;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Single-group layout (leaf node)
+        // ─────────────────────────────────────────────────────────────────────
+
+        private void ApplySingleGroupLayout()
+        {
+            if (_splitterBar != null) _splitterBar.Visible = false;
+            foreach (var b in _extraSplitters) b.Visible = false;
+
+            int stripH = AhS(LogicalStripH);
+            int w = ClientSize.Width;
+            int h = ClientSize.Height;
+
+            _primaryGroup.GroupBounds = new Rectangle(0, 0, w, h);
+            _primaryGroup.TabPosition = _tabPosition;
+            _primaryGroup.ApplyBounds(stripH);
         }
 
         // ─────────────────────────────────────────────────────────────────────
         // Helpers
         // ─────────────────────────────────────────────────────────────────────
 
+        private const int LogicalStripH = 36;
+
         /// <summary>Resizes every visible panel to fill its group's content area.</summary>
         private void SyncPanelBounds()
         {
-            // Primary group
-            if (_contentArea != null)
-                foreach (var panel in _panels.Values)
-                    if (panel.Visible && GetGroupForDocument(panel.DocumentId) == _primaryGroup)
-                        panel.Bounds = _contentArea.ClientRectangle;
-
-            // Secondary groups
-            for (int i = 1; i < _groups.Count; i++)
+            foreach (var grp in _groups)
             {
-                var grp = _groups[i];
+                if (!grp.ContentArea.IsHandleCreated) continue;
                 foreach (var id in grp.DocumentIds)
                     if (_panels.TryGetValue(id, out var p) && p.Visible)
                         p.Bounds = grp.ContentArea.ClientRectangle;
@@ -301,8 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private BeepDocumentGroup GetGroupForDocument(string documentId)
         {
             if (_docGroupMap.TryGetValue(documentId, out var groupId))
-                foreach (var g in _groups)
-                    if (g.GroupId == groupId) return g;
+                if (_groupById.TryGetValue(groupId, out var g)) return g;
             return _primaryGroup;
         }
 
@@ -310,24 +350,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Group-collapse animation (Sprint 15.2)
         // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Animates the secondary group's splitter to the edge over
-        /// <see cref="DocTokens.GroupCollapseMs"/> ms (ease-out cubic), then removes it.
-        /// If on a multi-group split, disables the collapsing strip's input while animating.
-        /// Falls back to immediate removal when not in a 2-group split mode.
-        /// </summary>
         internal void CollapseEmptyGroupAnimated(BeepDocumentGroup grp)
         {
             if (grp.IsPrimary || !grp.IsEmpty) return;
 
-            // Only animate when there is exactly one secondary group with a visible splitter
             if (_groups.Count != 2 || _splitterBar == null || !_splitterBar.Visible)
             {
                 CollapseEmptyGroupImmediate(grp);
                 return;
             }
 
-            // Disable interaction on the collapsing group during animation
             grp.TabStrip.Enabled = false;
 
             _collapseAnimGroup   = grp;
@@ -350,10 +382,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                                * 1000.0 / Stopwatch.Frequency;
 
             double progress  = Math.Min(1.0, elapsedMs / Math.Max(1, DocTokens.GroupCollapseMs));
-            // Ease-out cubic:  t = 1 − (1−p)^3
             double t         = 1.0 - Math.Pow(1.0 - progress, 3.0);
 
-            // Animate toward 1.0 (primary group fills all space, secondary shrinks to 0)
             _splitRatio = (float)(_collapseAnimFrom + (1.0 - _collapseAnimFrom) * t);
             RecalculateLayout();
 
@@ -363,19 +393,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var grp = _collapseAnimGroup;
                 _collapseAnimGroup = null;
                 CollapseEmptyGroupImmediate(grp);
-                // Reset ratio for next split
                 _splitRatio = 0.5f;
             }
         }
 
-        /// <summary>Internal synchronous collapse used after the animation completes.</summary>
         internal void CollapseEmptyGroupImmediate(BeepDocumentGroup grp)
         {
             if (grp.IsPrimary || !grp.IsEmpty) return;
             _groups.Remove(grp);
+            _groupById.Remove(grp.GroupId);
             Controls.Remove(grp.TabStrip);
             Controls.Remove(grp.ContentArea);
             grp.Dispose();
+
+            // Rebuild the tree after removing a group
+            SyncLayoutTree();
             RecalculateLayout();
         }
 
@@ -383,32 +415,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // MergeAllGroups
         // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Collapses every secondary group back into the primary group by moving
-        /// all their documents, then removes the now-empty extra groups.
-        /// The splitter bar is hidden and the layout is recalculated.
-        /// </summary>
         public void MergeAllGroups()
         {
             if (_groups.Count <= 1) return;
 
-            // Snapshot secondary groups — the list mutates as empty groups auto-collapse
             var secondary = new List<BeepDocumentGroup>(_groups.Skip(1));
 
             foreach (var grp in secondary)
             {
-                // Copy DocumentIds before the list is mutated by MoveDocumentToGroup
                 var docIds = new List<string>(grp.DocumentIds);
                 foreach (var docId in docIds)
                     MoveDocumentToGroup(docId, _primaryGroup.GroupId);
             }
 
-            // Safety pass: dispose any remaining empty secondary groups not yet cleaned up
             for (int i = _groups.Count - 1; i >= 1; i--)
             {
                 var grp = _groups[i];
                 if (!grp.IsEmpty) continue;
                 _groups.RemoveAt(i);
+                _groupById.Remove(grp.GroupId);
                 Controls.Remove(grp.TabStrip);
                 Controls.Remove(grp.ContentArea);
                 grp.Dispose();
@@ -416,6 +441,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (_splitterBar != null) _splitterBar.Visible = false;
             foreach (var b in _extraSplitters) b.Visible = false;
+
+            // Reset to single-group tree
+            _layoutRoot = new GroupLayoutNode(_primaryGroup.GroupId);
             RecalculateLayout();
         }
     }

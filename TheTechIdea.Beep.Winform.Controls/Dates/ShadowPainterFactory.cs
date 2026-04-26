@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.DiscordStyle => new ColoredShadowPainterWrapper(Color.FromArgb(88, 101, 242)),
                 BeepControlStyle.GradientModern => new FloatingShadowPainterWrapper(8),
                 BeepControlStyle.GlassAcrylic => new GlassShadowPainterWrapper(Color.FromArgb(150, 200, 255), 0.3f),
-                BeepControlStyle.Neumorphism => new NeumorphicShadowPainterWrapper(SystemColors.Control),
+                BeepControlStyle.Neumorphism => new NeumorphicShadowPainterWrapper(ColorUtils.MapSystemColor(SystemColors.Control)),
                 BeepControlStyle.Bootstrap => new CardShadowPainterWrapper(CardShadowStyle.Medium),
                 BeepControlStyle.FigmaCard => new CardShadowPainterWrapper(CardShadowStyle.Medium),
                 BeepControlStyle.PillRail => new AmbientShadowPainterWrapper(4, 0.25f),
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 ShadowType.Ambient => new AmbientShadowPainterWrapper(6, 0.3f),
                 ShadowType.Perspective => new PerspectiveShadowPainterWrapper(),
                 ShadowType.Double => new DoubleShadowPainterWrapper(),
-                ShadowType.Neumorphic => new NeumorphicShadowPainterWrapper(SystemColors.Control),
+                ShadowType.Neumorphic => new NeumorphicShadowPainterWrapper(ColorUtils.MapSystemColor(SystemColors.Control)),
                 ShadowType.Glass => new GlassShadowPainterWrapper(Color.White, 0.2f),
                 ShadowType.BorderGlow => new BorderGlowPainterWrapper(Color.Blue),
                 _ => null

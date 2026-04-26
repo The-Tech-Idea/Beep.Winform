@@ -106,9 +106,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
      
-        private Color tmpbackcolor;
-        private Color tmpforcolor;
-
         private bool _isColorFromTheme = true;
         [Browsable(true)]
         [Category("Appearance")]
@@ -124,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
     [Browsable(true)]
     [Category("Appearance")]
-    public Color SplashColor { get; set; } = Color.Gray;
+    public Color SplashColor { get; set; } = Color.Empty;
 
     /// <summary>
     /// Indicates whether the button is in a loading state. When true, shows a spinner and disables interaction.
@@ -793,10 +790,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             contentRect = DrawingRect;
             contentRect.Inflate(-2, -2);
-           // DrawStateOverlays(g);   // <— subtle hover/press glaze
+            DrawStateOverlays(g);
             DrawImageAndText(g);
-            DrawSplashEffect(g);    // ripple on top
-            DrawLoadingIndicator(g); // loading spinner on top
+            DrawFocusRing(g);
+            DrawSplashEffect(g);
+            DrawLoadingIndicator(g);
 
         }
 
@@ -813,20 +811,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             int alpha = (int)((1f - easedProgress) * _splashColorOpacity);
             alpha = Math.Max(0, Math.Min(255, alpha));
 
-            // Use theme accent color if available, otherwise use SplashColor
-            Color splashColor = SplashColor;
+            // Use theme accent color if available, otherwise use SplashColor or system highlight
+            Color splashColor = SplashColor != Color.Empty ? SplashColor : ColorUtils.MapSystemColor(SystemColors.Highlight);
             if (_currentTheme != null && IsColorFromTheme)
             {
-                // Try to use theme accent color for splash
-                try
+                var accentColor = _currentTheme.AccentColor;
+                if (accentColor != Color.Empty)
                 {
-                    var accentColor = _currentTheme.AccentColor;
-                    if (accentColor != Color.Empty)
-                    {
-                        splashColor = accentColor;
-                    }
+                    splashColor = accentColor;
                 }
-                catch { /* Fall back to SplashColor */ }
             }
 
             using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, splashColor)))
@@ -874,21 +867,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             Color overlayColor = Color.Empty;
             int alpha = 0;
 
-            // Much more subtle overlays that don't interfere with gradients
             if (IsPressed)
             {
-                // Very subtle pressed state overlay
                 overlayColor = PressedBackColor;
-                alpha = 15; // Reduced from 30 for more subtlety
+                alpha = 15;
             }
             else if (IsHovered)
             {
-                // Very subtle hover state overlay
-                overlayColor =HoverBackColor;
-                alpha = 8; // Reduced from 15 for more subtlety
+                overlayColor = HoverBackColor;
+                alpha = 8;
             }
 
-            // Only apply overlay if we have a valid state
             if (alpha > 0)
                 using (SolidBrush overlayBrush = new SolidBrush(Color.FromArgb(alpha, overlayColor)))
                 {
@@ -897,6 +886,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                         g.FillPath(overlayBrush, path);
                     }
                 }
+        }
+
+        private void DrawFocusRing(Graphics g)
+        {
+            if (!Focused) return;
+
+            Color focusColor = _currentTheme?.FocusIndicatorColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+            using (Pen focusPen = new Pen(focusColor, 2f))
+            {
+                focusPen.DashStyle = DashStyle.Dot;
+                Rectangle focusRect = Rectangle.Inflate(contentRect, -3, -3);
+                using (GraphicsPath focusPath = GetButtonClipPath(focusRect))
+                {
+                    g.DrawPath(focusPen, focusPath);
+                }
+            }
         }
 
         /// <summary>
@@ -1295,6 +1300,16 @@ namespace TheTechIdea.Beep.Winform.Controls
       
             longPressTimer.Stop();
         }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            Cursor = Cursors.Hand;
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Cursor = Cursors.Default;
+        }
         protected override void OnDoubleClick(EventArgs e)
         {
             base.OnDoubleClick(e);
@@ -1682,10 +1697,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case Keys.Space:
                     if (Focused || TabStop)
                     {
-                        // Simulate mouse click
                         IsPressed = true;
                         Invalidate();
-                        Application.DoEvents(); // Brief visual feedback
+                        Update();
                         IsPressed = false;
                         OnClick(EventArgs.Empty);
                         return true;

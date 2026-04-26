@@ -66,6 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             
             var items = _owner.ListItems.ToList();
 
+            // Promote pinned items to top
+            var pinned = items.Where(i => i is BeepListItem bi && bi.IsPinned).ToList();
+            var unpinned = items.Where(i => !(i is BeepListItem bi && bi.IsPinned)).ToList();
+            items = pinned.Concat(unpinned).ToList();
+
             // Flatten hierarchy if enabled
             if (_owner.ShowHierarchy)
             {

@@ -1,5 +1,6 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
@@ -250,6 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public static Color GetPrimaryButtonColor(ButtonEmphasis emphasis, BeepControlStyle style)
         {
             var theme = BeepThemesManager.CurrentTheme;
+            if (theme == null) return SystemColors.ButtonFace;
             
             if (emphasis.PrimaryIsDanger)
                 return theme.DialogErrorButtonBackColor;
@@ -272,6 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public static Color GetSecondaryButtonColor(BeepControlStyle style)
         {
             var theme = BeepThemesManager.CurrentTheme;
+            if (theme == null) return SystemColors.ButtonFace;
             return theme.DialogCancelButtonBackColor;
         }
 
@@ -281,6 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public static Color GetIconTint(DialogPreset preset, BeepControlStyle style)
         {
             var theme = BeepThemesManager.CurrentTheme;
+            if (theme == null) return SystemColors.ControlText;
             
             return preset switch
             {
@@ -306,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public static int GetCornerRadius(BeepControlStyle style)
         {
-            return BeepThemesManager.CurrentTheme.BorderRadius;
+            return BeepThemesManager.CurrentTheme?.BorderRadius ?? 8;
         }
 
         /// <summary>
@@ -314,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public static int GetPadding(BeepControlStyle style)
         {
-            return BeepThemesManager.CurrentTheme.PaddingMedium;
+            return BeepThemesManager.CurrentTheme?.PaddingMedium ?? 12;
         }
 
         /// <summary>
@@ -331,20 +335,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public static Color GetBackgroundColor(DialogPreset preset, BeepControlStyle style)
         {
             var theme = BeepThemesManager.CurrentTheme;
+            if (theme == null) return SystemColors.Window;
             
-            // For semantic presets, use dialog-specific colors
             return preset switch
             {
-                DialogPreset.Success => Color.FromArgb(240, theme.SuccessColor),
-                DialogPreset.SuccessWithUndo => Color.FromArgb(240, theme.SuccessColor),
-                DialogPreset.Danger => Color.FromArgb(240, theme.ErrorColor),
-                DialogPreset.DestructiveConfirm => Color.FromArgb(240, theme.ErrorColor),
-                DialogPreset.BlockingError => Color.FromArgb(240, theme.ErrorColor),
-                DialogPreset.Warning => Color.FromArgb(240, theme.WarningColor),
-                DialogPreset.UnsavedChanges => Color.FromArgb(240, theme.WarningColor),
-                DialogPreset.InlineValidation => Color.FromArgb(240, theme.WarningColor),
+                DialogPreset.Success => BlendWithWhite(theme.SuccessColor, 0.85f),
+                DialogPreset.SuccessWithUndo => BlendWithWhite(theme.SuccessColor, 0.85f),
+                DialogPreset.Danger => BlendWithWhite(theme.ErrorColor, 0.85f),
+                DialogPreset.DestructiveConfirm => BlendWithWhite(theme.ErrorColor, 0.85f),
+                DialogPreset.BlockingError => BlendWithWhite(theme.ErrorColor, 0.85f),
+                DialogPreset.Warning => BlendWithWhite(theme.WarningColor, 0.85f),
+                DialogPreset.UnsavedChanges => BlendWithWhite(theme.WarningColor, 0.85f),
+                DialogPreset.InlineValidation => BlendWithWhite(theme.WarningColor, 0.85f),
                 _ => theme.DialogBackColor
             };
+        }
+
+        private static Color BlendWithWhite(Color baseColor, float baseWeight)
+        {
+            float w = Math.Clamp(baseWeight, 0f, 1f);
+            int r = (int)(baseColor.R * w + 255 * (1f - w));
+            int g = (int)(baseColor.G * w + 255 * (1f - w));
+            int b = (int)(baseColor.B * w + 255 * (1f - w));
+            return Color.FromArgb(r, g, b);
         }
 
         /// <summary>
@@ -352,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public static Color GetForegroundColor(BeepControlStyle style)
         {
-            return BeepThemesManager.CurrentTheme.DialogForeColor;
+            return BeepThemesManager.CurrentTheme?.DialogForeColor ?? SystemColors.ControlText;
         }
 
         /// <summary>
@@ -368,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public static Color GetShadowColor(BeepControlStyle style)
         {
-            return BeepThemesManager.CurrentTheme.ShadowColor;
+            return BeepThemesManager.CurrentTheme?.ShadowColor ?? Color.FromArgb(60, 0, 0, 0);
         }
     }
 }

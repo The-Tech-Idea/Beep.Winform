@@ -19,9 +19,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
     {
         #region Text Input
 
-        /// <summary>
-        /// Shows a text input dialog (async)
-        /// </summary>
         public Task<string?> InputTextAsync(string title, string prompt, string? defaultValue = null)
         {
             var config = new DialogConfig
@@ -33,92 +30,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 Buttons = new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok }
             };
 
-            using var dialog = new BeepDialogForm();
-            dialog.Title = title;
-            dialog.Message = prompt;
-            dialog.DialogType = DialogType.GetInputString;
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                var value = dialog.ReturnValue;
-                if (config.FieldValidators.TryGetValue("value", out var validator))
-                {
-                    var validation = validator(value ?? string.Empty);
-                    config.ValidationState["value"] = validation;
-                    if (!validation.Valid)
-                    {
-                        DialogMotionEngine.ShakeDialog(dialog);
-                        return Task.FromResult<string?>(null);
-                    }
-                }
-                StoreRecentInput(config, value ?? string.Empty);
-                return Task.FromResult<string?>(value);
-            }
-
-            return Task.FromResult<string?>(null);
+            return ShowInputDialogAsync(config, defaultValue, multiline: false, password: false);
         }
 
-        /// <summary>
-        /// Shows a text input dialog (sync)
-        /// </summary>
         public string? InputText(string title, string prompt, string? defaultValue = null)
         {
-            using var dialog = new BeepDialogForm();
-            dialog.Title = title;
-            dialog.Message = prompt;
-            dialog.DialogType = DialogType.GetInputString;
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
+            using var dialog = CreateInputDialog(title, prompt, defaultValue, multiline: false, password: false);
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                var value = dialog.ReturnValue;
-                if (_defaultTheme != null && _recentInputMemory.TryGetValue($"{title}:{prompt}", out var queue) && queue.Count > 0)
-                {
-                    // no-op placeholder for future autofill suggestions
-                }
-                return value;
+                return dialog.ReturnValue;
             }
 
             return null;
         }
 
-        /// <summary>
-        /// Shows a large text input dialog (multiline)
-        /// </summary>
         public string? InputLargeText(string title, string prompt, string? defaultValue = null)
         {
-            return InputText(title, prompt, defaultValue);
+            using var dialog = CreateInputDialog(title, prompt, defaultValue, multiline: true, password: false);
+
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                return dialog.ReturnValue;
+            }
+
+            return null;
         }
 
-        /// <summary>
-        /// Shows a password input dialog
-        /// </summary>
         public string? InputPassword(string title, string prompt)
         {
-            using var dialog = new BeepDialogForm();
-            dialog.Title = title;
-            dialog.Message = prompt;
-            dialog.DialogType = DialogType.GetInputString;
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
+            using var dialog = CreateInputDialog(title, prompt, string.Empty, multiline: false, password: true);
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
@@ -148,7 +95,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 EnableRecentInputMemory = true
             };
             config.FieldValidators["value"] = validator;
-            return InputTextAsync(title, prompt, defaultValue);
+            Func<string, string?> wrappedValidator = v =>
+            {
+                var result = validator(v);
+                return result.Valid ? null : result.Error;
+            };
+            return ShowInputDialogAsync(config, defaultValue, multiline: false, password: false, validator: wrappedValidator);
         }
 
         #region Numeric Input
@@ -158,24 +110,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         public async Task<double?> InputNumberAsync(string title, string prompt, double? min = null, double? max = null, double? defaultValue = null)
         {
-            var result = await InputTextAsync(title, prompt, defaultValue?.ToString());
-            
-            if (result != null && double.TryParse(result, out double value))
+            while (true)
             {
+                var result = await InputTextAsync(title, prompt, defaultValue?.ToString());
+
+                if (result == null)
+                    return null;
+
+                if (!double.TryParse(result, out double value))
+                {
+                    ShowError("Invalid Input", "Please enter a valid number.");
+                    continue;
+                }
+
                 if (min.HasValue && value < min.Value)
                 {
-                    await Error("Invalid Input", $"Value must be at least {min.Value}");
-                    return null;
+                    ShowError("Invalid Input", $"Value must be at least {min.Value}");
+                    continue;
                 }
                 if (max.HasValue && value > max.Value)
                 {
-                    await Error("Invalid Input", $"Value must be at most {max.Value}");
-                    return null;
+                    ShowError("Invalid Input", $"Value must be at most {max.Value}");
+                    continue;
                 }
                 return value;
             }
-
-            return null;
         }
 
         /// <summary>
@@ -210,6 +169,67 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         {
             var result = InputNumber(title, prompt, min, max, defaultValue);
             return result.HasValue ? (int)result.Value : null;
+        }
+
+        #endregion
+
+        #region Input Dialog Helpers
+
+        private BeepDialogForm CreateInputDialog(string title, string prompt, string? defaultValue, bool multiline, bool password)
+        {
+            var dialog = new BeepDialogForm
+            {
+                Title = title,
+                Message = prompt,
+                DialogType = DialogType.GetInputString
+            };
+
+            if (_defaultTheme != null)
+                dialog.CurrentTheme = _defaultTheme;
+
+            dialog.StartPosition = FormStartPosition.CenterParent;
+
+            if (multiline)
+                dialog.InputBoxMultiline = true;
+
+            if (password)
+                dialog.InputBoxUsePasswordChar = true;
+
+            if (!string.IsNullOrEmpty(defaultValue))
+                dialog.InputDefaultValue = defaultValue;
+
+            return dialog;
+        }
+
+        private async Task<string?> ShowInputDialogAsync(DialogConfig config, string? defaultValue, bool multiline, bool password, Func<string, string?>? validator = null)
+        {
+            using var dialog = CreateInputDialog(config.Title, config.Message, defaultValue, multiline, password);
+
+            if (validator != null)
+                dialog.InputValidator = validator;
+
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? await ShowDialogAsync(dialog, owner) : await ShowDialogAsync(dialog);
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                var value = dialog.ReturnValue;
+                StoreRecentInput(config, value ?? string.Empty);
+                return value;
+            }
+
+            return null;
+        }
+
+        private Task<System.Windows.Forms.DialogResult> ShowDialogAsync(BeepDialogForm dialog, Form? owner = null)
+        {
+            var tcs = new TaskCompletionSource<System.Windows.Forms.DialogResult>();
+            dialog.FormClosed += (s, e) => tcs.TrySetResult(dialog.DialogResult);
+            if (owner != null)
+                dialog.Show(owner);
+            else
+                dialog.Show();
+            return tcs.Task;
         }
 
         #endregion
@@ -317,56 +337,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         public async Task<DateTime?> InputDateAsync(string title, string prompt, DateTime? min = null, DateTime? max = null, DateTime? defaultValue = null)
         {
-            // For now, use text input with parsing
-            // TODO: Implement proper date picker dialog
-            var result = await InputTextAsync(title, prompt, defaultValue?.ToString("yyyy-MM-dd"));
-
-            if (result != null && DateTime.TryParse(result, out DateTime date))
-            {
-                if (min.HasValue && date < min.Value)
-                {
-                    await Error("Invalid Date", $"Date must be on or after {min.Value:yyyy-MM-dd}");
-                    return null;
-                }
-                if (max.HasValue && date > max.Value)
-                {
-                    await Error("Invalid Date", $"Date must be on or before {max.Value:yyyy-MM-dd}");
-                    return null;
-                }
-                return date;
-            }
-
-            return null;
+            using var dialog = CreateDatePickerDialog(title, prompt, min, max, defaultValue);
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+            return result == System.Windows.Forms.DialogResult.OK && dialog.Tag is DateTime dt ? dt : null;
         }
 
-        /// <summary>
-        /// Shows a date input dialog (sync)
-        /// </summary>
         public DateTime? InputDate(string title, string prompt, DateTime? min = null, DateTime? max = null, DateTime? defaultValue = null)
         {
-            var result = InputText(title, prompt, defaultValue?.ToString("yyyy-MM-dd"));
-
-            if (result != null && DateTime.TryParse(result, out DateTime date))
-            {
-                if (min.HasValue && date < min.Value)
-                {
-                    ShowError("Invalid Date", $"Date must be on or after {min.Value:yyyy-MM-dd}");
-                    return null;
-                }
-                if (max.HasValue && date > max.Value)
-                {
-                    ShowError("Invalid Date", $"Date must be on or before {max.Value:yyyy-MM-dd}");
-                    return null;
-                }
-                return date;
-            }
-
-            return null;
+            using var dialog = CreateDatePickerDialog(title, prompt, min, max, defaultValue);
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+            return result == System.Windows.Forms.DialogResult.OK && dialog.Tag is DateTime dt ? dt : null;
         }
 
-        /// <summary>
-        /// Shows a time span input dialog
-        /// </summary>
         public TimeSpan? InputTimeSpan(string title, string prompt, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? defaultValue = null)
         {
             var result = InputText(title, prompt, defaultValue?.ToString());
@@ -387,6 +371,77 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             }
 
             return null;
+        }
+
+        #endregion
+
+        #region Date/Time Picker Helpers
+
+        private Form CreateDatePickerDialog(string title, string prompt, DateTime? min, DateTime? max, DateTime? defaultValue)
+        {
+            var form = new Form
+            {
+                Text = title,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterParent,
+                ShowInTaskbar = false,
+                MinimizeBox = false,
+                MaximizeBox = false,
+                Size = new Size(320, 180),
+                AcceptButton = null,
+                CancelButton = null
+            };
+
+            var dtp = new DateTimePicker
+            {
+                Location = new Point(20, 40),
+                Size = new Size(260, 25),
+                Format = DateTimePickerFormat.Short
+            };
+
+            if (defaultValue.HasValue)
+                dtp.Value = defaultValue.Value;
+            if (min.HasValue)
+                dtp.MinDate = min.Value;
+            if (max.HasValue)
+                dtp.MaxDate = max.Value;
+
+            var lbl = new Label
+            {
+                Text = prompt,
+                Location = new Point(20, 15),
+                Size = new Size(260, 20),
+                AutoSize = false
+            };
+
+            var btnOk = new Button
+            {
+                Text = "OK",
+                DialogResult = System.Windows.Forms.DialogResult.OK,
+                Location = new Point(120, 100),
+                Size = new Size(80, 30)
+            };
+
+            var btnCancel = new Button
+            {
+                Text = "Cancel",
+                DialogResult = System.Windows.Forms.DialogResult.Cancel,
+                Location = new Point(210, 100),
+                Size = new Size(80, 30)
+            };
+
+            form.Controls.AddRange(new Control[] { lbl, dtp, btnOk, btnCancel });
+            form.AcceptButton = btnOk;
+            form.CancelButton = btnCancel;
+            form.Tag = dtp;
+
+            form.FormClosed += (s, e) =>
+            {
+                if (form.DialogResult == System.Windows.Forms.DialogResult.OK)
+                    form.Tag = dtp.Value;
+            };
+
+            return form;
         }
 
         #endregion

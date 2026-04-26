@@ -1,22 +1,15 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
 {
-    /// <summary>
-    /// Centralized helper for managing marquee control theme colors
-    /// Integrates with ApplyTheme() pattern from BaseControl
-    /// Maps marquee control states to theme colors
-    /// </summary>
     public static class MarqueeThemeHelpers
     {
-        /// <summary>
-        /// Gets the background color for the marquee control
-        /// Priority: Custom color > Theme Background > Default
-        /// </summary>
         public static Color GetMarqueeBackgroundColor(
             IBeepTheme theme,
             bool useThemeColors,
@@ -33,12 +26,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
                     return theme.SurfaceColor;
             }
 
-            return Color.Transparent;
+            return SystemInformation.HighContrast
+                ? ColorUtils.MapSystemColor(SystemColors.Window)
+                : Color.Transparent;
         }
 
-        /// <summary>
-        /// Gets the border color for the marquee control
-        /// </summary>
         public static Color GetMarqueeBorderColor(
             IBeepTheme theme,
             bool useThemeColors)
@@ -49,12 +41,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
                     return theme.BorderColor;
             }
 
-            return Color.FromArgb(200, 200, 200);
+            return SystemInformation.HighContrast
+                ? ColorUtils.MapSystemColor(SystemColors.WindowFrame)
+                : ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
 
-        /// <summary>
-        /// Gets the text color for marquee items
-        /// </summary>
         public static Color GetMarqueeTextColor(
             IBeepTheme theme,
             bool useThemeColors)
@@ -65,29 +56,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
                     return theme.ForeColor;
             }
 
-            return Color.FromArgb(33, 33, 33);
+            return SystemInformation.HighContrast
+                ? ColorUtils.MapSystemColor(SystemColors.WindowText)
+                : ColorUtils.MapSystemColor(SystemColors.ControlText);
         }
 
-        /// <summary>
-        /// Gets the shadow color for marquee items (if needed)
-        /// </summary>
         public static Color GetMarqueeShadowColor(
             IBeepTheme theme,
             bool useThemeColors,
             int elevation = 1)
         {
+            if (SystemInformation.HighContrast)
+                return Color.Transparent;
+
             if (useThemeColors && theme != null)
             {
                 if (theme.ShadowColor != Color.Empty)
                     return Color.FromArgb(Math.Min(255, elevation * 20), theme.ShadowColor);
             }
 
-            return Color.FromArgb(Math.Min(255, elevation * 20), Color.Black);
+            return Color.FromArgb(Math.Min(255, elevation * 20), ColorUtils.MapSystemColor(SystemColors.ControlText));
         }
 
-        /// <summary>
-        /// Gets all theme colors for a marquee control in one call
-        /// </summary>
+        public static bool ShouldShowShadow(bool useThemeColors, IBeepTheme theme)
+        {
+            if (SystemInformation.HighContrast)
+                return false;
+
+            if (useThemeColors && theme != null && theme is BeepTheme bt)
+                return !bt.IsDarkTheme;
+
+            return true;
+        }
+
         public static (Color background, Color border, Color text, Color shadow) GetMarqueeColors(
             IBeepTheme theme,
             bool useThemeColors)

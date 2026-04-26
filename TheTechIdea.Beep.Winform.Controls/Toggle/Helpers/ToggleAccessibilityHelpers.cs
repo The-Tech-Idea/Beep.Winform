@@ -157,16 +157,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
                     Color.FromArgb(52, 168, 83),  // Green for ON
                     Color.FromArgb(189, 189, 189), // Gray for OFF
                     Color.White,                  // White thumb
-                    SystemColors.WindowText       // System text color
-                );
+                ColorUtils.MapSystemColor(SystemColors.WindowText)       // System text color
+            );
             }
 
             // Use system colors in high contrast mode
             return (
-                SystemColors.Highlight,          // ON color (system highlight)
-                SystemColors.ControlDark,        // OFF color (system control dark)
-                SystemColors.Window,             // Thumb color (system window)
-                SystemColors.WindowText          // Text color (system window text)
+                ColorUtils.MapSystemColor(SystemColors.Highlight),          // ON color (system highlight)
+                ColorUtils.MapSystemColor(SystemColors.ControlDark),        // OFF color (system control dark)
+                ColorUtils.MapSystemColor(SystemColors.Window),             // Thumb color (system window)
+                ColorUtils.MapSystemColor(SystemColors.WindowText)          // Text color (system window text)
             );
         }
 

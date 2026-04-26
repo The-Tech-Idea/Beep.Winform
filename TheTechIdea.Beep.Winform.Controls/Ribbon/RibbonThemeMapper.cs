@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -111,23 +112,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private static void ApplyDark(RibbonTheme t)
         {
-            t.Background = Color.FromArgb(32, 32, 32);
+            t.Background = ColorUtils.MapSystemColor(SystemColors.Control);
             t.TabActiveBack = Color.FromArgb(45, 45, 45);
-            t.TabInactiveBack = Color.FromArgb(38, 38, 38);
-            t.TabBorder = Color.FromArgb(64, 64, 64);
-            t.GroupBack = Color.FromArgb(42, 42, 42);
-            t.GroupBorder = Color.FromArgb(70, 70, 70);
-            t.HoverBack = Color.FromArgb(58, 58, 58);
-            t.PressedBack = Color.FromArgb(72, 72, 72);
+            t.TabInactiveBack = ColorUtils.ShiftLuminance(t.Background, 0.06f);
+            t.TabBorder = ColorUtils.MapSystemColor(SystemColors.ControlDark);
+            t.GroupBack = ColorUtils.ShiftLuminance(t.Background, 0.04f);
+            t.GroupBorder = ColorUtils.ShiftLuminance(t.TabBorder, 0.1f);
+            t.HoverBack = ColorUtils.ShiftLuminance(t.Background, 0.12f);
+            t.PressedBack = ColorUtils.ShiftLuminance(t.Background, 0.18f);
             t.FocusBorder = Color.FromArgb(120, 170, 230);
-            t.Separator = Color.FromArgb(78, 78, 78);
-            t.Text = Color.WhiteSmoke;
-            t.IconColor = Color.WhiteSmoke;
-            t.QuickAccessBack = Color.FromArgb(50, 50, 50);
-            t.QuickAccessBorder = Color.FromArgb(80, 80, 80);
-            t.DisabledBack = Color.FromArgb(54, 54, 54);
+            t.Separator = ColorUtils.ShiftLuminance(t.TabBorder, 0.05f);
+            t.Text = ColorUtils.MapSystemColor(SystemColors.WindowText);
+            t.IconColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
+            t.QuickAccessBack = ColorUtils.ShiftLuminance(t.Background, 0.15f);
+            t.QuickAccessBorder = ColorUtils.ShiftLuminance(t.TabBorder, 0.15f);
+            t.DisabledBack = ColorUtils.ShiftLuminance(t.Background, 0.2f);
             t.DisabledText = Color.FromArgb(128, 128, 128);
-            t.DisabledBorder = Color.FromArgb(72, 72, 72);
+            t.DisabledBorder = ColorUtils.ShiftLuminance(t.TabBorder, 0.05f);
             t.SelectionBack = Color.FromArgb(66, 102, 142);
             t.ElevationColor = Color.FromArgb(52, 0, 0, 0);
             t.ElevationLevel = 1;
@@ -349,48 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private static Color ShiftLuminance(Color color, float amount)
         {
-            float h, s, l;
-            ColorToHsl(color, out h, out s, out l);
-            l = Math.Max(0, Math.Min(1, l + amount));
-            return ColorFromHsl(h, s, l);
-        }
-        private static void ColorToHsl(Color c, out float h, out float s, out float l)
-        {
-            float r = c.R / 255f, g = c.G / 255f, b = c.B / 255f;
-            float min = Math.Min(r, Math.Min(g, b)), max = Math.Max(r, Math.Max(g, b));
-            l = (max + min) / 2f;
-            if (max == min) { h = s = 0; }
-            else
-            {
-                float d = max - min;
-                s = l > 0.5f ? d / (2f - max - min) : d / (max + min);
-                if (max == r) h = (g - b) / d + (g < b ? 6 : 0);
-                else if (max == g) h = (b - r) / d + 2;
-                else h = (r - g) / d + 4;
-                h /= 6f;
-            }
-        }
-        private static Color ColorFromHsl(float h, float s, float l)
-        {
-            float r, g, b;
-            if (s == 0) { r = g = b = l; }
-            else
-            {
-                float q = l < 0.5f ? l * (1f + s) : l + s - l * s;
-                float p = 2f * l - q;
-                r = Hue2Rgb(p, q, h + 1f / 3f);
-                g = Hue2Rgb(p, q, h);
-                b = Hue2Rgb(p, q, h - 1f / 3f);
-            }
-            return Color.FromArgb(255, (int)Math.Round(r * 255), (int)Math.Round(g * 255), (int)Math.Round(b * 255));
-        }
-        private static float Hue2Rgb(float p, float q, float t)
-        {
-            if (t < 0) t += 1f; if (t > 1) t -= 1f;
-            if (t < 1f / 6f) return p + (q - p) * 6f * t;
-            if (t < 1f / 2f) return q;
-            if (t < 2f / 3f) return p + (q - p) * (2f / 3f - t) * 6f;
-            return p;
+            return ColorUtils.ShiftLuminance(color, amount);
         }
     }
 }

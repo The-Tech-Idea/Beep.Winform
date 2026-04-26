@@ -428,14 +428,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (rowTop < clientArea.Top + _yOffset)
             {
                 _yOffset = Math.Max(0, rowTop - clientArea.Top);
-                _verticalScrollBar?.GetType().GetProperty("Value")?.SetValue(_verticalScrollBar, _yOffset);
+                if (_verticalScrollBar != null) _verticalScrollBar.Value = _yOffset;
                 try { _layoutHelper?.CalculateLayout(this); } catch { }
                 Invalidate();
             }
             else if (rowBottom > clientArea.Top + _yOffset + clientArea.Height)
             {
                 _yOffset = rowBottom - clientArea.Top - clientArea.Height;
-                _verticalScrollBar?.GetType().GetProperty("Value")?.SetValue(_verticalScrollBar, _yOffset);
+                if (_verticalScrollBar != null) _verticalScrollBar.Value = _yOffset;
                 try { _layoutHelper?.CalculateLayout(this); } catch { }
                 Invalidate();
             }

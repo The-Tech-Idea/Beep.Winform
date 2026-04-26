@@ -1,19 +1,19 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 {
-    /// <summary>
-    /// Sprint 3/6 — News-banner painter.
-    /// Layout: [Category pill]  Headline text.
-    /// Applies <see cref="MarqueeRenderContext.NewsAlpha"/> for fade transitions in
-    /// <see cref="MarqueeScrollMode.NewsTicker"/> mode.
-    /// Falls back to <see cref="DefaultMarqueePainter"/> for plain items.
-    /// </summary>
     public class NewsBannerPainter : MarqueePainterBase
     {
+        private static readonly StringFormat _pillFormat = new StringFormat
+        {
+            Alignment     = StringAlignment.Center,
+            LineAlignment = StringAlignment.Center
+        };
+
         public override string Name => "News Banner";
 
         private const float PillRadius  = 4f;
@@ -49,7 +49,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 
             try
             {
-                // Category pill
                 if (item is NewsItem ni && !string.IsNullOrEmpty(ni.Category))
                 {
                     var catSz   = g.MeasureString(ni.Category, sm);
@@ -58,16 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
                     var pillR   = new RectangleF(x, cy - ph / 2f, pw, ph);
                     var catBg   = Color.FromArgb(alpha, ni.CategoryColor);
                     FillRoundedRect(g, pillR, PillRadius, catBg);
-                    using var wb = new SolidBrush(Color.FromArgb(alpha, Color.White));
-                    g.DrawString(ni.Category, sm, wb, pillR, new StringFormat
-                    {
-                        Alignment     = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    });
+                    using var tb = new SolidBrush(Color.FromArgb(alpha, ColorUtils.GetContrastColor(ni.CategoryColor)));
+                    g.DrawString(ni.Category, sm, tb, pillR, _pillFormat);
                     x += pw + 8;
                 }
 
-                // Headline
                 Color fg = ResolveForeColor(item, ctx);
                 using var fb = new SolidBrush(Color.FromArgb(alpha, fg));
                 g.DrawString(item.Text, font, fb,

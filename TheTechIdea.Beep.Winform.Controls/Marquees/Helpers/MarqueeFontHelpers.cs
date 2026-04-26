@@ -26,16 +26,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
 
             return BeepFontManager.GetFont(primaryFont, baseSize, fontStyle);
         }
-
-        /// <summary>
-        /// Applies font theme to marquee control
-        /// Updates the control's Font property based on ControlStyle
-        /// </summary>
-        public static void ApplyFontTheme(
-            BeepControlStyle controlStyle)
-        {
-            // This is a helper for getting fonts, not for setting control font
-            // The control should use these helpers when painting
-        }
     }
 }

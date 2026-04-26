@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
+using TheTechIdea.Beep.Winform.Controls.Switchs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
@@ -103,15 +104,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
 
         public void PaintThumb(Graphics g, BeepSwitch owner, Rectangle thumbRect, SwitchState state)
         {
+            var theme = owner._currentTheme;
+            bool isHovered = state == SwitchState.Off_Hover || state == SwitchState.On_Hover;
+            bool isDisabled = state == SwitchState.Off_Disabled || state == SwitchState.On_Disabled;
+
             using (var thumbPath = new GraphicsPath())
             {
                 thumbPath.AddEllipse(thumbRect);
-                
-                // Minimal: Fill based on state
-                Color thumbColor = owner.Checked 
-                    ? (owner._currentTheme?.PrimaryColor ?? Color.Black)
-                    : (owner._currentTheme?.SecondaryColor ?? Color.Gray);
-                
+
+                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.UseThemeColors, owner.Checked, isHovered, isDisabled);
+
                 using (var brush = new SolidBrush(thumbColor))
                 {
                     g.FillPath(brush, thumbPath);
@@ -122,11 +124,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
         public void PaintLabels(Graphics g, BeepSwitch owner, Rectangle onLabelRect, Rectangle offLabelRect)
         {
             var theme = owner._currentTheme;
-            Color labelColor = theme?.ForeColor ?? Color.Black;
-            
+            bool isDisabled = !owner.Enabled;
+            Color labelColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: owner.Checked, isActive: true, isDisabled);
+
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OnLabel, owner.Font, onLabelRect, labelColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-                
+
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OffLabel, owner.Font, offLabelRect, labelColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
         }

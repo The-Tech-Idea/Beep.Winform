@@ -204,33 +204,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             if (string.IsNullOrEmpty(text))
                 return Array.Empty<string>();
 
-            // Simple word wrapping implementation
             var words = text.Split(' ');
             var lines = new System.Collections.Generic.List<string>();
             var currentLine = string.Empty;
 
-            using (var bitmap = new Bitmap(1, 1))
-            using (var g = Graphics.FromImage(bitmap))
+            foreach (var word in words)
             {
-                foreach (var word in words)
+                var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+                var size = TextRenderer.MeasureText(testLine, font, new Size(maxWidth, int.MaxValue), TextFormatFlags.NoPadding);
+
+                if (size.Width > maxWidth && !string.IsNullOrEmpty(currentLine))
                 {
-                    var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
-                    var size = g.MeasureString(testLine, font);
-
-                    if (size.Width > maxWidth && !string.IsNullOrEmpty(currentLine))
-                    {
-                        lines.Add(currentLine);
-                        currentLine = word;
-                    }
-                    else
-                    {
-                        currentLine = testLine;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(currentLine))
                     lines.Add(currentLine);
+                    currentLine = word;
+                }
+                else
+                {
+                    currentLine = testLine;
+                }
             }
+
+            if (!string.IsNullOrEmpty(currentLine))
+                lines.Add(currentLine);
 
             return lines.ToArray();
         }

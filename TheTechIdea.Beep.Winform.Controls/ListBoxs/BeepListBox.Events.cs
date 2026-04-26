@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -63,6 +64,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = _hoveredItem != null ? Cursors.Hand : Cursors.Default;
                 Invalidate();
 
+                // Tooltip tracking
+                _tooltipShowTimer.Stop();
+                _itemToolTip.Hide(this);
+                if (_hoveredItem != null)
+                {
+                    _tooltipPendingItem = _hoveredItem;
+                    _tooltipShowTimer.Start();
+                }
+                else
+                {
+                    _tooltipPendingItem = null;
+                }
+
                 // Start hover animation
                 if (EnableHoverAnimation)
                 {
@@ -87,6 +101,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+
+            _tooltipShowTimer.Stop();
+            _itemToolTip.Hide(this);
+            _tooltipPendingItem = null;
 
             if (_hoveredItem != null)
             {
@@ -174,8 +192,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // InfiniteScroll: check if user clicked the "Load more" sentinel row
-            if (_listBoxType == ListBoxType.InfiniteScroll && Tag is Rectangle sentinelRect
-                && sentinelRect.Contains(e.Location))
+            if (_listBoxType == ListBoxType.InfiniteScroll && _listBoxPainter is InfiniteScrollListBoxPainter isp
+                && isp.SentinelRect.Contains(e.Location))
             {
                 OnLoadMoreRequested();
             }

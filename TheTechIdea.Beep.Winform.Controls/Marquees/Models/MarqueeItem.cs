@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Models
 
         /// <summary>Background fill colour of the badge pill.</summary>
         [Category("Appearance")]
-        public Color BadgeColor { get; set; } = Color.OrangeRed;
+        public Color BadgeColor { get; set; } = Color.FromArgb(220, 53, 69);
 
         /// <summary>Foreground text colour. Transparent = inherit from theme.</summary>
         [Category("Appearance")]

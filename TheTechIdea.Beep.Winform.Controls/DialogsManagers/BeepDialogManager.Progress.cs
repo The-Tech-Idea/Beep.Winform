@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
@@ -465,10 +466,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             {
                 _hostForm = hostForm;
 
+                var overlayAlpha = TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.IsDarkTheme == true ? 200 : 180;
+                var overlayColor = Color.FromArgb(overlayAlpha, TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.IsDarkTheme == true ? 30 : 0,
+                    TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.IsDarkTheme == true ? 30 : 0,
+                    TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.IsDarkTheme == true ? 35 : 0);
+
                 _overlay = new BeepPanel
                 {
                     Dock = DockStyle.Fill,
-                    BackColor = Color.FromArgb(180, 0, 0, 0),
+                    BackColor = overlayColor,
                     ShowTitle = false,
                     ShowTitleLine = false,
                 };
@@ -493,7 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     var messageLabel = new BeepLabel
                     {
                         Text = message,
-                        ForeColor = Color.White,
+                        ForeColor = ColorUtils.GetContrastColor(overlayColor),
                         TextAlign = ContentAlignment.MiddleCenter,
                         Size = new Size(320, 24),
                         BackColor = Color.Transparent,

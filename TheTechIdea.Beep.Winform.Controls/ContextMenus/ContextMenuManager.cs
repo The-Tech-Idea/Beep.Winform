@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -70,6 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             public bool IsClosing { get; set; }
             public Timer MousePoller { get; set; }
             public bool WasHovered { get; set; }
+            public TaskCompletionSource<bool> CloseTcs { get; set; }
             
             // Event handlers stored for cleanup
             public EventHandler<MenuItemEventArgs> ItemClickedHandler { get; set; }
@@ -213,7 +215,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// Shows a context menu at the specified screen location.
         /// This method blocks until the menu is closed and returns the selected item.
         /// </summary>
+        [Obsolete("Use ShowAsync for proper async/await pattern")]
         public static SimpleItem Show(
+            List<SimpleItem> items,
+            Point screenLocation,
+            Control owner = null,
+            FormStyle style = FormStyle.Modern,
+            bool multiSelect = false,
+            string theme = null,
+            string parentMenuId = null)
+        {
+            return ShowAsync(items, screenLocation, owner, style, multiSelect, theme, parentMenuId)
+                .ConfigureAwait(true).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Shows a context menu at the specified screen location (async).
+        /// Returns the selected item when the menu is closed.
+        /// </summary>
+        public static async Task<SimpleItem> ShowAsync(
             List<SimpleItem> items,
             Point screenLocation,
             Control owner = null,
@@ -225,33 +245,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (items == null || items.Count == 0)
                 return null;
             
-            // Prevent showing during close operation
             lock (_lock)
             {
                 if (_isClosingAll)
                     return null;
             }
             
-            // Close existing root menus if this is a root menu
             if (string.IsNullOrEmpty(parentMenuId))
             {
                 CloseRootMenus();
             }
             
-            // Create menu context
             var context = CreateMenuContext(parentMenuId, multiSelect);
             if (context == null)
                 return null;
             
             string menuId = context.Id;
+            var tcs = new TaskCompletionSource<SimpleItem>(TaskCreationOptions.RunContinuationsAsynchronously);
             
             try
             {
-                // Create and configure the menu
                 var menu = CreateMenu(style, multiSelect, theme);
                 PopulateMenu(menu, items);
                 
-                // Store menu in context
                 lock (_lock)
                 {
                     if (!_activeMenus.ContainsKey(menuId))
@@ -259,36 +275,47 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     _activeMenus[menuId].Menu = menu;
                 }
                 
-                // Setup event handlers
                 SetupMenuEventHandlers(context, menu, style, theme);
                 
-                // Setup mouse tracking for sub-menus only
                 if (!string.IsNullOrEmpty(parentMenuId))
                 {
                     SetupMouseTracking(context);
                 }
                 
-                // Install click-outside filter for root menus
                 if (string.IsNullOrEmpty(parentMenuId))
                 {
                     InstallClickOutsideFilter();
                 }
-                // Show the menu
+                
                 menu.Show(screenLocation, owner);
                 ActivateMenu(menu);
                 
-                // Wait for menu to close using message pumping
-                WaitForMenuClose(menuId);
+                var originalItemClicked = context.ItemClickedHandler;
+                var originalFormClosed = context.FormClosedHandler;
                 
-                // Return selected item
-                lock (_lock)
+                context.ItemClickedHandler = (s, e) =>
                 {
-                    if (_activeMenus.TryGetValue(menuId, out var ctx))
-                    {
-                        return ctx.SelectedItem;
-                    }
-                }
-                return null;
+                    originalItemClicked?.Invoke(s, e);
+                    tcs.TrySetResult(context.SelectedItem);
+                };
+                
+                context.FormClosedHandler = (s, e) =>
+                {
+                    originalFormClosed?.Invoke(s, e);
+                    tcs.TrySetResult(context.SelectedItem);
+                };
+                
+                menu.ItemClicked -= originalItemClicked;
+                menu.FormClosed -= originalFormClosed;
+                menu.ItemClicked += context.ItemClickedHandler;
+                menu.FormClosed += context.FormClosedHandler;
+                
+                return await tcs.Task;
+            }
+            catch
+            {
+                tcs.TrySetResult(null);
+                throw;
             }
             finally
             {
@@ -557,6 +584,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     if (_activeMenus.TryGetValue(menuId, out var ctx))
                     {
                         ctx.IsClosed = true;
+                        ctx.CloseTcs?.TrySetResult(true);
                         CloseChildMenus(menuId);
                     }
                 }
@@ -808,33 +836,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #endregion
 
         #region Private Methods - Menu Lifecycle
-        
-        private static void WaitForMenuClose(string menuId)
-        {
-            int iterationCount = 0;
-            const int maxIterations = 60000; // ~10 minutes max wait
-            
-            while (iterationCount < maxIterations)
-            {
-                bool isClosed;
-                lock (_lock)
-                {
-                    if (!_activeMenus.TryGetValue(menuId, out var ctx))
-                    {
-                        break;
-                    }
-                    isClosed = ctx.IsClosed || ctx.Menu == null || ctx.Menu.IsDisposed;
-                }
-                
-                if (isClosed)
-                    break;
-                
-                // Process messages without blocking
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(10);
-                iterationCount++;
-            }
-        }
         
         private static void SafeCloseMenu(BeepContextMenu menu)
         {

@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.Styling.DesignTokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Get background color for neumorphic calculation
-            Color backgroundColor = theme?.BackColor ?? SystemColors.Control;
+            Color backgroundColor = theme?.BackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
 
             // Use ElevationSystem for state-aware intensity
             ElevationLevel baseElevation = ConvertToElevationLevel(elevation);

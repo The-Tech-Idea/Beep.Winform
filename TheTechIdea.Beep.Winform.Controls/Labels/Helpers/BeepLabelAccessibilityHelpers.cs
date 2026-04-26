@@ -35,7 +35,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
                 return foreColor;
             }
 
-            return CalculateLuminance(backColor) > 0.5d ? Color.Black : Color.White;
+            bool backIsLight = CalculateLuminance(backColor) > 0.5d;
+            Color target = backIsLight ? Color.Black : Color.White;
+
+            for (int step = 1; step <= 20; step++)
+            {
+                float t = step / 20f;
+                Color adjusted = Color.FromArgb(
+                    foreColor.A,
+                    (int)(foreColor.R + (target.R - foreColor.R) * t),
+                    (int)(foreColor.G + (target.G - foreColor.G) * t),
+                    (int)(foreColor.B + (target.B - foreColor.B) * t));
+
+                if (CalculateContrast(adjusted, backColor) >= 4.5d)
+                {
+                    return adjusted;
+                }
+            }
+
+            return target;
         }
 
         private static double CalculateContrast(Color colorA, Color colorB)

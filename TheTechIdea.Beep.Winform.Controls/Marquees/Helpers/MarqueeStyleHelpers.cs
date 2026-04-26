@@ -1,28 +1,19 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
 {
-    /// <summary>
-    /// Helper class for mapping BeepControlStyle to marquee styling properties
-    /// Integrates with BeepStyling system for consistent styling
-    /// </summary>
     public static class MarqueeStyleHelpers
     {
-        /// <summary>
-        /// Gets border radius for marquee control based on control style
-        /// </summary>
         public static int GetBorderRadius(BeepControlStyle controlStyle, int controlHeight)
         {
             return BeepStyling.GetRadius(controlStyle);
         }
 
-        /// <summary>
-        /// Gets recommended padding for marquee control
-        /// </summary>
         public static Padding GetRecommendedPadding(BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -35,9 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
             };
         }
 
-        /// <summary>
-        /// Gets recommended minimum height for marquee control
-        /// </summary>
         public static int GetRecommendedMinimumHeight(BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -50,9 +38,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
             };
         }
 
-        /// <summary>
-        /// Gets recommended component spacing for marquee control
-        /// </summary>
         public static int GetRecommendedComponentSpacing(BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -65,9 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
             };
         }
 
-        /// <summary>
-        /// Gets recommended scroll speed for marquee control
-        /// </summary>
         public static float GetRecommendedScrollSpeed(BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -80,9 +62,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
             };
         }
 
-        /// <summary>
-        /// Gets recommended scroll interval (timer interval) for marquee control
-        /// </summary>
         public static int GetRecommendedScrollInterval(BeepControlStyle controlStyle)
         {
             return controlStyle switch
@@ -95,17 +74,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Helpers
             };
         }
 
-        /// <summary>
-        /// Determines if shadow should be shown for marquee items
-        /// </summary>
         public static bool ShouldShowShadow(BeepControlStyle controlStyle)
         {
+            if (SystemInformation.HighContrast)
+                return false;
+
             return controlStyle switch
             {
-                BeepControlStyle.Material3 => false, // Marquee items typically don't need shadows
-                BeepControlStyle.Fluent2 => false,
-                BeepControlStyle.iOS15 => false,
+                BeepControlStyle.Material3 => true,
+                BeepControlStyle.Fluent2 => true,
+                BeepControlStyle.iOS15 => true,
                 BeepControlStyle.Minimal => false,
+                BeepControlStyle.Neumorphism => true,
+                BeepControlStyle.GlassAcrylic => true,
                 _ => false
             };
         }

@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Globalization;
 using System.Text.Json;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;

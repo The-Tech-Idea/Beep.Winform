@@ -17,6 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     internal class InfiniteScrollListBoxPainter : BaseListBoxPainter
     {
         private const string SentinelText = "Load more…";
+        private Rectangle _sentinelRect;
+
+        public Rectangle SentinelRect => _sentinelRect;
 
         public override int GetPreferredItemHeight()
             => DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightComfortable, _owner ?? new Control());
@@ -25,37 +28,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             base.Paint(g, owner, drawingRect);
 
-            // Draw sentinel row at bottom of visible content
             if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
 
             int rowH = DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightCompact, owner);
-            var sentinelRect = new Rectangle(drawingRect.Left, drawingRect.Bottom - rowH, drawingRect.Width, rowH);
+            _sentinelRect = new Rectangle(drawingRect.Left, drawingRect.Bottom - rowH, drawingRect.Width, rowH);
 
-            // Separator line above sentinel
             using var pen = new Pen(Color.FromArgb(40, _theme?.PrimaryColor ?? Color.Gray), 1f);
-            g.DrawLine(pen, sentinelRect.Left, sentinelRect.Top, sentinelRect.Right, sentinelRect.Top);
+            g.DrawLine(pen, _sentinelRect.Left, _sentinelRect.Top, _sentinelRect.Right, _sentinelRect.Top);
 
-            // Sentinel background on hover
             var mp = owner.PointToClient(System.Windows.Forms.Control.MousePosition);
-            bool hovered = sentinelRect.Contains(mp);
+            bool hovered = _sentinelRect.Contains(mp);
             if (hovered)
             {
                 using var hb = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
                     _theme?.PrimaryColor ?? Color.DodgerBlue));
-                g.FillRectangle(hb, sentinelRect);
+                g.FillRectangle(hb, _sentinelRect);
             }
 
-            // Text
             string text = SentinelText;
             using var font  = new Font(owner.Font.FontFamily, owner.Font.Size, FontStyle.Regular);
             using var brush = new SolidBrush(hovered
                 ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
                 : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListForeColor ?? Color.Gray));
             var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(text, font, brush, sentinelRect, sf);
-
-            // Register sentinel hit-area via tag (checked in click handler)
-            owner.Tag = sentinelRect;   // simple coupling — checked in OnMouseClick
+            g.DrawString(text, font, brush, _sentinelRect, sf);
         }
 
         public override bool SupportsSearch() => false;

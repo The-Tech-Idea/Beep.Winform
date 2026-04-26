@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             
             // Calculate alpha based on progress (fade out as it expands)
             int alpha = (int)(Math.Clamp(1f - context.RippleProgress, 0f, 1f) * 80);
-            Color rippleColor = context.RippleColor == Color.Empty ? Color.White : context.RippleColor;
+            Color rippleColor = context.RippleColor != Color.Empty ? context.RippleColor : Color.FromArgb(255, 255, 255);
             
             GraphicsState state = g.Save();
             try

@@ -48,14 +48,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Create track path based on orientation
             using (GraphicsPath trackPath = CreateTrackPath())
             {
-                // Paint track (background) - uses BackgroundPainterFactory
-               // _painter.PaintTrack(g, this, trackPath, currentState);
+                _painter.PaintTrack(g, this, trackPath, currentState);
                 
-                // Paint thumb (toggle knob) - uses BorderPainterFactory
                 _painter.PaintThumb(g, this, _metrics.ThumbCurrentRect, currentState);
                 
-                // Paint labels
                 _painter.PaintLabels(g, this, _metrics.OnLabelRect, _metrics.OffLabelRect);
+            }
+
+            if (Focused && ShowFocusCues)
+            {
+                DrawFocusRing(g, currentState);
             }
         }
 
@@ -83,7 +85,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private SwitchState GetCurrentState()
         {
-            // Combine checked state with interaction state
             bool isOn = _checked || _animProgress > 0.5f;
             
             if (!Enabled)
@@ -99,6 +100,38 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return isOn ? SwitchState.On_Focused : SwitchState.Off_Focused;
             
             return isOn ? SwitchState.On_Normal : SwitchState.Off_Normal;
+        }
+
+        private void DrawFocusRing(Graphics g, SwitchState state)
+        {
+            Color focusColor = Switchs.Helpers.SwitchThemeHelpers.GetFocusRingColor(_currentTheme, UseThemeColors);
+            if (focusColor == Color.Transparent) return;
+
+            Rectangle focusRect = _metrics.TrackRect;
+            int padding = 3;
+            focusRect.Inflate(padding, padding);
+
+            using (var focusPath = new GraphicsPath())
+            {
+                if (Orientation == Switchs.Models.SwitchOrientation.Horizontal)
+                {
+                    int radius = (focusRect.Height) / 2;
+                    focusPath.AddArc(focusRect.X, focusRect.Y, focusRect.Height, focusRect.Height, 90, 180);
+                    focusPath.AddArc(focusRect.Right - focusRect.Height, focusRect.Y, focusRect.Height, focusRect.Height, 270, 180);
+                }
+                else
+                {
+                    int radius = focusRect.Width / 2;
+                    focusPath.AddArc(focusRect.X, focusRect.Y, focusRect.Width, 2 * radius, 180, 180);
+                    focusPath.AddArc(focusRect.X, focusRect.Bottom - 2 * radius, focusRect.Width, 2 * radius, 0, 180);
+                }
+                focusPath.CloseFigure();
+
+                using (var pen = new Pen(focusColor, 2f))
+                {
+                    g.DrawPath(pen, focusPath);
+                }
+            }
         }
     }
 }

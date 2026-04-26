@@ -151,6 +151,12 @@ namespace TheTechIdea.Beep.Winform.Controls;
         private Timer _delayedInvalidateTimer;
         private bool _needsLayoutUpdate = false;
         
+        // Tooltip support
+        private ToolTip _itemToolTip;
+        private Timer _tooltipShowTimer;
+        private SimpleItem _tooltipPendingItem;
+        private const int TooltipDelayMs = 500;
+        
         // Custom painter support
         private Action<Graphics, Rectangle, SimpleItem, bool, bool> _customItemRenderer;
         
@@ -340,6 +346,22 @@ namespace TheTechIdea.Beep.Winform.Controls;
                     _hitHelper.RegisterHitAreas();
                 }
                 Invalidate();
+            };
+            
+            // Initialize tooltip support
+            _itemToolTip = new ToolTip { ShowAlways = false, AutoPopDelay = 5000, InitialDelay = 100, ReshowDelay = 100 };
+            _tooltipShowTimer = new Timer { Interval = TooltipDelayMs };
+            _tooltipShowTimer.Tick += (s, e) =>
+            {
+                _tooltipShowTimer.Stop();
+                if (_tooltipPendingItem != null && !IsDisposed)
+                {
+                    string tipText = GetTooltipText(_tooltipPendingItem);
+                    if (!string.IsNullOrEmpty(tipText))
+                    {
+                        _itemToolTip.SetToolTip(this, tipText);
+                    }
+                }
             };
             
             // CRITICAL: Enable double buffering for smooth rendering
@@ -771,6 +793,15 @@ namespace TheTechIdea.Beep.Winform.Controls;
                     _hoverAnimationTimer.Dispose();
                     _hoverAnimationTimer = null;
                 }
+
+                if (_tooltipShowTimer != null)
+                {
+                    _tooltipShowTimer.Stop();
+                    _tooltipShowTimer.Dispose();
+                    _tooltipShowTimer = null;
+                }
+                _itemToolTip?.RemoveAll();
+                _itemToolTip = null;
 
                 UnsubscribeHighContrastEvents();
 

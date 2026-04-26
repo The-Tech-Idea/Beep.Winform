@@ -204,15 +204,11 @@ namespace  TheTechIdea.Beep.Winform.Controls.ImageManagement
                 // ------------------------------------------------------------------------------------------
                 if (cfg.IsUrl && !string.IsNullOrEmpty(cfg.Path))
                 {
-                    // For example, if cfg.Path contains the URL
-                    // We'll do a quick example with HttpClient:
                     using (var httpClient = new HttpClient())
                     {
-                        var data = httpClient.GetByteArrayAsync(cfg.Path).Result;
+                        var data = httpClient.GetByteArrayAsync(cfg.Path).ConfigureAwait(false).GetAwaiter().GetResult();
                         using (var ms = new MemoryStream(data))
                         {
-                            // If you want to handle .svg from a URL, you'd need to check the extension or parse
-                            // For simplicity, let's assume it's PNG/JPG
                             return Image.FromStream(ms);
                         }
                     }

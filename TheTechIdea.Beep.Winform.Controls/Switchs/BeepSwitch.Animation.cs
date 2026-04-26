@@ -1,28 +1,20 @@
 using System;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    /// <summary>
-    /// BeepSwitch - Animation system
-    /// </summary>
     public partial class BeepSwitch
     {
-        /// <summary>
-        /// Animates the switch toggle with smooth transition
-        /// </summary>
-        /// <param name="newState">Target state (true = On, false = Off)</param>
         private void AnimateToggle(bool newState)
         {
             if (_animating)
             {
-                // Stop current animation
                 _animTimer?.Stop();
                 _animTimer?.Dispose();
             }
             
-            // Quick toggle if animations disabled or painter not initialized
             if (_painter == null)
             {
                 _checked = newState;
@@ -35,31 +27,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             _animating = true;
             float targetProgress = newState ? 1.0f : 0.0f;
             int duration = _painter.GetAnimationDuration();
-            int steps = duration / 16;  // 60 FPS (16ms per frame)
-            if (steps == 0) steps = 1;
-            
-            float stepSize = Math.Abs(targetProgress - _animProgress) / steps;
+            int steps = Math.Max(1, duration / 16);
             
             _animTimer = new Timer { Interval = 16 };
             int currentStep = 0;
+            
+            bool useSpring = ControlStyle == BeepControlStyle.iOS15 || 
+                             ControlStyle == BeepControlStyle.MacOSBigSur ||
+                             ControlStyle == BeepControlStyle.Apple;
             
             _animTimer.Tick += (s, e) =>
             {
                 currentStep++;
                 
-                // Easing function (ease-out cubic for smooth deceleration)
                 float t = (float)currentStep / steps;
-                float easedT = 1 - (float)Math.Pow(1 - t, 3);
+                float easedT = useSpring 
+                    ? EaseOutSpring(t) 
+                    : EaseOutCubic(t);
                 
-                if (newState)
-                {
-                    _animProgress = easedT;
-                }
-                else
-                {
-                    _animProgress = 1.0f - easedT;
-                }
-                
+                _animProgress = newState ? easedT : 1.0f - easedT;
                 _animProgress = Math.Max(0f, Math.Min(1.0f, _animProgress));
                 
                 UpdateMetrics();
@@ -81,9 +67,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             _animTimer.Start();
         }
         
-        /// <summary>
-        /// Updates metrics with current animation progress
-        /// </summary>
+        private static float EaseOutCubic(float t)
+        {
+            return 1 - (float)Math.Pow(1 - t, 3);
+        }
+        
+        private static float EaseOutSpring(float t)
+        {
+            const float p = 0.4f;
+            const float s = p / 4;
+            
+            if (t == 0 || t == 1) return t;
+            
+            return (float)(Math.Pow(2, -10 * t) * Math.Sin((t - s) * (2 * Math.PI) / p) + 1);
+        }
+        
         private void UpdateMetrics()
         {
             if (_painter == null) return;

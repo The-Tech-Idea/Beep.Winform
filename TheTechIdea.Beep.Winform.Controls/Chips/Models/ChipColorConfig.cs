@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips.Models
 {
@@ -50,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Models
     {
         internal static Color ThemeAwareWindow()
         {
-            return SystemInformation.HighContrast ? SystemColors.Window : Color.FromArgb(30, 30, 30);
+            return SystemInformation.HighContrast ? ColorUtils.MapSystemColor(SystemColors.Window) : Color.FromArgb(30, 30, 30);
         }
     }
 }

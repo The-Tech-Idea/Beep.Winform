@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
@@ -213,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
             {
                 _hintLabel.ForeColor = _currentTheme.ForeColor != Color.Empty
                     ? Color.FromArgb(140, _currentTheme.ForeColor)
-                    : Color.Gray;
+                    : ColorUtils.MapSystemColor(SystemColors.GrayText);
             }
         }
 

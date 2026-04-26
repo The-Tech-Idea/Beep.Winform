@@ -1,18 +1,13 @@
+using System;
 using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    /// <summary>
-    /// BeepSwitch - Mouse and keyboard interaction
-    /// </summary>
     public partial class BeepSwitch
     {
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            
-            // BaseControl hit areas will handle the click
-            // No need to duplicate logic here
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -21,7 +16,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (!Enabled) return;
             
-            // Check if clicking on thumb for drag support
             if (_dragToToggleEnabled && _metrics.ThumbCurrentRect.Contains(e.Location))
             {
                 _dragging = true;
@@ -44,14 +38,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Cursor = Cursors.Hand;
             }
             
-            // Calculate drag progress
             int totalDistance = _metrics.ThumbOnRect.X - _metrics.ThumbOffRect.X;
             if (totalDistance == 0) return;
             
             int currentDistance = e.X - _dragStartX;
             float progress = (float)currentDistance / totalDistance;
             
-            // Adjust based on current state
             if (_checked)
             {
                 _animProgress = 1f + progress;
@@ -61,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _animProgress = progress;
             }
             
-            _animProgress = System.Math.Max(0f, System.Math.Min(1f, _animProgress));
+            _animProgress = Math.Max(0f, Math.Min(1f, _animProgress));
             UpdateMetrics();
             Invalidate();
         }
@@ -74,7 +66,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             _dragging = false;
             
-            // Snap to nearest state
             bool newState = _animProgress > 0.5f;
             if (newState != _checked)
             {
@@ -82,44 +73,73 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Reset to current state with animation
                 AnimateToggle(_checked);
             }
         }
 
-        protected override void OnMouseLeave(System.EventArgs e)
+        protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
             Cursor = Cursors.Default;
         }
 
-        protected override bool ProcessDialogKey(Keys keyData)
+        protected override bool IsInputKey(Keys keyData)
         {
-            if (!Enabled) return base.ProcessDialogKey(keyData);
-            
-            // Space or Enter toggles the switch
-            if (keyData == Keys.Space || keyData == Keys.Enter)
+            if ((keyData & Keys.KeyCode) == Keys.Space || 
+                (keyData & Keys.KeyCode) == Keys.Enter ||
+                (keyData & Keys.KeyCode) == Keys.Left ||
+                (keyData & Keys.KeyCode) == Keys.Right)
             {
-                Checked = !Checked;
                 return true;
             }
-            
-            return base.ProcessDialogKey(keyData);
+            return base.IsInputKey(keyData);
         }
 
-        protected override void OnEnabledChanged(System.EventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            
+            if (!Enabled) return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.Space:
+                case Keys.Enter:
+                    Checked = !Checked;
+                    e.Handled = true;
+                    break;
+                case Keys.Right:
+                case Keys.Up:
+                    if (!Checked)
+                    {
+                        Checked = true;
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.Left:
+                case Keys.Down:
+                    if (Checked)
+                    {
+                        Checked = false;
+                        e.Handled = true;
+                    }
+                    break;
+            }
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
         {
             base.OnEnabledChanged(e);
             Invalidate();
         }
 
-        protected override void OnGotFocus(System.EventArgs e)
+        protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
             Invalidate();
         }
 
-        protected override void OnLostFocus(System.EventArgs e)
+        protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
             Invalidate();

@@ -1,23 +1,30 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Marquees.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 {
-    /// <summary>
-    /// Sprint 3 — Abstract base for all marquee item painters.
-    /// Subclasses implement <see cref="Measure"/> and <see cref="Draw"/>.
-    /// The base provides shared helpers: rounded rectangles, badge pills,
-    /// text trimming, and the gradient fade-edge overlay.
-    /// </summary>
     public abstract class MarqueePainterBase : IMarqueeItemRenderer
     {
         public abstract string Name { get; }
         public abstract Size   Measure(Graphics g, MarqueeItem item, MarqueeRenderContext ctx);
         public abstract void   Draw(Graphics g, MarqueeItem item, RectangleF dest, MarqueeRenderContext ctx);
 
-        // ── Shared theme helpers ──────────────────────────────────────
+        protected static readonly StringFormat CenteredFormatInstance = new StringFormat
+        {
+            Alignment     = StringAlignment.Near,
+            LineAlignment = StringAlignment.Center,
+            Trimming      = StringTrimming.EllipsisCharacter
+        };
+
+        protected static readonly StringFormat BadgeFormatInstance = new StringFormat
+        {
+            Alignment     = StringAlignment.Center,
+            LineAlignment = StringAlignment.Center,
+            Trimming      = StringTrimming.None
+        };
 
         protected Color ResolveBackColor(MarqueeItem item, MarqueeRenderContext ctx)
         {
@@ -39,12 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
         {
             return ctx.UseThemeColors && ctx.Theme != null
                 ? ctx.Theme.BorderColor
-                : Color.LightGray;
+                : ColorUtils.MapSystemColor(SystemColors.ControlDark);
         }
 
-        // ── Drawing helpers ───────────────────────────────────────────
-
-        /// <summary>Fills and optionally strokes a rounded rectangle.</summary>
         protected static void FillRoundedRect(Graphics g, RectangleF r, float radius,
             Color fill, Color? border = null, float borderWidth = 1f)
         {
@@ -57,7 +61,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
                     g.DrawPath(pen, path);
         }
 
-        /// <summary>Draws a badge pill at <paramref name="origin"/>.</summary>
         protected static void DrawBadge(Graphics g, string text, PointF origin,
             Color badgeColor, Font font)
         {
@@ -66,13 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             float pw = sz.Width + 8, ph = sz.Height + 2;
             var r = new RectangleF(origin.X, origin.Y, pw, ph);
             FillRoundedRect(g, r, ph / 2f, badgeColor);
-            using var fg = new SolidBrush(Color.White);
-            g.DrawString(text, font, fg, r, new StringFormat
-            {
-                Alignment     = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center,
-                Trimming      = StringTrimming.None
-            });
+            using var fg = new SolidBrush(ColorUtils.GetContrastColor(badgeColor));
+            g.DrawString(text, font, fg, r, BadgeFormatInstance);
         }
 
         protected static GraphicsPath BuildRoundedPath(RectangleF r, float radius)
@@ -87,13 +85,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             return p;
         }
 
-        // ── Fade-edge overlay ─────────────────────────────────────────
-
-        /// <summary>
-        /// Paints gradient fade strips on the leading and trailing edges of the
-        /// control to give the illusion that items scroll into/out of view.
-        /// Call this after all items have been drawn.
-        /// </summary>
         public virtual void DrawFadeEdges(Graphics g, RectangleF controlBounds, MarqueeRenderContext ctx)
         {
             if (!ctx.FadeEdges || ctx.FadeWidth <= 0) return;
@@ -107,11 +98,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             if (horizontal)
             {
                 float fw = Math.Min(ctx.FadeWidth, controlBounds.Width / 3f);
-                // Left fade
                 var lr = new RectangleF(controlBounds.X, controlBounds.Y, fw, controlBounds.Height);
                 using var lb = new LinearGradientBrush(lr, back, Color.Transparent, 0f);
                 g.FillRectangle(lb, lr);
-                // Right fade
                 var rr = new RectangleF(controlBounds.Right - fw, controlBounds.Y, fw, controlBounds.Height);
                 using var rb = new LinearGradientBrush(rr, Color.Transparent, back, 0f);
                 g.FillRectangle(rb, rr);
@@ -128,13 +117,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             }
         }
 
-        // ── Text helpers ──────────────────────────────────────────────
-
-        protected static StringFormat CenteredFormat() => new StringFormat
-        {
-            Alignment     = StringAlignment.Near,
-            LineAlignment = StringAlignment.Center,
-            Trimming      = StringTrimming.EllipsisCharacter
-        };
+        protected static StringFormat CenteredFormat() => (StringFormat)CenteredFormatInstance.Clone();
     }
 }

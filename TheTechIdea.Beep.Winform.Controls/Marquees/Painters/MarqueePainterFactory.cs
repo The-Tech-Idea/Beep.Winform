@@ -2,20 +2,23 @@ using TheTechIdea.Beep.Winform.Controls.Marquees;
 
 namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 {
-    /// <summary>
-    /// Sprint 3 — Routes <see cref="MarqueeStyle"/> to the correct painter instance.
-    /// </summary>
     public static class MarqueePainterFactory
     {
-        /// <summary>Returns a new painter instance for the given style.</summary>
+        private static readonly IMarqueeItemRenderer _default = new DefaultMarqueePainter();
+        private static readonly IMarqueeItemRenderer _card = new CardMarqueePainter();
+        private static readonly IMarqueeItemRenderer _pill = new PillMarqueePainter();
+        private static readonly IMarqueeItemRenderer _stock = new StockTickerPainter();
+        private static readonly IMarqueeItemRenderer _news = new NewsBannerPainter();
+        private static readonly IMarqueeItemRenderer _minimal = new MinimalMarqueePainter();
+
         public static IMarqueeItemRenderer Create(MarqueeStyle style) => style switch
         {
-            MarqueeStyle.Card        => new CardMarqueePainter(),
-            MarqueeStyle.Pill        => new PillMarqueePainter(),
-            MarqueeStyle.StockTicker => new StockTickerPainter(),
-            MarqueeStyle.NewsBanner  => new NewsBannerPainter(),
-            MarqueeStyle.Minimal     => new MinimalMarqueePainter(),
-            _                        => new DefaultMarqueePainter()
+            MarqueeStyle.Card        => _card,
+            MarqueeStyle.Pill        => _pill,
+            MarqueeStyle.StockTicker => _stock,
+            MarqueeStyle.NewsBanner  => _news,
+            MarqueeStyle.Minimal     => _minimal,
+            _                        => _default
         };
     }
 }

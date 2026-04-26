@@ -809,14 +809,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 HoverBackground = HoverBackColor != Color.Empty ? HoverBackColor : intentTokens.HoverBackground,
                 HoverForeground = HoverForeColor != Color.Empty ? HoverForeColor : intentTokens.HoverForeground,
                 PressedBackground = PressedBackColor != Color.Empty ? PressedBackColor : intentTokens.PressedBackground,
-                DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? Color.LightGray,
-                DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? Color.Gray,
+                DisabledBackground = DisabledBackColor != Color.Empty ? DisabledBackColor : theme?.DisabledBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control),
+                DisabledForeground = DisabledForeColor != Color.Empty ? DisabledForeColor : theme?.DisabledForeColor ?? ColorUtils.MapSystemColor(SystemColors.GrayText),
                 
                 // Additional colors from theme
                 BackgroundColor = intentTokens.Background,
                 TextColor = intentTokens.Foreground,
                 IconColor = intentTokens.Foreground,
-                SecondaryColor = theme?.SecondaryColor ?? Color.LightGray,
+                SecondaryColor = theme?.SecondaryColor ?? ColorUtils.MapSystemColor(SystemColors.ControlLight),
                 FocusRingColor = theme?.PrimaryColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Highlight),
                 
                 // Glow and effects
@@ -825,12 +825,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 LoadingIndicatorColor = theme?.AccentColor ?? theme?.PrimaryColor ?? Color.FromArgb(0, 255, 153),
                 
                 // Toggle colors
-                ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.Green,
-                ToggleOffColor = theme?.ButtonBackColor ?? Color.Gray,
-                ToggleBorderColor = theme?.ButtonBorderColor ?? Color.DarkGray,
+                ToggleOnColor = theme?.ButtonSelectedBackColor ?? theme?.AccentColor ?? Color.FromArgb(25, 135, 84),
+                ToggleOffColor = theme?.ButtonBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control),
+                ToggleBorderColor = theme?.ButtonBorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark),
                 
                 // Badge/Chip colors
-                BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.Red,
+                BadgeColor = theme?.BadgeBackColor ?? theme?.AccentColor ?? Color.FromArgb(220, 53, 69),
                 BadgeText = string.Empty,
                 
                 // Contact button icon background
@@ -1479,10 +1479,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
 
         private static Color Shift(Color color, int delta)
         {
-            int r = Math.Clamp(color.R + delta, 0, 255);
-            int g = Math.Clamp(color.G + delta, 0, 255);
-            int b = Math.Clamp(color.B + delta, 0, 255);
-            return Color.FromArgb(color.A, r, g, b);
+            return ColorUtils.ShiftColor(color, delta);
         }
 
         private readonly struct IntentColors

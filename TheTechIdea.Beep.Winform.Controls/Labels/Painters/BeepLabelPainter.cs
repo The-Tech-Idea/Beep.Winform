@@ -19,11 +19,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
             Color subHeaderColor,
             bool applyThemeOnImage)
         {
+            var bounds = context.ContentBounds;
+            if (bounds.IsEmpty) bounds = owner.ClientRectangle;
+
+            if (state.IsPressed && owner.SelectedBackColor != Color.Empty)
+            {
+                using var bgBrush = new SolidBrush(owner.SelectedBackColor);
+                g.FillRectangle(bgBrush, bounds);
+            }
+            else if (state.IsHovered && owner.HoverBackColor != Color.Empty)
+            {
+                using var bgBrush = new SolidBrush(owner.HoverBackColor);
+                g.FillRectangle(bgBrush, bounds);
+            }
+
+            Color effectiveHeaderColor = headerColor;
+            Color effectiveSubHeaderColor = subHeaderColor;
+
+            if (state.IsPressed && owner.SelectedForeColor != Color.Empty)
+            {
+                effectiveHeaderColor = owner.SelectedForeColor;
+                effectiveSubHeaderColor = owner.SelectedForeColor;
+            }
+            else if (state.IsHovered && owner.HoverForeColor != Color.Empty)
+            {
+                effectiveHeaderColor = owner.HoverForeColor;
+                effectiveSubHeaderColor = owner.HoverForeColor;
+            }
+
             if (state.HasImage && !context.ImageBounds.IsEmpty && !string.IsNullOrEmpty(state.ImagePath))
             {
                 if (applyThemeOnImage)
                 {
-                    StyledImagePainter.PaintWithTint(g, context.ImageBounds, state.ImagePath, headerColor, 1f, 0);
+                    StyledImagePainter.PaintWithTint(g, context.ImageBounds, state.ImagePath, effectiveHeaderColor, 1f, 0);
                 }
                 else
                 {
@@ -41,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
                 state.HeaderText,
                 headerFont,
                 context.HeaderBounds,
-                headerColor,
+                effectiveHeaderColor,
                 BeepLabelLayoutHelper.GetTextFormatFlags(state));
 
             if (context.HasSubHeader && !string.IsNullOrEmpty(state.SubHeaderText))
@@ -51,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
                     state.SubHeaderText,
                     subHeaderFont,
                     context.SubHeaderBounds,
-                    subHeaderColor,
+                    effectiveSubHeaderColor,
                     BeepLabelLayoutHelper.GetTextFormatFlags(state));
             }
         }

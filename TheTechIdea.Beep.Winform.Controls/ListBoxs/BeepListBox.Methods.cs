@@ -769,5 +769,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+
+        #region Tooltip
+
+        private string GetTooltipText(SimpleItem item)
+        {
+            if (item == null) return string.Empty;
+            
+            if (item is BeepListItem rich)
+            {
+                var parts = new System.Collections.Generic.List<string>();
+                if (!string.IsNullOrEmpty(rich.Text)) parts.Add(rich.Text);
+                if (!string.IsNullOrEmpty(rich.SubText)) parts.Add(rich.SubText);
+                if (!string.IsNullOrEmpty(rich.TrailingMeta)) parts.Add(rich.TrailingMeta);
+                if (!string.IsNullOrEmpty(rich.BadgeText)) parts.Add($"[{rich.BadgeText}]");
+                return parts.Count > 0 ? string.Join(" — ", parts) : string.Empty;
+            }
+            
+            return item.Text ?? string.Empty;
+        }
+
+        #endregion
     }
 }

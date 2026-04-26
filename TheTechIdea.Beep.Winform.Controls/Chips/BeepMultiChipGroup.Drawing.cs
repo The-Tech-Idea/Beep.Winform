@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using Size = System.Drawing.Size;
 
@@ -72,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 // Focus ring
                 if (state.IsFocused)
                 {
-                    var focusColor = effectiveTheme?.FocusIndicatorColor ?? SystemColors.Highlight;
+                    var focusColor = effectiveTheme?.FocusIndicatorColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
                     var pen = (System.Drawing.Pen)PaintersFactory.GetPen(focusColor,2f).Clone();
                     try
                     {
@@ -95,8 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                         string s = cnt.Value.ToString();
                         var sz = TextRenderer.MeasureText(g, s, _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
                         var br = new Rectangle(chip.Bounds.Right - (sz.Width +12), chip.Bounds.Top -8, sz.Width +10,16);
-                        var badgeBack = effectiveTheme?.NavigationSelectedBackColor ?? SystemColors.Highlight;
-                        var badgeFore = effectiveTheme?.NavigationSelectedForeColor ?? SystemColors.HighlightText;
+                        var badgeBack = effectiveTheme?.NavigationSelectedBackColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+                        var badgeFore = effectiveTheme?.NavigationSelectedForeColor ?? ColorUtils.MapSystemColor(SystemColors.HighlightText);
                         var bg = PaintersFactory.GetSolidBrush(badgeBack);
                         var fg = PaintersFactory.GetSolidBrush(badgeFore);
                         g.FillRectangle(bg, br);
@@ -113,8 +114,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 return;
             }
 
-            var borderColor = effectiveTheme?.ButtonBorderColor ?? SystemColors.ControlDark;
-            var backColor = effectiveTheme?.ButtonBackColor ?? SystemColors.ControlLight;
+            var borderColor = effectiveTheme?.ButtonBorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
+            var backColor = effectiveTheme?.ButtonBackColor ?? ColorUtils.MapSystemColor(SystemColors.ControlLight);
             var foreColor = effectiveTheme?.ButtonForeColor ?? ForeColor;
             var hoverBack = effectiveTheme?.ButtonHoverBackColor ?? ShiftLuminance(backColor, effectiveTheme?.IsDarkTheme == true ? -0.05f : 0.05f);
 

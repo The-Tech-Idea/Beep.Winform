@@ -59,10 +59,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         private DialogShowAnimation _defaultAnimation = DialogShowAnimation.FadeIn;
         private int _animationDuration = 200;
         private DialogManagerOptions _options = new DialogManagerOptions();
-        private readonly Dictionary<int, TheTechIdea.Beep.Vis.Modules.IProgressHandle> _progressDialogs = new();
-        private int _progressTokenCounter = 0;
-        private readonly Queue<DialogRequest> _dialogQueue = new();
-        private bool _isShowingDialog = false;
         private readonly Dictionary<string, Rectangle> _dialogRectState = new();
         private readonly Dictionary<string, Queue<string>> _recentInputMemory = new();
         private BeepDialogForm? _activeModalDialog;
@@ -315,7 +311,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (cancellationToken.CanBeCanceled)
             {
-                cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
+                var registration = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
+                tcs.Task.ContinueWith(_ => registration.Dispose(), TaskContinuationOptions.ExecuteSynchronously);
             }
 
             return tcs.Task;
@@ -1056,15 +1053,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #endregion
 
-        #region Dialog Request Queue
-
-        private class DialogRequest
-        {
-            public DialogConfig Config { get; set; } = new();
-            public TaskCompletionSource<DialogReturn> TaskSource { get; set; } = new();
-        }
-
-        #endregion
     }
 }
 

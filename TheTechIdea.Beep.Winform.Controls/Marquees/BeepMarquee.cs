@@ -35,6 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _scrollOffsetY  = 0f;
         private float _scrollSpeed    = 2f;
         private bool  _pingPongForward = true;
+        private float _cachedTotalWidth = 0f;
+        private float _cachedTotalHeight = 0f;
+        private bool _sizeCacheDirty = true;
+        private HashSet<int> _displayedItems = new HashSet<int>();
 
         // ── NewsTicker state ──────────────────────────────────────────────────────
         private float _newsAlpha        = 1f;
@@ -87,7 +91,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<MarqueeItem> Items
         {
             get => _items;
-            set { _items = value ?? new List<MarqueeItem>(); Invalidate(); }
+            set
+            {
+                _items = value ?? new List<MarqueeItem>();
+                _sizeCacheDirty = true;
+                _displayedItems.Clear();
+                Invalidate();
+            }
         }
 
         [Category("Marquee")]
@@ -234,6 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return;
             _items.Add(item);
+            _sizeCacheDirty = true;
             Invalidate();
         }
 
@@ -256,6 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void RemoveItem(string id)
         {
             _items.RemoveAll(i => i.Id == id);
+            _sizeCacheDirty = true;
             Invalidate();
         }
 
@@ -265,6 +277,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _items.Clear();
             _scrollOffset = 0;
             _scrollOffsetY = 0;
+            _sizeCacheDirty = true;
+            _displayedItems.Clear();
             Invalidate();
         }
 
@@ -272,12 +286,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void AddMarqueeComponent(string key, IBeepUIComponent component)
         {
             _marqueeComponents[key] = component;
+            _sizeCacheDirty = true;
             Invalidate();
         }
 
         public void RemoveMarqueeComponent(string key)
         {
             _marqueeComponents.Remove(key);
+            _sizeCacheDirty = true;
             Invalidate();
         }
 
@@ -338,6 +354,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             return -1;
         }
 
+        private void FireItemDisplayed(int index)
+        {
+            if (index < 0 || index >= _items.Count) return;
+            if (_displayedItems.Contains(index)) return;
+            _displayedItems.Add(index);
+            var item = _items[index];
+            ItemDisplayed?.Invoke(this, new MarqueeItemEventArgs(item, index, Point.Empty));
+        }
+
         // ═════════════════════════════════════════════════════════════════════════
         //  Timer tick — scroll logic
         // ═════════════════════════════════════════════════════════════════════════
@@ -358,7 +383,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
             }
 
-            Invalidate();
+            bool vertical = _scrollDir == MarqueeScrollDirection.TopToBottom
+                         || _scrollDir == MarqueeScrollDirection.BottomToTop;
+            int dirtyMargin = 10;
+            if (vertical)
+            {
+                Invalidate(new Rectangle(0, 0, Width, Height));
+            }
+            else
+            {
+                Invalidate(new Rectangle(0, 0, Width, Height));
+            }
         }
 
         private void TickContinuous()
@@ -388,21 +423,44 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void TickPingPong()
         {
-            float total = GetTotalWidth();
-            float maxOffset = Math.Max(0, total - Width);
+            bool vertical = _scrollDir == MarqueeScrollDirection.TopToBottom
+                         || _scrollDir == MarqueeScrollDirection.BottomToTop;
 
-            float delta = _pingPongForward ? _scrollSpeed : -_scrollSpeed;
-            _scrollOffset += delta;
-
-            if (_scrollOffset >= 0)
+            if (vertical)
             {
-                _scrollOffset = 0;
-                _pingPongForward = false;
+                float total = GetTotalHeight();
+                float maxOffset = Math.Max(0, total - Height);
+                float delta = _pingPongForward ? -_scrollSpeed : _scrollSpeed;
+                _scrollOffsetY += delta;
+
+                if (_scrollOffsetY <= -maxOffset)
+                {
+                    _scrollOffsetY = -maxOffset;
+                    _pingPongForward = false;
+                }
+                else if (_scrollOffsetY >= 0)
+                {
+                    _scrollOffsetY = 0;
+                    _pingPongForward = true;
+                }
             }
-            else if (_scrollOffset <= -maxOffset)
+            else
             {
-                _scrollOffset = -maxOffset;
-                _pingPongForward = true;
+                float total = GetTotalWidth();
+                float maxOffset = Math.Max(0, total - Width);
+                float delta = _pingPongForward ? -_scrollSpeed : _scrollSpeed;
+                _scrollOffset += delta;
+
+                if (_scrollOffset <= -maxOffset)
+                {
+                    _scrollOffset = -maxOffset;
+                    _pingPongForward = false;
+                }
+                else if (_scrollOffset >= 0)
+                {
+                    _scrollOffset = 0;
+                    _pingPongForward = true;
+                }
             }
         }
 
@@ -419,6 +477,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _newsFadingOut = false;
                     _newsHoldTicks = 0;
                     _newsAlpha = 0f;
+                    FireItemDisplayed(_activeNewsIndex);
                 }
             }
             else
@@ -616,22 +675,38 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private float GetTotalWidth()
         {
-            if (_items.Count == 0) return GetTotalComponentsWidth();
-            float total = 0;
-            using var g = CreateGraphics();
-            var ctx = BuildContext(g);
-            foreach (var item in _items)
+            if (_sizeCacheDirty || _cachedTotalWidth == 0f)
             {
-                if (!item.IsVisible) { total += _componentSpacing; continue; }
-                total += _painter.Measure(g, item, ctx).Width + _componentSpacing;
+                if (_items.Count == 0)
+                {
+                    _cachedTotalWidth = GetTotalComponentsWidth();
+                }
+                else
+                {
+                    float total = 0;
+                    using var g = CreateGraphics();
+                    var ctx = BuildContext(g);
+                    foreach (var item in _items)
+                    {
+                        if (!item.IsVisible) { total += _componentSpacing; continue; }
+                        total += _painter.Measure(g, item, ctx).Width + _componentSpacing;
+                    }
+                    _cachedTotalWidth = total <= 0 ? 1 : total;
+                }
+                _sizeCacheDirty = false;
             }
-            return total <= 0 ? 1 : total;
+            return _cachedTotalWidth;
         }
 
         private float GetTotalHeight()
         {
-            float total = _items.Count * (_itemHeight + _componentSpacing);
-            return total <= 0 ? 1 : total;
+            if (_sizeCacheDirty || _cachedTotalHeight == 0f)
+            {
+                float total = _items.Count * (_itemHeight + _componentSpacing);
+                _cachedTotalHeight = total <= 0 ? 1 : total;
+                _sizeCacheDirty = false;
+            }
+            return _cachedTotalHeight;
         }
 
         private float GetTotalComponentsWidth()
@@ -655,7 +730,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            MarqueeFontHelpers.ApplyFontTheme(ControlStyle);
             if (_currentTheme != null && UseThemeColors)
                 BackColor = MarqueeThemeHelpers.GetMarqueeBackgroundColor(_currentTheme, UseThemeColors);
             Invalidate();

@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
@@ -448,18 +449,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="timeout">Maximum time to wait in milliseconds</param>
         /// <returns>True if effect completed, false if timed out</returns>
+        [Obsolete("Use WaitForEffectCompletionAsync for proper async/await pattern")]
         public bool WaitForEffectCompletion(int timeout = 5000)
+        {
+            return WaitForEffectCompletionAsync(timeout).ConfigureAwait(true).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Wait for any running effect to complete (async)
+        /// </summary>
+        /// <param name="timeoutMs">Maximum time to wait in milliseconds</param>
+        /// <returns>True if effect completed, false if timed out</returns>
+        public async Task<bool> WaitForEffectCompletionAsync(int timeoutMs = 5000)
         {
             if (!IsEffectRunning) return true;
             
-            var startTime = DateTime.Now;
-            while (IsEffectRunning && (DateTime.Now - startTime).TotalMilliseconds < timeout)
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            EventHandler<EffectEventArgs> handler = null;
+            handler = (s, e) =>
             {
-                Application.DoEvents();
-                System.Threading.Thread.Sleep(10);
-            }
+                EffectCompleted -= handler;
+                tcs.TrySetResult(true);
+            };
             
-            return !IsEffectRunning;
+            EffectCompleted += handler;
+            
+            using var cts = new System.Threading.CancellationTokenSource(timeoutMs);
+            using (cts.Token.Register(() =>
+            {
+                EffectCompleted -= handler;
+                tcs.TrySetResult(false);
+            }))
+            {
+                return await tcs.Task;
+            }
         }
 
         /// <summary>

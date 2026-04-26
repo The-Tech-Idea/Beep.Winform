@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
@@ -153,10 +154,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
 
             // Use system colors for high contrast mode
             return (
-                SystemColors.WindowText,
-                SystemColors.Highlight,
-                SystemColors.WindowFrame,
-                SystemColors.WindowFrame
+                ColorUtils.MapSystemColor(SystemColors.WindowText),
+                ColorUtils.MapSystemColor(SystemColors.Highlight),
+                ColorUtils.MapSystemColor(SystemColors.WindowFrame),
+                ColorUtils.MapSystemColor(SystemColors.WindowFrame)
             );
         }
 
@@ -192,8 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers
             if (control is BaseControl baseControl)
             {
                 // Use system colors for high contrast
-                baseControl.BackColor = SystemColors.Window;
-                baseControl.ForeColor = SystemColors.WindowText;
+                baseControl.BackColor = ColorUtils.MapSystemColor(SystemColors.Window);
+                baseControl.ForeColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
             }
         }
 

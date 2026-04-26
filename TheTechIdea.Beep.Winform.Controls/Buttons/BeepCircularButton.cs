@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -162,20 +163,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             IsRoundedAffectedByTheme = false;
             IsCustomShape = true;
             ApplyTheme();
-         //   UpdateCircleRegion();
+            UpdateCircleRegion();
         }
 
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-           // UpdateCircleRegion();
+            UpdateCircleRegion();
         }
 
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
-           // UpdateCircleRegion();
+            UpdateCircleRegion();
         }
 
         private void UpdateCircleRegion()
@@ -242,6 +243,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             {
                 var pen = PaintersFactory.GetPen(_currentTheme.ShadowColor, BorderThickness);
                 graphics.DrawEllipse(pen, animatedCircleBounds);
+            }
+
+            // Focus ring
+            if (Focused)
+            {
+                Color focusColor = _currentTheme?.FocusIndicatorColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+                Rectangle focusRect = Rectangle.Inflate(animatedCircleBounds, 4, 4);
+                using (var focusPen = PaintersFactory.GetPen(focusColor, 2f))
+                {
+                    focusPen.DashStyle = DashStyle.Dot;
+                    graphics.DrawEllipse(focusPen, focusRect);
+                }
             }
 
             // Draw image inside circle using StyledImagePainter
@@ -527,24 +540,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             clickAnimationTimer.Start();
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseEnter(EventArgs e)
         {
-            base.OnMouseMove(e);
-            
-            if (!string.IsNullOrEmpty(_imagePath) && imageRect.Contains(e.Location))
-            {
-                Cursor = Cursors.Hand;
-            }
-            else
-            {
-                Cursor = Cursors.Default;
-            }
+            base.OnMouseEnter(e);
+            Cursor = Cursors.Hand;
         }
-
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
             Cursor = Cursors.Default;
+        }
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (!Enabled) { base.OnKeyDown(e); return; }
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space)
+            {
+                IsPressed = true;
+                Invalidate();
+                e.Handled = true;
+            }
+            base.OnKeyDown(e);
+        }
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (!Enabled) { base.OnKeyUp(e); return; }
+            if ((e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space) && IsPressed)
+            {
+                IsPressed = false;
+                Invalidate();
+                OnClick(EventArgs.Empty);
+                e.Handled = true;
+            }
+            base.OnKeyUp(e);
+        }
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate();
+        }
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate();
         }
 
         #region "Badge"
@@ -584,7 +626,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Draw badge background
-            Color badgeBackColor = BadgeBackColor != Color.Empty ? BadgeBackColor : Color.Red;
+            Color badgeBackColor = BadgeBackColor != Color.Empty ? BadgeBackColor : (_currentTheme?.BadgeBackColor ?? _currentTheme?.AccentColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight));
             using (var brush = new SolidBrush(badgeBackColor))
             {
                 g.FillEllipse(brush, badgeRect);
@@ -593,8 +635,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             // Draw badge text
             if (!string.IsNullOrEmpty(BadgeText))
             {
-                Color badgeForeColor = BadgeForeColor != Color.Empty ? BadgeForeColor : Color.White;
-                Font badgeFont = BadgeFont ?? new Font("Arial", 8, FontStyle.Bold);
+                Color badgeForeColor = BadgeForeColor != Color.Empty ? BadgeForeColor : (_currentTheme?.BadgeForeColor ?? (badgeBackColor.GetBrightness() > 0.5 ? Color.Black : Color.White));
+                Font badgeFont = BadgeFont ?? _textFont;
                 using (var textBrush = new SolidBrush(badgeForeColor))
                 using (badgeFont)
                 {

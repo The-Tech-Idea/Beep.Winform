@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         _owner = owner ?? throw new ArgumentNullException(nameof(owner));
         _theme = theme;
-        _helper = new BeepListBoxHelper(owner);
+        _helper = owner.Helper;
         _layout = owner.LayoutHelper;
         TextFont = owner.ListBoxTextFont ?? owner.Font;
     }
@@ -353,37 +353,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected virtual void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty) return;
-            // Compute hover progress-based color blending for smooth transitions
-            float hoverProgress = 0f;
-            try
-            {
-                hoverProgress = _owner.GetHoverProgress(_owner.SelectedItem == null ? null : _owner.SelectedItem); // default 0
-            }
-            catch
-            {
-                hoverProgress = 0f;
-            }
 
-            // If owner can provide hover progress for this item directly, use it
-            try
-            {
-                hoverProgress = Math.Max(hoverProgress, _owner.GetHoverProgress(_owner.SelectedItem == null ? null : _owner.SelectedItem));
-            }
-            catch { }
+            float hoverProgress = isHovered ? 1f : 0f;
 
-            // If the painter supports direct detection using IsHovered flag, we still use it as fallback
-            if (isHovered)
-            {
-                hoverProgress = Math.Max(hoverProgress, 1f);
-            }
-
-            // Base background
             Color backgroundColor = _theme?.BackgroundColor ?? Color.White;
 
-            // Selection override
             if (isSelected)
             {
-                // Use primary color but with subtle alpha blend based on hover progress for pleasing effect
                 Color primary = _theme?.PrimaryColor ?? Color.Empty;
                 backgroundColor = PathPainterHelpers.WithAlphaIfNotEmpty(primary, 20);
                 using (var pen = new Pen(Color.FromArgb(200, primary), 1.5f))
@@ -393,7 +369,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (hoverProgress > 0f)
             {
-                // Blend between base background and hover color based on progress
                 Color hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(230, 230, 230);
                 backgroundColor = BlendColors(backgroundColor, hoverColor, hoverProgress);
             }

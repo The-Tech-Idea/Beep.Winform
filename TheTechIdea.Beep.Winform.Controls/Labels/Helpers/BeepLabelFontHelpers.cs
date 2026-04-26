@@ -44,7 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
                 return SystemFonts.MessageBoxFont;
             }
 
-            return headerFont;
+            float smallerSize = Math.Max(6f, headerFont.Size - 1.5f);
+            return new Font(headerFont.FontFamily, smallerSize, FontStyle.Regular, headerFont.Unit);
         }
     }
 }

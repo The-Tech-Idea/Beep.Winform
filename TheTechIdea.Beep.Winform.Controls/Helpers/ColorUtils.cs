@@ -9,6 +9,11 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static class ColorUtils
     {
+        public static readonly Color DefaultErrorColor = Color.FromArgb(220, 38, 38);
+        public static readonly Color DefaultSuccessColor = Color.FromArgb(34, 197, 94);
+        public static readonly Color DefaultWarningColor = Color.FromArgb(245, 158, 11);
+        public static readonly Color DefaultInfoColor = Color.FromArgb(59, 130, 246);
+
         /// <summary>
         /// Ensures a readable foreground color by inverting it if it is too similar to the background color.
         /// </summary>
@@ -179,7 +184,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             return ColorFromHsl(h, s, l);
         }
 
-        private static void ColorToHsl(Color c, out float h, out float s, out float l)
+        public static void ColorToHsl(Color c, out float h, out float s, out float l)
         {
             float r = c.R / 255f, g = c.G / 255f, b = c.B / 255f;
             float min = Math.Min(r, Math.Min(g, b)), max = Math.Max(r, Math.Max(g, b));
@@ -196,7 +201,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
-        private static Color ColorFromHsl(float h, float s, float l)
+        public static Color ColorFromHsl(float h, float s, float l)
         {
             float r, g, b;
             if (s == 0) { r = g = b = l; }
@@ -220,9 +225,12 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             return p;
         }
 
-        internal static Color Desaturate(Color warmGray, float v)
+        internal static Color Desaturate(Color color, float amount)
         {
-            throw new NotImplementedException();
+            float h, s, l;
+            ColorToHsl(color, out h, out s, out l);
+            s = Math.Max(0, Math.Min(1, s * (1f - Math.Clamp(amount, 0f, 1f))));
+            return ColorFromHsl(h, s, l);
         }
 
         /// <summary>
@@ -250,6 +258,36 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
                 var x when x == SystemColors.InfoText => Color.White,
                 _ => systemColor
             };
+        }
+
+        public static Color ShiftColor(Color color, int delta)
+        {
+            int r = Math.Clamp(color.R + delta, 0, 255);
+            int g = Math.Clamp(color.G + delta, 0, 255);
+            int b = Math.Clamp(color.B + delta, 0, 255);
+            return Color.FromArgb(color.A, r, g, b);
+        }
+
+        public static Color DarkenColor(Color color, int amount)
+        {
+            int r = Math.Max(0, color.R - amount);
+            int g = Math.Max(0, color.G - amount);
+            int b = Math.Max(0, color.B - amount);
+            return Color.FromArgb(color.A, r, g, b);
+        }
+
+        public static Color LightenColor(Color color, int amount)
+        {
+            int r = Math.Min(255, color.R + amount);
+            int g = Math.Min(255, color.G + amount);
+            int b = Math.Min(255, color.B + amount);
+            return Color.FromArgb(color.A, r, g, b);
+        }
+
+        public static Color GetContrastColor(Color backgroundColor)
+        {
+            double luminance = (0.299 * backgroundColor.R + 0.587 * backgroundColor.G + 0.114 * backgroundColor.B) / 255;
+            return luminance > 0.5 ? Color.Black : Color.White;
         }
 
         // Example usage

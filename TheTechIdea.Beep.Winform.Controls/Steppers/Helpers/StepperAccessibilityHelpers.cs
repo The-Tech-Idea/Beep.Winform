@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
 {
@@ -224,20 +225,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Helpers
                     Color.FromArgb(156, 163, 175), // Gray for pending
                     Color.FromArgb(239, 68, 68),   // Red for error
                     Color.FromArgb(245, 158, 11), // Orange for warning
-                    SystemColors.WindowText,      // System text color
-                    SystemColors.WindowFrame      // System border color
+                    ColorUtils.MapSystemColor(SystemColors.WindowText),      // System text color
+                    ColorUtils.MapSystemColor(SystemColors.WindowFrame)      // System border color
                 );
             }
 
             // Use system colors in high contrast mode
             return (
-                SystemColors.Highlight,          // Completed (system highlight)
-                SystemColors.HotTrack,           // Active (system hot track)
-                SystemColors.ControlDark,        // Pending (system control dark)
-                SystemColors.MenuHighlight,      // Error (system menu highlight)
-                SystemColors.Info,               // Warning (system info)
-                SystemColors.WindowText,         // Text (system window text)
-                SystemColors.WindowFrame         // Border (system window frame)
+                ColorUtils.MapSystemColor(SystemColors.Highlight),          // Completed (system highlight)
+                ColorUtils.MapSystemColor(SystemColors.HotTrack),           // Active (system hot track)
+                ColorUtils.MapSystemColor(SystemColors.ControlDark),        // Pending (system control dark)
+                ColorUtils.MapSystemColor(SystemColors.MenuHighlight),      // Error (system menu highlight)
+                ColorUtils.MapSystemColor(SystemColors.Info),               // Warning (system info)
+                ColorUtils.MapSystemColor(SystemColors.WindowText),         // Text (system window text)
+                ColorUtils.MapSystemColor(SystemColors.WindowFrame)         // Border (system window frame)
             );
         }
 

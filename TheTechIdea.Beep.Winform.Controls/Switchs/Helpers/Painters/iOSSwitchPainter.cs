@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
+using TheTechIdea.Beep.Winform.Controls.Switchs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
@@ -180,31 +181,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
 
         public void PaintThumb(Graphics g, BeepSwitch owner, Rectangle thumbRect, SwitchState state)
         {
-            // iOS-style thumb: White circle with subtle shadow
+            var theme = owner._currentTheme;
+            bool isHovered = state == SwitchState.Off_Hover || state == SwitchState.On_Hover;
+            bool isDisabled = state == SwitchState.Off_Disabled || state == SwitchState.On_Disabled;
+
             using (var thumbPath = new GraphicsPath())
             {
                 thumbPath.AddEllipse(thumbRect);
-                
-                // White fill (always white for iOS style)
-                using (var brush = new SolidBrush(Color.White))
+
+                Color thumbColor = SwitchThemeHelpers.GetThumbColor(theme, owner.UseThemeColors, owner.Checked, isHovered, isDisabled);
+
+                if (SwitchStyleHelpers.ShouldShowThumbShadow(owner.ControlStyle))
+                {
+                    Color shadowColor = SwitchThemeHelpers.GetThumbShadowColor(theme, owner.UseThemeColors, 2);
+                    Point offset = SwitchStyleHelpers.GetShadowOffset(owner.ControlStyle);
+                    Rectangle shadowRect = new Rectangle(
+                        thumbRect.X + offset.X,
+                        thumbRect.Y + offset.Y,
+                        thumbRect.Width,
+                        thumbRect.Height);
+                    using (var shadowPath = new GraphicsPath())
+                    {
+                        shadowPath.AddEllipse(shadowRect);
+                        using (var shadowBrush = new SolidBrush(shadowColor))
+                        {
+                            g.FillPath(shadowBrush, shadowPath);
+                        }
+                    }
+                }
+
+                using (var brush = new SolidBrush(thumbColor))
                 {
                     g.FillPath(brush, thumbPath);
                 }
-                
-                // Subtle border
+
                 using (var pen = new Pen(Color.FromArgb(30, 0, 0, 0), 1f))
                 {
                     g.DrawPath(pen, thumbPath);
                 }
-                
-                // Optional: Draw icon in thumb (using icon library!)
+
                 if (owner.Checked && !string.IsNullOrEmpty(owner.OnIconName))
                 {
-                    DrawThumbIcon(g, thumbRect, owner.OnIconName, owner._currentTheme?.SuccessColor ?? Color.Green);
+                    DrawThumbIcon(g, thumbRect, owner.OnIconName, theme?.SuccessColor ?? Color.FromArgb(52, 199, 89));
                 }
                 else if (!owner.Checked && !string.IsNullOrEmpty(owner.OffIconName))
                 {
-                    DrawThumbIcon(g, thumbRect, owner.OffIconName, owner._currentTheme?.SecondaryColor ?? Color.Gray);
+                    DrawThumbIcon(g, thumbRect, owner.OffIconName, theme?.SecondaryColor ?? Color.Gray);
                 }
             }
         }
@@ -238,20 +260,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers.Painters
 
         public void PaintLabels(Graphics g, BeepSwitch owner, Rectangle onLabelRect, Rectangle offLabelRect)
         {
-            // iOS style: Active label is bold/colored, inactive is dimmed
             var theme = owner._currentTheme;
-            Color onColor = owner.Checked 
-                ? (theme?.SuccessColor ?? Color.FromArgb(52, 199, 89))  // iOS green
-                : (theme?.DisabledForeColor ?? Color.FromArgb(174, 174, 178));  // iOS disabled gray
-            
-            Color offColor = !owner.Checked 
-                ? (theme?.ForeColor ?? Color.Black)
-                : (theme?.DisabledForeColor ?? Color.FromArgb(174, 174, 178));
-            
-            // Draw labels
+            bool isDisabled = !owner.Enabled;
+
+            Color onColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: true, isActive: owner.Checked, isDisabled);
+            Color offColor = SwitchThemeHelpers.GetLabelTextColor(theme, owner.UseThemeColors, isOn: false, isActive: !owner.Checked, isDisabled);
+
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OnLabel, owner.Font, onLabelRect, onColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-                
+
             System.Windows.Forms.TextRenderer.DrawText(g, owner.OffLabel, owner.Font, offLabelRect, offColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
         }

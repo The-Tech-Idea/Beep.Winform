@@ -3,21 +3,13 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
 {
-    /// <summary>
-    /// Centralized helper for managing switch theme colors
-    /// Integrates with ApplyTheme() pattern from BaseControl
-    /// Maps switch states (on, off, hovered, focused) to theme colors
-    /// </summary>
     public static class SwitchThemeHelpers
     {
-        /// <summary>
-        /// Gets the background color for the switch control
-        /// Priority: Custom color > Theme Background > Default
-        /// </summary>
         public static Color GetSwitchBackgroundColor(
             IBeepTheme theme,
             bool useThemeColors,
@@ -37,75 +29,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             return Color.Transparent;
         }
 
-        /// <summary>
-        /// Gets the track background color
-        /// Priority: Custom color > Theme Success/Secondary > Default
-        /// </summary>
         public static Color GetTrackBackgroundColor(
             IBeepTheme theme,
             bool useThemeColors,
             bool isOn = false,
             bool isHovered = false,
-            Color? customColor = null)
+            bool isPressed = false,
+            Color? customOnColor = null,
+            Color? customOffColor = null)
         {
-            if (customColor.HasValue)
-                return customColor.Value;
-
             if (useThemeColors && theme != null)
             {
-                if (isOn)
-                {
-                    if (theme.SuccessColor != Color.Empty)
-                        return theme.SuccessColor;
-                    if (theme.PrimaryColor != Color.Empty)
-                        return theme.PrimaryColor;
-                    if (theme.CheckBoxBackColor != Color.Empty)
-                        return theme.CheckBoxBackColor;
-                }
-                else
-                {
-                    if (isHovered)
-                    {
-                        if (theme.SurfaceColor != Color.Empty)
-                            return ShiftLuminance(theme.SurfaceColor, 0.05f);
-                    }
-                    if (theme.SecondaryColor != Color.Empty)
-                        return theme.SecondaryColor;
-                    if (theme.SurfaceColor != Color.Empty)
-                        return theme.SurfaceColor;
-                }
+                Color baseColor = isOn
+                    ? (customOnColor.HasValue ? customOnColor.Value : GetThemeSuccessColor(theme))
+                    : (customOffColor.HasValue ? customOffColor.Value : GetThemeOffColor(theme));
+
+                if (isPressed)
+                    return ColorUtils.ShiftLuminance(baseColor, -0.08f);
+                if (isHovered)
+                    return ColorUtils.ShiftLuminance(baseColor, isOn ? -0.05f : 0.05f);
+
+                return baseColor;
             }
 
-            return isOn
-                ? Color.FromArgb(76, 175, 80) // Material Green
-                : Color.FromArgb(189, 189, 189); // Material Gray
+            Color fallback = isOn
+                ? Color.FromArgb(76, 175, 80)
+                : Color.FromArgb(189, 189, 189);
+
+            if (isPressed)
+                return ColorUtils.ShiftLuminance(fallback, -0.08f);
+            if (isHovered)
+                return ColorUtils.ShiftLuminance(fallback, isOn ? -0.05f : 0.05f);
+
+            return fallback;
         }
 
-        /// <summary>
-        /// Gets the thumb color
-        /// </summary>
         public static Color GetThumbColor(
             IBeepTheme theme,
             bool useThemeColors,
             bool isOn = false,
-            bool isHovered = false)
+            bool isHovered = false,
+            bool isDisabled = false)
         {
+            if (isDisabled)
+                return ColorUtils.ShiftLuminance(Color.White, 0.1f);
+
+            Color baseThumb = Color.White;
+
             if (useThemeColors && theme != null)
             {
-                // Material switches typically use white thumb
                 if (theme.SurfaceColor != Color.Empty)
                 {
                     float luminance = GetLuminance(theme.SurfaceColor);
-                    return luminance > 0.5f ? Color.White : Color.FromArgb(240, 240, 240);
+                    baseThumb = luminance > 0.5f ? Color.White : Color.FromArgb(240, 240, 240);
                 }
             }
 
-            return Color.White; // Default white thumb
+            if (isHovered)
+                return ColorUtils.ShiftLuminance(baseThumb, -0.03f);
+
+            return baseThumb;
         }
 
-        /// <summary>
-        /// Gets the border color for the track
-        /// </summary>
         public static Color GetTrackBorderColor(
             IBeepTheme theme,
             bool useThemeColors,
@@ -116,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
                 if (isOn)
                 {
                     if (theme.SuccessColor != Color.Empty)
-                        return ShiftLuminance(theme.SuccessColor, -0.1f);
+                        return ColorUtils.ShiftLuminance(theme.SuccessColor, -0.1f);
                 }
                 else
                 {
@@ -126,33 +111,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             }
 
             return isOn
-                ? Color.FromArgb(66, 165, 70) // Darker green
-                : Color.FromArgb(224, 224, 224); // Light gray
+                ? Color.FromArgb(66, 165, 70)
+                : Color.FromArgb(224, 224, 224);
         }
 
-        /// <summary>
-        /// Gets the label text color
-        /// </summary>
         public static Color GetLabelTextColor(
             IBeepTheme theme,
             bool useThemeColors,
             bool isOn = false,
-            bool isActive = false)
+            bool isActive = false,
+            bool isDisabled = false)
         {
+            if (isDisabled)
+            {
+                if (useThemeColors && theme != null && theme.DisabledForeColor != Color.Empty)
+                    return theme.DisabledForeColor;
+                return Color.FromArgb(180, 180, 180);
+            }
+
             if (useThemeColors && theme != null)
             {
                 if (isActive)
                 {
-                    if (isOn)
-                    {
-                        if (theme.SuccessColor != Color.Empty)
-                            return theme.SuccessColor;
-                    }
-                    else
-                    {
-                        if (theme.ForeColor != Color.Empty)
-                            return theme.ForeColor;
-                    }
+                    if (isOn && theme.SuccessColor != Color.Empty)
+                        return theme.SuccessColor;
+                    if (theme.ForeColor != Color.Empty)
+                        return theme.ForeColor;
                 }
                 else
                 {
@@ -162,20 +146,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             }
 
             if (isActive)
-            {
-                return isOn
-                    ? Color.FromArgb(76, 175, 80) // Material Green
-                    : Color.FromArgb(33, 37, 41); // Dark gray
-            }
-            else
-            {
-                return Color.FromArgb(180, 180, 180); // Disabled gray
-            }
+                return isOn ? Color.FromArgb(76, 175, 80) : Color.FromArgb(33, 37, 41);
+
+            return Color.FromArgb(180, 180, 180);
         }
 
-        /// <summary>
-        /// Gets the shadow color for thumb elevation
-        /// </summary>
         public static Color GetThumbShadowColor(
             IBeepTheme theme,
             bool useThemeColors,
@@ -190,32 +165,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             return Color.FromArgb(Math.Min(255, elevation * 20), Color.Black);
         }
 
-        /// <summary>
-        /// Gets all theme colors for a switch in one call
-        /// </summary>
-        public static (Color switchBg, Color trackBg, Color thumb, Color border, Color labelText, Color shadow) GetSwitchColors(
+        public static Color GetFocusRingColor(IBeepTheme theme, bool useThemeColors)
+        {
+            if (useThemeColors && theme != null)
+            {
+                if (theme.PrimaryColor != Color.Empty)
+                    return Color.FromArgb(80, theme.PrimaryColor);
+            }
+
+            return Color.FromArgb(80, Color.FromArgb(76, 175, 80));
+        }
+
+        public static (Color switchBg, Color trackBg, Color thumb, Color border, Color labelText, Color shadow, Color focusRing) GetSwitchColors(
             IBeepTheme theme,
             bool useThemeColors,
             bool isOn = false,
             bool isHovered = false,
+            bool isPressed = false,
+            bool isFocused = false,
+            bool isDisabled = false,
             bool isLabelActive = false)
         {
             return (
                 GetSwitchBackgroundColor(theme, useThemeColors),
-                GetTrackBackgroundColor(theme, useThemeColors, isOn, isHovered),
-                GetThumbColor(theme, useThemeColors, isOn, isHovered),
+                GetTrackBackgroundColor(theme, useThemeColors, isOn, isHovered, isPressed),
+                GetThumbColor(theme, useThemeColors, isOn, isHovered, isDisabled),
                 GetTrackBorderColor(theme, useThemeColors, isOn),
-                GetLabelTextColor(theme, useThemeColors, isOn, isLabelActive),
-                GetThumbShadowColor(theme, useThemeColors, 2)
+                GetLabelTextColor(theme, useThemeColors, isOn, isLabelActive, isDisabled),
+                GetThumbShadowColor(theme, useThemeColors, 2),
+                isFocused ? GetFocusRingColor(theme, useThemeColors) : Color.Transparent
             );
+        }
+
+        public static Color GetContrastColor(Color backgroundColor, IBeepTheme theme = null)
+        {
+            float luminance = GetLuminance(backgroundColor);
+
+            if (theme != null)
+            {
+                return luminance > 0.4f
+                    ? (theme.ForeColor != Color.Empty ? theme.ForeColor : Color.FromArgb(28, 27, 31))
+                    : (theme.IsDarkTheme ? Color.FromArgb(249, 250, 251) : Color.White);
+            }
+
+            return luminance > 0.4f
+                ? Color.FromArgb(28, 27, 31)
+                : Color.FromArgb(249, 250, 251);
         }
 
         #region Helper Methods
 
-        /// <summary>
-        /// Calculate relative luminance of a color (for contrast checking)
-        /// Returns value between 0 (dark) and 1 (light)
-        /// </summary>
         private static float GetLuminance(Color color)
         {
             float r = color.R / 255f;
@@ -229,21 +228,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Switchs.Helpers
             return 0.2126f * r + 0.7152f * g + 0.0722f * b;
         }
 
-        private static Color ShiftLuminance(Color color, float shift)
+        private static Color GetThemeSuccessColor(IBeepTheme theme)
         {
-            float r = color.R / 255f;
-            float g = color.G / 255f;
-            float b = color.B / 255f;
+            if (theme.SuccessColor != Color.Empty)
+                return theme.SuccessColor;
+            if (theme.PrimaryColor != Color.Empty)
+                return theme.PrimaryColor;
+            if (theme.CheckBoxBackColor != Color.Empty)
+                return theme.CheckBoxBackColor;
+            return Color.FromArgb(76, 175, 80);
+        }
 
-            r = Math.Clamp(r + shift, 0f, 1f);
-            g = Math.Clamp(g + shift, 0f, 1f);
-            b = Math.Clamp(b + shift, 0f, 1f);
-
-            return Color.FromArgb(
-                color.A,
-                (int)(r * 255),
-                (int)(g * 255),
-                (int)(b * 255));
+        private static Color GetThemeOffColor(IBeepTheme theme)
+        {
+            if (theme.SecondaryColor != Color.Empty)
+                return theme.SecondaryColor;
+            if (theme.SurfaceColor != Color.Empty)
+                return theme.SurfaceColor;
+            return Color.FromArgb(189, 189, 189);
         }
 
         #endregion

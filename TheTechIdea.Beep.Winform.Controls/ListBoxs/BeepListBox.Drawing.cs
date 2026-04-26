@@ -72,6 +72,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // ── Empty-search state ───────────────────────────────────────────────
+            if (ShowSearch && !string.IsNullOrWhiteSpace(SearchText))
+            {
+                var visible = Helper?.GetVisibleItems() ?? new System.Collections.Generic.List<SimpleItem>();
+                if (visible.Count == 0)
+                {
+                    DrawEmptySearchState(g, bounds);
+                    return;
+                }
+            }
+
             // Let the list box painter draw everything
             _listBoxPainter.Paint(g, this, bounds);
 
@@ -289,6 +300,49 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.DrawString(headline, headlineFont, hBrush, hRect, sf);
 
             // Sub-text
+            using var sBrush = new SolidBrush(subColor);
+            var sRect = new RectangleF(bounds.Left, hRect.Bottom + 4, bounds.Width, subTextSize.Height + 4);
+            g.DrawString(subText, subFont, sBrush, sRect, sf);
+        }
+
+        private void DrawEmptySearchState(Graphics g, Rectangle bounds)
+        {
+            string headline = $"No results for \"{SearchText}\"";
+            string subText  = "Try a different search term";
+
+            int iconSize = Helpers.DpiScalingHelper.ScaleValue(ListBoxTokens.EmptyStateIconSize, this);
+
+            using var headlineFont = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateHeadlinePt, System.Drawing.FontStyle.Bold);
+            using var subFont      = new Font(_textFont.FontFamily, ListBoxTokens.EmptyStateSubTextPt);
+
+            var headlineSize = g.MeasureString(headline, headlineFont);
+            var subTextSize  = g.MeasureString(subText,  subFont);
+
+            int totalH = iconSize + 12 + (int)headlineSize.Height + 4 + (int)subTextSize.Height;
+            int startY = bounds.Top + (bounds.Height - totalH) / 2;
+
+            Color headlineColor = _currentTheme?.ForeColor ?? Color.Gray;
+            Color subColor      = Color.FromArgb(ListBoxTokens.SubTextAlpha, headlineColor);
+
+            // Search icon — magnifying glass
+            int iconX = bounds.Left + (bounds.Width - iconSize) / 2;
+            int circleSize = iconSize / 2;
+            int circleX = iconX + (iconSize - circleSize) / 2;
+            int circleY = startY + iconSize / 6;
+            using var iconPen = new Pen(Color.FromArgb(90, headlineColor), 2f);
+            g.DrawEllipse(iconPen, circleX, circleY, circleSize, circleSize);
+            int handleLen = iconSize / 4;
+            int hx = circleX + circleSize / 2 + handleLen / 3;
+            int hy = circleY + circleSize + handleLen / 3;
+            g.DrawLine(iconPen, circleX + circleSize * 3 / 4, circleY + circleSize * 3 / 4, hx, hy);
+
+            int textY = startY + iconSize + 12;
+
+            using var hBrush = new SolidBrush(headlineColor);
+            var hRect = new RectangleF(bounds.Left, textY, bounds.Width, headlineSize.Height + 4);
+            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            g.DrawString(headline, headlineFont, hBrush, hRect, sf);
+
             using var sBrush = new SolidBrush(subColor);
             var sRect = new RectangleF(bounds.Left, hRect.Bottom + 4, bounds.Width, subTextSize.Height + 4);
             g.DrawString(subText, subFont, sBrush, sRect, sf);

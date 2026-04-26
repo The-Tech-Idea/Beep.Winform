@@ -23,10 +23,6 @@ namespace TheTechIdea.Beep.Winform.Controls
   //  [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepLabelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public class BeepLabel : BaseControl
     {
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-        private const int WM_SETREDRAW = 0x000B;
-
         #region "Fields"
         private string _imagePath = string.Empty;
         private Size _resolvedImageSize = Size.Empty;
@@ -49,6 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _lastAccessibilitySnapshot = string.Empty;
         private LabelStyleConfig _styleProfile = new LabelStyleConfig();
         private LabelColorConfig _colorProfile = new LabelColorConfig();
+        private ToolTip _truncationToolTip;
+        private bool _isTextTruncated = false;
         // Add subheader field
         private string _subHeaderText = string.Empty;
         // Add spacing between header and subheader
@@ -379,28 +377,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                using var g = CreateGraphics();
-
-                // 1) Measure header text
                 var headerFont = _textFont ?? Font;
                 string headerSample = string.IsNullOrEmpty(Text) ? "A" : Text;
 
-                // Use single-line for intrinsic minimum; multiline will expand at layout time
                 Size headerSize = TextRenderer.MeasureText(
-                    g,
                     headerSample,
                     headerFont,
                     new Size(int.MaxValue, int.MaxValue),
                     TextFormatFlags.SingleLine);
 
-                // 2) Measure subheader (if any)
                 bool hasSub = !string.IsNullOrEmpty(SubHeaderText);
                 var subFont = SubHeaderFont ?? headerFont;
                 Size subSize = Size.Empty;
                 if (hasSub)
                 {
                     subSize = TextRenderer.MeasureText(
-                        g,
                         SubHeaderText,
                         subFont,
                         new Size(int.MaxValue, int.MaxValue),
@@ -410,7 +401,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int textWidth = Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
                 int textHeight = headerSize.Height + (hasSub ? DpiScalingHelper.ScaleValue(_headerSubheaderSpacing, this) + subSize.Height : 0);
 
-                // 3) Image size (if any) limited by MaxImageSize
                 Size imgSize = Size.Empty;
                 if (HasImage)
                 {
@@ -427,29 +417,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // 4) Combine content sizes; account for image+text spacing if both exist
-                int contentW = textWidth + (imgSize != Size.Empty ? (imgSize.Width) : 0);
+                int contentW = textWidth + (imgSize != Size.Empty ? imgSize.Width : 0);
                 int contentH = Math.Max(textHeight, imgSize.Height);
 
-                // Include control padding
                 contentW += Padding.Left + Padding.Right;
                 contentH += Padding.Top + Padding.Bottom;
 
-                // Base content minimums
                 Size baseContentMin = new Size(Math.Max(80, contentW), Math.Max(20, contentH));
 
-                // 5) Effective minimum
                 Size effectiveMin = new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,
                         baseContentMin.Height + (BorderThickness + 2) * 2);
 
-                // Safety clamps
                 effectiveMin.Width = Math.Max(effectiveMin.Width, 60);
                 effectiveMin.Height = Math.Max(effectiveMin.Height, 24);
 
                 MinimumSize = effectiveMin;
 
-                // 6) Enforce height like other controls
                 if (Height < effectiveMin.Height)
                 {
                     Height = effectiveMin.Height;
@@ -504,10 +488,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Ensure min updates on font changes
         protected override void OnFontChanged(EventArgs e)
         {
-            //base.OnFontChanged(e);
+            base.OnFontChanged(e);
             _textFont = Font;
-
-           
 
             UpdateMinimumSize();
 
@@ -521,19 +503,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             get
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    Size measured = TextRenderer.MeasureText(
-                        g,
-                        string.IsNullOrEmpty(Text) ? "A" : Text,
-                        _textFont ?? Font,
-                        new Size(int.MaxValue, int.MaxValue),
-                        TextFormatFlags.SingleLine
-                    );
-                    return new Size(
-                        DpiScalingHelper.ScaleValue(200, this),
-                        measured.Height + DpiScalingHelper.ScaleValue(offset, this));
-                }
+                Size measured = TextRenderer.MeasureText(
+                    string.IsNullOrEmpty(Text) ? "A" : Text,
+                    _textFont ?? Font,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.SingleLine
+                );
+                return new Size(
+                    DpiScalingHelper.ScaleValue(200, this),
+                    measured.Height + DpiScalingHelper.ScaleValue(offset, this));
             }
         }
         #endregion "Constructors"
@@ -552,6 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Padding = new Padding(1);
             Margin = new Padding(0);
+            _truncationToolTip = new ToolTip { AutoPopDelay = 10000, InitialDelay = 500, ReshowDelay = 100, ShowAlways = false };
         }
 
       
@@ -812,31 +791,83 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Theme"
 
         #region "Mouse Events"
+        private bool _isHovered = false;
+        private bool _isPressed = false;
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (!_isHovered)
+            {
+                _isHovered = true;
+                _state.IsHovered = true;
+                UpdateTruncationTooltip();
+                Invalidate();
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (_isHovered || _isPressed)
+            {
+                _isHovered = false;
+                _isPressed = false;
+                _state.IsHovered = false;
+                _state.IsPressed = false;
+                Invalidate();
+            }
+        }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            // Suppress repaint on click to prevent flicker
-            SendMessage(Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
-            try
+            base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left)
             {
-                base.OnMouseDown(e);
-            }
-            finally
-            {
-                SendMessage(Handle, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+                _isPressed = true;
+                _state.IsPressed = true;
+                Invalidate();
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            // Suppress repaint on click to prevent flicker
-            SendMessage(Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
-            try
+            base.OnMouseUp(e);
+            if (_isPressed)
             {
-                base.OnMouseUp(e);
+                _isPressed = false;
+                _state.IsPressed = false;
+                Invalidate();
             }
-            finally
+        }
+
+        private void UpdateTruncationTooltip()
+        {
+            if (!_autoEllipsis || string.IsNullOrEmpty(Text))
             {
-                SendMessage(Handle, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+                _truncationToolTip.Hide(this);
+                _isTextTruncated = false;
+                return;
+            }
+
+            var fontToUse = _textFont ?? Font;
+            var bounds = _layoutContext.HeaderBounds;
+            if (bounds.IsEmpty) bounds = ClientRectangle;
+
+            Size fullSize = TextRenderer.MeasureText(Text, fontToUse, new Size(int.MaxValue, int.MaxValue),
+                TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+            Size constrainedSize = TextRenderer.MeasureText(Text, fontToUse, new Size(bounds.Width, int.MaxValue),
+                TextFormatFlags.SingleLine | TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis);
+
+            _isTextTruncated = fullSize.Width > constrainedSize.Width;
+
+            if (_isTextTruncated)
+            {
+                _truncationToolTip.SetToolTip(this, Text);
+            }
+            else
+            {
+                _truncationToolTip.Hide(this);
             }
         }
         #endregion "Mouse Events"
@@ -854,10 +885,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override Size GetPreferredSize(Size proposedSize)
         {
-            if (!SetFont() && UseThemeFont)
-            {
-                _textFont = BeepFontManager.ToFont(_currentTheme.LabelFont);
-            }
+            var fontToUse = _textFont ?? Font;
 
             _state.HeaderText = Text ?? string.Empty;
             _state.SubHeaderText = SubHeaderText ?? string.Empty;
@@ -879,12 +907,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size headerTextSize;
             if (wrapText)
             {
-                headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(maxWidth, int.MaxValue),
+                headerTextSize = TextRenderer.MeasureText(Text, fontToUse, new Size(maxWidth, int.MaxValue),
                     BeepLabelLayoutHelper.GetTextFormatFlags(_state));
             }
             else
             {
-                headerTextSize = TextRenderer.MeasureText(Text, _textFont, new Size(int.MaxValue, int.MaxValue),
+                headerTextSize = TextRenderer.MeasureText(Text, fontToUse, new Size(int.MaxValue, int.MaxValue),
                     BeepLabelLayoutHelper.GetTextFormatFlags(_state));
             }
 
@@ -942,12 +970,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Recompute min on resize
+        private bool _isResizing = false;
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateMinimumSize();
-            if (Height < MinimumSize.Height)
-                Height = MinimumSize.Height;
+            if (_isResizing) return;
+            _isResizing = true;
+            try
+            {
+                UpdateMinimumSize();
+                if (Height < MinimumSize.Height)
+                    Height = MinimumSize.Height;
+            }
+            finally
+            {
+                _isResizing = false;
+            }
             Invalidate();
         }
 
@@ -1004,18 +1042,5 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // NOTE: Draw method now above (calls Paint function)
         #endregion "IBeep UI Component Implementation"
-        #region "Badge"
-        private BeepControl _lastBeepParent;
-
-
-
-        #endregion "Badge"
-
-        #region "Material Design Support"
-
-       
-
-
-        #endregion "Material Design Support"
     }
 }

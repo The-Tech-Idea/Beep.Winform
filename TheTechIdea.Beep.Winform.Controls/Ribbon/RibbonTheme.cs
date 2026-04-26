@@ -47,20 +47,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ApplyFallbackDefaults()
         {
-            Background = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight);
+            Background = Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLight);
+            Text = Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
+            IconColor = Text;
+
             TabActiveBack = Color.White;
             TabInactiveBack = Color.FromArgb(235, 235, 235);
             TabBorder = Color.FromArgb(180, 180, 180);
-            GroupBack = Color.FromArgb(245, 245, 245);
-            GroupBorder = Color.FromArgb(200, 200, 200);
+
+            GroupBack = Helpers.ColorUtils.ShiftLuminance(Background, 0.15f);
+            GroupBorder = Helpers.ColorUtils.ShiftLuminance(TabBorder, -0.1f);
+
             HoverBack = Color.FromArgb(236, 246, 255);
             PressedBack = Color.FromArgb(217, 234, 252);
             FocusBorder = Color.FromArgb(0, 120, 215);
             Separator = Color.FromArgb(210, 210, 210);
-            Text = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
-            IconColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlText);
-            QuickAccessBack = Color.FromArgb(228, 240, 252);
-            QuickAccessBorder = Color.FromArgb(120, 160, 200);
+
+            QuickAccessBack = Helpers.ColorUtils.ShiftLuminance(Background, 0.2f);
+            QuickAccessBorder = Helpers.ColorUtils.ShiftLuminance(TabBorder, -0.2f);
+
             DisabledBack = Color.FromArgb(232, 232, 232);
             DisabledText = Color.FromArgb(156, 156, 156);
             DisabledBorder = Color.FromArgb(194, 194, 194);

@@ -423,18 +423,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             UpdateChevronRegion();
         }
 
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            Cursor = Cursors.Hand;
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Cursor = Cursors.Default;
+        }
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            
-            if (!string.IsNullOrEmpty(ImagePath) && imageRect.Contains(e.Location))
-            {
-                Cursor = Cursors.Hand;
-            }
-            else
-            {
-                Cursor = Cursors.Default;
-            }
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -518,12 +519,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             }
 
             return base.IsInputKey(keyData);
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            Cursor = Cursors.Default;
         }
 
         protected override void Dispose(bool disposing)
@@ -652,8 +647,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 return;
             }
 
-            Color focusColor = _currentTheme?.ButtonSelectedForeColor ?? Color.DodgerBlue;
-            var pen = PaintersFactory.GetPen(Color.FromArgb(220, focusColor), 2f);
+            Color focusColor = _currentTheme?.FocusIndicatorColor ?? _currentTheme?.ButtonSelectedForeColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+            var pen = PaintersFactory.GetPen(Color.FromArgb(200, focusColor), 2f);
             graphics.DrawPath(pen, ringPath);
         }
 
@@ -715,7 +710,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (!Enabled)
             {
                 fillColor = _variant == ChevronButtonVariant.Text ? Color.Transparent : disabledBack;
-                borderColor = Color.FromArgb(120, disabledText);
+                borderColor = Color.FromArgb(100, disabledText);
                 textColor = disabledText;
                 return;
             }

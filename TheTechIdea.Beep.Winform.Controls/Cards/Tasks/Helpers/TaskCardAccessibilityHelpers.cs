@@ -166,12 +166,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers
             }
 
             return (
-                SystemColors.Window,
-                SystemColors.WindowText,
-                SystemColors.GrayText,
-                SystemColors.WindowText,
-                SystemColors.WindowText,
-                SystemColors.WindowText
+                ColorUtils.MapSystemColor(SystemColors.Window),
+                ColorUtils.MapSystemColor(SystemColors.WindowText),
+                ColorUtils.MapSystemColor(SystemColors.GrayText),
+                ColorUtils.MapSystemColor(SystemColors.WindowText),
+                ColorUtils.MapSystemColor(SystemColors.WindowText),
+                ColorUtils.MapSystemColor(SystemColors.WindowText)
             );
         }
 

@@ -1,22 +1,25 @@
 using System.Drawing;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
 {
-    /// <summary>
-    /// Helper class to convert between DialogConfig and BeepControlStyle
-    /// Similar to ToolTipStyleAdapter for consistent styling
-    /// </summary>
     public static class DialogStyleAdapter
     {
-        /// <summary>
-        /// Get BeepControlStyle from DialogConfig
-        /// Uses current BeepStyling style as fallback
-        /// </summary>
+        private static readonly Color _defaultAccent = Color.FromArgb(59, 130, 246);
+        private static readonly Color _defaultError = Color.FromArgb(220, 38, 38);
+        private static readonly Color _defaultWarning = Color.FromArgb(245, 158, 11);
+        private static readonly Color _defaultSuccess = Color.FromArgb(16, 185, 129);
+        private static readonly Color _defaultInfo = Color.FromArgb(33, 150, 243);
+        private static readonly Color _defaultOrange = Color.FromArgb(255, 152, 0);
+        private static readonly Color _defaultGreen = Color.FromArgb(76, 175, 80);
+        private static readonly Color _defaultRed = Color.FromArgb(244, 67, 54);
+
         public static BeepControlStyle GetBeepControlStyle(DialogConfig config)
         {
             if (config == null)
@@ -25,19 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             return config.Style;
         }
 
-        /// <summary>
-        /// Get icon path based on dialog icon type
-        /// </summary>
         public static string GetIconPath(DialogConfig config)
         {
             if (config == null)
                 return string.Empty;
 
-            // Custom icon path takes precedence
             if (!string.IsNullOrEmpty(config.IconPath))
                 return config.IconPath;
 
-            // Map BeepDialogIcon to icon paths
             return config.IconType switch
             {
                 BeepDialogIcon.Information => Svgs.Information,
@@ -50,9 +48,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             };
         }
 
-        /// <summary>
-        /// Get semantic color for dialog icon based on type
-        /// </summary>
         public static Color GetIconColor(DialogConfig config, IBeepTheme theme)
         {
             if (theme == null)
@@ -60,86 +55,73 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
 
             return config.IconType switch
             {
-                BeepDialogIcon.Information => theme.AccentColor,
-                BeepDialogIcon.Warning => Color.FromArgb(255, 152, 0), // Orange
-                BeepDialogIcon.Error => theme.ErrorColor,
-                BeepDialogIcon.Question => theme.AccentColor,
-                BeepDialogIcon.Success => theme.SuccessColor,
-                _ => theme.ForeColor
+                BeepDialogIcon.Information => theme.AccentColor != Color.Empty ? theme.AccentColor : _defaultInfo,
+                BeepDialogIcon.Warning => theme.WarningColor != Color.Empty ? theme.WarningColor : _defaultOrange,
+                BeepDialogIcon.Error => theme.ErrorColor != Color.Empty ? theme.ErrorColor : _defaultRed,
+                BeepDialogIcon.Question => theme.AccentColor != Color.Empty ? theme.AccentColor : _defaultInfo,
+                BeepDialogIcon.Success => theme.SuccessColor != Color.Empty ? theme.SuccessColor : _defaultGreen,
+                _ => theme.ForeColor != Color.Empty ? theme.ForeColor : ColorUtils.MapSystemColor(SystemColors.ControlText)
             };
         }
 
-        /// <summary>
-        /// Get default icon color without theme
-        /// </summary>
         private static Color GetDefaultIconColor(BeepDialogIcon iconType)
         {
             return iconType switch
             {
-                BeepDialogIcon.Information => Color.FromArgb(33, 150, 243), // Blue
-                BeepDialogIcon.Warning => Color.FromArgb(255, 152, 0), // Orange
-                BeepDialogIcon.Error => Color.FromArgb(244, 67, 54), // Red
-                BeepDialogIcon.Question => Color.FromArgb(33, 150, 243), // Blue
-                BeepDialogIcon.Success => Color.FromArgb(76, 175, 80), // Green
-                _ => Color.Black
+                BeepDialogIcon.Information => _defaultInfo,
+                BeepDialogIcon.Warning => _defaultOrange,
+                BeepDialogIcon.Error => _defaultRed,
+                BeepDialogIcon.Question => _defaultInfo,
+                BeepDialogIcon.Success => _defaultGreen,
+                _ => ColorUtils.MapSystemColor(SystemColors.ControlText)
             };
         }
 
-        /// <summary>
-        /// Get color scheme from DialogConfig and theme
-        /// </summary>
         public static DialogColors GetColors(DialogConfig config, IBeepTheme theme)
         {
             var colors = new DialogColors();
 
             if (theme != null && config.UseBeepThemeColors)
             {
-                colors.Background = config.BackColor ?? theme.DialogBackColor;
-                colors.Foreground = config.ForeColor ?? theme.DialogForeColor;
-                colors.Border = config.BorderColor ?? theme.BorderColor;
-                colors.Accent = theme.AccentColor;
-                colors.TitleBackground = theme.AccentColor;
-                colors.TitleForeground = Color.White;
-                colors.ButtonBackground = theme.DialogOkButtonBackColor;
-                colors.ButtonForeground = theme.DialogOkButtonForeColor;
-                colors.ButtonBorder = theme.DialogOkButtonHoverBorderColor;
+                colors.Background = config.BackColor ?? (theme.DialogBackColor != Color.Empty ? theme.DialogBackColor : ColorUtils.MapSystemColor(SystemColors.Window));
+                colors.Foreground = config.ForeColor ?? (theme.DialogForeColor != Color.Empty ? theme.DialogForeColor : ColorUtils.MapSystemColor(SystemColors.WindowText));
+                colors.Border = config.BorderColor ?? (theme.BorderColor != Color.Empty ? theme.BorderColor : ColorUtils.MapSystemColor(SystemColors.ControlDark));
+                colors.Accent = theme.AccentColor != Color.Empty ? theme.AccentColor : _defaultAccent;
+                colors.TitleBackground = theme.AccentColor != Color.Empty ? theme.AccentColor : _defaultAccent;
+                colors.TitleForeground = ColorUtils.GetContrastColor(colors.TitleBackground);
+                colors.ButtonBackground = theme.DialogOkButtonBackColor != Color.Empty ? theme.DialogOkButtonBackColor : ColorUtils.MapSystemColor(SystemColors.Control);
+                colors.ButtonForeground = theme.DialogOkButtonForeColor != Color.Empty ? theme.DialogOkButtonForeColor : ColorUtils.MapSystemColor(SystemColors.ControlText);
+                colors.ButtonBorder = theme.DialogOkButtonHoverBorderColor != Color.Empty ? theme.DialogOkButtonHoverBorderColor : ColorUtils.MapSystemColor(SystemColors.ControlDark);
             }
             else
             {
-                colors.Background = config.BackColor ?? Color.White;
-                colors.Foreground = config.ForeColor ?? Color.Black;
-                colors.Border = config.BorderColor ?? Color.FromArgb(189, 189, 189);
-                colors.Accent = Color.FromArgb(33, 150, 243);
-                colors.TitleBackground = Color.FromArgb(33, 150, 243);
+                colors.Background = config.BackColor ?? ColorUtils.MapSystemColor(SystemColors.Window);
+                colors.Foreground = config.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.WindowText);
+                colors.Border = config.BorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
+                colors.Accent = _defaultAccent;
+                colors.TitleBackground = _defaultAccent;
                 colors.TitleForeground = Color.White;
-                colors.ButtonBackground = Color.FromArgb(240, 240, 240);
-                colors.ButtonForeground = Color.Black;
-                colors.ButtonBorder = Color.FromArgb(189, 189, 189);
+                colors.ButtonBackground = ColorUtils.MapSystemColor(SystemColors.Control);
+                colors.ButtonForeground = ColorUtils.MapSystemColor(SystemColors.ControlText);
+                colors.ButtonBorder = ColorUtils.MapSystemColor(SystemColors.ControlDark);
             }
 
-            // Custom shadow color
             if (config.ShadowColor.HasValue)
                 colors.Shadow = config.ShadowColor.Value;
             else if (theme != null)
-                colors.Shadow = Color.FromArgb(100, 0, 0, 0);
+                colors.Shadow = Color.FromArgb(100, ColorUtils.MapSystemColor(SystemColors.ControlText));
             else
-                colors.Shadow = Color.FromArgb(80, 0, 0, 0);
+                colors.Shadow = Color.FromArgb(80, ColorUtils.MapSystemColor(SystemColors.ControlText));
 
             return colors;
         }
 
-        /// <summary>
-        /// Returns the semantic primary-action button colour for a given dialog
-        /// preset, resolved against the supplied theme.
-        /// Falls back to <paramref name="theme"/>.AccentColor (blue) for neutral
-        /// presets and when <paramref name="theme"/> is null.
-        /// </summary>
         public static Color GetPresetPrimaryColor(DialogPreset preset, IBeepTheme? theme)
         {
-            var accent  = theme?.AccentColor  is { IsEmpty: false } a ? a : Color.FromArgb(59, 130, 246);
-            var error   = theme?.ErrorColor   is { IsEmpty: false } e ? e : Color.FromArgb(220, 38,  38);
-            var warning = theme?.WarningColor is { IsEmpty: false } w ? w : Color.FromArgb(245, 158, 11);
-            var success = theme?.SuccessColor is { IsEmpty: false } s ? s : Color.FromArgb(16,  185, 129);
+            var accent  = theme?.AccentColor  is { IsEmpty: false } a ? a : _defaultAccent;
+            var error   = theme?.ErrorColor   is { IsEmpty: false } e ? e : _defaultError;
+            var warning = theme?.WarningColor is { IsEmpty: false } w ? w : _defaultWarning;
+            var success = theme?.SuccessColor is { IsEmpty: false } s ? s : _defaultSuccess;
 
             return preset switch
             {
@@ -156,19 +138,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             };
         }
 
-        /// <summary>
-        /// Returns a subtle header-panel background tint colour for a given
-        /// preset.  The tint is a low-opacity blend so it remains readable on
-        /// any theme background.  Returns <see cref="Color.Empty"/> for neutral
-        /// presets (callers should leave the header untinted in that case).
-        /// </summary>
         public static Color GetPresetHeaderTint(DialogPreset preset, IBeepTheme? theme)
         {
-            var errorBase   = theme?.ErrorColor   is { IsEmpty: false } e ? e : Color.FromArgb(220, 38,  38);
-            var warningBase = theme?.WarningColor is { IsEmpty: false } w ? w : Color.FromArgb(245, 158, 11);
-            var successBase = theme?.SuccessColor is { IsEmpty: false } s ? s : Color.FromArgb(16,  185, 129);
+            var errorBase   = theme?.ErrorColor   is { IsEmpty: false } e ? e : _defaultError;
+            var warningBase = theme?.WarningColor is { IsEmpty: false } w ? w : _defaultWarning;
+            var successBase = theme?.SuccessColor is { IsEmpty: false } s ? s : _defaultSuccess;
 
-            // 18-alpha overlay — keeps contrast while providing a gentle semantic cue.
             return preset switch
             {
                 DialogPreset.DestructiveConfirm => Color.FromArgb(18, errorBase.R,   errorBase.G,   errorBase.B),
@@ -184,9 +159,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
             };
         }
 
-        /// <summary>
-        /// Get button text for standard dialog buttons
-        /// </summary>
         public static string GetButtonText(Vis.Modules.BeepDialogButtons button)
         {
             return button switch
@@ -205,9 +177,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers
         }
     }
 
-    /// <summary>
-    /// Color scheme for dialogs
-    /// </summary>
     public class DialogColors
     {
         public Color Background { get; set; }

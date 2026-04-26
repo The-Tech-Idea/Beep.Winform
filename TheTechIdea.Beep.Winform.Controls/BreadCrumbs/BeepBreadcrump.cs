@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
@@ -535,7 +536,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var useTheme = UseThemeColors && theme != null;
 
             // Get focus color from theme or use system highlight color
-            Color focusColor = SystemColors.Highlight;
+            Color focusColor = ColorUtils.MapSystemColor(SystemColors.Highlight);
             if (useTheme && theme != null)
             {
                 // Use primary color with reduced opacity for focus indicator

@@ -156,7 +156,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
                 searchBox.Focus();
                 searchBox.SelectAll();
 
-                // Register for lost focus
+                // Register for lost focus (unsubscribe first to prevent duplicates)
+                searchBox.LostFocus -= SearchBox_LostFocus;
                 searchBox.LostFocus += SearchBox_LostFocus;
             }
             else
@@ -175,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
         private void SearchBox_LostFocus(object sender, EventArgs e)
         {
             var searchBox = _componentFactory.SearchBox;
-            if (!searchBox.Focused)
+            if (!searchBox.Focused && _host.AsControl.IsHandleCreated)
             {
                 _host.AsControl.BeginInvoke(new Action(() =>
                 {
@@ -214,8 +215,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
             var arg = new BeepAppBarEventsArgs("Notifications", _componentFactory.NotificationButton);
             OnButtonClicked?.Invoke(this, arg);
             Clicked?.Invoke(this, new BeepMouseEventArgs("Notifications", _componentFactory.NotificationButton));
-
-            MessageBox.Show("Showing notifications");
         }
 
         private void HandleProfileClick()
@@ -261,12 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
             var form = _host.AsControl.FindForm();
             if (form == null) return;
 
-            var args = new FormClosingEventArgs(CloseReason.UserClosing, false);
-
-            if (!args.Cancel)
-            {
-                form.Close();
-            }
+            form.Close();
         }
 
         #endregion
@@ -285,7 +279,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
                 var parentControl = _host.AsControl;
                 if (parentControl.InvokeRequired)
                 {
-                    parentControl.BeginInvoke(new Action(RemoveSearchBoxControlSafe));
+                    if (parentControl.IsHandleCreated)
+                        parentControl.BeginInvoke(new Action(RemoveSearchBoxControlSafe));
                     return;
                 }
 

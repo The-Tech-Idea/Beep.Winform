@@ -1,5 +1,13 @@
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 {
+    public enum ProgressState
+    {
+        Normal,
+        Indeterminate,
+        Paused,
+        Error
+    }
+
     // Visual text display modes for BeepProgressBar
     public enum ProgressBarDisplayMode
     {

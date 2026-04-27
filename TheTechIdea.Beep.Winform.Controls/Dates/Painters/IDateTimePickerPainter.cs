@@ -104,6 +104,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         /// </summary>
         Size GetMinimumSize(DateTimePickerProperties properties);
 
+        /// <summary>
+        /// Update the theme reference without recreating the painter
+        /// </summary>
+        void UpdateTheme(IBeepTheme theme);
     
     }
 

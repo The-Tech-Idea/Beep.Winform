@@ -51,8 +51,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -102,6 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             if (showSearchBox)
             {
                 var searchRect = new Rectangle(x, centerY - 18, 200, 36);
+                searchBounds = searchRect;
                 DrawSearchBoxProfessional(g, searchRect, searchText, colors);
                 x += 216;
             }
@@ -109,6 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 for (int i = 0; i < tabs.Count; i++)
                 {
                     var tab = tabs[i];

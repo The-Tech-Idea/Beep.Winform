@@ -117,6 +117,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
             }
         }
 
-        protected static StringFormat CenteredFormat() => (StringFormat)CenteredFormatInstance.Clone();
+        protected static StringFormat CenteredFormat() => CenteredFormatInstance;
     }
 }

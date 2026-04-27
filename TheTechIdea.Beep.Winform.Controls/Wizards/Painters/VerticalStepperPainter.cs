@@ -54,17 +54,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             }
             else
             {
-                _completedColor = Color.FromArgb(46, 125, 50);
-                _currentColor = Color.FromArgb(25, 118, 210);
-                _pendingColor = Color.FromArgb(150, 150, 150);
-                _lineColor = Color.FromArgb(220, 220, 220);
-                _textColor = Color.FromArgb(50, 50, 50);
-                _subtextColor = Color.FromArgb(120, 120, 120);
-                _sidePanelColor = Color.FromArgb(245, 245, 250);
+                _completedColor = ColorUtils.MapSystemColor(SystemColors.Highlight);
+                _currentColor = ColorUtils.MapSystemColor(SystemColors.HotTrack);
+                _pendingColor = Color.FromArgb(80, ColorUtils.MapSystemColor(SystemColors.GrayText));
+                _lineColor = Color.FromArgb(40, ColorUtils.MapSystemColor(SystemColors.ControlDark));
+                _textColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
+                _subtextColor = Color.FromArgb(128, ColorUtils.MapSystemColor(SystemColors.GrayText));
+                _sidePanelColor = ColorUtils.ShiftLuminance(ColorUtils.MapSystemColor(SystemColors.Window), -0.03f);
             }
 
+            _titleFont?.Dispose();
             _titleFont = WizardHelpers.GetFont(theme, theme?.TitleStyle, 11f, FontStyle.Bold);
+            _descFont?.Dispose();
             _descFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 9f, FontStyle.Regular);
+            _numberFont?.Dispose();
             _numberFont = WizardHelpers.GetFont(theme, theme?.BodyStyle, 10f, FontStyle.Bold);
         }
 

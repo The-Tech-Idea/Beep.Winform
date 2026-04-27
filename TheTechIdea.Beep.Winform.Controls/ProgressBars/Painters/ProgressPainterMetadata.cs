@@ -27,10 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             [ProgressPainterKind.ChevronSteps] = NewMeta(hit: true, keyboard: true, focus: true, interactive: true, minHeight: 28),
             [ProgressPainterKind.DotsLoader] = NewMeta(animation: true),
             [ProgressPainterKind.ArrowHeadAnimated] = NewMeta(animation: true),
-            [ProgressPainterKind.Ring] = NewMeta(hit: true),
-            [ProgressPainterKind.DottedRing] = NewMeta(hit: true),
-            [ProgressPainterKind.RadialSegmented] = NewMeta(),
-            [ProgressPainterKind.RingCenterImage] = NewMeta(hit: true),
+            [ProgressPainterKind.Ring] = NewMeta(hit: true, animation: true),
+            [ProgressPainterKind.DottedRing] = NewMeta(hit: true, animation: true),
+            [ProgressPainterKind.RadialSegmented] = NewMeta(animation: true),
+            [ProgressPainterKind.RingCenterImage] = NewMeta(hit: true, animation: true),
         };
 
         public static ProgressPainterMetadata GetMetadata(ProgressPainterKind kind)

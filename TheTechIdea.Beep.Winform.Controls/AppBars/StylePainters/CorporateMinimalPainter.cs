@@ -48,8 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -116,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 totalTabsWidth -= TAB_SPACING;
 
                 // Center tabs
-                int tabStartX = bounds.Left + (bounds.Width - totalTabsWidth) / 2;
+                int tabStartX = bounds.Left + (bounds.Width - totalTabsWidth) / 2 - tabScrollOffset;
                 tabStartX = Math.Max(tabStartX, x);
 
                 for (int i = 0; i < tabs.Count; i++)

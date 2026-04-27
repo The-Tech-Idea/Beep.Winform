@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Models
 {

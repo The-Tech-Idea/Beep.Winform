@@ -49,8 +49,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -96,6 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS (dropdown style with chevron) ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 for (int i = 0; i < tabs.Count; i++)
                 {
                     var tab = tabs[i];
@@ -155,8 +159,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 int searchX = bounds.Left + (bounds.Width - SEARCH_WIDTH) / 2;
                 // Ensure search doesn't overlap tabs
                 searchX = Math.Max(searchX, x + 20);
-                var searchRect = new Rectangle(searchX, centerY - 20, SEARCH_WIDTH, 40);
-                DrawSearchBoxWithCategory(g, searchRect, searchText, accent, colors);
+                searchBounds = new Rectangle(searchX, centerY - 20, SEARCH_WIDTH, 40);
+                DrawSearchBoxWithCategory(g, searchBounds, searchText, accent, colors);
             }
 
             // === BUTTONS (icon-style cart/wishlist/account) ===

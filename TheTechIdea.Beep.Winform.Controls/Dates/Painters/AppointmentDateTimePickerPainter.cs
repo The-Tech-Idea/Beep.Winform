@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class AppointmentDateTimePickerPainter : IDateTimePickerPainter
     {
     private readonly BeepDateTimePicker _owner;
-    private readonly IBeepTheme _theme;
+    private IBeepTheme _theme;
         private int _scrollOffset = 0;
         public Font TextFont { get; set; }
 
@@ -28,6 +28,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public AppointmentDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

@@ -36,7 +36,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             {
                 using var b = new SolidBrush(i < active ? on : off);
                 g.FillEllipse(b, new Rectangle(x, y, dotSize, dotSize));
-                registerLabel(g, bounds, x, y, dotSize); // no-op placeholder for labels if needed later
                 x += dotSize + spacing;
             }
         }
@@ -77,7 +76,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
             UpdateHitAreas(owner, context.Bounds, context.Theme, context.Parameters, register);
         }
-
-        private void registerLabel(Graphics g, Rectangle bounds, int x, int y, int dotSize) { /* reserved */ }
     }
 }

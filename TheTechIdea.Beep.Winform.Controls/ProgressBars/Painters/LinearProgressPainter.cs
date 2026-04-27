@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
@@ -66,106 +67,132 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             }
 
             // Primary progress
-            float pct = owner.DisplayProgressPercentageAccessor; // 0..1 animated percentage
-            pct = System.Math.Max(0f, System.Math.Min(1f, pct));
-            int progressWidth = System.Math.Max(1, (int)System.Math.Round(pct * rect.Width));
-            if (progressWidth > 0)
+            var state = ProgressPainterParameterContracts.GetState(parameters);
+            bool isIndeterminate = state != null && state.State == ProgressState.Indeterminate;
+
+            if (isIndeterminate)
             {
-                var progressRect = new Rectangle(rect.X, rect.Y, System.Math.Min(progressWidth, rect.Width), rect.Height);
-                // Clip for rounded to keep corner radius on the fill end
+                int barWidth = (int)(rect.Width * 0.3f);
+                int cx = (int)(rect.Left + state.IndeterminateOffset * (rect.Width + barWidth) - barWidth / 2);
+                cx = Math.Max(rect.Left, Math.Min(rect.Right - barWidth, cx));
+                var progressRect = new Rectangle(cx, rect.Y, barWidth, rect.Height);
+
                 Region? oldClip = null;
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
-                    oldClip = g.Clip; // copy
+                    oldClip = g.Clip;
                     int crp = ClampCorner(progressRect, owner.BorderRadius);
                     using var clipPath = ControlPaintHelper.GetRoundedRectPath(progressRect, crp);
                     g.SetClip(clipPath, CombineMode.Replace);
                 }
 
-                switch (owner.ProgressBarStyle)
-                {
-                    case ProgressBarStyle.Flat:
-                        using (var brush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(brush, progressRect);
-                        break;
-                    case ProgressBarStyle.Gradient:
-                        using (var gradientBrush = new LinearGradientBrush(progressRect,
-                                   Color.FromArgb(255, owner.ProgressColor),
-                                   Color.FromArgb(220, owner.ProgressColor),
-                                   LinearGradientMode.Vertical))
-                        {
-                            gradientBrush.GammaCorrection = true;
-                            g.FillRectangle(gradientBrush, progressRect);
-                        }
-                        break;
-                    case ProgressBarStyle.Striped:
-                        using (var baseBrush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(baseBrush, progressRect);
-                        using (var stripeBrush = new HatchBrush(HatchStyle.LightUpwardDiagonal, Color.FromArgb(30, Color.White), Color.Transparent))
-                            g.FillRectangle(stripeBrush, progressRect);
-                        break;
-                    case ProgressBarStyle.Animated:
-                        using (var baseBrush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(baseBrush, progressRect);
-                        // simple shimmer using owner.AnimationOffset
-                        using (var stripeBrush = new LinearGradientBrush(new Rectangle((int)owner.AnimationOffset, 0, progressRect.Width * 2, progressRect.Height),
-                                   Color.FromArgb(0, 255, 255, 255), Color.FromArgb(60, 255, 255, 255), LinearGradientMode.Horizontal))
-                        {
-                            var blend = new ColorBlend
-                            {
-                                Colors = new[]
-                                {
-                                    Color.FromArgb(0, 255, 255, 255),
-                                    Color.FromArgb(30, 255, 255, 255),
-                                    Color.FromArgb(30, 255, 255, 255),
-                                    Color.FromArgb(0, 255, 255, 255)
-                                },
-                                Positions = new[] { 0f, 0.4f, 0.6f, 1f }
-                            };
-                            stripeBrush.InterpolationColors = blend;
-                            g.FillRectangle(stripeBrush, progressRect);
-                        }
-                        break;
-                    case ProgressBarStyle.Segmented:
-                        float segmentWidth = (float)rect.Width / System.Math.Max(1, owner.Segments);
-                        int filled = (int)(pct * owner.Segments);
-                        for (int i = 0; i < owner.Segments; i++)
-                        {
-                            var seg = new Rectangle((int)(rect.X + i * segmentWidth + 1), rect.Y + 1, System.Math.Max(1, (int)(segmentWidth - 2)), System.Math.Max(1, rect.Height - 2));
-                            if (i < filled)
-                            {
-                                using var segBrush = new SolidBrush(owner.ProgressColor);
-                                g.FillRectangle(segBrush, seg);
-                            }
-                            else if (i == filled && pct * owner.Segments % 1 > 0)
-                            {
-                                var pw = System.Math.Max(1, (int)(pct * owner.Segments % 1 * seg.Width));
-                                using var segBrush = new SolidBrush(owner.ProgressColor);
-                                g.FillRectangle(segBrush, new Rectangle(seg.X, seg.Y, pw, seg.Height));
-                            }
-                            using var pen = new Pen(owner.BackColor, 1);
-                            g.DrawRectangle(pen, seg);
-                        }
-                        break;
-                }
+                using (var brush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(brush, progressRect);
 
-                // Glow effect
-                if (owner.ShowGlowEffect && progressWidth > 0)
-                {
-                    float glowOpacity = owner.IsPulsating ? owner.GlowIntensity : 0.25f;
-                    glowOpacity *= owner.IsPulsating ? 0.4f : 1f;
-                    int gw = System.Math.Min(20, progressRect.Width);
-                    if (gw > 0)
-                    {
-                        using var glowBrush = new LinearGradientBrush(new Rectangle(progressRect.Right - gw, progressRect.Y, gw, progressRect.Height),
-                            Color.FromArgb((int)(255 * glowOpacity), 255, 255, 255),
-                            Color.FromArgb(10, 255, 255, 255), LinearGradientMode.Horizontal);
-                        g.FillRectangle(glowBrush, progressRect.Right - gw, progressRect.Y, gw, progressRect.Height);
-                    }
-                }
-
-                // restore clip
                 if (oldClip != null)
                 {
                     g.Clip = oldClip;
                     oldClip.Dispose();
+                }
+            }
+            else
+            {
+                float pct = owner.DisplayProgressPercentageAccessor;
+                pct = System.Math.Max(0f, System.Math.Min(1f, pct));
+                int progressWidth = System.Math.Max(1, (int)System.Math.Round(pct * rect.Width));
+                if (progressWidth > 0)
+                {
+                    var progressRect = new Rectangle(rect.X, rect.Y, System.Math.Min(progressWidth, rect.Width), rect.Height);
+                    Region? oldClip = null;
+                    if (owner.IsRounded && owner.BorderRadius > 0)
+                    {
+                        oldClip = g.Clip;
+                        int crp = ClampCorner(progressRect, owner.BorderRadius);
+                        using var clipPath = ControlPaintHelper.GetRoundedRectPath(progressRect, crp);
+                        g.SetClip(clipPath, CombineMode.Replace);
+                    }
+
+                    switch (owner.ProgressBarStyle)
+                    {
+                        case ProgressBarStyle.Flat:
+                            using (var brush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(brush, progressRect);
+                            break;
+                        case ProgressBarStyle.Gradient:
+                            using (var gradientBrush = new LinearGradientBrush(progressRect,
+                                       Color.FromArgb(255, owner.ProgressColor),
+                                       Color.FromArgb(220, owner.ProgressColor),
+                                       LinearGradientMode.Vertical))
+                            {
+                                gradientBrush.GammaCorrection = true;
+                                g.FillRectangle(gradientBrush, progressRect);
+                            }
+                            break;
+                        case ProgressBarStyle.Striped:
+                            using (var baseBrush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(baseBrush, progressRect);
+                            using (var stripeBrush = new HatchBrush(HatchStyle.LightUpwardDiagonal, Color.FromArgb(30, Color.White), Color.Transparent))
+                                g.FillRectangle(stripeBrush, progressRect);
+                            break;
+                        case ProgressBarStyle.Animated:
+                            using (var baseBrush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(baseBrush, progressRect);
+                            using (var stripeBrush = new LinearGradientBrush(new Rectangle((int)owner.AnimationOffset, 0, progressRect.Width * 2, progressRect.Height),
+                                       Color.FromArgb(0, 255, 255, 255), Color.FromArgb(60, 255, 255, 255), LinearGradientMode.Horizontal))
+                            {
+                                var blend = new ColorBlend
+                                {
+                                    Colors = new[]
+                                    {
+                                        Color.FromArgb(0, 255, 255, 255),
+                                        Color.FromArgb(30, 255, 255, 255),
+                                        Color.FromArgb(30, 255, 255, 255),
+                                        Color.FromArgb(0, 255, 255, 255)
+                                    },
+                                    Positions = new[] { 0f, 0.4f, 0.6f, 1f }
+                                };
+                                stripeBrush.InterpolationColors = blend;
+                                g.FillRectangle(stripeBrush, progressRect);
+                            }
+                            break;
+                        case ProgressBarStyle.Segmented:
+                            float segmentWidth = (float)rect.Width / System.Math.Max(1, owner.Segments);
+                            int filled = (int)(pct * owner.Segments);
+                            for (int i = 0; i < owner.Segments; i++)
+                            {
+                                var seg = new Rectangle((int)(rect.X + i * segmentWidth + 1), rect.Y + 1, System.Math.Max(1, (int)(segmentWidth - 2)), System.Math.Max(1, rect.Height - 2));
+                                if (i < filled)
+                                {
+                                    using var segBrush = new SolidBrush(owner.ProgressColor);
+                                    g.FillRectangle(segBrush, seg);
+                                }
+                                else if (i == filled && pct * owner.Segments % 1 > 0)
+                                {
+                                    var pw = System.Math.Max(1, (int)(pct * owner.Segments % 1 * seg.Width));
+                                    using var segBrush = new SolidBrush(owner.ProgressColor);
+                                    g.FillRectangle(segBrush, new Rectangle(seg.X, seg.Y, pw, seg.Height));
+                                }
+                                using var pen = new Pen(owner.BackColor, 1);
+                                g.DrawRectangle(pen, seg);
+                            }
+                            break;
+                    }
+
+                    if (owner.ShowGlowEffect && progressWidth > 0)
+                    {
+                        float glowOpacity = owner.IsPulsating ? owner.GlowIntensity : 0.25f;
+                        glowOpacity *= owner.IsPulsating ? 0.4f : 1f;
+                        int gw = System.Math.Min(20, progressRect.Width);
+                        if (gw > 0)
+                        {
+                            using var glowBrush = new LinearGradientBrush(new Rectangle(progressRect.Right - gw, progressRect.Y, gw, progressRect.Height),
+                                Color.FromArgb((int)(255 * glowOpacity), 255, 255, 255),
+                                Color.FromArgb(10, 255, 255, 255), LinearGradientMode.Horizontal);
+                            g.FillRectangle(glowBrush, progressRect.Right - gw, progressRect.Y, gw, progressRect.Height);
+                        }
+                    }
+
+                    if (oldClip != null)
+                    {
+                        g.Clip = oldClip;
+                        oldClip.Dispose();
+                    }
                 }
             }
 

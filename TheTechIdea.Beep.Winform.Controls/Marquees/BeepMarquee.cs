@@ -215,9 +215,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _painter = MarqueePainterFactory.Create(MarqueeStyle.Default);
 
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.ResizeRedraw, true);
+
             _timer = new Timer();
             _timer.Interval = 30;
             _timer.Tick += (s, e) => OnTimerTick();
+
+            if (DesignMode)
+            {
+                _items.Add(new MarqueeItem { Text = "Sample Item 1" });
+                _items.Add(new MarqueeItem { Text = "Sample Item 2" });
+                _items.Add(new MarqueeItem { Text = "Sample Item 3" });
+            }
 
             if (!DesignMode)
                 _timer.Start();
@@ -347,6 +359,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Space:
+                    if (_paused) Resume(); else Pause();
+                    return true;
+                case Keys.Right:
+                    _scrollOffset += _scrollSpeed * 5;
+                    _sizeCacheDirty = true;
+                    Invalidate();
+                    return true;
+                case Keys.Left:
+                    _scrollOffset -= _scrollSpeed * 5;
+                    _sizeCacheDirty = true;
+                    Invalidate();
+                    return true;
+                case Keys.Up:
+                    _scrollOffsetY -= _scrollSpeed * 5;
+                    _sizeCacheDirty = true;
+                    Invalidate();
+                    return true;
+                case Keys.Down:
+                    _scrollOffsetY += _scrollSpeed * 5;
+                    _sizeCacheDirty = true;
+                    Invalidate();
+                    return true;
+                case Keys.Enter:
+                    if (_hoveredItemIndex >= 0 && _hoveredItemIndex < _items.Count)
+                    {
+                        var item = _items[_hoveredItemIndex];
+                        var rect = _hitRects.Count > _hoveredItemIndex
+                            ? _hitRects[_hoveredItemIndex].rect
+                            : RectangleF.Empty;
+                        ItemClicked?.Invoke(this, new MarqueeItemEventArgs(item, _hoveredItemIndex,
+                            Point.Round(rect.Location)));
+                    }
+                    return true;
+                case Keys.Home:
+                    _scrollOffset = 0;
+                    _scrollOffsetY = 0;
+                    _displayedItems.Clear();
+                    Invalidate();
+                    return true;
+                case Keys.End:
+                    float totalW = GetTotalWidth();
+                    _scrollOffset = -(totalW - Width);
+                    _displayedItems.Clear();
+                    Invalidate();
+                    return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         private int HitTest(Point pt)
         {
             for (int i = 0; i < _hitRects.Count; i++)
@@ -361,6 +427,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             _displayedItems.Add(index);
             var item = _items[index];
             ItemDisplayed?.Invoke(this, new MarqueeItemEventArgs(item, index, Point.Empty));
+        }
+
+        private void FireItemDisplayedForVisibleItems()
+        {
+            if (_items.Count == 0) return;
+            var visibleBounds = new RectangleF(0, 0, Width, Height);
+            for (int i = 0; i < _hitRects.Count; i++)
+            {
+                var rect = _hitRects[i].rect;
+                if (rect.IntersectsWith(visibleBounds))
+                {
+                    int originalIndex = _items.IndexOf(_hitRects[i].item);
+                    if (originalIndex >= 0)
+                        FireItemDisplayed(originalIndex);
+                }
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════════════
@@ -430,17 +512,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 float total = GetTotalHeight();
                 float maxOffset = Math.Max(0, total - Height);
-                float delta = _pingPongForward ? -_scrollSpeed : _scrollSpeed;
+                float delta = _pingPongForward ? _scrollSpeed : -_scrollSpeed;
                 _scrollOffsetY += delta;
 
-                if (_scrollOffsetY <= -maxOffset)
-                {
-                    _scrollOffsetY = -maxOffset;
-                    _pingPongForward = false;
-                }
-                else if (_scrollOffsetY >= 0)
+                if (_scrollOffsetY >= 0)
                 {
                     _scrollOffsetY = 0;
+                    _pingPongForward = false;
+                }
+                else if (_scrollOffsetY <= -maxOffset)
+                {
+                    _scrollOffsetY = -maxOffset;
                     _pingPongForward = true;
                 }
             }
@@ -448,17 +530,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 float total = GetTotalWidth();
                 float maxOffset = Math.Max(0, total - Width);
-                float delta = _pingPongForward ? -_scrollSpeed : _scrollSpeed;
+                float delta = _pingPongForward ? _scrollSpeed : -_scrollSpeed;
                 _scrollOffset += delta;
 
-                if (_scrollOffset <= -maxOffset)
-                {
-                    _scrollOffset = -maxOffset;
-                    _pingPongForward = false;
-                }
-                else if (_scrollOffset >= 0)
+                if (_scrollOffset >= 0)
                 {
                     _scrollOffset = 0;
+                    _pingPongForward = false;
+                }
+                else if (_scrollOffset <= -maxOffset)
+                {
+                    _scrollOffset = -maxOffset;
                     _pingPongForward = true;
                 }
             }
@@ -519,6 +601,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Fade edges overlay
             if (_fadeEdges && _painter is MarqueePainterBase pb)
                 pb.DrawFadeEdges(g, ClientRectangle, ctx);
+
+            // Fire displayed events for items now visible
+            FireItemDisplayedForVisibleItems();
         }
 
         // ── Horizontal paint ─────────────────────────────────────────────────────
@@ -681,10 +766,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _cachedTotalWidth = GetTotalComponentsWidth();
                 }
-                else
+                else if (IsHandleCreated)
                 {
                     float total = 0;
-                    using var g = CreateGraphics();
+                    using var g = Graphics.FromHwnd(Handle);
                     var ctx = BuildContext(g);
                     foreach (var item in _items)
                     {
@@ -692,8 +777,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                         total += _painter.Measure(g, item, ctx).Width + _componentSpacing;
                     }
                     _cachedTotalWidth = total <= 0 ? 1 : total;
+                    _sizeCacheDirty = false;
                 }
-                _sizeCacheDirty = false;
+                else
+                {
+                    _cachedTotalWidth = _items.Count * 120f;
+                    _sizeCacheDirty = false;
+                }
             }
             return _cachedTotalWidth;
         }

@@ -13,21 +13,21 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("Beep Multi Splitter - A resizable TableLayoutPanel with design-time support")]
     [ToolboxBitmap(typeof(BeepMultiSplitter), "BeepMultiSplitter.bmp")]
     [DisplayName("Beep Multi Splitter")]
-    [Designer(typeof(BeepMultiSplitterDesigner))]
     [DefaultProperty("TableLayoutPanel")]
     public partial class BeepMultiSplitter : BaseControl
     {
         // Constants for user interactions
-        private const int RESIZE_TOLERANCE = 10; // Pixel threshold near edges for resizing
+        private const int RESIZE_TOLERANCE = 10;
+        private const int ANIMATION_DELAY_MS = 50;
+        private const int MIN_ROW_HEIGHT = 30;
+        private const int ROW_HEIGHT_INCREMENT = 5;
 
-        // Fields for resizing logic
         private bool isResizing = false;
         private int rowOrColumnIndex = -1;
-        private bool isColumnResize = true;  // True if resizing columns, false if resizing rows
+        private bool isColumnResize = true;
         private float mouseStartX;
         private float mouseStartY;
 
-        // The TableLayoutPanel that we manage
         private TableLayoutPanel _tableLayoutPanel = new TableLayoutPanel();
 
         /// <summary>
@@ -75,7 +75,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Context menu for dynamic manipulation
         private ContextMenuStrip contextMenu = new ContextMenuStrip();
-        public object tableLayoutPanel;
 
         public BeepMultiSplitter()
         {
@@ -95,16 +94,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Default layout
             _tableLayoutPanel.ColumnCount = 1;
-            _tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            _tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             _tableLayoutPanel.Location = new Point(0, 0);
             _tableLayoutPanel.Name = "tableLayoutPanel";
             _tableLayoutPanel.RowCount = 1;
-            _tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 33.28877F));
-            _tableLayoutPanel.Size = new Size(1102, 748);
+            _tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            _tableLayoutPanel.Size = new Size(400, 300);
             _tableLayoutPanel.TabIndex = 0;
 
             // set control size and anchor using DrawingRect to fit table layout panel to fill the control
-            Size = new Size(1102, 748);
+            Size = new Size(400, 300);
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             UpdateDrawingRect();
             _tableLayoutPanel.Left = DrawingRect.Left;
@@ -203,13 +202,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Example of an animated approach
-        private async void AddRowAnimated()
+        private async System.Threading.Tasks.Task AddRowAnimatedAsync()
         {
             int rowIndex = _tableLayoutPanel.RowCount;
             _tableLayoutPanel.RowCount++;
             _tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 0));
 
-            // Add placeholder controls
             for (int i = 0; i < _tableLayoutPanel.ColumnCount; i++)
             {
                 var label = new Label()
@@ -220,11 +218,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _tableLayoutPanel.Controls.Add(label, i, rowIndex);
             }
 
-            // Animation: Gradually increase row height from 0 to 30
-            for (int height = 0; height <= 30; height += 5)
+            for (int height = 0; height <= MIN_ROW_HEIGHT; height += ROW_HEIGHT_INCREMENT)
             {
                 _tableLayoutPanel.RowStyles[rowIndex].Height = height;
-                await Task.Delay(50); // short delay for each step
+                await Task.Delay(ANIMATION_DELAY_MS);
             }
         }
 
@@ -272,20 +269,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _tableLayoutPanel.ColumnStyles.RemoveAt(columnIndex);
                 _tableLayoutPanel.ColumnCount--;
             }
-        }
-
-        // Moves a column from sourceIndex to destinationIndex (example usage)
-        private void MoveColumn(int sourceIndex, int destinationIndex)
-        {
-            foreach (Control control in _tableLayoutPanel.Controls)
-            {
-                int columnIndex = _tableLayoutPanel.GetColumn(control);
-                if (columnIndex == sourceIndex)
-                {
-                    _tableLayoutPanel.SetColumn(control, destinationIndex);
-                }
-            }
-            // Optionally, refresh the layout or animate
         }
 
         #endregion
@@ -400,21 +383,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Highlights the cell at the given position, restoring others to default.
         /// </summary>
+        private int _lastHighlightedRow = -1;
+        private int _lastHighlightedCol = -1;
+
         private void HighlightCell(TableLayoutPanelCellPosition cellPosition)
         {
-            // Loop through controls, highlighting the one at cellPosition
+            if (cellPosition.Row == _lastHighlightedRow && cellPosition.Column == _lastHighlightedCol)
+                return;
+
+            var defaultBackColor = _tableLayoutPanel.BackColor;
             foreach (Control control in _tableLayoutPanel.Controls)
             {
                 TableLayoutPanelCellPosition pos = _tableLayoutPanel.GetPositionFromControl(control);
                 if (pos.Equals(cellPosition))
                 {
-                    control.BackColor = Color.CadetBlue;
+                    control.BackColor = ColorUtils.GetLighterColor(_tableLayoutPanel.BackColor, 0.15f);
                 }
                 else
                 {
-                    control.BackColor = Color.White;
+                    control.BackColor = defaultBackColor;
                 }
             }
+            _lastHighlightedRow = cellPosition.Row;
+            _lastHighlightedCol = cellPosition.Column;
         }
 
         #endregion
@@ -429,10 +420,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             int row = -1;
             int col = -1;
 
+            var heights = _tableLayoutPanel.GetRowHeights();
             int cumulativeHeight = 0;
-            for (int i = 0; i < _tableLayoutPanel.RowCount; i++)
+            for (int i = 0; i < heights.Length; i++)
             {
-                cumulativeHeight += _tableLayoutPanel.GetRowHeights()[i];
+                cumulativeHeight += heights[i];
                 if (point.Y <= cumulativeHeight)
                 {
                     row = i;
@@ -440,10 +432,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+            var widths = _tableLayoutPanel.GetColumnWidths();
             int cumulativeWidth = 0;
-            for (int i = 0; i < _tableLayoutPanel.ColumnCount; i++)
+            for (int i = 0; i < widths.Length; i++)
             {
-                cumulativeWidth += _tableLayoutPanel.GetColumnWidths()[i];
+                cumulativeWidth += widths[i];
                 if (point.X <= cumulativeWidth)
                 {
                     col = i;

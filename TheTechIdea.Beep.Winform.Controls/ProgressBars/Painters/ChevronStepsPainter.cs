@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 
@@ -94,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int midY = r.Y + r.Height/2;
             if (last)
             {
-                path.AddPolygon(new[] { new Point(r.X, r.Y), new Point(r.Right, midY), new Point(r.X, r.Bottom) });
+                path.AddPolygon(new[] { new Point(r.X, r.Y), new Point(r.Right, r.Y), new Point(r.Right, r.Bottom), new Point(r.X, r.Bottom) });
             }
             else
             {

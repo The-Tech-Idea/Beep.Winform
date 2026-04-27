@@ -33,6 +33,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         // Theme application guard
         private bool _isApplyingTheme = false;
 
+        // Progress state
+        private ProgressState _progressState = ProgressState.Normal;
+        private float _indeterminateOffset = 0f;
+        private Timer _indeterminateTimer;
+        private const int IndeterminateInterval = 16;
+        private const float IndeterminateSpeed = 0.03f;
+
         // Layout cache for performance
         private bool _layoutCacheValid = false;
         private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
@@ -75,6 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         private Color _secondaryProgressColor = Color.FromArgb(50, 100, 100, 100);
         private int _stripeWidth = 10;
 
+        // milestone tracking
+        private readonly HashSet<int> _reachedMilestones = new();
+        private readonly List<int> _milestoneThresholds = new() { 25, 50, 75, 100 };
+
         // interactive state for painter hit-areas
         private readonly System.Collections.Generic.Dictionary<string, Rectangle> _areaRects = new();
         private string _hoverArea;
@@ -88,6 +99,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         public event EventHandler ValueChanged;
         public event EventHandler ProgressCompleted;
         public event EventHandler ProgressStarted;
+        public event EventHandler<ProgressMilestoneEventArgs> MilestoneReached;
+        public event EventHandler<ProgressStateChangedEventArgs> StateChanged;
 
         // Internal accessors for painters
         internal float DisplayProgressPercentageAccessor => DisplayProgressPercentage;
@@ -118,6 +131,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 RequestVisualRefresh();
             }
         }
+
+        [Category("Behavior")]
+        [DefaultValue(ProgressState.Normal)]
+        public ProgressState ProgressState
+        {
+            get => _progressState;
+            set
+            {
+                if (_progressState == value) return;
+                var oldState = _progressState;
+                _progressState = value;
+                SyncAnimationStatesForRuntimeState();
+                StateChanged?.Invoke(this, new ProgressStateChangedEventArgs(oldState, value));
+                RequestVisualRefresh();
+            }
+        }
+
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        public bool IsIndeterminate
+        {
+            get => _progressState == ProgressState.Indeterminate;
+            set => ProgressState = value ? ProgressState.Indeterminate : ProgressState.Normal;
+        }
+
+        [Category("Behavior")]
+        [Description("Percentage thresholds that trigger MilestoneReached events.")]
+        public IList<int> MilestoneThresholds => _milestoneThresholds;
 
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -204,6 +245,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 ValueChanged?.Invoke(this, System.EventArgs.Empty);
                 if (wasAtMinimum && _value > _minimum) ProgressStarted?.Invoke(this, System.EventArgs.Empty);
                 if (_value >= _maximum && _oldValue < _maximum) ProgressCompleted?.Invoke(this, System.EventArgs.Empty);
+                
+                CheckMilestones();
                 
                 // Update accessibility attributes when value changes
                 ApplyAccessibilitySettings();
@@ -461,6 +504,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             else
             {
                 StopPulsating();
+            }
+
+            if (canAnimate && _progressState == ProgressState.Indeterminate)
+            {
+                StartIndeterminateAnimation();
+            }
+            else
+            {
+                StopIndeterminateAnimation();
             }
         }
         #endregion
@@ -742,6 +794,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                 _pulsateTimer = null;
             }
 
+            if (_indeterminateTimer != null)
+            {
+                _indeterminateTimer.Stop();
+                _indeterminateTimer.Tick -= IndeterminateTimer_Tick;
+                _indeterminateTimer.Dispose();
+                _indeterminateTimer = null;
+            }
+
             _textBrush?.Dispose();
             _textBrush = null;
             _progressBrush?.Dispose();
@@ -972,6 +1032,81 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         #endregion
 
         #region Helpers
+        private void CheckMilestones()
+        {
+            if (_maximum <= _minimum) return;
+            int percentage = (int)((float)(_value - _minimum) / (_maximum - _minimum) * 100);
+            foreach (int threshold in _milestoneThresholds)
+            {
+                if (percentage >= threshold && !_reachedMilestones.Contains(threshold))
+                {
+                    _reachedMilestones.Add(threshold);
+                    MilestoneReached?.Invoke(this, new ProgressMilestoneEventArgs(threshold, percentage));
+                }
+            }
+        }
+
+        public void ResetMilestones()
+        {
+            _reachedMilestones.Clear();
+        }
+
+        public void SetMilestoneThresholds(params int[] thresholds)
+        {
+            _milestoneThresholds.Clear();
+            _milestoneThresholds.AddRange(thresholds);
+            _milestoneThresholds.Sort();
+            ResetMilestones();
+        }
+
+        public void SetSteps(int steps, string[] labels = null)
+        {
+            var newParams = new Dictionary<string, object>(Parameters ?? new());
+            newParams["Steps"] = steps;
+            if (labels != null) newParams["Labels"] = labels;
+            Parameters = newParams;
+        }
+
+        public void SetCurrentStep(int current)
+        {
+            var newParams = new Dictionary<string, object>(Parameters ?? new());
+            int steps = newParams.TryGetValue("Steps", out var s) && s is IConvertible ? Convert.ToInt32(s) : 4;
+            newParams["Current"] = Math.Max(0, Math.Min(current, steps - 1));
+            Parameters = newParams;
+        }
+
+        public void SetStepLabels(string[] labels)
+        {
+            var newParams = new Dictionary<string, object>(Parameters ?? new());
+            newParams["Labels"] = labels;
+            Parameters = newParams;
+        }
+
+        private void IndeterminateTimer_Tick(object sender, EventArgs e)
+        {
+            _indeterminateOffset += IndeterminateSpeed;
+            if (_indeterminateOffset > 1.0f) _indeterminateOffset -= 1.0f;
+            RequestVisualRefresh();
+        }
+
+        private void StartIndeterminateAnimation()
+        {
+            _indeterminateTimer ??= new Timer { Interval = IndeterminateInterval };
+            _indeterminateTimer.Tick -= IndeterminateTimer_Tick;
+            _indeterminateTimer.Tick += IndeterminateTimer_Tick;
+            if (!_indeterminateTimer.Enabled) _indeterminateTimer.Start();
+        }
+
+        private void StopIndeterminateAnimation()
+        {
+            if (_indeterminateTimer != null && _indeterminateTimer.Enabled)
+            {
+                _indeterminateTimer.Stop();
+                _indeterminateOffset = 0f;
+                RequestVisualRefresh();
+            }
+        }
+
         private void UpdateTaskProgress()
         {
             if (_totalTasks <= 0)

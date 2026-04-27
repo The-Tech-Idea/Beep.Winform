@@ -114,6 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private AddinTab? _tooltipTab;   // tab whose tooltip is currently visible
         private bool _showTooltip = false;
 
+        // Drop indicator pulse animation (0..1 sine wave for visual emphasis)
+        private float _dropIndicatorPulse = 0f;
+
         private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
 
         /// <summary>
@@ -539,6 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             }
 
             // Advance the sliding-indicator animation.
+            bool needsInvalidate = false;
             if (_indicatorProgress < 1f)
             {
                 // Speed: complete in ~200 ms at 60 FPS = ~12 ticks (step ≈ 0.083)
@@ -547,7 +551,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 float remaining = 1f - _indicatorProgress;
                 float step = Math.Max(0.015f, baseStep * remaining / 0.5f + 0.01f);
                 _indicatorProgress = Math.Min(1f, _indicatorProgress + step);
-                // Only invalidate the tab strip area to avoid full redraws.
+                needsInvalidate = true;
+            }
+
+            // Advance drop indicator pulse while dragging
+            if (_isDragging && _dropInsertIndex >= 0)
+            {
+                _dropIndicatorPulse += 0.08f;
+                if (_dropIndicatorPulse > MathF.Tau) _dropIndicatorPulse -= MathF.Tau;
+                needsInvalidate = true;
+            }
+            else if (_dropIndicatorPulse != 0f)
+            {
+                _dropIndicatorPulse = 0f;
+            }
+
+            if (needsInvalidate)
+            {
                 if (!_tabArea.IsEmpty)
                     Invalidate(_tabArea);
                 else

@@ -81,7 +81,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
             int spacing = _host.ScaleValue(10);
             int searchHeight = _host.ScaleValue(24);
             int scaledWindowIconsHeight = _host.ScaleValue(40);
-            int imageOffset = 2;
 
             // Initialize rectangles
             logoRect = Rectangle.Empty;
@@ -247,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
             if (_host.ShowCloseIcon && _stateStore.CachedCloseRect.Contains(point))
                 return "Close";
 
-            return null;
+            return string.Empty;
         }
 
         /// <summary>

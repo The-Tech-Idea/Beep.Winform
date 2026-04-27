@@ -50,8 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -120,6 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS with neon effect ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 for (int i = 0; i < tabs.Count; i++)
                 {
                     var tab = tabs[i];

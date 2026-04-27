@@ -11,6 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
     internal sealed class LinearTrackerIconPainter : IProgressPainter, IProgressPainterV2
     {
+        private static readonly LinearProgressPainter _linear = new LinearProgressPainter();
+
         public string Key => nameof(ProgressPainterKind.LinearTrackerIcon);
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
@@ -18,9 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // draw base bar
-            var linear = new LinearProgressPainter();
-            linear.Paint(g, bounds, theme, owner, p);
+            _linear.Paint(g, bounds, theme, owner, p);
 
             // tracker icon parameters
             string iconPath = ProgressPainterParameterContracts.GetString(p, "TrackerIconPath", string.Empty);

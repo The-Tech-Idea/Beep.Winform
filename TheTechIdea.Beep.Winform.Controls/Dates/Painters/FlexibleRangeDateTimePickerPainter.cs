@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class FlexibleRangeDateTimePickerPainter : IDateTimePickerPainter
     {
         private readonly BeepDateTimePicker _owner;
-        private readonly IBeepTheme _theme;
+        private IBeepTheme _theme;
         private bool _flexibleMode = false; // Toggle between exact/flexible
 
         public DatePickerMode Mode => DatePickerMode.FlexibleRange;
@@ -28,6 +28,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public FlexibleRangeDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

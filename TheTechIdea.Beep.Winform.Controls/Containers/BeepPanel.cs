@@ -27,7 +27,6 @@ namespace TheTechIdea.Beep.Winform.Controls
     // [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepPanelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public partial class BeepPanel : BaseControl
     {
-        const int startyoffset = 0;
         private string _titleText = "Panel Title";
         private bool _showTitle = true;
         private bool _showTitleLine = true;
@@ -35,14 +34,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color _titleLineColor = Color.Gray;
         private int _titleLineThickness = 2;
         private PanelTitleStyle _titleStyle = PanelTitleStyle.GroupBox;
-        private int _titleGap = 8; // Gap between title text and border in GroupBox style
+        private int _titleGap = 8;
 
-        private int _titleBottomY = startyoffset;
+        private int _titleBottomY = 0;
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
         private PanelShape _panelShape = PanelShape.RoundedRectangle;
         private GraphicsPath _customShapePath;
         private Region _panelRegion;
-        private bool _isUpdatingRegion = false; // Prevent recursive region updates
+        private bool _isUpdatingRegion = false;
         private BeepPanelState _panelState = new BeepPanelState();
         private BeepPanelLayoutContext _panelLayoutContext = new BeepPanelLayoutContext();
         private PanelColorConfig _colorProfile = new PanelColorConfig();
@@ -51,22 +50,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _titleIconGap = 6;
         private bool _titleIconTintWithForeColor = true;
 
-        int padding = 2; // Adjusted padding for top, left, etc.
-
-        // Track disposing to prevent paint/draw during removal
         private bool _isDisposing = false;
         private bool InDesignMode => LicenseManager.UsageMode == LicenseUsageMode.Designtime || DesignMode || (Site?.DesignMode ?? false);
 
-        #region "Scrolling"
         private bool _enableScrolling = false;
         private int _scrollOffset = 0;
-        private int _scrollSpeed = 1;
-        private Timer _scrollTimer;
-        private int _scrollInterval = 10;
-        private int _scrollDirection = 1;
         private VScrollBar _verticalScrollBar;
         private HScrollBar _horizontalScrollBar;
-        #endregion
 
         #region "Public Properties"
         private Font _textFont = SystemFonts.MessageBoxFont;
@@ -319,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("The shape style of the panel (Rectangle, RoundedRectangle, Ellipse, Custom).")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [DefaultValue(PanelShape.Rectangle)]
+        [DefaultValue(PanelShape.RoundedRectangle)]
         public PanelShape PanelShape
         {
             get => _panelShape;
@@ -722,7 +712,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TitleIconTintWithForeColor = _titleIconTintWithForeColor
             };
 
-            _textFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
+            var newFont = BeepPanelFontHelpers.GetTitleFont(this, _currentTheme);
+            if (_textFont != null && !ReferenceEquals(_textFont, newFont))
+                _textFont.Dispose();
+            _textFont = newFont;
             _panelLayoutContext = BeepPanelLayoutHelper.BuildLayout(this, bounds, _panelState, _textFont);
             _titleBottomY = _panelLayoutContext.HeaderBounds.Bottom;
         }
@@ -840,84 +833,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion
-
-        //protected override void OnHandleDestroyed(EventArgs e)
-        //{
-        //    _isDisposing = true;
-        //    base.OnHandleDestroyed(e);
-        //}
-
-        //// IMPORTANT: Avoid BaseControl's parent-change badge registration for this container
-        //protected override void OnParentChanged(EventArgs e)
-        //{
-        //    // Intentionally do NOT call base.OnParentChanged to skip RegisterBadgeDrawer logic for BeepPanel
-        //    try
-        //    {
-        //        if (IsChild && Parent != null)
-        //        {
-        //            BackColor = Parent.BackColor;
-        //        }
-                
-        //        // Force refresh when parent changes (e.g., added to BeepiFormPro)
-        //        if (Visible && !IsDisposed)
-        //        {
-        //            BeginInvoke(new Action(() =>
-        //            {
-        //                if (!IsDisposed && Visible)
-        //                {
-        //                    Invalidate(true);
-        //                    Refresh();
-        //                    // Ensure all child controls are properly refreshed
-        //                    foreach (Control control in Controls)
-        //                    {
-        //                        if (!control.IsDisposed && control.Visible)
-        //                        {
-        //                            control.Invalidate(true);
-        //                            control.Refresh();
-        //                        }
-        //                    }
-        //                }
-        //            }));
-        //        }
-        //    }
-        //    catch { /* design-time safe */ }
-        //}
-
-        //protected override void OnVisibleChanged(EventArgs e)
-        //{
-        //    base.OnVisibleChanged(e);
-        //    if (Visible && !IsDisposed)
-        //    {
-        //        // Force invalidation of all child controls when panel becomes visible
-        //        Invalidate(true);
-        //        Refresh();
-        //        foreach (Control control in Controls)
-        //        {
-        //            if (!control.IsDisposed && control.Visible)
-        //            {
-        //                control.Invalidate(true);
-        //                control.Refresh();
-        //            }
-        //        }
-        //    }
-        //}
-
-        //protected override void OnHandleCreated(EventArgs e)
-        //{
-        //    base.OnHandleCreated(e);
-        //    // Ensure proper rendering when handle is created
-        //    if (!IsDisposed && Visible)
-        //    {
-        //        BeginInvoke(new Action(() =>
-        //        {
-        //            if (!IsDisposed && Visible)
-        //            {
-        //                Invalidate(true);
-        //                Refresh();
-        //            }
-        //        }));
-        //    }
-        //}
 
         #region Phase 1: Auto-Scroll Implementation
 
@@ -1165,22 +1080,68 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Collapse(animate);
         }
 
+        #endregion
+
+        #region Accessibility
+
+        protected override AccessibleObject CreateAccessibilityInstance()
+        {
+            return new BeepPanelAccessibleObject(this);
+        }
+
+        private class BeepPanelAccessibleObject : ControlAccessibleObject
+        {
+            private readonly BeepPanel _owner;
+
+            public BeepPanelAccessibleObject(BeepPanel owner) : base(owner)
+            {
+                _owner = owner;
+            }
+
+            public override string Name => _owner._titleText;
+            public override string Description => _owner._isCollapsed ? "Collapsed panel" : "Expandable panel";
+            public override AccessibleRole Role => AccessibleRole.Grouping;
+            public override AccessibleStates State
+            {
+                get
+                {
+                    var state = base.State;
+                    if (_owner._isCollapsed)
+                        state |= AccessibleStates.Collapsed;
+                    else
+                        state |= AccessibleStates.Expanded;
+                    return state;
+                }
+            }
+        }
+
+        #endregion
+
         private void AnimateCollapse()
         {
             int startHeight = Height;
-            int endHeight = _collapsedHeight;
-            int steps = CollapseAnimationDuration / 16; // 60 FPS
+            int endHeight = Math.Max(_collapsedHeight, MinimumSize.Height);
+            int steps = Math.Max(1, CollapseAnimationDuration / 16);
             int currentStep = 0;
 
             Timer animTimer = new Timer { Interval = 16 };
             animTimer.Tick += (s, e) =>
             {
+                if (IsDisposed || !IsHandleCreated)
+                {
+                    animTimer.Stop();
+                    animTimer.Dispose();
+                    return;
+                }
+
                 currentStep++;
                 float progress = (float)currentStep / steps;
-                progress = EaseInOutCubic(progress);
+                progress = EaseInOutCubic(Math.Min(1f, progress));
 
-                int newHeight = (int)(startHeight + (endHeight - startHeight) * progress);
+                int newHeight = Math.Max(endHeight, (int)(startHeight + (endHeight - startHeight) * progress));
+                SuspendLayout();
                 Height = newHeight;
+                ResumeLayout(false);
 
                 if (currentStep >= steps)
                 {
@@ -1198,18 +1159,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowContent();
             int startHeight = Height;
             int endHeight = _expandedHeight > 0 ? _expandedHeight : 300;
-            int steps = CollapseAnimationDuration / 16;
+            int steps = Math.Max(1, CollapseAnimationDuration / 16);
             int currentStep = 0;
 
             Timer animTimer = new Timer { Interval = 16 };
             animTimer.Tick += (s, e) =>
             {
+                if (IsDisposed || !IsHandleCreated)
+                {
+                    animTimer.Stop();
+                    animTimer.Dispose();
+                    return;
+                }
+
                 currentStep++;
                 float progress = (float)currentStep / steps;
-                progress = EaseInOutCubic(progress);
+                progress = EaseInOutCubic(Math.Min(1f, progress));
 
-                int newHeight = (int)(startHeight + (endHeight - startHeight) * progress);
+                int newHeight = Math.Max(MinimumSize.Height, (int)(startHeight + (endHeight - startHeight) * progress));
+                SuspendLayout();
                 Height = newHeight;
+                ResumeLayout(false);
 
                 if (currentStep >= steps)
                 {
@@ -1228,27 +1198,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HideContent()
         {
-            foreach (Control child in Controls)
+            var children = Controls.Cast<Control>().Where(c => !c.IsDisposed && c != _verticalScrollBar && c != _horizontalScrollBar).ToArray();
+            foreach (var child in children)
             {
-                if (child != _verticalScrollBar && child != _horizontalScrollBar)
-                {
-                    child.Visible = false;
-                }
+                child.Visible = false;
             }
         }
 
         private void ShowContent()
         {
-            foreach (Control child in Controls)
+            var children = Controls.Cast<Control>().Where(c => !c.IsDisposed && c != _verticalScrollBar && c != _horizontalScrollBar).ToArray();
+            foreach (var child in children)
             {
-                if (child != _verticalScrollBar && child != _horizontalScrollBar)
-                {
-                    child.Visible = true;
-                }
+                child.Visible = true;
             }
         }
-
-        #endregion
 
         // Override Dispose to properly clean up
         protected override void Dispose(bool disposing)
@@ -1258,13 +1222,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 try
                 {
-                    if (_scrollTimer != null)
-                    {
-                        try { _scrollTimer.Stop(); } catch { }
-                        _scrollTimer.Dispose();
-                        _scrollTimer = null;
-                    }
-
                     if (_verticalScrollBar != null) { try { _verticalScrollBar.Dispose(); } catch { } _verticalScrollBar = null; }
                     if (_horizontalScrollBar != null) { try { _horizontalScrollBar.Dispose(); } catch { } _horizontalScrollBar = null; }
 
@@ -1276,7 +1233,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _panelRegion?.Dispose();
                     _panelRegion = null;
 
-                    // Do not dispose font explicitly at design-time; just release reference
+                    // Dispose font
+                    _textFont?.Dispose();
                     _textFont = null;
                 }
                 catch { }

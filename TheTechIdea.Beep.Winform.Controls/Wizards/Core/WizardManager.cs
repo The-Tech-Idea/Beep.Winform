@@ -11,6 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
     public static class WizardManager
     {
         private static readonly Dictionary<string, WizardInstance> _activeWizards = new Dictionary<string, WizardInstance>();
+        private static readonly object _lock = new object();
 
         /// <summary>
         /// Default wizard style
@@ -33,17 +34,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             if (string.IsNullOrEmpty(config.Key))
                 config.Key = Guid.NewGuid().ToString();
 
-            // Remove existing wizard with same key
-            if (_activeWizards.TryGetValue(config.Key, out var existing))
+            lock (_lock)
             {
-                existing.Close();
-                _activeWizards.Remove(config.Key);
+                // Remove existing wizard with same key
+                if (_activeWizards.TryGetValue(config.Key, out var existing))
+                {
+                    existing.Close();
+                    _activeWizards.Remove(config.Key);
+                }
+
+                var instance = new WizardInstance(config);
+                _activeWizards[config.Key] = instance;
+
+                return instance;
             }
-
-            var instance = new WizardInstance(config);
-            _activeWizards[config.Key] = instance;
-
-            return instance;
         }
 
         /// <summary>
@@ -69,8 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         public static WizardInstance GetWizard(string key)
         {
-            _activeWizards.TryGetValue(key, out var wizard);
-            return wizard;
+            lock (_lock)
+            {
+                _activeWizards.TryGetValue(key, out var wizard);
+                return wizard;
+            }
         }
 
         /// <summary>
@@ -78,10 +85,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         public static void CloseWizard(string key)
         {
-            if (_activeWizards.TryGetValue(key, out var wizard))
+            lock (_lock)
             {
-                wizard.Close();
-                _activeWizards.Remove(key);
+                if (_activeWizards.TryGetValue(key, out var wizard))
+                {
+                    wizard.Close();
+                    _activeWizards.Remove(key);
+                }
             }
         }
 
@@ -90,11 +100,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         public static void CloseAllWizards()
         {
-            foreach (var wizard in _activeWizards.Values.ToList())
+            lock (_lock)
             {
-                wizard.Close();
+                foreach (var wizard in _activeWizards.Values.ToList())
+                {
+                    wizard.Close();
+                }
+                _activeWizards.Clear();
             }
-            _activeWizards.Clear();
         }
 
         /// <summary>
@@ -102,7 +115,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         internal static void UnregisterWizard(string key)
         {
-            _activeWizards.Remove(key);
+            lock (_lock)
+            {
+                _activeWizards.Remove(key);
+            }
         }
     }
 }

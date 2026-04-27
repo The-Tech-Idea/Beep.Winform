@@ -17,13 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class ModernCardDateTimePickerPainter : IDateTimePickerPainter
     {
     private readonly BeepDateTimePicker _owner;
-    private readonly IBeepTheme _theme;
+    private IBeepTheme _theme;
 
         public DatePickerMode Mode => DatePickerMode.ModernCard;
 
         public ModernCardDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

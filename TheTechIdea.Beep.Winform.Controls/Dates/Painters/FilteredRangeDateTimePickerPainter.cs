@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class FilteredRangeDateTimePickerPainter : IDateTimePickerPainter
     {
         private readonly BeepDateTimePicker _owner;
-        private readonly IBeepTheme _theme;
+        private IBeepTheme _theme;
         private string _selectedFilter = null;
 
         public DatePickerMode Mode => DatePickerMode.FilteredRange;
@@ -29,6 +29,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public FilteredRangeDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

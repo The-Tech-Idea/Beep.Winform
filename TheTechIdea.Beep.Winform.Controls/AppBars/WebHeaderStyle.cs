@@ -166,64 +166,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     }
 
     /// <summary>
-    /// Event args for tab selection
-    /// </summary>
-    public class TabSelectedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Creates a new TabSelectedEventArgs
-        /// </summary>
-        /// <param name="tabIndex">The index of the selected tab</param>
-        /// <param name="tab">The selected tab object</param>
-        public TabSelectedEventArgs(int tabIndex, WebHeaderTab tab)
-        {
-            TabIndex = tabIndex;
-            Tab = tab;
-        }
-
-        /// <summary>Gets the index of the selected tab</summary>
-        public int TabIndex { get; }
-
-        /// <summary>Gets the selected tab object</summary>
-        public WebHeaderTab Tab { get; }
-
-        /// <summary>Gets the tab ID</summary>
-        public int TabId => Tab?.Id ?? -1;
-
-        /// <summary>Gets the tab text</summary>
-        public string TabText => Tab?.Text ?? "";
-    }
-
-    /// <summary>
-    /// Event args for action button clicks
-    /// </summary>
-    public class ActionButtonClickedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Creates a new ActionButtonClickedEventArgs
-        /// </summary>
-        /// <param name="buttonIndex">The index of the clicked button</param>
-        /// <param name="button">The clicked button object</param>
-        public ActionButtonClickedEventArgs(int buttonIndex, WebHeaderActionButton button)
-        {
-            ButtonIndex = buttonIndex;
-            Button = button;
-        }
-
-        /// <summary>Gets the index of the clicked button</summary>
-        public int ButtonIndex { get; }
-
-        /// <summary>Gets the clicked button object</summary>
-        public WebHeaderActionButton Button { get; }
-
-        /// <summary>Gets the button text</summary>
-        public string ButtonText => Button?.Text ?? "";
-
-        /// <summary>Gets the button ID</summary>
-        public int ButtonId => Button?.Id ?? -1;
-    }
-
-    /// <summary>
     /// Event args for search box text changes
     /// </summary>
     public class SearchChangedEventArgs : EventArgs
@@ -239,47 +181,5 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         /// <summary>Gets the current search text</summary>
         public string SearchText { get; }
-    }
-
-    /// <summary>
-    /// Configuration for WebHeader appearance and behavior
-    /// </summary>
-    public class WebHeaderConfig
-    {
-        /// <summary>Gets or sets the header style</summary>
-        public WebHeaderStyle HeaderStyle { get; set; } = WebHeaderStyle.ShoppyStore1;
-
-        /// <summary>Gets or sets the tab indicator style</summary>
-        public TabIndicatorStyle IndicatorStyle { get; set; } = TabIndicatorStyle.UnderlineSimple;
-
-        /// <summary>Gets or sets the header height in pixels</summary>
-        public int Height { get; set; } = 60;
-
-        /// <summary>Gets or sets the logo width in pixels</summary>
-        public int LogoWidth { get; set; } = 40;
-
-        /// <summary>Gets or sets the padding between elements in pixels</summary>
-        public int Padding { get; set; } = 10;
-
-        /// <summary>Gets or sets the spacing between tabs in pixels</summary>
-        public int TabSpacing { get; set; } = 5;
-
-        /// <summary>Gets or sets whether to show the search box</summary>
-        public bool ShowSearchBox { get; set; } = true;
-
-        /// <summary>Gets or sets whether to show logo</summary>
-        public bool ShowLogo { get; set; } = true;
-
-        /// <summary>Gets or sets the tab indicator thickness in pixels</summary>
-        public int IndicatorThickness { get; set; } = 3;
-
-        /// <summary>Gets or sets whether tabs have icons</summary>
-        public bool ShowTabIcons { get; set; } = false;
-
-        /// <summary>Gets or sets the tab text font size</summary>
-        public int TabFontSize { get; set; } = 12;
-
-        /// <summary>Gets or sets the action button font size</summary>
-        public int ActionButtonFontSize { get; set; } = 11;
     }
 }

@@ -46,8 +46,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -110,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 // Calculate buttons width
                 int buttonsWidth = CalculateButtonsWidth(buttons, buttonFont);
                 int availableWidth = bounds.Width - x - buttonsWidth - PADDING * 2;
-                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2);
+                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2) - tabScrollOffset;
 
                 for (int i = 0; i < tabs.Count; i++)
                 {
@@ -222,13 +225,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             if (buttons == null || buttons.Count == 0) return 0;
 
             int width = PADDING;
-            using (var g = Graphics.FromHwnd(IntPtr.Zero))
+            foreach (var btn in buttons)
             {
-                foreach (var btn in buttons)
-                {
-                    var textSize = g.MeasureString(btn.Text, buttonFont);
-                    width += Math.Max((int)textSize.Width + 32, 100) + 12;
-                }
+                var textSize = TextRenderer.MeasureText(btn.Text, buttonFont);
+                width += Math.Max(textSize.Width + 32, 100) + 12;
             }
             return width;
         }

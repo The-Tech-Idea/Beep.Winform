@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -33,28 +34,49 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             int inset = thickness + ProgressBarDpiHelpers.Scale(owner, 4);
             var rect = ProgressRingVisualHelpers.GetSquareRingRect(bounds, inset);
             int shadowOffset = ProgressRingVisualHelpers.GetShadowOffset(owner);
-            float pct = owner.DisplayProgressPercentageAccessor;
-            int active = (int)Math.Round(segments * pct);
+            var state = ProgressPainterParameterContracts.GetState(p);
+            bool isIndeterminate = state != null && state.State == ProgressState.Indeterminate;
+            int active;
+            if (isIndeterminate)
+            {
+                active = (int)Math.Round(segments * 0.4f);
+            }
+            else
+            {
+                float pct = owner.DisplayProgressPercentageAccessor;
+                active = (int)Math.Round(segments * pct);
+            }
 
             float sweepPer = (totalSweep - segments * gap) / segments;
             using var penOn = new Pen(color, thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             using var penOff = new Pen(off, thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             using var shadowPen = new Pen(Color.FromArgb(ProgressRingVisualHelpers.GetDotShadowAlpha(p, owner.Enabled), Color.Black), thickness) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             float ang = start;
+            int segOffset = isIndeterminate ? (int)(state.IndeterminateOffset * segments) : 0;
             for (int i = 0; i < segments; i++)
             {
+                int idx = (i + segOffset) % segments;
                 g.DrawArc(shadowPen, rect.X + shadowOffset, rect.Y + shadowOffset, rect.Width, rect.Height, ang, sweepPer);
-                var pen = i < active ? penOn : penOff;
+                var pen = idx < active ? penOn : penOff;
                 g.DrawArc(pen, rect, ang, sweepPer);
                 ang += sweepPer + gap;
             }
 
             // Center text
-            var txt = ProgressPainterParameterContracts.GetString(p, "CenterText", $"{(int)(pct*100)}%");
+            string centerText;
+            if (isIndeterminate)
+            {
+                centerText = ProgressPainterParameterContracts.GetString(p, "CenterText", "\u22EF");
+            }
+            else
+            {
+                float pct = owner.DisplayProgressPercentageAccessor;
+                centerText = ProgressPainterParameterContracts.GetString(p, "CenterText", $"{(int)(pct*100)}%");
+            }
             using var f = ProgressBarFontHelpers.GetBoldFont(owner, owner.ControlStyle);
             using var br = new SolidBrush(owner.Enabled ? theme.CardTextForeColor : Color.FromArgb(ProgressRingVisualHelpers.GetDisabledTextAlpha(p), theme.CardTextForeColor));
             using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(txt, f, br, rect, sf);
+            g.DrawString(centerText, f, br, rect, sf);
         }
 
         public void UpdateHitAreas(BeepProgressBar owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> p, Action<string, Rectangle> register)

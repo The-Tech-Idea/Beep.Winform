@@ -141,11 +141,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             if (_isNavigating || CurrentStepIndex >= Config.Steps.Count - 1)
                 return false;
 
+            var currentStep = CurrentStep;
+            if (currentStep == null)
+                return false;
+
             _isNavigating = true;
 
             try
             {
-                var currentStep = CurrentStep;
                 var nextIndex = CurrentStepIndex + 1;
 
                 // Validate current step
@@ -220,26 +223,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         }
 
         /// <summary>
-        /// Navigate to next step (sync wrapper)
-        /// </summary>
-        public bool NavigateNext()
-        {
-            return NavigateNextAsync().GetAwaiter().GetResult();
-        }
-
-        /// <summary>
         /// Navigate to previous step
         /// </summary>
-        public bool NavigateBack()
+        public async Task<bool> NavigateBackAsync()
         {
             if (_isNavigating || !Config.AllowBack || CurrentStepIndex <= 0)
+                return false;
+
+            var currentStep = CurrentStep;
+            if (currentStep == null)
                 return false;
 
             _isNavigating = true;
 
             try
             {
-                var currentStep = CurrentStep;
                 var prevIndex = CurrentStepIndex - 1;
 
                 // Raise StepChanging event
@@ -249,15 +247,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     return false;
 
                 // Leave current step (don't require validation for back navigation)
-                currentStep?.OnLeave?.Invoke(Context);
-                if (currentStep?.Content is IWizardStepContent stepContent)
-                {
-                    stepContent.OnStepLeave(Context);
-                }
+                await LeaveStepAsync(currentStep);
 
                 // Mark current step as pending again
-                if (currentStep != null)
-                    currentStep.State = StepState.Pending;
+                currentStep.State = StepState.Pending;
 
                 // Skip back over skipped steps
                 while (prevIndex >= 0)
@@ -281,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 if (newStep != null)
                 {
                     newStep.State = StepState.Current;
-                    EnterStepAsync(newStep).GetAwaiter().GetResult();
+                    await EnterStepAsync(newStep);
                 }
 
                 // Report progress
@@ -327,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             // Navigate back
             while (CurrentStepIndex > stepIndex)
             {
-                if (!NavigateBack())
+                if (!await NavigateBackAsync())
                     return false;
             }
             return true;
@@ -396,20 +389,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             // Validate step content
             if (step.Content is IWizardStepContent stepContent)
             {
-                // Try async validation first
+                // Try async validation first, fall back to sync if not implemented
+                WizardValidationResult validationResult;
                 try
                 {
-                    var asyncResult = await stepContent.ValidateAsync();
-                    if (!asyncResult.IsValid)
-                        return asyncResult;
+                    validationResult = await stepContent.ValidateAsync();
                 }
                 catch (NotImplementedException)
                 {
-                    // Fall back to sync validation
-                    var syncResult = stepContent.Validate();
-                    if (!syncResult.IsValid)
-                        return syncResult;
+                    // Fallback for implementations that don't support async validation
+                    validationResult = stepContent.Validate();
                 }
+
+                if (!validationResult.IsValid)
+                    return validationResult;
             }
 
             // Run registered validators
@@ -473,14 +466,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         }
 
         /// <summary>
-        /// Complete the wizard (sync wrapper)
-        /// </summary>
-        public bool Complete()
-        {
-            return CompleteAsync().GetAwaiter().GetResult();
-        }
-
-        /// <summary>
         /// Cancel the wizard
         /// </summary>
         public void Cancel()
@@ -514,9 +499,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// <summary>
         /// Show wizard as modal dialog
         /// </summary>
-        public DialogResult ShowDialog()
+        public async Task<DialogResult> ShowDialogAsync()
         {
-            InitializeFirstStep();
+            await InitializeFirstStepAsync();
             var form = WizardFormFactory.CreateForm(Config.Style, this);
             _formHost = form;
             return form.ShowDialog();
@@ -525,41 +510,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// <summary>
         /// Show wizard as modal dialog with owner
         /// </summary>
-        public DialogResult ShowDialog(IWin32Window owner)
+        public async Task<DialogResult> ShowDialogAsync(IWin32Window owner)
         {
-            InitializeFirstStep();
+            await InitializeFirstStepAsync();
             var form = WizardFormFactory.CreateForm(Config.Style, this);
             _formHost = form;
             return form.ShowDialog(owner);
         }
 
-        private void InitializeFirstStep()
+        /// <summary>
+        /// Show wizard as modal dialog (sync wrapper for legacy code)
+        /// </summary>
+        public DialogResult ShowDialog()
         {
-            try
+            return ShowDialogAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Show wizard as modal dialog with owner (sync wrapper for legacy code)
+        /// </summary>
+        public DialogResult ShowDialog(IWin32Window owner)
+        {
+            return ShowDialogAsync(owner).GetAwaiter().GetResult();
+        }
+
+        private async Task InitializeFirstStepAsync()
+        {
+            if (CurrentStepIndex == 0 && Config.Steps.Count > 0)
             {
-                if (CurrentStepIndex == 0 && Config.Steps.Count > 0)
+                var step = Config.Steps[0];
+                
+                // Call OnEnter callback
+                step.OnEnter?.Invoke(Context);
+
+                // Call async OnEnter
+                if (step.OnEnterAsync != null)
                 {
-                    var step = Config.Steps[0];
-                    
-                    // Call OnEnter callback
-                    step.OnEnter?.Invoke(Context);
-
-                    // Call async OnEnter (sync)
-                    if (step.OnEnterAsync != null)
-                    {
-                        step.OnEnterAsync(Context).GetAwaiter().GetResult();
-                    }
-
-                    // Inject context into step content
-                    if (step.Content is IWizardStepContent stepContent)
-                    {
-                        stepContent.OnStepEnter(Context);
-                    }
+                    await step.OnEnterAsync(Context);
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"WizardInstance: Error initializing first step: {ex.Message}");
+
+                // Inject context into step content
+                if (step.Content is IWizardStepContent stepContent)
+                {
+                    stepContent.OnStepEnter(Context);
+                }
             }
         }
 

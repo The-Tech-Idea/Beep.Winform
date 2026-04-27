@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
         private static extern bool ReleaseCapture();
 
         [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HTCAPTION = 0x2;
@@ -124,7 +124,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
                 return;
 
             ReleaseCapture();
-            SendMessage(parentForm.Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+            SendMessage(parentForm.Handle, WM_NCLBUTTONDOWN, (IntPtr)HTCAPTION, IntPtr.Zero);
         }
 
         /// <summary>

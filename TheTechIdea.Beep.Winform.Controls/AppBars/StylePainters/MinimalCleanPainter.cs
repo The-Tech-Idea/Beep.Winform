@@ -45,8 +45,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -81,6 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS (text only, wide spacing) ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 using (var normalFont = new Font(tabFont.FontFamily, tabFont.Size - 1, FontStyle.Regular))
                 {
                     for (int i = 0; i < tabs.Count; i++)

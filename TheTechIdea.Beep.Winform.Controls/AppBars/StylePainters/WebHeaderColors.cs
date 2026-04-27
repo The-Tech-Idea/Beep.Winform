@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 {
@@ -160,18 +161,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
         
         public static Color Lighten(Color color, float amount)
         {
-            int r = Math.Min(255, (int)(color.R + (255 - color.R) * amount));
-            int g = Math.Min(255, (int)(color.G + (255 - color.G) * amount));
-            int b = Math.Min(255, (int)(color.B + (255 - color.B) * amount));
-            return Color.FromArgb(color.A, r, g, b);
+            return ColorUtils.Lighten(color, amount);
         }
         
         public static Color Darken(Color color, float amount)
         {
-            int r = Math.Max(0, (int)(color.R * (1 - amount)));
-            int g = Math.Max(0, (int)(color.G * (1 - amount)));
-            int b = Math.Max(0, (int)(color.B * (1 - amount)));
-            return Color.FromArgb(color.A, r, g, b);
+            return ColorUtils.Darken(color, amount);
         }
         
         public static Color WithAlpha(Color color, int alpha)

@@ -17,7 +17,7 @@ using TheTechIdea.Beep.Winform.Controls.Themes;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
-    public partial class BeepDocumentHost
+    public partial class BeepDocumentHost : BaseControl
     {
         private readonly BeepDocumentTabStrip _tabStrip;
         private readonly Panel _contentArea;

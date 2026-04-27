@@ -64,6 +64,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("PlaceholderText", value);
         }
 
+        [Category("Appearance")]
+        [Description("Predefined height variant: Small (24px), Medium (32px), Large (40px).")]
+        public BeepComboBoxSize SizeVariant
+        {
+            get => _designer.GetProperty<BeepComboBoxSize>("SizeVariant");
+            set => _designer.SetProperty("SizeVariant", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Show a clear button to reset selection.")]
+        public bool ShowClearButton
+        {
+            get => _designer.GetProperty<bool>("ShowClearButton");
+            set => _designer.SetProperty("ShowClearButton", value);
+        }
+
         [Category("Behavior")]
         [Description("Show a search box inside the dropdown popup.")]
         public bool ShowSearchInDropdown
@@ -154,6 +170,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             IsEditable = true;
         }
 
+        public void ConfigureAsSimpleDropdown()
+        {
+            ComboBoxType = ComboBoxType.OutlineDefault;
+            ShowSearchInDropdown = false;
+            AutoComplete = false;
+            IsEditable = false;
+            ShowClearButton = true;
+        }
+
+        public void ConfigureAsMinimalPicker()
+        {
+            ComboBoxType = ComboBoxType.MinimalBorderless;
+            ShowSearchInDropdown = false;
+            AutoComplete = false;
+            IsEditable = false;
+            SizeVariant = BeepComboBoxSize.Small;
+        }
+
         #endregion
 
         public override DesignerActionItemCollection GetSortedActionItems()
@@ -164,10 +198,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, nameof(ConfigureAsSearchablePicker), "Searchable Picker", "Presets", true));
             items.Add(new DesignerActionMethodItem(this, nameof(ConfigureAsChipMultiSelect), "Chip Multi-Select", "Presets", true));
             items.Add(new DesignerActionMethodItem(this, nameof(ConfigureAsCommandMenu), "Command Menu", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ConfigureAsSimpleDropdown), "Simple Dropdown", "Presets", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ConfigureAsMinimalPicker), "Minimal Picker", "Presets", true));
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(ComboBoxType), "Combo Box Type", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(PlaceholderText), "Placeholder Text", "Appearance"));
+            items.Add(new DesignerActionPropertyItem(nameof(SizeVariant), "Size Variant", "Appearance"));
+            items.Add(new DesignerActionPropertyItem(nameof(ShowClearButton), "Show Clear Button", "Appearance"));
 
             items.Add(new DesignerActionHeaderItem("Behavior"));
             items.Add(new DesignerActionPropertyItem("IsEditable", "Editable", "Behavior"));

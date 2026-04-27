@@ -47,8 +47,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -78,18 +81,15 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 // Brand text - uppercase, letter-spaced
                 string brandText = !string.IsNullOrEmpty(logoText) ? logoText.ToUpper() : "STUDIO";
                 using (var font = new Font("Segoe UI", 9, FontStyle.Bold))
+                using (var brush = new SolidBrush(TextPrimary))
                 {
-                    // Draw with letter spacing simulation
                     float letterSpacing = 3f;
                     float currentX = x;
                     foreach (char c in brandText)
                     {
                         string ch = c.ToString();
                         var size = g.MeasureString(ch, font);
-                        using (var brush = new SolidBrush(TextPrimary))
-                        {
-                            g.DrawString(ch, font, brush, currentX, centerY - size.Height / 2);
-                        }
+                        g.DrawString(ch, font, brush, currentX, centerY - size.Height / 2);
                         currentX += size.Width - 4 + letterSpacing;
                     }
                     x = (int)currentX + 40;
@@ -106,6 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS (minimal with thin underline) ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 using (var normalFont = new Font(tabFont.FontFamily, tabFont.Size - 1, FontStyle.Regular))
                 {
                     for (int i = 0; i < tabs.Count; i++)

@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.AppBars.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
 {

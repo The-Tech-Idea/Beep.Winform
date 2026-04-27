@@ -17,13 +17,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class QuarterlyDateTimePickerPainter : IDateTimePickerPainter
     {
     private readonly BeepDateTimePicker _owner;
-    private readonly IBeepTheme _theme;
+    private IBeepTheme _theme;
 
         public DatePickerMode Mode => DatePickerMode.Quarterly;
 
         public QuarterlyDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

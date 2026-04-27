@@ -15,5 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Models
         public bool IsPressed { get; set; }
         public float Progress01 { get; set; }
         public float DisplayProgress01 { get; set; }
+        public ProgressState State { get; set; } = ProgressState.Normal;
+        public float IndeterminateOffset { get; set; }
     }
 }

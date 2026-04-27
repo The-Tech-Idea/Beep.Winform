@@ -438,7 +438,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _validationErrorMessage = ""; return true;
         }
         private bool IsWeekend(DateTime date) => _weekends.Contains(date.DayOfWeek.ToString());
-        private List<DateTime> GetBusinessHolidays(int year) => new() { new DateTime(year, 1, 1), new DateTime(year, 7, 4), new DateTime(year, 12, 25) };
+        private List<DateTime> GetBusinessHolidays(int year)
+        {
+            var holidays = new List<DateTime>();
+            holidays.Add(new DateTime(year, 1, 1));
+            holidays.Add(new DateTime(year, 12, 25));
+            holidays.Add(new DateTime(year, 12, 26));
+            return holidays;
+        }
         private void ValidateCurrentDate()
         {
             if (_selectedDateTime != DateTime.MinValue && !IsDateValid(_selectedDateTime))

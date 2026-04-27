@@ -337,12 +337,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             BackColor = _currentTheme.CalendarBackColor;
             ForeColor = _currentTheme.CalendarForeColor;
             
-            // CRITICAL: Reinitialize the painter with the updated theme
-            // so it gets the new calendar color scheme
-            if (_currentPainter != null)
-            {
-                _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
-            }
+            // Update theme reference on existing painter (avoid expensive recreation)
+            _currentPainter?.UpdateTheme(_currentTheme);
             
             // The painters now use these calendar theme colors:
             // - CalendarTitleForColor (headers, navigation buttons)

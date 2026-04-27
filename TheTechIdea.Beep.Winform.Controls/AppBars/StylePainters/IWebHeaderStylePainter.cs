@@ -14,13 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
     /// </summary>
     public interface IWebHeaderStylePainter
     {
-        /// <summary>Gets the style this painter implements</summary>
         WebHeaderStyle Style { get; }
 
-        /// <summary>
-        /// Paints the complete header with all components
-        /// </summary>
-        /// <param name="skipBackground">If true, do not draw background (for transparent background support)</param>
         void PaintHeader(
             Graphics g,
             Rectangle bounds,
@@ -36,21 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false);
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds);
 
-        /// <summary>
-        /// Gets tab bounds after layout
-        /// </summary>
         Rectangle GetTabBounds(int tabIndex, Rectangle headerBounds, List<WebHeaderTab> tabs);
 
-        /// <summary>
-        /// Gets button bounds after layout
-        /// </summary>
         Rectangle GetButtonBounds(int buttonIndex, Rectangle headerBounds, List<WebHeaderActionButton> buttons);
 
-        /// <summary>
-        /// Gets the tab or button at the given point, returns tab index (positive) or button index (negative)
-        /// </summary>
         int GetHitElement(Point pt, Rectangle headerBounds, List<WebHeaderTab> tabs, List<WebHeaderActionButton> buttons);
     }
 
@@ -76,7 +64,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false);
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds);
 
         public abstract Rectangle GetTabBounds(int tabIndex, Rectangle headerBounds, List<WebHeaderTab> tabs);
 
@@ -213,76 +203,6 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                     g.DrawLine(pen, iconRect.Right - 4, iconRect.Bottom - 4, iconRect.Right + 4, iconRect.Bottom + 4);
                 }
             }
-        }
-
-        /// <summary>
-        /// Helper: Draw tab with state
-        /// </summary>
-        protected void DrawTab(Graphics g, Rectangle tabBounds, WebHeaderTab tab, bool isActive, bool isHovered, Color textColor, Font font)
-        {
-            if (tabBounds.Width <= 0 || tabBounds.Height <= 0)
-                return;
-
-            using (var brush = new SolidBrush(textColor))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-            {
-                g.DrawString(tab.Text, font, brush, tabBounds, sf);
-            }
-        }
-
-        /// <summary>
-        /// Helper: Draw button with state
-        /// </summary>
-        protected void DrawButton(Graphics g, Rectangle btnBounds, WebHeaderActionButton btn, bool isHovered, Color foreColor, Color backColor, Font font)
-        {
-            if (btnBounds.Width <= 0 || btnBounds.Height <= 0)
-                return;
-
-            // Draw button background
-            using (var brush = new SolidBrush(backColor))
-            {
-                g.FillRectangle(brush, btnBounds);
-            }
-
-            // Draw button border
-            using (var pen = new Pen(foreColor, 1))
-            {
-                g.DrawRectangle(pen, btnBounds);
-            }
-
-            // Draw button text and optional icon
-            using (var brush = new SolidBrush(foreColor))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-            {
-                if (!string.IsNullOrEmpty(btn.ImagePath))
-                {
-                    // draw icon at left inside button
-                    var iconRect = new Rectangle(btnBounds.Left + 6, btnBounds.Top + (btnBounds.Height - 20) / 2, 20, 20);
-                    try
-                    {
-                        DrawLogoCircle(g, iconRect, btn.ImagePath, null);
-                    }
-                    catch
-                    {
-                        // fallback to no icon
-                    }
-
-                    var textRect = new Rectangle(btnBounds.Left + 30, btnBounds.Top, btnBounds.Width - 36, btnBounds.Height);
-                    g.DrawString(btn.Text, font, brush, textRect, sf);
-                }
-                else
-                {
-                    g.DrawString(btn.Text, font, brush, btnBounds, sf);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Helper: Hit test rectangle
-        /// </summary>
-        protected bool HitTestRect(Point pt, Rectangle rect)
-        {
-            return rect.Contains(pt);
         }
     }
 }

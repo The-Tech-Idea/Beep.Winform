@@ -18,13 +18,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     public class WeekViewDateTimePickerPainter : IDateTimePickerPainter
     {
     private readonly BeepDateTimePicker _owner;
-    private readonly IBeepTheme _theme;
+    private IBeepTheme _theme;
 
         public DatePickerMode Mode => DatePickerMode.WeekView;
 
         public WeekViewDateTimePickerPainter(BeepDateTimePicker owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
             _theme = theme;
         }
 

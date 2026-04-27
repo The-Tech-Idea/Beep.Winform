@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
@@ -43,8 +44,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -124,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 // Center tabs
                 int buttonsWidth = CalculateButtonsWidth(buttons, buttonFont);
                 int availableWidth = bounds.Width - x - buttonsWidth - PADDING;
-                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2);
+                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2) - tabScrollOffset;
 
                 for (int i = 0; i < tabs.Count; i++)
                 {
@@ -134,16 +138,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 
                     // Tab text - bold for active
                     Color textColor = tab.IsActive ? fgColor : (tab.IsHovered ? fgColor : TextMuted);
-                    var font = tab.IsActive ? new Font(tabFont.FontFamily, tabFont.Size, FontStyle.Bold) : tabFont;
 
+                    using (var activeFont = tab.IsActive ? new Font(tabFont.FontFamily, tabFont.Size, FontStyle.Bold) : null)
                     using (var brush = new SolidBrush(textColor))
                     using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
                     {
-                        g.DrawString(tab.Text, font, brush, tabBounds, sf);
+                        g.DrawString(tab.Text, activeFont ?? tabFont, brush, tabBounds, sf);
                     }
-
-                    if (tab.IsActive && font != tabFont)
-                        font.Dispose();
 
                     tabStartX += tabWidths[i] + TAB_SPACING;
                 }
@@ -234,13 +235,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             if (buttons == null || buttons.Count == 0) return 0;
 
             int width = PADDING;
-            using (var g = Graphics.FromHwnd(IntPtr.Zero))
+            foreach (var btn in buttons)
             {
-                foreach (var btn in buttons)
-                {
-                    var textSize = g.MeasureString(btn.Text, buttonFont);
-                    width += Math.Max((int)textSize.Width + 48, 130) + 16;
-                }
+                var textSize = TextRenderer.MeasureText(btn.Text, buttonFont);
+                width += Math.Max(textSize.Width + 48, 130) + 16;
             }
             return width;
         }

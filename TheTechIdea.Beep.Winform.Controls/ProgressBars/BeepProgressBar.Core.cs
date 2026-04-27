@@ -123,7 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                     IsHovered = !string.IsNullOrEmpty(_hoverArea),
                     IsPressed = !string.IsNullOrEmpty(_pressedArea),
                     Progress01 = ProgressPercentage,
-                    DisplayProgress01 = DisplayProgressPercentage
+                    DisplayProgress01 = DisplayProgressPercentage,
+                    State = _progressState,
+                    IndeterminateOffset = _indeterminateOffset
                 }
             };
 
@@ -156,5 +158,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
     {
         public ProgressDotEventArgs(int index) { Index = index; }
         public int Index { get; }
+    }
+
+    public sealed class ProgressMilestoneEventArgs : System.EventArgs
+    {
+        public ProgressMilestoneEventArgs(int threshold, int percentage)
+        {
+            Threshold = threshold;
+            Percentage = percentage;
+        }
+        public int Threshold { get; }
+        public int Percentage { get; }
+    }
+
+    public sealed class ProgressStateChangedEventArgs : System.EventArgs
+    {
+        public ProgressStateChangedEventArgs(ProgressState oldState, ProgressState newState)
+        {
+            OldState = oldState;
+            NewState = newState;
+        }
+        public ProgressState OldState { get; }
+        public ProgressState NewState { get; }
     }
 }

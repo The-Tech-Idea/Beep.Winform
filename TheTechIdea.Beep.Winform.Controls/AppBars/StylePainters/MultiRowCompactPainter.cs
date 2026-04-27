@@ -48,8 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -110,6 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             int mainTabCount = tabs != null ? (tabs.Count + 1) / 2 : 0;
             if (tabs != null && mainTabCount > 0)
             {
+                x -= tabScrollOffset;
                 for (int i = 0; i < mainTabCount; i++)
                 {
                     var tab = tabs[i];
@@ -214,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
 
             // === BOTTOM ROW: Secondary tabs (second half) ===
             int bottomCenterY = bottomRow.Top + bottomRowHeight / 2;
-            x = bottomRow.Left + PADDING;
+            x = bottomRow.Left + PADDING - tabScrollOffset;
 
             // Breadcrumb-style indicator
             using (var brush = new SolidBrush(TextMuted))

@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Helpers
         public bool IsSelected;
         public bool IsHovered;
         public bool IsFocused;
+        public bool IsDisabled;
         public ChipVariant Variant;
         public ChipSize Size;
         public ChipColor Color;

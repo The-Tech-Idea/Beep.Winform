@@ -58,7 +58,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
             var (bg, fg, border) = GetColors(state, opt);
             var groupBack = (opt.Theme ?? _theme)?.BackColor ?? _owner?.BackColor ?? Color.White;
 
-            // Keep unselected chips visible even when theme button and group backgrounds are identical.
+            if (state.IsDisabled)
+            {
+                bg = Color.FromArgb(120, bg);
+                fg = Color.FromArgb(120, fg);
+                border = Color.FromArgb(120, border);
+            }
+
             if (!state.IsSelected && bg.ToArgb() == groupBack.ToArgb())
             {
                 bool isDark = (opt.Theme ?? _theme)?.IsDarkTheme == true;
@@ -66,129 +72,144 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips.Painters
                 border = ShiftLuminance(border, isDark ? 0.05f : -0.08f);
             }
 
-            // Ensure readable text in rare low-contrast theme combinations.
             if (!state.IsSelected && fg.ToArgb() == bg.ToArgb())
             {
                 fg = bg.GetBrightness() > 0.55f ? Color.Black : Color.White;
             }
             using var path = RoundedPath(bounds, DpiScalingHelper.ScaleValue(opt.CornerRadius, scale));
 
-            // Background per Style (same as before)
-            switch (opt.Style)
+            float originalAlpha = state.IsDisabled ? 0.6f : 1.0f;
+            var oldClip = g.Clip;
+            try
             {
-                case ChipStyle.Minimalist:
-                    if (state.IsHovered || state.IsSelected)
-                    {
-                        var tint = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsSelected ? 28 : 14, fg));
-                        g.FillPath(tint, path);
-                    }
-                    break;
-                case ChipStyle.Classic:
-                case ChipStyle.Professional:
-                case ChipStyle.HighContrast:
-                    {
-                        var bgBr = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsHovered || state.IsSelected ? 18 : 8, bg));
-                        g.FillPath(bgBr, path);
-                    }
-                    break;
-                default:
-                    {
-                        // Keep unselected chips visibly present across all themes/styles.
-                        // Use a near-opaque fill to avoid blending away on same-tone backgrounds.
-                        var fillColor = state.IsSelected ? bg : Color.FromArgb(220, bg);
-                        var bgBr = PaintersFactory.GetSolidBrush(fillColor);
-                        g.FillPath(bgBr, path);
-                    }
-                    break;
-            }
-
-            if (opt.ShowBorders)
-            {
-                var stroke = state.IsSelected ? border : Color.FromArgb(210, border);
-                var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
-                using (pen)
+                if (state.IsDisabled)
                 {
-                    g.DrawPath(pen, path);
+                    var clipRegion = new Region(path);
+                    g.Clip = clipRegion;
                 }
-            }
 
-            var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(8, scale), -DpiScalingHelper.ScaleValue(2, scale));
-            int leftPad = 0;
-
-            // Selection mark
-            if (opt.ShowSelectionCheck && state.IsSelected)
-            {
-                if (opt.SelectionMark == SelectionMarkKind.Dot)
+                switch (opt.Style)
                 {
-                    int dot = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(10, scale));
-                    var dotRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - dot) / 2, dot, dot);
-                    var dotBr = PaintersFactory.GetSolidBrush(fg);
-                    g.FillEllipse(dotBr, dotRect);
-                    leftPad += dot + DpiScalingHelper.ScaleValue(6, scale);
+                    case ChipStyle.Minimalist:
+                        if (state.IsHovered || state.IsSelected)
+                        {
+                            var tint = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsSelected ? 28 : 14, fg));
+                            g.FillPath(tint, path);
+                        }
+                        break;
+                    case ChipStyle.Classic:
+                    case ChipStyle.Professional:
+                    case ChipStyle.HighContrast:
+                        {
+                            var bgBr = PaintersFactory.GetSolidBrush(Color.FromArgb(state.IsHovered || state.IsSelected ? 18 : 8, bg));
+                            g.FillPath(bgBr, path);
+                        }
+                        break;
+                    default:
+                        {
+                            var fillColor = state.IsSelected ? bg : Color.FromArgb(220, bg);
+                            var bgBr = PaintersFactory.GetSolidBrush(fillColor);
+                            g.FillPath(bgBr, path);
+                        }
+                        break;
                 }
-                else
+
+                if (opt.ShowBorders)
+                {
+                    var stroke = state.IsSelected ? border : Color.FromArgb(210, border);
+                    var pen = (Pen)PaintersFactory.GetPen(stroke, Math.Max(1, DpiScalingHelper.ScaleValue(opt.BorderWidth, scale))).Clone();
+                    using (pen)
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+
+                var contentRect = Rectangle.Inflate(bounds, -DpiScalingHelper.ScaleValue(8, scale), -DpiScalingHelper.ScaleValue(2, scale));
+                int leftPad = 0;
+
+                if (opt.ShowSelectionCheck && state.IsSelected)
+                {
+                    if (opt.SelectionMark == SelectionMarkKind.Dot)
+                    {
+                        int dot = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(10, scale));
+                        var dotRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - dot) / 2, dot, dot);
+                        var dotBr = PaintersFactory.GetSolidBrush(fg);
+                        g.FillEllipse(dotBr, dotRect);
+                        leftPad += dot + DpiScalingHelper.ScaleValue(6, scale);
+                    }
+                    else
+                    {
+                        int s = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
+                        var r = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - s) / 2, s, s);
+                        var penC = (Pen)PaintersFactory.GetPen(fg, 2f).Clone();
+                        try
+                        {
+                            penC.StartCap = LineCap.Round;
+                            penC.EndCap = LineCap.Round;
+                            g.DrawLines(penC, new[] { new Point(r.Left + 2, r.Top + s / 2), new Point(r.Left + s / 2, r.Bottom - 2), new Point(r.Right - 2, r.Top + 3) });
+                        }
+                        finally
+                        {
+                            penC.Dispose();
+                        }
+                        leftPad += s + DpiScalingHelper.ScaleValue(6, scale);
+                    }
+                }
+
+                if (opt.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
+                {
+                    var sz = DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale);
+                    var iconAnchorRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, sz.Width + DpiScalingHelper.ScaleValue(2, scale), contentRect.Height);
+                    var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, opt.Size, true);
+                    ChipIconHelpers.PaintIcon(
+                        g,
+                        iconRect,
+                        item.ImagePath,
+                        fg,
+                        opt.Theme ?? _theme,
+                        false,
+                        ChipVariant.Filled,
+                        state.Color,
+                        state.IsSelected,
+                        state.IsHovered,
+                        _owner.ControlStyle);
+                    leftPad += iconRect.Width + DpiScalingHelper.ScaleValue(6, scale);
+                }
+
+                int rightPad = 0;
+                if (opt.ShowCloseOnSelected && state.IsSelected && !state.IsDisabled)
                 {
                     int s = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
-                    var r = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - s) / 2, s, s);
-                    var penC = (Pen)PaintersFactory.GetPen(fg, 2f).Clone();
+                    closeRect = new Rectangle(contentRect.Right - s, contentRect.Top + (contentRect.Height - s) / 2, s, s);
+                    var penX = (Pen)PaintersFactory.GetPen(fg, 1.5f).Clone();
                     try
                     {
-                        penC.StartCap = LineCap.Round;
-                        penC.EndCap = LineCap.Round;
-                        g.DrawLines(penC, new[] { new Point(r.Left + 2, r.Top + s / 2), new Point(r.Left + s / 2, r.Bottom - 2), new Point(r.Right - 2, r.Top + 3) });
+                        penX.StartCap = LineCap.Round;
+                        penX.EndCap = LineCap.Round;
+                        g.DrawLine(penX, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
+                        g.DrawLine(penX, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
                     }
                     finally
                     {
-                        penC.Dispose();
+                        penX.Dispose();
                     }
-                    leftPad += s + DpiScalingHelper.ScaleValue(6, scale);
+                    rightPad = s + DpiScalingHelper.ScaleValue(4, scale);
                 }
-            }
 
-            // Left icon
-            if (opt.ShowLeadingIcon && !string.IsNullOrEmpty(item?.ImagePath))
+                var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
+                var textBr = PaintersFactory.GetSolidBrush(fg);
+                g.DrawString(ResolveChipText(item), font, textBr, textRect, _centerFmt);
+            }
+            finally
             {
-                var sz = DpiScalingHelper.ScaleSize(opt.IconMaxSize, scale);
-                var iconAnchorRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, sz.Width + DpiScalingHelper.ScaleValue(2, scale), contentRect.Height);
-                var iconRect = ChipIconHelpers.CalculateChipIconBounds(iconAnchorRect, opt.Size, true);
-                ChipIconHelpers.PaintIcon(
-                    g,
-                    iconRect,
-                    item.ImagePath,
-                    fg,
-                    opt.Theme ?? _theme,
-                    false,
-                    ChipVariant.Filled,
-                    state.Color,
-                    state.IsSelected,
-                    state.IsHovered,
-                    _owner.ControlStyle);
-                leftPad += iconRect.Width + DpiScalingHelper.ScaleValue(6, scale);
+                g.Clip = oldClip;
             }
 
-            int rightPad = 0;
-            if (opt.ShowCloseOnSelected && state.IsSelected)
+            if (state.IsDisabled)
             {
-                int s = Math.Min(contentRect.Height - DpiScalingHelper.ScaleValue(6, scale), DpiScalingHelper.ScaleValue(12, scale));
-                closeRect = new Rectangle(contentRect.Right - s, contentRect.Top + (contentRect.Height - s) / 2, s, s);
-                var penX = (Pen)PaintersFactory.GetPen(fg, 1.5f).Clone();
-                try
-                {
-                    penX.StartCap = LineCap.Round;
-                    penX.EndCap = LineCap.Round;
-                    g.DrawLine(penX, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
-                    g.DrawLine(penX, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
-                }
-                finally
-                {
-                    penX.Dispose();
-                }
-                rightPad = s + DpiScalingHelper.ScaleValue(4, scale);
+                using var disabledOverlay = new SolidBrush(Color.FromArgb(60, groupBack));
+                g.FillPath(disabledOverlay, path);
             }
-
-            var textRect = new Rectangle(contentRect.Left + leftPad, contentRect.Top, contentRect.Width - leftPad - rightPad, contentRect.Height);
-            var textBr = PaintersFactory.GetSolidBrush(fg);
-            g.DrawString(ResolveChipText(item), font, textBr, textRect, _centerFmt);
         }
 
         public void RenderGroupBackground(Graphics g, Rectangle drawingRect, ChipRenderOptions options) { }

@@ -230,6 +230,5 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
         {
             ItemIconNeeded?.Invoke(this, e);
         }
-        #endregion
     }
 }

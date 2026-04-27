@@ -377,8 +377,26 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
         {
             if (!_disposed && disposing)
             {
-                // Dispose components (they will be handled by the main control's disposal)
-                // We don't dispose them here as they might be added to the control's Controls collection
+                Logo?.Dispose();
+                TitleLabel?.Dispose();
+                SearchBox?.Dispose();
+                ProfileButton?.Dispose();
+                NotificationButton?.Dispose();
+                CloseButton?.Dispose();
+                MaximizeButton?.Dispose();
+                MinimizeButton?.Dispose();
+                ThemeButton?.Dispose();
+
+                Logo = null;
+                TitleLabel = null;
+                SearchBox = null;
+                ProfileButton = null;
+                NotificationButton = null;
+                CloseButton = null;
+                MaximizeButton = null;
+                MinimizeButton = null;
+                ThemeButton = null;
+
                 _disposed = true;
             }
         }

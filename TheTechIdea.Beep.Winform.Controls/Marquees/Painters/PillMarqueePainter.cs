@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Marquees.Painters
 
             Color bg = item.BackgroundColor != Color.Transparent
                 ? item.BackgroundColor
-                : (ctx.UseThemeColors && ctx.Theme != null ? ctx.Theme.PrimaryColor : Color.FromArgb(59, 130, 246));
+                : (ctx.UseThemeColors && ctx.Theme != null ? ctx.Theme.PrimaryColor : ColorUtils.MapSystemColor(SystemColors.Highlight));
 
             FillRoundedRect(g, pillRect, h / 2f, bg);
 

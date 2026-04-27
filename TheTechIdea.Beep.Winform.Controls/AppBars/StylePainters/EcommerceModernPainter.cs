@@ -50,8 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -99,6 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             // === TABS ===
             if (tabs != null && tabs.Count > 0)
             {
+                x -= tabScrollOffset;
                 for (int i = 0; i < tabs.Count; i++)
                 {
                     var tab = tabs[i];
@@ -121,13 +125,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                     }
 
                     // Text
-                    var font = tab.IsActive ? new Font(tabFont.FontFamily, tabFont.Size, FontStyle.Bold) : tabFont;
+                    using (var activeFont = tab.IsActive ? new Font(tabFont.FontFamily, tabFont.Size, FontStyle.Bold) : null)
                     using (var brush = new SolidBrush(tabTextColor))
                     using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
                     {
-                        g.DrawString(tab.Text, font, brush, tabBounds, sf);
+                        g.DrawString(tab.Text, activeFont ?? tabFont, brush, tabBounds, sf);
                     }
-                    if (tab.IsActive && font != tabFont) font.Dispose();
 
                     x += tabWidth + TAB_SPACING;
                 }
@@ -137,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             if (showSearchBox)
             {
                 int searchX = x + 16;
-                var searchBounds = new Rectangle(searchX, centerY - SEARCH_HEIGHT / 2, SEARCH_WIDTH, SEARCH_HEIGHT);
+                searchBounds = new Rectangle(searchX, centerY - SEARCH_HEIGHT / 2, SEARCH_WIDTH, SEARCH_HEIGHT);
 
                 // Search background - pill shape
                 using (var path = GraphicsExtensions.GetRoundedRectPath(searchBounds, SEARCH_HEIGHT / 2))

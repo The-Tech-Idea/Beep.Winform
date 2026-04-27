@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
  
  
  
@@ -570,7 +571,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showValidationIcon && !string.IsNullOrEmpty(_validationErrorMessage))
             {
                 this.ToolTipText = _validationErrorMessage;
-                this.BackColor = Color.FromArgb(255, 245, 245); // Light red background
+                Color errorBg = _currentTheme?.TextBoxErrorBackColor != null && _currentTheme.TextBoxErrorBackColor != Color.Empty
+                    ? _currentTheme.TextBoxErrorBackColor
+                    : ColorUtils.LightenColor(ColorUtils.DefaultErrorColor, 220);
+                this.BackColor = errorBg;
             }
         }
 
@@ -599,7 +603,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _dropdownButton = new BeepButton
             {
-                Text = "🕒",
                 HideText = true,
                 ShowAllBorders = false,
                 IsShadowAffectedByTheme = false,
@@ -843,9 +846,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-                // Background color based on validation state
-                Color backgroundColor = !string.IsNullOrEmpty(_validationErrorMessage) 
-                    ? Color.FromArgb(255, 245, 245) 
+                Color errorBg = _currentTheme?.TextBoxErrorBackColor != null && _currentTheme.TextBoxErrorBackColor != Color.Empty
+                    ? _currentTheme.TextBoxErrorBackColor
+                    : ColorUtils.LightenColor(ColorUtils.DefaultErrorColor, 220);
+                Color errorBorder = _currentTheme?.TextBoxErrorBorderColor != null && _currentTheme.TextBoxErrorBorderColor != Color.Empty
+                    ? _currentTheme.TextBoxErrorBorderColor
+                    : ColorUtils.DefaultErrorColor;
+
+                Color backgroundColor = !string.IsNullOrEmpty(_validationErrorMessage)
+                    ? errorBg
                     : _currentTheme.TextBoxBackColor;
 
                 using (SolidBrush backgroundBrush = new SolidBrush(backgroundColor))
@@ -856,7 +865,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (BorderThickness > 0)
                 {
                     Color borderColor = !string.IsNullOrEmpty(_validationErrorMessage)
-                        ? Color.FromArgb(220, 53, 69)
+                        ? errorBorder
                         : _currentTheme.BorderColor;
 
                     using (Pen borderPen = new Pen(borderColor, BorderThickness))
@@ -877,10 +886,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Time Picker Popup
         private void ShowTimePickerPopup()
         {
-            if (_timePopup != null && _timePopup.Visible)
+            if (_timePopup != null)
             {
-                _timePopup.CloseCascade();
-                return;
+                if (_timePopup.Visible)
+                {
+                    CloseTimePickerPopup();
+                    return;
+                }
+                else if (_timePopup.IsDisposed)
+                {
+                    _timePopup = null;
+                    _timePickerPanel = null;
+                }
             }
 
             TimePickerOpened?.Invoke(this, EventArgs.Empty);
@@ -895,7 +912,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             _timePickerPanel = CreateTimePickerPanel();
             _timePopup.Controls.Add(_timePickerPanel);
 
+            _timePopup.FormClosed += (s, e) =>
+            {
+                TimePickerClosed?.Invoke(this, EventArgs.Empty);
+                _timePopup = null;
+                _timePickerPanel = null;
+            };
+
             _timePopup.ShowPopup(this, BeepPopupFormPosition.Bottom);
+        }
+
+        private void CloseTimePickerPopup()
+        {
+            if (_timePopup != null && !_timePopup.IsDisposed)
+            {
+                _timePopup.CloseCascade();
+            }
+            _timePopup = null;
+            _timePickerPanel = null;
         }
 
         private BeepPanel CreateTimePickerPanel()
@@ -1020,8 +1054,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme
             };
             okButton.Click += (s, e) => {
-                _timePopup?.CloseCascade();
-                TimePickerClosed?.Invoke(this, EventArgs.Empty);
+                CloseTimePickerPopup();
             };
 
             var cancelButton = new BeepButton
@@ -1032,8 +1065,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme
             };
             cancelButton.Click += (s, e) => {
-                _timePopup?.CloseCascade();
-                TimePickerClosed?.Invoke(this, EventArgs.Empty);
+                CloseTimePickerPopup();
             };
 
             panel.Controls.AddRange(new Control[] 
@@ -1192,8 +1224,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _dropdownButton?.Dispose();
                 _incrementButton?.Dispose();
                 _decrementButton?.Dispose();
-                _timePopup?.Dispose();
-                _timePickerPanel?.Dispose();
+                if (_timePopup != null && !_timePopup.IsDisposed)
+                    _timePopup.Dispose();
+                _timePopup = null;
+                if (_timePickerPanel != null && !_timePickerPanel.IsDisposed)
+                    _timePickerPanel.Dispose();
+                _timePickerPanel = null;
             }
             base.Dispose(disposing);
         }

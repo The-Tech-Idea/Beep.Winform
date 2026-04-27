@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -59,10 +60,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         private void InitializeDateTextBox()
         {
-            // Set default date masking
+            string cultureDatePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+            
             MaskFormat = TextBoxMaskFormat.Date;
-            DateFormat = "MM/dd/yyyy";
-            PlaceholderText = "MM/DD/YYYY";
+            DateFormat = cultureDatePattern;
+            PlaceholderText = FormatPatternAsPlaceholder(cultureDatePattern);
             
             // Configure validation
             ReadOnly = false;
@@ -232,32 +234,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         // Update mask pattern based on current mode
         private void UpdateMaskForMode()
         {
+            string cultureDatePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+            string dateMask = cultureDatePattern.Replace("M", "0").Replace("d", "0").Replace("y", "0");
+            string datePlaceholder = FormatPatternAsPlaceholder(cultureDatePattern);
+            
             switch (_mode)
             {
                 case Models.DatePickerMode.Single:
                     MaskFormat = TextBoxMaskFormat.Date;
-                    PlaceholderText = DateFormat.Replace("M", "M").Replace("d", "D").Replace("y", "Y");
+                    PlaceholderText = datePlaceholder;
                     break;
                     
                 case Models.DatePickerMode.Range:
                     MaskFormat = TextBoxMaskFormat.Custom;
-                    string dateMask = "00/00/0000";  // Default MM/dd/yyyy mask
                     CustomMask = $"{dateMask}{_dateSeparator}{dateMask}";
-                    PlaceholderText = $"MM/DD/YYYY{_dateSeparator}MM/DD/YYYY";
+                    PlaceholderText = $"{datePlaceholder}{_dateSeparator}{datePlaceholder}";
                     break;
                     
                 case Models.DatePickerMode.SingleWithTime:
                     MaskFormat = TextBoxMaskFormat.DateTime;
-                    PlaceholderText = "MM/DD/YYYY HH:mm";
+                    PlaceholderText = $"{datePlaceholder} HH:mm";
                     break;
                     
                 case Models.DatePickerMode.RangeWithTime:
                     MaskFormat = TextBoxMaskFormat.Custom;
-                    string dateTimeMask = "00/00/0000 00:00";
+                    string dateTimeMask = $"{dateMask} 00:00";
+                    string dateTimePlaceholder = $"{datePlaceholder} HH:mm";
                     CustomMask = $"{dateTimeMask}{_dateSeparator}{dateTimeMask}";
-                    PlaceholderText = $"MM/DD/YYYY HH:mm{_dateSeparator}MM/DD/YYYY HH:mm";
+                    PlaceholderText = $"{dateTimePlaceholder}{_dateSeparator}{dateTimePlaceholder}";
                     break;
             }
+        }
+
+        private static string FormatPatternAsPlaceholder(string pattern)
+        {
+            return pattern
+                .Replace("yyyy", "YYYY").Replace("yy", "YY")
+                .Replace("MMMM", "MMMM").Replace("MMM", "MMM").Replace("MM", "MM").Replace("M", "M")
+                .Replace("dddd", "DDDD").Replace("ddd", "DDD").Replace("dd", "DD").Replace("d", "D");
         }
         
         protected override void Dispose(bool disposing)

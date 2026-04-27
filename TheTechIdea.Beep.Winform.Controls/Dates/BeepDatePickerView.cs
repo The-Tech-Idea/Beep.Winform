@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -523,7 +524,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                Color textColor = isSelected ? (_currentTheme?.CalendarSelectedDateForColor ?? Color.White) : (_currentTheme?.CalendarForeColor ?? ForeColor);
+                Color textColor = isSelected
+                    ? ((_currentTheme?.CalendarSelectedDateForColor != null && _currentTheme.CalendarSelectedDateForColor != Color.Empty)
+                        ? _currentTheme.CalendarSelectedDateForColor
+                        : ColorUtils.GetContrastColor(_currentTheme?.CalendarSelectedDateBackColor ?? BackColor))
+                    : (_currentTheme?.CalendarForeColor ?? ForeColor);
                 TextRenderer.DrawText(g, day.ToString(), DateFont, cellRect, textColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
@@ -593,9 +598,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Draw texts
                     string dateText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
                     string timeText = _selectedDateTime.Value.ToString("HH:mm");
-                    // Use CalendarSelectedDateForColor token — never hardcode Color.White (SKILL Rule 2)
+                    // Use CalendarSelectedDateForColor token — derive contrast fallback from selected background (SKILL Rule 2)
                     Color selTextColor = (_currentTheme?.CalendarSelectedDateForColor != null && _currentTheme.CalendarSelectedDateForColor != Color.Empty)
-                        ? _currentTheme.CalendarSelectedDateForColor : Color.White;
+                        ? _currentTheme.CalendarSelectedDateForColor
+                        : ColorUtils.GetContrastColor(_currentTheme?.CalendarSelectedDateBackColor ?? BackColor);
                     TextRenderer.DrawText(g, dateText, SelectedDateFont, dateRect, selTextColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                     TextRenderer.DrawText(g, timeText, SelectedDateFont, timeRect, selTextColor,
@@ -607,9 +613,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     string selectedText = _selectedDateTime.Value.ToString("dd.MM.yyyy");
-                    // Use CalendarSelectedDateForColor token — never hardcode Color.White (SKILL Rule 2)
+                    // Use CalendarSelectedDateForColor token — derive contrast fallback from selected background (SKILL Rule 2)
                     Color selTextColor2 = (_currentTheme?.CalendarSelectedDateForColor != null && _currentTheme.CalendarSelectedDateForColor != Color.Empty)
-                        ? _currentTheme.CalendarSelectedDateForColor : Color.White;
+                        ? _currentTheme.CalendarSelectedDateForColor
+                        : ColorUtils.GetContrastColor(_currentTheme?.CalendarSelectedDateBackColor ?? BackColor);
                     TextRenderer.DrawText(g, selectedText, SelectedDateFont, _selectedDateDisplayRect, selTextColor2,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }

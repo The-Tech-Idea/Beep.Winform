@@ -694,14 +694,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 int cardW  = Math.Max(titleSize.Width, descSize.Width) + pad * 2;
                 int cardH  = titleSize.Height + gap + descSize.Height + pad * 2;
 
-                // Position below the tab (or above if near the bottom)
-                int cardX = tab.Bounds.X;
-                int cardY = tab.Bounds.Bottom + DpiScalingHelper.ScaleValue(4, this);
-                if (cardY + cardH > ClientRectangle.Bottom)
-                    cardY = tab.Bounds.Top - cardH - DpiScalingHelper.ScaleValue(4, this);
-                // Keep within control bounds horizontally
+                // Position: centered horizontally under the tab
+                int tabCenterX = tab.Bounds.X + tab.Bounds.Width / 2;
+                int cardX = tabCenterX - cardW / 2;
+                // Clamp to control bounds
+                if (cardX < 4) cardX = 4;
                 if (cardX + cardW > ClientRectangle.Right - 4)
                     cardX = ClientRectangle.Right - cardW - 4;
+
+                // Vertical: below the tab (or above if near bottom)
+                int pointerH = DpiScalingHelper.ScaleValue(6, this);
+                int cardY = tab.Bounds.Bottom + DpiScalingHelper.ScaleValue(4, this) + pointerH;
+                bool above = false;
+                if (cardY + cardH > ClientRectangle.Bottom)
+                {
+                    cardY = tab.Bounds.Top - cardH - DpiScalingHelper.ScaleValue(4, this) - pointerH;
+                    above = true;
+                }
 
                 var cardRect = new Rectangle(cardX, cardY, cardW, cardH);
 
@@ -711,15 +720,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 using (var shadowBrush = new SolidBrush(Color.FromArgb(30, Color.Black)))
                     g.FillRectangle(shadowBrush, shadowRect);
 
-                // Card background
+                // Card background with rounded corners
                 Color cardBg  = _currentTheme?.BackColor ?? ColorUtils.MapSystemColor(SystemColors.Info);
                 Color cardFg  = _currentTheme?.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.InfoText);
                 Color borderC = _currentTheme?.BorderColor ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
+                int radius = Math.Min(6, cardH / 2);
 
+                // Build path with pointer triangle
+                using (var path = CreateTooltipPath(cardRect, pointerH, above, radius, tabCenterX, cardX))
                 using (var bgBrush = new SolidBrush(cardBg))
-                    g.FillRectangle(bgBrush, cardRect);
                 using (var borderPen = new Pen(borderC))
-                    g.DrawRectangle(borderPen, cardRect);
+                {
+                    g.FillPath(bgBrush, path);
+                    g.DrawPath(borderPen, path);
+                }
 
                 // Title (bold)
                 var titleRect = new Rectangle(cardRect.X + pad, cardRect.Y + pad, cardRect.Width - pad * 2, titleSize.Height);
@@ -744,6 +758,89 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 if (descFont != null && descFont != titleFont) descFont.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Creates a rounded rectangle path with a small pointer triangle aimed at the tab.
+        /// </summary>
+        private GraphicsPath CreateTooltipPath(Rectangle cardRect, int pointerHeight, bool pointerAbove, int radius, int targetX, int cardX)
+        {
+            var path = new GraphicsPath();
+            if (cardRect.Width <= 0 || cardRect.Height <= 0) return path;
+
+            int r = Math.Min(radius, Math.Min(cardRect.Width / 2, cardRect.Height / 2));
+            int pointerW = DpiScalingHelper.ScaleValue(10, this); // width of pointer base
+
+            // Clamp pointer position to card bounds (leave margin for corners)
+            int pointerX = targetX - cardX;
+            int minPtrX = r + pointerW / 2 + 2;
+            int maxPtrX = cardRect.Width - r - pointerW / 2 - 2;
+            pointerX = Math.Max(minPtrX, Math.Min(maxPtrX, pointerX));
+
+            int halfW = pointerW / 2;
+
+            if (pointerAbove)
+            {
+                // Pointer at top edge, pointing down toward tab
+                int tipY = cardRect.Y;
+                int baseY = cardRect.Y + pointerHeight;
+
+                // Start at left of pointer base, go clockwise
+                path.AddLine(cardRect.X, baseY, cardRect.X + pointerX - halfW, baseY);
+                path.AddLine(cardRect.X + pointerX - halfW, baseY, cardRect.X + pointerX, tipY);
+                path.AddLine(cardRect.X + pointerX, tipY, cardRect.X + pointerX + halfW, baseY);
+                path.AddLine(cardRect.X + pointerX + halfW, baseY, cardRect.Right - r, baseY);
+
+                // Top-right corner
+                if (r > 0) path.AddArc(cardRect.Right - r * 2, baseY, r * 2, r * 2, 270, 90);
+                path.AddLine(cardRect.Right, baseY + (r > 0 ? r : 0), cardRect.Right, cardRect.Bottom - r);
+
+                // Bottom-right corner
+                if (r > 0) path.AddArc(cardRect.Right - r * 2, cardRect.Bottom - r * 2, r * 2, r * 2, 0, 90);
+                path.AddLine(cardRect.Right - (r > 0 ? r : 0), cardRect.Bottom, cardRect.X + r, cardRect.Bottom);
+
+                // Bottom-left corner
+                if (r > 0) path.AddArc(cardRect.X, cardRect.Bottom - r * 2, r * 2, r * 2, 90, 90);
+                path.AddLine(cardRect.X, cardRect.Bottom - (r > 0 ? r : 0), cardRect.X, baseY);
+
+                // Left edge back to pointer base
+                path.AddLine(cardRect.X, baseY, cardRect.X, baseY);
+            }
+            else
+            {
+                // Pointer at bottom edge, pointing up toward tab
+                int tipY = cardRect.Bottom;
+                int baseY = cardRect.Bottom - pointerHeight;
+
+                // Start at top-left, go clockwise
+                path.AddLine(cardRect.X + r, cardRect.Y, cardRect.Right - r, cardRect.Y);
+
+                // Top-right corner
+                if (r > 0) path.AddArc(cardRect.Right - r * 2, cardRect.Y, r * 2, r * 2, 270, 90);
+                path.AddLine(cardRect.Right, cardRect.Y + (r > 0 ? r : 0), cardRect.Right, baseY);
+
+                // Bottom-right to pointer base
+                if (r > 0) path.AddArc(cardRect.Right - r * 2, baseY - r * 2, r * 2, r * 2, 0, 90);
+                path.AddLine(cardRect.Right - (r > 0 ? r : 0), baseY, cardRect.X + pointerX + halfW, baseY);
+
+                // Pointer triangle
+                path.AddLine(cardRect.X + pointerX + halfW, baseY, cardRect.X + pointerX, tipY);
+                path.AddLine(cardRect.X + pointerX, tipY, cardRect.X + pointerX - halfW, baseY);
+
+                // Pointer base to bottom-left
+                path.AddLine(cardRect.X + pointerX - halfW, baseY, cardRect.X + r, baseY);
+
+                // Bottom-left corner
+                if (r > 0) path.AddArc(cardRect.X, baseY - r * 2, r * 2, r * 2, 90, 90);
+                path.AddLine(cardRect.X, baseY - (r > 0 ? r : 0), cardRect.X, cardRect.Y + r);
+
+                // Top-left corner
+                if (r > 0) path.AddArc(cardRect.X, cardRect.Y, r * 2, r * 2, 180, 90);
+                path.AddLine(cardRect.X + (r > 0 ? r : 0), cardRect.Y, cardRect.X + r, cardRect.Y);
+            }
+
+            path.CloseFigure();
+            return path;
         }
 
         private void DrawScrollButtons(Graphics g)
@@ -1045,6 +1142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         /// <summary>
         /// Paints a 2 px insertion bar showing where the dragged tab will be dropped.
+        /// Pulses in opacity and thickness for visual emphasis.
         /// </summary>
         private void DrawDropIndicator(Graphics g)
         {
@@ -1053,6 +1151,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             bool vertical = _tabPosition == TabPosition.Left || _tabPosition == TabPosition.Right;
             Color indColor = _currentTheme?.ActiveBorderColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+
+            // Pulse: sine wave modulates alpha (140..255) and thickness (2..3.5)
+            float pulse = _dropIndicatorPulse > 0f
+                ? (MathF.Sin(_dropIndicatorPulse) * 0.5f + 0.5f)
+                : 1f;
+            int alpha = (int)(140 + 115 * pulse);
+            float penWidth = 2f + 1.5f * pulse;
 
             int lineX, lineY, lineW, lineH;
 
@@ -1096,7 +1201,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
             }
 
-            using (var pen = new Pen(indColor, 2f))
+            var pulseColor = Color.FromArgb(alpha, indColor);
+            using (var pen = new Pen(pulseColor, penWidth))
             {
                 // Draw a small triangle "cap" + a vertical/horizontal line.
                 if (vertical)
@@ -1108,7 +1214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         new PointF(lineX,     lineY),
                         new PointF(lineX - 5, lineY + 4)
                     };
-                    using (var b = new SolidBrush(indColor)) g.FillPolygon(b, tri);
+                    using (var b = new SolidBrush(pulseColor)) g.FillPolygon(b, tri);
                 }
                 else
                 {
@@ -1119,7 +1225,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         new PointF(lineX,     lineY),
                         new PointF(lineX + 4, lineY - 5)
                     };
-                    using (var b = new SolidBrush(indColor)) g.FillPolygon(b, tri);
+                    using (var b = new SolidBrush(pulseColor)) g.FillPolygon(b, tri);
                 }
             }
         }

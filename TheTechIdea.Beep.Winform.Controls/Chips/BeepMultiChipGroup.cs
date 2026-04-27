@@ -152,6 +152,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             IsCloseButton = isCloseButton;
         }
     }
+
+    /// <summary>
+    /// Event arguments for chip reorder via drag-and-drop
+    /// </summary>
+    public class ChipReorderedEventArgs : EventArgs
+    {
+        public SimpleItem Item { get; }
+        public int OldIndex { get; }
+        public int NewIndex { get; }
+
+        public ChipReorderedEventArgs(SimpleItem item, int oldIndex, int newIndex)
+        {
+            Item = item;
+            OldIndex = oldIndex;
+            NewIndex = newIndex;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for chip text edited inline
+    /// </summary>
+    public class ChipEditedEventArgs : EventArgs
+    {
+        public SimpleItem Item { get; }
+        public int Index { get; }
+        public string OldText { get; }
+        public string NewText { get; }
+        public bool Cancelled { get; }
+
+        public ChipEditedEventArgs(SimpleItem item, int index, string oldText, string newText, bool cancelled = false)
+        {
+            Item = item;
+            Index = index;
+            OldText = oldText;
+            NewText = newText;
+            Cancelled = cancelled;
+        }
+    }
+
+    /// <summary>
+    /// Event arguments for chip added via input
+    /// </summary>
+    public class ChipAddedEventArgs : EventArgs
+    {
+        public SimpleItem Item { get; }
+        public int Index { get; }
+        public bool Cancelled { get; set; }
+
+        public ChipAddedEventArgs(SimpleItem item, int index)
+        {
+            Item = item;
+            Index = index;
+        }
+    }
     #endregion
 
     [ToolboxItem(true)]
@@ -199,6 +253,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 
         // Previous selection for event tracking
         private SimpleItem _previousSelectedItem;
+
+        // ── Drag-and-drop reorder ─────────────────────────────────────
+        private bool _allowDragReorder = true;
+        private int _dragChipIndex = -1;
+        private Point _dragStartPoint = Point.Empty;
+        private bool _isDragging = false;
+        private int _dropInsertIndex = -1;
+        private Point _dragGhostLocation = Point.Empty;
+        private const int DragThreshold = 5;
+
+        // ── Inline chip editing ───────────────────────────────────────
+        private TextBox? _editTextBox;
+        private int _editingChipIndex = -1;
+        private string _editOriginalText = string.Empty;
+
+        // ── Chip input / creation ─────────────────────────────────────
+        private bool _allowChipCreation = false;
+        private TextBox? _inputTextBox;
+        private Rectangle _inputRect = Rectangle.Empty;
+        private string _inputPlaceholderText = "Type to add...";
+        private char[] _inputDelimiters = new[] { ',', ';', '\t', '\r' };
+
+        // ── Ripple animation ──────────────────────────────────────────
+        private bool _enableRipple = true;
+        private readonly List<ChipRipple> _activeRipples = new();
+        private System.Windows.Forms.Timer? _rippleTimer;
+
+        // ── Tooltip ───────────────────────────────────────────────────
+        private bool _showTooltip = true;
+        private System.Windows.Forms.Timer? _tooltipTimer;
+        private int _tooltipChipIndex = -1;
+        private bool _tooltipShowing = false;
+
+        // ── Add/remove animation ──────────────────────────────────────
+        private bool _enableAddRemoveAnimation = true;
+        private readonly List<ChipAnimation> _chipAnimations = new();
+        private System.Windows.Forms.Timer? _animationTimer;
+
+        // ── Utility row ───────────────────────────────────────────────
+        private bool _showUtilityRow = true;
         #endregion
 
         private IBeepTheme GetEffectiveTheme()
@@ -496,6 +590,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         /// Fired when a chip is removed via close button
         /// </summary>
         public event EventHandler<ChipClickedEventArgs> ChipRemoved;
+
+        /// <summary>
+        /// Fired when a chip is reordered via drag-and-drop
+        /// </summary>
+        public event EventHandler<ChipReorderedEventArgs> ChipReordered;
+
+        /// <summary>
+        /// Fired when a chip text is edited inline
+        /// </summary>
+        public event EventHandler<ChipEditedEventArgs> ChipEdited;
+
+        /// <summary>
+        /// Fired when a new chip is added via the input field
+        /// </summary>
+        public event EventHandler<ChipAddedEventArgs> ChipAdded;
         
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem) 
         {
@@ -537,6 +646,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             ChipRemoved?.Invoke(this, new ChipClickedEventArgs(item, index, MouseButtons.Left, true));
         }
 
+        /// <summary>
+        /// Raises the ChipReordered event
+        /// </summary>
+        protected virtual void OnChipReordered(SimpleItem item, int oldIndex, int newIndex)
+        {
+            ChipReordered?.Invoke(this, new ChipReorderedEventArgs(item, oldIndex, newIndex));
+        }
+
+        /// <summary>
+        /// Raises the ChipEdited event
+        /// </summary>
+        protected virtual void OnChipEdited(SimpleItem item, int index, string oldText, string newText, bool cancelled = false)
+        {
+            ChipEdited?.Invoke(this, new ChipEditedEventArgs(item, index, oldText, newText, cancelled));
+        }
+
+        /// <summary>
+        /// Raises the ChipAdded event
+        /// </summary>
+        protected virtual void OnChipAdded(SimpleItem item, int index)
+        {
+            ChipAdded?.Invoke(this, new ChipAddedEventArgs(item, index));
+        }
+
         public new bool AutoScroll { get => false; set { } }
         #endregion
 
@@ -552,7 +685,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             AnimationType = DisplayAnimationType.Fade;
             CanBeHovered = true;
             CanBePressed = false;
-            CanBeFocused = false;
+            CanBeFocused = true;
 
             // Painter setup
             _painter = new DefaultChipGroupPainter();
@@ -576,6 +709,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
                 UpdateChipBounds();
                 Invalidate();
             };
+
+            // Ripple animation timer
+            _rippleTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _rippleTimer.Tick += RippleTimer_Tick;
+
+            // Tooltip timer
+            _tooltipTimer = new System.Windows.Forms.Timer { Interval = 500 };
+            _tooltipTimer.Tick += TooltipTimer_Tick;
+
+            // Add/remove animation timer
+            _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _animationTimer.Tick += AnimationTimer_Tick;
         }
         #endregion
 
@@ -589,6 +734,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             public ChipVariant Variant { get; set; }
             public ChipColor Color { get; set; }
             public ChipSize Size { get; set; }
+            public bool IsDisabled { get; set; }
+            public float AnimationProgress { get; set; } = 1f;
+            public bool IsNew { get; set; }
+            public bool IsRemoving { get; set; }
+        }
+        #endregion
+
+        #region Animation Support Classes
+        private class ChipRipple
+        {
+            public Rectangle Bounds;
+            public Point Center;
+            public float Progress; // 0..1
+            public Color Color;
+        }
+
+        private class ChipAnimation
+        {
+            public int ChipIndex;
+            public float Progress; // 0..1
+            public bool IsAdd; // true = add, false = remove
+            public Rectangle Bounds;
         }
         #endregion
 

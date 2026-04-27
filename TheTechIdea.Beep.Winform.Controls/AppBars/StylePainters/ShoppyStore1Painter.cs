@@ -49,8 +49,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             string searchText,
             Font tabFont,
             Font buttonFont,
-            bool skipBackground = false)
+            int tabScrollOffset,
+            bool skipBackground,
+            out Rectangle searchBounds)
         {
+            searchBounds = Rectangle.Empty;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
@@ -126,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
                 // Center tabs in available space (between logo and buttons)
                 int buttonsWidth = (buttons?.Count ?? 0) * (BUTTON_MIN_WIDTH + 10) + (showSearchBox ? SEARCH_WIDTH + 20 : 0);
                 int availableWidth = bounds.Width - x - buttonsWidth - PADDING * 2;
-                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2);
+                int tabStartX = x + Math.Max(0, (availableWidth - totalTabsWidth) / 2) - tabScrollOffset;
 
                 for (int i = 0; i < tabs.Count; i++)
                 {
@@ -184,8 +187,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters
             if (showSearchBox)
             {
                 int searchX = rightX - SEARCH_WIDTH - ((buttons?.Count ?? 0) * (BUTTON_MIN_WIDTH + 10));
-                var searchRect = new Rectangle(searchX, centerY - 18, SEARCH_WIDTH, 36);
-                DrawSearchBoxStyled(g, searchRect, searchText, colors);
+                searchBounds = new Rectangle(searchX, centerY - 18, SEARCH_WIDTH, 36);
+                DrawSearchBoxStyled(g, searchBounds, searchText, colors);
                 rightX = searchX - 16;
             }
 

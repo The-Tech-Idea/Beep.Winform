@@ -243,8 +243,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _isDragging      = false;
             _dropInsertIndex = -1;
             _dragGhostLoc    = Point.Empty;
+            _dropIndicatorPulse = 0f;
             if (Cursor == Cursors.SizeAll)
                 Cursor = Cursors.Default;
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            if (_displayMode == ContainerDisplayMode.Single || _tabs == null || _tabs.Count == 0)
+                return;
+
+            // Only scroll when mouse is over the tab area
+            if (!_tabArea.Contains(e.Location))
+                return;
+
+            // Scroll direction: negative delta = scroll right/down, positive = scroll left/up
+            int direction = e.Delta < 0 ? 1 : -1;
+
+            if (_needsScrolling)
+            {
+                // Pixel-based scrolling: advance by ~2 tab widths per notch for smooth feel
+                int scrollStep = Math.Max(1, DpiScalingHelper.ScaleValue(2, this));
+                _scrollOffset = Math.Max(0, Math.Min(_tabs.Count - 1, _scrollOffset + direction * scrollStep));
+                CalculateTabLayout();
+                Invalidate(_tabArea);
+            }
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -313,6 +338,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                             OnNewTabRequested();
                         }
                     }
+                }
+            }
+            else if (e.Button == MouseButtons.Middle)
+            {
+                // Middle-click closes tab (standard browser behavior)
+                var hitTab = GetTabAt(e.Location);
+                if (hitTab != null && hitTab.CanClose && !hitTab.IsPinned)
+                {
+                    RemoveTab(hitTab);
                 }
             }
             else if (e.Button == MouseButtons.Right)

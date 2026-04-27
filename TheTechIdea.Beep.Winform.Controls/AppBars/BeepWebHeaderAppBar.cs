@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private RectangleF _startUnderlineRect = RectangleF.Empty;
         private bool _isUnderlineAnimating = false;
         private Timer _underlineTimer = null;
-        private const int UnderlineAnimationDurationMs = 220;
+        private int _underlineAnimationDurationMs = 220;
         private DateTime _underlineAnimStartedAt = DateTime.MinValue;
 
         // Tab overflow scrolling
@@ -77,6 +77,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private Rectangle _scrollRightBounds = Rectangle.Empty;
         private bool _scrollLeftHovered = false;
         private bool _scrollRightHovered = false;
+
+        // Cached painter lists to reduce GC pressure
+        private List<WebHeaderTab> _cachedPainterTabs;
+        private List<WebHeaderActionButton> _cachedPainterButtons;
+        private bool _painterTabsDirty = true;
+        private bool _painterButtonsDirty = true;
+
+        // Tooltip support
+        private ToolTip _toolTip;
+        private string _lastTooltipText = "";
 
         // ID generation
         private static int _nextId = 1;
@@ -111,6 +121,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             CanBePressed = false;
             CanBeHovered = true;
 
+            AccessibleName = "Web Header Navigation";
+            AccessibleRole = AccessibleRole.Navigation;
+            AccessibleDescription = "Navigation header with tabs, search, and action buttons";
+
+            _toolTip = new ToolTip { InitialDelay = 500, ReshowDelay = 100, ShowAlways = true };
+
             _tabs.ListChanged += Tabs_ListChanged;
             _buttons.ListChanged += Buttons_ListChanged;
 
@@ -122,12 +138,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private void Tabs_ListChanged(object sender, ListChangedEventArgs e)
         {
+            InvalidatePainterCache();
             RecalculateScroll();
             Invalidate();
         }
 
         private void Buttons_ListChanged(object sender, ListChangedEventArgs e)
         {
+            InvalidatePainterCache();
             Invalidate();
         }
 
@@ -146,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             }
 
             var elapsed = (DateTime.Now - _underlineAnimStartedAt).TotalMilliseconds;
-            double t = Math.Min(1.0, elapsed / UnderlineAnimationDurationMs);
+            double t = Math.Min(1.0, elapsed / _underlineAnimationDurationMs);
             double tt = 1 - Math.Pow(1 - t, 3);
 
             _currentUnderlineRect = Lerp(_startUnderlineRect, _targetUnderlineRect, tt);
@@ -303,6 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     var old = _selectedTab;
                     _selectedTabIndex = value;
                     _selectedTab = _tabs[value];
+                    InvalidatePainterCache();
                     SelectedTabChanged?.Invoke(this, new SelectedTabChangedEventArgs(old, _selectedTab, value));
                     TabSelected?.Invoke(this, new SelectedItemChangedEventArgs(_selectedTab));
                     StartUnderlineAnimationToTab(value);
@@ -314,6 +333,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         [Category("Behavior")]
         [DefaultValue(true)]
         public bool AllowTabScroll { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(220)]
+        [Description("Duration of the tab underline animation in milliseconds")]
+        public int UnderlineAnimationDurationMs
+        {
+            get => _underlineAnimationDurationMs;
+            set => _underlineAnimationDurationMs = Math.Max(0, value);
+        }
 
         #endregion
 
@@ -431,7 +460,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 _searchText,
                 _tabFont,
                 _buttonFont,
-                IsTransparentBackground);
+                _tabScrollOffset,
+                IsTransparentBackground,
+                out _searchBounds);
 
             if (_indicatorStyle == TabIndicatorStyle.SlidingUnderline)
             {
@@ -596,11 +627,18 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private List<WebHeaderTab> ConvertTabsForPainter()
         {
-            var result = new List<WebHeaderTab>();
+            if (!_painterTabsDirty && _cachedPainterTabs != null)
+                return _cachedPainterTabs;
+
+            if (_cachedPainterTabs == null)
+                _cachedPainterTabs = new List<WebHeaderTab>(_tabs.Count);
+            else
+                _cachedPainterTabs.Clear();
+
             for (int i = 0; i < _tabs.Count; i++)
             {
                 var item = _tabs[i];
-                result.Add(new WebHeaderTab(item.Text, item.ImagePath, item.ID)
+                _cachedPainterTabs.Add(new WebHeaderTab(item.Text, item.ImagePath, item.ID)
                 {
                     IsActive = (i == _selectedTabIndex),
                     IsHovered = (i == _hoveredTabIndex),
@@ -608,22 +646,39 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     HasChildren = item.Children != null && item.Children.Count > 0
                 });
             }
-            return result;
+
+            _painterTabsDirty = false;
+            return _cachedPainterTabs;
         }
 
         private List<WebHeaderActionButton> ConvertButtonsForPainter()
         {
-            var result = new List<WebHeaderActionButton>();
+            if (!_painterButtonsDirty && _cachedPainterButtons != null)
+                return _cachedPainterButtons;
+
+            if (_cachedPainterButtons == null)
+                _cachedPainterButtons = new List<WebHeaderActionButton>(_buttons.Count);
+            else
+                _cachedPainterButtons.Clear();
+
             for (int i = 0; i < _buttons.Count; i++)
             {
                 var item = _buttons[i];
-                result.Add(new WebHeaderActionButton(item.Text, item.ImagePath, WebHeaderButtonStyle.Solid, item.ID)
+                _cachedPainterButtons.Add(new WebHeaderActionButton(item.Text, item.ImagePath, WebHeaderButtonStyle.Solid, item.ID)
                 {
                     IsHovered = (i == _hoveredButtonIndex),
                     BadgeCount = GetBadgeCount(item)
                 });
             }
-            return result;
+
+            _painterButtonsDirty = false;
+            return _cachedPainterButtons;
+        }
+
+        private void InvalidatePainterCache()
+        {
+            _painterTabsDirty = true;
+            _painterButtonsDirty = true;
         }
 
         protected virtual int GetBadgeCount(SimpleItem item)
@@ -686,12 +741,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 _searchBoxHovered = true;
                 Cursor = _searchBoxActive ? Cursors.IBeam : Cursors.Hand;
                 needsInvalidate = true;
+                ShowTooltipForText(!string.IsNullOrEmpty(_searchText) ? _searchText : "Click to search");
             }
             else if (hit >= 0 && hit < _tabs.Count)
             {
                 _hoveredTabIndex = hit;
                 Cursor = Cursors.Hand;
                 if (prevTab != hit) needsInvalidate = true;
+                var tab = _tabs[hit];
+                string tooltip = !string.IsNullOrEmpty(tab.Description) ? tab.Description : tab.Text;
+                ShowTooltipForText(tooltip);
             }
             else if (hit < -1)
             {
@@ -701,12 +760,16 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     _hoveredButtonIndex = btnIndex;
                     Cursor = Cursors.Hand;
                     if (prevBtn != btnIndex) needsInvalidate = true;
+                    var btn = _buttons[btnIndex];
+                    string tooltip = !string.IsNullOrEmpty(btn.Description) ? btn.Description : btn.Text;
+                    ShowTooltipForText(tooltip);
                 }
             }
             else
             {
                 Cursor = Cursors.Default;
                 if (prevTab != -1 || prevBtn != -1 || prevSearch) needsInvalidate = true;
+                HideTooltip();
             }
 
             if (needsInvalidate)
@@ -776,9 +839,27 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             _scrollLeftHovered = false;
             _scrollRightHovered = false;
             Cursor = Cursors.Default;
+            InvalidatePainterCache();
+            HideTooltip();
 
             if (needsInvalidate)
                 Invalidate();
+        }
+
+        private void ShowTooltipForText(string text)
+        {
+            if (_toolTip == null || string.IsNullOrEmpty(text)) return;
+            if (text == _lastTooltipText) return;
+
+            _lastTooltipText = text;
+            _toolTip.SetToolTip(this, text);
+        }
+
+        private void HideTooltip()
+        {
+            if (_toolTip == null) return;
+            _lastTooltipText = "";
+            _toolTip.SetToolTip(this, "");
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -812,6 +893,35 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
                     return true;
                 }
+                if (keyData == (Keys.Control | Keys.V))
+                {
+                    var clipboard = Clipboard.GetText();
+                    if (!string.IsNullOrEmpty(clipboard))
+                    {
+                        _searchText += clipboard;
+                        SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                        Invalidate();
+                    }
+                    return true;
+                }
+                if (keyData == (Keys.Control | Keys.C))
+                {
+                    if (!string.IsNullOrEmpty(_searchText))
+                        Clipboard.SetText(_searchText);
+                    return true;
+                }
+                if (keyData == (Keys.Control | Keys.A))
+                {
+                    return true;
+                }
+                if (keyData == (Keys.Control | Keys.Back))
+                {
+                    int lastSpace = _searchText.TrimEnd().LastIndexOf(' ');
+                    _searchText = lastSpace >= 0 ? _searchText.Substring(0, lastSpace + 1) : "";
+                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                    Invalidate();
+                    return true;
+                }
                 if (keyData == Keys.Back && _searchText.Length > 0)
                 {
                     _searchText = _searchText.Substring(0, _searchText.Length - 1);
@@ -819,21 +929,31 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     Invalidate();
                     return true;
                 }
-                if (keyData >= Keys.A && keyData <= Keys.Z)
+                if (keyData == Keys.Delete && _searchText.Length > 0)
                 {
-                    char c = (char)('a' + (keyData - Keys.A));
-                    _searchText += c;
+                    _searchText = _searchText.Substring(0, _searchText.Length - 1);
                     SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
                     Invalidate();
                     return true;
                 }
-                if (keyData == Keys.Space)
+                if (keyData == Keys.Left || keyData == Keys.Right)
                 {
-                    _searchText += " ";
-                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
-                    Invalidate();
-                    return true;
+                    return base.ProcessCmdKey(ref msg, keyData);
                 }
+
+                const int WM_CHAR = 0x0102;
+                if (msg.Msg == WM_CHAR)
+                {
+                    int charCode = msg.WParam.ToInt32();
+                    if (charCode >= 32 && charCode != 127)
+                    {
+                        _searchText += (char)charCode;
+                        SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                        Invalidate();
+                        return true;
+                    }
+                }
+
                 return base.ProcessCmdKey(ref msg, keyData);
             }
 
@@ -858,6 +978,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 case Keys.Enter:
                     if (_selectedTabIndex >= 0 && _selectedTabIndex < _tabs.Count)
                         HandleTabClick(_selectedTabIndex);
+                    return true;
+                case (Keys.Control | Keys.Tab):
+                    if (_tabs.Count > 0)
+                        SelectedTabIndex = (_selectedTabIndex + 1) % _tabs.Count;
+                    return true;
+                case (Keys.Control | Keys.Shift | Keys.Tab):
+                    if (_tabs.Count > 0)
+                        SelectedTabIndex = (_selectedTabIndex - 1 + _tabs.Count) % _tabs.Count;
                     return true;
             }
 

@@ -115,12 +115,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
             else
             {
-                _completedColor = Color.FromArgb(46, 125, 50);
-                _currentColor = Color.FromArgb(25, 118, 210);
-                _pendingColor = Color.FromArgb(150, 150, 150);
-                _textColor = Color.FromArgb(50, 50, 50);
-                _subtextColor = Color.FromArgb(120, 120, 120);
-                _cardBgColor = Color.FromArgb(245, 245, 250);
+                _completedColor = ColorUtils.MapSystemColor(SystemColors.Highlight);
+                _currentColor = ColorUtils.MapSystemColor(SystemColors.HotTrack);
+                _pendingColor = Color.FromArgb(80, ColorUtils.MapSystemColor(SystemColors.GrayText));
+                _textColor = ColorUtils.MapSystemColor(SystemColors.WindowText);
+                _subtextColor = Color.FromArgb(128, ColorUtils.MapSystemColor(SystemColors.GrayText));
+                _cardBgColor = ColorUtils.ShiftLuminance(ColorUtils.MapSystemColor(SystemColors.Window), -0.03f);
             }
 
             _cardTitleFont?.Dispose();
@@ -376,12 +376,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             if (isCompleted)
             {
                 circleColor = _completedColor;
-                innerColor = Color.White;
+                innerColor = ColorUtils.GetContrastColor(_completedColor);
             }
             else if (isCurrent)
             {
                 circleColor = _currentColor;
-                innerColor = Color.White;
+                innerColor = ColorUtils.GetContrastColor(_currentColor);
             }
             else
             {
@@ -452,11 +452,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             }
         }
 
-        private void CardClicked(int stepIndex)
+        private async void CardClicked(int stepIndex)
         {
             if (_instance.Config.AllowSkip || stepIndex <= _instance.CurrentStepIndex)
             {
-                _instance.NavigateToAsync(stepIndex);
+                await _instance.NavigateToAsync(stepIndex);
             }
         }
 
@@ -579,17 +579,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         #region Event Handlers
 
-        private void BtnNext_Click(object sender, EventArgs e)
+        private async void BtnNext_Click(object sender, EventArgs e)
         {
             if (_instance.IsLastStep)
-                _instance.Complete();
+                await _instance.CompleteAsync();
             else
-                _instance.NavigateNext();
+                await _instance.NavigateNextAsync();
         }
 
-        private void BtnBack_Click(object sender, EventArgs e)
+        private async void BtnBack_Click(object sender, EventArgs e)
         {
-            _instance.NavigateBack();
+            await _instance.NavigateBackAsync();
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -604,12 +604,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _instance.Cancel();
         }
 
-        private void BtnSkip_Click(object sender, EventArgs e)
+        private async void BtnSkip_Click(object sender, EventArgs e)
         {
             if (_instance.CurrentStep?.IsOptional == true)
             {
                 _instance.CurrentStep.State = StepState.Skipped;
-                _instance.NavigateNext();
+                await _instance.NavigateNextAsync();
             }
         }
 
@@ -627,11 +627,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
             // Global help URL fallback
             if (!string.IsNullOrEmpty(_instance.Config.HelpUrl))
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                try
                 {
-                    FileName = _instance.Config.HelpUrl,
-                    UseShellExecute = true
-                });
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = _instance.Config.HelpUrl,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, $"Unable to open help URL: {ex.Message}", "Help Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
         }
 

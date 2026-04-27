@@ -160,6 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _isDragging = false;
             _dropInsertIndex = -1;
             _dragGhostLoc = Point.Empty;
+            _dropIndicatorPulse = 0f;
 
             _indicatorFrom = Rectangle.Empty;
             _indicatorTo = Rectangle.Empty;

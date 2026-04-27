@@ -12,6 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 {
     internal sealed class LinearBadgePainter : IProgressPainter, IProgressPainterV2
     {
+        private static readonly LinearProgressPainter _linear = new LinearProgressPainter();
+
         public string Key => nameof(ProgressPainterKind.LinearBadge);
 
         public void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepProgressBar owner, IReadOnlyDictionary<string, object> p)
@@ -19,9 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // draw the base linear bar by delegating to LinearProgressPainter
-            var linear = new LinearProgressPainter();
-            linear.Paint(g, bounds, theme, owner, p);
+            _linear.Paint(g, bounds, theme, owner, p);
 
             // compute badge position along the progress line
             float pct = owner.DisplayProgressPercentageAccessor;

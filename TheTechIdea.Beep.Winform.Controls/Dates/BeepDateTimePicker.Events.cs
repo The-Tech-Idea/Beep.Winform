@@ -102,6 +102,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     }
                     break;
 
+                case Keys.Escape:
+                    if (_allowClear)
+                    {
+                        ClearSelection();
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Enter:
+                    if (_selectedDate.HasValue)
+                    {
+                        OnDateChanged(_selectedDate);
+                        e.Handled = true;
+                    }
+                    break;
+
                 case Keys.Left:
                     NavigateDate(-1);
                     e.Handled = true;

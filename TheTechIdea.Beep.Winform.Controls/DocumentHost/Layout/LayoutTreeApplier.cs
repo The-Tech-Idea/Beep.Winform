@@ -114,9 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
 
             // Find a driver document from the right subtree
             string? driverDocId = null;
-            foreach (var leaf in rightLeaves)
+            foreach (var groupLeaf in rightLeaves)
             {
-                foreach (var id in leaf.DocumentIds)
+                foreach (var id in groupLeaf.DocumentIds)
                 {
                     if (host.GetPanel(id) != null) { driverDocId = id; break; }
                 }
@@ -148,9 +148,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             if (groups.Count < 2) return;
 
             string rightGroupId = groups[groups.Count - 1].GroupId;
-            foreach (var leaf in rightLeaves)
+            foreach (var groupLeaf in rightLeaves)
             {
-                foreach (var id in leaf.DocumentIds)
+                foreach (var id in groupLeaf.DocumentIds)
                 {
                     if (id == driverDocId) continue;
                     if (host.GetPanel(id) != null)
@@ -161,9 +161,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             }
 
             // Note missing left-subtree docs
-            foreach (var leaf in leftLeaves)
+            foreach (var groupLeaf in leftLeaves)
             {
-                foreach (var id in leaf.DocumentIds)
+                foreach (var id in groupLeaf.DocumentIds)
                     if (host.GetPanel(id) == null && !report.MissingDocumentIds.Contains(id))
                         report.MissingDocumentIds.Add(id);
             }

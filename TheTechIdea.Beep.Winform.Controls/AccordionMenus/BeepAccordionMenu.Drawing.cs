@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             {
                 int scrollBarWidth = 12;
                 _scrollBarRect = new Rectangle(
-                    rectangle.Width - scrollBarWidth - 2,
+                    Width - scrollBarWidth - 2,
                     headerHeight,
                     scrollBarWidth,
                     Height - headerHeight - 4

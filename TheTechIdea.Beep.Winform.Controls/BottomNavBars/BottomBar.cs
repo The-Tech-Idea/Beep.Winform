@@ -43,6 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         private BottomBarHitTestHelper _bbHitTestHelper;
         private BeepBottomBarLayoutHelper _layoutHelper = new BeepBottomBarLayoutHelper();
         private BottomBarStyle _style = BottomBarStyle.Classic;
+        private LabelVisibilityPolicy _labelPolicy = LabelVisibilityPolicy.Always;
+        private ToolTip? _toolTip;
+        private string _lastTooltipText = "";
         private bool _isDisposed;
 
         /// <summary>
@@ -58,6 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             InitializeAnimationTimer();
             _bbHitTestHelper = new BottomBarHitTestHelper(this);
             _bbHitTestHelper.ItemClicked += BottomBarHit_ItemClicked;
+            _bbHitTestHelper.PopupRequested += BottomBarHit_PopupRequested;
+            _bbHitTestHelper.PopupClosed += BottomBarHit_PopupClosed;
             InitializePainterFromStyle(_style);
             TabStop = true; // enable keyboard focus
             this.AccessibleRole = AccessibleRole.MenuBar;
@@ -65,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             _tickerTimer = new Timer { Interval = 50 };
             _tickerTimer.Tick += TickerTimer_Tick;
             _tickerTimer.Start();
+            _toolTip = new ToolTip { InitialDelay = 400, ReshowDelay = 100, ShowAlways = true };
             UpdateAccessibilityMetadata();
         }
 
@@ -85,6 +91,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             {
                 ActivateIndex(e.Index, raiseClick: true);
             }
+        }
+
+        private void BottomBarHit_PopupRequested(object? sender, Helpers.PopupEventArgs e)
+        {
+            PopupRequested?.Invoke(this, e);
+        }
+
+        private void BottomBarHit_PopupClosed(object? sender, Helpers.PopupEventArgs e)
+        {
+            PopupClosed?.Invoke(this, e);
+            Invalidate();
         }
 
         private void InitializePainterFromStyle(BottomBarStyle style)
@@ -318,11 +335,45 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         [Category("Behavior")]
         [DefaultValue(false)]
         public bool MovableNotchOutlineCTA { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(LabelVisibilityPolicy.Always)]
+        public LabelVisibilityPolicy LabelPolicy
+        {
+            get => _labelPolicy;
+            set
+            {
+                if (_labelPolicy != value)
+                {
+                    _labelPolicy = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(48)]
+        public int MinItemTouchWidth
+        {
+            get => _layoutHelper.MinTouchTargetWidth;
+            set
+            {
+                _layoutHelper.MinTouchTargetWidth = Math.Max(32, value);
+                SyncLayoutAndHitTest();
+            }
+        }
+
+        [Browsable(false)]
+        public bool IsOverflow => _layoutHelper.IsOverflow;
         #endregion
 
         #region Events
         public event Action<SimpleItem>? ItemClicked;
         public event EventHandler<SelectedItemChangedEventArgs>? SelectedItemChanged;
+        public event EventHandler<Helpers.PopupEventArgs>? PopupRequested;
+        public event EventHandler<Helpers.PopupEventArgs>? PopupClosed;
         #endregion
 
         #region Overrides
@@ -423,10 +474,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             ctx.ImagePainter.CurrentTheme = _currentTheme;
             ctx.ImagePainter.ApplyThemeOnImage = true;
             ctx.CTAShadowYOffset = CTAShadowYOffset;
+            ctx.LabelPolicy = _labelPolicy;
+            ctx.HasChildrenPopup = _bbHitTestHelper?.PopupOpen ?? false;
+            ctx.PopupParentIndex = _bbHitTestHelper?.PopupParentIndex ?? -1;
 
             _bottomBarPainter?.CalculateLayout(ctx);
             // Ensure hit helper is updated with computed rectangles
-            _bbHitTestHelper?.UpdateItems(ctx.Items, new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetItemRectangles()));
+            _bbHitTestHelper?.UpdateItems(ctx.Items,
+                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetItemRectangles()),
+                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetIconRectangles()),
+                new System.Collections.Generic.List<Rectangle>(ctx.LayoutHelper.GetLabelRectangles()));
             // allow painter to register additional or expanded hit areas (CTA, pill, etc.)
             _bottomBarPainter?.RegisterHitAreas(ctx);
             // Initialize indicator position on first layout
@@ -492,6 +549,64 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         {
             base.OnMouseMove(e);
             _bbHitTestHelper?.HandleMouseMove(e.Location);
+            UpdateTooltip(e.Location);
+        }
+
+        private void UpdateTooltip(Point location)
+        {
+            if (_toolTip == null || _bbHitTestHelper == null || Items == null || Items.Count == 0) return;
+            if (_bbHitTestHelper.PopupOpen)
+            {
+                if (!string.IsNullOrEmpty(_lastTooltipText))
+                {
+                    _toolTip.Hide(this);
+                    _lastTooltipText = "";
+                }
+                return;
+            }
+
+            int idx = _bbHitTestHelper.FindItemAt(location);
+            if (idx < 0 || idx >= Items.Count)
+            {
+                if (!string.IsNullOrEmpty(_lastTooltipText))
+                {
+                    _toolTip.Hide(this);
+                    _lastTooltipText = "";
+                }
+                return;
+            }
+
+            var item = Items[idx];
+            if (item == null) return;
+
+            bool showTooltip = _labelPolicy == LabelVisibilityPolicy.IconOnly ||
+                               (!string.IsNullOrEmpty(item.SubText)) ||
+                               (item.Children != null && item.Children.Count > 0);
+
+            if (!showTooltip)
+            {
+                if (!string.IsNullOrEmpty(_lastTooltipText))
+                {
+                    _toolTip.Hide(this);
+                    _lastTooltipText = "";
+                }
+                return;
+            }
+
+            string tooltipText = item.Text;
+            if (!string.IsNullOrEmpty(item.SubText))
+                tooltipText += Environment.NewLine + item.SubText;
+            if (item.Children != null && item.Children.Count > 0)
+                tooltipText += Environment.NewLine + $"({item.Children.Count} sub-items)";
+            if (!string.IsNullOrEmpty(item.BadgeText))
+                tooltipText += Environment.NewLine + $"Badge: {item.BadgeText}";
+
+            if (tooltipText != _lastTooltipText)
+            {
+                _toolTip.Hide(this);
+                _toolTip.SetToolTip(this, tooltipText);
+                _lastTooltipText = tooltipText;
+            }
         }
 
         /// <summary>
@@ -501,8 +616,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         /// <returns>True if the key should be processed by the control</returns>
         protected override bool IsInputKey(Keys keyData)
         {
-            // We want to handle arrow keys, home/end, space, enter
-            if (keyData == Keys.Left || keyData == Keys.Right || keyData == Keys.Home || keyData == Keys.End || keyData == Keys.Space || keyData == Keys.Enter)
+            // We want to handle arrow keys, home/end, space, enter, escape
+            if (keyData == Keys.Left || keyData == Keys.Right || keyData == Keys.Home || keyData == Keys.End || keyData == Keys.Space || keyData == Keys.Enter || keyData == Keys.Escape)
                 return true;
             return base.IsInputKey(keyData);
         }
@@ -540,7 +655,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                     break;
                 case Keys.Space:
                 case Keys.Enter:
-                    ActivateIndex(idx, raiseClick: true);
+                    if (_bbHitTestHelper?.PopupOpen == true)
+                    {
+                        _bbHitTestHelper.ClosePopup();
+                    }
+                    else
+                    {
+                        ActivateIndex(idx, raiseClick: true);
+                    }
+                    handled = true;
+                    break;
+                case Keys.Escape:
+                    if (_bbHitTestHelper?.PopupOpen == true)
+                    {
+                        _bbHitTestHelper.ClosePopup();
+                    }
                     handled = true;
                     break;
                 default:
@@ -656,7 +785,14 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                 if (_bbHitTestHelper != null)
                 {
                     _bbHitTestHelper.ItemClicked -= BottomBarHit_ItemClicked;
+                    _bbHitTestHelper.PopupRequested -= BottomBarHit_PopupRequested;
+                    _bbHitTestHelper.PopupClosed -= BottomBarHit_PopupClosed;
                     _bbHitTestHelper.Dispose();
+                }
+                if (_toolTip != null)
+                {
+                    _toolTip.RemoveAll();
+                    _toolTip.Dispose();
                 }
             }
             base.Dispose(disposing);
@@ -695,6 +831,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         #endregion
 
         #region Helpers
+        public void CloseChildPopup()
+        {
+            _bbHitTestHelper?.ClosePopup();
+        }
+
         private void Items_ListChanged(object? sender, ListChangedEventArgs e)
         {
             SyncLayoutAndHitTest();
@@ -717,7 +858,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             var bounds = ClientRectangle;
             bounds.Inflate(-8, -8);
             _layoutHelper.EnsureLayout(bounds, Items.ToList(), CTAIndex, Items.IndexOf(SelectedItem));
-            _bbHitTestHelper?.UpdateItems(Items.ToList(), new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()));
+            _bbHitTestHelper?.UpdateItems(Items.ToList(),
+                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetItemRectangles()),
+                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetIconRectangles()),
+                new System.Collections.Generic.List<Rectangle>(_layoutHelper.GetLabelRectangles()));
             Invalidate();
         }
 
@@ -815,6 +959,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             int count = Items?.Count ?? 0;
             int selectedIndex = Items?.IndexOf(SelectedItem) ?? -1;
             int focusedIndex = _bbHitTestHelper?.FocusedIndex ?? -1;
+            bool hasPopup = _bbHitTestHelper?.PopupOpen ?? false;
             string selectedText = selectedIndex >= 0 && selectedIndex < count ? Items[selectedIndex]?.Text : null;
             string focusedText = focusedIndex >= 0 && focusedIndex < count ? Items[focusedIndex]?.Text : null;
 
@@ -827,6 +972,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
             if (!string.IsNullOrWhiteSpace(focusedText))
             {
                 status += $" Focused: {focusedText}.";
+            }
+            if (hasPopup)
+            {
+                status += " Popup menu open.";
             }
 
             if (string.IsNullOrWhiteSpace(AccessibleDescription) ||
@@ -942,6 +1091,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
                     if (_owner._bbHitTestHelper?.FocusedIndex == _index)
                     {
                         states |= AccessibleStates.Focused;
+                    }
+
+                    var item = _owner.Items[_index];
+                    if (item != null && item.Children != null && item.Children.Count > 0)
+                    {
+                        states |= AccessibleStates.HasPopup;
                     }
 
                     return states;

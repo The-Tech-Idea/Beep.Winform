@@ -142,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
             // Similar to pill but with text inside track
             CalculatePillLayout(rect);
 
-            if (_owner.ShowLabels)
+            if (ShouldShowLabels())
             {
                 int labelWidth = _trackRect.Width / 2 - 4;
                 int labelHeight = _trackRect.Height - 4;
@@ -204,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
             );
 
             // Labels on thumb or track
-            if (_owner.ShowLabels)
+            if (ShouldShowLabels())
             {
                 _offLabelRect = new Rectangle(
                     _trackRect.X + 4,
@@ -313,6 +313,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Helpers
             );
 
             _thumbRect = Rectangle.Empty;
+        }
+
+        #endregion
+
+        #region Visibility Helpers
+
+        /// <summary>
+        /// Determine if labels should be shown based on ShowLabels and TextVisibility settings
+        /// </summary>
+        private bool ShouldShowLabels()
+        {
+            if (!_owner.ShowLabels)
+                return false;
+
+            switch (_owner.TextVisibility)
+            {
+                case ToggleTextVisibility.Always:
+                    return true;
+                case ToggleTextVisibility.WhenOn:
+                    return _owner.IsOn;
+                case ToggleTextVisibility.WhenOff:
+                    return !_owner.IsOn;
+                case ToggleTextVisibility.Never:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         #endregion

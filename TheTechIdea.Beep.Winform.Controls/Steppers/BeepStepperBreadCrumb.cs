@@ -42,6 +42,70 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Dictionary<int, ToolTipConfig> _stepTooltipConfigs = new Dictionary<int, ToolTipConfig>();
         private int _hoveredStepIndex = -1;
         private string _currentTooltipKey = null;
+
+        private int _minTouchTargetWidth = 44;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Minimum touch target width for step buttons in pixels (minimum 32).")]
+        [DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set
+            {
+                _minTouchTargetWidth = Math.Max(32, value);
+                Invalidate();
+            }
+        }
+
+        private TabLabelVisibility _stepLabelVisibility = TabLabelVisibility.Always;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Controls when step text labels are visible.")]
+        [DefaultValue(TabLabelVisibility.Always)]
+        public TabLabelVisibility StepLabelVisibility
+        {
+            get => _stepLabelVisibility;
+            set
+            {
+                if (_stepLabelVisibility == value) return;
+                _stepLabelVisibility = value;
+                Invalidate();
+            }
+        }
+
+        private bool _isPopupOpen;
+        [Browsable(false)]
+        public bool IsPopupOpen => _isPopupOpen;
+
+        public event EventHandler? PopupOpened;
+        public event EventHandler? PopupClosed;
+
+        public void CloseChildPopup()
+        {
+            if (!_isPopupOpen) return;
+            _isPopupOpen = false;
+            PopupClosed?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        protected void OnPopupOpened()
+        {
+            _isPopupOpen = true;
+            PopupOpened?.Invoke(this, EventArgs.Empty);
+        }
+
+        public bool ShouldShowStepLabel(int stepIndex)
+        {
+            return _stepLabelVisibility switch
+            {
+                TabLabelVisibility.Always => true,
+                TabLabelVisibility.SelectedOnly => stepIndex == selectedIndex,
+                TabLabelVisibility.IconsOnly => false,
+                TabLabelVisibility.Never => false,
+                _ => true
+            };
+        }
        
 
         [Browsable(true)]

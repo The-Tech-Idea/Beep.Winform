@@ -29,6 +29,10 @@ using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables;
 using TheTechIdea.Beep.Winform.Controls.Widgets;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
+using TheTechIdea.Beep.Winform.Controls.AppBars;
+using TheTechIdea.Beep.Winform.Controls.FlyoutMenus;
+using TheTechIdea.Beep.Winform.Controls.ProjectCards;
+using TheTechIdea.Beep.Winform.Controls.Notifications;
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     internal static class DesignRegistration
@@ -102,11 +106,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // AppBar Controls
             RegisterControl(typeof(BeepWebHeaderAppBar), typeof(BeepWebHeaderAppBarDesigner));
 
+            // Flyout Menu Controls
+            RegisterControl(typeof(BeepFlyoutMenu), typeof(FlyoutMenus.BeepFlyoutMenuDesigner));
+
+            // Project Card Controls
+            RegisterControl(typeof(BeepProjectCard), typeof(ProjectCards.BeepProjectCardDesigner));
+
+            // Notification Controls
+            RegisterControl(typeof(BeepNotificationGroup), typeof(Notifications.BeepNotificationGroupDesigner));
+
+            // Ribbon Controls
+            RegisterControl(typeof(BeepRibbonControl), typeof(Ribbon.BeepRibbonControlDesigner));
+
             // Container Controls
             RegisterControl(typeof(BeepMultiSplitter), typeof(BeepMultiSplitterDesigner));
 
             // Display Controls
             RegisterControl(typeof(BeepMarquee), typeof(BeepMarqueeDesigner));
+
+            // Stepper Controls
+            RegisterControl(typeof(BeepStepperBar), typeof(BeepStepperBarDesigner));
+            RegisterControl(typeof(BeepStepperBreadCrumb), typeof(BeepStepperBreadCrumbDesigner));
 
             // Widget Controls
             RegisterControl(typeof(BeepMetricWidget), typeof(BeepMetricWidgetDesigner));

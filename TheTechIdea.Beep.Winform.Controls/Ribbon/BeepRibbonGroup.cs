@@ -4,6 +4,11 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private RibbonDensity _density = RibbonDensity.Comfortable;
         private RibbonTheme? _theme;
+        private int _minTouchTargetWidth = 44;
+        private bool _popupOpen;
+
+        public event EventHandler? PopupOpened;
+        public event EventHandler? PopupClosed;
 
         public RibbonDensity Density
         {
@@ -25,6 +30,41 @@ namespace TheTechIdea.Beep.Winform.Controls
             AutoSize = false;
             Height = 48;
         }
+
+        [System.ComponentModel.Category("Layout")]
+        [System.ComponentModel.Description("Minimum touch target width in pixels")]
+        [System.ComponentModel.DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set { _minTouchTargetWidth = System.Math.Max(32, value); ApplyMetrics(); }
+        }
+
+        [System.ComponentModel.Browsable(false)]
+        public bool IsPopupOpen
+        {
+            get => _popupOpen;
+            set
+            {
+                if (_popupOpen != value)
+                {
+                    _popupOpen = value;
+                    if (value) OnPopupOpened(System.EventArgs.Empty);
+                    else OnPopupClosed(System.EventArgs.Empty);
+                }
+            }
+        }
+
+        public void CloseChildPopup()
+        {
+            if (_popupOpen)
+            {
+                IsPopupOpen = false;
+            }
+        }
+
+        protected virtual void OnPopupOpened(System.EventArgs e) => PopupOpened?.Invoke(this, e);
+        protected virtual void OnPopupClosed(System.EventArgs e) => PopupClosed?.Invoke(this, e);
 
         public void ApplyTheme(RibbonTheme theme)
         {

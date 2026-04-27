@@ -22,11 +22,10 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         public string DefaultImagePath { get; set; }
         public int CTAIndex { get; set; } = -1;
         public Color AccentColor { get; set; }
-        public float AnimationPhase { get; set; } = 0f; // 0..1 float used by painters for pulsing/hover effects
+        public float AnimationPhase { get; set; } = 0f;
         public Action<int, MouseButtons> OnItemClicked { get; set; }
         public float AnimatedIndicatorX { get; set; }
         public float AnimatedIndicatorWidth { get; set; }
-        // Theme-driven color tokens for painters
         public Color BarBackColor { get; set; }
         public Color BarForeColor { get; set; }
         public Color BarHoverBackColor { get; set; }
@@ -37,5 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         public Color NavigationBorderColor { get; set; }
         public Color NavigationShadowColor { get; set; }
         public int CTAShadowYOffset { get; set; }
+        public LabelVisibilityPolicy LabelPolicy { get; set; } = LabelVisibilityPolicy.Always;
+        public bool HasChildrenPopup { get; set; }
+        public int PopupParentIndex { get; set; } = -1;
     }
 }

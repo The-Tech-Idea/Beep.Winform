@@ -40,27 +40,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
             bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
             
-            // Custom text drawing to handle specific button colors
-            using (Font font = new Font(TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
+            if (TabControl.ShouldShowTabText(index))
             {
-                var textBrush = PaintersFactory.GetSolidBrush(foreColor);
-                string text = TabControl.TabPages[index].Text;
-                
-                if (!vertical)
+                // Custom text drawing to handle specific button colors
+                using (Font font = new Font(TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
                 {
-                    SizeF textSize = TextUtils.MeasureText(g, text, font);
-                    PointF textPoint = new PointF(buttonRect.X + GetScaledTextPadding(), buttonRect.Y + (buttonRect.Height - textSize.Height) / 2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                }
-                else
-                {
-                    GraphicsState state = g.Save();
-                    g.TranslateTransform(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2);
-                    g.RotateTransform(90);
-                    SizeF textSize = TextUtils.MeasureText(g, text, font);
-                    PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
-                    g.DrawString(text, font, textBrush, textPoint);
-                    g.Restore(state);
+                    var textBrush = PaintersFactory.GetSolidBrush(foreColor);
+                    string text = TabControl.TabPages[index].Text;
+                    
+                    if (!vertical)
+                    {
+                        SizeF textSize = TextUtils.MeasureText(g, text, font);
+                        PointF textPoint = new PointF(buttonRect.X + GetScaledTextPadding(), buttonRect.Y + (buttonRect.Height - textSize.Height) / 2);
+                        g.DrawString(text, font, textBrush, textPoint);
+                    }
+                    else
+                    {
+                        GraphicsState state = g.Save();
+                        g.TranslateTransform(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2);
+                        g.RotateTransform(90);
+                        SizeF textSize = TextUtils.MeasureText(g, text, font);
+                        PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
+                        g.DrawString(text, font, textBrush, textPoint);
+                        g.Restore(state);
+                    }
                 }
             }
 

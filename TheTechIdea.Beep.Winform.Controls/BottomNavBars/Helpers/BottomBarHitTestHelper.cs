@@ -13,8 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         private readonly ControlHitTestHelper _hitTestHelper;
         private List<SimpleItem> _items = new List<SimpleItem>();
         private List<Rectangle> _itemRectangles = new List<Rectangle>();
+        private List<Rectangle> _iconRectangles = new List<Rectangle>();
+        private List<Rectangle> _labelRectangles = new List<Rectangle>();
         private int _hoveredIndex = -1;
         private int _focusedIndex = -1;
+        private bool _popupOpen = false;
+        private int _popupParentIndex = -1;
 
         public BottomBarHitTestHelper(object owner)
         {
@@ -22,7 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             if (owner is not TheTechIdea.Beep.Winform.Controls.Base.BaseControl typedOwner)
                 throw new ArgumentException("owner must be a BaseControl", nameof(owner));
             _owner = typedOwner;
-            // Use owner's control hit test helper so registration is centralized
             _hitTestHelper = _owner._hitTest;
             _hitTestHelper.HitDetected += OnHitDetected;
         }
@@ -30,14 +33,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         public int HoveredIndex => _hoveredIndex;
         public int FocusedIndex { get => _focusedIndex; set => _focusedIndex = value; }
         public ControlHitTestHelper ControlHitTest => _hitTestHelper;
+        public bool PopupOpen => _popupOpen;
+        public int PopupParentIndex => _popupParentIndex;
 
         public event EventHandler IndexChanged;
         public event EventHandler<ItemClickEventArgs> ItemClicked;
+        public event EventHandler<PopupEventArgs> PopupRequested;
+        public event EventHandler<PopupEventArgs> PopupClosed;
 
-        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles)
+        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles, List<Rectangle> iconRects, List<Rectangle> labelRects)
         {
             _items = items ?? new List<SimpleItem>();
             _itemRectangles = rectangles ?? new List<Rectangle>();
+            _iconRectangles = iconRects ?? new List<Rectangle>();
+            _labelRectangles = labelRects ?? new List<Rectangle>();
             if (_focusedIndex >= _items.Count) _focusedIndex = -1;
             if (_hoveredIndex >= _items.Count) _hoveredIndex = -1;
             _hitTestHelper.ClearHitList();
@@ -45,33 +54,63 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             {
                 var item = _items[i];
                 var rect = _itemRectangles[i];
-                _hitTestHelper.AddHitArea($"BottomBarItem_{i}", rect, null, () => HandleItemClick(i, MouseButtons.Left));
+                int idx = i;
+                _hitTestHelper.AddHitArea($"BottomBarItem_{i}", rect, null, () => HandleItemClick(idx, MouseButtons.Left));
             }
+        }
+
+        public void UpdateItems(List<SimpleItem> items, List<Rectangle> rectangles)
+        {
+            UpdateItems(items, rectangles, new List<Rectangle>(), new List<Rectangle>());
         }
 
         private void HandleItemClick(int index, MouseButtons button)
         {
-            if (index >= 0 && index < _items.Count)
+            if (index < 0 || index >= _items.Count) return;
+
+            var item = _items[index];
+
+            if (item != null && item.Children != null && item.Children.Count > 0 && !_popupOpen)
             {
-                var item = _items[index];
+                _popupOpen = true;
+                _popupParentIndex = index;
                 _focusedIndex = index;
-                ItemClicked?.Invoke(this, new ItemClickEventArgs(index, item, button));
+                PopupRequested?.Invoke(this, new PopupEventArgs(index, item, _itemRectangles[index]));
                 InvalidateItem(index);
+                return;
+            }
+
+            _focusedIndex = index;
+            ItemClicked?.Invoke(this, new ItemClickEventArgs(index, item, button));
+            InvalidateItem(index);
+        }
+
+        public void ClosePopup()
+        {
+            if (_popupOpen)
+            {
+                var item = _popupParentIndex >= 0 && _popupParentIndex < _items.Count ? _items[_popupParentIndex] : null;
+                PopupClosed?.Invoke(this, new PopupEventArgs(_popupParentIndex, item, Rectangle.Empty));
+                _popupOpen = false;
+                _popupParentIndex = -1;
             }
         }
 
         private void OnHitDetected(object sender, EventArgs e)
         {
-            // Additional handling if needed
         }
 
         public void Clear()
         {
             _items.Clear();
             _itemRectangles.Clear();
+            _iconRectangles.Clear();
+            _labelRectangles.Clear();
             _hitTestHelper.ClearHitList();
             _hoveredIndex = -1;
             _focusedIndex = -1;
+            _popupOpen = false;
+            _popupParentIndex = -1;
         }
 
         public void Dispose()
@@ -80,6 +119,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             Clear();
             IndexChanged = null;
             ItemClicked = null;
+            PopupRequested = null;
+            PopupClosed = null;
         }
 
         public void HandleMouseMove(Point location)
@@ -115,6 +156,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             return -1;
         }
 
+        public HitRegion FindHitRegion(Point location)
+        {
+            for (int i = 0; i < _itemRectangles.Count; i++)
+            {
+                if (_iconRectangles.Count > i && _iconRectangles[i].Contains(location))
+                    return new HitRegion(i, HitTarget.Icon);
+                if (_labelRectangles.Count > i && _labelRectangles[i].Contains(location))
+                    return new HitRegion(i, HitTarget.Label);
+                if (_itemRectangles[i].Contains(location))
+                    return new HitRegion(i, HitTarget.Item);
+            }
+            return new HitRegion(-1, HitTarget.None);
+        }
+
         private void InvalidateItem(int index)
         {
             if (index < 0 || index >= _itemRectangles.Count)
@@ -128,6 +183,26 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         }
     }
 
+    public enum HitTarget
+    {
+        None,
+        Item,
+        Icon,
+        Label
+    }
+
+    public class HitRegion
+    {
+        public int ItemIndex { get; }
+        public HitTarget Target { get; }
+
+        public HitRegion(int itemIndex, HitTarget target)
+        {
+            ItemIndex = itemIndex;
+            Target = target;
+        }
+    }
+
     public class ItemClickEventArgs : EventArgs
     {
         public int Index { get; }
@@ -137,6 +212,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
         public ItemClickEventArgs(int index, SimpleItem item, MouseButtons button)
         {
             Index = index; Item = item; Button = button;
+        }
+    }
+
+    public class PopupEventArgs : EventArgs
+    {
+        public int ParentIndex { get; }
+        public SimpleItem ParentItem { get; }
+        public Rectangle AnchorRect { get; }
+
+        public PopupEventArgs(int parentIndex, SimpleItem parentItem, Rectangle anchorRect)
+        {
+            ParentIndex = parentIndex;
+            ParentItem = parentItem;
+            AnchorRect = anchorRect;
         }
     }
 }

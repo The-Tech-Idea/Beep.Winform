@@ -80,16 +80,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_stepModels != null && _stepModels.Count > 0)
             {
-                return _stepModels.Take(stepCount).Select(m => m ?? new StepModel()).ToList();
+                return _stepModels.Take(stepCount).Select((m, i) =>
+                {
+                    var model = m ?? new StepModel();
+                    bool showLabel = ShouldShowStepLabel(i);
+                    if (!showLabel)
+                    {
+                        model.Text = string.Empty;
+                        model.Subtitle = string.Empty;
+                    }
+                    return model;
+                }).ToList();
             }
 
             var steps = new List<StepModel>(stepCount);
             for (int i = 0; i < stepCount; i++)
             {
-                string label = i < ListItems.Count
+                bool showLabel = ShouldShowStepLabel(i);
+                string label = showLabel ? (i < ListItems.Count
                     ? (ListItems[i].Name ?? $"Step {i + 1}")
-                    : GetStepLabel(i);
-                string subtitle = i < ListItems.Count ? ListItems[i].Text : null;
+                    : GetStepLabel(i)) : string.Empty;
+                string subtitle = showLabel ? (i < ListItems.Count ? ListItems[i].Text : null) : string.Empty;
 
                 steps.Add(new StepModel
                 {

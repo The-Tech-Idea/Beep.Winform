@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             );
 
             // Label regions for ON/OFF text
-            if (Owner.ShowLabels)
+            if (ShouldShowLabels())
             {
                 int labelWidth = TrackRegion.Width / 2 - padding * 2;
                 int labelHeight = trackHeight - padding * 2;
@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected override void PaintLabels(Graphics g, ControlState state)
         {
-            if (!Owner.ShowLabels)
+            if (!ShouldShowLabels())
                 return;
 
             // Use ToggleFontHelpers for consistent font management

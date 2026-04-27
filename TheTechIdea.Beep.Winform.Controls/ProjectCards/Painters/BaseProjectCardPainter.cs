@@ -50,5 +50,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
         }
 
         protected static Rectangle Inset(Rectangle r, int all) => new Rectangle(r.X + all, r.Y + all, Math.Max(0, r.Width - all * 2), Math.Max(0, r.Height - all * 2));
+
+        protected static bool ShouldShowTitle(BeepProjectCard owner)
+        {
+            return owner.TextVisibility switch
+            {
+                CardTextVisibility.Always => true,
+                CardTextVisibility.TitleOnly => true,
+                CardTextVisibility.SubtitleOnly => false,
+                CardTextVisibility.Never => false,
+                _ => true
+            };
+        }
+
+        protected static bool ShouldShowSubtitle(BeepProjectCard owner)
+        {
+            return owner.TextVisibility switch
+            {
+                CardTextVisibility.Always => true,
+                CardTextVisibility.TitleOnly => false,
+                CardTextVisibility.SubtitleOnly => true,
+                CardTextVisibility.Never => false,
+                _ => true
+            };
+        }
+
+        protected static bool ShouldShowText(BeepProjectCard owner)
+        {
+            return owner.TextVisibility != CardTextVisibility.Never;
+        }
     }
 }

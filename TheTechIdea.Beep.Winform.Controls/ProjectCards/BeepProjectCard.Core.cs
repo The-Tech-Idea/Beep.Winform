@@ -22,6 +22,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         private string[] _tags = new[] { "Design", "UI", "Sprint" };
         private string _status = "In progress";
         private int _daysLeft = 7;
+        private int _minTouchTargetWidth = 44;
+        private CardTextVisibility _textVisibility = CardTextVisibility.Always;
+        private bool _popupOpen = false;
 
         // interactive area state
         private readonly Dictionary<string, Rectangle> _areaRects = new();
@@ -58,6 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         public event EventHandler ContentClicked;
         public event EventHandler OutlineClicked;
         public event EventHandler CardBodyClicked;
+        // Popup management events
+        public event EventHandler PopupOpened;
+        public event EventHandler PopupClosed;
 
         [Category("Appearance")]
         public ProjectCardPainterKind PainterKind { get => _painterKind; set { _painterKind = value; Invalidate(); } }
@@ -82,6 +88,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         [Category("Content")] public string Status { get => _status; set { _status = value; Invalidate(); } }
         [Category("Content")] public int DaysLeft { get => _daysLeft; set { _daysLeft = value; Invalidate(); } }
         [Category("Content")] public string[] Tags { get => _tags; set { _tags = value ?? System.Array.Empty<string>(); Invalidate(); } }
+
+        [Category("Layout")]
+        [Description("Minimum touch target width in pixels")]
+        [DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set { _minTouchTargetWidth = System.Math.Max(32, value); Invalidate(); }
+        }
+
+        [Category("Layout")]
+        [Description("Controls when text elements are displayed")]
+        [DefaultValue(CardTextVisibility.Always)]
+        public CardTextVisibility TextVisibility
+        {
+            get => _textVisibility;
+            set { _textVisibility = value; Invalidate(); }
+        }
+
+        [Browsable(false)]
+        public bool IsPopupOpen => _popupOpen;
 
         public override void ApplyTheme()
         {
@@ -230,6 +257,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
             {
                 CardBodyClicked?.Invoke(this, System.EventArgs.Empty);
                 return;
+            }
+        }
+
+        public void CloseChildPopup()
+        {
+            if (_popupOpen)
+            {
+                _popupOpen = false;
+                OnPopupClosed(System.EventArgs.Empty);
+            }
+        }
+
+        protected virtual void OnPopupOpened(System.EventArgs e) => PopupOpened?.Invoke(this, e);
+        protected virtual void OnPopupClosed(System.EventArgs e) => PopupClosed?.Invoke(this, e);
+
+        protected void SetPopupOpen(bool isOpen)
+        {
+            if (_popupOpen != isOpen)
+            {
+                _popupOpen = isOpen;
+                if (isOpen) OnPopupOpened(System.EventArgs.Empty);
+                else OnPopupClosed(System.EventArgs.Empty);
             }
         }
     }

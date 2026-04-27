@@ -9,10 +9,18 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
     {
         private Rectangle _bounds = Rectangle.Empty;
         private List<Rectangle> _cachedItemRects = new List<Rectangle>();
+        private List<Rectangle> _cachedIconRects = new List<Rectangle>();
+        private List<Rectangle> _cachedLabelRects = new List<Rectangle>();
         private Rectangle _cachedIndicatorRect = Rectangle.Empty;
         public float CtaWidthFactor { get; set; } = 1.6f;
         public float SelectedWidthFactor { get; set; } = 1.3f;
         private bool _dirty = true;
+
+        public int MinTouchTargetWidth { get; set; } = 48;
+        public int MinTouchTargetHeight { get; set; } = 48;
+
+        public bool IsOverflow { get; private set; }
+        public int VisibleItemCount { get; private set; }
 
         public void InvalidateLayout() => _dirty = true;
 
@@ -21,13 +29,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             if (!_dirty && _bounds == bounds) return;
             _bounds = bounds;
             _cachedItemRects.Clear();
+            _cachedIconRects.Clear();
+            _cachedLabelRects.Clear();
 
-            if (items == null || items.Count == 0) return;
+            if (items == null || items.Count == 0)
+            {
+                IsOverflow = false;
+                VisibleItemCount = 0;
+                return;
+            }
 
             int padding = 8;
             int count = items.Count;
-            int width = Math.Max(1, _bounds.Width - padding * 2);
-            // compute per-item widths with factors applied to CTA and optionally selected item
+            int availableWidth = Math.Max(1, _bounds.Width - padding * 2);
+            int itemHeight = Math.Max(MinTouchTargetHeight, _bounds.Height - padding * 2);
+
             var factors = new float[count];
             float totalFactor = 0f;
             for (int i = 0; i < count; i++)
@@ -38,38 +54,53 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                 factors[i] = f;
                 totalFactor += f;
             }
-            float baseWidth = (float)width / totalFactor;
+
+            float baseWidth = (float)availableWidth / totalFactor;
             var itemWidths = new int[count];
             int consumed = 0;
             for (int i = 0; i < count; i++)
             {
-                int w = Math.Max(1, (int)Math.Round(baseWidth * factors[i]));
+                int w = Math.Max(MinTouchTargetWidth, (int)Math.Round(baseWidth * factors[i]));
                 itemWidths[i] = w;
                 consumed += w;
             }
-            // adjust last width to consume any remaining space due to rounding
-            int remaining = width - consumed;
+
+            int remaining = availableWidth - consumed;
             if (remaining != 0 && count > 0)
             {
                 itemWidths[count - 1] = itemWidths[count - 1] + remaining;
             }
+
+            IsOverflow = false;
+            VisibleItemCount = count;
+
             int left = _bounds.Left + padding;
+            int top = _bounds.Top + (_bounds.Height - itemHeight) / 2;
+
             for (int i = 0; i < count; i++)
             {
-                var r = new Rectangle(left, _bounds.Top + padding, itemWidths[i], _bounds.Height - padding * 2);
-                _cachedItemRects.Add(r);
+                var itemRect = new Rectangle(left, top, itemWidths[i], itemHeight);
+                _cachedItemRects.Add(itemRect);
+
+                int iconSize = Math.Min(24, itemHeight / 3);
+                int iconX = itemRect.Left + (itemRect.Width - iconSize) / 2;
+                int iconY = itemRect.Top + 6;
+                _cachedIconRects.Add(new Rectangle(iconX, iconY, iconSize, iconSize));
+
+                int labelY = iconY + iconSize + 2;
+                int labelHeight = itemRect.Bottom - labelY - 4;
+                _cachedLabelRects.Add(new Rectangle(itemRect.Left + 4, labelY, itemRect.Width - 8, labelHeight));
+
                 left += itemWidths[i];
             }
 
-            // If CTA is present, attempt to center it within the overall bounds by shifting items
             if (ctaIndex >= 0 && ctaIndex < _cachedItemRects.Count)
             {
                 var ctaRect = _cachedItemRects[ctaIndex];
                 int totalInnerWidth = _cachedItemRects.Count > 0 ? (_cachedItemRects[_cachedItemRects.Count - 1].Right - _cachedItemRects[0].Left) : 0;
-                int desiredCenter = _bounds.Left + width / 2 + padding;
+                int desiredCenter = _bounds.Left + availableWidth / 2 + padding;
                 int currentCenter = ctaRect.Left + ctaRect.Width / 2;
                 int delta = desiredCenter - currentCenter;
-                // clamp shifts so we don't overscroll boundaries
                 int minShift = _bounds.Left + padding - _cachedItemRects[0].Left;
                 int maxShift = (_bounds.Right - padding) - _cachedItemRects[_cachedItemRects.Count - 1].Right;
                 int allowedDelta = Math.Min(maxShift, Math.Max(minShift, delta));
@@ -80,16 +111,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
                         var rr = _cachedItemRects[i];
                         rr.Offset(allowedDelta, 0);
                         _cachedItemRects[i] = rr;
+
+                        var ir = _cachedIconRects[i];
+                        ir.Offset(allowedDelta, 0);
+                        _cachedIconRects[i] = ir;
+
+                        var lr = _cachedLabelRects[i];
+                        lr.Offset(allowedDelta, 0);
+                        _cachedLabelRects[i] = lr;
                     }
                 }
             }
 
-            // default indicator width is item width - 16
-            _cachedIndicatorRect = new Rectangle(_cachedItemRects[0].Left + 8, _cachedItemRects[0].Top + 6, _cachedItemRects[0].Width - 16, _cachedItemRects[0].Height - 12);
-            // If CTA index is used, set indicator to that element's rect by default
+            _cachedIndicatorRect = new Rectangle(_cachedItemRects[0].Left + 8, _cachedItemRects[0].Top + 6, Math.Max(16, _cachedItemRects[0].Width - 16), _cachedItemRects[0].Height - 12);
             if (ctaIndex >= 0 && ctaIndex < _cachedItemRects.Count)
             {
-                // CTA may be taller/bigger; center it
                 var ctaRect = _cachedItemRects[ctaIndex];
                 _cachedIndicatorRect = new Rectangle(ctaRect.Left + 6, ctaRect.Top + 2, ctaRect.Width - 12, ctaRect.Height - 4);
             }
@@ -102,7 +138,21 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Helpers
             return Rectangle.Empty;
         }
 
+        public Rectangle GetIconRect(int index)
+        {
+            if (index >= 0 && index < _cachedIconRects.Count) return _cachedIconRects[index];
+            return Rectangle.Empty;
+        }
+
+        public Rectangle GetLabelRect(int index)
+        {
+            if (index >= 0 && index < _cachedLabelRects.Count) return _cachedLabelRects[index];
+            return Rectangle.Empty;
+        }
+
         public IReadOnlyList<Rectangle> GetItemRectangles() => _cachedItemRects.AsReadOnly();
+        public IReadOnlyList<Rectangle> GetIconRectangles() => _cachedIconRects.AsReadOnly();
+        public IReadOnlyList<Rectangle> GetLabelRectangles() => _cachedLabelRects.AsReadOnly();
         public Rectangle GetIndicatorRect() => _cachedIndicatorRect;
     }
 }

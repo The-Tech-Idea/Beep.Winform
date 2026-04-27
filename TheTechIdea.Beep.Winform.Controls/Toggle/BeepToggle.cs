@@ -34,9 +34,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         private string _onIconPath = "";
         private string _offIconPath = "";
         private bool _showLabels = true;
+        private ToggleTextVisibility _textVisibility = ToggleTextVisibility.Always;
         private bool _animateTransition = true;
         private int _animationDuration = 200; // milliseconds
         private float _thumbPosition = 0f; // 0 = OFF position, 1 = ON position
+        private int _minTouchTargetWidth = 44;
         private Timer _animationTimer;
         private DateTime _animationStart;
         private bool _isAnimating = false;
@@ -278,6 +280,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         {
             get => _showLabels;
             set { _showLabels = value; Invalidate(); }
+        }
+
+        /// <summary>
+        /// Controls when text labels are displayed on the toggle
+        /// </summary>
+        [Category("Beep")]
+        [Description("Controls when text labels are displayed")]
+        [DefaultValue(ToggleTextVisibility.Always)]
+        public ToggleTextVisibility TextVisibility
+        {
+            get => _textVisibility;
+            set { _textVisibility = value; Invalidate(); }
+        }
+
+        /// <summary>
+        /// Minimum touch target width in pixels (WCAG recommends 44px minimum)
+        /// </summary>
+        [Category("Beep")]
+        [Description("Minimum touch target width in pixels")]
+        [DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set { _minTouchTargetWidth = Math.Max(32, value); Invalidate(); }
         }
 
         /// <summary>

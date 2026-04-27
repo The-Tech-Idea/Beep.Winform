@@ -451,6 +451,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
             return ToggleStyleHelpers.GetShadowOffset(Owner.ToggleStyle, Owner.ControlStyle);
         }
 
+        /// <summary>
+        /// Determine if labels should be shown based on ShowLabels and TextVisibility settings
+        /// </summary>
+        protected bool ShouldShowLabels()
+        {
+            if (!Owner.ShowLabels)
+                return false;
+
+            switch (Owner.TextVisibility)
+            {
+                case ToggleTextVisibility.Always:
+                    return true;
+                case ToggleTextVisibility.WhenOn:
+                    return Owner.IsOn;
+                case ToggleTextVisibility.WhenOff:
+                    return !Owner.IsOn;
+                case ToggleTextVisibility.Never:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
         #endregion
     }
 }

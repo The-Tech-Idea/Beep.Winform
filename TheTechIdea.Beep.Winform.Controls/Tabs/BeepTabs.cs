@@ -32,6 +32,60 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font _textFont;
         public IBeepTheme CurrentTheme => _currentTheme;
 
+        private int _minTouchTargetWidth = 44;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Minimum touch target width for tabs in pixels (minimum 32).")]
+        [DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set
+            {
+                _minTouchTargetWidth = Math.Max(32, value);
+                UpdateLayout();
+                Invalidate();
+            }
+        }
+
+        private TabLabelVisibility _tabTextVisibility = TabLabelVisibility.Always;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Controls when tab text labels are visible.")]
+        [DefaultValue(TabLabelVisibility.Always)]
+        public TabLabelVisibility TabTextVisibility
+        {
+            get => _tabTextVisibility;
+            set
+            {
+                if (_tabTextVisibility == value) return;
+                _tabTextVisibility = value;
+                UpdateLayout();
+                Invalidate();
+            }
+        }
+
+        private bool _isPopupOpen;
+        [Browsable(false)]
+        public bool IsPopupOpen => _isPopupOpen;
+
+        public event EventHandler? PopupOpened;
+        public event EventHandler? PopupClosed;
+
+        public void CloseChildPopup()
+        {
+            if (!_isPopupOpen) return;
+            _isPopupOpen = false;
+            PopupClosed?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        protected void OnPopupOpened()
+        {
+            _isPopupOpen = true;
+            PopupOpened?.Invoke(this, EventArgs.Empty);
+        }
+
         [Browsable(true)]
         [Category("Behavior")]
         [Description("If false, the close button is hidden and tabs cannot be closed from the header.")]
@@ -1131,6 +1185,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, clientLocation.X, clientLocation.Y, 0));
         }
         #endregion
+
+        public bool ShouldShowTabText(int tabIndex)
+        {
+            return _tabTextVisibility switch
+            {
+                TabLabelVisibility.Always => true,
+                TabLabelVisibility.SelectedOnly => tabIndex == SelectedIndex,
+                TabLabelVisibility.IconsOnly => false,
+                TabLabelVisibility.Never => false,
+                _ => true
+            };
+        }
 
         public void SuspendFormLayout()
         {

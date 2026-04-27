@@ -24,6 +24,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         public event EventHandler<SelectedItemChangedEventArgs> ActionButtonClicked;
         public event EventHandler<SearchChangedEventArgs> SearchBoxChanged;
         public event EventHandler<SelectedTabChangedEventArgs> SelectedTabChanged;
+        public event EventHandler<PopupEventArgs>? PopupOpened;
+        public event EventHandler<PopupEventArgs>? PopupClosed;
 
         #endregion
 
@@ -31,6 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private WebHeaderStyle _headerStyle = WebHeaderStyle.ShoppyStore1;
         private TabIndicatorStyle _indicatorStyle = TabIndicatorStyle.UnderlineSimple;
+        private LabelVisibilityPolicy _labelVisibility = LabelVisibilityPolicy.Always;
         private BindingList<SimpleItem> _tabs = new();
         private BindingList<SimpleItem> _buttons = new();
         private int _selectedTabIndex = -1;
@@ -88,6 +91,11 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private ToolTip _toolTip;
         private string _lastTooltipText = "";
 
+        // Child popup tracking
+        private bool _popupOpen = false;
+        private int _popupParentIndex = -1;
+        private bool _isPopupTab = true;
+
         // ID generation
         private static int _nextId = 1;
         private static int NextId => System.Threading.Interlocked.Increment(ref _nextId);
@@ -122,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             CanBeHovered = true;
 
             AccessibleName = "Web Header Navigation";
-            AccessibleRole = AccessibleRole.Navigation;
+            AccessibleRole = AccessibleRole.MenuBar;
             AccessibleDescription = "Navigation header with tabs, search, and action buttons";
 
             _toolTip = new ToolTip { InitialDelay = 500, ReshowDelay = 100, ShowAlways = true };
@@ -192,8 +200,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 if (_headerStyle != value)
                 {
                     _headerStyle = value;
-                    if (!IsDesignModeSafe)
-                        _painter = CreatePainterForStyle(value);
+                    _painter = CreatePainterForStyle(value);
+                    InvalidatePainterCache();
                     Invalidate();
                 }
             }
@@ -335,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         public bool AllowTabScroll { get; set; } = true;
 
         [Browsable(true)]
-        [Category("Appearance")]
+        [Category("Behavior")]
         [DefaultValue(220)]
         [Description("Duration of the tab underline animation in milliseconds")]
         public int UnderlineAnimationDurationMs
@@ -343,6 +351,32 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             get => _underlineAnimationDurationMs;
             set => _underlineAnimationDurationMs = Math.Max(0, value);
         }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(LabelVisibilityPolicy.Always)]
+        [Description("Controls when tab and button labels are visible")]
+        public LabelVisibilityPolicy LabelVisibility
+        {
+            get => _labelVisibility;
+            set
+            {
+                if (_labelVisibility != value)
+                {
+                    _labelVisibility = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DefaultValue(48)]
+        [Description("Minimum touch target width for tabs and buttons (pixels)")]
+        public int MinTouchTargetWidth { get; set; } = 48;
+
+        [Browsable(false)]
+        public bool IsPopupOpen => _popupOpen;
 
         #endregion
 
@@ -407,7 +441,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 var size = TextRenderer.MeasureText(tab.Text, _tabFont);
-                totalWidth += size.Width + _elementPadding * 2 + _tabSpacing;
+                int itemWidth = Math.Max(MinTouchTargetWidth, size.Width + _elementPadding * 2);
+                totalWidth += itemWidth + _tabSpacing;
             }
 
             int availableWidth = Width - 160;
@@ -527,7 +562,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             foreach (var tab in _tabs)
             {
                 var size = TextRenderer.MeasureText(tab.Text, _tabFont);
-                totalWidth += size.Width + _elementPadding * 2 + _tabSpacing;
+                int itemWidth = Math.Max(MinTouchTargetWidth, size.Width + _elementPadding * 2);
+                totalWidth += itemWidth + _tabSpacing;
             }
             return Math.Max(0, totalWidth - (Width - 160));
         }
@@ -781,6 +817,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             base.OnMouseClick(e);
             if (IsDesignModeSafe || _painter == null || e.Button != MouseButtons.Left) return;
 
+            if (_popupOpen)
+            {
+                CloseChildPopup();
+                return;
+            }
+
             if (_needsTabScroll && AllowTabScroll)
             {
                 if (_scrollLeftBounds.Contains(e.Location) && _tabScrollOffset > 0)
@@ -849,6 +891,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         private void ShowTooltipForText(string text)
         {
             if (_toolTip == null || string.IsNullOrEmpty(text)) return;
+            if (_popupOpen) return;
             if (text == _lastTooltipText) return;
 
             _lastTooltipText = text;
@@ -929,11 +972,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     Invalidate();
                     return true;
                 }
-                if (keyData == Keys.Delete && _searchText.Length > 0)
+                if (keyData == Keys.Delete)
                 {
-                    _searchText = _searchText.Substring(0, _searchText.Length - 1);
-                    SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
-                    Invalidate();
+                    if (_searchText.Length > 0)
+                    {
+                        _searchText = "";
+                        SearchBoxChanged?.Invoke(this, new SearchChangedEventArgs(_searchText));
+                        Invalidate();
+                    }
                     return true;
                 }
                 if (keyData == Keys.Left || keyData == Keys.Right)
@@ -959,6 +1005,19 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
             switch (keyData)
             {
+                case Keys.Escape:
+                    if (_popupOpen)
+                    {
+                        CloseChildPopup();
+                        return true;
+                    }
+                    if (_searchBoxActive)
+                    {
+                        _searchBoxActive = false;
+                        Invalidate();
+                        return true;
+                    }
+                    return false;
                 case Keys.Left:
                     if (_selectedTabIndex > 0)
                         SelectedTabIndex = _selectedTabIndex - 1;
@@ -1037,8 +1096,17 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
             if (rect != Rectangle.Empty)
             {
+                _popupOpen = true;
+                _popupParentIndex = btnIndex;
+                _isPopupTab = false;
+                PopupOpened?.Invoke(this, new PopupEventArgs(btnIndex, btn, rect, false));
+
                 var screenLocation = this.PointToScreen(new Point(rect.Left, rect.Bottom + 2));
                 var selectedItem = base.ShowContextMenu(new List<SimpleItem>(btn.Children), screenLocation, multiSelect: false);
+
+                _popupOpen = false;
+                _popupParentIndex = -1;
+                PopupClosed?.Invoke(this, new PopupEventArgs(btnIndex, btn, rect, false));
 
                 if (selectedItem != null)
                 {
@@ -1061,8 +1129,17 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
             if (rect != Rectangle.Empty)
             {
+                _popupOpen = true;
+                _popupParentIndex = tabIndex;
+                _isPopupTab = true;
+                PopupOpened?.Invoke(this, new PopupEventArgs(tabIndex, tab, rect, true));
+
                 var screenLocation = this.PointToScreen(new Point(rect.Left, rect.Bottom + 2));
                 var selectedItem = base.ShowContextMenu(new List<SimpleItem>(tab.Children), screenLocation, multiSelect: false);
+
+                _popupOpen = false;
+                _popupParentIndex = -1;
+                PopupClosed?.Invoke(this, new PopupEventArgs(tabIndex, tab, rect, true));
 
                 if (selectedItem != null)
                 {
@@ -1070,6 +1147,20 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     if (!string.IsNullOrEmpty(selectedItem.MethodName))
                         RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
                 }
+            }
+        }
+
+        public void CloseChildPopup()
+        {
+            if (_popupOpen)
+            {
+                var parentItem = _isPopupTab
+                    ? (_popupParentIndex >= 0 && _popupParentIndex < _tabs.Count ? _tabs[_popupParentIndex] : null)
+                    : (_popupParentIndex >= 0 && _popupParentIndex < _buttons.Count ? _buttons[_popupParentIndex] : null);
+
+                PopupClosed?.Invoke(this, new PopupEventArgs(_popupParentIndex, parentItem, Rectangle.Empty, _isPopupTab));
+                _popupOpen = false;
+                _popupParentIndex = -1;
             }
         }
 
@@ -1174,6 +1265,22 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             OldTab = oldTab;
             NewTab = newTab;
             NewTabIndex = newTabIndex;
+        }
+    }
+
+    public class PopupEventArgs : EventArgs
+    {
+        public int ParentIndex { get; }
+        public SimpleItem ParentItem { get; }
+        public Rectangle AnchorRect { get; }
+        public bool IsTabPopup { get; }
+
+        public PopupEventArgs(int parentIndex, SimpleItem parentItem, Rectangle anchorRect, bool isTabPopup)
+        {
+            ParentIndex = parentIndex;
+            ParentItem = parentItem;
+            AnchorRect = anchorRect;
+            IsTabPopup = isTabPopup;
         }
     }
 }

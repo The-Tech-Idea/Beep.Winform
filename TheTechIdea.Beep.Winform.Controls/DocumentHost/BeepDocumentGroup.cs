@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Per-group tab strip position.  Defaults to the host's global <c>TabPosition</c>
         /// but can be overridden per group (e.g. left group tabs on top, right group tabs on bottom).
         /// </summary>
-        internal TabStripPosition TabPosition { get; set; } = TabStripPosition.Top;
+        public TabStripPosition TabPosition { get; set; } = TabStripPosition.Top;
 
         // ─────────────────────────────────────────────────────────────────────
         // Events forwarded to BeepDocumentHost

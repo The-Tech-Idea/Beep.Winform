@@ -45,8 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
                 thumbSize
             );
 
-            // Label regions if labels are shown
-            if (Owner.ShowLabels)
+            // Label regions if labels should be shown
+            if (ShouldShowLabels())
             {
                 int labelWidth = TrackRegion.Width / 2 - 4;
                 int labelHeight = TrackRegion.Height - 4;
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle.Painters
 
         protected override void PaintLabels(Graphics g, ControlState state)
         {
-            if (!Owner.ShowLabels)
+            if (!ShouldShowLabels())
                 return;
 
             // Use ToggleFontHelpers for consistent font management

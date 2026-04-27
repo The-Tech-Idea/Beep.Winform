@@ -12,4 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         Card,
         Button
     }
+
+    public enum TabLabelVisibility
+    {
+        Always,
+        SelectedOnly,
+        IconsOnly,
+        Never
+    }
 }

@@ -114,6 +114,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("GlassAcrylicOpacity", value);
         }
 
+        [Category("Appearance")]
+        [Description("Controls when item labels are visible")]
+        public LabelVisibilityPolicy LabelPolicy
+        {
+            get => _designer.GetProperty<LabelVisibilityPolicy>("LabelPolicy");
+            set => _designer.SetProperty("LabelPolicy", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Minimum touch target width for each item (pixels)")]
+        public int MinItemTouchWidth
+        {
+            get => _designer.GetProperty<int>("MinItemTouchWidth");
+            set => _designer.SetProperty("MinItemTouchWidth", value);
+        }
+
         #endregion
 
         #region Quick Configuration Actions
@@ -182,6 +198,72 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         /// <summary>
+        /// Configure as Diamond bottom bar style
+        /// </summary>
+        public void ConfigureAsDiamond()
+        {
+            BarStyle = BottomBarStyle.Diamond;
+            BarHeight = 72;
+            CTAIndex = 2;
+            ShowCTAShadow = true;
+        }
+
+        /// <summary>
+        /// Configure as Movable Notch bottom bar style
+        /// </summary>
+        public void ConfigureAsMovableNotch()
+        {
+            BarStyle = BottomBarStyle.MovableNotch;
+            BarHeight = 64;
+            ShowCTAShadow = false;
+        }
+
+        /// <summary>
+        /// Configure as Outline Floating CTA bottom bar style
+        /// </summary>
+        public void ConfigureAsOutlineFloatingCTA()
+        {
+            BarStyle = BottomBarStyle.OutlineFloatingCTA;
+            BarHeight = 72;
+            CTAIndex = 2;
+            ShowCTAShadow = false;
+        }
+
+        /// <summary>
+        /// Configure as Segmented Track bottom bar style
+        /// </summary>
+        public void ConfigureAsSegmentedTrack()
+        {
+            BarStyle = BottomBarStyle.SegmentedTrack;
+            BarHeight = 56;
+            ShowCTAShadow = false;
+        }
+
+        /// <summary>
+        /// Set labels to always visible
+        /// </summary>
+        public void SetLabelsAlways()
+        {
+            LabelPolicy = LabelVisibilityPolicy.Always;
+        }
+
+        /// <summary>
+        /// Set labels to show only for selected item
+        /// </summary>
+        public void SetLabelsSelectedOnly()
+        {
+            LabelPolicy = LabelVisibilityPolicy.SelectedOnly;
+        }
+
+        /// <summary>
+        /// Set labels to icon-only mode
+        /// </summary>
+        public void SetLabelsIconOnly()
+        {
+            LabelPolicy = LabelVisibilityPolicy.IconOnly;
+        }
+
+        /// <summary>
         /// Set standard bar height (72px)
         /// </summary>
         public void SetStandardHeight()
@@ -235,6 +317,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsPill", "Pill Style", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsNotionMinimal", "Notion Minimal Style", "Style Presets", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsGlassAcrylic", "Glass Acrylic Style", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsDiamond", "Diamond Style", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsMovableNotch", "Movable Notch Style", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsOutlineFloatingCTA", "Outline CTA Style", "Style Presets", true));
+            items.Add(new DesignerActionMethodItem(this, "ConfigureAsSegmentedTrack", "Segmented Track Style", "Style Presets", true));
 
             // Height presets
             items.Add(new DesignerActionHeaderItem("Height Presets"));
@@ -261,6 +347,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("ShowCTAShadow", "Show CTA Shadow", "Behavior Properties"));
             items.Add(new DesignerActionPropertyItem("CTAWidthFactor", "CTA Width Factor", "Behavior Properties"));
             items.Add(new DesignerActionPropertyItem("SelectedWidthFactor", "Selected Width Factor", "Behavior Properties"));
+            items.Add(new DesignerActionPropertyItem("MinItemTouchWidth", "Min Touch Width", "Behavior Properties"));
+
+            // Label policy
+            items.Add(new DesignerActionHeaderItem("Label Visibility"));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsAlways", "Always Show Labels", "Label Visibility", true));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsSelectedOnly", "Selected Item Only", "Label Visibility", true));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsIconOnly", "Icon Only (No Labels)", "Label Visibility", true));
+            items.Add(new DesignerActionPropertyItem("LabelPolicy", "Label Policy", "Label Visibility"));
 
             return items;
         }

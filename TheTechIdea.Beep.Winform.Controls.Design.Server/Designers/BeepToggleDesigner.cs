@@ -151,6 +151,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("ShowLabels", value);
         }
 
+        [Category("Toggle")]
+        [Description("Controls when text labels are displayed")]
+        public ToggleTextVisibility TextVisibility
+        {
+            get => _designer.GetProperty<ToggleTextVisibility>("TextVisibility");
+            set => _designer.SetProperty("TextVisibility", value);
+        }
+
+        [Category("Toggle")]
+        [Description("Minimum touch target width in pixels")]
+        public int MinTouchTargetWidth
+        {
+            get => _designer.GetProperty<int>("MinTouchTargetWidth");
+            set => _designer.SetProperty("MinTouchTargetWidth", value);
+        }
+
         [Category("Appearance")]
         [Description("Color when toggle is ON")]
         public Color OnColor
@@ -267,6 +283,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("OnText", "ON Text:", "Toggle"));
             items.Add(new DesignerActionPropertyItem("OffText", "OFF Text:", "Toggle"));
             items.Add(new DesignerActionPropertyItem("ShowLabels", "Show Labels:", "Toggle"));
+            items.Add(new DesignerActionPropertyItem("TextVisibility", "Text Visibility:", "Toggle"));
+            items.Add(new DesignerActionPropertyItem("MinTouchTargetWidth", "Min Touch Width:", "Toggle"));
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem("OnColor", "ON Color:", "Appearance"));

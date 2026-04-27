@@ -272,6 +272,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("AllowTabScroll", value);
         }
 
+        [Category("Appearance")]
+        public LabelVisibilityPolicy LabelVisibility
+        {
+            get => _designer.GetProperty<LabelVisibilityPolicy>("LabelVisibility");
+            set => _designer.SetProperty("LabelVisibility", value);
+        }
+
+        [Category("Layout")]
+        public int MinTouchTargetWidth
+        {
+            get => _designer.GetProperty<int>("MinTouchTargetWidth");
+            set => _designer.SetProperty("MinTouchTargetWidth", value);
+        }
+
         #endregion
 
         #region Style Presets
@@ -337,6 +351,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             IndicatorStyle = next;
         }
 
+        public void SetLabelsAlways() => LabelVisibility = LabelVisibilityPolicy.Always;
+        public void SetLabelsActiveOnly() => LabelVisibility = LabelVisibilityPolicy.ActiveOnly;
+        public void SetLabelsIconOnly() => LabelVisibility = LabelVisibilityPolicy.IconOnly;
+
         #endregion
 
         #region DesignerActionItemCollection
@@ -373,10 +391,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionPropertyItem("HeaderHeight", "Header Height", "Layout", "Control height"));
             items.Add(new DesignerActionPropertyItem("LogoWidth", "Logo Width", "Layout", "Logo area width"));
             items.Add(new DesignerActionPropertyItem("AllowTabScroll", "Allow Tab Scroll", "Layout", "Enable overflow scrolling"));
+            items.Add(new DesignerActionPropertyItem("MinTouchTargetWidth", "Min Touch Width", "Layout", "Minimum item touch target"));
 
             items.Add(new DesignerActionHeaderItem("Tabs"));
             items.Add(new DesignerActionMethodItem(this, "AddSampleTabs", "Add Sample Tabs", "Tabs", "Add 5 demo tabs"));
             items.Add(new DesignerActionMethodItem(this, "CycleIndicatorStyle", "Cycle Indicator Style", "Tabs", "Rotate indicator type"));
+
+            items.Add(new DesignerActionHeaderItem("Label Visibility"));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsAlways", "Always Show Labels", "Label Visibility", true));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsActiveOnly", "Active Tab Only", "Label Visibility", true));
+            items.Add(new DesignerActionMethodItem(this, "SetLabelsIconOnly", "Icon Only", "Label Visibility", true));
+            items.Add(new DesignerActionPropertyItem("LabelVisibility", "Label Policy", "Label Visibility"));
 
             items.Add(new DesignerActionHeaderItem("Actions"));
             items.Add(new DesignerActionMethodItem(this, "AddSampleButtons", "Add Sample Buttons", "Actions", "Add 2 demo buttons"));

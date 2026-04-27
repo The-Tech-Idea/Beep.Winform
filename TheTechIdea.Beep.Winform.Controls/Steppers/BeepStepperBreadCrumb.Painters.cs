@@ -89,10 +89,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             for (int i = 0; i < ListItems.Count; i++)
             {
                 StepState state = i < selectedIndex ? StepState.Completed : i == selectedIndex ? StepState.Active : StepState.Pending;
+                bool showLabel = ShouldShowStepLabel(i);
                 steps.Add(new StepModel
                 {
-                    Text = ListItems[i].Name ?? string.Empty,
-                    Subtitle = ListItems[i].Text ?? string.Empty,
+                    Text = showLabel ? (ListItems[i].Name ?? string.Empty) : string.Empty,
+                    Subtitle = showLabel ? (ListItems[i].Text ?? string.Empty) : string.Empty,
                     Tooltip = GetStepTooltip(i),
                     State = state,
                     IsEnabled = true

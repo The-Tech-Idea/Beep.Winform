@@ -7,10 +7,17 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars
         Bubble = 2,
         Pill = 3,
         Diamond = 4,
-        NotionMinimal = 5
-        , MovableNotch = 6
-        , OutlineFloatingCTA = 7
-        , SegmentedTrack = 8
-        , GlassAcrylic = 9
+        NotionMinimal = 5,
+        MovableNotch = 6,
+        OutlineFloatingCTA = 7,
+        SegmentedTrack = 8,
+        GlassAcrylic = 9
+    }
+
+    public enum LabelVisibilityPolicy
+    {
+        Always,
+        SelectedOnly,
+        IconOnly
     }
 }

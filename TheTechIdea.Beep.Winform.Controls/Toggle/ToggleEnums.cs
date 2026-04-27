@@ -129,4 +129,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
         OffLabel,
         Icon
     }
+
+    /// <summary>
+    /// Controls when text labels are displayed on the toggle
+    /// </summary>
+    public enum ToggleTextVisibility
+    {
+        /// <summary>Always show ON/OFF text labels</summary>
+        Always,
+        /// <summary>Show text only when toggle is ON</summary>
+        WhenOn,
+        /// <summary>Show text only when toggle is OFF</summary>
+        WhenOff,
+        /// <summary>Never show text labels (icons/thumb only)</summary>
+        Never
+    }
 }

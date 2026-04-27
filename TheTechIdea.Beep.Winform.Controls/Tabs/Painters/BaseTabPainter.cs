@@ -127,8 +127,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             return path;
         }
         
-        protected void DrawTabText(Graphics g, RectangleF tabRect, string text, bool isSelected, bool vertical, float alpha = 1.0f)
+        protected void DrawTabText(Graphics g, RectangleF tabRect, string text, int tabIndex, bool isSelected, bool vertical, float alpha = 1.0f)
         {
+            if (!TabControl.ShouldShowTabText(tabIndex))
+            {
+                return;
+            }
+
              // Use theme helpers for consistent color retrieval
              Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabTextColor(
                  Theme, 

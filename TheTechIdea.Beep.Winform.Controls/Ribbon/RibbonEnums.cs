@@ -84,4 +84,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         FluentDark,
         HighContrast
     }
+
+    /// <summary>
+    /// Controls when tab labels are displayed on the ribbon.
+    /// </summary>
+    public enum RibbonTabLabelVisibility
+    {
+        Always,
+        IconsOnly,
+        MinimizedOnly
+    }
 }

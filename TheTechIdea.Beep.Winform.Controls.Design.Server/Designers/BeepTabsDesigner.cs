@@ -346,6 +346,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         [Category("Appearance")]
+        [Description("Minimum touch target width for tabs in pixels")]
+        public int MinTouchTargetWidth
+        {
+            get => _designer.GetProperty<int>(nameof(BeepTabs.MinTouchTargetWidth));
+            set => _designer.SetProperty(nameof(BeepTabs.MinTouchTargetWidth), value);
+        }
+
+        [Category("Appearance")]
+        [Description("Controls when tab text labels are visible")]
+        public TabLabelVisibility TabTextVisibility
+        {
+            get => _designer.GetProperty<TabLabelVisibility>(nameof(BeepTabs.TabTextVisibility));
+            set => _designer.SetProperty(nameof(BeepTabs.TabTextVisibility), value);
+        }
+
+        [Category("Appearance")]
         [Description("Position of tab headers")]
         public TabHeaderPosition HeaderPosition
         {
@@ -409,6 +425,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(HeaderHeight), "Header Height", "Appearance"));
+            items.Add(new DesignerActionPropertyItem(nameof(MinTouchTargetWidth), "Min Touch Target Width", "Appearance"));
+            items.Add(new DesignerActionPropertyItem(nameof(TabTextVisibility), "Tab Text Visibility", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(HeaderPosition), "Header Position", "Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(Theme), "Theme", "Appearance"));
 

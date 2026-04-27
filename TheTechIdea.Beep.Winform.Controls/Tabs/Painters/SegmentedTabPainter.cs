@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             }
 
             bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
-            DrawTabText(g, tabRect, TabControl.TabPages[index].Text, isSelected, vertical, alpha);
+            DrawTabText(g, tabRect, TabControl.TabPages[index].Text, index, isSelected, vertical, alpha);
 
             if (TabControl.ShowCloseButtons)
             {

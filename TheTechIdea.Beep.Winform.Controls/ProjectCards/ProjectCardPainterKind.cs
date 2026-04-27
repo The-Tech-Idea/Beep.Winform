@@ -12,4 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         CalendarStripe = 7,
         PillBadges = 8
     }
+
+    public enum CardTextVisibility
+    {
+        Always,
+        TitleOnly,
+        SubtitleOnly,
+        Never
+    }
 }

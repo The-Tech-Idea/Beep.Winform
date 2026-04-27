@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             base.Initialize(component);
             if (AccordionMenu != null)
             {
-                AccordionMenu.ListChanged += AccordionMenu_ListChanged;
+                AccordionMenu.ListItems.ListChanged += AccordionMenu_ListChanged;
                 UpdateEmptyState();
             }
         }
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (AccordionMenu != null)
             {
-                AccordionMenu.ListChanged -= AccordionMenu_ListChanged;
+                AccordionMenu.ListItems.ListChanged -= AccordionMenu_ListChanged;
             }
             base.Dispose(disposing);
         }

@@ -82,17 +82,17 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     /// </summary>
     public enum WebHeaderButtonStyle
     {
-        /// <summary>Outline style - Border only</summary>
         Outline,
-
-        /// <summary>Solid style - Filled background</summary>
         Solid,
-
-        /// <summary>Minimal style - Text only</summary>
         Minimal,
-
-        /// <summary>Ghost style - Very subtle</summary>
         Ghost
+    }
+
+    public enum LabelVisibilityPolicy
+    {
+        Always,
+        ActiveOnly,
+        IconOnly
     }
 
     /// <summary>

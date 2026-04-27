@@ -39,6 +39,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            if (!ShouldShowStepLabel(stepIndex))
+            {
+                return;
+            }
+
             var headerText = ListItems[stepIndex].Name ?? string.Empty;
             var subText = ListItems[stepIndex].Text ?? string.Empty;
             StepState state = stepIndex == selectedIndex ? StepState.Active : StepState.Pending;

@@ -6,31 +6,24 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
     internal class ClassicBottomBarPainter : BaseBottomBarPainter
     {
         public override string Name => "Classic";
+
         public override void Paint(BottomBarPainterContext context)
         {
-            base.CalculateLayout(context);
-            using (var b = new SolidBrush(ResolveBarBack(context)))
-            {
-                context.Graphics.FillRectangle(b, context.Bounds);
-            }
-            var borderColor = context.NavigationBorderColor == Color.Empty ? Color.FromArgb(30, ResolveBarFore(context)) : context.NavigationBorderColor;
-            using (var p = new Pen(borderColor))
-            {
-                context.Graphics.DrawLine(p, context.Bounds.Left, context.Bounds.Top, context.Bounds.Right, context.Bounds.Top);
-            }
+            CalculateLayout(context);
+            PaintBarBackground(context.Graphics, context);
+            PaintBarBorder(context.Graphics, context);
+            DrawIndicatorPill(context.Graphics, GetAnimatedIndicatorRect(context), ResolveAccent(context), 0.3f);
+            PaintItems(context.Graphics, context);
+        }
 
-            var indicator = _layoutHelper.GetIndicatorRect();
-            using (var ib = new SolidBrush(Color.FromArgb(30, ResolveAccent(context))))
+        private RectangleF GetAnimatedIndicatorRect(BottomBarPainterContext context)
+        {
+            var indicatorRect = _layoutHelper.GetIndicatorRect();
+            if (context.AnimatedIndicatorWidth > 0f)
             {
-                context.Graphics.FillRectangle(ib, indicator);
+                return new RectangleF(context.AnimatedIndicatorX, indicatorRect.Top, context.AnimatedIndicatorWidth, indicatorRect.Height);
             }
-
-            var rects = _layoutHelper.GetItemRectangles();
-            for (int i = 0; i < rects.Count; i++)
-            {
-                var item = context.Items[i];
-                PaintMenuItem(context.Graphics, item, rects[i], context);
-            }
+            return indicatorRect;
         }
     }
 }

@@ -4,22 +4,28 @@ using System.Windows.Forms;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Designers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 {
     /// <summary>
     /// Smart tag action list for BeepMultiSplitter providing layout and appearance controls.
     /// </summary>
-    internal sealed class BeepMultiSplitterActionList : BeepDesignerActionList
+    internal sealed class BeepMultiSplitterActionList : DesignerActionList
     {
+        private readonly IBeepDesignerActionHost _designer;
         private BeepMultiSplitter? Splitter => Component as BeepMultiSplitter;
         private TableLayoutPanel? TableLayoutPanel => Splitter?.TableLayoutPanel;
         private IComponentChangeService? ChangeService;
 
-        public BeepMultiSplitterActionList(BaseBeepParentControlDesigner designer)
-            : base(designer)
+        public BeepMultiSplitterActionList(IBeepDesignerActionHost designer)
+            : base(designer.Component)
         {
-            ChangeService = Designer?.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            _designer = designer ?? throw new System.ArgumentNullException(nameof(designer));
+            if (designer is IServiceProvider sp)
+            {
+                ChangeService = sp.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            }
         }
 
         public int ColumnCount
@@ -159,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             Splitter?.Invalidate();
         }
 
-        protected override DesignerActionItemCollection GetSortedActionItems()
+        public override DesignerActionItemCollection GetSortedActionItems()
         {
             var items = new DesignerActionItemCollection();
 

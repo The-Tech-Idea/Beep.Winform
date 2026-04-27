@@ -36,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private Rectangle _expandButtonRect;
         private Rectangle _contentRect;
         private Font _textFont;
+        private int _minTouchTargetWidth = 44;
+        private bool _popupOpen = false;
 
         private int HeaderHeight => DpiScalingHelper.ScaleValue(60, this);
         private int ItemHeight => DpiScalingHelper.ScaleValue(40, this);
@@ -126,6 +128,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 if (_isExpanded != value)
                 {
                     _isExpanded = value;
+                    _popupOpen = value;
+                    if (value) OnPopupOpened(EventArgs.Empty);
+                    else OnPopupClosed(EventArgs.Empty);
                     UpdateSize();
                     Invalidate();
                 }
@@ -143,6 +148,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         [Browsable(false)]
         public IReadOnlyList<NotificationData> Notifications => _notifications.AsReadOnly();
+
+        /// <summary>
+        /// Minimum touch target width in pixels
+        /// </summary>
+        [Category("Layout")]
+        [Description("Minimum touch target width in pixels")]
+        [DefaultValue(44)]
+        public int MinTouchTargetWidth
+        {
+            get => _minTouchTargetWidth;
+            set { _minTouchTargetWidth = Math.Max(32, value); Invalidate(); }
+        }
+
+        /// <summary>
+        /// Whether the group popup is currently open
+        /// </summary>
+        [Browsable(false)]
+        public bool IsPopupOpen => _popupOpen;
         #endregion
 
         #region Public Methods
@@ -199,6 +222,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             IsExpanded = !IsExpanded;
         }
+
+        /// <summary>
+        /// Close the child popup (collapse the group)
+        /// </summary>
+        public void CloseChildPopup()
+        {
+            if (_popupOpen)
+            {
+                IsExpanded = false;
+                _popupOpen = false;
+                OnPopupClosed(EventArgs.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Raise PopupOpened event
+        /// </summary>
+        protected virtual void OnPopupOpened(EventArgs e) => PopupOpened?.Invoke(this, e);
+
+        /// <summary>
+        /// Raise PopupClosed event
+        /// </summary>
+        protected virtual void OnPopupClosed(EventArgs e) => PopupClosed?.Invoke(this, e);
         #endregion
 
         #region Events
@@ -211,6 +257,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// Raised when the group is dismissed
         /// </summary>
         public event EventHandler<NotificationEventArgs>? GroupDismissed;
+
+        /// <summary>
+        /// Raised when the group popup is opened
+        /// </summary>
+        public event EventHandler? PopupOpened;
+
+        /// <summary>
+        /// Raised when the group popup is closed
+        /// </summary>
+        public event EventHandler? PopupClosed;
         #endregion
 
         #region Private Methods

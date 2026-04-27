@@ -26,7 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return null;
             }
             
-            // Calculate beepInsets (border + padding + shadow from FormStyle)
             var effectiveStyle = _owner.ControlStyle;
             float styleBorder = TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.GetBorderThickness(effectiveStyle);
             int stylePadding = TheTechIdea.Beep.Winform.Controls.Styling.BeepStyling.GetPadding(effectiveStyle);
@@ -35,14 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 : 0;
             int beepInsets = (int)System.Math.Ceiling(styleBorder) + stylePadding + styleShadow;
             
-            // Adjust location for scroll offset
-            Point adjustedLocation = location;
-            if (_owner.NeedsScrolling)
-            {
-                adjustedLocation = new Point(location.X, location.Y + _owner.ScrollOffset);
-            }
-
-            // Content area starting position (must match DrawMenuItemsSimple)
             int internalPadding = _owner.GetInternalPadding();
             int searchSpacing = _owner.GetSearchSpacing();
             int contentStartX = beepInsets + internalPadding;
@@ -50,17 +41,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             int searchAreaHeight = _owner.ShowSearchBox ? _owner.SearchBoxHeight : 0;
             if (searchAreaHeight > 0)
             {
-                // If the click is in the search area, do not treat it as an item
-                var searchRect = new Rectangle(
-                    contentStartX,
-                    contentStartY,
-                    _owner.Width - (beepInsets * 2) - (internalPadding * 2) - (_owner.NeedsScrolling ? 17 : 0),
-                    searchAreaHeight + searchSpacing);
-                if (searchRect.Contains(adjustedLocation)) return null;
                 contentStartY += searchAreaHeight + searchSpacing;
             }
-            int contentWidth = _owner.Width - (beepInsets * 2) - (internalPadding * 2);
-
+            
+            int contentWidth = _owner.Width - (beepInsets * 2) - (internalPadding * 2) - (_owner.NeedsScrolling ? 17 : 0);
+            
+            int adjustedY = location.Y - contentStartY + (_owner.NeedsScrolling ? _owner.ScrollOffset : 0);
+            
+            if (location.X < contentStartX || location.X > contentStartX + contentWidth)
+                return null;
+            
+            if (_owner.ShowSearchBox && location.Y >= beepInsets + internalPadding && location.Y < contentStartY)
+                return null;
+            
             int yOffset = 0;
 
             for (int i = 0; i < _owner.MenuItems.Count; i++)
@@ -74,16 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 }
                 
                 int itemHeight = _owner.GetMenuItemLayoutHeight(item);
-                var itemRect = new Rectangle(
-                    contentStartX,
-                    contentStartY + yOffset,
-                    contentWidth,
-                    itemHeight
-                );
                 
-                if (itemRect.Contains(adjustedLocation))
+                if (adjustedY >= yOffset && adjustedY < yOffset + itemHeight)
                 {
-                    return item;
+                    return item.IsEnabled ? item : null;
                 }
                 
                 yOffset += itemHeight;

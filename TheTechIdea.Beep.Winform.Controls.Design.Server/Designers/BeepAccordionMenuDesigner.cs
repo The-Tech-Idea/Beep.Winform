@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.AccordionMenus;
 using TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
@@ -141,18 +142,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             var sampleItems = new List<SimpleItem>
             {
-                new SimpleItem { Text = "Dashboard", ImagePath = "", Tag = "dashboard" },
-                new SimpleItem { Text = "Reports", ImagePath = "", Tag = "reports" },
-                new SimpleItem { Text = "Settings", ImagePath = "", Tag = "settings" }
+                new SimpleItem { Text = "Dashboard", ImagePath = SvgsUI.Dashboard, Tag = "dashboard" },
+                new SimpleItem { Text = "Reports", ImagePath = SvgsUI.ReportAnalytics, Tag = "reports" },
+                new SimpleItem { Text = "Settings", ImagePath = SvgsUI.Settings, Tag = "settings" }
             };
 
-            sampleItems[1].Children.Add(new SimpleItem { Text = "Monthly Report", Tag = "monthly" });
-            sampleItems[1].Children.Add(new SimpleItem { Text = "Annual Report", Tag = "annual" });
-            sampleItems[1].Children.Add(new SimpleItem { Text = "Custom Report", Tag = "custom" });
+            sampleItems[1].Children.Add(new SimpleItem { Text = "Monthly Report", ImagePath = SvgsUI.ChartPie, Tag = "monthly" });
+            sampleItems[1].Children.Add(new SimpleItem { Text = "Annual Report", ImagePath = SvgsUI.ChartArea, Tag = "annual" });
+            sampleItems[1].Children.Add(new SimpleItem { Text = "Custom Report", ImagePath = SvgsUI.ChartDots, Tag = "custom" });
 
-            sampleItems[2].Children.Add(new SimpleItem { Text = "General", Tag = "general" });
-            sampleItems[2].Children.Add(new SimpleItem { Text = "Security", Tag = "security" });
-            sampleItems[2].Children.Add(new SimpleItem { Text = "Notifications", Tag = "notifications" });
+            sampleItems[2].Children.Add(new SimpleItem { Text = "General", ImagePath = SvgsUI.Adjustments, Tag = "general" });
+            sampleItems[2].Children.Add(new SimpleItem { Text = "Security", ImagePath = SvgsUI.Lock, Tag = "security" });
+            sampleItems[2].Children.Add(new SimpleItem { Text = "Notifications", ImagePath = SvgsUI.Bell, Tag = "notifications" });
 
             foreach (var item in sampleItems)
             {
@@ -417,16 +418,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             AccordionMenu.ListItems.Clear();
 
-            var item1 = new SimpleItem { Text = "Dashboard", Tag = "dashboard" };
-            var item2 = new SimpleItem { Text = "Reports", Tag = "reports" };
-            var item3 = new SimpleItem { Text = "Settings", Tag = "settings" };
+            var item1 = new SimpleItem { Text = "Dashboard", ImagePath = SvgsUI.Dashboard, Tag = "dashboard" };
+            var item2 = new SimpleItem { Text = "Reports", ImagePath = SvgsUI.ReportAnalytics, Tag = "reports" };
+            var item3 = new SimpleItem { Text = "Settings", ImagePath = SvgsUI.Settings, Tag = "settings" };
 
-            item2.Children.Add(new SimpleItem { Text = "Monthly Report" });
-            item2.Children.Add(new SimpleItem { Text = "Annual Report" });
-            item2.Children.Add(new SimpleItem { Text = "Custom Report" });
+            item2.Children.Add(new SimpleItem { Text = "Monthly Report", ImagePath = SvgsUI.ChartPie });
+            item2.Children.Add(new SimpleItem { Text = "Annual Report", ImagePath = SvgsUI.ChartArea });
+            item2.Children.Add(new SimpleItem { Text = "Custom Report", ImagePath = SvgsUI.ChartDots });
 
-            item3.Children.Add(new SimpleItem { Text = "General" });
-            item3.Children.Add(new SimpleItem { Text = "Security" });
+            item3.Children.Add(new SimpleItem { Text = "General", ImagePath = SvgsUI.Adjustments });
+            item3.Children.Add(new SimpleItem { Text = "Security", ImagePath = SvgsUI.Lock });
 
             AccordionMenu.ListItems.Add(item1);
             AccordionMenu.ListItems.Add(item2);

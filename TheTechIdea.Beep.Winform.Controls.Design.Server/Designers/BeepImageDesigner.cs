@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Images.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -14,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// Design-time support for BeepImage control
     /// Provides smart tags for image configuration and clipping
     /// </summary>
-    public class BeepImageDesigner : BaseBeepControlDesigner
+    public class BeepImageDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
         public BeepImage? Image => Component as BeepImage;
 
@@ -42,9 +44,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
+            lists.Add(new ImagePathDesignerActionList(this));
             lists.Add(new BeepImageActionList(this));
             return lists;
         }
+
+        public void SelectImage() => OpenImagePicker();
+
+        public void ClearImage()
+            => SetProperty("ImagePath", string.Empty);
+
+        public void EmbedImage()
+        {
+            if (Image == null) return;
+
+            string currentPath = GetProperty<string>("ImagePath") ?? string.Empty;
+            var assembly = Image.GetType().Assembly;
+            using var dialog = new BeepImagePickerDialog(Image, embed: true, Component?.Site as IServiceProvider, assembly, currentPath);
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+            {
+                SetProperty("ImagePath", dialog.SelectionResult.SelectedPath);
+            }
+        }
+
+        public string GetImagePath()
+            => GetProperty<string>("ImagePath") ?? string.Empty;
+
+        public void SetImagePath(string value)
+            => SetProperty("ImagePath", value ?? string.Empty);
     }
 
     /// <summary>
@@ -166,6 +193,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         /// <summary>
+        /// Apply Pentagon clip shape
+        /// </summary>
+        public void ApplyPentagonShape()
+        {
+            ClipShape = ImageClipShape.Pentagon;
+        }
+
+        /// <summary>
+        /// Apply Octagon clip shape
+        /// </summary>
+        public void ApplyOctagonShape()
+        {
+            ClipShape = ImageClipShape.Octagon;
+        }
+
+        /// <summary>
+        /// Apply Star clip shape
+        /// </summary>
+        public void ApplyStarShape()
+        {
+            ClipShape = ImageClipShape.Star;
+        }
+
+        /// <summary>
+        /// Apply Pill clip shape
+        /// </summary>
+        public void ApplyPillShape()
+        {
+            ClipShape = ImageClipShape.Pill;
+        }
+
+        /// <summary>
+        /// Apply Heart clip shape
+        /// </summary>
+        public void ApplyHeartShape()
+        {
+            ClipShape = ImageClipShape.Heart;
+        }
+
+        /// <summary>
         /// Remove clipping
         /// </summary>
         public void RemoveClipping()
@@ -240,6 +307,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, "ApplyDiamondShape", "Diamond Shape", "Shape Presets", "Apply diamond clipping"));
             items.Add(new DesignerActionMethodItem(this, "ApplyTriangleShape", "Triangle Shape", "Shape Presets", "Apply triangle clipping"));
             items.Add(new DesignerActionMethodItem(this, "ApplyHexagonShape", "Hexagon Shape", "Shape Presets", "Apply hexagon clipping"));
+            items.Add(new DesignerActionMethodItem(this, "ApplyPentagonShape", "Pentagon Shape", "Shape Presets", "Apply pentagon clipping"));
+            items.Add(new DesignerActionMethodItem(this, "ApplyOctagonShape", "Octagon Shape", "Shape Presets", "Apply octagon clipping"));
+            items.Add(new DesignerActionMethodItem(this, "ApplyStarShape", "Star Shape", "Shape Presets", "Apply star clipping"));
+            items.Add(new DesignerActionMethodItem(this, "ApplyPillShape", "Pill Shape", "Shape Presets", "Apply pill clipping"));
+            items.Add(new DesignerActionMethodItem(this, "ApplyHeartShape", "Heart Shape", "Shape Presets", "Apply heart clipping"));
             items.Add(new DesignerActionMethodItem(this, "RemoveClipping", "Remove Clipping", "Shape Presets", "Remove all clipping"));
 
             // Appearance

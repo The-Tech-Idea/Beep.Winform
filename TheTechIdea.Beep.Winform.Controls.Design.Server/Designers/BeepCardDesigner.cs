@@ -65,6 +65,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public void ClearImage()
             => SetImagePath(string.Empty);
 
+        public void EmbedImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
         public string GetImagePath()
             => GetProperty<string>("ImagePath") ?? string.Empty;
 

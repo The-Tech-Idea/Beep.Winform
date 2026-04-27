@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Painters
 
             // Paint icon if available
             int currentX = bounds.Left + options.Padding;
-            if (!string.IsNullOrEmpty(item?.ImagePath) && File.Exists(item.ImagePath))
+            if (!string.IsNullOrEmpty(item?.ImagePath))
             {
                 Size iconSize = AccordionIconHelpers.GetIconSize(options.ItemHeight, 0.65f);
                 Rectangle iconRect = AccordionIconHelpers.CalculateItemIconBounds(
@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Painters
 
             // Paint icon if available
             int currentX = bounds.Left + options.Padding;
-            if (!string.IsNullOrEmpty(item?.ImagePath) && File.Exists(item.ImagePath))
+            if (!string.IsNullOrEmpty(item?.ImagePath))
             {
                 Size iconSize = AccordionIconHelpers.GetIconSize(options.ChildItemHeight, 0.6f);
                 Rectangle iconRect = AccordionIconHelpers.CalculateItemIconBounds(

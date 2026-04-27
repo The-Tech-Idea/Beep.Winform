@@ -195,67 +195,47 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (visible)
             {
-                // Showing the menu
                 if (!Visible)
                 {
-                    // Fire Opening event before showing
-                    var openingArgs = new FormClosingEventArgs(CloseReason.None, false);
+                    var openingArgs = new MenuOpeningEventArgs(Location, _owner);
                     OnMenuOpening(openingArgs);
 
                     if (openingArgs.Cancel)
                     {
-                        return; // User cancelled opening
+                        return;
                     }
 
-                    // TEMPORARILY DISABLED: Reparent might be blocking mouse events
-                    // Mouse tracking enabled for hover detection
-                    // ReparentToDropDownOwnerWindow();
-
-                    // Actually show the window
                     base.SetVisibleCore(true);
                     
-                    // CRITICAL FIX: Enable mouse tracking
-                    // Without this, MouseMove events don't fire properly
                     if (IsHandleCreated)
                     {
-                        // Enable mouse hover tracking for the window
                         NativeMethods.TRACKMOUSEEVENT tme = new NativeMethods.TRACKMOUSEEVENT
                         {
                             cbSize = Marshal.SizeOf(typeof(NativeMethods.TRACKMOUSEEVENT)),
                             dwFlags = NativeMethods.TME_HOVER | NativeMethods.TME_LEAVE,
                             hwndTrack = this.Handle,
-                            dwHoverTime = 1 // Immediate hover detection
+                            dwHoverTime = 1
                         };
                         NativeMethods.TrackMouseEvent(ref tme);
                     }
 
-                    // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed
-
-                    // Fire Opened event
                     OnMenuOpened(EventArgs.Empty);
                 }
             }
             else
             {
-                // Hiding the menu
                 if (Visible)
                 {
-                    // Fire Closing event with close reason
                     var closingArgs = new BeepContextMenuClosingEventArgs(_closeReason, false);
                     OnMenuClosing(closingArgs);
 
                     if (closingArgs.Cancel)
                     {
-                        return; // User cancelled closing
+                        return;
                     }
 
-                    // Actually hide the window
                     base.SetVisibleCore(false);
 
-                    // CRITICAL: Reactivate the owner form so it regains proper
-                    // window activation and WndProc message routing.
-                    // Without this, BeepiFormPro's caption buttons (close, etc.)
-                    // become unresponsive after a BeepComboBox dropdown interaction.
                     if (_owner != null)
                     {
                         var parentForm = _owner.FindForm();
@@ -265,13 +245,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                         }
                     }
 
-                    // ContextMenuManager handles menu lifecycle - no BeepMenuManager needed
-
-                    // Fire Closed event
                     var closedArgs = new BeepContextMenuClosedEventArgs(_closeReason);
                     OnMenuClosed(closedArgs);
 
-                    // Reset close reason for next time
                     ResetCloseReason();
                 }
             }
@@ -301,22 +277,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #endregion
 
         #region Event Helpers
-
-        /// <summary>
-        /// Fires when the menu is about to open
-        /// </summary>
-        protected virtual void OnMenuOpening(FormClosingEventArgs e)
-        {
-            // Can be overridden by derived classes
-        }
-
-        /// <summary>
-        /// Fires when the menu has opened
-        /// </summary>
-        protected virtual void OnMenuOpened(EventArgs e)
-        {
-            // Can be overridden by derived classes
-        }
 
         /// <summary>
         /// Fires when the menu has closed

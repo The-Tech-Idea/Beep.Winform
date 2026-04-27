@@ -195,6 +195,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _btnOK.Enabled = false;
         }
 
+        private async Task PromptEmbedAsync(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                return;
+
+            // Check if already an embedded resource or icon catalog entry
+            var existingItem = _allItems.FirstOrDefault(i =>
+                string.Equals(i.ValuePath, filePath, StringComparison.OrdinalIgnoreCase));
+            if (existingItem != null)
+                return;
+
+            var projDir = FindProjectDirectory();
+            if (string.IsNullOrWhiteSpace(projDir))
+                return;
+
+            var fileName = Path.GetFileName(filePath);
+            var result = MessageBox.Show(
+                this,
+                $"File: {fileName}\n\nWould you like to embed this image into the project resources?\n\n" +
+                "Embedding copies the file to the project's Resources folder and marks it as an " +
+                "Embedded Resource, ensuring it works automatically when deployed.",
+                "Embed Image into Project?",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                await ImportFileAsync(filePath);
+            }
+        }
+
         private async Task OnFilesDroppedAsync(string[] files)
         {
             if (files == null || files.Length == 0)
@@ -216,6 +247,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _btnOK.Enabled = true;
             _lblStatus.Text = "Local file selected.";
             LoadPreviewFromPath(first);
+
+            // Prompt user to embed the dropped file
+            await PromptEmbedAsync(first);
+
             await Task.CompletedTask;
         }
 
@@ -238,6 +273,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _btnOK.Enabled = true;
             _lblStatus.Text = "Local file selected.";
             LoadPreviewFromPath(ofd.FileName);
+
+            // Prompt user to embed the file into project resources
+            await PromptEmbedAsync(ofd.FileName);
+
             await Task.CompletedTask;
         }
 

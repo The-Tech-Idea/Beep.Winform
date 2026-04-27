@@ -333,8 +333,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
 
         [Browsable(true)]
         [Category("Appearance")]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
         [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
-        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load.  Type an icon name or pick from the dropdown.")]
         public string ImagePath
         {
             get => _imagepath;

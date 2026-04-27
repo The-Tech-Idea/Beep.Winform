@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -8,6 +9,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     public partial class BeepContextMenu
     {
         #region Public Events
+        
+        /// <summary>
+        /// Fired when the menu is about to open
+        /// </summary>
+        public event EventHandler<MenuOpeningEventArgs> MenuOpening;
+        
+        /// <summary>
+        /// Fired when the menu has opened
+        /// </summary>
+        public event EventHandler MenuOpened;
         
         /// <summary>
         /// Fired when a menu item is clicked
@@ -37,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// <summary>
         /// Fired when the menu is closing
         /// </summary>
-        public event EventHandler<FormClosingEventArgs> MenuClosing;
+        public event EventHandler<BeepContextMenuClosingEventArgs> MenuClosing;
         
         /// <summary>
         /// Fired after the menu has fully closed
@@ -47,6 +58,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         #endregion
         
         #region Protected Event Raisers
+        
+        protected virtual void OnMenuOpening(MenuOpeningEventArgs e)
+        {
+            MenuOpening?.Invoke(this, e);
+        }
+        
+        protected virtual void OnMenuOpened(EventArgs e)
+        {
+            MenuOpened?.Invoke(this, e);
+        }
         
         protected virtual void OnItemClicked(SimpleItem item)
         {
@@ -73,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             SubmenuOpening?.Invoke(this, new MenuItemEventArgs(item));
         }
         
-        protected virtual void OnMenuClosing(FormClosingEventArgs e)
+        protected virtual void OnMenuClosing(BeepContextMenuClosingEventArgs e)
         {
             MenuClosing?.Invoke(this, e);
         }
@@ -199,15 +220,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)
         {
-            // CRITICAL FIX: When this menu loses activation (user clicked outside),
-            // close it so the click can reach the intended target (e.g. form close button).
-            // Previously this was empty, relying on BeepMenuManager.ModalMenuFilter
-            // which is not installed when BeepComboBox calls Show() directly.
             if (!_closeOnFocusLost) return;
             
-            // Use BeginInvoke to defer closing so the activation transfer completes first.
-            // This ensures the target window receives the click that caused deactivation.
-            if (IsHandleCreated && !IsDisposed)
+            if (IsHandleCreated && !IsDisposed && Visible)
             {
                 BeginInvoke(new Action(() =>
                 {
@@ -237,9 +252,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         private void SubmenuTimer_Tick(object sender, EventArgs e)
         {
-            // NOTE: Sub-menu logic is now handled by ContextMenuManager
-            // This timer is kept for backward compatibility but does nothing
             _submenuTimer.Stop();
+            
+            if (_submenuPendingItem != null && _submenuPendingItem.Children != null && _submenuPendingItem.Children.Count > 0)
+            {
+                OnSubmenuOpening(_submenuPendingItem);
+                _submenuPendingItem = null;
+            }
         }
         
         private void FadeTimer_Tick(object sender, EventArgs e)
@@ -380,6 +399,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     }
     
     #region Event Args
+    
+    /// <summary>
+    /// Event arguments for menu opening event
+    /// </summary>
+    public class MenuOpeningEventArgs : CancelEventArgs
+    {
+        public Point ScreenLocation { get; }
+        public Control Owner { get; }
+        
+        public MenuOpeningEventArgs(Point screenLocation, Control owner)
+        {
+            ScreenLocation = screenLocation;
+            Owner = owner;
+        }
+    }
     
     /// <summary>
     /// Event arguments for menu item events

@@ -13,7 +13,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         Classic,
         Modern,
         Pill,
-        Flat
+        Flat,
+        Chevron
     }
    
     /// <summary>
@@ -76,10 +77,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string Text { get; }
         public string Crumb => Text ?? Name ?? "";
 
-        public CrumbClickedEventArgs(int index,string name)
+        public CrumbClickedEventArgs(int index, string name)
         {
             Index = index;
             Name = name;
+            Text = name;
         }
         public CrumbClickedEventArgs(int index, string name,string text)
         {

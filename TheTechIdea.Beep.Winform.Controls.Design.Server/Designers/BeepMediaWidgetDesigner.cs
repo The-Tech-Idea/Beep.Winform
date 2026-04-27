@@ -1,23 +1,75 @@
 using System;
 using System.ComponentModel;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.Widgets;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
-    public class BeepMediaWidgetDesigner : BaseWidgetDesigner
+    public class BeepMediaWidgetDesigner : BaseWidgetDesigner, IImagePathDesignerHost
     {
         public BeepMediaWidget? MediaWidget => Component as BeepMediaWidget;
 
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
+            lists.Add(new ImagePathDesignerActionList(this));
             lists.Add(new BeepMediaWidgetActionList(this));
             return lists;
         }
+
+        public void SelectImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: false, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public void ClearImage()
+            => SetImagePath(string.Empty);
+
+        public void EmbedImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public string GetImagePath()
+            => GetProperty<string>("ImagePath") ?? string.Empty;
+
+        public void SetImagePath(string value)
+            => SetProperty("ImagePath", value ?? string.Empty);
     }
 
     public class BeepMediaWidgetActionList : DesignerActionList

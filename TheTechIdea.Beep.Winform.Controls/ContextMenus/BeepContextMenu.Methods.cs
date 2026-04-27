@@ -25,10 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             _owner = owner;
 
-            // ADD THIS LINE - forces handle creation BEFORE RecalculateSize/CreateGraphics
             if (!IsHandleCreated) { var h = Handle; }
 
-            // Sync logical metrics to current monitor DPI before measuring.
             if (owner != null && owner.IsHandleCreated && owner.DeviceDpi > 0)
             {
                 _scaleFactor = Math.Max(owner.DeviceDpi / StandardDpi, MinScale);
@@ -41,94 +39,61 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             InvalidateLayoutCache();
             InvalidateSizeCache();
 
-            // Recalculate size based on current items
             RecalculateSize();
             
-            // Adjust position to keep menu on screen
             var screen = Screen.FromPoint(screenLocation);
             var screenBounds = screen.WorkingArea;
             
             int x = screenLocation.X;
             int y = screenLocation.Y;
             
-            // Adjust horizontal position
             if (x + Width > screenBounds.Right)
-            {
                 x = screenBounds.Right - Width;
-            }
             if (x < screenBounds.Left)
-            {
                 x = screenBounds.Left;
-            }
             
-            // Adjust vertical position
             if (y + Height > screenBounds.Bottom)
-            {
                 y = screenBounds.Bottom - Height;
-            }
             if (y < screenBounds.Top)
-            {
                 y = screenBounds.Top;
-            }
             
             Location = new Point(x, y);
             
-            // CRITICAL FIX: Get the parent form and show as owned TopMost form
             Form parentForm = owner?.FindForm();
             
             if (parentForm != null && !parentForm.IsDisposed && parentForm.IsHandleCreated)
             {
-                // Show with parent form as owner
                 base.Show(parentForm);
             }
             else
             {
-                // No valid parent form, show standalone
                 base.Show();
             }
+            
             TopMost = true;
-BringToFront();
+            BringToFront();
 
-// IMMEDIATE HOVER: Highlight item under mouse on open
-var clientPos = PointToClient(Cursor.Position);
-if (ClientRectangle.Contains(clientPos))
-{
-    UpdateHoveredItem(GetItemAtPoint(clientPos));
-}
+            var clientPos = PointToClient(Cursor.Position);
+            if (ClientRectangle.Contains(clientPos))
+            {
+                UpdateHoveredItem(GetItemAtPoint(clientPos));
+            }
 
-// Start fade-in animation if enabled
-if (_enableAnimations)
-{
-    _opacity = 0;
-    Opacity = 0;
-    _fadeTimer.Start();
-}
-else
-{
-    _opacity = 1.0;
-    Opacity = 1.0;
-}
+            if (_enableAnimations)
+            {
+                _opacity = 0;
+                Opacity = 0;
+                _fadeTimer.Start();
+            }
+            else
+            {
+                _opacity = 1.0;
+                Opacity = 1.0;
+            }
 
-// Keep focus for keyboard
-try { Activate(); Focus(); } catch { }
-            // Focus search textbox if present
             if (_showSearchBox && _searchTextBox != null)
             {
                 try { _searchTextBox.Focus(); } catch { }
-            }
-            // Ensure TopMost after showing
-            TopMost = true;
-            BringToFront();
-            
-            // CRITICAL: Ensure the menu can receive mouse events
-            try 
-            { 
-                Activate();
-                Focus();
-            } 
-            catch
-            {
-                // Silently handle activation failures
             }
         }
         

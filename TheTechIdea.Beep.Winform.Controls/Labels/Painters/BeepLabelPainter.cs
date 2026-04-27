@@ -64,11 +64,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Painters
                 return;
             }
 
+            var headerDrawRect = context.HasSubHeader
+                ? context.HeaderBounds
+                : context.TextBounds;
+
             TextRenderer.DrawText(
                 g,
                 state.HeaderText,
                 headerFont,
-                context.HeaderBounds,
+                headerDrawRect,
                 effectiveHeaderColor,
                 BeepLabelLayoutHelper.GetTextFormatFlags(state));
 

@@ -321,30 +321,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         return;
                     case WM_MOVE:
                     case WM_NCMOVE:
-                        // Let base handle the move - don't repaint during dragging to avoid flicker
-                        base.WndProc(ref m);
-                        // Just mark that we need to repaint when movement stops
-                        return;
+                        break;
                     case WM_EXITSIZEMOVE:
-                        // Repaint only when movement/resizing is complete to avoid flicker
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
-                            // Mark layout as dirty - will be recalculated on next paint or hit test
                             InvalidateLayout();
-                            
-                            // Update Win32 window region for new size (clips rounded corners)
                             UpdateWindowRegion();
-                            
-                            // CRITICAL: Also update the managed Form.Region (GDI+ clipping).
-                            // Without this call the managed Region stays at the pre-resize size,
-                            // causing clipping artifacts visible as blank strips along new edges.
                             UpdateFormRegion();
-                            
-                            // Invalidate the entire form (client + non-client) to repaint everything
                             Invalidate(true);
-                            
-                            // Also repaint non-client area (title bar/borders)
                             RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
                         }
                         return;
@@ -460,7 +445,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void UpdateWindowRegion()
         {
-           
+            if (Width <= 0 || Height <= 0)
+                return;
             if (ActivePainter == null)
             {
                 ApplyFormStyle();
@@ -700,15 +686,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             
             ApplyBackdrop();
             
-            // CRITICAL: Calculate hit areas when handle is created
-            // This ensures buttons are clickable from the start
             if (!DesignMode)
             {
                 RecalculateLayoutAndHitAreas();
             }
         }
 
-    
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (InDesignModeSafe || IsDisposed || !IsHandleCreated)
+                return base.ProcessCmdKey(ref msg, keyData);
+
+            if (keyData == (Keys.Alt | Keys.Space))
+            {
+                ShowSystemMenu();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void ShowSystemMenu()
+        {
+            const int TPM_LEFTBUTTON = 0x0000;
+            const int TPM_RIGHTBUTTON = 0x0002;
+            const int TPM_RETURNCMD = 0x0100;
+
+            var hMenu = GetSystemMenu(this.Handle, false);
+            if (hMenu == IntPtr.Zero) return;
+
+            int x = Cursor.Position.X;
+            int y = Cursor.Position.Y;
+
+            int cmd = TrackPopupMenuEx(hMenu, TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD, x, y, this.Handle, IntPtr.Zero);
+            if (cmd > 0)
+            {
+                SendMessage(this.Handle, WM_SYSCOMMAND, cmd, 0);
+            }
+        }
+
+        private const int WM_SYSCOMMAND = 0x0112;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("user32.dll")]
+        private static extern int TrackPopupMenuEx(IntPtr hMenu, uint uFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
+
+     
 
     }
 }

@@ -1,10 +1,12 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -13,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// Design-time support for BeepSwitch control
     /// Provides smart tags for style selection, icon configuration, and behavior presets
     /// </summary>
-    public class BeepSwitchDesigner : BaseBeepControlDesigner
+    public class BeepSwitchDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
         private DesignerVerbCollection? _verbs;
 
@@ -42,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
+            lists.Add(new ImagePathDesignerActionList(this));
             lists.Add(new BeepSwitchActionList(this));
             return lists;
         }
@@ -96,6 +99,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             SetProperty("Checked", !GetProperty<bool>("Checked"));
         }
+
+        public void SelectImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: false, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public void ClearImage()
+            => SetImagePath(string.Empty);
+
+        public void EmbedImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public string GetImagePath()
+            => GetProperty<string>("OnImagePath") ?? string.Empty;
+
+        public void SetImagePath(string value)
+            => SetProperty("OnImagePath", value ?? string.Empty);
     }
 
     /// <summary>

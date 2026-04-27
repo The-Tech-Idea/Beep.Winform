@@ -150,13 +150,18 @@ namespace TheTechIdea.Beep.Vis.Modules
 
     public enum ImageClipShape
     {
-        None,       // No clipping (default rectangle)
-        Circle,     // Perfect circle
-        RoundedRect, // Rounded rectangle (uses BorderRadius)
-        Ellipse,    // Oval/ellipse
-        Diamond,    // Diamond shape
-        Triangle,   // Triangle shape
-        Hexagon,    // Hexagon shape
+        None,            // No clipping (default rectangle)
+        Circle,          // Perfect circle
+        RoundedRect,     // Rounded rectangle (uses BorderRadius)
+        Ellipse,         // Oval/ellipse
+        Diamond,         // Diamond shape
+        Triangle,        // Triangle shape
+        Hexagon,         // Hexagon shape
+        Pentagon,        // Pentagon shape
+        Octagon,         // Octagon shape
+        Star,            // Star shape
+        Pill,            // Pill / capsule shape
+        Heart,           // Heart shape
         Custom,
         RoundedRectangle
     }

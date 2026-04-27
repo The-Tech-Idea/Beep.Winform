@@ -400,15 +400,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             base.OnShown(e);
 
-            // CRITICAL: Apply styles to all child controls (including nested ones inside UserControls)
-            // This ensures controls added after constructor but before Show() are properly styled
             ApplyStyletoChildControls();
 
-            // CRITICAL: Ensure window region is set when form is first shown
-            // This prevents rectangular corners from showing through on initial display
             UpdateWindowRegion();
             
-            // Mark layout dirty - will be recalculated on next paint
             InvalidateLayout();
         }
 
@@ -435,24 +430,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            //Debug.Print($"OnFormClosing started. CloseReason: {e.CloseReason}, Cancel before: {e.Cancel}");
-            
-            // If the user explicitly clicked the close button, we force the close
-            // overriding any hidden validation failures or previous states
             if (_isForcedClose)
             {
                 e.Cancel = false;
-                //Debug.Print("Forced closing enabled. Reset e.Cancel to false.");
             }
 
-            // Raise PreClose event to allow consumers to cancel or prepare for close
             PreClose?.Invoke(this, e);
-            
-            //Debug.Print($"OnFormClosing after PreClose. Cancel: {e.Cancel}");
 
             base.OnFormClosing(e);
-
-            //Debug.Print($"OnFormClosing after base.OnFormClosing. Cancel: {e.Cancel}");
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
@@ -529,7 +514,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 var rect = base.DisplayRectangle;
 
-                // Get border width from metrics
                 int borderWidth = 0;
                 if (ActivePainter != null)
                 {
@@ -537,18 +521,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     borderWidth = metrics?.BorderWidth ?? 1;
                 }
 
-                // Shrink by border width on all sides (left, top, right, bottom)
                 rect.X += borderWidth;
                 rect.Y += borderWidth;
-                rect.Width -= borderWidth * 2;
-                rect.Height -= borderWidth * 2;
+                rect.Width = Math.Max(0, rect.Width - borderWidth * 2);
+                rect.Height = Math.Max(0, rect.Height - borderWidth * 2);
 
-                // If caption bar is shown, reduce the display area further
                 if (ShowCaptionBar)
                 {
                     int captionHeight = Math.Max(CaptionHeight, (int)(Font.Height * 2.5f));
                     rect.Y += captionHeight;
-                    rect.Height -= captionHeight;
+                    rect.Height = Math.Max(0, rect.Height - captionHeight);
                 }
 
                 return rect;

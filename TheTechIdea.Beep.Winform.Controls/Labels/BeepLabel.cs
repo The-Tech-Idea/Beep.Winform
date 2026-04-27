@@ -617,7 +617,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextSize = combinedTextSize,
                 HasSubHeader = hasSubHeader
             };
-            _layoutContext.HeaderBounds = new Rectangle(textAreaRect.X, textAreaRect.Y, textAreaRect.Width, headerTextSize.Height);
+            _layoutContext.HeaderBounds = hasSubHeader
+                ? new Rectangle(textAreaRect.X, textAreaRect.Y, textAreaRect.Width, headerTextSize.Height)
+                : textAreaRect;
             _layoutContext.SubHeaderBounds = hasSubHeader
                 ? new Rectangle(textAreaRect.X, _layoutContext.HeaderBounds.Bottom + spacing, textAreaRect.Width, subHeaderTextSize.Height)
                 : Rectangle.Empty;

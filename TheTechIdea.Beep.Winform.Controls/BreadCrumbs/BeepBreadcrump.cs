@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers;
@@ -14,7 +15,6 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Images;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -283,6 +283,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case BreadcrumbStyle.Pill:
                     _painter = new PillBreadcrumbPainter();
                     break;
+                case BreadcrumbStyle.Chevron:
+                    _painter = new ChevronBreadcrumbPainter();
+                    break;
                 case BreadcrumbStyle.Flat:
                 default:
                     _painter = new FlatBreadcrumbPainter();
@@ -443,6 +446,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             var useTheme = UseThemeColors && theme != null;
             Color sepColor = BreadcrumbThemeHelpers.GetSeparatorColor(theme, useTheme, 0.5f, ForeColor);
 
+            // Prepend home icon if enabled
+            int startIndex = 0;
+            if (_showHomeIcon && _items.Count > 0)
+            {
+                var homeItem = new SimpleItem { Name = "Home", Text = "", ImagePath = SvgsUI.Home };
+                var homeRect = _painter.CalculateItemRect(g, homeItem, x, y, itemHeight, false);
+                _painter.DrawItem(g, button, homeItem, homeRect, false, false, false);
+
+                AddHitArea(
+                    "Breadcrumb_Home",
+                    homeRect,
+                    button,
+                    () => OnItemClicked(homeItem, -1)
+                );
+
+                x = homeRect.Right;
+                x += _painter.DrawSeparator(g, label, x, y, itemHeight, _separatorText, _textFont ?? Font, sepColor, _itemSpacing);
+                startIndex = -1; // offset so first real item is index 0
+            }
+
             for (int i = 0; i < _items.Count; i++)
             {
                 var item = _items[i];
@@ -456,7 +479,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Calculate item dimensions (use cache if valid)
                 Rectangle itemRect;
-                if (_layoutCacheValid && _itemRectCache.TryGetValue(i, out var cachedRect))
+                int cacheKey = i - startIndex;
+                if (_layoutCacheValid && _itemRectCache.TryGetValue(cacheKey, out var cachedRect))
                 {
                     // Use cached rectangle but update X position based on current layout
                     itemRect = new Rectangle(x, cachedRect.Y, cachedRect.Width, cachedRect.Height);
@@ -465,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     itemRect = _painter.CalculateItemRect(g, item, x, y, itemHeight, isHovered);
                     // Cache only width and height (position is relative to current x)
-                    _itemRectCache[i] = new Rectangle(0, itemRect.Y, itemRect.Width, itemRect.Height);
+                    _itemRectCache[cacheKey] = new Rectangle(0, itemRect.Y, itemRect.Width, itemRect.Height);
                 }
 
                 // Draw the breadcrumb item

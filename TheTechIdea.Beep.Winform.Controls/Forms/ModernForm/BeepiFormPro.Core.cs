@@ -1033,8 +1033,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Normalize region names so painters can register simple keys like "close"/"minimize"/"title"
             // but actions still work with our canonical "region:*" keys.
             string key = area.Name;
-            
-            //Debug.Print($"OnRegionClicked: {area.Name} -> {key}");
 
             switch (key)
             {
@@ -1058,9 +1056,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "custom:action": key = "region:custom:action"; break;
             }
 
-            //Debug.Print($"Normalized key: {key}");
-
-            // Raise event for extensibility with the original name for consumers
             var regionData = area.Data as FormRegion;
             RegionClick?.Invoke(this, new RegionEventArgs(area.Name, regionData, area.Bounds));
 
@@ -1079,14 +1074,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     break;
 
                 case "region:system:close":
-                    //Debug.Print($"Processing Close Action. ShowCloseButton: {ShowCloseButton}");
                     if (!ShowCloseButton) return;
-                    // Defer close to avoid reentrancy during mouse event processing
-                    //Debug.Print("Invoking Close() via BeginInvoke...");
                     BeginInvoke(new Action(() => 
                     {
-                        //Debug.Print("Executing Close()...");
-                        // Disable validation to prevent validation failures (e.g. from ComboBox) from blocking close
                         AutoValidate = AutoValidate.Disable;
                         _isForcedClose = true;
                         Close();

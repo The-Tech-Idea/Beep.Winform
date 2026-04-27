@@ -21,19 +21,18 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
         /// </summary>
         public static string GetExpandIconPath()
         {
-            // Try to resolve from SvgsUI using reflection
-            var iconProperty = typeof(SvgsUI).GetProperty(
+            // SvgsUI fields are public static readonly, not properties
+            var iconField = typeof(SvgsUI).GetField(
                 "ChevronRight",
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-            
-            if (iconProperty != null)
+
+            if (iconField != null)
             {
-                var iconPath = iconProperty.GetValue(null) as string;
+                var iconPath = iconField.GetValue(null) as string;
                 if (!string.IsNullOrEmpty(iconPath))
                     return iconPath;
             }
 
-            // Fallback
             return SvgsUI.ChevronRight ?? SvgsUI.CircleArrowRight ?? SvgsUI.Circle;
         }
 
@@ -42,19 +41,17 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
         /// </summary>
         public static string GetCollapseIconPath()
         {
-            // Try to resolve from SvgsUI using reflection
-            var iconProperty = typeof(SvgsUI).GetProperty(
+            var iconField = typeof(SvgsUI).GetField(
                 "ChevronDown",
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-            
-            if (iconProperty != null)
+
+            if (iconField != null)
             {
-                var iconPath = iconProperty.GetValue(null) as string;
+                var iconPath = iconField.GetValue(null) as string;
                 if (!string.IsNullOrEmpty(iconPath))
                     return iconPath;
             }
 
-            // Fallback
             return SvgsUI.ChevronDown ?? SvgsUI.CircleArrowDown ?? SvgsUI.Circle;
         }
 
@@ -63,19 +60,17 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers
         /// </summary>
         public static string GetHamburgerIconPath()
         {
-            // Try to resolve from SvgsUI using reflection
-            var iconProperty = typeof(SvgsUI).GetProperty(
+            var iconField = typeof(SvgsUI).GetField(
                 "Menu",
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-            
-            if (iconProperty != null)
+
+            if (iconField != null)
             {
-                var iconPath = iconProperty.GetValue(null) as string;
+                var iconPath = iconField.GetValue(null) as string;
                 if (!string.IsNullOrEmpty(iconPath))
                     return iconPath;
             }
 
-            // Fallback
             return SvgsUI.MenuN2 ?? SvgsUI.BoxMultiple;
         }
 

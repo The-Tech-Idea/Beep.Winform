@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -36,8 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         [Category("Appearance")]
         public string Separator
         {
-            get => _designer.GetProperty<string>("Separator") ?? "/";
-            set => _designer.SetProperty("Separator", value);
+            get => _designer.GetProperty<string>("SeparatorText") ?? ">";
+            set => _designer.SetProperty("SeparatorText", value);
         }
 
         [Category("Behavior")]
@@ -46,6 +47,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             get => _designer.GetProperty<bool>("ShowHomeIcon");
             set => _designer.SetProperty("ShowHomeIcon", value);
         }
+
+        [Category("Appearance")]
+        public BreadcrumbStyle BreadcrumbStyle
+        {
+            get => _designer.GetProperty<BreadcrumbStyle>("BreadcrumbStyle");
+            set => _designer.SetProperty("BreadcrumbStyle", value);
+        }
+
+        #endregion
+
+        #region Style Presets
+
+        public void SetClassicStyle() => BreadcrumbStyle = BreadcrumbStyle.Classic;
+        public void SetModernStyle() => BreadcrumbStyle = BreadcrumbStyle.Modern;
+        public void SetPillStyle() => BreadcrumbStyle = BreadcrumbStyle.Pill;
+        public void SetFlatStyle() => BreadcrumbStyle = BreadcrumbStyle.Flat;
+        public void SetChevronStyle() => BreadcrumbStyle = BreadcrumbStyle.Chevron;
 
         #endregion
 
@@ -63,8 +81,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             var items = new DesignerActionItemCollection();
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
+            items.Add(new DesignerActionPropertyItem("BreadcrumbStyle", "Style", "Appearance"));
             items.Add(new DesignerActionPropertyItem("Separator", "Separator", "Appearance"));
             items.Add(new DesignerActionPropertyItem("ShowHomeIcon", "Show Home Icon", "Appearance"));
+
+            items.Add(new DesignerActionHeaderItem("Style Presets"));
+            items.Add(new DesignerActionMethodItem(this, "SetClassicStyle", "Classic", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "SetModernStyle", "Modern (Default)", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "SetPillStyle", "Pill", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "SetFlatStyle", "Flat", "Style Presets", false));
+            items.Add(new DesignerActionMethodItem(this, "SetChevronStyle", "Chevron", "Style Presets", false));
 
             items.Add(new DesignerActionHeaderItem("Separator Presets"));
             items.Add(new DesignerActionMethodItem(this, "UseSlashSeparator", "/ Slash", "Separator Presets", false));

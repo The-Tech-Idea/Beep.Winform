@@ -86,8 +86,12 @@ This document summarizes the enhancements made to the Images directory. The Beep
 - ✅ Diamond clipping
 - ✅ Triangle clipping
 - ✅ Hexagon clipping
+- ✅ Pentagon clipping
+- ✅ Octagon clipping
+- ✅ Star clipping
+- ✅ Pill clipping
+- ✅ Heart clipping
 - ✅ Custom path clipping
-- ✅ Additional shapes available via helpers (Pentagon, Octagon, Star, Pill, Heart)
 
 ### ✅ Phase 6: StyledImagePainter Integration (COMPLETED)
 
@@ -118,17 +122,38 @@ This document summarizes the enhancements made to the Images directory. The Beep
      - ClipShape property
      - CornerRadius property
      - UseRegionClipping property
-     - ImagePath property
+     - ImagePath property (with `BeepImagesPathConverter` dropdown)
      - ImageEmbededin property
      - Opacity property
      - Grayscale property
-     - Shape presets (Circle, RoundedRect, Diamond, Triangle, Hexagon, Remove Clipping)
+     - Shape presets (Circle, RoundedRect, Diamond, Triangle, Hexagon, Pentagon, Octagon, Star, Pill, Heart, Remove Clipping)
      - Enable Region Clipping action
      - Set Recommended Corner Radius action
 
 2. ✅ **Registered in DesignRegistration.cs**
    - Already registered (line 41)
    - Added using statement for `Images` namespace
+
+### ✅ Phase 9: ImagePath TypeConverter (COMPLETED)
+
+**BeepImagesPathConverter Integration:**
+- ✅ Added `[TypeConverter(typeof(BeepImagesPathConverter))]` to `BeepImage.ImagePath`
+- ✅ Designer dropdown shows `[Source/Category] Name` labels from `IconCatalog`
+- ✅ Works alongside existing `BeepImagePathEditor` without conflict
+- ✅ Allows typing custom paths while offering quick selection from embedded icons
+
+### ✅ Phase 10: Additional Clip Shapes (COMPLETED)
+
+**New ImageClipShape Values:**
+- ✅ `Pentagon` - Five-sided polygon clipping
+- ✅ `Octagon` - Eight-sided polygon clipping
+- ✅ `Star` - Star-shaped clipping (5-point default)
+- ✅ `Pill` - Capsule/rounded pill clipping
+- ✅ `Heart` - Heart-shaped clipping
+
+**Wiring:**
+- ✅ `ImageClipHelpers.CreateClipPath()` handles all new shapes via `GraphicsExtensions`
+- ✅ `BeepImageDesigner` smart tags include presets for all new shapes
 
 ## Files Created
 
@@ -303,11 +328,12 @@ var opacity = ImageStyleHelpers.GetRecommendedOpacity(isEnabled, isHovered);
 
 ## Next Steps (Optional Future Enhancements)
 
-1. **Additional Shapes**: Support for more clip shapes (Pentagon, Octagon, Star, Pill, Heart)
+1. ✅ ~~**Additional Shapes**~~: Completed - Pentagon, Octagon, Star, Pill, Heart now supported
 2. **Animation Enhancements**: Enhanced smooth transitions for shape changes
 3. **Accessibility Enhancements**: Add ARIA attributes, keyboard navigation improvements
-4. **Custom Shape Registration**: Allow developers to register custom clip shapes
+4. **Custom Shape Registration**: Allow developers to register custom clip shapes at runtime
 5. **Performance Optimizations**: Further optimize region-based clipping for very complex shapes
+6. **ImagePath TypeConverter**: Completed - BeepImage now has full dropdown support for embedded icons
 
 ## Notes
 

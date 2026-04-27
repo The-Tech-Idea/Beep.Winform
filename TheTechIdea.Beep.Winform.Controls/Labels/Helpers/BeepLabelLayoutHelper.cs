@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Labels.Helpers
 
             if (hasText && !hasImage)
             {
-                textRect = AlignRectangle(contentRect, textSize, state.TextAlign);
+                textRect = contentRect;
                 return;
             }
 

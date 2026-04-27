@@ -487,24 +487,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             {
                 try
                 {
-                    // IBeepUIComponent exposes ApplyTheme(IBeepTheme) directly.
-                    // IMPORTANT: push ControlStyle FIRST so the addin's layout/rendering
-                    // style is updated before colours are applied.  Without this step the
-                    // addin would receive new theme colours but keep the old style, which
-                    // is the root cause of the "have to click twice" issue.
-                    if (addin is IBeepUIComponent uiComponent)
+                    if (addin is Control ctrl)
                     {
-                        if (addin is BaseControl bc && bc.ControlStyle != targetStyle)
-                            bc.ControlStyle = targetStyle;
-
-                        uiComponent.ApplyTheme(_currentTheme);
-                    }
-                    else if (addin is Control ctrl)
-                    {
-                        ctrl.Invalidate(true);
+                        PropagateThemeToControlTree(ctrl, _currentTheme, targetStyle);
                     }
                 }
                 catch { /* don't let a single bad addin break the whole update */ }
+            }
+        }
+
+        private void PropagateThemeToControlTree(Control control, IBeepTheme theme, BeepControlStyle targetStyle)
+        {
+            if (control.IsDisposed) return;
+
+            if (control is IBeepUIComponent uiComponent)
+            {
+                if (control is BaseControl bc && bc.ControlStyle != targetStyle)
+                    bc.ControlStyle = targetStyle;
+
+                uiComponent.ApplyTheme(theme);
+            }
+
+            foreach (Control child in control.Controls)
+            {
+                PropagateThemeToControlTree(child, theme, targetStyle);
             }
         }
 

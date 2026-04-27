@@ -1,16 +1,18 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
     /// Design-time support for BeepExtendedButton control
     /// </summary>
-    public class BeepExtendedButtonDesigner : BaseBeepControlDesigner
+    public class BeepExtendedButtonDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
     {
         private DesignerVerbCollection? _verbs;
 
@@ -38,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override DesignerActionListCollection GetControlSpecificActionLists()
         {
             var lists = new DesignerActionListCollection();
+            lists.Add(new ImagePathDesignerActionList(this));
             lists.Add(new BeepExtendedButtonActionList(this));
             return lists;
         }
@@ -84,6 +87,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             SetProperty("ImagePath", string.Empty);
             SetProperty("ExtendButtonImagePath", string.Empty);
         }
+
+        public void SelectImage() => SelectMainIcon();
+
+        public void ClearImage() => SetProperty("ImagePath", string.Empty);
+
+        public void EmbedImage()
+        {
+            if (Component == null) return;
+
+            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+            var currentPath = GetImagePath();
+
+            using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+            {
+                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+                if (!string.IsNullOrEmpty(newValue))
+                {
+                    SetImagePath(newValue);
+                }
+            }
+        }
+
+        public string GetImagePath()
+            => GetProperty<string>("ImagePath") ?? string.Empty;
+
+        public void SetImagePath(string value)
+            => SetProperty("ImagePath", value ?? string.Empty);
     }
 
     public class BeepExtendedButtonActionList : DesignerActionList

@@ -40,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
          //   System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Using painter {painter.GetType().Name}");
 
-            // Use DrawingRect from BaseControl (already accounts for borders, padding, etc.)
-            Rectangle drawingArea = DrawingRect;
+            // Use client area (excludes scrollbars) for drawing and clipping
+            Rectangle drawingArea = GetClientArea();
          //   System.Diagnostics.Debug.WriteLine($"BeepTree.DrawContent: Drawing area = {drawingArea}");
             if (drawingArea.Width <= 0 || drawingArea.Height <= 0)
             {
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
-            // Set clip region to drawing area
+            // Set clip region to client area (excludes scrollbars)
             try
             {
                 g.SetClip(drawingArea);

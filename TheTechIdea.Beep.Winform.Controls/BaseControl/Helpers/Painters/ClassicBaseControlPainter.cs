@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             
             if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
             {
-                border = (int)Math.Ceiling(BeepStyling.GetBorderThickness(owner.ControlStyle));
+                border = 1; // (int)Math.Ceiling(BeepStyling.GetBorderThickness(owner.ControlStyle));
                 padding = 2;// BeepStyling.GetPadding(owner.ControlStyle);
                 
                 // Note: Style padding is symmetric, we'll add customPadding asymmetrically later
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     int blur = StyleShadows.GetShadowBlur(owner.ControlStyle);
                     int offX = Math.Abs(StyleShadows.GetShadowOffsetX(owner.ControlStyle));
                     int offY = Math.Abs(StyleShadows.GetShadowOffsetY(owner.ControlStyle));
-                    shadow = Math.Max(blur, Math.Max(offX, offY));
+                    shadow = 1; Math.Max(blur, Math.Max(offX, offY));
                 }
             }
             else

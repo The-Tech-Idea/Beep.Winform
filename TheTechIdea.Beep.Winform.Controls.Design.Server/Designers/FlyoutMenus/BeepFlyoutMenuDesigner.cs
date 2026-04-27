@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.FlyoutMenus;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.FlyoutMenus
@@ -47,16 +48,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.FlyoutMenus
         public void ToggleMenu()
         {
             if (FlyoutMenu == null) return;
-            SetProperty("IsOn", !GetProperty<bool>("IsOn"));
+            SetProperty("IsExpanded", !GetProperty<bool>("IsExpanded"));
         }
 
         public void AddSampleItems()
         {
             SetProperty("ListItems", new System.ComponentModel.BindingList<TheTechIdea.Beep.Winform.Controls.Models.SimpleItem>
             {
-                new() { Text = "Item 1" },
-                new() { Text = "Item 2" },
-                new() { Text = "Item 3" }
+                new() { Text = "Dashboard", ImagePath = SvgsUI.Dashboard },
+                new() { Text = "Reports", ImagePath = SvgsUI.ReportAnalytics },
+                new() { Text = "Settings", ImagePath = SvgsUI.Settings }
             });
         }
 

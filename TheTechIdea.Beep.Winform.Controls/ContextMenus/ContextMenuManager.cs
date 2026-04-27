@@ -215,25 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// Shows a context menu at the specified screen location.
         /// This method blocks until the menu is closed and returns the selected item.
         /// </summary>
-        [Obsolete("Use ShowAsync for proper async/await pattern")]
         public static SimpleItem Show(
-            List<SimpleItem> items,
-            Point screenLocation,
-            Control owner = null,
-            FormStyle style = FormStyle.Modern,
-            bool multiSelect = false,
-            string theme = null,
-            string parentMenuId = null)
-        {
-            return ShowAsync(items, screenLocation, owner, style, multiSelect, theme, parentMenuId)
-                .ConfigureAwait(true).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Shows a context menu at the specified screen location (async).
-        /// Returns the selected item when the menu is closed.
-        /// </summary>
-        public static async Task<SimpleItem> ShowAsync(
             List<SimpleItem> items,
             Point screenLocation,
             Control owner = null,
@@ -261,70 +243,153 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 return null;
             
             string menuId = context.Id;
-            var tcs = new TaskCompletionSource<SimpleItem>(TaskCreationOptions.RunContinuationsAsynchronously);
+            SimpleItem selectedItem = null;
+            bool isClosed = false;
+            
+            var menu = CreateMenu(style, multiSelect, theme);
+            PopulateMenu(menu, items);
+            menu.RecalculateSize();
+            
+            lock (_lock)
+            {
+                if (!_activeMenus.ContainsKey(menuId))
+                {
+                    menu.Dispose();
+                    return null;
+                }
+                _activeMenus[menuId].Menu = menu;
+            }
+            
+            EventHandler<MenuItemEventArgs> itemClickedHandler = null;
+            EventHandler<MenuItemEventArgs> submenuOpeningHandler = null;
+            FormClosedEventHandler formClosedHandler = null;
+            
+            itemClickedHandler = (s, e) =>
+            {
+                selectedItem = e.Item;
+                context.SelectedItem = e.Item;
+            };
+            
+            submenuOpeningHandler = (s, e) =>
+            {
+                if (e?.Item == null || !HasChildren(e.Item))
+                    return;
+                
+                StopAutoCloseTimer();
+                CloseChildMenus(menuId);
+                
+                var menuLocation = menu.PointToScreen(Point.Empty);
+                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
+                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
+                
+                try
+                {
+                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
+                }
+                catch
+                {
+                    // Silently handle sub-menu errors
+                }
+            };
+            
+            formClosedHandler = (s, e) =>
+            {
+                context.IsClosed = true;
+                isClosed = true;
+            };
+            
+            menu.ItemClicked += itemClickedHandler;
+            menu.SubmenuOpening += submenuOpeningHandler;
+            menu.FormClosed += formClosedHandler;
+            
+            context.ItemClickedHandler = itemClickedHandler;
+            context.SubmenuOpeningHandler = submenuOpeningHandler;
+            context.FormClosedHandler = formClosedHandler;
+            
+            if (!string.IsNullOrEmpty(parentMenuId))
+            {
+                SetupMouseTracking(context);
+            }
+            
+            if (string.IsNullOrEmpty(parentMenuId))
+            {
+                InstallClickOutsideFilter();
+            }
             
             try
             {
-                var menu = CreateMenu(style, multiSelect, theme);
-                PopulateMenu(menu, items);
-                
-                lock (_lock)
-                {
-                    if (!_activeMenus.ContainsKey(menuId))
-                        return null;
-                    _activeMenus[menuId].Menu = menu;
-                }
-                
-                SetupMenuEventHandlers(context, menu, style, theme);
-                
-                if (!string.IsNullOrEmpty(parentMenuId))
-                {
-                    SetupMouseTracking(context);
-                }
-                
-                if (string.IsNullOrEmpty(parentMenuId))
-                {
-                    InstallClickOutsideFilter();
-                }
-                
                 menu.Show(screenLocation, owner);
                 ActivateMenu(menu);
                 
-                var originalItemClicked = context.ItemClickedHandler;
-                var originalFormClosed = context.FormClosedHandler;
-                
-                context.ItemClickedHandler = (s, e) =>
+                while (!isClosed && menu.Visible)
                 {
-                    originalItemClicked?.Invoke(s, e);
-                    tcs.TrySetResult(context.SelectedItem);
-                };
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(1);
+                }
                 
-                context.FormClosedHandler = (s, e) =>
-                {
-                    originalFormClosed?.Invoke(s, e);
-                    tcs.TrySetResult(context.SelectedItem);
-                };
-                
-                menu.ItemClicked -= originalItemClicked;
-                menu.FormClosed -= originalFormClosed;
-                menu.ItemClicked += context.ItemClickedHandler;
-                menu.FormClosed += context.FormClosedHandler;
-                
-                return await tcs.Task;
+                return context.SelectedItem;
             }
             catch
             {
-                tcs.TrySetResult(null);
-                throw;
+                return null;
             }
             finally
             {
+                menu.ItemClicked -= itemClickedHandler;
+                menu.SubmenuOpening -= submenuOpeningHandler;
+                menu.FormClosed -= formClosedHandler;
                 CleanupMenuContext(menuId);
             }
+        }
+
+        /// <summary>
+        /// Shows a context menu at the specified screen location (async).
+        /// Returns the selected item when the menu is closed.
+        /// </summary>
+        public static async Task<SimpleItem> ShowAsync(
+            List<SimpleItem> items,
+            Point screenLocation,
+            Control owner = null,
+            FormStyle style = FormStyle.Modern,
+            bool multiSelect = false,
+            string theme = null,
+            string parentMenuId = null)
+        {
+            if (items == null || items.Count == 0)
+                return null;
+            
+            return await Task.Run(() => 
+                Show(items, screenLocation, owner, style, multiSelect, theme, parentMenuId));
         }
         
         /// <summary>
         /// Shows a multi-select context menu and returns all selected items.
+        /// </summary>
+        public static async Task<List<SimpleItem>> ShowMultiSelectAsync(
+            List<SimpleItem> items,
+            Point screenLocation,
+            Control owner = null,
+            FormStyle style = FormStyle.Modern,
+            string theme = null)
+        {
+            if (items == null || items.Count == 0)
+                return new List<SimpleItem>();
+            
+            await ShowAsync(items, screenLocation, owner, style, true, theme, null);
+            
+            lock (_lock)
+            {
+                foreach (var ctx in _activeMenus.Values.Where(c => c.IsMultiSelect && c.IsClosed))
+                {
+                    return ctx.SelectedItems ?? new List<SimpleItem>();
+                }
+            }
+            
+            return new List<SimpleItem>();
+        }
+        
+        /// <summary>
+        /// Shows a multi-select context menu and returns all selected items (sync).
         /// </summary>
         public static List<SimpleItem> ShowMultiSelect(
             List<SimpleItem> items,
@@ -336,21 +401,108 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (items == null || items.Count == 0)
                 return new List<SimpleItem>();
             
-            // Use Show with multiSelect=true
-            var result = Show(items, screenLocation, owner, style, true, theme, null);
-            
-            // For multi-select, we need to get the selected items list
-            // The result will be null but selected items are tracked in context
             lock (_lock)
             {
-                // Find the most recently closed multi-select menu
-                foreach (var ctx in _activeMenus.Values.Where(c => c.IsMultiSelect && c.IsClosed))
-                {
-                    return ctx.SelectedItems ?? new List<SimpleItem>();
-                }
+                if (_isClosingAll)
+                    return new List<SimpleItem>();
             }
             
-            return new List<SimpleItem>();
+            CloseRootMenus();
+            
+            var context = CreateMenuContext(null, true);
+            if (context == null)
+                return new List<SimpleItem>();
+            
+            string menuId = context.Id;
+            List<SimpleItem> selectedItems = null;
+            bool isClosed = false;
+            
+            var menu = CreateMenu(style, true, theme);
+            PopulateMenu(menu, items);
+            menu.RecalculateSize();
+            
+            lock (_lock)
+            {
+                if (!_activeMenus.ContainsKey(menuId))
+                {
+                    menu.Dispose();
+                    return new List<SimpleItem>();
+                }
+                _activeMenus[menuId].Menu = menu;
+            }
+            
+            EventHandler<MenuItemEventArgs> itemClickedHandler = null;
+            EventHandler<MenuItemEventArgs> submenuOpeningHandler = null;
+            FormClosedEventHandler formClosedHandler = null;
+            
+            itemClickedHandler = (s, e) =>
+            {
+                context.SelectedItem = e.Item;
+            };
+            
+            submenuOpeningHandler = (s, e) =>
+            {
+                if (e?.Item == null || !HasChildren(e.Item))
+                    return;
+                
+                StopAutoCloseTimer();
+                CloseChildMenus(menuId);
+                
+                var menuLocation = menu.PointToScreen(Point.Empty);
+                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
+                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
+                
+                try
+                {
+                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
+                }
+                catch
+                {
+                    // Silently handle sub-menu errors
+                }
+            };
+            
+            formClosedHandler = (s, e) =>
+            {
+                context.IsClosed = true;
+                selectedItems = context.SelectedItems ?? new List<SimpleItem>();
+                isClosed = true;
+            };
+            
+            menu.ItemClicked += itemClickedHandler;
+            menu.SubmenuOpening += submenuOpeningHandler;
+            menu.FormClosed += formClosedHandler;
+            
+            context.ItemClickedHandler = itemClickedHandler;
+            context.SubmenuOpeningHandler = submenuOpeningHandler;
+            context.FormClosedHandler = formClosedHandler;
+            
+            InstallClickOutsideFilter();
+            
+            try
+            {
+                menu.Show(screenLocation, owner);
+                ActivateMenu(menu);
+                
+                while (!isClosed && menu.Visible)
+                {
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(1);
+                }
+                
+                return selectedItems ?? new List<SimpleItem>();
+            }
+            catch
+            {
+                return new List<SimpleItem>();
+            }
+            finally
+            {
+                menu.ItemClicked -= itemClickedHandler;
+                menu.SubmenuOpening -= submenuOpeningHandler;
+                menu.FormClosed -= formClosedHandler;
+                CleanupMenuContext(menuId);
+            }
         }
         
         /// <summary>

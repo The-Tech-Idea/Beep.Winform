@@ -36,6 +36,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Images.Helpers
                 ImageClipShape.Diamond => GraphicsExtensions.CreateDiamond(centerX, centerY, bounds.Width, bounds.Height),
                 ImageClipShape.Triangle => GraphicsExtensions.CreateTriangle(centerX, centerY, size),
                 ImageClipShape.Hexagon => GraphicsExtensions.CreateHexagon(centerX, centerY, size, 0f),
+                ImageClipShape.Pentagon => GraphicsExtensions.CreatePentagon(centerX, centerY, size, 0f),
+                ImageClipShape.Octagon => GraphicsExtensions.CreateOctagon(centerX, centerY, size, 0f),
+                ImageClipShape.Star => GraphicsExtensions.CreateStar(centerX, centerY, size, size * 0.5f, 5, 0f),
+                ImageClipShape.Pill => GraphicsExtensions.CreatePill(bounds.X, bounds.Y, bounds.Width, bounds.Height),
+                ImageClipShape.Heart => GraphicsExtensions.CreateHeart(centerX, centerY, size),
                 ImageClipShape.None => CreateRectanglePath(bounds),
                 _ => CreateRectanglePath(bounds)
             };

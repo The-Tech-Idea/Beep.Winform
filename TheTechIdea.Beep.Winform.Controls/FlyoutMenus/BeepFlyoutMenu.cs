@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
@@ -17,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
     [ToolboxItem(true)]
     [DisplayName("Beep Flyout Menu")]
     [Category("Beep Controls")]
-    [Description("A flyout menu control that displays a list of items.")]
+    [Description("A flyout menu control that displays a list of items using the full BeepListBox feature set.")]
     public class BeepFlyoutMenu : BaseControl
     {
         private BeepButton _dropDownButton;
@@ -27,21 +29,132 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         private SlideDirection _flyoutDirection = SlideDirection.Bottom;
         private LabelPosition _labelPosition = LabelPosition.Left;
         private FlyoutMenuLabelVisibility _labelVisibility = FlyoutMenuLabelVisibility.Always;
-        private readonly int _flyoutMenuWidth = 200;
-        private readonly int _collapsedHeight = 25;
-        private readonly int _maxMenuHeight = 200;
+        private int _menuWidth = 220;
+        private int _maxMenuHeight = 280;
         private int _minTouchTargetWidth = 44;
         private bool _popupOpen = false;
+        private ListBoxType _listBoxType = ListBoxType.Standard;
 
         private List<BeepFlyoutMenu> beepFlyoutMenus = new List<BeepFlyoutMenu>();
 
-        public EventHandler<BeepEventDataArgs> MenuClicked;
+        public event EventHandler<BeepEventDataArgs> MenuClicked;
 
         public event EventHandler PopupOpened;
         public event EventHandler PopupClosed;
 
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private int _selectedIndex;
+
+        #region Proxy Properties (forwarded to BeepListBox)
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style of the popup list. Choose from 30+ variants including Standard, Searchable, Checkbox, Card, Avatar, etc.")]
+        [DefaultValue(ListBoxType.Standard)]
+        public ListBoxType ListBoxStyle
+        {
+            get => _listBoxType;
+            set
+            {
+                if (_listBoxType != value)
+                {
+                    _listBoxType = value;
+                    if (_menu != null)
+                    {
+                        _menu.ListBoxType = value;
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Width of the popup menu in pixels")]
+        [DefaultValue(220)]
+        public int MenuWidth
+        {
+            get => _menuWidth;
+            set
+            {
+                _menuWidth = Math.Max(100, value);
+                if (_menu != null)
+                    _menu.Width = _menuWidth;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Maximum height of the popup menu before scrollbars appear")]
+        [DefaultValue(280)]
+        public int MaxMenuHeight
+        {
+            get => _maxMenuHeight;
+            set
+            {
+                _maxMenuHeight = Math.Max(80, value);
+                if (_menu != null && _popupOpen)
+                    RecalculateMenuHeight();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show a search box at the top of the popup list")]
+        [DefaultValue(false)]
+        public bool ShowSearch
+        {
+            get => _menu?.ShowSearch ?? false;
+            set
+            {
+                if (_menu != null)
+                    _menu.ShowSearch = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show checkboxes for multi-selection")]
+        [DefaultValue(false)]
+        public bool ShowCheckBox
+        {
+            get => _menu?.ShowCheckBox ?? false;
+            set
+            {
+                if (_menu != null)
+                    _menu.ShowCheckBox = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show item icons in the popup list")]
+        [DefaultValue(true)]
+        public bool ShowItemIcons
+        {
+            get => _menu?.ShowImage ?? true;
+            set
+            {
+                if (_menu != null)
+                    _menu.ShowImage = value;
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow selecting multiple items")]
+        [DefaultValue(false)]
+        public bool MultiSelect
+        {
+            get => _menu?.MultiSelect ?? false;
+            set
+            {
+                if (_menu != null)
+                    _menu.MultiSelect = value;
+            }
+        }
+
+        #endregion
 
         [Browsable(true)]
         [Localizable(true)]
@@ -52,10 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             get => items;
             set
             {
-                items = value;
+                items = value ?? new BindingList<SimpleItem>();
                 if (_menu != null)
                 {
-                    _menu.ListItems = value;
+                    _menu.ListItems = items;
                 }
             }
         }
@@ -142,9 +255,27 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
         [Browsable(false)]
         public bool IsPopupOpen => _popupOpen;
 
+        [Browsable(true)]
+        [Category("Flyout")]
+        [Description("Whether the flyout menu is currently expanded (design-time only)")]
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded != value)
+                {
+                    _isExpanded = value;
+                    UpdateButtonIcon();
+                    UpdateLabelVisibility();
+                    Invalidate();
+                }
+            }
+        }
+
         public BeepFlyoutMenu()
         {
-            Height = _collapsedHeight;
+            Height = 28;
             ApplyThemeToChilds = false;
             Text = "Flyout Menu";
             InitDropDownMenu();
@@ -227,32 +358,46 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             _menu = new BeepListBox
             {
                 Visible = false,
-                Height = 0,
                 ListItems = items,
                 Theme = Theme,
-                Width = _flyoutMenuWidth,
+                Width = _menuWidth,
                 Location = new Point(0, Height),
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsFrameless = true,
+                ShowAllBorders = true,
+                ShowShadow = true,
+                IsFrameless = false,
+                ListBoxType = _listBoxType,
+                BorderRadius = 8,
+                ShowImage = true,
+                MultiSelect = false,
+                ShowSearch = false,
+                ShowCheckBox = false,
+                TabStop = false
             };
+
             _menu.Theme = Theme;
+
+            // Forward selection events
             _menu.SelectedItemChanged += (s, e) =>
             {
-                SelectedIndex = _menu.SelectedIndex;
-                if (SelectedIndex >= 0)
+                _selectedIndex = _menu.SelectedIndex;
+                if (_selectedIndex >= 0 && _selectedIndex < _menu.ListItems.Count)
                 {
-                    _dropDownLabel.Text = _menu.ListItems[SelectedIndex].Text;
+                    _dropDownLabel.Text = _menu.ListItems[_selectedIndex].Text;
                 }
-                ToggleMenu(this, EventArgs.Empty);
+                OnSelectedIndexChanged(EventArgs.Empty);
+                // Close popup on selection (unless multi-select)
+                if (!_menu.MultiSelect)
+                {
+                    HideMenu();
+                }
             };
-            _menu.Click += (s, e) =>
+
+            // Forward click events
+            _menu.ItemClicked += (s, item) =>
             {
-                if (SelectedIndex >= 0)
-                {
-                    MenuClicked?.Invoke(this, new BeepEventDataArgs("MenuClick", _menu.ListItems[SelectedIndex]));
-                }
+                MenuClicked?.Invoke(this, new BeepEventDataArgs("MenuClick", item));
             };
+
             Controls.Add(_menu);
         }
 
@@ -261,14 +406,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             string iconPath = _flyoutDirection switch
             {
                 SlideDirection.Left => _isExpanded
-                    ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg"
-                    : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg",
+                    ? SvgsUI.ArrowBadgeLeft
+                    : SvgsUI.ArrowBadgeRight,
                 SlideDirection.Right => _isExpanded
-                    ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg"
-                    : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg",
+                    ? SvgsUI.ArrowBadgeRight
+                    : SvgsUI.ArrowBadgeLeft,
                 SlideDirection.Bottom => _isExpanded
-                    ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg"
-                    : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg",
+                    ? SvgsUI.ArrowBadgeUp
+                    : SvgsUI.ArrowBadgeDown,
                 _ => string.Empty,
             };
 
@@ -290,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
                     _menu.Location = new Point(globalPosition.X + Width, globalPosition.Y);
                     break;
                 case SlideDirection.Left:
-                    _menu.Location = new Point(globalPosition.X - _flyoutMenuWidth, globalPosition.Y);
+                    _menu.Location = new Point(globalPosition.X - _menuWidth, globalPosition.Y);
                     break;
                 default:
                     break;
@@ -302,16 +447,22 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             if (!_isExpanded)
             {
                 if (items.Count == 0)
-                {
-                    MessageBox.Show("No rootnodeitems available.");
-                    return;
-                }
+                    return; // Silently ignore empty menus
                 ShowMenu();
             }
             else
             {
                 HideMenu();
             }
+        }
+
+        private void RecalculateMenuHeight()
+        {
+            if (_menu == null) return;
+            int contentHeight = _menu.MenuItemHeight * items.Count;
+            if (_menu.ShowSearch)
+                contentHeight += _menu.SearchAreaHeight;
+            _menu.Height = Math.Min(contentHeight, _maxMenuHeight);
         }
 
         private void ShowMenu()
@@ -321,9 +472,10 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             UpdateButtonIcon();
             UpdateLabelVisibility();
             UpdateMenuPosition();
+
             _menu.ListItems = items;
-            _menu.Width = _flyoutMenuWidth;
-            _menu.Height = Math.Min(items.Count * _menu.MenuItemHeight + 5, _maxMenuHeight);
+            _menu.Width = _menuWidth;
+            RecalculateMenuHeight();
 
             var parentForm = FindForm();
             if (parentForm != null)
@@ -400,6 +552,26 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
             if (_menu != null)
             {
                 UpdateControlLayout();
+            }
+        }
+
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            if (_menu != null)
+            {
+                _menu.Theme = Theme;
+                _menu.ApplyTheme();
+            }
+            if (_dropDownLabel != null)
+            {
+                _dropDownLabel.Theme = Theme;
+                _dropDownLabel.ApplyTheme();
+            }
+            if (_dropDownButton != null)
+            {
+                _dropDownButton.Theme = Theme;
+                _dropDownButton.ApplyTheme();
             }
         }
     }

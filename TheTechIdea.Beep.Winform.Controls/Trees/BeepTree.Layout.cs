@@ -177,13 +177,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
                 currentX += nodeInfo.TextSize.Width + 10;
 
-                // Row bounds - ensure content can display properly
-                // minRowWidth = minimum space needed for all node elements
-                // Use the larger of: content width OR DrawingRect.Width (available viewport width)
-                // CRITICAL: Ensure DrawingRect.Width is positive before using it
-                int minRowWidth = currentX;  // Minimum needed for content
-                int availableWidth = Math.Max(1, DrawingRect.Width);  // Ensure positive width
-                int rowWidth = Math.Max(minRowWidth, availableWidth);  // Use larger value
+                // Row bounds should reflect actual content width only.
+                // Forcing row width to viewport width causes virtual width inflation and
+                // can incorrectly force a horizontal scrollbar when vertical is visible.
+                int minRowWidth = Math.Max(1, currentX);
+                int rowWidth = minRowWidth;
                 
                 nodeInfo.RowRectContent = new Rectangle(0, y, rowWidth, nodeInfo.RowHeight);
                 nodeInfo.Y = y;

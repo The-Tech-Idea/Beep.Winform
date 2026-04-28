@@ -276,22 +276,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Terminal: sharp border on shared client path (same inset rule as other painters)
+            // Terminal: pixel-perfect integer edge loops to keep right/bottom equal to top/left.
             g.SmoothingMode = SmoothingMode.None;
-
-            var path = owner.BorderShape; // Do NOT dispose — cached on BeepiFormPro
             var borderW = Math.Max(2f, metrics.BorderWidth);
-            using var borderPen = new Pen(metrics.BorderColor, borderW);
-            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(borderPen);
-            g.DrawPath(borderPen, path);
-
-            var rect = Rectangle.Round(path.GetBounds());
+            int borderPx = Math.Max(1, (int)Math.Round(borderW));
+            var rect = owner.ClientRectangle;
+            using (var borderPen = new Pen(metrics.BorderColor, 1f))
+            {
+                for (int i = 0; i < borderPx; i++)
+                {
+                    int x = rect.Left + i;
+                    int y = rect.Top + i;
+                    int w = rect.Width - (i * 2) - 1;
+                    int h = rect.Height - (i * 2) - 1;
+                    if (w <= 0 || h <= 0)
+                    {
+                        break;
+                    }
+                    g.DrawRectangle(borderPen, x, y, w, h);
+                }
+            }
 
             // Corner L decorations — keep inside the inset stroke so edges stay crisp at (0,0)
             using var cornerPen = new Pen(metrics.BorderColor, 2);
-            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(cornerPen);
             int cornerSize = 8;
-            int inset = (int)Math.Ceiling(borderPen.Width / 2f);
+            int inset = borderPx;
             int L = rect.Left + inset;
             int T = rect.Top + inset;
             int R = rect.Right - 1 - inset;

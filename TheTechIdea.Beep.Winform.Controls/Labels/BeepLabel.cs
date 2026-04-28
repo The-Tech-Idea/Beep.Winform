@@ -84,6 +84,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _headerSubheaderSpacing = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.HeaderSubheaderSpacing = value;
+                }
                 Invalidate();
                 if (AutoSize)
                 {
@@ -183,6 +187,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _textAlign = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.TextAlign = value;
+                }
                 Invalidate();
             }
         }
@@ -196,6 +204,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 textImageRelation = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.TextImageRelation = value;
+                }
                 Invalidate();
             }
         }
@@ -223,6 +235,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 imageAlign = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.ImageAlign = value;
+                }
                 Invalidate();
             }
         }
@@ -327,6 +343,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _multiline = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.Multiline = value;
+                }
                 Invalidate();
                 if (AutoSize)
                 {
@@ -345,6 +365,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _autoEllipsis = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.AutoEllipsis = value;
+                }
                 Invalidate();
             }
         }
@@ -359,6 +383,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _wordWrap = value;
+                if (_styleProfile != null)
+                {
+                    _styleProfile.WordWrap = value;
+                }
                 Invalidate();
                 if (AutoSize)
                 {

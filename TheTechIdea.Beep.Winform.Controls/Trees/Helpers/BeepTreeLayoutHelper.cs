@@ -145,8 +145,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             int textX = iconRect.Right + 8;
             Rectangle textRect = new Rectangle(textX, nodeInfo.Y + _owner.GetScaledVerticalPadding(), textSize.Width + 10, textSize.Height);
 
-            int minRowWidth = textX + textSize.Width + 10;
-            int rowWidth = Math.Max(minRowWidth, _owner.DrawingRect.Width);
+            int minRowWidth = Math.Max(1, textX + textSize.Width + 10);
+            int rowWidth = minRowWidth;
             Rectangle rowRect = new Rectangle(0, nodeInfo.Y, rowWidth, rowHeight);
 
             nodeInfo.TextSize = textSize;
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             int start = 0;
             int end = visibleItems.Count - 1;
             int yOffset = _owner.YOffset;
-            int viewportHeight = _owner.DrawingRect.Height;
+            int viewportHeight = _owner.GetClientArea().Height;
             int bufferRows = _owner.VirtualizationBufferRows;
 
             // Find start index
@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
         public bool IsNodeInViewport(NodeInfo node)
         {
-            int drawingHeight = _owner.DrawingRect.Height;
+            int drawingHeight = _owner.GetClientArea().Height;
             if (drawingHeight <= 0)
             {
                 return true;
@@ -249,15 +249,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
         public Rectangle TransformToViewport(Rectangle contentRect)
         {
-            return new Rectangle(_owner.DrawingRect.Left + contentRect.X - _owner.XOffset,
-                _owner.DrawingRect.Top + contentRect.Y - _owner.YOffset,
+            Rectangle viewport = _owner.GetClientArea();
+            return new Rectangle(viewport.Left + contentRect.X - _owner.XOffset,
+                viewport.Top + contentRect.Y - _owner.YOffset,
                 contentRect.Width, contentRect.Height);
         }
 
         public Point TransformToContent(Point viewportPoint)
         {
-            return new Point(viewportPoint.X - _owner.DrawingRect.Left + _owner.XOffset,
-                viewportPoint.Y - _owner.DrawingRect.Top + _owner.YOffset);
+            Rectangle viewport = _owner.GetClientArea();
+            return new Point(viewportPoint.X - viewport.Left + _owner.XOffset,
+                viewportPoint.Y - viewport.Top + _owner.YOffset);
         }
 
         #endregion

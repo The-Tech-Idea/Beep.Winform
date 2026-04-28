@@ -265,23 +265,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             var iconRect = Rectangle.Empty;
             if (!string.IsNullOrWhiteSpace(_model.ImagePath))
             {
-                int imgSize = _profile.UseCircularImages ? 24 : 16;
-                iconRect = new Rectangle(surfaceRect.Left + 8, surfaceRect.Top + Math.Max(2, (surfaceRect.Height - imgSize) / 2), imgSize, imgSize);
-                textRect = new Rectangle(iconRect.Right + 8, surfaceRect.Top, Math.Max(1, surfaceRect.Right - iconRect.Right - 8), surfaceRect.Height);
-
-                if (_profile.UseCircularImages)
-                {
-                    var state = g.Save();
-                    using var clipPath = new System.Drawing.Drawing2D.GraphicsPath();
-                    clipPath.AddEllipse(iconRect);
-                    g.SetClip(clipPath, System.Drawing.Drawing2D.CombineMode.Intersect);
-                    StyledImagePainter.Paint(g, iconRect, _model.ImagePath, BeepControlStyle.Minimal);
-                    g.Restore(state);
-                }
-                else
-                {
-                    StyledImagePainter.Paint(g, iconRect, _model.ImagePath, BeepControlStyle.Minimal);
-                }
+                int leftInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                int textGap = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                int minIconSize = ComboBoxPopupIconRenderer.ScaleLogical(g, _profile.UseCircularImages ? 20 : 14);
+                int iconPadding = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                int imgSize = ComboBoxPopupIconRenderer.ComputeAdaptiveIconSize(surfaceRect.Width, surfaceRect.Height, minIconSize, padding: iconPadding);
+                iconRect = new Rectangle(surfaceRect.Left + leftInset, surfaceRect.Top + Math.Max(2, (surfaceRect.Height - imgSize) / 2), imgSize, imgSize);
+                textRect = new Rectangle(iconRect.Right + textGap, surfaceRect.Top, Math.Max(1, surfaceRect.Right - iconRect.Right - textGap), surfaceRect.Height);
+                ComboBoxPopupIconRenderer.PaintRowImage(g, iconRect, _model.ImagePath, _model.IsEnabled, _profile.UseCircularImages, _themeTokens.DisabledBackColor);
             }
 
             if (_model.RowKind == ComboBoxPopupRowKind.CheckRow)
@@ -291,19 +282,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 g.DrawRectangle(checkPen, checkRect);
                 if (_model.IsChecked)
                 {
-                    using var iconPath = new System.Drawing.Drawing2D.GraphicsPath();
-                    iconPath.AddRectangle(checkRect);
-                    StyledImagePainter.PaintWithTint(g, iconPath, SvgsUI.Check, _themeTokens.FocusBorderColor, 0.9f);
+                    ComboBoxPopupIconRenderer.PaintCheckIcon(g, checkRect, _themeTokens.FocusBorderColor, 0.9f);
                 }
                 textRect = new Rectangle(checkRect.Right + 8, surfaceRect.Top, Math.Max(1, surfaceRect.Right - checkRect.Right - 8), surfaceRect.Height);
             }
             else if (_profile.ShowCheckmarkForSelected && (_model.IsSelected || _model.RowKind == ComboBoxPopupRowKind.Selected))
             {
-                var checkRect = new Rectangle(surfaceRect.Right - 22, surfaceRect.Top + Math.Max(2, (surfaceRect.Height - 16) / 2), 16, 16);
-                using var iconPath = new System.Drawing.Drawing2D.GraphicsPath();
-                iconPath.AddRectangle(checkRect);
-                StyledImagePainter.PaintWithTint(g, iconPath, SvgsUI.Check, _themeTokens.FocusBorderColor, 0.9f);
-                textRect.Width = Math.Max(1, checkRect.Left - textRect.Left - 6);
+                int checkSize = ComboBoxPopupIconRenderer.ScaleLogical(g, 16);
+                int checkRightInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 6);
+                var checkRect = new Rectangle(surfaceRect.Right - checkSize - checkRightInset, surfaceRect.Top + Math.Max(2, (surfaceRect.Height - checkSize) / 2), checkSize, checkSize);
+                ComboBoxPopupIconRenderer.PaintCheckIcon(g, checkRect, _themeTokens.FocusBorderColor, 0.9f);
+                textRect.Width = Math.Max(1, checkRect.Left - textRect.Left - ComboBoxPopupIconRenderer.ScaleLogical(g, 6));
             }
 
             if (!string.IsNullOrWhiteSpace(_model.TrailingValueText))

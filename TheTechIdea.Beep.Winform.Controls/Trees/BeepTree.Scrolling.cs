@@ -69,14 +69,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // Always recompute content extents from the latest layout cache.
+            // Relying on stale _virtualSize causes height/width drift after resize and
+            // leads to incorrect scrollbar visibility/placement.
+            int contentWidth = 0;
+            int contentHeight = 0;
+            try
+            {
+                contentWidth = _layoutHelper?.CalculateTotalContentWidth() ?? 0;
+                contentHeight = _layoutHelper?.CalculateTotalContentHeight() ?? 0;
+            }
+            catch
+            {
+                contentWidth = 0;
+                contentHeight = 0;
+            }
+            _virtualSize = new Size(Math.Max(0, contentWidth), Math.Max(0, contentHeight));
+
             int availW = inner.Width;
             int availH = inner.Height;
             int vBarW = _verticalScrollBar.Width;
             int hBarH = _horizontalScrollBar.Height;
 
             // Determine necessity with interplay: adding one scrollbar may force the other
-            bool needsV = ShowVerticalScrollBar && _virtualSize.Height > availH;
-            bool needsH = ShowHorizontalScrollBar && _virtualSize.Width > availW;
+            bool needsV = ShowVerticalScrollBar && contentHeight > availH;
+            bool needsH = ShowHorizontalScrollBar && contentWidth > availW;
 
             // First pass adjustments
             if (needsV)
@@ -85,12 +102,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 availH -= hBarH;
 
             // Re-evaluate after adjustments
-            if (ShowVerticalScrollBar && !needsV && _virtualSize.Height > availH)
+            if (ShowVerticalScrollBar && !needsV && contentHeight > availH)
             {
                 needsV = true;
                 availW -= vBarW;
             }
-            if (ShowHorizontalScrollBar && !needsH && _virtualSize.Width > availW)
+            if (ShowHorizontalScrollBar && !needsH && contentWidth > availW)
             {
                 needsH = true;
                 availH -= hBarH;
@@ -118,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_verticalScrollBar.Bounds != vBounds)
                     _verticalScrollBar.Bounds = vBounds;
                 _verticalScrollBar.Minimum = 0;
-                int newVMax = Math.Max(0, _virtualSize.Height);
+                int newVMax = Math.Max(0, contentHeight);
                 int newVLarge = Math.Max(1, clientArea.Height);
                 int newVSmall = Math.Max(1, GetScaledMinRowHeight());
                 if (_verticalScrollBar.Maximum != newVMax) _verticalScrollBar.Maximum = newVMax;
@@ -147,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_horizontalScrollBar.Bounds != hBounds)
                     _horizontalScrollBar.Bounds = hBounds;
                 _horizontalScrollBar.Minimum = 0;
-                int newHMax = Math.Max(0, _virtualSize.Width);
+                int newHMax = Math.Max(0, contentWidth);
                 int newHLarge = Math.Max(1, clientArea.Width);
                 int newHSmall = Math.Max(1, GetScaledIndentWidth());
                 if (_horizontalScrollBar.Maximum != newHMax) _horizontalScrollBar.Maximum = newHMax;
@@ -171,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Gets the client area available for drawing content (excluding scrollbars).
         /// </summary>
-        private Rectangle GetClientArea()
+        internal Rectangle GetClientArea()
         {
             // Base the client area on BaseControl.DrawingRect (inner content area),
             // subtracting any visible scrollbars. This matches other controls.

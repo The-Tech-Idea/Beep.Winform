@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 
@@ -31,11 +32,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private readonly ComboBoxPopupFooter _footer;
         private readonly List<ISectionItem> _allItems = new List<ISectionItem>();
         private readonly List<Control> _sectionControls = new List<Control>();
+        private readonly List<SectionHeader> _headerPool = new List<SectionHeader>();
+        private readonly List<SectionSeparator> _separatorPool = new List<SectionSeparator>();
+        private readonly List<SectionListRow> _listRowPool = new List<SectionListRow>();
+        private readonly List<SectionPill> _pillPool = new List<SectionPill>();
+        private readonly List<FlowLayoutPanel> _pillGridPool = new List<FlowLayoutPanel>();
+        private readonly List<ComboBoxPopupRowModel> _sectionItemBuffer = new List<ComboBoxPopupRowModel>();
         private ComboBoxPopupHostProfile _profile = ComboBoxPopupHostProfile.SegmentedTrigger();
         private ComboBoxThemeTokens _themeTokens = ComboBoxThemeTokens.Fallback();
         private int _keyboardFocusIndex = -1;
         private int _scrollOffset = 0;
         private int _totalContentHeight = 0;
+        private readonly List<ISectionItem> _selectableItems = new List<ISectionItem>();
+        private string _lastLayoutSignature = string.Empty;
+        private int _headerPoolCursor;
+        private int _separatorPoolCursor;
+        private int _listRowPoolCursor;
+        private int _pillPoolCursor;
+        private int _pillGridPoolCursor;
 
         public GroupedSectionsPopupContent()
         {
@@ -126,22 +140,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 _footer.UpdateSelectedCount(count);
             }
 
-            _scrollPanel.SuspendLayout();
-            _scrollPanel.Controls.Clear();
-            _allItems.Clear();
-            _sectionControls.Clear();
-            _scrollOffset = 0;
-
-            if (model.FilteredRows != null && model.FilteredRows.Count > 0)
+            string signature = ComputeLayoutSignature(model.FilteredRows);
+            bool requiresRebuild = !string.Equals(signature, _lastLayoutSignature, StringComparison.Ordinal);
+            if (requiresRebuild)
             {
-                BuildSections(model.FilteredRows);
-            }
-            else
-            {
-                _totalContentHeight = 0;
-            }
+                _scrollPanel.SuspendLayout();
+                _allItems.Clear();
+                _sectionControls.Clear();
+                _selectableItems.Clear();
+                _scrollOffset = 0;
+                PreparePoolsForReuse();
 
-            _scrollPanel.ResumeLayout(true);
+                if (model.FilteredRows != null && model.FilteredRows.Count > 0)
+                {
+                    BuildSections(model.FilteredRows);
+                }
+                else
+                {
+                    _totalContentHeight = 0;
+                }
+
+                _scrollPanel.ResumeLayout(true);
+                _lastLayoutSignature = signature;
+            }
             UpdateScrollBar();
             SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
         }
@@ -155,17 +176,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         public void SetKeyboardFocusIndex(int index)
         {
-            var selectable = _allItems.Where(i => i.IsSelectable).ToList();
-            if (selectable.Count == 0) { _keyboardFocusIndex = -1; return; }
+            if (_selectableItems.Count == 0) { _keyboardFocusIndex = -1; return; }
 
-            int next = Math.Max(0, Math.Min(index, selectable.Count - 1));
+            int next = Math.Max(0, Math.Min(index, _selectableItems.Count - 1));
             _keyboardFocusIndex = next;
-            for (int i = 0; i < selectable.Count; i++)
-                selectable[i].SetFocused(i == next);
+            for (int i = 0; i < _selectableItems.Count; i++)
+                _selectableItems[i].SetFocused(i == next);
 
             KeyboardFocusChanged?.Invoke(this, new ComboBoxKeyboardFocusChangedEventArgs(next));
 
-            if (next >= 0 && next < selectable.Count && selectable[next] is Control c)
+            if (next >= 0 && next < _selectableItems.Count && _selectableItems[next] is Control c)
             {
                 EnsureControlVisible(c);
             }
@@ -185,22 +205,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void FocusItem(SimpleItem item)
         {
             if (item == null || _allItems.Count == 0) return;
-            string target = BeepComboBox.GetSimpleItemIdentity(item);
-            int selectableIndex = 0;
-            for (int i = 0; i < _allItems.Count; i++)
+            int selectableIndex = FindSelectableIndexByItem(item);
+            if (selectableIndex < 0)
             {
-                var si = _allItems[i];
-                if (!si.IsSelectable) continue;
-                var rowItem = si.RowModel?.SourceItem;
-                if (rowItem != null &&
-                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetKeyboardFocusIndex(selectableIndex);
-                    if (_allItems[i] is Control ctrl)
-                        EnsureControlVisible(ctrl);
-                    return;
-                }
-                selectableIndex++;
+                return;
+            }
+
+            SetKeyboardFocusIndex(selectableIndex);
+
+            if (selectableIndex >= 0 && selectableIndex < _selectableItems.Count && _selectableItems[selectableIndex] is Control ctrl)
+            {
+                EnsureControlVisible(ctrl);
             }
         }
 
@@ -248,8 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (!_vScrollBar.Visible) return;
-            int delta = -e.Delta / 4;
-            int newVal = Math.Max(0, Math.Min(_vScrollBar.Maximum, _scrollOffset + delta));
+            int newVal = ComboBoxPopupMouseWheelHelper.ComputeNextOffsetFromWheel(_scrollOffset, e.Delta, _vScrollBar.Maximum);
             if (newVal != _scrollOffset)
             {
                 _scrollOffset = newVal;
@@ -305,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 case Keys.PageUp: MoveFocus(-6); e.Handled = true; break;
                 case Keys.Home: SetKeyboardFocusIndex(0); e.Handled = true; break;
                 case Keys.End:
-                    SetKeyboardFocusIndex(_allItems.Count(i => i.IsSelectable) - 1);
+                    SetKeyboardFocusIndex(_selectableItems.Count - 1);
                     e.Handled = true; break;
                 case Keys.Enter: CommitFocused(); e.Handled = true; e.SuppressKeyPress = true; break;
             }
@@ -313,21 +327,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void MoveFocus(int delta)
         {
-            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : 0;
-            SetKeyboardFocusIndex(start + delta);
+            int selectableCount = _selectableItems.Count;
+            SetKeyboardFocusIndex(ComboBoxPopupNavigationHelper.ShiftIndex(_keyboardFocusIndex, delta, selectableCount));
         }
 
         private void CommitFocused()
         {
-            var selectable = _allItems.Where(i => i.IsSelectable).ToList();
-            if (_keyboardFocusIndex < 0 || _keyboardFocusIndex >= selectable.Count) return;
-            var item = selectable[_keyboardFocusIndex];
+            if (_keyboardFocusIndex < 0 || _keyboardFocusIndex >= _selectableItems.Count) return;
+            var item = _selectableItems[_keyboardFocusIndex];
             if (item.RowModel != null) OnItemClicked(this, item.RowModel);
         }
 
         private void OnItemClicked(object sender, ComboBoxPopupRowModel row)
         {
-            if (row == null || !row.IsEnabled) return;
+            if (!ComboBoxPopupRowBehavior.IsSelectable(row)) return;
             bool close = !(_model?.IsMultiSelect ?? false);
             RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(row, close));
         }
@@ -337,110 +350,282 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void BuildSections(IReadOnlyList<ComboBoxPopupRowModel> rows)
         {
             int panelWidth = Math.Max(100, _scrollPanel.ClientSize.Width - 8);
-            var controls = new List<Control>();
             int yPos = 0;
+            ComboBoxPopupRowModel currentHeader = null;
+            _sectionItemBuffer.Clear();
 
-            // Group rows by contiguous sections: GroupHeader → items until next header/separator
-            var sections = new List<(ComboBoxPopupRowModel Header, List<ComboBoxPopupRowModel> Items)>();
-            (ComboBoxPopupRowModel Header, List<ComboBoxPopupRowModel> Items) current = (null, new List<ComboBoxPopupRowModel>());
-
-            foreach (var row in rows)
+            for (int i = 0; i < rows.Count; i++)
             {
+                var row = rows[i];
+                if (row == null)
+                {
+                    continue;
+                }
+
                 if (row.RowKind == ComboBoxPopupRowKind.GroupHeader)
                 {
-                    if (current.Items.Count > 0 || current.Header != null)
-                        sections.Add(current);
-                    current = (row, new List<ComboBoxPopupRowModel>());
+                    yPos = RenderSection(currentHeader, _sectionItemBuffer, panelWidth, yPos);
+                    _sectionItemBuffer.Clear();
+                    currentHeader = row;
+                    continue;
                 }
-                else if (row.RowKind == ComboBoxPopupRowKind.Separator)
+
+                if (row.RowKind == ComboBoxPopupRowKind.Separator)
                 {
-                    if (current.Items.Count > 0 || current.Header != null)
-                        sections.Add(current);
-                    current = (null, new List<ComboBoxPopupRowModel>());
-                    // Add a separator control
-                    var sep = new SectionSeparator(_themeTokens) { Width = panelWidth, Left = 0, Top = yPos };
-                    controls.Add(sep);
+                    yPos = RenderSection(currentHeader, _sectionItemBuffer, panelWidth, yPos);
+                    _sectionItemBuffer.Clear();
+                    currentHeader = null;
+
+                    var sep = AcquireSeparator();
+                    sep.UpdateTheme(_themeTokens);
+                    sep.Width = panelWidth;
+                    sep.Left = 0;
+                    sep.Top = yPos;
+                    AddActiveControl(sep);
                     yPos += sep.Height;
+                    continue;
                 }
-                else
-                {
-                    current.Items.Add(row);
-                }
+
+                _sectionItemBuffer.Add(row);
             }
-            if (current.Items.Count > 0 || current.Header != null)
-                sections.Add(current);
 
-            // Render each section
-            foreach (var section in sections)
-            {
-                // Section header
-                if (section.Header != null)
-                {
-                    var headerCtrl = new SectionHeader(section.Header, _themeTokens)
-                    {
-                        Width = panelWidth, Left = 0, Top = yPos
-                    };
-                    controls.Add(headerCtrl);
-                    _allItems.Add(headerCtrl);
-                    yPos += headerCtrl.Height;
-                }
-
-                // Decide: if all items in section are short text (no images, no subtext), use pill grid
-                bool usePillGrid = section.Items.Count > 0 &&
-                    section.Items.All(r => string.IsNullOrWhiteSpace(r.SubText));
-
-                if (usePillGrid && section.Items.Count >= 2)
-                {
-                    // Pill grid for this section
-                    var grid = new FlowLayoutPanel
-                    {
-                        Left = 0, Top = yPos,
-                        Width = panelWidth,
-                        FlowDirection = FlowDirection.LeftToRight,
-                        WrapContents = true,
-                        AutoSize = true,
-                        MaximumSize = new Size(panelWidth, 200),
-                        Padding = new Padding(4, 4, 4, 8)
-                    };
-                    grid.BackColor = _themeTokens.PopupBackColor;
-
-                    foreach (var item in section.Items)
-                    {
-                        var pill = new SectionPill(item, _themeTokens);
-                        pill.PillClicked += OnItemClicked;
-                        grid.Controls.Add(pill);
-                        _allItems.Add(pill);
-                    }
-                    controls.Add(grid);
-                    // Estimate grid height (will auto-size)
-                    yPos += grid.PreferredSize.Height;
-                }
-                else
-                {
-                    // Vertical list for this section
-                    foreach (var item in section.Items)
-                    {
-                        var row = new SectionListRow(item, _themeTokens, _profile)
-                        {
-                            Width = panelWidth, Left = 0, Top = yPos
-                        };
-                        row.RowClicked += OnItemClicked;
-                        controls.Add(row);
-                        _allItems.Add(row);
-                        yPos += row.Height;
-                    }
-                }
-            }
+            yPos = RenderSection(currentHeader, _sectionItemBuffer, panelWidth, yPos);
+            _sectionItemBuffer.Clear();
 
             // Track total content height
             _totalContentHeight = yPos;
-
-            // Add controls to panel (no longer using Dock)
-            foreach (var ctrl in controls)
+            _selectableItems.Clear();
+            for (int i = 0; i < _allItems.Count; i++)
             {
-                _scrollPanel.Controls.Add(ctrl);
-                _sectionControls.Add(ctrl);
+                if (_allItems[i].IsSelectable)
+                {
+                    _selectableItems.Add(_allItems[i]);
+                }
             }
+        }
+
+        private int RenderSection(ComboBoxPopupRowModel header, List<ComboBoxPopupRowModel> items, int panelWidth, int yPos)
+        {
+            if (header == null && (items == null || items.Count == 0))
+            {
+                return yPos;
+            }
+
+            if (header != null)
+            {
+                var headerCtrl = AcquireHeader();
+                headerCtrl.Update(header, _themeTokens);
+                headerCtrl.Width = panelWidth;
+                headerCtrl.Left = 0;
+                headerCtrl.Top = yPos;
+                AddActiveControl(headerCtrl);
+                _allItems.Add(headerCtrl);
+                yPos += headerCtrl.Height;
+            }
+
+            bool usePillGrid = items != null && items.Count >= 2;
+            if (usePillGrid)
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(items[i].SubText))
+                    {
+                        usePillGrid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (usePillGrid)
+            {
+                var grid = AcquirePillGrid();
+                grid.SuspendLayout();
+                grid.Controls.Clear();
+                grid.Left = 0;
+                grid.Top = yPos;
+                grid.Width = panelWidth;
+                grid.MaximumSize = new Size(panelWidth, 200);
+                grid.BackColor = _themeTokens.PopupBackColor;
+                AddActiveControl(grid);
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var pill = AcquirePill();
+                    pill.Update(items[i], _themeTokens);
+                    grid.Controls.Add(pill);
+                    _allItems.Add(pill);
+                }
+
+                grid.ResumeLayout(true);
+                yPos += grid.PreferredSize.Height;
+                return yPos;
+            }
+
+            if (items != null)
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var row = AcquireListRow();
+                    row.Update(items[i], _themeTokens, _profile);
+                    row.Width = panelWidth;
+                    row.Left = 0;
+                    row.Top = yPos;
+                    AddActiveControl(row);
+                    _allItems.Add(row);
+                    yPos += row.Height;
+                }
+            }
+
+            return yPos;
+        }
+
+        private static string ComputeLayoutSignature(IReadOnlyList<ComboBoxPopupRowModel> rows)
+        {
+            if (rows == null || rows.Count == 0)
+            {
+                return "empty";
+            }
+
+            var sb = new StringBuilder(rows.Count * 12);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i];
+                if (row == null)
+                {
+                    sb.Append("null|");
+                    continue;
+                }
+
+                sb.Append((int)row.RowKind).Append(':')
+                  .Append(BeepComboBox.GetSimpleItemIdentity(row.SourceItem)).Append(':')
+                  .Append(row.GroupName ?? string.Empty).Append(':')
+                  .Append(row.Text ?? string.Empty).Append(':')
+                  .Append(row.IsSelected ? '1' : '0')
+                  .Append(row.IsChecked ? '1' : '0')
+                  .Append(row.IsEnabled ? '1' : '0')
+                  .Append('|');
+            }
+
+            return sb.ToString();
+        }
+
+        private void PreparePoolsForReuse()
+        {
+            _headerPoolCursor = 0;
+            _separatorPoolCursor = 0;
+            _listRowPoolCursor = 0;
+            _pillPoolCursor = 0;
+            _pillGridPoolCursor = 0;
+
+            for (int i = 0; i < _headerPool.Count; i++) _headerPool[i].Visible = false;
+            for (int i = 0; i < _separatorPool.Count; i++) _separatorPool[i].Visible = false;
+            for (int i = 0; i < _listRowPool.Count; i++) _listRowPool[i].Visible = false;
+            for (int i = 0; i < _pillPool.Count; i++) _pillPool[i].Visible = false;
+            for (int i = 0; i < _pillGridPool.Count; i++)
+            {
+                _pillGridPool[i].Visible = false;
+                _pillGridPool[i].Controls.Clear();
+            }
+        }
+
+        private void AddActiveControl(Control control)
+        {
+            if (control.Parent != _scrollPanel)
+            {
+                _scrollPanel.Controls.Add(control);
+            }
+
+            control.Visible = true;
+            _sectionControls.Add(control);
+        }
+
+        private SectionHeader AcquireHeader()
+        {
+            if (_headerPoolCursor >= _headerPool.Count)
+            {
+                _headerPool.Add(new SectionHeader());
+            }
+
+            return _headerPool[_headerPoolCursor++];
+        }
+
+        private SectionSeparator AcquireSeparator()
+        {
+            if (_separatorPoolCursor >= _separatorPool.Count)
+            {
+                _separatorPool.Add(new SectionSeparator());
+            }
+
+            return _separatorPool[_separatorPoolCursor++];
+        }
+
+        private SectionListRow AcquireListRow()
+        {
+            if (_listRowPoolCursor >= _listRowPool.Count)
+            {
+                var row = new SectionListRow();
+                row.RowClicked += OnItemClicked;
+                _listRowPool.Add(row);
+            }
+
+            return _listRowPool[_listRowPoolCursor++];
+        }
+
+        private SectionPill AcquirePill()
+        {
+            if (_pillPoolCursor >= _pillPool.Count)
+            {
+                var pill = new SectionPill();
+                pill.PillClicked += OnItemClicked;
+                _pillPool.Add(pill);
+            }
+
+            return _pillPool[_pillPoolCursor++];
+        }
+
+        private FlowLayoutPanel AcquirePillGrid()
+        {
+            if (_pillGridPoolCursor >= _pillGridPool.Count)
+            {
+                _pillGridPool.Add(new FlowLayoutPanel
+                {
+                    FlowDirection = FlowDirection.LeftToRight,
+                    WrapContents = true,
+                    AutoSize = true,
+                    Padding = new Padding(4, 4, 4, 8)
+                });
+            }
+
+            return _pillGridPool[_pillGridPoolCursor++];
+        }
+
+        private int FindSelectableIndexByItem(SimpleItem item)
+        {
+            if (item == null || _selectableItems.Count == 0)
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < _selectableItems.Count; i++)
+            {
+                var row = _selectableItems[i].RowModel;
+                if (row == null)
+                {
+                    continue;
+                }
+
+                if (ReferenceEquals(row.SourceItem, item))
+                {
+                    return i;
+                }
+
+                if (string.Equals(BeepComboBox.GetSimpleItemIdentity(row.SourceItem), BeepComboBox.GetSimpleItemIdentity(item), StringComparison.Ordinal))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         // ── Interface for unified focus tracking ──────────────────────────
@@ -456,17 +641,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private sealed class SectionHeader : Control, ISectionItem
         {
-            public ComboBoxPopupRowModel RowModel { get; }
+            public ComboBoxPopupRowModel RowModel { get; private set; }
             public bool IsSelectable => false;
-            private readonly ComboBoxThemeTokens _tokens;
+            private ComboBoxThemeTokens _tokens;
+            private string _lastThemeName = string.Empty;
+            private string _lastHeaderText = string.Empty;
 
-            public SectionHeader(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens)
+            public SectionHeader()
             {
-                RowModel = model;
-                _tokens = tokens;
                 DoubleBuffered = true;
                 Height = 30;
                 Margin = new Padding(0, 4, 0, 0);
+            }
+
+            public void Update(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens)
+            {
+                string headerText = model?.GroupName ?? model?.Text ?? string.Empty;
+                string themeName = tokens?.ThemeName ?? string.Empty;
+                bool changed = !ReferenceEquals(RowModel, model)
+                    || !string.Equals(_lastHeaderText, headerText, StringComparison.Ordinal)
+                    || !string.Equals(_lastThemeName, themeName, StringComparison.Ordinal);
+
+                RowModel = model;
+                _tokens = tokens;
+                _lastHeaderText = headerText;
+                _lastThemeName = themeName;
+                if (changed)
+                {
+                    Invalidate();
+                }
             }
 
             public void SetFocused(bool focused) { }
@@ -495,14 +698,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private sealed class SectionSeparator : Control
         {
-            private readonly ComboBoxThemeTokens _tokens;
+            private ComboBoxThemeTokens _tokens;
+            private string _lastThemeName = string.Empty;
 
-            public SectionSeparator(ComboBoxThemeTokens tokens)
+            public SectionSeparator()
             {
-                _tokens = tokens;
                 DoubleBuffered = true;
                 Height = 12;
                 Margin = Padding.Empty;
+            }
+
+            public void UpdateTheme(ComboBoxThemeTokens tokens)
+            {
+                string themeName = tokens?.ThemeName ?? string.Empty;
+                bool changed = !string.Equals(_lastThemeName, themeName, StringComparison.Ordinal);
+                _tokens = tokens;
+                _lastThemeName = themeName;
+                if (changed)
+                {
+                    Invalidate();
+                }
             }
 
             protected override void OnPaint(PaintEventArgs e)
@@ -517,29 +732,78 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private sealed class SectionPill : Control, ISectionItem
         {
-            public ComboBoxPopupRowModel RowModel { get; }
+            public ComboBoxPopupRowModel RowModel { get; private set; }
             public bool IsSelectable => RowModel.IsEnabled;
-            private readonly ComboBoxThemeTokens _tokens;
+            private ComboBoxThemeTokens _tokens;
             private bool _hovered;
             private bool _focused;
+            private string _lastMeasuredText = string.Empty;
+            private int _lastMeasuredFontHeight = -1;
+            private int _cachedMeasuredWidth = 0;
+            private string _lastThemeName = string.Empty;
+            private string _lastIdentity = string.Empty;
+            private bool _lastEnabled;
 
             public event EventHandler<ComboBoxPopupRowModel> PillClicked;
 
-            public SectionPill(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens)
+            public SectionPill()
             {
-                RowModel = model;
-                _tokens = tokens;
                 DoubleBuffered = true;
-                Cursor = model.IsEnabled ? Cursors.Hand : Cursors.Default;
                 Height = 34;
                 Margin = new Padding(4);
                 TabStop = false;
-
-                var sz = TextRenderer.MeasureText(model.Text ?? "", Font, Size.Empty, TextFormatFlags.NoPadding);
-                Width = sz.Width + 28;
             }
 
-            public void SetFocused(bool f) { if (_focused != f) { _focused = f; Invalidate(); } }
+            public void Update(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens)
+            {
+                string identity = BeepComboBox.GetSimpleItemIdentity(model?.SourceItem);
+                string themeName = tokens?.ThemeName ?? string.Empty;
+                bool enabled = model?.IsEnabled ?? false;
+                bool changed = !ReferenceEquals(RowModel, model)
+                    || !string.Equals(_lastIdentity, identity, StringComparison.Ordinal)
+                    || !string.Equals(_lastThemeName, themeName, StringComparison.Ordinal)
+                    || _lastEnabled != enabled;
+
+                RowModel = model;
+                _tokens = tokens;
+                _hovered = false;
+                _focused = false;
+                Cursor = model.IsEnabled ? Cursors.Hand : Cursors.Default;
+                Width = ResolveWidth(model.Text);
+                _lastIdentity = identity;
+                _lastThemeName = themeName;
+                _lastEnabled = enabled;
+                if (changed)
+                {
+                    Invalidate();
+                }
+            }
+
+            private int ResolveWidth(string text)
+            {
+                string safeText = text ?? string.Empty;
+                int fontHeight = Font?.Height ?? 0;
+                if (!string.Equals(_lastMeasuredText, safeText, StringComparison.Ordinal) || _lastMeasuredFontHeight != fontHeight)
+                {
+                    var sz = TextRenderer.MeasureText(safeText, Font, Size.Empty, TextFormatFlags.NoPadding);
+                    _cachedMeasuredWidth = sz.Width + 28;
+                    _lastMeasuredText = safeText;
+                    _lastMeasuredFontHeight = fontHeight;
+                }
+
+                return _cachedMeasuredWidth > 0 ? _cachedMeasuredWidth : 56;
+            }
+
+            public void SetFocused(bool f)
+            {
+                if (_focused == f)
+                {
+                    return;
+                }
+
+                _focused = f;
+                Invalidate();
+            }
 
             protected override void OnClick(EventArgs e) { base.OnClick(e); PillClicked?.Invoke(this, RowModel); }
             protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); _hovered = true; Invalidate(); }
@@ -609,25 +873,57 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private sealed class SectionListRow : Control, ISectionItem
         {
-            public ComboBoxPopupRowModel RowModel { get; }
+            public ComboBoxPopupRowModel RowModel { get; private set; }
             public bool IsSelectable => RowModel.IsEnabled;
-            private readonly ComboBoxThemeTokens _tokens;
-            private readonly ComboBoxPopupHostProfile _profile;
+            private ComboBoxThemeTokens _tokens;
+            private ComboBoxPopupHostProfile _profile;
             private bool _hovered;
             private bool _focused;
+            private string _lastThemeName = string.Empty;
+            private int _lastBaseRowHeight = -1;
+            private string _lastIdentity = string.Empty;
+            private bool _lastEnabled;
+            private bool _lastSelected;
 
             public event EventHandler<ComboBoxPopupRowModel> RowClicked;
 
-            public SectionListRow(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens, ComboBoxPopupHostProfile profile)
+            public SectionListRow()
             {
+                DoubleBuffered = true;
+                Margin = Padding.Empty;
+                TabStop = false;
+            }
+
+            public void Update(ComboBoxPopupRowModel model, ComboBoxThemeTokens tokens, ComboBoxPopupHostProfile profile)
+            {
+                string identity = BeepComboBox.GetSimpleItemIdentity(model?.SourceItem);
+                string themeName = tokens?.ThemeName ?? string.Empty;
+                int baseRowHeight = profile?.BaseRowHeight ?? 0;
+                bool enabled = model?.IsEnabled ?? false;
+                bool selected = model?.IsSelected ?? false;
+                bool changed = !ReferenceEquals(RowModel, model)
+                    || !string.Equals(_lastIdentity, identity, StringComparison.Ordinal)
+                    || !string.Equals(_lastThemeName, themeName, StringComparison.Ordinal)
+                    || _lastBaseRowHeight != baseRowHeight
+                    || _lastEnabled != enabled
+                    || _lastSelected != selected;
+
                 RowModel = model;
                 _tokens = tokens;
                 _profile = profile;
-                DoubleBuffered = true;
+                _hovered = false;
+                _focused = false;
                 Cursor = model.IsEnabled ? Cursors.Hand : Cursors.Default;
-                Height = model.RowKind == ComboBoxPopupRowKind.WithSubText ? 44 : (profile.BaseRowHeight);
-                Margin = Padding.Empty;
-                TabStop = false;
+                Height = model.RowKind == ComboBoxPopupRowKind.WithSubText ? 44 : profile.BaseRowHeight;
+                _lastIdentity = identity;
+                _lastThemeName = themeName;
+                _lastBaseRowHeight = baseRowHeight;
+                _lastEnabled = enabled;
+                _lastSelected = selected;
+                if (changed)
+                {
+                    Invalidate();
+                }
             }
 
             public void SetFocused(bool f) { if (_focused != f) { _focused = f; Invalidate(); } }
@@ -664,6 +960,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
                 var textRect = new Rectangle(bounds.Left + 14, bounds.Top, bounds.Width - 28, bounds.Height);
 
+                if (!string.IsNullOrWhiteSpace(RowModel.ImagePath))
+                {
+                    int iconSize = ComboBoxPopupIconRenderer.ComputeAdaptiveIconSize(bounds.Width, bounds.Height, minSize: 14, padding: 8);
+                    var iconRect = new Rectangle(bounds.Left + 12, bounds.Top + (bounds.Height - iconSize) / 2, iconSize, iconSize);
+                    ComboBoxPopupIconRenderer.PaintRowImage(g, iconRect, RowModel.ImagePath, RowModel.IsEnabled, circular: false, _tokens.DisabledBackColor);
+                    textRect = new Rectangle(iconRect.Right + 8, bounds.Top, Math.Max(1, bounds.Right - iconRect.Right - 8), bounds.Height);
+                }
+
                 // Sub-arrow for expandable items (→)
                 if (!string.IsNullOrEmpty(RowModel.SubText) && RowModel.SubText == ">")
                 {
@@ -678,9 +982,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 if (_profile.ShowCheckmarkForSelected && (RowModel.IsSelected || RowModel.RowKind == ComboBoxPopupRowKind.Selected))
                 {
                     var ckRect = new Rectangle(bounds.Right - 24, bounds.Top + (bounds.Height - 14) / 2, 14, 14);
-                    using var ckPen = new Pen(_tokens.FocusBorderColor, 2f);
-                    g.DrawLine(ckPen, ckRect.Left + 2, ckRect.Top + 7, ckRect.Left + 5, ckRect.Bottom - 2);
-                    g.DrawLine(ckPen, ckRect.Left + 5, ckRect.Bottom - 2, ckRect.Right - 2, ckRect.Top + 2);
+                    ComboBoxPopupIconRenderer.PaintCheckIcon(g, ckRect, _tokens.FocusBorderColor, 0.95f);
                     textRect.Width = Math.Max(1, ckRect.Left - textRect.Left - 6);
                 }
 

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 {
@@ -108,32 +107,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _searchBox.Visible = model.ShowSearchBox || _profile.ForceSearchVisible;
 
             _scrollPanel.SuspendLayout();
-            _scrollPanel.Controls.Clear();
-            _cards.Clear();
             _scrollOffset = 0;
 
-            if (model.FilteredRows != null)
+            var filteredRows = model.FilteredRows ?? Array.Empty<ComboBoxPopupRowModel>();
+            if (filteredRows.Length > 0)
             {
+                EnsureCardControlCount(filteredRows.Length);
                 int cardWidth = Math.Max(80, _scrollPanel.ClientSize.Width - 8);
                 int yPos = 0;
 
-                foreach (var rowModel in model.FilteredRows)
+                for (int i = 0; i < filteredRows.Length; i++)
                 {
-                    var card = new CardRow(rowModel, _themeTokens, _profile)
-                    {
-                        Width = cardWidth,
-                        Left = 0,
-                        Top = yPos
-                    };
-                    card.CardClicked += OnCardClicked;
-                    _scrollPanel.Controls.Add(card);
-                    _cards.Add(card);
+                    var card = _cards[i];
+                    card.Visible = true;
+                    card.Width = cardWidth;
+                    card.Left = 0;
+                    card.Top = yPos;
+                    card.UpdateModel(filteredRows[i]);
                     yPos += card.Height + card.Margin.Vertical;
+                }
+
+                for (int i = filteredRows.Length; i < _cards.Count; i++)
+                {
+                    _cards[i].Visible = false;
                 }
                 _totalContentHeight = yPos;
             }
             else
             {
+                for (int i = 0; i < _cards.Count; i++)
+                {
+                    _cards[i].Visible = false;
+                }
                 _totalContentHeight = 0;
             }
 
@@ -174,17 +179,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void FocusItem(SimpleItem item)
         {
             if (item == null || _cards.Count == 0) return;
-            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            var rowModels = new List<ComboBoxPopupRowModel>(_cards.Count);
             for (int i = 0; i < _cards.Count; i++)
             {
-                var rowItem = _cards[i].RowModel?.SourceItem;
-                if (rowItem != null &&
-                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetKeyboardFocusIndex(i);
-                    EnsureVisible(i);
-                    return;
-                }
+                rowModels.Add(_cards[i].RowModel);
+            }
+
+            int index = ComboBoxPopupFocusHelper.FindRowIndexByItem(rowModels, item);
+            if (index >= 0)
+            {
+                SetKeyboardFocusIndex(index);
+                EnsureVisible(index);
             }
         }
 
@@ -233,8 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (!_vScrollBar.Visible) return;
-            int delta = -e.Delta / 4;
-            int newVal = Math.Max(0, Math.Min(_vScrollBar.Maximum, _scrollOffset + delta));
+            int newVal = ComboBoxPopupMouseWheelHelper.ComputeNextOffsetFromWheel(_scrollOffset, e.Delta, _vScrollBar.Maximum);
             if (newVal != _scrollOffset)
             {
                 _scrollOffset = newVal;
@@ -272,8 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void MoveFocus(int delta)
         {
-            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : 0;
-            SetKeyboardFocusIndex(start + delta);
+            SetKeyboardFocusIndex(ComboBoxPopupNavigationHelper.ShiftIndex(_keyboardFocusIndex, delta, _cards.Count));
         }
 
         private void CommitFocused()
@@ -284,8 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void OnCardClicked(object sender, ComboBoxPopupRowModel row)
         {
-            if (row == null || !row.IsEnabled) return;
-            if (row.RowKind == ComboBoxPopupRowKind.GroupHeader || row.RowKind == ComboBoxPopupRowKind.Separator) return;
+            if (!ComboBoxPopupRowBehavior.IsSelectable(row)) return;
             bool close = !(_model?.IsMultiSelect ?? false);
             RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(row, close));
         }
@@ -299,25 +301,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             int cardTop = 0;
             for (int i = 0; i < index; i++)
                 cardTop += _cards[i].Height + _cards[i].Margin.Vertical;
-            int cardBottom = cardTop + card.Height;
-            int viewportHeight = _scrollPanel.ClientSize.Height;
-
-            if (cardTop < _scrollOffset)
-            {
-                _scrollOffset = cardTop;
-            }
-            else if (cardBottom > _scrollOffset + viewportHeight)
-            {
-                _scrollOffset = cardBottom - viewportHeight;
-            }
-            else
+            int next = ComboBoxPopupScrollHelper.ComputeAdjustedScrollOffset(
+                _scrollOffset,
+                cardTop,
+                card.Height,
+                _scrollPanel.ClientSize.Height,
+                _vScrollBar.Maximum);
+            if (next == _scrollOffset)
             {
                 return;
             }
-
-            _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, _vScrollBar.Maximum));
+            _scrollOffset = next;
             _vScrollBar.Value = _scrollOffset;
             ApplyScrollOffset();
+        }
+
+        private void EnsureCardControlCount(int requiredCount)
+        {
+            while (_cards.Count < requiredCount)
+            {
+                var card = new CardRow(new ComboBoxPopupRowModel(), _themeTokens, _profile);
+                card.CardClicked += OnCardClicked;
+                _scrollPanel.Controls.Add(card);
+                _cards.Add(card);
+            }
         }
 
         // ──────────────────────────────────────────────────────────────────
@@ -326,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         internal sealed class CardRow : Control
         {
-            public ComboBoxPopupRowModel RowModel { get; }
+            public ComboBoxPopupRowModel RowModel { get; private set; }
             private ComboBoxThemeTokens _tokens;
             private readonly ComboBoxPopupHostProfile _profile;
             private bool _hovered;
@@ -352,6 +359,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             }
 
             public void ApplyThemeTokens(ComboBoxThemeTokens tokens) { _tokens = tokens; Invalidate(); }
+            public void UpdateModel(ComboBoxPopupRowModel model)
+            {
+                RowModel = model ?? new ComboBoxPopupRowModel();
+                Cursor = ComboBoxPopupRowBehavior.IsSelectable(RowModel) ? Cursors.Hand : Cursors.Default;
+                int baseH = RowModel.RowKind == ComboBoxPopupRowKind.WithSubText ? 52
+                          : RowModel.RowKind == ComboBoxPopupRowKind.GroupHeader ? 28
+                          : RowModel.RowKind == ComboBoxPopupRowKind.Separator ? 10
+                          : (_profile.BaseRowHeight + 8);
+                Height = baseH;
+                Invalidate();
+            }
 
             public void SetKeyboardFocused(bool f) { if (_focused != f) { _focused = f; Invalidate(); } }
 
@@ -383,6 +401,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     using var headerFont = new Font(Font, FontStyle.Bold);
                     TextRenderer.DrawText(g, RowModel.GroupName ?? RowModel.Text ?? "", headerFont, bounds,
                         _tokens.PopupGroupHeaderFore, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    return;
+                }
+
+                // Empty/loading/no-results rows should be informational and non-card.
+                if (ComboBoxPopupStateRowRenderer.TryDrawStateRow(g, bounds, RowModel, Font, _tokens.DisabledForeColor))
+                {
                     return;
                 }
 
@@ -436,26 +460,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     g.DrawPath(pen, cardPath);
 
                 // Content layout inside card
-                var contentRect = new Rectangle(cardRect.Left + 12, cardRect.Top, cardRect.Width - 24, cardRect.Height);
+                int edgeInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 12);
+                int iconTextGap = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                var contentRect = new Rectangle(cardRect.Left + edgeInset, cardRect.Top, cardRect.Width - (edgeInset * 2), cardRect.Height);
                 Color fore = RowModel.IsEnabled ? _tokens.ForeColor : _tokens.DisabledForeColor;
 
                 // Icon
                 if (!string.IsNullOrWhiteSpace(RowModel.ImagePath))
                 {
-                    int imgSize = 20;
+                    int minSize = ComboBoxPopupIconRenderer.ScaleLogical(g, 14);
+                    int pad = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                    int imgSize = ComboBoxPopupIconRenderer.ComputeAdaptiveIconSize(contentRect.Width, contentRect.Height, minSize: minSize, padding: pad);
                     var iconRect = new Rectangle(contentRect.Left, contentRect.Top + (contentRect.Height - imgSize) / 2, imgSize, imgSize);
-                    StyledImagePainter.Paint(g, iconRect, RowModel.ImagePath, BeepControlStyle.Minimal);
-                    contentRect = new Rectangle(iconRect.Right + 8, contentRect.Top, contentRect.Width - imgSize - 8, contentRect.Height);
+                    ComboBoxPopupIconRenderer.PaintRowImage(g, iconRect, RowModel.ImagePath, RowModel.IsEnabled, circular: false, _tokens.DisabledBackColor);
+                    contentRect = new Rectangle(iconRect.Right + iconTextGap, contentRect.Top, contentRect.Width - imgSize - iconTextGap, contentRect.Height);
                 }
 
                 // Checkmark for selected single-select
                 if (_profile.ShowCheckmarkForSelected && (RowModel.IsSelected || RowModel.RowKind == ComboBoxPopupRowKind.Selected))
                 {
-                    var checkRect = new Rectangle(cardRect.Right - 28, cardRect.Top + (cardRect.Height - 14) / 2, 14, 14);
-                    using var checkPen = new Pen(_tokens.FocusBorderColor, 2f);
-                    g.DrawLine(checkPen, checkRect.Left + 2, checkRect.Top + 7, checkRect.Left + 5, checkRect.Bottom - 2);
-                    g.DrawLine(checkPen, checkRect.Left + 5, checkRect.Bottom - 2, checkRect.Right - 2, checkRect.Top + 2);
-                    contentRect.Width = Math.Max(1, checkRect.Left - contentRect.Left - 6);
+                    int checkSize = ComboBoxPopupIconRenderer.ScaleLogical(g, 14);
+                    int rightInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 12);
+                    var checkRect = new Rectangle(cardRect.Right - checkSize - rightInset, cardRect.Top + (cardRect.Height - checkSize) / 2, checkSize, checkSize);
+                    ComboBoxPopupIconRenderer.PaintCheckIcon(g, checkRect, _tokens.FocusBorderColor, 0.95f);
+                    contentRect.Width = Math.Max(1, checkRect.Left - contentRect.Left - ComboBoxPopupIconRenderer.ScaleLogical(g, 6));
                 }
 
                 // Text

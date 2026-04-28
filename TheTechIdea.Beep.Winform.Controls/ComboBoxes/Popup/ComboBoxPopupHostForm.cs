@@ -38,6 +38,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _contentPanel = CreateContentPanel(_profile, themeTokens);
             var contentControl = (Control)_contentPanel;
             contentControl.Dock = DockStyle.Fill;
+            if (owner is BeepComboBox rtlOwner && rtlOwner.IsRtl)
+            {
+                contentControl.RightToLeft = RightToLeft.Yes;
+                _form.RightToLeft = RightToLeft.Yes;
+            }
+            else
+            {
+                contentControl.RightToLeft = RightToLeft.No;
+                _form.RightToLeft = RightToLeft.No;
+            }
 
             _contentPanel.RowCommitted += (s, e) => RowCommitted?.Invoke(this, e);
             _contentPanel.SearchTextChanged += (s, e) => SearchTextChanged?.Invoke(this, e);
@@ -48,8 +58,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _form.Controls.Add(contentControl);
 
             int targetHeight = CalculatePopupHeight(effectiveModel, _profile);
-            var placement = ComboBoxPopupPlacementHelper.Calculate(owner, triggerBounds.Width, targetHeight);
-            _form.Size = new Size(Math.Max(triggerBounds.Width, _profile.MinWidth), placement.Height);
+            int minWidthOverride = 0;
+            bool autoFlip = true;
+            if (owner is BeepComboBox comboOwner)
+            {
+                minWidthOverride = Math.Max(0, comboOwner.MinDropdownWidth);
+                autoFlip = comboOwner.AutoFlip;
+            }
+
+            int desiredWidth = Math.Max(triggerBounds.Width, Math.Max(_profile.MinWidth, minWidthOverride));
+            var placement = ComboBoxPopupPlacementHelper.Calculate(owner, desiredWidth, targetHeight, autoFlip);
+            _form.Size = new Size(desiredWidth, placement.Height);
             
             _contentPanel.UpdateModel(effectiveModel);
 
@@ -209,6 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             return new ComboBoxPopupModel
             {
+                AllRows = model.AllRows,
                 FilteredRows = model.FilteredRows,
                 KeyboardFocusIndex = model.KeyboardFocusIndex,
                 ShowSearchBox = showSearch,
@@ -217,7 +237,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 ShowSelectAll = model.ShowSelectAll,
                 SearchText = model.SearchText,
                 IsLoading = model.IsLoading,
-                IsMultiSelect = model.IsMultiSelect
+                IsMultiSelect = model.IsMultiSelect,
+                UsePrimaryActionFooter = model.UsePrimaryActionFooter,
+                PrimaryActionText = model.PrimaryActionText,
+                HasGroupHeaders = model.HasGroupHeaders
             };
         }
 

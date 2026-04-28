@@ -11,7 +11,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         public static IReadOnlyList<ChipLayoutItem> Compute(
             Rectangle availableBounds,
             IReadOnlyList<SimpleItem> chips,
-            Graphics g,
             Font font,
             BeepComboBox owner,
             bool singleLineCollapse,
@@ -47,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             {
                 var source = chips[i];
                 string text = source?.Text ?? string.Empty;
-                int textWidth = TextRenderer.MeasureText(g, text, font).Width;
+                int textWidth = TextRenderer.MeasureText(text, font, Size.Empty, TextFormatFlags.NoPadding).Width;
                 int chipWidth = textWidth + (hPad * 2) + closeSize + gap;
 
                 if (singleLineCollapse)
@@ -96,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             {
                 int remaining = chips.Count - overflowAt;
                 string overflowText = $"+{remaining}";
-                int overflowWidth = TextRenderer.MeasureText(g, overflowText, font).Width + (hPad * 2);
+                int overflowWidth = TextRenderer.MeasureText(overflowText, font, Size.Empty, TextFormatFlags.NoPadding).Width + (hPad * 2);
                 int width = Math.Min(overflowWidth, Math.Max(1, availableBounds.Right - currentX));
 
                 items.Add(new ChipLayoutItem

@@ -12,6 +12,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepComboBox
     {
+        private bool _popupRefreshQueued;
+        private bool _multiSelectCommitQueued;
+        private System.Collections.Generic.List<SimpleItem> _pendingPopupSelection;
+
         #region Public Methods
 
         public override void SetValue(object value)
@@ -51,19 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _popupHost.KeyboardFocusChanged += OnPopupHostKeyboardFocusChanged;
             }
 
-            var model = ComboBoxPopupModelBuilder.Build(
-                _listItems,
-                SelectedItems,
-                SelectedItem,
-                _popupSearchText,
-                ComboBoxType,
-                AllowMultipleSelection,
-                ShowSelectAll,
-                ShouldShowPopupFooter(),
-                AllowMultipleSelection && UseApplyCancelFooter,
-                ShouldUsePrimaryActionFooter(),
-                ResolvePrimaryActionFooterText()
-            );
+            var model = BuildPopupModel(_popupSearchText);
 
             _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
 
@@ -102,39 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     // Multi-select handling
                     var item = e.Row.SourceItem;
-                    var current = new System.Collections.Generic.List<SimpleItem>(SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
-
-                    if (e.Row.IsChecked)
-                    {
-                        if (!current.Exists(x => IsSameSimpleItem(x, item)))
-                        {
-                            current.Add(item);
-                        }
-                    }
-                    else
-                    {
-                        int idx = current.FindIndex(x => IsSameSimpleItem(x, item));
-                        if (idx >= 0) current.RemoveAt(idx);
-                    }
-                    SelectedItems = current;
-
-                    if (_popupHost != null)
-                    {
-                        var model = ComboBoxPopupModelBuilder.Build(
-                            _listItems,
-                            SelectedItems,
-                            SelectedItem,
-                            _popupSearchText,
-                            ComboBoxType,
-                            true,
-                            ShowSelectAll,
-                            ShouldShowPopupFooter(),
-                            AllowMultipleSelection && UseApplyCancelFooter,
-                            ShouldUsePrimaryActionFooter(),
-                            ResolvePrimaryActionFooterText());
-                        _popupHost.UpdateModel(model);
-                        return; // do not close
-                    }
+                    QueuePopupSelectionToggle(item, e.Row.IsChecked);
+                    return; // do not close
                 }
                 else
                 {
@@ -365,18 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (_popupHost != null)
                 {
-                    var model = ComboBoxPopupModelBuilder.Build(
-                        _listItems,
-                        SelectedItems,
-                        SelectedItem,
-                        typed, // Filter by the typed text
-                        ComboBoxType,
-                        AllowMultipleSelection,
-                        ShowSelectAll,
-                        ShouldShowPopupFooter(),
-                        AllowMultipleSelection && UseApplyCancelFooter,
-                        ShouldUsePrimaryActionFooter(),
-                        ResolvePrimaryActionFooterText());
+                    var model = BuildPopupModel(typed);
                     _popupHost.UpdateModel(model);
                 }
             }
@@ -774,23 +724,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             => string.Equals(GetSimpleItemIdentity(left), GetSimpleItemIdentity(right), StringComparison.OrdinalIgnoreCase);
 
         private static IComboBoxPopupHost CreatePopupHostForType(ComboBoxType type)
-        {
-            return type switch
-            {
-                ComboBoxType.OutlineDefault => new OutlineDefaultPopupHostForm(),
-                ComboBoxType.OutlineSearchable => new OutlineSearchablePopupHostForm(),
-                ComboBoxType.FilledSoft => new FilledSoftPopupHostForm(),
-                ComboBoxType.RoundedPill => new RoundedPillPopupHostForm(),
-                ComboBoxType.SegmentedTrigger => new SegmentedTriggerPopupHostForm(),
-                ComboBoxType.MultiChipCompact => new MultiChipCompactPopupHostForm(),
-                ComboBoxType.MultiChipSearch => new MultiChipSearchPopupHostForm(),
-                ComboBoxType.DenseList => new DenseListPopupHostForm(),
-                ComboBoxType.MinimalBorderless => new MinimalBorderlessPopupHostForm(),
-                ComboBoxType.CommandMenu => new CommandMenuPopupHostForm(),
-                ComboBoxType.VisualDisplay => new VisualDisplayPopupHostForm(),
-                _ => new OutlineDefaultPopupHostForm()
-            };
-        }
+            => ComboBoxTypeRegistry.CreatePopupHost(type);
 
         private bool IsInlineEditorAllowed()
             => IsEditable || AllowFreeText || ComboBoxVisualTokenCatalog.SupportsInlineEditor(ComboBoxType);
@@ -804,7 +738,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             string searchText = e?.SearchText ?? string.Empty;
             _popupSearchText = searchText;
-            var model = ComboBoxPopupModelBuilder.Build(
+            var model = BuildPopupModel(searchText);
+
+            _popupHost.UpdateModel(model);
+        }
+
+        private ComboBoxPopupModel BuildPopupModel(string searchText)
+        {
+            return ComboBoxPopupModelBuilder.Build(
                 _listItems,
                 SelectedItems,
                 SelectedItem,
@@ -815,9 +756,78 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShouldShowPopupFooter(),
                 AllowMultipleSelection && UseApplyCancelFooter,
                 ShouldUsePrimaryActionFooter(),
-                ResolvePrimaryActionFooterText());
+                ResolvePrimaryActionFooterText(),
+                showOptionDescription: ShowOptionDescription,
+                showStatusIcons: ShowStatusIcons,
+                emptyStateText: EmptyStateText);
+        }
 
-            _popupHost.UpdateModel(model);
+        private void SchedulePopupModelRefresh()
+        {
+            if (_popupHost == null || _popupRefreshQueued || IsDisposed)
+            {
+                return;
+            }
+
+            _popupRefreshQueued = true;
+            BeginInvoke(new Action(() =>
+            {
+                _popupRefreshQueued = false;
+                if (_popupHost == null)
+                {
+                    return;
+                }
+
+                _popupHost.UpdateModel(BuildPopupModel(_popupSearchText));
+            }));
+        }
+
+        private void QueuePopupSelectionToggle(SimpleItem item, bool isChecked)
+        {
+            if (item == null || IsDisposed)
+            {
+                return;
+            }
+
+            _pendingPopupSelection ??= new System.Collections.Generic.List<SimpleItem>(
+                SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
+
+            int idx = _pendingPopupSelection.FindIndex(x => IsSameSimpleItem(x, item));
+            if (isChecked)
+            {
+                if (idx < 0)
+                {
+                    _pendingPopupSelection.Add(item);
+                }
+            }
+            else if (idx >= 0)
+            {
+                _pendingPopupSelection.RemoveAt(idx);
+            }
+
+            if (_multiSelectCommitQueued)
+            {
+                return;
+            }
+
+            _multiSelectCommitQueued = true;
+            BeginInvoke(new Action(() =>
+            {
+                _multiSelectCommitQueued = false;
+                if (IsDisposed)
+                {
+                    _pendingPopupSelection = null;
+                    return;
+                }
+
+                if (_pendingPopupSelection != null)
+                {
+                    SelectedItems = new System.Collections.Generic.List<SimpleItem>(_pendingPopupSelection);
+                    _pendingPopupSelection = null;
+                }
+
+                SchedulePopupModelRefresh();
+            }));
         }
 
         private void OnPopupHostKeyboardFocusChanged(object sender, ComboBoxKeyboardFocusChangedEventArgs e)

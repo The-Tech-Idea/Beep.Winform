@@ -101,16 +101,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             if (model.FilteredRows != null)
             {
+                ComboBoxPopupRowModel stateRow = null;
                 foreach (var row in model.FilteredRows)
                 {
-                    if (row.RowKind == ComboBoxPopupRowKind.GroupHeader ||
-                        row.RowKind == ComboBoxPopupRowKind.Separator)
+                    if (ComboBoxPopupRowBehavior.IsStateRow(row))
+                    {
+                        stateRow = row;
+                        continue;
+                    }
+
+                    if (!ComboBoxPopupRowBehavior.IsSelectable(row))
                         continue;
 
                     var pill = new PillButton(row, _themeTokens, _profile);
                     pill.PillClicked += OnPillClicked;
                     _pillPanel.Controls.Add(pill);
                     _pills.Add(pill);
+                }
+
+                if (_pills.Count == 0 && stateRow != null)
+                {
+                    var info = new Label
+                    {
+                        AutoSize = false,
+                        Width = Math.Max(120, _pillPanel.ClientSize.Width - 24),
+                        Height = 34,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        Text = string.IsNullOrWhiteSpace(stateRow.Text) ? "No items" : stateRow.Text,
+                        ForeColor = _themeTokens.DisabledForeColor,
+                        BackColor = Color.Transparent,
+                        Margin = new Padding(6)
+                    };
+                    _pillPanel.Controls.Add(info);
                 }
             }
 
@@ -158,16 +180,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void FocusItem(SimpleItem item)
         {
             if (item == null || _pills.Count == 0) return;
-            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            var rowModels = new List<ComboBoxPopupRowModel>(_pills.Count);
             for (int i = 0; i < _pills.Count; i++)
             {
-                var rowItem = _pills[i].RowModel?.SourceItem;
-                if (rowItem != null &&
-                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetKeyboardFocusIndex(i);
-                    return;
-                }
+                rowModels.Add(_pills[i].RowModel);
+            }
+
+            int index = ComboBoxPopupFocusHelper.FindRowIndexByItem(rowModels, item);
+            if (index >= 0)
+            {
+                SetKeyboardFocusIndex(index);
             }
         }
 
@@ -240,8 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void MoveFocus(int delta)
         {
-            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : 0;
-            SetKeyboardFocusIndex(start + delta);
+            SetKeyboardFocusIndex(ComboBoxPopupNavigationHelper.ShiftIndex(_keyboardFocusIndex, delta, _pills.Count));
         }
 
         private void CommitFocused()
@@ -252,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void OnPillClicked(object sender, ComboBoxPopupRowModel row)
         {
-            if (row == null || !row.IsEnabled) return;
+            if (!ComboBoxPopupRowBehavior.IsSelectable(row)) return;
             bool close = !(_model?.IsMultiSelect ?? false);
             RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(row, close));
         }
@@ -277,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 _tokens = tokens;
                 _profile = profile;
                 DoubleBuffered = true;
-                Cursor = Cursors.Hand;
+                Cursor = ComboBoxPopupRowBehavior.IsSelectable(model) ? Cursors.Hand : Cursors.Default;
                 TabStop = false;
 
                 int h = profile.PillHeight > 0 ? profile.PillHeight : 36;

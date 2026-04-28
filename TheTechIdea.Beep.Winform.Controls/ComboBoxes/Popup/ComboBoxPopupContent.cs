@@ -93,28 +93,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 _footer.UpdateSelectedCount(count);
             }
             
-            _listPanel.Controls.Clear();
-            _rows.Clear();
-            
             int scrollBarWidth = _vScrollBar.Visible ? _vScrollBar.Width : 0;
             int rowWidth = Math.Max(100, _scrollContainer.ClientSize.Width - scrollBarWidth - 4);
             int yOffset = 0;
-            
-            if (model.FilteredRows != null)
+            var filteredRows = model.FilteredRows ?? Array.Empty<ComboBoxPopupRowModel>();
+            EnsureRowControlCount(filteredRows.Count);
+            for (int i = 0; i < filteredRows.Count; i++)
             {
-                foreach (var rowModel in model.FilteredRows)
-                {
-                    var row = new ComboBoxPopupRow { Width = rowWidth };
-                    row.ApplyProfile(_profile);
-                    row.ApplyThemeTokens(_themeTokens);
-                    row.SetModel(rowModel);
-                    row.RowCommitted += OnRowCommitted;
-                    row.Location = new Point(0, yOffset);
-                    row.MouseWheel += OnListPanelMouseWheel;
-                    _listPanel.Controls.Add(row);
-                    _rows.Add(row);
-                    yOffset += row.Height;
-                }
+                var row = _rows[i];
+                row.Visible = true;
+                row.Width = rowWidth;
+                row.ApplyProfile(_profile);
+                row.ApplyThemeTokens(_themeTokens);
+                row.SetModel(filteredRows[i]);
+                row.Location = new Point(0, yOffset);
+                yOffset += row.Height;
+            }
+
+            for (int i = filteredRows.Count; i < _rows.Count; i++)
+            {
+                _rows[i].Visible = false;
             }
             
             // Set list panel size to contain all rows
@@ -138,16 +136,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void FocusItem(SimpleItem item)
         {
             if (item == null || _rows.Count == 0) return;
-            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            var rowModels = new List<ComboBoxPopupRowModel>(_rows.Count);
             for (int i = 0; i < _rows.Count; i++)
             {
-                var rowItem = _rows[i].Model?.SourceItem;
-                if (rowItem != null &&
-                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetKeyboardFocusIndex(i);
-                    return;
-                }
+                rowModels.Add(_rows[i].Model);
+            }
+
+            int index = ComboBoxPopupFocusHelper.FindRowIndexByItem(rowModels, item);
+            if (index >= 0)
+            {
+                SetKeyboardFocusIndex(index);
             }
         }
 
@@ -344,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             for (int i = 0; i < _rows.Count; i++)
             {
                 var m = _rows[i].Model;
-                if (m != null && m.IsEnabled && m.RowKind == ComboBoxPopupRowKind.Normal)
+                if (ComboBoxPopupRowBehavior.IsSelectable(m))
                     return i;
             }
             return _rows.Count > 0 ? 0 : -1;
@@ -356,19 +354,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             {
                 return;
             }
-
             int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : FindFirstSelectableRowIndex();
             if (start < 0) return;
 
-            int next = start + delta;
-            next = Math.Max(0, Math.Min(next, _rows.Count - 1));
+            int next = ComboBoxPopupNavigationHelper.ShiftIndex(start, delta, _rows.Count);
 
             // Skip non-selectable rows (group headers, separators)
             int guard = 0;
             while (guard < _rows.Count)
             {
                 var m = _rows[next].Model;
-                if (m != null && m.IsEnabled && m.RowKind == ComboBoxPopupRowKind.Normal)
+                if (ComboBoxPopupRowBehavior.IsSelectable(m))
                     break;
                 next += delta > 0 ? 1 : -1;
                 if (next < 0 || next >= _rows.Count)
@@ -391,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             ComboBoxPopupRow row = _rows[_keyboardFocusIndex];
             var model = row.Model;
-            if (model == null)
+            if (!ComboBoxPopupRowBehavior.IsSelectable(model))
             {
                 return;
             }
@@ -422,19 +418,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 int rowTop = 0;
                 for (int i = 0; i < index; i++)
                     rowTop += _rows[i].Height;
-                int rowBottom = rowTop + row.Height;
-                
-                int visibleTop = _vScrollBar.Value;
-                int visibleBottom = visibleTop + _scrollContainer.ClientSize.Height;
-                
-                if (rowTop < visibleTop)
-                {
-                    _vScrollBar.Value = rowTop;
-                }
-                else if (rowBottom > visibleBottom)
-                {
-                    _vScrollBar.Value = Math.Max(0, rowBottom - _scrollContainer.ClientSize.Height);
-                }
+                int next = ComboBoxPopupScrollHelper.ComputeAdjustedScrollOffset(
+                    _vScrollBar.Value,
+                    rowTop,
+                    row.Height,
+                    _scrollContainer.ClientSize.Height,
+                    Math.Max(0, _vScrollBar.Maximum - _vScrollBar.LargeChange));
+                _vScrollBar.Value = next;
             }
             catch
             {
@@ -476,10 +466,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (!_vScrollBar.Visible) return;
-            
-            int delta = e.Delta > 0 ? -_vScrollBar.SmallChange * 3 : _vScrollBar.SmallChange * 3;
-            int newValue = _vScrollBar.Value + delta;
-            newValue = Math.Max(_vScrollBar.Minimum, Math.Min(newValue, _vScrollBar.Maximum - _vScrollBar.LargeChange));
+
+            int maxOffset = Math.Max(0, _vScrollBar.Maximum - _vScrollBar.LargeChange);
+            int newValue = ComboBoxPopupMouseWheelHelper.ComputeNextOffsetFromWheel(_vScrollBar.Value, e.Delta, maxOffset);
             _vScrollBar.Value = newValue;
             
             // Mark as handled
@@ -494,21 +483,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             if (_model?.FilteredRows == null) return;
             foreach (var row in _model.FilteredRows)
             {
-                if (row.IsCheckable && !row.IsChecked && row.IsEnabled
-                    && row.RowKind != ComboBoxPopupRowKind.GroupHeader
-                    && row.RowKind != ComboBoxPopupRowKind.Separator)
+                if (ComboBoxPopupSelectionHelper.TryBuildSelectAllToggle(row, out var toggled))
                 {
-                    var toggled = new ComboBoxPopupRowModel
-                    {
-                        SourceItem = row.SourceItem, RowKind = row.RowKind,
-                        Text = row.Text, SubText = row.SubText,
-                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
-                        ImagePath = row.ImagePath, GroupName = row.GroupName,
-                        LayoutPreset = row.LayoutPreset,
-                        IsSelected = true, IsEnabled = row.IsEnabled,
-                        IsCheckable = row.IsCheckable, IsChecked = true,
-                        ListIndex = row.ListIndex
-                    };
                     RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(toggled, closePopup: false));
                 }
             }
@@ -519,23 +495,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             if (_model?.FilteredRows == null) return;
             foreach (var row in _model.FilteredRows)
             {
-                if (row.IsCheckable && row.IsChecked && row.IsEnabled
-                    && row.RowKind != ComboBoxPopupRowKind.GroupHeader
-                    && row.RowKind != ComboBoxPopupRowKind.Separator)
+                if (ComboBoxPopupSelectionHelper.TryBuildClearAllToggle(row, out var toggled))
                 {
-                    var toggled = new ComboBoxPopupRowModel
-                    {
-                        SourceItem = row.SourceItem, RowKind = row.RowKind,
-                        Text = row.Text, SubText = row.SubText,
-                        TrailingText = row.TrailingText, TrailingValueText = row.TrailingValueText,
-                        ImagePath = row.ImagePath, GroupName = row.GroupName,
-                        LayoutPreset = row.LayoutPreset,
-                        IsSelected = false, IsEnabled = row.IsEnabled,
-                        IsCheckable = row.IsCheckable, IsChecked = false,
-                        ListIndex = row.ListIndex
-                    };
                     RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(toggled, closePopup: false));
                 }
+            }
+        }
+
+        private void EnsureRowControlCount(int requiredCount)
+        {
+            while (_rows.Count < requiredCount)
+            {
+                var row = new ComboBoxPopupRow();
+                row.RowCommitted += OnRowCommitted;
+                row.MouseWheel += OnListPanelMouseWheel;
+                _listPanel.Controls.Add(row);
+                _rows.Add(row);
             }
         }
     }

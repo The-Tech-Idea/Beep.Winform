@@ -43,11 +43,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             var layoutCache = _layoutHelper.GetCachedLayout();
             if (layoutCache == null || layoutCache.Count == 0)
                 return;
+            Rectangle viewport = _owner.GetClientArea();
 
             // Helper to transform content -> viewport (client) coordinates
             Rectangle ToViewport(Rectangle rc) => new Rectangle(
-                _owner.DrawingRect.Left + rc.X - _owner.XOffset,
-                _owner.DrawingRect.Top + rc.Y - _owner.YOffset,
+                viewport.Left + rc.X - _owner.XOffset,
+                viewport.Top + rc.Y - _owner.YOffset,
                 rc.Width,
                 rc.Height);
 
@@ -60,9 +61,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
                 // Row rect spans full drawing width at node Y (viewport coords)
                 Rectangle rowVp = new Rectangle(
-                    _owner.DrawingRect.Left,
-                    _owner.DrawingRect.Top + (node.Y - _owner.YOffset),
-                    _owner.DrawingRect.Width,
+                    viewport.Left,
+                    viewport.Top + (node.Y - _owner.YOffset),
+                    viewport.Width,
                     rowH);
 
                 // Toggle (only when node has children and rect is valid)

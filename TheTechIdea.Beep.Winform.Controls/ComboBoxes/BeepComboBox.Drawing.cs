@@ -88,10 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             _comboBoxPainter.Paint(g, this, renderState, layout);
 
-            // 5 — Loading overlay
-            if (_isLoading) DrawLoadingIndicator(g, DrawingRect);
-
-            // 6 — Hit areas
+            // 5 — Hit areas
             if (!_isLoading) RegisterHitAreas();
 
            
@@ -190,21 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private IComboBoxPainter CreatePainter(ComboBoxType type)
         {
-            return type switch
-            {
-                ComboBoxType.OutlineDefault => new OutlineDefaultComboBoxPainter(),
-                ComboBoxType.OutlineSearchable => new OutlineSearchableComboBoxPainter(),
-                ComboBoxType.FilledSoft => new FilledSoftComboBoxPainter(),
-                ComboBoxType.RoundedPill => new RoundedPillComboBoxPainter(),
-                ComboBoxType.SegmentedTrigger => new SegmentedTriggerComboBoxPainter(),
-                ComboBoxType.MultiChipCompact => new MultiChipCompactComboBoxPainter(),
-                ComboBoxType.MultiChipSearch => new MultiChipSearchComboBoxPainter(),
-                ComboBoxType.DenseList => new DenseListComboBoxPainter(),
-                ComboBoxType.MinimalBorderless => new MinimalBorderlessComboBoxPainter(),
-                ComboBoxType.CommandMenu => new CommandMenuComboBoxPainter(),
-                ComboBoxType.VisualDisplay => new VisualDisplayComboBoxPainter(),
-                _ => new OutlineDefaultComboBoxPainter()
-            };
+            return ComboBoxTypeRegistry.CreatePainter(type);
         }
         
         #endregion

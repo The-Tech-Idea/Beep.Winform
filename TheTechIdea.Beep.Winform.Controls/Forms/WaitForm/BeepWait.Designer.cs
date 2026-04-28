@@ -187,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.Margin = new Padding(0);
             Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
-            Title.MinimumSize = new Size(88, 40);
+            Title.MinimumSize = new Size(88, 28);
             Title.ModernGradientType = ModernGradientType.None;
             Title.Multiline = false;
             Title.Name = "Title";
@@ -582,7 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
-            beepLabel1.MinimumSize = new Size(120, 38);
+            beepLabel1.MinimumSize = new Size(106, 28);
             beepLabel1.ModernGradientType = ModernGradientType.None;
             beepLabel1.Multiline = false;
             beepLabel1.Name = "beepLabel1";
@@ -1061,7 +1061,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(Title);
             ForeColor = Color.Black;
             FormStyle = FormStyle.Terminal;
-            Location = new Point(0, 0);
             Margin = new Padding(2, 1, 2, 1);
             Name = "BeepWait";
             Padding = new Padding(3);

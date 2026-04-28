@@ -252,37 +252,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Retro: 3D bevel on shared client path — inset pens so stroke stays inside BorderShape
+            // Retro: integer bevel edges to keep all sides visually consistent.
             g.SmoothingMode = SmoothingMode.None;
-
-            var rect = owner.BorderShape.GetBounds();
-            int left = (int)Math.Floor(rect.Left);
-            int top = (int)Math.Floor(rect.Top);
-            int right = (int)Math.Ceiling(rect.Right) - 1;
-            int bottom = (int)Math.Ceiling(rect.Bottom) - 1;
+            var rect = owner.ClientRectangle;
+            int left = rect.Left;
+            int top = rect.Top;
+            int right = rect.Right - 1;
+            int bottom = rect.Bottom - 1;
+            int bevelThickness = Math.Max(2, (int)Math.Round((double)metrics.BorderWidth));
 
             var lightColor = ShiftLuminance(metrics.BorderColor, 0.25f);
             var darkColor = ShiftLuminance(metrics.BorderColor, -0.25f);
 
-            using (var lightPen = new Pen(lightColor, 2))
+            using (var lightPen = new Pen(lightColor, 1))
             {
-                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(lightPen);
-                g.DrawLine(lightPen, left, top, right, top);
-                g.DrawLine(lightPen, left, top, left, bottom);
+                for (int i = 0; i < bevelThickness; i++)
+                {
+                    g.DrawLine(lightPen, left + i, top + i, right - i, top + i);
+                    g.DrawLine(lightPen, left + i, top + i, left + i, bottom - i);
+                }
             }
 
-            using (var darkPen = new Pen(darkColor, 2))
+            using (var darkPen = new Pen(darkColor, 1))
             {
-                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(darkPen);
-                g.DrawLine(darkPen, left, bottom, right, bottom);
-                g.DrawLine(darkPen, right, top, right, bottom);
+                for (int i = 0; i < bevelThickness; i++)
+                {
+                    g.DrawLine(darkPen, left + i, bottom - i, right - i, bottom - i);
+                    g.DrawLine(darkPen, right - i, top + i, right - i, bottom - i);
+                }
             }
 
-            var innerRect = new RectangleF(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6);
+            int innerInset = bevelThickness + 1;
+            var innerRect = new Rectangle(
+                left + innerInset,
+                top + innerInset,
+                rect.Width - (innerInset * 2) - 1,
+                rect.Height - (innerInset * 2) - 1);
             using (var borderPen = new Pen(metrics.BorderColor, 1))
             {
-                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(borderPen);
-                g.DrawRectangle(borderPen, innerRect.X, innerRect.Y, innerRect.Width, innerRect.Height);
+                if (innerRect.Width > 0 && innerRect.Height > 0)
+                {
+                    g.DrawRectangle(borderPen, innerRect);
+                }
             }
         }
 

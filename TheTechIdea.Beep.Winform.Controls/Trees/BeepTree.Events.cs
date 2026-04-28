@@ -382,8 +382,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_visibleNodes == null || _visibleNodes.Count == 0)
                 return false;
 
+            Rectangle viewportArea = GetClientArea();
             int viewportTop = _yOffset;
-            int viewportBottom = _yOffset + DrawingRect.Height;
+            int viewportBottom = _yOffset + viewportArea.Height;
 
             // Find first node potentially visible
             int startIndex = 0;
@@ -409,9 +410,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Check if point is in the row's vertical range
                 Rectangle rowVp = new Rectangle(
-                    DrawingRect.Left,
-                    DrawingRect.Top + (n.Y - _yOffset),
-                    DrawingRect.Width,
+                    viewportArea.Left,
+                    viewportArea.Top + (n.Y - _yOffset),
+                    viewportArea.Width,
                     n.RowHeight);
 
                 if (!rowVp.Contains(p))
@@ -485,12 +486,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_isPopupOpen) return;
             if (CurrentMenutems == null || CurrentMenutems.Count == 0)
                 return;
+            Rectangle viewportArea = GetClientArea();
 
             // Compute screen location aligned with the clicked row
             int? viewportY = _lastContextMenuViewportY;
             if (viewportY == null && ClickedNode != null)
             {
-                viewportY = DrawingRect.Top + Math.Max(0, ClickedNode.Y - _yOffset);
+                viewportY = viewportArea.Top + Math.Max(0, ClickedNode.Y - _yOffset);
             }
 
             Point screenTopLeft = PointToScreen(Point.Empty);

@@ -211,6 +211,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (buttonRect.IsEmpty) return;
 
+            // Subtle button fill for hover/open states to improve affordance.
+            if (_owner.Enabled && (_owner.IsButtonHovered || _owner.IsDropdownOpen))
+            {
+                Color baseHover = _theme?.ComboBoxHoverBackColor != Color.Empty
+                    ? _theme.ComboBoxHoverBackColor
+                    : (_theme?.PrimaryColor ?? Color.Empty);
+                if (baseHover != Color.Empty)
+                {
+                    int alpha = _owner.IsDropdownOpen ? 70 : 44;
+                    using var hoverPath = GetRoundedRectPath(
+                        Rectangle.Inflate(buttonRect, -ScaleX(1), -ScaleY(1)),
+                        Math.Max(ScaleX(3), Math.Min(buttonRect.Width, buttonRect.Height) / 4));
+                    g.FillPath(PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, baseHover)), hoverPath);
+                }
+            }
+
             // Draw subtle separator line between text area and button
             if (ShowButtonSeparator)
             {
@@ -227,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // Size icon relative to the dropdown button so it remains legible across
             // styles and DPI values (instead of a fixed small logical size).
             int maxByButton = Math.Min(buttonRect.Width, buttonRect.Height) - ScaleX(8);
-            int preferred = ScaleX(16);
+            int preferred = Math.Max(ScaleX(14), (int)Math.Round(Math.Min(buttonRect.Width, buttonRect.Height) * 0.45f));
             int iconSize = Math.Min(preferred, maxByButton);
             if (iconSize > 4)
             {
@@ -394,9 +410,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             
             try
             {
-                // Use StyledImagePainter for consistent image rendering
-                var style = BeepStyling.CurrentControlStyle;
-                StyledImagePainter.Paint(g, imageRect, imagePath, style);
+                // Use StyledImagePainter for consistent image rendering.
+                if (!_owner.Enabled)
+                {
+                    StyledImagePainter.PaintDisabled(g, imageRect, imagePath, _theme?.DisabledBackColor ?? _owner.BackColor);
+                }
+                else
+                {
+                    var style = BeepStyling.CurrentControlStyle;
+                    StyledImagePainter.Paint(g, imageRect, imagePath, style);
+                }
             }
             catch
             {
@@ -572,10 +595,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             var role = owner.ClearButtonHovered ? BeepComboBoxIconRole.ClearHover : BeepComboBoxIconRole.ClearNormal;
             Color tint = GetIconTint(role, _theme, owner);
             int iconSize = Math.Min(rect.Width, rect.Height) - ScaleX(6);
+            iconSize = Math.Max(ScaleX(10), iconSize);
             int xOff = (rect.Width  - iconSize) / 2;
             int yOff = (rect.Height - iconSize) / 2;
             var iconRect = new Rectangle(rect.X + xOff, rect.Y + yOff, iconSize, iconSize);
-            DrawSvgIcon(g, iconRect, SvgsUI.CircleX, tint, 0.75f);
+            DrawSvgIcon(g, iconRect, SvgsUI.CircleX, tint, owner.Enabled ? 0.78f : 0.55f);
         }
 
         /// <summary>
@@ -590,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             if (iconSize <= 0) return;
 
             // Place icon just to the left of the dropdown button (or clear button if both shown)
-            int x = buttonRect.Left - iconSize - ScaleX(4);
+            int x = buttonRect.Left - iconSize - ScaleX(6);
             int y = buttonRect.Top  + (buttonRect.Height - iconSize) / 2;
             var vRect = new Rectangle(x, y, iconSize, iconSize);
 

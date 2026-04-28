@@ -77,10 +77,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
 
             var tokens   = state.VisualTokens;
             int usableH  = drawingRect.Height;
+            Padding effectivePadding = owner.InnerPadding != Padding.Empty
+                ? owner.InnerPadding
+                : (tokens?.InnerPadding ?? new Padding(8, 4, 8, 4));
 
             // ── 1. Dropdown button ──────────────────────────────────────────
             int minBtnW  = owner.ScaleLogicalX(MinButtonWidthLogical);
-            int buttonW  = Math.Max(minBtnW, tokens?.ButtonWidth ?? MinButtonWidthLogical);
+            int preferredButton = owner.DropdownButtonWidth > 0
+                ? owner.ScaleLogicalX(owner.DropdownButtonWidth)
+                : (tokens?.ButtonWidth ?? MinButtonWidthLogical);
+            int buttonW  = Math.Max(minBtnW, preferredButton);
             buttonW      = Math.Min(buttonW, drawingRect.Width / 3);
             buttonW      = Math.Max(minBtnW, buttonW);
 
@@ -118,8 +124,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             }
 
             // ── 4. Text area ───────────────────────────────────────────────
-            int leftInset  = imageConsumed;
+            int leftInset  = imageConsumed + owner.ScaleLogicalX(Math.Max(0, effectivePadding.Left));
             int rightLimit = buttonRect.Left - clearConsumed;
+            rightLimit -= owner.ScaleLogicalX(Math.Max(0, effectivePadding.Right));
             int textX      = drawingRect.X + leftInset;
             int textW      = Math.Max(1, rightLimit - textX);
             var textRect   = new Rectangle(textX, drawingRect.Y, textW, usableH);
@@ -139,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 Chips              = chips,
                 CornerRadius       = tokens?.CornerRadius      ?? 6,
                 TextInset          = tokens?.TextInset         ?? 8,
-                InnerPadding       = tokens?.InnerPadding      ?? new Padding(8, 4, 8, 4),
+                InnerPadding       = effectivePadding,
                 ShowButtonSeparator = tokens?.ShowButtonSeparator ?? false,
                 UseSegmentedTrigger = tokens?.UseSegmentedTrigger ?? false,
             };
@@ -157,16 +164,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             if (textAreaRect.Width <= 0 || textAreaRect.Height <= 0)
                 return Array.Empty<ChipLayoutItem>();
 
-            using var bmp = new Bitmap(1, 1);
-            using var g = Graphics.FromImage(bmp);
-
             var font = state.ThemeTokens?.LabelFont ?? SystemFonts.DefaultFont;
             bool singleLineCollapse = false;
 
             return ComboBoxChipLayoutEngine.Compute(
                 textAreaRect,
                 state.SelectedChips,
-                g,
                 font,
                 owner,
                 singleLineCollapse,

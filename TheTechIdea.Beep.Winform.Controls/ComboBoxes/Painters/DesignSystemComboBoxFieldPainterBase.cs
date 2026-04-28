@@ -89,7 +89,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         private void DrawButtonIcon(Graphics g, Rectangle buttonRect, Color iconColor, bool searchIcon)
         {
-            int iconSize = Math.Min(ScaleX(15), Math.Min(buttonRect.Width, buttonRect.Height) - ScaleX(8));
+            int maxByButton = Math.Min(buttonRect.Width, buttonRect.Height) - ScaleX(8);
+            int preferred = Math.Max(ScaleX(14), (int)Math.Round(Math.Min(buttonRect.Width, buttonRect.Height) * 0.45f));
+            int iconSize = Math.Min(preferred, maxByButton);
             if (iconSize <= 4)
             {
                 DrawDropdownArrow(g, buttonRect, iconColor, _owner.IsDropdownOpen);

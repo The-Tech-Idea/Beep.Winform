@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Icons;
 
@@ -30,6 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         private readonly List<SimpleItem> _selected = new List<SimpleItem>();
         private IComboBoxPopupHost _popupHost;
         private string _popupSearchText = string.Empty;
+        private bool _popupRefreshQueued;
+        private bool _multiSelectCommitQueued;
+        private List<SimpleItem> _pendingPopupSelection;
 
         private ComboBoxType _comboBoxType = ComboBoxType.MultiChipSearch;
 
@@ -89,6 +93,57 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         private static bool IsSameSimpleItem(SimpleItem left, SimpleItem right)
             => string.Equals(BeepComboBox.GetSimpleItemIdentity(left), BeepComboBox.GetSimpleItemIdentity(right), StringComparison.OrdinalIgnoreCase);
 
+        private Font ResolveSafeTextFont()
+        {
+            try
+            {
+                if (TextFont != null)
+                {
+                    _ = TextFont.Height;
+                    return TextFont;
+                }
+            }
+            catch
+            {
+                // fall through to fallback font
+            }
+
+            return BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
+        }
+
+        private static int GetSafeFontHeight(Font font)
+        {
+            try
+            {
+                return Math.Max(1, font?.Height ?? SystemFonts.DefaultFont.Height);
+            }
+            catch
+            {
+                return Math.Max(1, SystemFonts.DefaultFont.Height);
+            }
+        }
+
+        private static Size MeasureTextSafe(string text, Font font)
+        {
+            text ??= string.Empty;
+            try
+            {
+                SizeF measured = TextUtils.MeasureText(text, font, int.MaxValue);
+                return new Size(Math.Max(1, (int)Math.Ceiling(measured.Width)), Math.Max(1, (int)Math.Ceiling(measured.Height)));
+            }
+            catch
+            {
+                try
+                {
+                    return TextRenderer.MeasureText(text, font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                }
+                catch
+                {
+                    return TextRenderer.MeasureText(text, SystemFonts.DefaultFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                }
+            }
+        }
+
         // Helper to add items easily
         public void AddItem(SimpleItem item)
         {
@@ -132,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                         Invalidate();
                         if (_popupHost != null && _popupHost.IsVisible)
                         {
-                            var model = ComboBoxPopupModelBuilder.Build(_items, _selected, null, string.Empty, ComboBoxType, true, true, false);
+                            var model = BuildPopupModel(string.Empty);
                             _popupHost.UpdateModel(model);
                         }
                     }
@@ -158,6 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
+            Font safeTextFont = ResolveSafeTextFont();
 
             UpdateDrawingRect();
             Rectangle contentRect = DrawingRect;
@@ -180,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                     {
                         phColor = ThemeContrastHelper.AdjustForegroundToContrast(phColor, BackColor, 2.8);
                     }
-                    TextRenderer.DrawText(g, Placeholder, TextFont, placeholderRect, phColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                    TextRenderer.DrawText(g, Placeholder, safeTextFont, placeholderRect, phColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                 }
                 else
                 {
@@ -214,11 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                                 catch { }
 
                                 var textRect = new Rectangle(c.TextRect.X + imgRect.Width + 4, c.TextRect.Y, c.TextRect.Width - (imgRect.Width + 4), c.TextRect.Height);
-                                TextRenderer.DrawText(g, c.Text, TextFont, textRect, chipFore, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                                TextRenderer.DrawText(g, c.Text, safeTextFont, textRect, chipFore, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                             }
                             else
                             {
-                                TextRenderer.DrawText(g, c.Text, TextFont, c.TextRect, chipFore, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                                TextRenderer.DrawText(g, c.Text, safeTextFont, c.TextRect, chipFore, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                             }
 
                             using (var path = new GraphicsPath())
@@ -248,7 +304,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                     using var errBrush = new SolidBrush(Color.FromArgb(200, Color.Red));
                     using var errBgBrush = new SolidBrush(Color.FromArgb(20, Color.Red));
                     g.FillRectangle(errBgBrush, lblRect);
-                    TextRenderer.DrawText(g, err, new Font(TextFont.FontFamily, TextFont.Size * 0.85f), lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                    Font errorFont = BeepFontManager.GetCachedFont(safeTextFont.FontFamily.Name, Math.Max(6f, safeTextFont.Size * 0.85f), safeTextFont.Style) ?? safeTextFont;
+                    TextRenderer.DrawText(g, err, errorFont, lblRect, Color.FromArgb(200, Color.Red), TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
                 }
             }
         }
@@ -283,20 +340,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         private List<ChipLayout> GetChipsLayout(Rectangle contentRect)
         {
             var tokens = GetVisualTokens();
+            Font safeTextFont = ResolveSafeTextFont();
             int padding = ScaleLogicalX(Math.Max(4, tokens.InnerPadding.Left));
             var list = new List<ChipLayout>();
             int x = contentRect.X + padding;
             int y = contentRect.Y + padding / 2;
             int maxW = contentRect.Width - ScaleLogicalX(tokens.ButtonWidth) - (padding * 3);
-            int lineHeight = Math.Max(ScaleLogicalY(tokens.ChipHeight), TextFont.Height + ScaleLogicalY(8));
+            int lineHeight = Math.Max(ScaleLogicalY(tokens.ChipHeight), GetSafeFontHeight(safeTextFont) + ScaleLogicalY(8));
             int cx = x;
             int cy = y;
             int usedW = 0;
             foreach (var s in _selected)
             {
                 string text = string.IsNullOrEmpty(s.DisplayField) ? s.Text ?? s.Name : s.DisplayField;
-                SizeF szF = TextUtils.MeasureText(text, TextFont, int.MaxValue);
-                Size sz = new Size((int)szF.Width, (int)szF.Height);
+                Size sz = MeasureTextSafe(text, safeTextFont);
                 int chipW = Math.Max(40, sz.Width + 28);
                 if (usedW + chipW > maxW && usedW > 0)
                 {
@@ -333,16 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             _popupHost.PopupClosed += PopupHost_PopupClosed;
             _popupHost.SearchTextChanged += PopupHost_SearchTextChanged;
 
-            var model = ComboBoxPopupModelBuilder.Build(
-                _items,
-                _selected,
-                null,
-                _popupSearchText,
-                ComboBoxType,
-                true, // isMultiSelect
-                true, // showSelectAll
-                false // showFooter
-            );
+            var model = BuildPopupModel(_popupSearchText);
 
             _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
         }
@@ -360,41 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 return;
             }
 
-            int idx = _selected.FindIndex(existing => IsSameSimpleItem(existing, item));
-            if (idx >= 0)
-            {
-                if (RequireAtLeastOne && _selected.Count <= 1)
-                {
-                    return; // Enforce at least one constraint
-                }
-                _selected.RemoveAt(idx);
-            }
-            else
-            {
-                _selected.Add(item);
-            }
-
-            SelectionChanged?.Invoke(this, EventArgs.Empty);
-            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(item));
-            Invalidate();
-
-            if (CloseOnSelection)
-            {
-                ClosePopup();
-            }
-            else if (_popupHost != null)
-            {
-                var model = ComboBoxPopupModelBuilder.Build(
-                    _items,
-                    _selected,
-                    null,
-                    _popupSearchText,
-                    ComboBoxType,
-                    true,
-                    true,
-                    false);
-                _popupHost.UpdateModel(model);
-            }
+            QueuePopupSelectionToggle(item, newlyChecked);
         }
 
         private void PopupHost_SearchTextChanged(object sender, ComboBoxSearchChangedEventArgs e)
@@ -405,15 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
             }
 
             _popupSearchText = e?.SearchText ?? string.Empty;
-            var model = ComboBoxPopupModelBuilder.Build(
-                _items,
-                _selected,
-                null,
-                _popupSearchText,
-                ComboBoxType,
-                true,
-                true,
-                false);
+            var model = BuildPopupModel(_popupSearchText);
             _popupHost.UpdateModel(model);
         }
 
@@ -441,22 +447,104 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
         }
 
         private static IComboBoxPopupHost CreatePopupHostForType(ComboBoxType type)
+            => ComboBoxTypeRegistry.CreatePopupHost(type);
+
+        private ComboBoxPopupModel BuildPopupModel(string searchText)
         {
-            return type switch
+            return ComboBoxPopupModelBuilder.Build(
+                _items,
+                _selected,
+                null,
+                searchText,
+                ComboBoxType,
+                true,
+                true,
+                false,
+                showOptionDescription: true,
+                showStatusIcons: true,
+                emptyStateText: Placeholder);
+        }
+
+        private void SchedulePopupModelRefresh()
+        {
+            if (_popupHost == null || _popupRefreshQueued || IsDisposed)
             {
-                ComboBoxType.OutlineDefault => new OutlineDefaultPopupHostForm(),
-                ComboBoxType.OutlineSearchable => new OutlineSearchablePopupHostForm(),
-                ComboBoxType.FilledSoft => new FilledSoftPopupHostForm(),
-                ComboBoxType.RoundedPill => new RoundedPillPopupHostForm(),
-                ComboBoxType.SegmentedTrigger => new SegmentedTriggerPopupHostForm(),
-                ComboBoxType.MultiChipCompact => new MultiChipCompactPopupHostForm(),
-                ComboBoxType.MultiChipSearch => new MultiChipSearchPopupHostForm(),
-                ComboBoxType.DenseList => new DenseListPopupHostForm(),
-                ComboBoxType.MinimalBorderless => new MinimalBorderlessPopupHostForm(),
-                ComboBoxType.CommandMenu => new CommandMenuPopupHostForm(),
-                ComboBoxType.VisualDisplay => new VisualDisplayPopupHostForm(),
-                _ => new MultiChipSearchPopupHostForm(),
-            };
+                return;
+            }
+
+            _popupRefreshQueued = true;
+            BeginInvoke(new Action(() =>
+            {
+                _popupRefreshQueued = false;
+                if (_popupHost == null)
+                {
+                    return;
+                }
+
+                _popupHost.UpdateModel(BuildPopupModel(_popupSearchText));
+            }));
+        }
+
+        private void QueuePopupSelectionToggle(SimpleItem item, bool newlyChecked)
+        {
+            if (item == null || IsDisposed)
+            {
+                return;
+            }
+
+            _pendingPopupSelection ??= new List<SimpleItem>(_selected);
+
+            int idx = _pendingPopupSelection.FindIndex(existing => IsSameSimpleItem(existing, item));
+            if (newlyChecked)
+            {
+                if (idx < 0)
+                {
+                    _pendingPopupSelection.Add(item);
+                }
+            }
+            else if (idx >= 0)
+            {
+                if (RequireAtLeastOne && _pendingPopupSelection.Count <= 1)
+                {
+                    return;
+                }
+                _pendingPopupSelection.RemoveAt(idx);
+            }
+
+            if (_multiSelectCommitQueued)
+            {
+                return;
+            }
+
+            _multiSelectCommitQueued = true;
+            BeginInvoke(new Action(() =>
+            {
+                _multiSelectCommitQueued = false;
+                if (IsDisposed)
+                {
+                    _pendingPopupSelection = null;
+                    return;
+                }
+
+                if (_pendingPopupSelection != null)
+                {
+                    _selected.Clear();
+                    _selected.AddRange(_pendingPopupSelection);
+                    _pendingPopupSelection = null;
+                    SelectionChanged?.Invoke(this, EventArgs.Empty);
+                    SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(item));
+                    Invalidate();
+                }
+
+                if (CloseOnSelection)
+                {
+                    ClosePopup();
+                }
+                else
+                {
+                    SchedulePopupModelRefresh();
+                }
+            }));
         }
     }
 }

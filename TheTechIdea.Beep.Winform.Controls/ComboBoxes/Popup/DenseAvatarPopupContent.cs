@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 {
@@ -32,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private int _keyboardFocusIndex = -1;
         private int _scrollOffset = 0;
         private int _totalContentHeight = 0;
+        private string _lastRowSignature = string.Empty;
 
         public DenseAvatarPopupContent()
         {
@@ -106,39 +107,63 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _model = model;
             _searchBox.Visible = model.ShowSearchBox || _profile.ForceSearchVisible;
 
-            _scrollPanel.SuspendLayout();
-            _scrollPanel.Controls.Clear();
-            _rows.Clear();
-            _scrollOffset = 0;
-
-            if (model.FilteredRows != null)
+            var filteredRows = model.FilteredRows ?? Array.Empty<ComboBoxPopupRowModel>();
+            string rowSignature = ComputeRowSignature(filteredRows);
+            bool rowsChanged = !string.Equals(rowSignature, _lastRowSignature, StringComparison.Ordinal);
+            if (rowsChanged)
             {
+                _scrollPanel.SuspendLayout();
+                _scrollOffset = 0;
+            }
+            int renderableCount = 0;
+            for (int i = 0; i < filteredRows.Length; i++)
+            {
+                if (filteredRows[i].RowKind != ComboBoxPopupRowKind.Separator)
+                {
+                    renderableCount++;
+                }
+            }
+
+            if (rowsChanged && renderableCount > 0)
+            {
+                EnsureRowControlCount(renderableCount);
                 int rowWidth = Math.Max(80, _scrollPanel.ClientSize.Width - 4);
                 int yPos = 0;
-
-                foreach (var rowModel in model.FilteredRows)
+                int rowIndex = 0;
+                for (int i = 0; i < filteredRows.Length; i++)
                 {
+                    var rowModel = filteredRows[i];
                     if (rowModel.RowKind == ComboBoxPopupRowKind.Separator) continue;
 
-                    var row = new AvatarRow(rowModel, _themeTokens, _profile)
-                    {
-                        Width = rowWidth,
-                        Left = 0,
-                        Top = yPos
-                    };
-                    row.AvatarRowClicked += OnRowClicked;
-                    _scrollPanel.Controls.Add(row);
-                    _rows.Add(row);
+                    var row = _rows[rowIndex++];
+                    row.Visible = true;
+                    row.Width = rowWidth;
+                    row.Left = 0;
+                    row.Top = yPos;
+                    row.UpdateModel(rowModel);
                     yPos += row.Height;
+                }
+
+                for (int i = rowIndex; i < _rows.Count; i++)
+                {
+                    _rows[i].Visible = false;
                 }
                 _totalContentHeight = yPos;
             }
-            else
+            else if (rowsChanged)
             {
+                for (int i = 0; i < _rows.Count; i++)
+                {
+                    _rows[i].Visible = false;
+                }
                 _totalContentHeight = 0;
             }
 
-            _scrollPanel.ResumeLayout(true);
+            if (rowsChanged)
+            {
+                _scrollPanel.ResumeLayout(true);
+                _lastRowSignature = rowSignature;
+            }
             UpdateScrollBar();
             SetKeyboardFocusIndex(model.KeyboardFocusIndex >= 0 ? model.KeyboardFocusIndex : 0);
         }
@@ -175,17 +200,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public void FocusItem(SimpleItem item)
         {
             if (item == null || _rows.Count == 0) return;
-            string target = BeepComboBox.GetSimpleItemIdentity(item);
+            var rowModels = new List<ComboBoxPopupRowModel>(_rows.Count);
             for (int i = 0; i < _rows.Count; i++)
             {
-                var rowItem = _rows[i].RowModel?.SourceItem;
-                if (rowItem != null &&
-                    string.Equals(BeepComboBox.GetSimpleItemIdentity(rowItem), target, StringComparison.OrdinalIgnoreCase))
-                {
-                    SetKeyboardFocusIndex(i);
-                    EnsureVisible(i);
-                    return;
-                }
+                rowModels.Add(_rows[i].RowModel);
+            }
+
+            int index = ComboBoxPopupFocusHelper.FindRowIndexByItem(rowModels, item);
+            if (index >= 0)
+            {
+                SetKeyboardFocusIndex(index);
+                EnsureVisible(index);
             }
         }
 
@@ -235,8 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         private void OnListPanelMouseWheel(object sender, MouseEventArgs e)
         {
             if (!_vScrollBar.Visible) return;
-            int delta = -e.Delta / 4;
-            int newVal = Math.Max(0, Math.Min(_vScrollBar.Maximum, _scrollOffset + delta));
+            int newVal = ComboBoxPopupMouseWheelHelper.ComputeNextOffsetFromWheel(_scrollOffset, e.Delta, _vScrollBar.Maximum);
             if (newVal != _scrollOffset)
             {
                 _scrollOffset = newVal;
@@ -272,8 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void MoveFocus(int delta)
         {
-            int start = _keyboardFocusIndex >= 0 ? _keyboardFocusIndex : 0;
-            SetKeyboardFocusIndex(start + delta);
+            SetKeyboardFocusIndex(ComboBoxPopupNavigationHelper.ShiftIndex(_keyboardFocusIndex, delta, _rows.Count));
         }
 
         private void CommitFocused()
@@ -284,8 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         private void OnRowClicked(object sender, ComboBoxPopupRowModel row)
         {
-            if (row == null || !row.IsEnabled) return;
-            if (row.RowKind == ComboBoxPopupRowKind.GroupHeader) return;
+            if (!ComboBoxPopupRowBehavior.IsSelectable(row)) return;
             bool close = !(_model?.IsMultiSelect ?? false);
             RowCommitted?.Invoke(this, new ComboBoxRowCommittedEventArgs(row, close));
         }
@@ -299,25 +321,58 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             int rowTop = 0;
             for (int i = 0; i < index; i++)
                 rowTop += _rows[i].Height;
-            int rowBottom = rowTop + row.Height;
-            int viewportHeight = _scrollPanel.ClientSize.Height;
-
-            if (rowTop < _scrollOffset)
-            {
-                _scrollOffset = rowTop;
-            }
-            else if (rowBottom > _scrollOffset + viewportHeight)
-            {
-                _scrollOffset = rowBottom - viewportHeight;
-            }
-            else
+            int next = ComboBoxPopupScrollHelper.ComputeAdjustedScrollOffset(
+                _scrollOffset,
+                rowTop,
+                row.Height,
+                _scrollPanel.ClientSize.Height,
+                _vScrollBar.Maximum);
+            if (next == _scrollOffset)
             {
                 return;
             }
-
-            _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, _vScrollBar.Maximum));
+            _scrollOffset = next;
             _vScrollBar.Value = _scrollOffset;
             ApplyScrollOffset();
+        }
+
+        private void EnsureRowControlCount(int requiredCount)
+        {
+            while (_rows.Count < requiredCount)
+            {
+                var row = new AvatarRow(new ComboBoxPopupRowModel(), _themeTokens, _profile);
+                row.AvatarRowClicked += OnRowClicked;
+                _scrollPanel.Controls.Add(row);
+                _rows.Add(row);
+            }
+        }
+
+        private static string ComputeRowSignature(IReadOnlyList<ComboBoxPopupRowModel> rows)
+        {
+            if (rows == null || rows.Count == 0)
+            {
+                return "empty";
+            }
+
+            var sb = new StringBuilder(rows.Count * 12);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i];
+                if (row == null)
+                {
+                    sb.Append("null|");
+                    continue;
+                }
+
+                sb.Append((int)row.RowKind).Append(':')
+                  .Append(BeepComboBox.GetSimpleItemIdentity(row.SourceItem)).Append(':')
+                  .Append(row.Text ?? string.Empty).Append(':')
+                  .Append(row.IsSelected ? '1' : '0')
+                  .Append(row.IsEnabled ? '1' : '0')
+                  .Append('|');
+            }
+
+            return sb.ToString();
         }
 
         // ──────────────────────────────────────────────────────────────────
@@ -326,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         internal sealed class AvatarRow : Control
         {
-            public ComboBoxPopupRowModel RowModel { get; }
+            public ComboBoxPopupRowModel RowModel { get; private set; }
             private ComboBoxThemeTokens _tokens;
             private readonly ComboBoxPopupHostProfile _profile;
             private bool _hovered;
@@ -351,6 +406,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             public void ApplyThemeTokens(ComboBoxThemeTokens tokens) { _tokens = tokens; Invalidate(); }
             public void SetKeyboardFocused(bool f) { if (_focused != f) { _focused = f; Invalidate(); } }
 
+            public void UpdateModel(ComboBoxPopupRowModel model)
+            {
+                RowModel = model ?? new ComboBoxPopupRowModel();
+                Cursor = ComboBoxPopupRowBehavior.IsSelectable(RowModel) ? Cursors.Hand : Cursors.Default;
+                Height = RowModel.RowKind == ComboBoxPopupRowKind.GroupHeader ? 24 : 38;
+                Invalidate();
+            }
+
             protected override void OnClick(EventArgs e) { base.OnClick(e); AvatarRowClicked?.Invoke(this, RowModel); }
             protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); _hovered = true; Invalidate(); }
             protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); _hovered = false; Invalidate(); }
@@ -374,6 +437,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     return;
                 }
 
+                if (ComboBoxPopupStateRowRenderer.TryDrawStateRow(g, bounds, RowModel, Font, _tokens.DisabledForeColor))
+                {
+                    return;
+                }
+
                 // Background
                 Color back = _tokens.PopupBackColor;
                 if (RowModel.IsSelected || RowModel.RowKind == ComboBoxPopupRowKind.Selected)
@@ -386,20 +454,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 using (var bgBrush = new SolidBrush(back))
                     g.FillRectangle(bgBrush, bounds);
 
-                int avatarSize = 28;
-                int avatarX = bounds.Left + 10;
+                int avatarInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                int avatarTextGap = ComboBoxPopupIconRenderer.ScaleLogical(g, 8);
+                int avatarMinSize = ComboBoxPopupIconRenderer.ScaleLogical(g, 22);
+                int avatarPadding = ComboBoxPopupIconRenderer.ScaleLogical(g, 10);
+                int avatarSize = ComboBoxPopupIconRenderer.ComputeAdaptiveIconSize(bounds.Width, bounds.Height, avatarMinSize, avatarPadding);
+                int avatarX = bounds.Left + avatarInset;
                 int avatarY = bounds.Top + (bounds.Height - avatarSize) / 2;
                 var avatarRect = new Rectangle(avatarX, avatarY, avatarSize, avatarSize);
 
                 // Circular avatar
                 if (!string.IsNullOrWhiteSpace(RowModel.ImagePath))
                 {
-                    var state = g.Save();
-                    using var clipPath = new GraphicsPath();
-                    clipPath.AddEllipse(avatarRect);
-                    g.SetClip(clipPath, CombineMode.Intersect);
-                    StyledImagePainter.Paint(g, avatarRect, RowModel.ImagePath, BeepControlStyle.Minimal);
-                    g.Restore(state);
+                    ComboBoxPopupIconRenderer.PaintRowImage(g, avatarRect, RowModel.ImagePath, RowModel.IsEnabled, circular: true, _tokens.DisabledBackColor);
                 }
                 else
                 {
@@ -422,8 +489,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 }
 
                 // Name text
-                int textX = avatarRect.Right + 10;
-                var textRect = new Rectangle(textX, bounds.Top, bounds.Width - textX - 32, bounds.Height);
+                int textX = avatarRect.Right + avatarTextGap;
+                int statusRightInset = ComboBoxPopupIconRenderer.ScaleLogical(g, 10);
+                int statusDotSize = ComboBoxPopupIconRenderer.ScaleLogical(g, 10);
+                var textRect = new Rectangle(textX, bounds.Top, Math.Max(1, bounds.Right - statusRightInset - statusDotSize - textX - avatarTextGap), bounds.Height);
                 Color fore = RowModel.IsEnabled ? _tokens.ForeColor : _tokens.DisabledForeColor;
 
                 if (RowModel.IsSelected)
@@ -439,8 +508,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 }
 
                 // Status indicator dot (right side)
-                int dotSize = 10;
-                int dotX = bounds.Right - 20;
+                int dotSize = statusDotSize;
+                int dotX = bounds.Right - statusRightInset - dotSize;
                 int dotY = bounds.Top + (bounds.Height - dotSize) / 2;
                 Color dotColor = GetStatusColor(RowModel.SubText);
 

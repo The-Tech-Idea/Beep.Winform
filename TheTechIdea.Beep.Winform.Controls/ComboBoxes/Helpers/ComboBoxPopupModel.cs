@@ -215,18 +215,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
         };
 
         /// <summary>Returns an empty-state model (shown when the list is truly empty).</summary>
-        public static ComboBoxPopupModel Empty(bool showSearch = false) => new ComboBoxPopupModel
+        public static ComboBoxPopupModel Empty(bool showSearch = false, string message = "No options") => new ComboBoxPopupModel
         {
-            AllRows      = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.EmptyState, IsEnabled = false, ListIndex = 0 } },
-            FilteredRows = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.EmptyState, IsEnabled = false, ListIndex = 0 } },
+            AllRows      = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.EmptyState, Text = message, IsEnabled = false, ListIndex = 0 } },
+            FilteredRows = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.EmptyState, Text = message, IsEnabled = false, ListIndex = 0 } },
             ShowSearchBox = showSearch,
         };
 
         /// <summary>Returns a no-results model (shown when a search filter matches nothing).</summary>
-        public static ComboBoxPopupModel NoResults(string searchText, bool showSearch = true) => new ComboBoxPopupModel
+        public static ComboBoxPopupModel NoResults(string searchText, bool showSearch = true, string message = null) => new ComboBoxPopupModel
         {
-            AllRows      = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.NoResults, Text = $"No results for \"{searchText}\"", IsEnabled = false, ListIndex = 0 } },
-            FilteredRows = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.NoResults, Text = $"No results for \"{searchText}\"", IsEnabled = false, ListIndex = 0 } },
+            AllRows      = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.NoResults, Text = string.IsNullOrWhiteSpace(message) ? $"No results for \"{searchText}\"" : message, IsEnabled = false, ListIndex = 0 } },
+            FilteredRows = new[] { new ComboBoxPopupRowModel { RowKind = ComboBoxPopupRowKind.NoResults, Text = string.IsNullOrWhiteSpace(message) ? $"No results for \"{searchText}\"" : message, IsEnabled = false, ListIndex = 0 } },
             SearchText   = searchText,
             ShowSearchBox = showSearch,
         };

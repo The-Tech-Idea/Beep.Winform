@@ -9,7 +9,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         public static (Point Location, int Height) Calculate(
             Control owner,
             int popupWidth,
-            int preferredHeight)
+            int preferredHeight,
+            bool autoFlip = true)
         {
             Rectangle screenBounds = owner.RectangleToScreen(owner.ClientRectangle);
             Rectangle workingArea = Screen.FromControl(owner).WorkingArea;
@@ -20,7 +21,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             int actualHeight = preferredHeight;
             Point location;
 
-            if (spaceBelow >= preferredHeight || spaceBelow >= spaceAbove)
+            bool placeBelow = !autoFlip || spaceBelow >= preferredHeight || spaceBelow >= spaceAbove;
+            if (placeBelow)
             {
                 actualHeight = Math.Min(preferredHeight, Math.Max(0, spaceBelow - 4));
                 location = new Point(screenBounds.Left, screenBounds.Bottom);

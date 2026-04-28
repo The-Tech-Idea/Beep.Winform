@@ -39,16 +39,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             bool                     showFooter    = false,
             bool                     showApplyCancel = true,
             bool                     usePrimaryActionFooter = false,
-            string                   primaryActionText = null)
+            string                   primaryActionText = null,
+            bool                     showOptionDescription = true,
+            bool                     showStatusIcons = true,
+            string                   emptyStateText = null)
         {
             if (items == null)
-                return ComboBoxPopupModel.Empty(ComboBoxVisualTokenCatalog.SupportsSearch(type));
+                return ComboBoxPopupModel.Empty(ComboBoxVisualTokenCatalog.SupportsSearch(type), string.IsNullOrWhiteSpace(emptyStateText) ? "No options" : emptyStateText);
 
             // Build the full (unfiltered) row list
-            var allRows = BuildRows(items, selectedItems, singleSelected, isMultiSelect);
+            var allRows = BuildRows(items, selectedItems, singleSelected, isMultiSelect, showOptionDescription, showStatusIcons);
 
             if (allRows.Count == 0)
-                return ComboBoxPopupModel.Empty(ComboBoxVisualTokenCatalog.SupportsSearch(type));
+                return ComboBoxPopupModel.Empty(ComboBoxVisualTokenCatalog.SupportsSearch(type), string.IsNullOrWhiteSpace(emptyStateText) ? "No options" : emptyStateText);
 
             // Detect group headers
             bool hasGroups = false;
@@ -72,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             }
 
             if (filteredRows.Count == 0 && !string.IsNullOrEmpty(searchText))
-                return ComboBoxPopupModel.NoResults(searchText, showSearch: true);
+                return ComboBoxPopupModel.NoResults(searchText, showSearch: true, message: string.IsNullOrWhiteSpace(emptyStateText) ? null : emptyStateText);
 
             bool showSearch = ComboBoxVisualTokenCatalog.SupportsSearch(type) || !string.IsNullOrEmpty(searchText);
 
@@ -121,7 +124,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             IEnumerable<SimpleItem>  items,
             IEnumerable<SimpleItem>  selectedItems,
             SimpleItem               singleSelected,
-            bool                     isMultiSelect)
+            bool                     isMultiSelect,
+            bool                     showOptionDescription,
+            bool                     showStatusIcons)
         {
             // Build selection lookup
             var selectedSet = new HashSet<string>();
@@ -178,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                     kind = ComboBoxPopupRowKind.CheckRow;
                 else if (isSelected)
                     kind = ComboBoxPopupRowKind.Selected;
-                else if (!string.IsNullOrEmpty(item.SubText))
+                else if (showOptionDescription && !string.IsNullOrEmpty(item.SubText))
                     kind = ComboBoxPopupRowKind.WithSubText;
                 else
                     kind = ComboBoxPopupRowKind.Normal;
@@ -192,10 +197,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                     SourceItem       = item,
                     RowKind          = kind,
                     Text             = item.Text,
-                    SubText          = item.SubText,
+                    SubText          = showOptionDescription ? item.SubText : string.Empty,
                     TrailingText     = trailingShortcut,
                     TrailingValueText = trailingValue,
-                    ImagePath        = item.ImagePath,
+                    ImagePath        = showStatusIcons ? item.ImagePath : string.Empty,
                     GroupName        = item.GroupName,
                     LayoutPreset     = layoutPreset,
                     IsSelected       = isSelected,

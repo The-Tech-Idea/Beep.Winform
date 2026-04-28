@@ -135,18 +135,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Called when the form is resized. Updates the window region to match the new size.
+        /// Called continuously while the user resizes the form.
+        /// Do not invalidate layout, rebuild <see cref="BorderShape"/>, or update window/managed regions here —
+        /// that causes stale paths and partial clips vs. <see cref="PaintEventArgs.ClipRectangle"/>, which shows up
+        /// as missing right/bottom borders. Painters still own border drawing; we only sync geometry once in
+        /// <see cref="OnResizeEnd"/>.
         /// </summary>
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            
-            // Update window region when form is resized to ensure rounded corners are maintained
-            if (IsHandleCreated && ClientSize.Width > 0 && ClientSize.Height > 0)
-            {
-                UpdateWindowRegion();
-                UpdateFormRegion();
-            }
         }
 
         /// <summary>

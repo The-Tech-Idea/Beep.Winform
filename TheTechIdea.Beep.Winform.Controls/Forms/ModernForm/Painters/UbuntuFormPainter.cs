@@ -307,6 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 metrics.BorderColor.G,
                 Math.Min(255, metrics.BorderColor.B - 10));
             using var pen = new Pen(borderColor, 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

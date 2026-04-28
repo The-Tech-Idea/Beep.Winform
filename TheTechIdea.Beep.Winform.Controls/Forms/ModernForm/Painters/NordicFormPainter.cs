@@ -270,6 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
            var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro  
             // Nordic: Thin, clean border - minimalist
             using var pen = new Pen(metrics.BorderColor, 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

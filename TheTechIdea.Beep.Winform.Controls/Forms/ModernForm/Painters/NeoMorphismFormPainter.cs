@@ -222,6 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // NeoMorphism: Very thin border (1px) or nearly invisible
             using var pen = new Pen(metrics.BorderColor, 1);
             pen.Color = Color.FromArgb(30, metrics.BorderColor); // Very subtle
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

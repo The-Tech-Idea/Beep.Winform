@@ -196,6 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             using var pen = new Pen(Color.FromArgb(229, 229, 229), 1f);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

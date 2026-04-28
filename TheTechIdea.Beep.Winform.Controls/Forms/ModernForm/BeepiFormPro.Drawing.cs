@@ -418,19 +418,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             if (!IsHandleCreated || ClientSize.Width <= 0 || ClientSize.Height <= 0 || ActivePainter == null)
                 return;
-            
+
             try
             {
-                // IMPORTANT: Do NOT wrap BorderShape in a 'using' block.
-                // BorderShape is a cached GraphicsPath owned by _cachedBorderShape.
-                // Disposing it here invalidates the cache while leaving the cache keys
-                // pointing to the now-disposed object — the next BorderShape access returns
-                // a disposed path, causing GDI+ exceptions and blank/corrupt painting on resize.
-                // The cache is managed exclusively by the BorderShape getter and InvalidateLayout.
-                var borderPath = BorderShape;
-                if (borderPath == null || borderPath.PointCount == 0)
-                    return;
-                
                 // Dispose old region before replacing (avoids GDI handle leak)
                 if (Region != null)
                 {
@@ -438,13 +428,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     Region = null;
                     oldRegion.Dispose();
                 }
-                
-                // Create a managed Region from the OUTER bounds (full ClientRectangle),
-                // not from BorderShape which is inset by borderWidth/2 for stroke centering.
-                // Using the inset path clips the outer half of the border stroke on all edges,
-                // causing right/bottom borders to disappear.
+
+                // Create a managed Region that is 1 pixel LARGER than ClientRectangle on both axes.
+                // GDI+ paths (and especially anti-aliased pens) use floating-point coordinates and
+                // can leave the extreme right/bottom pixels partially uncovered.  Expanding the
+                // clip region by +1 on width and height — exactly matching the Win32
+                // CreateRoundRectRgn(0, 0, Width + 1, Height + 1) logic — guarantees the full
+                // border stroke is inside the clip and prevents the right / bottom edges from
+                // disappearing during resize.
+                var regionRect = new Rectangle(0, 0, ClientRectangle.Width + 1, ClientRectangle.Height + 1);
                 using var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(
-                    ClientRectangle, ActivePainter.GetCornerRadius(this));
+                    regionRect, ActivePainter.GetCornerRadius(this));
                 Region = new Region(outerPath);
             }
             catch

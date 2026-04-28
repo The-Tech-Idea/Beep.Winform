@@ -413,6 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
              var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro 
             // Material Paper: subtle elevated border (1px with alpha)
             using var pen = new Pen(Color.FromArgb(40, metrics.BorderColor), 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

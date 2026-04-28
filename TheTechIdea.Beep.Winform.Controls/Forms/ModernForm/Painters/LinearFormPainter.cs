@@ -270,6 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             using var pen = new Pen(borderColor, 0.5f);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

@@ -326,10 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
-                            InvalidateLayout();
-                            UpdateWindowRegion();
-                            UpdateFormRegion();
-                            Invalidate(true);
+                            RefreshChromeGeometryAfterBoundsSettled();
                             RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
                         }
                         return;

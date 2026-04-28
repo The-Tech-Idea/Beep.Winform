@@ -121,6 +121,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             _cachedBorderShapeSize  = Size.Empty;
             _cachedBorderShapeStyle = (FormStyle)(-1);
         }
+
+        /// <summary>
+        /// Recalculates caption/layout hit areas, rebuilds cached <see cref="BorderShape"/>,
+        /// and reapplies Win32 + managed regions after client bounds have settled (not during live resize ticks).
+        /// Border strokes remain owned by <see cref="IFormPainter.PaintBorders"/>; this only syncs geometry they draw on.
+        /// </summary>
+        private void RefreshChromeGeometryAfterBoundsSettled()
+        {
+            if (!IsHandleCreated || ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+
+            InvalidateLayout();
+            try { EnsureLayoutCalculated(); } catch { }
+
+            UpdateWindowRegion();
+            UpdateFormRegion();
+
+            Invalidate(true);
+        }
         #endregion
 
         private bool InDesignModeSafe =>

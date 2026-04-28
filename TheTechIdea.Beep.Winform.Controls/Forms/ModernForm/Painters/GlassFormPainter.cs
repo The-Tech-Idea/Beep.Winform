@@ -261,6 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
              var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // Draw subtle glass border
             using var borderPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(borderPen);
             g.DrawPath(borderPen, path);
         }
 

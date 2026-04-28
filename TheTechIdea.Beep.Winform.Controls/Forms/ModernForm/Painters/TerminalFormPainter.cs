@@ -276,39 +276,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Terminal: Single-line sharp border (no anti-aliasing)
+            // Terminal: sharp border on shared client path (same inset rule as other painters)
             g.SmoothingMode = SmoothingMode.None;
 
-            var rect = owner.ClientRectangle;
+            var path = owner.BorderShape; // Do NOT dispose — cached on BeepiFormPro
+            var borderW = Math.Max(2f, metrics.BorderWidth);
+            using var borderPen = new Pen(metrics.BorderColor, borderW);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(borderPen);
+            g.DrawPath(borderPen, path);
 
-            // Outer border - terminal green or specified border color
-            using (var borderPen = new Pen(metrics.BorderColor, 2))
-            {
-                g.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-            }
+            var rect = Rectangle.Round(path.GetBounds());
 
-            // Draw terminal ASCII corner characters using GDI+ primitives
-            // FIXED: Was using Unicode box-drawing characters that might not render properly
-            using (var cornerPen = new Pen(metrics.BorderColor, 2))
-            {
-                int cornerSize = 8;
-                
-                // Top-left corner (was ┌)
-                g.DrawLine(cornerPen, rect.Left, rect.Top + cornerSize, rect.Left, rect.Top);
-                g.DrawLine(cornerPen, rect.Left, rect.Top, rect.Left + cornerSize, rect.Top);
-                
-                // Top-right corner (was ┐)
-                g.DrawLine(cornerPen, rect.Right - cornerSize, rect.Top, rect.Right, rect.Top);
-                g.DrawLine(cornerPen, rect.Right, rect.Top, rect.Right, rect.Top + cornerSize);
-                
-                // Bottom-left corner (was └)
-                g.DrawLine(cornerPen, rect.Left, rect.Bottom - cornerSize, rect.Left, rect.Bottom);
-                g.DrawLine(cornerPen, rect.Left, rect.Bottom, rect.Left + cornerSize, rect.Bottom);
-                
-                // Bottom-right corner (was ┘)
-                g.DrawLine(cornerPen, rect.Right - cornerSize, rect.Bottom, rect.Right, rect.Bottom);
-                g.DrawLine(cornerPen, rect.Right, rect.Bottom - cornerSize, rect.Right, rect.Bottom);
-            }
+            // Corner L decorations — keep inside the inset stroke so edges stay crisp at (0,0)
+            using var cornerPen = new Pen(metrics.BorderColor, 2);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(cornerPen);
+            int cornerSize = 8;
+            int inset = (int)Math.Ceiling(borderPen.Width / 2f);
+            int L = rect.Left + inset;
+            int T = rect.Top + inset;
+            int R = rect.Right - 1 - inset;
+            int B = rect.Bottom - 1 - inset;
+
+            g.DrawLine(cornerPen, L, T + cornerSize, L, T);
+            g.DrawLine(cornerPen, L, T, L + cornerSize, T);
+
+            g.DrawLine(cornerPen, R - cornerSize, T, R, T);
+            g.DrawLine(cornerPen, R, T, R, T + cornerSize);
+
+            g.DrawLine(cornerPen, L, B - cornerSize, L, B);
+            g.DrawLine(cornerPen, L, B, L + cornerSize, B);
+
+            g.DrawLine(cornerPen, R - cornerSize, B, R, B);
+            g.DrawLine(cornerPen, R, B - cornerSize, R, B);
         }
 
         public ShadowEffect GetShadowEffect(BeepiFormPro owner)
@@ -507,11 +506,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
         {
             var metrics = GetMetrics(owner);
-            var outer = new Rectangle(0, 0, owner.Width, owner.Height);
-            
+            var radius = GetCornerRadius(owner);
+            var outerRect = new Rectangle(0, 0, owner.Width, owner.Height);
+            using var path = CreateRoundedRectanglePath(outerRect, radius);
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, borderThickness));
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.None;
-            g.DrawRectangle(pen, outer.X, outer.Y, outer.Width - 1, outer.Height - 1);
+            g.DrawPath(pen, path);
         }
     }
 }

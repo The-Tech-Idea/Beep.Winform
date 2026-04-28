@@ -284,6 +284,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // Arc thin border (1px)
             using var pen = new Pen(Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 50), metrics.BorderColor), 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

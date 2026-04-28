@@ -101,13 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             InitializeBuiltInRegions();
             InitializeComponent();
 
-            // Update window region when handle is created
-            // NOTE: Heavy operations (layout calc, hit areas) are deferred to OnResizeEnd for better performance
-            this.Resize += (s, e) => { 
-                // Only update window region during resize for visual feedback
-                // Layout recalculation happens in OnResizeEnd
-                UpdateWindowRegion(); 
-            };
+            // Do not hook Resize for region/layout updates — see OnResizeEnd (and WM_EXITSIZEMOVE) so border
+            // path, managed Region, and painter layout stay in sync with the final size, not every live tick.
             this.Scroll += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
             this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
 
@@ -414,18 +409,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         protected override void OnResizeEnd(EventArgs e)
         {
             base.OnResizeEnd(e);
-            
-            // CRITICAL: All heavy operations happen here, not during Resize event
-            // This dramatically improves resize performance and reduces flickering
-            
-            // Mark layout as dirty and force recalculation
-            InvalidateLayout();
-            
-            // Update window region for new size
-            UpdateWindowRegion();
-            
-            // Force full repaint
-            Invalidate(true);
+            RefreshChromeGeometryAfterBoundsSettled();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -538,8 +522,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Gets the GraphicsPath for the form's border shape.
-        /// The path is inset by half the border width so the pen draws entirely inside the client area.
+        /// Gets the GraphicsPath for the form's outer outline (rounded <see cref="ClientRectangle"/>).
+        /// Painters drawing this path should call
+        /// <c>TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters.FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment</c>
+        /// on the outline <see cref="Pen"/> so the full stroke is visible on all edges.
         /// The result is cached and only recreated when the form size or style changes.
         /// IMPORTANT: Callers must NOT dispose this path — it is owned and managed by BeepiFormPro.
         /// </summary>
@@ -564,8 +550,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (ActivePainter != null)
                 {
                     var radius = ActivePainter.GetCornerRadius(this);
-                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
-                    int borderWidth = metrics?.BorderWidth ?? 1;
 
                     GraphicsPath outerPath;
                     if (radius.TopLeft == radius.TopRight &&
@@ -580,14 +564,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                             radius.TopLeft, radius.TopRight, radius.BottomLeft, radius.BottomRight);
                     }
 
-                    float inset = borderWidth / 2f;
-                    _cachedBorderShape = outerPath.CreateInsetPath(inset, radius.TopLeft);
+                    _cachedBorderShape = (GraphicsPath)outerPath.Clone();
                     outerPath.Dispose();
                 }
                 else
                 {
                     var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle, 0);
-                    _cachedBorderShape = outerPath.CreateInsetPath(0.5f, 0);
+                    _cachedBorderShape = (GraphicsPath)outerPath.Clone();
                     outerPath.Dispose();
                 }
 

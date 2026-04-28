@@ -255,6 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Glassmorphism: Subtle border with white translucent overlay
             using (var pen = new Pen(metrics.BorderColor, 1))
             {
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawPath(pen, path);
             }
@@ -262,6 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Light glass edge
             using (var glassPen = new Pen(Color.FromArgb(50, 255, 255, 255), 2))
             {
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(glassPen);
                 g.DrawPath(glassPen, path);
             }
         }

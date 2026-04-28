@@ -613,6 +613,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         #region Border Effects
 
         /// <summary>
+        /// Call on a <see cref="Pen"/> before <see cref="Graphics.DrawPath"/> when stroking
+        /// <see cref="BeepiFormPro.BorderShape"/> so the full line width stays inside the path (avoids half-width
+        /// clipping at the client top/left with default center-aligned pens).
+        /// </summary>
+        public static void ApplyFormChromeOutlinePenAlignment(Pen pen)
+        {
+            if (pen == null) return;
+            pen.Alignment = PenAlignment.Inset;
+        }
+
+        /// <summary>
         /// Paint a glow border effect
         /// </summary>
         public static void PaintGlowBorder(Graphics g, GraphicsPath path, Color glowColor, params float[] widths)

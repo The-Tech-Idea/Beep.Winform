@@ -234,6 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var path = owner.BorderShape; // Do NOT dispose - path is cached and owned by BeepiFormPro
             // Thin border with subtle gradient accent
             using var pen = new Pen(Color.FromArgb(220, 220, 220), 1f);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

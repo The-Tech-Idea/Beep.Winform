@@ -352,6 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rainbowBrush.InterpolationColors = blend;
                 
                 using var pen = new Pen(rainbowBrush, 2);
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawPath(pen, path);
             }

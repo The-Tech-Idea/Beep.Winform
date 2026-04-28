@@ -303,6 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Core border (solid neon)
             using (var corePen = new Pen(glowColor, 2))
             {
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(corePen);
                 g.DrawPath(corePen, path);
             }
         }

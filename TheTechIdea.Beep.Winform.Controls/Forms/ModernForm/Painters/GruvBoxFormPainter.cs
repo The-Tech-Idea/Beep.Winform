@@ -267,12 +267,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // GruvBox: muted border (GruvBox border color #504945) with subtle orange tint
             // Thicker for retro feel
             using var pen = new Pen(Color.FromArgb(100, 254, 128, 25), 2); // Semi-transparent orange over border
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
             
             // Draw base border with theme color
             using var basePen = new Pen(metrics.BorderColor, 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(basePen);
             g.DrawPath(basePen, path);
         }
 

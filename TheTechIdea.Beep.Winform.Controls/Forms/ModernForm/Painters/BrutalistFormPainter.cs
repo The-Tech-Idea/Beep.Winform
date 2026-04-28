@@ -187,6 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             // Brutalist: Thick, sharp borders - no anti-aliasing
             g.SmoothingMode = SmoothingMode.None;
             using var pen = new Pen(metrics.BorderColor, 5); // Thick 5px border
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             
             // Draw outer border using path
             g.DrawPath(pen, path);

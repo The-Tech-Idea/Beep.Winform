@@ -281,6 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Main border (thin with reduced alpha)
             using var pen = new Pen(Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 30), metrics.BorderColor), 1);
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.DrawPath(pen, path);
         }
 

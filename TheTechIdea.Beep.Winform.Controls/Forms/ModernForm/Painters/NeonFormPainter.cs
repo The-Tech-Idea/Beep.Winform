@@ -386,6 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 neonBrush.InterpolationColors = blend;
                 
                 using var pen = new Pen(neonBrush, 3);
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawPath(pen, path);
             }

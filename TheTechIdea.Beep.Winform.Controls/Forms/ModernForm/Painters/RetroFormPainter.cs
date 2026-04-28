@@ -252,34 +252,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
 
-            // Retro: Multi-line 3D border (inset/outset Style)
+            // Retro: 3D bevel on shared client path — inset pens so stroke stays inside BorderShape
             g.SmoothingMode = SmoothingMode.None;
 
             var rect = owner.BorderShape.GetBounds();
+            int left = (int)Math.Floor(rect.Left);
+            int top = (int)Math.Floor(rect.Top);
+            int right = (int)Math.Ceiling(rect.Right) - 1;
+            int bottom = (int)Math.Ceiling(rect.Bottom) - 1;
 
             var lightColor = ShiftLuminance(metrics.BorderColor, 0.25f);
             var darkColor = ShiftLuminance(metrics.BorderColor, -0.25f);
-            
-            // Outer border - raised effect
-            // Light on top/left
+
             using (var lightPen = new Pen(lightColor, 2))
             {
-                g.DrawLine(lightPen, rect.Left, rect.Top, rect.Right - 1, rect.Top);
-                g.DrawLine(lightPen, rect.Left, rect.Top, rect.Left, rect.Bottom - 1);
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(lightPen);
+                g.DrawLine(lightPen, left, top, right, top);
+                g.DrawLine(lightPen, left, top, left, bottom);
             }
-            
-            // Dark on bottom/right
+
             using (var darkPen = new Pen(darkColor, 2))
             {
-                g.DrawLine(darkPen, rect.Left, rect.Bottom - 1, rect.Right, rect.Bottom - 1);
-                g.DrawLine(darkPen, rect.Right - 1, rect.Top, rect.Right - 1, rect.Bottom);
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(darkPen);
+                g.DrawLine(darkPen, left, bottom, right, bottom);
+                g.DrawLine(darkPen, right, top, right, bottom);
             }
-            
-            // Inner border line (classic Win95 double border)
+
             var innerRect = new RectangleF(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6);
             using (var borderPen = new Pen(metrics.BorderColor, 1))
             {
-                g.DrawRectangle(borderPen, innerRect);
+                FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(borderPen);
+                g.DrawRectangle(borderPen, innerRect.X, innerRect.Y, innerRect.Width, innerRect.Height);
             }
         }
 
@@ -522,10 +525,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var radius = GetCornerRadius(owner);
             var outer = new Rectangle(0, 0, owner.Width, owner.Height);
             using var path = CreateRoundedRectanglePath(outer, radius);
-            using var pen = new Pen(metrics.BorderColor, Math.Max(1, borderThickness))
-            {
-                Alignment = PenAlignment.Inset
-            };
+            using var pen = new Pen(metrics.BorderColor, Math.Max(1, borderThickness));
+            FormPainterRenderHelper.ApplyFormChromeOutlinePenAlignment(pen);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
         }

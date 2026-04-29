@@ -381,9 +381,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Title displayed in the top filter panel.")]
+        [Category("Filtering")]
         [DefaultValue("Grid")]
+        [Description("Title displayed in the toolbar.")]
         public string GridTitle
         {
             get => _gridTitle;
@@ -393,6 +393,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (!string.Equals(_gridTitle, next, System.StringComparison.Ordinal))
                 {
                     _gridTitle = next;
+                    // Sync to toolbar state
+                    if (_toolbarState != null)
+                        _toolbarState.GridTitle = next;
                     if (!DesignMode) SafeInvalidate();
                 }
             }
@@ -932,6 +935,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (_showToolbar != value)
                 {
                     _showToolbar = value;
+                    // Consolidation: toolbar and top filter panel are mutually exclusive.
+                    // When toolbar is shown, hide the legacy filter panel (and its inline quick search).
+                    if (value && Layout.ShowTopFilterPanel)
+                    {
+                        Layout.ShowTopFilterPanel = false;
+                        HideInlineQuickSearch();
+                    }
+                    // When toolbar is hidden, optionally show the legacy filter panel.
+                    if (!value && !Layout.ShowTopFilterPanel)
+                    {
+                        Layout.ShowTopFilterPanel = true;
+                        EnsureInlineQuickSearchVisible();
+                    }
                     Layout.Recalculate();
                     SafeInvalidate();
                 }

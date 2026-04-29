@@ -44,6 +44,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         /// and the close button is hidden.
         /// </summary>
         public bool IsPinned { get; set; }
+
+        /// <summary>
+        /// Group identifier for colour-coded tab groups (VS Code-style).
+        /// Tabs sharing the same group name receive the same accent border colour.
+        /// Null or empty means no group (default appearance).
+        /// </summary>
+        public string? TabGroup { get; set; }
     }
 
     public enum ContainerDisplayMode

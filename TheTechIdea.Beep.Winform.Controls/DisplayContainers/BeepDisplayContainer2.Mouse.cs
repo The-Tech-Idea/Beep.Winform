@@ -359,6 +359,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
             }
         }
+
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+
+            if (_displayMode == ContainerDisplayMode.Single)
+                return;
+
+            // Double-click on empty tab area creates a new tab
+            if (e.Button == MouseButtons.Left)
+            {
+                var hitTab = GetTabAt(e.Location);
+                if (hitTab == null && _tabArea.Contains(e.Location))
+                {
+                    NewTabRequested?.Invoke(this, new ContainerEvents { TitleText = "NewTabRequested" });
+                }
+            }
+        }
         
         /// <summary>
         /// Shows context menu for a tab (follows BaseControl pattern)
@@ -380,6 +398,49 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 Tag = tab
             });
 
+            // ── Tab Group submenu items ──────────────────────────────────
+            menuItems.Add(new SimpleItem
+            {
+                Text = "─", // separator
+                MethodName = "Separator1",
+                Tag = tab
+            });
+
+            // Predefined group colours (matching the palette in the container)
+            var groupNames = new[] { "Blue", "Orange", "Green", "Purple", "Gold", "Red", "Teal", "Lavender" };
+            foreach (var gn in groupNames)
+            {
+                menuItems.Add(new SimpleItem
+                {
+                    Text = $"Group: {gn}",
+                    Description = $"Assign tab to {gn} group",
+                    ImagePath = "group",
+                    MethodName = $"Group_{gn}",
+                    Tag = tab
+                });
+            }
+
+            // Remove from group option
+            if (!string.IsNullOrEmpty(tab.TabGroup))
+            {
+                menuItems.Add(new SimpleItem
+                {
+                    Text = "Remove from Group",
+                    Description = "Clear tab group assignment",
+                    ImagePath = "ungroup",
+                    MethodName = "UngroupTab",
+                    Tag = tab
+                });
+            }
+
+            // ── Close options ────────────────────────────────────────────
+            menuItems.Add(new SimpleItem
+            {
+                Text = "─",
+                MethodName = "Separator2",
+                Tag = tab
+            });
+
             // Close tab option (not available for pinned tabs)
             if (tab.CanClose && !tab.IsPinned)
             {
@@ -389,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Description = "Close this tab",
                     ImagePath = "close",
                     MethodName = "CloseTab",
-                    Tag = tab // Store the tab reference
+                    Tag = tab
                 });
             }
             
@@ -463,6 +524,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     break;
                 case "UnpinTab":
                     UnpinTab(tab);
+                    break;
+                case "UngroupTab":
+                    RemoveTabFromGroup(tab);
+                    Invalidate();
+                    break;
+                default:
+                    // Handle group assignments: "Group_Blue", "Group_Orange", etc.
+                    if (action.StartsWith("Group_"))
+                    {
+                        string groupName = action.Substring(6);
+                        AssignTabToGroup(tab, groupName);
+                        Invalidate();
+                    }
                     break;
             }
         }
@@ -588,6 +662,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         return true;
                     case Keys.W when (keyData & Keys.Control) != 0:
                         return true;
+                    case Keys.P when (keyData & Keys.Control) != 0:
+                        return true;
+                    case Keys.Escape:
+                        return true;
                 }
             }
             return base.IsInputKey(keyData);
@@ -599,6 +677,68 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
             if (!_enableKeyboardNav || _displayMode == ContainerDisplayMode.Single || _tabs.Count == 0)
                 return;
+
+            // ── Quick switcher: Escape closes it ──────────────────────
+            if (_showQuickSwitcher)
+            {
+                if (e.KeyCode == Keys.Escape)
+                {
+                    CloseQuickSwitcher();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.KeyCode == Keys.Down)
+                {
+                    _quickSwitcherSelectedIndex = Math.Min(_quickSwitcherSelectedIndex + 1, _quickSwitcherFilteredTabs.Count - 1);
+                    Invalidate(_quickSwitcherBounds);
+                    e.Handled = true;
+                    return;
+                }
+                if (e.KeyCode == Keys.Up)
+                {
+                    _quickSwitcherSelectedIndex = Math.Max(_quickSwitcherSelectedIndex - 1, 0);
+                    Invalidate(_quickSwitcherBounds);
+                    e.Handled = true;
+                    return;
+                }
+                if (e.KeyCode == Keys.Enter)
+                {
+                    CommitQuickSwitcherSelection();
+                    e.Handled = true;
+                    return;
+                }
+                // Let printable characters through to update the filter.
+                if (e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z)
+                {
+                    _quickSwitcherFilter += ((char)('A' + (e.KeyCode - Keys.A))).ToString();
+                    RefreshQuickSwitcherFilter();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.KeyCode == Keys.Back && _quickSwitcherFilter.Length > 0)
+                {
+                    _quickSwitcherFilter = _quickSwitcherFilter.Substring(0, _quickSwitcherFilter.Length - 1);
+                    RefreshQuickSwitcherFilter();
+                    e.Handled = true;
+                    return;
+                }
+                if (e.KeyCode == Keys.Space)
+                {
+                    _quickSwitcherFilter += " ";
+                    RefreshQuickSwitcherFilter();
+                    e.Handled = true;
+                    return;
+                }
+                return;
+            }
+
+            // ── Ctrl+P opens the quick switcher ───────────────────────
+            if (e.KeyCode == Keys.P && e.Control)
+            {
+                OpenQuickSwitcher();
+                e.Handled = true;
+                return;
+            }
 
             int current = _activeTab != null ? _tabs.IndexOf(_activeTab) : -1;
 
@@ -730,6 +870,80 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _showTooltip = true;
                 Invalidate();
             }
+        }
+
+        // ── Quick Switcher (Ctrl+P) helpers ────────────────────────────
+        private void OpenQuickSwitcher()
+        {
+            if (_tabs.Count == 0) return;
+            _showQuickSwitcher = true;
+            _quickSwitcherFilter = string.Empty;
+            _quickSwitcherSelectedIndex = 0;
+            RefreshQuickSwitcherFilter();
+
+            // Compute overlay bounds — centred, ~60 % of client width, max 400 px tall.
+            int w = Math.Max(250, (int)(Width * 0.6));
+            int h = Math.Min(400, Math.Max(120, _quickSwitcherFilteredTabs.Count * 28 + 60));
+            int x = (Width - w) / 2;
+            int y = (Height - h) / 2;
+            _quickSwitcherBounds = new Rectangle(x, y, w, h);
+
+            Invalidate();
+        }
+
+        private void CloseQuickSwitcher()
+        {
+            _showQuickSwitcher = false;
+            _quickSwitcherFilter = string.Empty;
+            _quickSwitcherFilteredTabs.Clear();
+            var bounds = _quickSwitcherBounds;
+            _quickSwitcherBounds = Rectangle.Empty;
+            Invalidate(bounds);
+        }
+
+        private void CommitQuickSwitcherSelection()
+        {
+            if (_quickSwitcherSelectedIndex >= 0 && _quickSwitcherSelectedIndex < _quickSwitcherFilteredTabs.Count)
+            {
+                ActivateTab(_quickSwitcherFilteredTabs[_quickSwitcherSelectedIndex]);
+            }
+            CloseQuickSwitcher();
+        }
+
+        private void RefreshQuickSwitcherFilter()
+        {
+            _quickSwitcherFilteredTabs.Clear();
+            _quickSwitcherSelectedIndex = 0;
+
+            if (string.IsNullOrWhiteSpace(_quickSwitcherFilter))
+            {
+                _quickSwitcherFilteredTabs.AddRange(_tabs);
+            }
+            else
+            {
+                string filter = _quickSwitcherFilter.ToLowerInvariant();
+                foreach (var tab in _tabs)
+                {
+                    string title = (tab.Title ?? "").ToLowerInvariant();
+                    string id = (tab.Id ?? "").ToLowerInvariant();
+                    string group = (tab.TabGroup ?? "").ToLowerInvariant();
+                    if (title.Contains(filter) || id.Contains(filter) || group.Contains(filter))
+                        _quickSwitcherFilteredTabs.Add(tab);
+                }
+            }
+
+            // Resize overlay to fit results
+            if (_showQuickSwitcher)
+            {
+                int w = Math.Max(250, (int)(Width * 0.6));
+                int itemH = 28;
+                int h = Math.Min(400, Math.Max(120, _quickSwitcherFilteredTabs.Count * itemH + 60));
+                int x = (Width - w) / 2;
+                int y = (Height - h) / 2;
+                _quickSwitcherBounds = new Rectangle(x, y, w, h);
+            }
+
+            Invalidate();
         }
 
         #endregion

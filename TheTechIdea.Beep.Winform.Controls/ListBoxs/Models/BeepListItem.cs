@@ -15,6 +15,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Models
         /// <summary>Secondary/metadata line shown below the main title (nullable).</summary>
         public string? SubText { get; set; }
 
+        /// <summary>Tertiary line for three-line list layouts (e.g., email in contact list).</summary>
+        public string? SubText2 { get; set; }
+
+        /// <summary>Quaternary line for extended multi-line layouts.</summary>
+        public string? SubText3 { get; set; }
+
+        /// <summary>Long-form description text (used by notification/profile card layouts).</summary>
+        public string? Description { get; set; }
+
         // ── Badge / notification chip ─────────────────────────────────────────────
 
         /// <summary>Short badge label, e.g. "3", "New", "●". Empty = no badge.</summary>

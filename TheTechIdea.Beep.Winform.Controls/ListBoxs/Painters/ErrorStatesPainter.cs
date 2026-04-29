@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -93,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 ? _theme?.ErrorColor ?? Color.FromArgb(220, 53, 69)
                 : Color.FromArgb(108, 117, 125);
 
-            using (var path = GetRoundedRectPath(checkboxRect, 4))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkboxRect, Scale(4)))
             {
                 Color bgColor = isChecked ? checkColor : (isHovered ? Color.FromArgb(240, 240, 240) : Color.White);
                 using (var brush = new SolidBrush(bgColor))
@@ -113,9 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         Point[] checkPoints = new Point[]
                         {
-                            new Point(checkboxRect.Left + 4, checkboxRect.Top + checkboxRect.Height / 2),
-                            new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - 5),
-                            new Point(checkboxRect.Right - 4, checkboxRect.Top + 4)
+                            new Point(checkboxRect.Left + Scale(4), checkboxRect.Top + checkboxRect.Height / 2),
+                            new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(5)),
+                            new Point(checkboxRect.Right - Scale(4), checkboxRect.Top + Scale(4))
                         };
                         g.DrawLines(pen, checkPoints);
                     }
@@ -141,13 +142,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             Color badgeColor = Color.FromArgb(255, 243, 205);
             using (var brush = new LinearGradientBrush(badgeRect, badgeColor, Color.FromArgb(255, 230, 180), LinearGradientMode.Vertical))
-            using (var path = GetRoundedRectPath(badgeRect, 11))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, 11))
             {
                 g.FillPath(brush, path);
             }
 
             using (var pen = new Pen(Color.FromArgb(255, 193, 7), 1f))
-            using (var path = GetRoundedRectPath(badgeRect, 11))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, 11))
             {
                 g.DrawPath(pen, path);
             }
@@ -157,27 +158,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Color.Black)))
                 {
-                    g.FillPath(hoverBrush, GetRoundedRectPath(badgeRect, 11));
+                    g.FillPath(hoverBrush, GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, 11));
                 }
             }
 
             Color badgeTextColor = Color.FromArgb(120, 80, 0);
             System.Windows.Forms.TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect, badgeTextColor,
                 System.Windows.Forms.TextFormatFlags.HorizontalCenter | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-        }
-
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-
-            return path;
         }
 
         public override int GetPreferredItemHeight()

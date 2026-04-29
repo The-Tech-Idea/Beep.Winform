@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -77,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Selection border
-                    using (var pen = new Pen(selColor, 3f))
+                    using (var pen = new Pen(selColor, Scale(3)))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -102,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Blue, 2f))
+                    using (var pen = new Pen(_theme?.AccentColor ?? Color.Blue, Scale(2)))
                     {
                         g.DrawPath(pen, path);
                     }

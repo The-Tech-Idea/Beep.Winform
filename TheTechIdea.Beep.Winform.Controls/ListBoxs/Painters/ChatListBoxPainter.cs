@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -76,8 +77,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // ── Trailing: Badge pill (BadgeText) ─────────────────────────
             if (!string.IsNullOrEmpty(item.BadgeText))
             {
+                Color badgeBg = (item is BeepListItem ri) ? ri.BadgeColor : Color.Empty;
                 DrawUnreadBadge(g, trailingX, nameRect.Bottom + Scale(4),
-                    trailingW, item.BadgeText, item.BadgeBackColor);
+                    trailingW, item.BadgeText, badgeBg);
             }
         }
 

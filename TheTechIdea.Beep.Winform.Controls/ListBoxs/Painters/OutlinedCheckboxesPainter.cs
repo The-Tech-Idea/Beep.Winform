@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -81,9 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     Point[] checkPoints = new Point[]
                     {
-                        new Point(checkboxRect.Left + 5, checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - 6),
-                        new Point(checkboxRect.Right - 5, checkboxRect.Top + 5)
+                        new Point(checkboxRect.Left + Scale(5), checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2, checkboxRect.Bottom - Scale(6)),
+                        new Point(checkboxRect.Right - Scale(5), checkboxRect.Top + Scale(5))
                     };
                     g.DrawLines(pen, checkPoints);
                 }

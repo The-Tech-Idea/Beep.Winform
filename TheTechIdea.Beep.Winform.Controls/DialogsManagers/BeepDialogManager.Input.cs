@@ -307,25 +307,47 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows a multi-select dialog (async)
+        /// Shows a multi-select dialog with checkboxes (async)
         /// </summary>
-        public async Task<List<SimpleItem>> InputMultiSelectAsync(string title, string prompt, List<SimpleItem> items)
+        public Task<List<SimpleItem>> InputMultiSelectAsync(string title, string prompt, List<SimpleItem> items, IEnumerable<string>? preSelected = null)
         {
-            // For now, return single selection wrapped in list
-            // TODO: Implement proper multi-select dialog
-            var result = await InputSelectAsync(title, prompt, items);
-            return result != null ? new List<SimpleItem> { result } : new List<SimpleItem>();
+            if (items == null || items.Count == 0)
+                return Task.FromResult(new List<SimpleItem>());
+
+            using var dialog = new BeepMultiSelectDialog();
+            dialog.SetItems(title, prompt, items, preSelected);
+
+            if (_defaultTheme != null)
+                dialog.CurrentTheme = _defaultTheme;
+
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+
+            return result == System.Windows.Forms.DialogResult.OK
+                ? Task.FromResult(dialog.SelectedItems)
+                : Task.FromResult(new List<SimpleItem>());
         }
 
         /// <summary>
-        /// Shows a multi-select dialog (sync)
+        /// Shows a multi-select dialog with checkboxes (sync)
         /// </summary>
-        public List<SimpleItem> InputMultiSelect(string title, string prompt, List<SimpleItem> items)
+        public List<SimpleItem> InputMultiSelect(string title, string prompt, List<SimpleItem> items, IEnumerable<string>? preSelected = null)
         {
-            // For now, return single selection wrapped in list
-            // TODO: Implement proper multi-select dialog
-            var result = InputSelect(title, prompt, items);
-            return result != null ? new List<SimpleItem> { result } : new List<SimpleItem>();
+            if (items == null || items.Count == 0)
+                return new List<SimpleItem>();
+
+            using var dialog = new BeepMultiSelectDialog();
+            dialog.SetItems(title, prompt, items, preSelected);
+
+            if (_defaultTheme != null)
+                dialog.CurrentTheme = _defaultTheme;
+
+            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+
+            return result == System.Windows.Forms.DialogResult.OK
+                ? dialog.SelectedItems
+                : new List<SimpleItem>();
         }
 
         #endregion
@@ -379,18 +401,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private Form CreateDatePickerDialog(string title, string prompt, DateTime? min, DateTime? max, DateTime? defaultValue)
         {
-            var form = new Form
+            var form = new BeepDialogForm
             {
-                Text = title,
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                StartPosition = FormStartPosition.CenterParent,
-                ShowInTaskbar = false,
-                MinimizeBox = false,
-                MaximizeBox = false,
-                Size = new Size(320, 180),
-                AcceptButton = null,
-                CancelButton = null
+                Title = title,
+                Message = prompt,
+                DialogType = DialogType.None,
+                StartPosition = FormStartPosition.CenterParent
             };
+
+            if (_defaultTheme != null)
+                form.CurrentTheme = _defaultTheme;
 
             var dtp = new DateTimePicker
             {
@@ -406,33 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             if (max.HasValue)
                 dtp.MaxDate = max.Value;
 
-            var lbl = new Label
-            {
-                Text = prompt,
-                Location = new Point(20, 15),
-                Size = new Size(260, 20),
-                AutoSize = false
-            };
-
-            var btnOk = new Button
-            {
-                Text = "OK",
-                DialogResult = System.Windows.Forms.DialogResult.OK,
-                Location = new Point(120, 100),
-                Size = new Size(80, 30)
-            };
-
-            var btnCancel = new Button
-            {
-                Text = "Cancel",
-                DialogResult = System.Windows.Forms.DialogResult.Cancel,
-                Location = new Point(210, 100),
-                Size = new Size(80, 30)
-            };
-
-            form.Controls.AddRange(new Control[] { lbl, dtp, btnOk, btnCancel });
-            form.AcceptButton = btnOk;
-            form.CancelButton = btnCancel;
+            form.Controls.Add(dtp);
             form.Tag = dtp;
 
             form.FormClosed += (s, e) =>

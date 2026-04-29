@@ -3,6 +3,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -38,6 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
+
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Draw neumorphic background
             DrawNeumorphicBackground(g, itemRect, isHovered, isSelected);
@@ -101,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 using (var accentBrush = new SolidBrush(accentColor))
                 {
                     var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
-                    using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, 2))
+                    using (var accentPath = GraphicsExtensions.CreateRoundedRectanglePath(accentRect, new CornerRadius(Scale(2))))
                     {
                         g.FillPath(accentBrush, accentPath);
                     }
@@ -125,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw dark shadow (bottom-right)
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(
-                new Rectangle(rect.X + shadowOffset, rect.Y + shadowOffset, rect.Width, rect.Height), _cornerRadius))
+                new Rectangle(rect.X + shadowOffset, rect.Y + shadowOffset, rect.Width, rect.Height), new CornerRadius(Scale(_cornerRadius))))
             using (var brush = new SolidBrush(Color.FromArgb((int)(40 * intensity), darkShadow)))
             {
                 g.FillPath(brush, path);
@@ -133,14 +138,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Draw light shadow (top-left)
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(
-                new Rectangle(rect.X - shadowOffset / 2, rect.Y - shadowOffset / 2, rect.Width, rect.Height), _cornerRadius))
+                new Rectangle(rect.X - shadowOffset / 2, rect.Y - shadowOffset / 2, rect.Width, rect.Height), new CornerRadius(Scale(_cornerRadius))))
             using (var brush = new SolidBrush(Color.FromArgb((int)(60 * intensity), lightShadow)))
             {
                 g.FillPath(brush, path);
             }
 
             // Draw main surface
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, _cornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, new CornerRadius(Scale(_cornerRadius))))
             using (var brush = new SolidBrush(_baseColor))
             {
                 g.FillPath(brush, path);
@@ -150,15 +155,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawInsetNeumorphic(Graphics g, Rectangle rect, Color lightShadow, Color darkShadow)
         {
             // Draw main surface first
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, _cornerRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(rect, new CornerRadius(Scale(_cornerRadius))))
             using (var brush = new SolidBrush(DarkenColor(_baseColor, 0.05f)))
             {
                 g.FillPath(brush, path);
             }
 
             // Inner shadow (dark on top-left for inset effect)
-            var innerRect = Rectangle.Inflate(rect, -2, -2);
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, _cornerRadius - 2))
+            var innerRect = Rectangle.Inflate(rect, -Scale(2), -Scale(2));
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, new CornerRadius(Scale(_cornerRadius) - Scale(2))))
             {
                 // Top-left inner shadow
                 using (var brush = new LinearGradientBrush(innerRect,
@@ -179,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (isChecked)
             {
                 // Inset checkbox
-                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, 4))
+                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
                 {
                     // Background
                     var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
@@ -193,11 +198,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
+                        int cp = Scale(4);
                         Point[] checkPoints = new Point[]
                         {
-                            new Point(checkRect.Left + 4, checkRect.Top + checkRect.Height / 2),
-                            new Point(checkRect.Left + checkRect.Width / 2 - 1, checkRect.Bottom - 4),
-                            new Point(checkRect.Right - 4, checkRect.Top + 4)
+                            new Point(checkRect.Left + cp, checkRect.Top + checkRect.Height / 2),
+                            new Point(checkRect.Left + checkRect.Width / 2 - Scale(1), checkRect.Bottom - cp),
+                            new Point(checkRect.Right - cp, checkRect.Top + cp)
                         };
                         g.DrawLines(pen, checkPoints);
                     }

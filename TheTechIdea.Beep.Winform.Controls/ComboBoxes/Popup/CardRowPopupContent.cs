@@ -110,13 +110,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _scrollOffset = 0;
 
             var filteredRows = model.FilteredRows ?? Array.Empty<ComboBoxPopupRowModel>();
-            if (filteredRows.Length > 0)
+            if (filteredRows.Count > 0)
             {
-                EnsureCardControlCount(filteredRows.Length);
+                EnsureCardControlCount(filteredRows.Count);
                 int cardWidth = Math.Max(80, _scrollPanel.ClientSize.Width - 8);
                 int yPos = 0;
 
-                for (int i = 0; i < filteredRows.Length; i++)
+                for (int i = 0; i < filteredRows.Count; i++)
                 {
                     var card = _cards[i];
                     card.Visible = true;
@@ -127,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     yPos += card.Height + card.Margin.Vertical;
                 }
 
-                for (int i = filteredRows.Length; i < _cards.Count; i++)
+                for (int i = filteredRows.Count; i < _cards.Count; i++)
                 {
                     _cards[i].Visible = false;
                 }

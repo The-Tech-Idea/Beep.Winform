@@ -40,6 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 try
                 {
                     var state = _grid.ToolbarState;
+                    state.GridTitle = _grid.GridTitle;
+                    state.ShowGridTitle = true;
                     state.IsFilterActive = _grid.IsFiltered;
                     state.ActiveFilterCount = _grid.ActiveFilter?.Criteria.Count ?? 0;
                     state.DpiScale = _grid.DeviceDpi / 96f;

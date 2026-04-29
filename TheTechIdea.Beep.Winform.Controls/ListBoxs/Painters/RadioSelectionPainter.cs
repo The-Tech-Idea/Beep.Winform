@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 
@@ -43,13 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Layout: if description is present, use two lines; otherwise center the main text
             bool hasDesc = !string.IsNullOrEmpty(item.Description);
-            int topPadding = Math.Max(4, rect.Height / 8);
+            int topPadding = Math.Max(Scale(4), rect.Height / 8);
             int split = textAvail.Height / 2;
             var mainRect = hasDesc
                 ? new Rectangle(textAvail.Left, textAvail.Top + topPadding, textAvail.Width, Math.Max(0, split - topPadding))
                 : textAvail;
             var descRect = hasDesc
-                ? new Rectangle(textAvail.Left, textAvail.Top + split, textAvail.Width, Math.Max(0, textAvail.Height - split - 6))
+                ? new Rectangle(textAvail.Left, textAvail.Top + split, textAvail.Width, Math.Max(0, textAvail.Height - split - Scale(6)))
                 : Rectangle.Empty;
 
             bool disabled = item?.IsEnabled == false;
@@ -77,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             if (hasDesc && descRect.Height > 0)
             {
-                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(6, _owner.TextFont.Size - 1)))
+                using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(Scale(6), _owner.TextFont.Size - 1)))
                 {
                     Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
                     Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
@@ -127,16 +129,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 g.FillEllipse(brush, radioRect);
             }
-            using (var pen = new Pen(borderColor, 2f))
+            using (var pen = new Pen(borderColor, Scale(2)))
             {
-                g.DrawEllipse(pen, radioRect.X + 1, radioRect.Y + 1, radioRect.Width - 3, radioRect.Height - 3);
+                g.DrawEllipse(pen, radioRect.X + Scale(1), radioRect.Y + Scale(1), radioRect.Width - Scale(3), radioRect.Height - Scale(3));
             }
 
             // Inner dot when selected
             if (isSelected)
             {
                 var innerRect = radioRect;
-                innerRect.Inflate(-(Math.Max(4, radioRect.Width / 4)), -(Math.Max(4, radioRect.Height / 4)));
+                innerRect.Inflate(-(Math.Max(Scale(4), radioRect.Width / 4)), -(Math.Max(Scale(4), radioRect.Height / 4)));
 
                 Color dotColor = isDisabled
                     ? Color.FromArgb(180, 180, 180)
@@ -151,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         public override int GetPreferredItemHeight()
         {
             int fontH = _owner?.TextFont?.Height ?? Scale(16);
-            int descH = Math.Max(Scale(10), fontH - 2);
+            int descH = Math.Max(Scale(10), fontH - Scale(2));
             int contentTwoLine = fontH + descH + Scale(12); // paddings
             int radioTarget = Math.Max(Scale(14), Math.Min(Scale(20), contentTwoLine - Scale(12)));
             int height = Math.Max(contentTwoLine, radioTarget + Scale(12));

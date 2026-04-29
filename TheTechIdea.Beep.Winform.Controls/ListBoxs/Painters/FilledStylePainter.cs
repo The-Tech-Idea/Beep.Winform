@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -95,13 +97,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw checkmark if checked
             if (isChecked)
             {
-                using (var pen = new Pen(Color.FromArgb(74, 144, 226), 2f))
+                using (var pen = new Pen(Color.FromArgb(74, 144, 226), Scale(2)))
                 {
                     Point[] checkPoints = new Point[]
                     {
-                        new Point(checkboxRect.Left + 3, checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - 4),
-                        new Point(checkboxRect.Right - 3, checkboxRect.Top + 3)
+                        new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - Scale(1), checkboxRect.Bottom - Scale(4)),
+                        new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
                     };
                     g.DrawLines(pen, checkPoints);
                 }

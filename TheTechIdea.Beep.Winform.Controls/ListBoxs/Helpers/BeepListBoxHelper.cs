@@ -41,22 +41,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
         }
         
         /// <summary>
-        /// Get the selected item background color
-        /// </summary>
-        public Color GetSelectedBackColor()
-        {
-            return _owner.SelectedBackColor;
-        }
-        
-        /// <summary>
-        /// Get the hover background color
-        /// </summary>
-        public Color GetHoverBackColor()
-        {
-            return _owner.HoverBackColor;
-        }
-        
-        /// <summary>
         /// Calculate the visible items (filtered by search)
         /// </summary>
         public System.Collections.Generic.List<SimpleItem> GetVisibleItems()

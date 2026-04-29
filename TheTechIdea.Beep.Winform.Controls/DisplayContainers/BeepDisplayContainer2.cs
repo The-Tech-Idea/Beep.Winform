@@ -117,7 +117,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         // Drop indicator pulse animation (0..1 sine wave for visual emphasis)
         private float _dropIndicatorPulse = 0f;
 
+        // ---- Enhancement: Ctrl+P tab quick switcher overlay ----
+        private bool _showQuickSwitcher = false;
+        private string _quickSwitcherFilter = string.Empty;
+        private int _quickSwitcherSelectedIndex = 0;
+        private List<AddinTab> _quickSwitcherFilteredTabs = new();
+        private Rectangle _quickSwitcherBounds = Rectangle.Empty;
+
         private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
+
+        // Tab group colour palette — auto-assigned colours for VS Code-style groups.
+        private readonly Dictionary<string, Color> _tabGroupColors = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Color[] _defaultGroupPalette = new[]
+        {
+            Color.FromArgb(0, 120, 212),  // Blue
+            Color.FromArgb(218, 92, 42),   // Orange
+            Color.FromArgb(80, 180, 80),   // Green
+            Color.FromArgb(180, 80, 180),  // Purple
+            Color.FromArgb(220, 160, 30),  // Gold
+            Color.FromArgb(200, 60, 60),   // Red
+            Color.FromArgb(60, 180, 180),  // Teal
+            Color.FromArgb(160, 120, 200), // Lavender
+        };
+        private int _nextGroupColorIndex = 0;
 
         /// <summary>
         /// Gets or sets the visual style of the control.
@@ -268,12 +290,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 }; // 60 FPS
             _animationTimer.Tick += AnimationTimer_Tick;
-            
-            // Start animation timer if animations are enabled
-            if (_enableAnimations)
-            {
-                _animationTimer.Start();
-            }
+
+            // Do NOT start the timer here — it is started on-demand by StartAnimation()
+            // and self-stops when no animations are active.  This eliminates constant
+            // drawing/CPU usage when the container is idle.
 
             // Initialize theme colors (follows BaseControl pattern)
             ApplyThemeColorsToTabs();
@@ -535,29 +555,53 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void StartAnimation(AddinTab tab, float targetProgress)
         {
-            if (!_enableAnimations || _animationHelper == null) return;
+            if (!_enableAnimations || _animationHelper == null || tab == null) return;
+
+            tab.TargetAnimationProgress = Math.Max(0, Math.Min(1, targetProgress));
             _animationHelper.StartAnimation(tab, targetProgress);
+
+            // Restart the timer if it was self-stopped — ensures hover animations run.
+            EnsureAnimationTimerRunning();
+        }
+
+        private void EnsureAnimationTimerRunning()
+        {
+            if (_animationTimer != null && !_animationTimer.Enabled && _enableAnimations)
+            {
+                _animationTimer.Start();
+            }
         }
 
         private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
+            bool needsInvalidate = false;
+            bool anyAnimationActive = false;
+
             if (_animationHelper != null)
             {
                 // Update hover animations for all tabs.
                 _animationHelper.UpdateAnimations(_tabs, _animationSpeed);
+
+                // Check if any tab still has a pending hover animation.
+                foreach (var tab in _tabs)
+                {
+                    if (Math.Abs(tab.AnimationProgress - tab.TargetAnimationProgress) > 0.01f)
+                    {
+                        anyAnimationActive = true;
+                        break;
+                    }
+                }
             }
 
             // Advance the sliding-indicator animation.
-            bool needsInvalidate = false;
             if (_indicatorProgress < 1f)
             {
-                // Speed: complete in ~200 ms at 60 FPS = ~12 ticks (step ≈ 0.083)
-                // Use a slightly eased step: faster at start, slower near end.
                 const float baseStep = 0.09f;
                 float remaining = 1f - _indicatorProgress;
                 float step = Math.Max(0.015f, baseStep * remaining / 0.5f + 0.01f);
                 _indicatorProgress = Math.Min(1f, _indicatorProgress + step);
                 needsInvalidate = true;
+                anyAnimationActive = true;
             }
 
             // Advance drop indicator pulse while dragging
@@ -566,6 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _dropIndicatorPulse += 0.08f;
                 if (_dropIndicatorPulse > MathF.Tau) _dropIndicatorPulse -= MathF.Tau;
                 needsInvalidate = true;
+                anyAnimationActive = true;
             }
             else if (_dropIndicatorPulse != 0f)
             {
@@ -578,6 +623,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Invalidate(_tabArea);
                 else
                     Invalidate();
+            }
+
+            // Self-stop the timer when no animations are active — eliminates constant drawing.
+            if (!anyAnimationActive && _animationTimer != null && _animationTimer.Enabled)
+            {
+                _animationTimer.Stop();
             }
         }
         
@@ -621,6 +672,52 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         public void SetTabStylePreset(TheTechIdea.Beep.Winform.Controls.TabStyle style)
         {
             TheTechIdea.Beep.Winform.Controls.Styling.TabStylePresets.ApplyPreset(this, style);
+        }
+
+        /// <summary>
+        /// Gets or auto-assigns a colour for the named tab group.
+        /// </summary>
+        public Color GetGroupColor(string? groupName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+                return Color.Empty;
+
+            if (_tabGroupColors.TryGetValue(groupName, out var color))
+                return color;
+
+            color = _defaultGroupPalette[_nextGroupColorIndex % _defaultGroupPalette.Length];
+            _nextGroupColorIndex++;
+            _tabGroupColors[groupName] = color;
+            return color;
+        }
+
+        /// <summary>
+        /// Assigns a tab to a named group and returns the group accent colour.
+        /// </summary>
+        public Color AssignTabToGroup(AddinTab tab, string? groupName)
+        {
+            tab.TabGroup = groupName;
+            return GetGroupColor(groupName);
+        }
+
+        /// <summary>
+        /// Removes a tab from its group.
+        /// </summary>
+        public void RemoveTabFromGroup(AddinTab tab)
+        {
+            tab.TabGroup = null;
+        }
+
+        /// <summary>
+        /// Clears all group colour assignments.
+        /// </summary>
+        public void ClearGroupColors()
+        {
+            _tabGroupColors.Clear();
+            _nextGroupColorIndex = 0;
+            foreach (var tab in _tabs)
+                tab.TabGroup = null;
+            Invalidate();
         }
 
         #endregion

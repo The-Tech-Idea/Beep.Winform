@@ -233,7 +233,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
         /// Profile/social card — large centred avatar, name, subtitle, description.
         /// Variable-height centred layout. Uses ImagePath, Text, SubText, Description.
         /// </summary>
-        ProfileCard = 39
+        ProfileCard = 39,
+
+        /// <summary>
+        /// Reka UI style — ARIA-compliant minimal design with left accent bar and dotted focus ring.
+        /// </summary>
+        RekaUI = 40,
+
+        /// <summary>
+        /// Chakra UI style — Chakra-style layout with consistent spacing and rounded corners.
+        /// </summary>
+        ChakraUI = 41,
+
+        /// <summary>
+        /// Hero UI style — Hero section layout with prominent visual hierarchy.
+        /// </summary>
+        HeroUI = 42
     }
 
     /// <summary>

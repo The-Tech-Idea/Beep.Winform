@@ -5,6 +5,9 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -82,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawChipBackground(Graphics g, Rectangle chipRect, bool isHovered, bool isSelected)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, Scale(_chipCornerRadius)))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, new CornerRadius(Scale(_chipCornerRadius))))
             {
                 if (isSelected)
                 {
@@ -95,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Subtle inner highlight
                     var highlightRect = new Rectangle(chipRect.X, chipRect.Y, chipRect.Width, chipRect.Height / 2);
-                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, _chipCornerRadius))
+                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_chipCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
                         Color.FromArgb(40, 255, 255, 255),
                         Color.FromArgb(0, 255, 255, 255),
@@ -152,6 +155,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawChipCheckmark(Graphics g, Rectangle checkRect, bool isSelected)
         {
             Color checkColor = isSelected ? Color.White : (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215));
+            int s2 = Scale(2);
+            int s3 = Scale(3);
             
             using (var pen = new Pen(checkColor, 2f))
             {
@@ -159,9 +164,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 pen.EndCap = LineCap.Round;
                 Point[] checkPoints = new Point[]
                 {
-                    new Point(checkRect.Left + 2, checkRect.Top + checkRect.Height / 2),
-                    new Point(checkRect.Left + checkRect.Width / 2 - 1, checkRect.Bottom - 3),
-                    new Point(checkRect.Right - 2, checkRect.Top + 3)
+                    new Point(checkRect.Left + s2, checkRect.Top + checkRect.Height / 2),
+                    new Point(checkRect.Left + checkRect.Width / 2 - Scale(1), checkRect.Bottom - s3),
+                    new Point(checkRect.Right - s2, checkRect.Top + s3)
                 };
                 g.DrawLines(pen, checkPoints);
             }
@@ -171,12 +176,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             // Draw X
             Color xColor = isHovered ? Color.White : Color.FromArgb(200, 255, 255, 255);
+            int s3 = Scale(3);
             using (var pen = new Pen(xColor, 1.5f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
-                g.DrawLine(pen, closeRect.Left + 3, closeRect.Top + 3, closeRect.Right - 3, closeRect.Bottom - 3);
-                g.DrawLine(pen, closeRect.Right - 3, closeRect.Top + 3, closeRect.Left + 3, closeRect.Bottom - 3);
+                g.DrawLine(pen, closeRect.Left + s3, closeRect.Top + s3, closeRect.Right - s3, closeRect.Bottom - s3);
+                g.DrawLine(pen, closeRect.Right - s3, closeRect.Top + s3, closeRect.Left + s3, closeRect.Bottom - s3);
             }
         }
 

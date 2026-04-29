@@ -103,6 +103,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             TabPosition tabPosition,
             string iconPath, string badgeText, Color badgeColor, bool isPinned)
         {
+            // Delegate to the full overload with no group colour.
+            DrawProfessionalTab(g, bounds, title, font, isActive, isHovered, showCloseButton,
+                isCloseHovered, animationProgress, isFirst, isLast, tabPosition,
+                iconPath, badgeText, badgeColor, isPinned, groupColor: Color.Empty);
+        }
+
+        /// <summary>
+        /// Full overload that also accepts a <paramref name="groupColor"/> for VS Code-style
+        /// colour-coded tab groups.  When non-empty, a 3 px accent bar is drawn on the
+        /// content-facing edge of the tab.
+        /// </summary>
+        public void DrawProfessionalTab(Graphics g, Rectangle bounds, string title, Font font,
+            bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered,
+            float animationProgress,
+            bool isFirst, bool isLast,
+            TabPosition tabPosition,
+            string iconPath, string badgeText, Color badgeColor, bool isPinned,
+            Color groupColor)
+        {
             // Validate input parameters
             if (g == null || bounds.Width <= 0 || bounds.Height <= 0 || font == null)
                 return;
@@ -175,6 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
                             DrawActiveIndicator(g, bounds, tabPosition);
                             break;
                     }
+                }
+
+                // ── Tab group colour accent bar (VS Code-style) ─────────────
+                if (groupColor != Color.Empty && groupColor.A > 0)
+                {
+                    DrawGroupAccentBar(g, bounds, groupColor, tabPosition);
                 }
 
                 // ── Icon ──────────────────────────────────────────────────────
@@ -418,6 +443,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             if (c == Color.Empty || c.A == 0) c = _theme?.TabSelectedForeColor ?? Color.Empty;
             if (c == Color.Empty || c.A == 0) c = Color.DodgerBlue;
             return c;
+        }
+
+        /// <summary>
+        /// Draws a thin accent bar on the content-facing edge of the tab for group colour coding.
+        /// Unlike the active indicator (which is centred and inset), this bar spans the full
+        /// width/height of the tab edge.
+        /// </summary>
+        private void DrawGroupAccentBar(Graphics g, Rectangle bounds, Color groupColor, TabPosition tabPosition)
+        {
+            int thickness = Math.Max(2, TabHeaderMetrics.IndicatorThickness(OwnerControl) - 1);
+
+            Rectangle bar;
+            switch (tabPosition)
+            {
+                case TabPosition.Bottom:
+                    bar = new Rectangle(bounds.X, bounds.Y, bounds.Width, thickness);
+                    break;
+                case TabPosition.Left:
+                    bar = new Rectangle(bounds.Right - thickness, bounds.Y, thickness, bounds.Height);
+                    break;
+                case TabPosition.Right:
+                    bar = new Rectangle(bounds.X, bounds.Y, thickness, bounds.Height);
+                    break;
+                default: // Top
+                    bar = new Rectangle(bounds.X, bounds.Bottom - thickness, bounds.Width, thickness);
+                    break;
+            }
+
+            using (var brush = new SolidBrush(groupColor))
+                g.FillRectangle(brush, bar);
         }
 
         private void DrawCapsuleBackground(Graphics g, Rectangle bounds, TabColors colors, bool isActive, bool isHovered,

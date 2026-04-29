@@ -4,6 +4,9 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -24,6 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
+
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Draw glassmorphism background
             DrawGlassBackground(g, itemRect, isHovered, isSelected);
@@ -72,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Inset the item rect slightly
             var glassRect = Rectangle.Inflate(itemRect, -Scale(2), -Scale(1));
 
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glassRect, Scale(_itemCornerRadius)))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glassRect, new CornerRadius(Scale(_itemCornerRadius))))
             {
                 if (isSelected)
                 {
@@ -90,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Inner glow/highlight
                     var highlightRect = new Rectangle(glassRect.X, glassRect.Y, glassRect.Width, glassRect.Height / 3);
-                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, Scale(_itemCornerRadius)))
+                    using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_itemCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
                         Color.FromArgb(80, 255, 255, 255),
                         Color.FromArgb(0, 255, 255, 255),
@@ -135,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawGlassCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isHovered)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, 4))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
             {
                 if (isChecked)
                 {
@@ -151,11 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
+                        int cp = Scale(4);
                         Point[] checkPoints = new Point[]
                         {
-                            new Point(checkRect.Left + 4, checkRect.Top + checkRect.Height / 2),
-                            new Point(checkRect.Left + checkRect.Width / 2 - 1, checkRect.Bottom - 4),
-                            new Point(checkRect.Right - 4, checkRect.Top + 4)
+                            new Point(checkRect.Left + cp, checkRect.Top + checkRect.Height / 2),
+                            new Point(checkRect.Left + checkRect.Width / 2 - Scale(1), checkRect.Bottom - cp),
+                            new Point(checkRect.Right - cp, checkRect.Top + cp)
                         };
                         g.DrawLines(pen, checkPoints);
                     }

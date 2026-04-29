@@ -144,6 +144,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ListBoxType.ThreeLineList   => new ThreeLineListBoxPainter(),
                 ListBoxType.NotificationList => new NotificationListBoxPainter(),
                 ListBoxType.ProfileCard     => new ProfileCardListBoxPainter(),
+                // UI framework styles
+                ListBoxType.RekaUI          => new RekaUIListBoxPainter(),
+                ListBoxType.ChakraUI        => new ChakraUIListBoxPainter(),
+                ListBoxType.HeroUI          => new HeroUIListBoxPainter(),
                 _ => new StandardListBoxPainter()
             };
             ControlStyle = BeepStyling.GetControlStyle(BeepThemesManager.CurrentStyle);

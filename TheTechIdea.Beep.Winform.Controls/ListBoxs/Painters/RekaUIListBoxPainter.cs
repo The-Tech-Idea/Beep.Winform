@@ -2,6 +2,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -53,11 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isFocused)
                 {
                     // Dotted outline for keyboard navigation
-                    using (var focusPen = new Pen(_theme.AccentColor, 2))
+                    using (var focusPen = new Pen(_theme.AccentColor, Scale(2)))
                     {
                         focusPen.DashStyle = DashStyle.Dot;
                         var focusRect = contentBounds;
-                        focusRect.Inflate(-1, -1);
+                        focusRect.Inflate(-Scale(1), -Scale(1));
                         g.DrawRectangle(focusPen, focusRect);
                     }
                 }
@@ -78,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     );
 
                     // Draw checkmark using path
-                    using (var checkPen = new Pen(_theme.AccentColor, 2))
+                    using (var checkPen = new Pen(_theme.AccentColor, Scale(2)))
                     {
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
@@ -161,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         leftOffset,
                         contentBounds.Y + contentBounds.Height / 2 + Scale(2),
                         textRect.Width,
-                        contentBounds.Height / 2 - 2
+                        contentBounds.Height / 2 - Scale(2)
                     );
 
                     Color descColor = Color.FromArgb(120, textColor);

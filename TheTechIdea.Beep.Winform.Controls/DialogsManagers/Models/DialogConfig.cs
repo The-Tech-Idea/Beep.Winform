@@ -360,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Data extraction callback - called when dialog closes successfully
         /// Use this to extract data from CustomControl into DialogResult.UserData
         /// </summary>
-        public Action<DialogResult>? DataExtractionCallback { get; set; }
+        public Action<DialogReturn>? DataExtractionCallback { get; set; }
 
         /// <summary>
         /// Initialization callback - called after CustomControl is added to dialog

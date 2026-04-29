@@ -90,13 +90,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
             _scrollOffset = 0;
 
             var filteredRows = model.FilteredRows ?? Array.Empty<ComboBoxPopupRowModel>();
-            if (filteredRows.Length > 0)
+            if (filteredRows.Count > 0)
             {
                 int rowWidth = Math.Max(80, _listPanel.ClientSize.Width - 8);
                 int yPos = 0;
 
-                EnsureRowControlCount(filteredRows.Length);
-                for (int i = 0; i < filteredRows.Length; i++)
+                EnsureRowControlCount(filteredRows.Count);
+                for (int i = 0; i < filteredRows.Count; i++)
                 {
                     var row = _rows[i];
                     row.Visible = true;
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                     yPos += row.Height;
                 }
 
-                for (int i = filteredRows.Length; i < _rows.Count; i++)
+                for (int i = filteredRows.Count; i < _rows.Count; i++)
                 {
                     _rows[i].Visible = false;
                 }

@@ -5,6 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 {
@@ -36,6 +38,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
             // Each variant creates its own content panel with distinct layout and behavior.
             _contentPanel = CreateContentPanel(_profile, themeTokens);
+            if (_contentPanel is ComboBoxListBoxPopupContent listBoxContent && owner is BeepComboBox comboBoxOwner)
+            {
+                ListBoxType mappedType = ComboBoxListBoxTypeMapper.Map(comboBoxOwner.ComboBoxType);
+                listBoxContent.SetListBoxType(mappedType);
+            }
             var contentControl = (Control)_contentPanel;
             contentControl.Dock = DockStyle.Fill;
             if (owner is BeepComboBox rtlOwner && rtlOwner.IsRtl)
@@ -140,6 +147,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
 
         protected virtual ComboBoxPopupHostProfile CreateProfile(Control owner, ComboBoxPopupModel model)
         {
+            _ = model;
+            if (owner is BaseControl baseControl)
+            {
+                return baseControl.ControlStyle switch
+                {
+                    BeepControlStyle.Minimal or
+                    BeepControlStyle.NotionMinimal or
+                    BeepControlStyle.VercelClean => ComboBoxPopupHostProfile.MinimalBorderless(),
+                    BeepControlStyle.GlassAcrylic or
+                    BeepControlStyle.Glassmorphism => ComboBoxPopupHostProfile.DenseList(),
+                    BeepControlStyle.Fluent2 or
+                    BeepControlStyle.Material3 or
+                    BeepControlStyle.Modern => ComboBoxPopupHostProfile.OutlineSearchable(),
+                    _ => ComboBoxPopupHostProfile.OutlineDefault()
+                };
+            }
+
             return ComboBoxPopupHostProfile.OutlineDefault();
         }
 
@@ -150,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
         /// </summary>
         protected virtual IPopupContentPanel CreateContentPanel(ComboBoxPopupHostProfile profile, ComboBoxThemeTokens tokens)
         {
-            var content = new ComboBoxPopupContent();
+            var content = new ComboBoxListBoxPopupContent();
             content.ApplyProfile(profile);
             content.ApplyThemeTokens(tokens);
             return content;

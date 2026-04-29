@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Badge pill — draw before text so it can shrink textRect
             if (rich != null && !string.IsNullOrEmpty(rich.BadgeText))
             {
-                int badgePad = DpiScalingHelper.ScaleValue(72, _owner);
+                int badgePad = Scale(72);
                 DrawBadgePill(g, itemRect, rich.BadgeText, rich.BadgeColor);
                 textRect = new Rectangle(textRect.X, textRect.Y,
                     textRect.Width - badgePad, textRect.Height);
@@ -62,13 +62,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Sub-text 2-line layout
             if (rich != null && !string.IsNullOrEmpty(rich.SubText))
             {
-                int subH = DpiScalingHelper.ScaleValue(16, _owner);
-                int titleH = textRect.Height - subH - DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner);
+                int subH = Scale(16);
+                int titleH = textRect.Height - subH - Scale(ListBoxTokens.SubTextGap);
                 titleH = Math.Max(12, titleH);
 
                 var titleRect = new Rectangle(textRect.X, textRect.Y, textRect.Width, titleH);
                 var subRect   = new Rectangle(textRect.X,
-                    textRect.Y + titleH + DpiScalingHelper.ScaleValue(ListBoxTokens.SubTextGap, _owner),
+                    textRect.Y + titleH + Scale(ListBoxTokens.SubTextGap),
                     textRect.Width, subH);
 
                 DrawItemText(g, titleRect, item.Text, textColor, _owner.TextFont);
@@ -93,8 +93,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty) return;
 
+            int cornerRadius = Scale(ListBoxTokens.SelectionCornerRadius);
+            float selBorder = Scale(2);
+            float hoverBorder = Scale(1);
+            float defaultBorder = 0.5f;
+
             // Create rounded rectangle path for modern look
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 4))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, cornerRadius))
             {
                 // Draw background with gradient based on state
                 if (isSelected)
@@ -109,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Selection border
-                    using (var pen = new System.Drawing.Pen(_theme?.PrimaryColor ?? Color.Blue, 2f))
+                    using (var pen = new System.Drawing.Pen(_theme?.PrimaryColor ?? Color.Blue, selBorder))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -126,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new System.Drawing.Pen(_theme?.AccentColor ?? Color.LightGray, 1f))
+                    using (var pen = new System.Drawing.Pen(_theme?.AccentColor ?? Color.LightGray, hoverBorder))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -140,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Default subtle border
-                    using (var pen = new System.Drawing.Pen(Color.FromArgb(200, 200, 200), 0.5f))
+                    using (var pen = new System.Drawing.Pen(Color.FromArgb(200, 200, 200), defaultBorder))
                     {
                         g.DrawPath(pen, path);
                     }

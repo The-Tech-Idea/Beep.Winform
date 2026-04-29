@@ -4,6 +4,9 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -70,17 +73,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Outer ring (shadow ring)
                     var outerRect = contentBounds;
-                    outerRect.Inflate(3, 3);
-                    using (var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(outerRect, Scale(9)))
-                    using (var outerPen = new Pen(Color.FromArgb(60, _theme.AccentColor), 4))
+                    outerRect.Inflate(Scale(3), Scale(3));
+                    using (var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(outerRect, new CornerRadius(Scale(9))))
+                    using (var outerPen = new Pen(Color.FromArgb(60, _theme.AccentColor), Scale(4)))
                     {
                         g.DrawPath(outerPen, outerPath);
                     }
 
                     // Inner ring (focus ring)
                     var innerRect = contentBounds;
-                    innerRect.Inflate(1, 1);
-                    using (var innerPath = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, Scale(7)))
+                    innerRect.Inflate(Scale(1), Scale(1));
+                    using (var innerPath = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, new CornerRadius(Scale(7))))
                     using (var innerPen = new Pen(_theme.AccentColor, 2))
                     {
                         g.DrawPath(innerPen, innerPath);
@@ -134,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                         var centerX = checkRect.X + checkRect.Width / 2;
                         var centerY = checkRect.Y + checkRect.Height / 2;
-                        var size = 4;
+                        var size = Scale(4);
 
                         g.DrawLine(checkPen,
                             centerX - size, centerY,

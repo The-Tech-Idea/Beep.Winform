@@ -316,7 +316,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Animation")]
         [Description("Duration in milliseconds for hover animations")]
         [DefaultValue(200)]
-        private int _hoverAnimationDuration = 200;
         public int HoverAnimationDuration
         {
             get => _hoverAnimationDuration;
@@ -335,6 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        private int _hoverAnimationDuration = 200;
         
         #endregion
         

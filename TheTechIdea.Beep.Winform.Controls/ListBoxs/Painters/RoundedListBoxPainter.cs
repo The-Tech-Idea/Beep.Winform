@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
 
@@ -10,8 +12,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     /// </summary>
     internal class RoundedListBoxPainter : BaseListBoxPainter
     {
-        private const int ItemRadius = 8;
-        
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             // Deflate slightly for spacing
@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty) return;
 
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, ItemRadius))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, Scale(8)))
             {
                 if (isSelected)
                 {
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Shadow for selected state
                     var shadowRect = itemRect;
-                    shadowRect.Offset(0, 2);
+                    shadowRect.Offset(0, Scale(2));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect,
                         Color.FromArgb(50, Color.Black),
                         Color.Transparent,

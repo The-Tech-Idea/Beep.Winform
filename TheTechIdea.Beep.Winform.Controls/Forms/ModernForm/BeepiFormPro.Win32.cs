@@ -64,6 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private const int WM_CTLCOLORDLG = 0x0136;
     private const int WM_CTLCOLORSTATIC = 0x0138;
         private const int WM_MOVE = 0x0003;
+        private const int WM_SIZE = 0x0005;
         private const int WM_NCMOVE = 0x00A0;
         private const int WM_EXITSIZEMOVE = 0x0232;
         private const int WM_SETFOCUS = 0x0007;
@@ -322,6 +323,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     case WM_MOVE:
                     case WM_NCMOVE:
                         break;
+                    case WM_SIZE:
+                        // CRITICAL: During live resize the window region must track the new size
+                        // so the right/bottom border pixels are not clipped by the old region.
+                        // This is a lightweight operation (SetWindowRgn) — heavy layout/painter
+                        // work remains deferred to OnResizeEnd / WM_EXITSIZEMOVE.
+                        base.WndProc(ref m);
+                        if (_drawCustomWindowBorder && IsHandleCreated)
+                        {
+                            UpdateWindowRegion();
+                        }
+                        return;
                     case WM_EXITSIZEMOVE:
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)

@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 _scrollOffset = 0;
             }
             int renderableCount = 0;
-            for (int i = 0; i < filteredRows.Length; i++)
+            for (int i = 0; i < filteredRows.Count; i++)
             {
                 if (filteredRows[i].RowKind != ComboBoxPopupRowKind.Separator)
                 {
@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup
                 int rowWidth = Math.Max(80, _scrollPanel.ClientSize.Width - 4);
                 int yPos = 0;
                 int rowIndex = 0;
-                for (int i = 0; i < filteredRows.Length; i++)
+                for (int i = 0; i < filteredRows.Count; i++)
                 {
                     var rowModel = filteredRows[i];
                     if (rowModel.RowKind == ComboBoxPopupRowKind.Separator) continue;

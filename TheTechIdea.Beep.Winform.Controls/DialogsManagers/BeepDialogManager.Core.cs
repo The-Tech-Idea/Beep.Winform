@@ -372,12 +372,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 var previousFocusedControl = owner?.ActiveControl;
 
                 if (config.RememberSizeAndPosition &&
-                    !string.IsNullOrWhiteSpace(config.DialogKey) &&
-                    _dialogRectState.TryGetValue(config.DialogKey, out var previous))
+                    !string.IsNullOrWhiteSpace(config.DialogKey))
                 {
-                    dialog.StartPosition = FormStartPosition.Manual;
-                    dialog.Location = previous.Location;
-                    dialog.Size = previous.Size;
+                    var persisted = DialogStateStore.Load(config.DialogKey);
+                    if (persisted.HasValue)
+                    {
+                        dialog.StartPosition = FormStartPosition.Manual;
+                        dialog.Location = persisted.Value.Location;
+                        dialog.Size = persisted.Value.Size;
+                    }
+                    else if (_dialogRectState.TryGetValue(config.DialogKey, out var previous))
+                    {
+                        dialog.StartPosition = FormStartPosition.Manual;
+                        dialog.Location = previous.Location;
+                        dialog.Size = previous.Size;
+                    }
                 }
 
                 // Show dialog
@@ -387,7 +396,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 else DialogCancelled?.Invoke(this, dialogReturn);
                 if (config.RememberSizeAndPosition && !string.IsNullOrWhiteSpace(config.DialogKey))
                 {
-                    _dialogRectState[config.DialogKey] = new Rectangle(dialog.Location, dialog.Size);
+                    var bounds = new Rectangle(dialog.Location, dialog.Size);
+                    _dialogRectState[config.DialogKey] = bounds;
+                    DialogStateStore.Save(config.DialogKey, bounds);
                 }
 
                 // Return focus to the previously active owner control when possible.
@@ -430,6 +441,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             dialog.ConfirmationKeyword           = config.ConfirmationKeyword;
             dialog.DisablePrimaryUntilAcknowledged = config.DisablePrimaryUntilAcknowledged;
             dialog.AllowCaptionCloseButton       = config.ShowCloseButton;
+            dialog.ReducedMotion                 = config.ReducedMotion;
 
             // CustomButtonLabels is read by GetLabel() inside SetButtonVisibilityAndCaptions —
             // must be set before DialogButtons and DialogType trigger ConfigureForDialogType.
@@ -450,6 +462,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             if (config.CustomControl == null && config.Preset == DialogPreset.None)
             {
                 // Check if this is an input dialog that needs items
+            }
+
+            // Host custom control if provided
+            if (config.CustomControl != null)
+            {
+                dialog.CustomContent = config.CustomControl;
+                dialog.CustomContentFillsDialog = config.CustomControlFillsDialog;
+                if (config.CustomControlMinHeight > 0)
+                {
+                    dialog.ClientSize = new Size(dialog.ClientSize.Width, Math.Max(dialog.ClientSize.Height, config.CustomControlMinHeight + 120));
+                }
+                config.InitializationCallback?.Invoke(config.CustomControl);
             }
 
             // Apply theme — set CurrentTheme (not just the name string) so _currentTheme
@@ -493,7 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         /// </summary>
         private DialogReturn CreateDialogReturn(BeepDialogForm dialog, System.Windows.Forms.DialogResult result)
         {
-            return new DialogReturn
+            var dialogReturn = new DialogReturn
             {
                 Result = ConvertDialogResult(result),
                 Value = dialog.ReturnValue ?? string.Empty,
@@ -511,6 +535,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     _ => BeepDialogButtons.Ok
                 }
             };
+
+            // Extract data from custom control if callback provided
+            if (dialog.CustomContent != null && _activeDialogConfig?.DataExtractionCallback != null && dialogReturn.Submit)
+            {
+                _activeDialogConfig.DataExtractionCallback(dialogReturn);
+            }
+
+            return dialogReturn;
         }
 
         #endregion

@@ -4,6 +4,8 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {

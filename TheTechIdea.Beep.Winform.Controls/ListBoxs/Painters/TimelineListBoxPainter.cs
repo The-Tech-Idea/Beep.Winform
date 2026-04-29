@@ -3,6 +3,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -25,6 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
+
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             int itemIndex = _owner.ListItems.IndexOf(item);
             bool isFirst = itemIndex == 0;
@@ -121,11 +126,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     pen.StartCap = LineCap.Round;
                     pen.EndCap = LineCap.Round;
+                    int cp = Scale(4);
                     Point[] checkPoints = new Point[]
                     {
-                        new Point(nodeRect.Left + 4, nodeRect.Top + nodeRect.Height / 2),
-                        new Point(nodeRect.Left + nodeRect.Width / 2 - 1, nodeRect.Bottom - 4),
-                        new Point(nodeRect.Right - 4, nodeRect.Top + 4)
+                        new Point(nodeRect.Left + cp, nodeRect.Top + nodeRect.Height / 2),
+                        new Point(nodeRect.Left + nodeRect.Width / 2 - Scale(1), nodeRect.Bottom - cp),
+                        new Point(nodeRect.Right - cp, nodeRect.Top + cp)
                     };
                     g.DrawLines(pen, checkPoints);
                 }
@@ -134,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawContentCard(Graphics g, Rectangle contentRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(contentRect, Scale(_cornerRadius)))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(contentRect, new CornerRadius(Scale(_cornerRadius))))
             {
                 // Background
                 Color bgColor;

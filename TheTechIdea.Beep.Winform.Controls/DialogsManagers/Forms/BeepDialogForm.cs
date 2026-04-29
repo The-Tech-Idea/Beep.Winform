@@ -71,6 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public bool RequireTypedConfirmation { get; set; }
         public string ConfirmationKeyword { get; set; } = string.Empty;
         public bool DisablePrimaryUntilAcknowledged { get; set; }
+        public bool ReducedMotion { get; set; }
 
         public string DetailsText
         {
@@ -121,6 +122,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             get => _messageLabel.Text;
             set => _messageLabel.Text = value ?? string.Empty;
         }
+
+        private Control? _customContent;
+        public Control? CustomContent
+        {
+            get => _customContent;
+            set
+            {
+                if (_customContent != null && !_customContent.IsDisposed)
+                {
+                    _bodyPanel.Controls.Remove(_customContent);
+                    _customContent.Dispose();
+                }
+                _customContent = value;
+                if (value != null)
+                {
+                    value.Dock = DockStyle.Fill;
+                    _bodyPanel.Controls.Add(value);
+                    value.BringToFront();
+                }
+                ReflowBodyContent();
+            }
+        }
+
+        public bool CustomContentFillsDialog { get; set; }
 
         public DialogType DialogType
         {
@@ -972,6 +997,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _inputValidationPassed = false;
             UpdatePrimaryActionEnabledState();
             ReflowBodyContent();
+
+            if (!ReducedMotion)
+                DialogMotionEngine.ShakeDialog(this, cycles: 2, amplitude: 6, durationMs: 250);
         }
 
         private void ClearValidation()

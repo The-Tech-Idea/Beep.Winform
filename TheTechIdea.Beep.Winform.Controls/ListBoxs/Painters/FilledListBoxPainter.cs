@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
 
@@ -44,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     
                     // Draw shadow for elevation
                     var shadowRect = itemRect;
-                    shadowRect.Offset(0, 2);
+                    shadowRect.Offset(0, Scale(2));
                     using (var shadowBrush = new LinearGradientBrush(shadowRect, 
                         Color.FromArgb(40, Color.Black), 
                         Color.Transparent, 
@@ -60,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Selection border
-                    using (var pen = new Pen(Color.FromArgb(200, selColor), 2f))
+                    using (var pen = new Pen(Color.FromArgb(200, selColor), Scale(2)))
                     {
                         g.DrawPath(pen, path);
                     }

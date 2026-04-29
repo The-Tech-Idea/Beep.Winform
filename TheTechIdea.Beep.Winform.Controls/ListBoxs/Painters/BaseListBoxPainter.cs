@@ -516,29 +516,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int trailingReservation = 0;
             if (item is BeepListItem rich && !string.IsNullOrWhiteSpace(rich.TrailingMeta))
             {
-                var metricFont = new Font((TextFont ?? _owner.TextFont).FontFamily, Math.Max(8f, (TextFont ?? _owner.TextFont).Size - 1f), FontStyle.Regular);
-                try
-                {
-                    var metricSize = TextRenderer.MeasureText(rich.TrailingMeta, metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
-                    int metricW = metricSize.Width + DpiScalingHelper.ScaleValue(8, _owner);
-                    var metricRect = new Rectangle(
-                        contentRect.Right - metricW,
-                        contentRect.Top,
-                        metricW,
-                        contentRect.Height);
-                    TextRenderer.DrawText(
-                        g,
-                        rich.TrailingMeta,
-                        metricFont,
-                        metricRect,
-                        Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray),
-                        TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-                    trailingReservation = metricW + DpiScalingHelper.ScaleValue(4, _owner);
-                }
-                finally
-                {
-                    metricFont.Dispose();
-                }
+                using var metricFont = new Font((TextFont ?? _owner.TextFont).FontFamily, Math.Max(8f, (TextFont ?? _owner.TextFont).Size - 1f), FontStyle.Regular);
+                var metricSize = TextRenderer.MeasureText(rich.TrailingMeta, metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                int metricW = metricSize.Width + DpiScalingHelper.ScaleValue(8, _owner);
+                var metricRect = new Rectangle(
+                    contentRect.Right - metricW,
+                    contentRect.Top,
+                    metricW,
+                    contentRect.Height);
+                TextRenderer.DrawText(
+                    g,
+                    rich.TrailingMeta,
+                    metricFont,
+                    metricRect,
+                    Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray),
+                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                trailingReservation = metricW + DpiScalingHelper.ScaleValue(4, _owner);
             }
 
             // Draw text (use TextFont from theme)

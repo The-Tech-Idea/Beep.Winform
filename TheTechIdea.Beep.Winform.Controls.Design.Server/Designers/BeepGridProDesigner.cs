@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.ComponentModel;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
@@ -11,6 +12,8 @@ using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
@@ -452,6 +455,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             Grid?.AutoResizeColumnsToFitContent();
         }
 
+        public void EditColumns()
+        {
+            if (Grid == null) return;
+
+            var dialog = new BeepGridColumnEditorDialog(Grid);
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                var layoutHelper = typeof(BeepGridPro).GetProperty("Layout", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(Grid);
+                layoutHelper?.GetType().GetMethod("Recalculate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.Invoke(layoutHelper, null);
+                Grid.Invalidate();
+                Grid.Refresh();
+            }
+        }
+
         #endregion
 
         public override DesignerActionItemCollection GetSortedActionItems()
@@ -460,6 +477,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Quick configuration presets
             items.Add(new DesignerActionHeaderItem("Quick Configuration"));
+            items.Add(new DesignerActionMethodItem(this, "EditColumns", "Edit Columns...", "Quick Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsDataDisplay", "Data Display Grid", "Quick Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsDataEntry", "Data Entry Grid", "Quick Configuration", true));
             items.Add(new DesignerActionMethodItem(this, "ConfigureAsSimpleList", "Simple List", "Quick Configuration", true));

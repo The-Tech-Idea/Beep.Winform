@@ -4,6 +4,9 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -35,6 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
+
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             // Get item index for gradient selection
             int itemIndex = _owner.ListItems.IndexOf(item);
@@ -87,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             var cardRect = Rectangle.Inflate(itemRect, -Scale(3), -Scale(2));
             
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(cardRect, Scale(_cornerRadius)))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(cardRect, new CornerRadius(Scale(_cornerRadius))))
             {
                 if (isSelected)
                 {
@@ -145,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             for (int i = 3; i >= 1; i--)
             {
                 var glowRect = Rectangle.Inflate(cardRect, i, i);
-                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glowRect, Scale(_cornerRadius) + i))
+                using (var path = GraphicsExtensions.CreateRoundedRectanglePath(glowRect, new CornerRadius(Scale(_cornerRadius) + i)))
                 using (var pen = new Pen(Color.FromArgb(20 * (4 - i), glowColor), 1f))
                 {
                     g.DrawPath(pen, path);
@@ -173,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawGradientCheckbox(Graphics g, Rectangle checkRect, bool isChecked, int itemIndex)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, 4))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
             {
                 if (isChecked)
                 {
@@ -189,11 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
+                        int cp = Scale(4);
                         Point[] checkPoints = new Point[]
                         {
-                            new Point(checkRect.Left + 4, checkRect.Top + checkRect.Height / 2),
-                            new Point(checkRect.Left + checkRect.Width / 2 - 1, checkRect.Bottom - 4),
-                            new Point(checkRect.Right - 4, checkRect.Top + 4)
+                            new Point(checkRect.Left + cp, checkRect.Top + checkRect.Height / 2),
+                            new Point(checkRect.Left + checkRect.Width / 2 - Scale(1), checkRect.Bottom - cp),
+                            new Point(checkRect.Right - cp, checkRect.Top + cp)
                         };
                         g.DrawLines(pen, checkPoints);
                     }

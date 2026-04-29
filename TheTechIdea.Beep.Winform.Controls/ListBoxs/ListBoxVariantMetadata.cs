@@ -64,6 +64,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs
                 [ListBoxType.ThreeLineList] = Build(ListBoxType.ThreeLineList, "standard", "row", ListDensityMode.Comfortable, "titleSubtext", "listSelect", true, true, true),
                 [ListBoxType.NotificationList] = Build(ListBoxType.NotificationList, "standard", "row", ListDensityMode.Comfortable, "leadingIconTrailingMeta", "listSelect", true, false, false),
                 [ListBoxType.ProfileCard] = Build(ListBoxType.ProfileCard, "card", "row", ListDensityMode.Comfortable, "avatarSecondaryAction", "listSelect", false, false, false),
+                [ListBoxType.RekaUI] = Build(ListBoxType.RekaUI, "minimal", "row", ListDensityMode.Compact, "titleSubtext", "listSelect", true, true, true),
+                [ListBoxType.ChakraUI] = Build(ListBoxType.ChakraUI, "outlined", "row", ListDensityMode.Comfortable, "titleOnly", "listSelect", true, true, true),
+                [ListBoxType.HeroUI] = Build(ListBoxType.HeroUI, "card", "row", ListDensityMode.Comfortable, "titleSubtext", "listSelect", true, true, true),
             };
 
         public static ListBoxVariantMetadata Resolve(ListBoxType type)

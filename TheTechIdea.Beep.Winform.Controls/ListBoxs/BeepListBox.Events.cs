@@ -20,19 +20,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
 
-            // route to centralized input
-            _input?.OnMouseMove(e.Location);
-
-            if (_listBoxPainter == null)
-            {
-                _listBoxPainter = CreatePainter(_listBoxType);
-                _listBoxPainter?.Initialize(this, _currentTheme);
-                _needsLayoutUpdate = true;
-            }
-            if (_listBoxPainter.Style != ControlStyle)
-            {
-                _listBoxPainter.Style = ControlStyle;
-            }
             // Hover over search area
             if (_showSearch && _searchAreaRect.Contains(e.Location))
             {
@@ -125,20 +112,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseClick(e);
 
-            if (_listBoxPainter == null)
-            {
-                _listBoxPainter = CreatePainter(_listBoxType);
-                _listBoxPainter?.Initialize(this, _currentTheme);
-                _needsLayoutUpdate = true;
-            }
-
             // search area click
             if (_showSearch && _searchAreaRect.Contains(e.Location))
             {
                 return;
             }
-
-            _input?.OnClick();
 
             // Centralized hit-test
             if (_hitHelper != null && _hitHelper.HitTest(e.Location, out var hitName, out var hitItem, out var hitRect))

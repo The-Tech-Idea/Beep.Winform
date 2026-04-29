@@ -4,6 +4,9 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -25,7 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
 
-            // Draw background
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+
+            // Draw avatar background
             DrawAvatarItemBackground(g, itemRect, isHovered, isSelected);
 
             var padding = GetPreferredPadding();
@@ -93,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             var bgRect = Rectangle.Inflate(itemRect, -Scale(2), -Scale(1));
             
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(bgRect, Scale(_cornerRadius)))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(bgRect, new CornerRadius(Scale(_cornerRadius))))
             {
                 if (isSelected)
                 {
@@ -195,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawModernCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isHovered, bool isSelected)
         {
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, 4))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
             {
                 if (isChecked)
                 {
@@ -214,11 +219,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
+                        int cp = Scale(4);
                         Point[] checkPoints = new Point[]
                         {
-                            new Point(checkRect.Left + 4, checkRect.Top + checkRect.Height / 2),
-                            new Point(checkRect.Left + checkRect.Width / 2 - 1, checkRect.Bottom - 4),
-                            new Point(checkRect.Right - 4, checkRect.Top + 4)
+                            new Point(checkRect.Left + cp, checkRect.Top + checkRect.Height / 2),
+                            new Point(checkRect.Left + checkRect.Width / 2 - Scale(1), checkRect.Bottom - cp),
+                            new Point(checkRect.Right - cp, checkRect.Top + cp)
                         };
                         g.DrawLines(pen, checkPoints);
                     }

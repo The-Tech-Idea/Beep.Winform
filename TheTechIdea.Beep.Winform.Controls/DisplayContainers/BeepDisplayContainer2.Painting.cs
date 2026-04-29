@@ -349,6 +349,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     try { DrawEmptyState(g); } catch { }
                 }
 
+                // ── Quick switcher overlay (Ctrl+P) ─────────────────────
+                if (_showQuickSwitcher && !_quickSwitcherBounds.IsEmpty)
+                    try { DrawQuickSwitcher(g); } catch { }
+
                 try { HandleTabTransition(g); } catch { }
             }
             finally
@@ -660,6 +664,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             bool isFirst = visible.Count > 0 && visible[0] == tab;
             bool isLast  = visible.Count > 0 && visible[visible.Count - 1] == tab;
 
+            // Resolve group accent colour.
+            Color groupColor = Color.Empty;
+            if (!string.IsNullOrEmpty(tab.TabGroup))
+                groupColor = GetGroupColor(tab.TabGroup);
+
             _paintHelper.DrawProfessionalTab(
                 g, tab.Bounds, tab.Title,
                 TextFont,
@@ -667,7 +676,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 _showCloseButtons && !tab.IsPinned,
                 tab.IsCloseHovered, tab.AnimationProgress,
                 isFirst, isLast, _tabPosition,
-                tab.IconPath, tab.BadgeText, tab.BadgeColor, tab.IsPinned);
+                tab.IconPath, tab.BadgeText, tab.BadgeColor, tab.IsPinned,
+                groupColor);
         }
 
         // ── Tooltip hover card ──────────────────────────────────────────────────
@@ -757,6 +767,143 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             finally
             {
                 if (descFont != null && descFont != titleFont) descFont.Dispose();
+            }
+        }
+
+        // ── Quick Switcher overlay (Ctrl+P) ─────────────────────────────
+        private void DrawQuickSwitcher(Graphics g)
+        {
+            var bounds = _quickSwitcherBounds;
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            int radius = 8;
+            int pad = DpiScalingHelper.ScaleValue(12, this);
+            int itemH = 28;
+
+            // Semi-transparent backdrop
+            using (var backdrop = new SolidBrush(Color.FromArgb(100, Color.Black)))
+                g.FillRectangle(backdrop, ClientRectangle);
+
+            // Card background with shadow
+            var shadowRect = Rectangle.Inflate(bounds, 4, 4);
+            shadowRect.Offset(2, 2);
+            using (var shadowBrush = new SolidBrush(Color.FromArgb(40, Color.Black)))
+                g.FillRectangle(shadowBrush, shadowRect);
+
+            Color cardBg = _currentTheme?.BackColor ?? Color.White;
+            Color cardFg = _currentTheme?.ForeColor ?? Color.Black;
+            Color borderColor = _currentTheme?.BorderColor ?? Color.Gray;
+            Color accentColor = _currentTheme?.AccentColor ?? Color.RoyalBlue;
+
+            using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, radius))
+            using (var bgBrush = new SolidBrush(cardBg))
+            using (var borderPen = new Pen(borderColor, 1f))
+            {
+                if (path != null)
+                {
+                    g.FillPath(bgBrush, path);
+                    g.DrawPath(borderPen, path);
+                }
+            }
+
+            // Search input area
+            var searchRect = new Rectangle(bounds.X + pad, bounds.Y + pad, bounds.Width - pad * 2, 32);
+            Color searchBg = Color.FromArgb(30, cardFg);
+            using (var searchPath = GraphicsExtensions.GetRoundedRectPath(searchRect, 4))
+            using (var searchBrush = new SolidBrush(searchBg))
+            {
+                if (searchPath != null) g.FillPath(searchBrush, searchPath);
+            }
+
+            // Search icon (magnifying glass)
+            int iconCx = searchRect.X + 16;
+            int iconCy = searchRect.Y + searchRect.Height / 2;
+            using (var pen = new Pen(Color.FromArgb(140, cardFg), 1.5f))
+            {
+                g.DrawEllipse(pen, iconCx - 5, iconCy - 5, 10, 10);
+                g.DrawLine(pen, iconCx + 4, iconCy + 4, iconCx + 9, iconCy + 9);
+            }
+
+            // Filter text
+            var searchFont = FontListHelper.GetFont(TextFont.FontFamily.Name, TextFont.Size, FontStyle.Regular) ?? TextFont;
+            var textRect = new Rectangle(searchRect.X + 28, searchRect.Y, searchRect.Width - 28, searchRect.Height);
+            using (var textBrush = new SolidBrush(cardFg))
+            {
+                string displayText = string.IsNullOrEmpty(_quickSwitcherFilter) ? "Type to filter tabs..." : _quickSwitcherFilter;
+                Color textColor = string.IsNullOrEmpty(_quickSwitcherFilter) ? Color.FromArgb(120, cardFg) : cardFg;
+                textBrush.Color = textColor;
+                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+                g.DrawString(displayText, searchFont, textBrush, textRect, fmt);
+            }
+
+            // Results list
+            int listY = searchRect.Bottom + 4;
+            int listBottom = bounds.Bottom - pad;
+            var itemFont = FontListHelper.GetFont(TextFont.FontFamily.Name, Math.Max(8f, TextFont.Size * 0.9f), FontStyle.Regular) ?? TextFont;
+            try
+            {
+                for (int i = 0; i < _quickSwitcherFilteredTabs.Count; i++)
+                {
+                    int itemY = listY + i * itemH;
+                    if (itemY + itemH > listBottom) break;
+
+                    var tab = _quickSwitcherFilteredTabs[i];
+                    bool isSelected = i == _quickSwitcherSelectedIndex;
+                    var itemRect = new Rectangle(bounds.X + pad, itemY, bounds.Width - pad * 2, itemH - 2);
+
+                    // Highlight selected item
+                    if (isSelected)
+                    {
+                        using (var hlPath = GraphicsExtensions.GetRoundedRectPath(itemRect, 4))
+                        using (var hlBrush = new SolidBrush(Color.FromArgb(40, accentColor)))
+                        {
+                            if (hlPath != null) g.FillPath(hlBrush, hlPath);
+                        }
+                    }
+
+                    // Group colour dot
+                    if (!string.IsNullOrEmpty(tab.TabGroup))
+                    {
+                        Color gc = GetGroupColor(tab.TabGroup);
+                        using (var dotBrush = new SolidBrush(gc))
+                            g.FillEllipse(dotBrush, itemRect.X + 2, itemRect.Y + (itemH - 8) / 2, 8, 8);
+                    }
+
+                    // Active indicator
+                    if (tab == _activeTab)
+                    {
+                        using (var dotBrush = new SolidBrush(accentColor))
+                            g.FillEllipse(dotBrush, itemRect.X + 2, itemRect.Y + (itemH - 8) / 2, 8, 8);
+                    }
+
+                    // Tab title
+                    var titleRect = new Rectangle(itemRect.X + 16, itemRect.Y, itemRect.Width - 16, itemRect.Height);
+                    Color titleColor = isSelected ? accentColor : cardFg;
+                    var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                    using (var titleBrush = new SolidBrush(titleColor))
+                        g.DrawString(tab.Title ?? "Untitled", itemFont, titleBrush, titleRect, fmt);
+                }
+
+                // Footer hint
+                string hint = $"{_quickSwitcherFilteredTabs.Count} tab{(_quickSwitcherFilteredTabs.Count != 1 ? "s" : "")}  ·  Enter to open  ·  Esc to close";
+                var hintFont = FontListHelper.GetFont(TextFont.FontFamily.Name, Math.Max(7f, TextFont.Size * 0.75f), FontStyle.Regular) ?? TextFont;
+                try
+                {
+                    var hintRect = new Rectangle(bounds.X + pad, listBottom - 18, bounds.Width - pad * 2, 16);
+                    using (var hintBrush = new SolidBrush(Color.FromArgb(100, cardFg)))
+                    {
+                        var hintFmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                        g.DrawString(hint, hintFont, hintBrush, hintRect, hintFmt);
+                    }
+                }
+                finally
+                {
+                    if (hintFont != itemFont) hintFont?.Dispose();
+                }
+            }
+            finally
+            {
+                if (itemFont != searchFont) itemFont?.Dispose();
             }
         }
 

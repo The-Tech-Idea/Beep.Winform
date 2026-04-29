@@ -120,6 +120,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return false;
         }
+
+        /// <summary>
+        /// Finds an item by its ValueMember property value (when DataSource is bound).
+        /// </summary>
+        public SimpleItem FindItemByValue(object value)
+        {
+            if (value == null || string.IsNullOrEmpty(_valueMember)) return null;
+            foreach (var item in _listItems)
+            {
+                var prop = item.GetType().GetProperty(_valueMember);
+                if (prop != null && object.Equals(prop.GetValue(item), value))
+                    return item;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Selects an item by its ValueMember property value.
+        /// </summary>
+        public bool SelectItemByValue(object value)
+        {
+            var item = FindItemByValue(value);
+            if (item != null)
+            {
+                SelectedItem = item;
+                return true;
+            }
+            return false;
+        }
         
         /// <summary>
         /// Gets the item at the specified point using the layout cache.
@@ -210,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ToggleSelection(SimpleItem item)
         {
             if (item == null) return;
-            if (SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum  .MultiExtended || MultiSelect)
+            if (SelectionMode == ListBoxs.SelectionModeEnum.MultiSimple || SelectionMode == ListBoxs.SelectionModeEnum.MultiExtended || MultiSelect)
             {
                 if (_selectedItems.Contains(item)) _selectedItems.Remove(item);
                 else _selectedItems.Add(item);
@@ -428,6 +457,68 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             try { _layoutHelper?.CalculateLayout(this); _hitHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
+        }
+
+        /// <summary>
+        /// Smoothly scrolls to bring the specified item into view with an animated transition.
+        /// </summary>
+        /// <param name="item">The item to scroll to.</param>
+        /// <param name="durationMs">Animation duration in milliseconds (default: 250ms).</param>
+        public void ScrollToItem(SimpleItem item, int durationMs = 250)
+        {
+            if (item == null) return;
+            var layout = _layoutHelper.GetCachedLayout();
+            if (layout == null || layout.Count == 0) return;
+
+            var info = layout.FirstOrDefault(i => i.Item == item);
+            if (info == null) return;
+
+            var clientArea = GetClientArea();
+            if (clientArea.IsEmpty) return;
+
+            int itemTopVirtual = info.RowRect.Top + _yOffset;
+            int itemBottomVirtual = itemTopVirtual + info.RowRect.Height;
+
+            int targetY = _yOffset;
+            if (itemTopVirtual < clientArea.Top)
+            {
+                targetY = itemTopVirtual - clientArea.Top;
+            }
+            else if (itemBottomVirtual > clientArea.Bottom)
+            {
+                targetY = itemBottomVirtual - clientArea.Bottom;
+            }
+            else
+            {
+                return; // Already visible
+            }
+
+            targetY = Math.Max(0, Math.Min(targetY, Math.Max(0, _virtualSize.Height - clientArea.Height)));
+            int startY = _yOffset;
+            int delta = targetY - startY;
+            if (delta == 0) return;
+
+            var animTimer = new Timer { Interval = 16 };
+            int elapsed = 0;
+            animTimer.Tick += (s, e) =>
+            {
+                elapsed += 16;
+                float t = Math.Min(1f, (float)elapsed / durationMs);
+                // Ease-out cubic for smooth deceleration
+                float ease = 1f - (1f - t) * (1f - t) * (1f - t);
+                _yOffset = startY + (int)(delta * ease);
+                if (_verticalScrollBar != null && _verticalScrollBar.Visible)
+                    _verticalScrollBar.Value = _yOffset;
+                try { _layoutHelper?.CalculateLayout(this); } catch { }
+                Invalidate();
+
+                if (t >= 1f)
+                {
+                    animTimer.Stop();
+                    animTimer.Dispose();
+                }
+            };
+            animTimer.Start();
         }
         
         #endregion

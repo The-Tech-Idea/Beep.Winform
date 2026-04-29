@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -100,27 +102,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     Point[] checkPoints = new Point[]
                     {
-                        new Point(checkboxRect.Left + 3, checkboxRect.Top + checkboxRect.Height / 2),
-                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - 4),
-                        new Point(checkboxRect.Right - 3, checkboxRect.Top + 3)
+                        new Point(checkboxRect.Left + Scale(3), checkboxRect.Top + checkboxRect.Height / 2),
+                        new Point(checkboxRect.Left + checkboxRect.Width / 2 - 1, checkboxRect.Bottom - Scale(4)),
+                        new Point(checkboxRect.Right - Scale(3), checkboxRect.Top + Scale(3))
                     };
                     g.DrawLines(pen, checkPoints);
                 }
             }
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
         }
         
         public override int GetPreferredItemHeight()

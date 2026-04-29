@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
@@ -1044,6 +1045,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 case "clearfilter":
                     _grid.ClearFilter();
                     break;
+                case "overflow":
+                    ShowOverflowMenu();
+                    break;
+            }
+        }
+
+        private void ShowOverflowMenu()
+        {
+            var state = _grid.ToolbarState;
+            var overflowItems = state.GetOverflowItems();
+            if (overflowItems.Count == 0) return;
+
+            var menuItems = new System.Collections.Generic.List<SimpleItem>();
+            foreach (var btn in overflowItems)
+            {
+                menuItems.Add(new SimpleItem
+                {
+                    Text = btn.Label,
+                    ImagePath = btn.IconPath,
+                    MethodName = btn.Key,
+                });
+            }
+
+            var screenLoc = _grid.PointToScreen(state.OverflowButtonRect.Location);
+            screenLoc = new Point(screenLoc.X, screenLoc.Y + state.OverflowButtonRect.Height);
+            var selectedItem = _grid.ShowContextMenu(menuItems, screenLoc, false, FormStyle.Modern);
+
+            if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.MethodName))
+            {
+                HandleToolbarButtonClick(selectedItem.MethodName);
             }
         }
 

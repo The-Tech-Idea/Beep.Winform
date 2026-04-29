@@ -145,8 +145,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
-            ShowTopFilterPanel = true;
-            EnsureInlineQuickSearchVisible();
+            // Unified toolbar replaces the legacy filter panel — only one should be visible at a time.
+            ShowToolbar = true;
+            ShowTopFilterPanel = false; // hidden by default; toolbar provides search + filter
 
             // Set accessibility properties
             AccessibleRole = AccessibleRole.Table;

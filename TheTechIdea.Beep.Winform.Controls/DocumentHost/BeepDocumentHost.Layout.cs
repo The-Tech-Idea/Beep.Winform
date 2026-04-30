@@ -16,6 +16,44 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
     public partial class BeepDocumentHost
     {
+        internal bool GetLayoutSuspended() => _layoutSuspended;
+
+        internal void SetLayoutSuspended(bool value) => _layoutSuspended = value;
+
+        internal string? GetActiveGroupId()
+            => _activeGroup?.GroupId;
+
+        internal void ValidateAndRepairLayoutTree(string operationName)
+        {
+            if (_layoutRoot == null)
+            {
+                SyncLayoutTree();
+                return;
+            }
+
+            var validation = Layout.LayoutTreeValidator.Validate(_layoutRoot);
+            if (validation.IsValid) return;
+
+            var (repairedRoot, _) = Layout.LayoutTreeRepairer.Repair(_layoutRoot);
+
+            // Only accept repaired trees that still reference known runtime groups;
+            // otherwise rebuild from runtime group state to prevent drift.
+            bool allGroupsKnown = true;
+            foreach (var leaf in repairedRoot.AllLeaves())
+            {
+                if (!_groupById.ContainsKey(leaf.NodeId))
+                {
+                    allGroupsKnown = false;
+                    break;
+                }
+            }
+
+            if (allGroupsKnown)
+                _layoutRoot = repairedRoot;
+            else
+                SyncLayoutTree();
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Override hooks
         // ─────────────────────────────────────────────────────────────────────
@@ -398,17 +436,29 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         internal void CollapseEmptyGroupImmediate(BeepDocumentGroup grp)
+            => CollapseEmptyGroupImmediate(grp, useCoordinator: true);
+
+        internal void CollapseEmptyGroupImmediate(BeepDocumentGroup grp, bool useCoordinator)
         {
             if (grp.IsPrimary || !grp.IsEmpty) return;
-            _groups.Remove(grp);
-            _groupById.Remove(grp.GroupId);
-            Controls.Remove(grp.TabStrip);
-            Controls.Remove(grp.ContentArea);
-            grp.Dispose();
+            Action mutation = () =>
+            {
+                _groups.Remove(grp);
+                _groupById.Remove(grp.GroupId);
+                Controls.Remove(grp.TabStrip);
+                Controls.Remove(grp.ContentArea);
+                grp.Dispose();
+            };
 
-            // Rebuild the tree after removing a group
-            SyncLayoutTree();
-            RecalculateLayout();
+            if (useCoordinator)
+            {
+                var coordinator = new DocumentHostTreeMutationCoordinator(this);
+                coordinator.Execute(DocumentHostOperationNames.CollapseEmptyGroup, mutation);
+            }
+            else
+            {
+                mutation();
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -419,32 +469,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (_groups.Count <= 1) return;
 
-            var secondary = new List<BeepDocumentGroup>(_groups.Skip(1));
-
-            foreach (var grp in secondary)
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            coordinator.Execute(DocumentHostOperationNames.MergeAllGroups, () =>
             {
-                var docIds = new List<string>(grp.DocumentIds);
-                foreach (var docId in docIds)
-                    MoveDocumentToGroup(docId, _primaryGroup.GroupId);
-            }
+                var secondary = new List<BeepDocumentGroup>(_groups.Skip(1));
 
-            for (int i = _groups.Count - 1; i >= 1; i--)
-            {
-                var grp = _groups[i];
-                if (!grp.IsEmpty) continue;
-                _groups.RemoveAt(i);
-                _groupById.Remove(grp.GroupId);
-                Controls.Remove(grp.TabStrip);
-                Controls.Remove(grp.ContentArea);
-                grp.Dispose();
-            }
+                foreach (var grp in secondary)
+                {
+                    var docIds = new List<string>(grp.DocumentIds);
+                    foreach (var docId in docIds)
+                        MoveDocumentToGroupCore(docId, _primaryGroup.GroupId, recalcLayout: false);
+                }
 
-            if (_splitterBar != null) _splitterBar.Visible = false;
-            foreach (var b in _extraSplitters) b.Visible = false;
+                for (int i = _groups.Count - 1; i >= 1; i--)
+                {
+                    var grp = _groups[i];
+                    if (!grp.IsEmpty) continue;
+                    CollapseEmptyGroupImmediate(grp, useCoordinator: false);
+                }
 
-            // Reset to single-group tree
-            _layoutRoot = new GroupLayoutNode(_primaryGroup.GroupId);
-            RecalculateLayout();
+                if (_splitterBar != null) _splitterBar.Visible = false;
+                foreach (var b in _extraSplitters) b.Visible = false;
+
+                // Reset to single-group tree
+                _layoutRoot = new GroupLayoutNode(_primaryGroup.GroupId);
+            });
         }
     }
 }

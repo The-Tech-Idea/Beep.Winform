@@ -73,29 +73,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         public bool BatchMoveDocument(string documentId, string targetGroupId)
         {
-            if (!_panels.TryGetValue(documentId, out var panel)) return false;
-            var targetGroup = _groups.Find(g => g.GroupId == targetGroupId);
-            if (targetGroup == null) return false;
-
-            // Remove from current group
-            if (_docGroupMap.TryGetValue(documentId, out var currentGroupId))
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            bool moved = false;
+            coordinator.Execute(DocumentHostOperationNames.BatchMoveDocument, () =>
             {
-                var currentGroup = _groups.Find(g => g.GroupId == currentGroupId);
-                if (currentGroup != null)
-                {
-                    currentGroup.DocumentIds.Remove(documentId);
-                    int tabIdx = currentGroup.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-                    if (tabIdx >= 0) currentGroup.TabStrip.RemoveTabAt(tabIdx);
-                }
-            }
-
-            // Add to target group
-            _docGroupMap[documentId] = targetGroupId;
-            targetGroup.DocumentIds.Add(documentId);
-            targetGroup.TabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: false);
-
-            RecalculateLayout();
-            return true;
+                moved = MoveDocumentToGroupCore(documentId, targetGroupId, recalcLayout: false);
+            });
+            return moved;
         }
         // ─────────────────────────────────────────────────────────────────────
         // Add
@@ -190,6 +174,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _activeGroup      = activeGrp;
             PushMru(documentId);
             activeGrp.TabStrip.ActivateTabById(documentId);
+            AccessibleName = panel.DocumentTitle;
+            AccessibleDescription = $"Active document {panel.DocumentTitle}";
 
             ActiveDocumentChanged?.Invoke(this,
                 new DocumentEventArgs(documentId, panel.DocumentTitle));
@@ -214,46 +200,50 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!_panels.TryGetValue(documentId, out var panel)) return false;
 
             string title = panel.DocumentTitle;
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
 
-            // Push to closed-tab history BEFORE destroying the panel
-            PushClosedTab(new ClosedTabRecord(documentId, title, panel.IconPath));
-            RemoveMru(documentId);
-
-            // Remove from whichever group owns this document
-            if (_docGroupMap.TryGetValue(documentId, out var closingGroupId))
+            coordinator.Execute(DocumentHostOperationNames.CloseDocument, () =>
             {
-                _docGroupMap.Remove(documentId);
-                var ownerGrp = _groups.Find(g => g.GroupId == closingGroupId);
-                if (ownerGrp != null)
+                // Push to closed-tab history BEFORE destroying the panel
+                PushClosedTab(new ClosedTabRecord(documentId, title, panel.IconPath));
+                RemoveMru(documentId);
+
+                // Remove from whichever group owns this document
+                if (_docGroupMap.TryGetValue(documentId, out var closingGroupId))
                 {
-                    ownerGrp.DocumentIds.Remove(documentId);
-                    int gTabIdx = ownerGrp.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-                    if (gTabIdx >= 0) ownerGrp.TabStrip.RemoveTabAt(gTabIdx);
+                    _docGroupMap.Remove(documentId);
+                    var ownerGrp = _groups.Find(g => g.GroupId == closingGroupId);
+                    if (ownerGrp != null)
+                    {
+                        ownerGrp.DocumentIds.Remove(documentId);
+                        int gTabIdx = ownerGrp.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                        if (gTabIdx >= 0) ownerGrp.TabStrip.RemoveTabAt(gTabIdx);
 
-                    if (ownerGrp.IsEmpty && !ownerGrp.IsPrimary)
-                        CollapseEmptyGroup(ownerGrp);
+                        if (ownerGrp.IsEmpty && !ownerGrp.IsPrimary)
+                            CollapseEmptyGroup(ownerGrp);
+                    }
                 }
-            }
-            else
-            {
-                // Fallback: remove from primary strip
-                int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-                if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
-            }
+                else
+                {
+                    // Fallback: remove from primary strip
+                    int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                    if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
+                }
 
-            _panels.Remove(documentId);
-            panel.Parent?.Controls.Remove(panel);
-            panel.Dispose();
+                _panels.Remove(documentId);
+                panel.Parent?.Controls.Remove(panel);
+                panel.Dispose();
+
+                if (_activeDocumentId == documentId)
+                {
+                    _activeDocumentId = null;
+                    if (_panels.Count > 0)
+                        SetActiveDocument(_panels.Keys.Last());
+                }
+            });
 
             // 5.7: Free cached thumbnail for the closed document
             InvalidatePreview(documentId);
-
-            if (_activeDocumentId == documentId)
-            {
-                _activeDocumentId = null;
-                if (_panels.Count > 0)
-                    SetActiveDocument(_panels.Keys.Last());
-            }
 
             DocumentClosed?.Invoke(this, new DocumentEventArgs(documentId, title));
             RemoveDescriptorForId(documentId);          // keep Documents list in sync
@@ -284,18 +274,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_floatWindows.ContainsKey(documentId)) return false;   // already floated
 
             string title = panel.DocumentTitle;
-
-            _contentArea.Controls.Remove(panel);
-            _panels.Remove(documentId);
-
-            int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-            if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
-
-            if (_activeDocumentId == documentId)
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            coordinator.Execute(DocumentHostOperationNames.FloatDocument, () =>
             {
-                _activeDocumentId = null;
-                if (_panels.Count > 0) SetActiveDocument(_panels.Keys.Last());
-            }
+                _contentArea.Controls.Remove(panel);
+                _panels.Remove(documentId);
+
+                int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
+
+                if (_activeDocumentId == documentId)
+                {
+                    _activeDocumentId = null;
+                    if (_panels.Count > 0) SetActiveDocument(_panels.Keys.Last());
+                }
+            });
 
             var fw = new BeepDocumentFloatWindow(panel, ThemeName);
             fw.DockBack       += (s, ea) => DockBackDocument(documentId);
@@ -316,6 +309,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>Docks a previously floated document back into this host.</summary>
         public bool DockBackDocument(string documentId)
+            => DockBackDocumentInternal(documentId, useCoordinator: true);
+
+        private bool DockBackDocumentInternal(string documentId, bool useCoordinator)
         {
             if (!_floatWindows.TryGetValue(documentId, out var fw)) return false;
 
@@ -324,11 +320,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             fw.Close();
 
             string title = panel.DocumentTitle;
-            _panels[documentId] = panel;
-            _contentArea.Controls.Add(panel);
-            _tabStrip.AddTab(documentId, title, panel.IconPath, activate: false);
+            Action mutation = () =>
+            {
+                _panels[documentId] = panel;
+                _contentArea.Controls.Add(panel);
+                _tabStrip.AddTab(documentId, title, panel.IconPath, activate: false);
+                SetActiveDocument(documentId);
+            };
 
-            SetActiveDocument(documentId);
+            if (useCoordinator)
+            {
+                var coordinator = new DocumentHostTreeMutationCoordinator(this);
+                coordinator.Execute(DocumentHostOperationNames.DockBackDocument, mutation);
+            }
+            else
+            {
+                mutation();
+            }
+
             DocumentDocked?.Invoke(this, new DocumentEventArgs(documentId, title));
             return true;
         }
@@ -400,36 +409,52 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Enforce dock constraints (Feature 4.7)
             if (!_dockConstraints.IsZoneAllowed(zone)) return;
 
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
             switch (zone)
             {
                 case DockZone.Centre:
-                    DockBackDocument(documentId);
+                    coordinator.Execute(DocumentHostOperationNames.DropDockCentre, () =>
+                    {
+                        DockBackDocumentInternal(documentId, useCoordinator: false);
+                    });
                     break;
 
                 case DockZone.Right:
-                    DockBackDocument(documentId);
-                    SplitDocumentHorizontal(documentId);
+                    coordinator.Execute(DocumentHostOperationNames.DropDockRight, () =>
+                    {
+                        if (!DockBackDocumentInternal(documentId, useCoordinator: false)) return;
+                        SplitInternal(documentId, horizontal: true, useCoordinator: false);
+                    });
                     break;
 
                 case DockZone.Bottom:
-                    DockBackDocument(documentId);
-                    SplitDocumentVertical(documentId);
+                    coordinator.Execute(DocumentHostOperationNames.DropDockBottom, () =>
+                    {
+                        if (!DockBackDocumentInternal(documentId, useCoordinator: false)) return;
+                        SplitInternal(documentId, horizontal: false, useCoordinator: false);
+                    });
                     break;
 
                 case DockZone.Left:
-                    DockBackDocument(documentId);
-                    var leftOther = _primaryGroup.DocumentIds
-                        .Find(id => id != documentId);
-                    if (leftOther != null)
-                        SplitDocumentHorizontal(leftOther);
+                    coordinator.Execute(DocumentHostOperationNames.DropDockLeft, () =>
+                    {
+                        if (!DockBackDocumentInternal(documentId, useCoordinator: false)) return;
+                        var leftOther = _primaryGroup.DocumentIds
+                            .Find(id => id != documentId);
+                        if (leftOther != null)
+                            SplitInternal(leftOther, horizontal: true, useCoordinator: false);
+                    });
                     break;
 
                 case DockZone.Top:
-                    DockBackDocument(documentId);
-                    var topOther = _primaryGroup.DocumentIds
-                        .Find(id => id != documentId);
-                    if (topOther != null)
-                        SplitDocumentVertical(topOther);
+                    coordinator.Execute(DocumentHostOperationNames.DropDockTop, () =>
+                    {
+                        if (!DockBackDocumentInternal(documentId, useCoordinator: false)) return;
+                        var topOther = _primaryGroup.DocumentIds
+                            .Find(id => id != documentId);
+                        if (topOther != null)
+                            SplitInternal(topOther, horizontal: false, useCoordinator: false);
+                    });
                     break;
 
                 // DockZone.None → user released outside any zone; do nothing
@@ -499,22 +524,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Transfer document from source to this host
             AttachExternalDocument(source, documentId);
 
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
             // Apply dock zone split after transfer
             switch (zone)
             {
                 case DockZone.Right:
-                    SplitDocumentHorizontal(documentId);
+                    coordinator.Execute(DocumentHostOperationNames.ExternalDropRight, () =>
+                    {
+                        SplitInternal(documentId, horizontal: true, useCoordinator: false);
+                    });
                     break;
                 case DockZone.Bottom:
-                    SplitDocumentVertical(documentId);
+                    coordinator.Execute(DocumentHostOperationNames.ExternalDropBottom, () =>
+                    {
+                        SplitInternal(documentId, horizontal: false, useCoordinator: false);
+                    });
                     break;
                 case DockZone.Left:
-                    var leftOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
-                    if (leftOther != null) SplitDocumentHorizontal(leftOther);
+                    coordinator.Execute(DocumentHostOperationNames.ExternalDropLeft, () =>
+                    {
+                        var leftOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
+                        if (leftOther != null)
+                            SplitInternal(leftOther, horizontal: true, useCoordinator: false);
+                    });
                     break;
                 case DockZone.Top:
-                    var topOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
-                    if (topOther != null) SplitDocumentVertical(topOther);
+                    coordinator.Execute(DocumentHostOperationNames.ExternalDropTop, () =>
+                    {
+                        var topOther = _primaryGroup.DocumentIds.Find(id => id != documentId);
+                        if (topOther != null)
+                            SplitInternal(topOther, horizontal: false, useCoordinator: false);
+                    });
                     break;
                 // DockZone.Centre → just tab merge (already done by AttachExternalDocument)
             }
@@ -525,6 +565,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Returns the panel for a given document id, or null.</summary>
         public BeepDocumentPanel? GetPanel(string documentId)
             => _panels.TryGetValue(documentId, out var p) ? p : null;
+
+        internal bool IsDocumentFloating(string documentId)
+            => _floatWindows.ContainsKey(documentId);
 
         // ─────────────────────────────────────────────────────────────────────
         // Reopen Closed Tab
@@ -674,27 +717,33 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             string title    = panel.DocumentTitle;
             string? iconPath = panel.IconPath;
 
-            // ── Remove from source host ──────────────────────────────────────
-            int tabIdx = sourceHost._tabStrip.Tabs
-                             .ToList()
-                             .FindIndex(t => t.Id == documentId);
-            if (tabIdx >= 0) sourceHost._tabStrip.RemoveTabAt(tabIdx);
-            sourceHost._contentArea.Controls.Remove(panel);
-            sourceHost._panels.Remove(documentId);
-            if (sourceHost._activeDocumentId == documentId)
+            var sourceCoordinator = new DocumentHostTreeMutationCoordinator(sourceHost);
+            sourceCoordinator.Execute(DocumentHostOperationNames.DetachExternalDocument, () =>
             {
-                sourceHost._activeDocumentId = null;
-                if (sourceHost._panels.Count > 0)
-                    sourceHost.SetActiveDocument(sourceHost._panels.Keys.Last());
-            }
+                int tabIdx = sourceHost._tabStrip.Tabs
+                    .ToList()
+                    .FindIndex(t => t.Id == documentId);
+                if (tabIdx >= 0) sourceHost._tabStrip.RemoveTabAt(tabIdx);
+                sourceHost._contentArea.Controls.Remove(panel);
+                sourceHost._panels.Remove(documentId);
+                if (sourceHost._activeDocumentId == documentId)
+                {
+                    sourceHost._activeDocumentId = null;
+                    if (sourceHost._panels.Count > 0)
+                        sourceHost.SetActiveDocument(sourceHost._panels.Keys.Last());
+                }
+            });
 
-            // ── Add to this host ─────────────────────────────────────────────
-            panel.Parent = _contentArea;
-            _panels[documentId] = panel;
-            _docGroupMap[documentId] = _primaryGroup.GroupId;
-            _primaryGroup.DocumentIds.Add(documentId);
-            _tabStrip.AddTab(documentId, title, iconPath, activate: false);
-            SetActiveDocument(documentId);
+            var targetCoordinator = new DocumentHostTreeMutationCoordinator(this);
+            targetCoordinator.Execute(DocumentHostOperationNames.AttachExternalDocument, () =>
+            {
+                panel.Parent = _contentArea;
+                _panels[documentId] = panel;
+                _docGroupMap[documentId] = _primaryGroup.GroupId;
+                _primaryGroup.DocumentIds.Add(documentId);
+                _tabStrip.AddTab(documentId, title, iconPath, activate: false);
+                SetActiveDocument(documentId);
+            });
 
             DocumentAttached?.Invoke(this, new DocumentEventArgs(documentId, title));
         }
@@ -708,47 +757,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// (horizontal split — one pane to the left, one to the right).
         /// </summary>
         public bool SplitDocumentHorizontal(string documentId)
-            => SplitInternal(documentId, horizontal: true);
+            => SplitInternal(documentId, horizontal: true, useCoordinator: true);
 
         /// <summary>
         /// Moves <paramref name="documentId"/> into a new stacked pane
         /// (vertical split — one pane above, one below).
         /// </summary>
         public bool SplitDocumentVertical(string documentId)
-            => SplitInternal(documentId, horizontal: false);
+            => SplitInternal(documentId, horizontal: false, useCoordinator: true);
 
-        private bool SplitInternal(string documentId, bool horizontal)
+        private bool SplitInternal(string documentId, bool horizontal, bool useCoordinator)
         {
             if (!_panels.ContainsKey(documentId)) return false;
             if (_groups.Count >= _maxGroups) return false;
 
             PushUndoState();
             if (_trackLayoutHistory) PushLayoutVersion($"Before split ({(horizontal ? "H" : "V")})");
-
-            var grp = new BeepDocumentGroup(
-                Guid.NewGuid().ToString(),
-                ThemeName,
-                _showAddButton,
-                _closeMode,
-                _tabStyle,
-                _currentTheme)
+            Action mutation = () =>
             {
-                TabPosition = _tabPosition
+                var grp = new BeepDocumentGroup(
+                    Guid.NewGuid().ToString(),
+                    ThemeName,
+                    _showAddButton,
+                    _closeMode,
+                    _tabStyle,
+                    _currentTheme)
+                {
+                    TabPosition = _tabPosition
+                };
+
+                Controls.Add(grp.ContentArea);
+                Controls.Add(grp.TabStrip);
+
+                WireSecondaryGroup(grp);
+
+                _groups.Add(grp);
+                _groupById[grp.GroupId] = grp;
+                _splitHorizontal = horizontal;
+
+                MoveDocumentToGroupCore(documentId, grp.GroupId, recalcLayout: false);
+                SetActiveDocument(documentId);
             };
 
-            Controls.Add(grp.ContentArea);
-            Controls.Add(grp.TabStrip);
+            if (useCoordinator)
+            {
+                var coordinator = new DocumentHostTreeMutationCoordinator(this);
+                return coordinator.Execute(DocumentHostOperationNames.SplitDocument, mutation);
+            }
 
-            WireSecondaryGroup(grp);
-
-            _groups.Add(grp);
-            _groupById[grp.GroupId] = grp;
-            _splitHorizontal = horizontal;
-
-            MoveDocumentToGroup(documentId, grp.GroupId);
-
-            RecalculateLayout();
-            SetActiveDocument(documentId);
+            mutation();
             return true;
         }
 
@@ -757,6 +814,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <paramref name="targetGroupId"/>.  Returns false if either id is unknown.
         /// </summary>
         public bool MoveDocumentToGroup(string documentId, string targetGroupId)
+        {
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            bool moved = false;
+            coordinator.Execute(DocumentHostOperationNames.MoveDocumentToGroup, () =>
+            {
+                moved = MoveDocumentToGroupCore(documentId, targetGroupId, recalcLayout: false);
+            });
+            return moved;
+        }
+
+        private bool MoveDocumentToGroupCore(string documentId, string targetGroupId, bool recalcLayout)
         {
             if (!_panels.TryGetValue(documentId, out var panel)) return false;
             var targetGroup = _groups.Find(g => g.GroupId == targetGroupId);
@@ -791,7 +859,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             panel.ModifiedChanged += (s, _) =>
                 targetGroup.TabStrip.SetTabModified(documentId, panel.IsModified);
 
-            RecalculateLayout();
+            if (recalcLayout)
+                RecalculateLayout();
             return true;
         }
 

@@ -30,9 +30,9 @@ WinForms applications built on the Beep framework. Drop it onto any surface — 
 | **Designer support** | Smart-tag actions, verbs, property grid integration |
 | **Accessibility** | Custom `AccessibleObject` per tab, keyboard narration |
 
-> **Architecture note**: All controls here inherit from `Control` or `Panel`,
-> **not** from `BaseControl`. This is intentional — `BaseControl` inherits
-> `ContainerControl` which conflicts with `BeepiFormPro`'s WndProc/WM_ERASEBKGND handling.
+> **Architecture note**: `BeepDocumentHost` and `BeepDocumentTabStrip` now inherit from
+> `BaseControl` and use the Beep theme/painter pipeline, while preserving the existing
+> `Panel`-based document content model for hosted document surfaces.
 
 ---
 
@@ -178,7 +178,7 @@ Self-painted, double-buffered tab strip. Supports 8 visual styles, DPI scaling, 
 
 ---
 
-### `BeepDocumentHost : Panel`  ← **the main control**
+### `BeepDocumentHost : BaseControl`  ← **the main control**
 
 Orchestrates tab strips, content panels, groups, float windows, and auto-hide strips.
 

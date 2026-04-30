@@ -20,6 +20,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
@@ -113,10 +114,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public LayoutRestoreReport TryRestoreLayout(string json, out LayoutRestoreReport report)
         {
             report = new LayoutRestoreReport();
+            var sw = Stopwatch.StartNew();
+            string correlationId = Guid.NewGuid().ToString("N");
 
             if (string.IsNullOrWhiteSpace(json))
             {
                 report.Failed.Add(("(none)", "JSON string is empty."));
+                EmitRestoreTelemetry(correlationId, false, sw.Elapsed.TotalMilliseconds, "JSON string is empty.");
                 return report;
             }
 
@@ -133,6 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 catch (Exception ex)
                 {
                     report.Failed.Add(("(all)", $"Migration failed: {ex.Message}"));
+                    EmitRestoreTelemetry(correlationId, false, sw.Elapsed.TotalMilliseconds, ex.Message);
                     return report;
                 }
             }
@@ -146,12 +151,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             catch (JsonException ex)
             {
                 report.Failed.Add(("(all)", $"JSON parse error: {ex.Message}"));
+                EmitRestoreTelemetry(correlationId, false, sw.Elapsed.TotalMilliseconds, ex.Message);
                 return report;
             }
 
             if (snapshot == null)
             {
                 report.Failed.Add(("(all)", "Deserialised snapshot is null."));
+                EmitRestoreTelemetry(correlationId, false, sw.Elapsed.TotalMilliseconds, "Deserialised snapshot is null.");
+                return report;
+            }
+
+            if (snapshot.SchemaVersion <= 0)
+            {
+                report.Failed.Add(("(all)", "Invalid schema version."));
+                EmitRestoreTelemetry(correlationId, false, sw.Elapsed.TotalMilliseconds, "Invalid schema version.");
                 return report;
             }
 
@@ -214,7 +228,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 SetActiveDocument(_panels.Keys.First());
             }
 
+            EmitRestoreTelemetry(correlationId, report.IsSuccess, sw.Elapsed.TotalMilliseconds, report.IsSuccess ? null : "Restore completed with failures.");
             return report;
+        }
+
+        private void EmitRestoreTelemetry(string correlationId, bool success, double durationMs, string? error)
+        {
+            if (!EnableHostTelemetry) return;
+            Profiler.Emit(new DocumentHostTelemetryEvent
+            {
+                CorrelationId = correlationId,
+                OperationType = DocumentHostOperationType.RestoreLayout,
+                EventName = "layout.restore",
+                Success = success,
+                DurationMs = durationMs,
+                Error = error
+            });
         }
 
         // ─────────────────────────────────────────────────────────────────────

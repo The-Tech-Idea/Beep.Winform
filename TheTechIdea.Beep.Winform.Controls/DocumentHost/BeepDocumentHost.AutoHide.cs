@@ -56,29 +56,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             string title    = panel.DocumentTitle;
             string? icon    = panel.IconPath;
-
-            // Remove from the tab strip
-            int idx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-            if (idx >= 0) _tabStrip.RemoveTabAt(idx);
-
-            if (_activeDocumentId == documentId)
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            coordinator.Execute(DocumentHostOperationNames.AutoHideDocument, () =>
             {
-                _activeDocumentId = null;
-                var next = _panels.Keys.FirstOrDefault(k => k != documentId && !_autoHideMap.ContainsKey(k));
-                if (next != null) SetActiveDocument(next);
-            }
+                // Remove from the tab strip
+                int idx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                if (idx >= 0) _tabStrip.RemoveTabAt(idx);
 
-            // Detach from content area; keep panel alive but invisible
-            _contentArea.Controls.Remove(panel);
-            panel.Parent  = this;
-            panel.Visible = false;
+                if (_activeDocumentId == documentId)
+                {
+                    _activeDocumentId = null;
+                    var next = _panels.Keys.FirstOrDefault(k => k != documentId && !_autoHideMap.ContainsKey(k));
+                    if (next != null) SetActiveDocument(next);
+                }
 
-            // Register
-            _autoHideMap[documentId] = side;
+                // Detach from content area; keep panel alive but invisible
+                _contentArea.Controls.Remove(panel);
+                panel.Parent = this;
+                panel.Visible = false;
 
-            // Add button to the appropriate strip
-            EnsureStrip(side).AddItem(documentId, title, icon);
-            RecalculateLayout();
+                // Register
+                _autoHideMap[documentId] = side;
+
+                // Add button to the appropriate strip
+                EnsureStrip(side).AddItem(documentId, title, icon);
+            });
         }
 
         /// <summary>
@@ -93,18 +95,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_ahActiveDocId == documentId)
                 CloseAhOverlay(animate: false);
 
-            // Remove from side strip
-            GetStrip(side)?.RemoveItem(documentId);
-            _autoHideMap.Remove(documentId);
+            var coordinator = new DocumentHostTreeMutationCoordinator(this);
+            coordinator.Execute(DocumentHostOperationNames.RestoreAutoHideDocument, () =>
+            {
+                // Remove from side strip
+                GetStrip(side)?.RemoveItem(documentId);
+                _autoHideMap.Remove(documentId);
 
-            // Re-parent to content area
-            this.Controls.Remove(panel);
-            panel.Parent  = _contentArea;
-            panel.Visible = true;
+                // Re-parent to content area
+                this.Controls.Remove(panel);
+                panel.Parent = _contentArea;
+                panel.Visible = true;
 
-            // Re-add to tab strip and activate
-            _tabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: true);
-            RecalculateLayout();
+                // Re-add to tab strip and activate
+                _tabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: true);
+            });
         }
 
         // ─────────────────────────────────────────────────────────────────────

@@ -48,6 +48,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private double _lastFps;
         private static readonly long FpsWindowTicks = Stopwatch.Frequency; // 1 s
 
+        /// <summary>
+        /// Raised when the host emits a vNext telemetry event.
+        /// </summary>
+        public event EventHandler<DocumentHostTelemetryEvent>? TelemetryEmitted;
+
         // ── Record methods ────────────────────────────────────────────────────
 
         /// <summary>Records the duration of the last completed layout pass.</summary>
@@ -107,6 +112,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>Returns a scope that automatically records a snapshot timing on dispose.</summary>
         public SnapshotTimerScope MeasureSnapshot() => new(this);
+
+        /// <summary>
+        /// Emits a host telemetry event to profiler subscribers.
+        /// </summary>
+        public void Emit(DocumentHostTelemetryEvent telemetryEvent)
+        {
+            if (telemetryEvent == null) return;
+            TelemetryEmitted?.Invoke(this, telemetryEvent);
+        }
 
         /// <summary>Disposable scope for timing a layout pass.</summary>
         public readonly struct LayoutTimerScope : IDisposable

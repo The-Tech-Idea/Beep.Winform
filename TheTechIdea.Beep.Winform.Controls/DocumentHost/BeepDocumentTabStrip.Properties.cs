@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private TabDensityMode     _tabDensity           = TabDensityMode.Comfortable;
         private ResponsiveBreakpoints _responsiveBreakpoints = new ResponsiveBreakpoints();
         internal TabResponsiveMode _responsiveMode       = TabResponsiveMode.Normal;
+        private bool _preferPainterRendering = true;
 
         // ─────────────────────────────────────────────────────────────────────
         // Read-only / hidden properties
@@ -137,6 +138,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             get => _keyboardShortcutsEnabled;
             set => _keyboardShortcutsEnabled = value;
+        }
+
+        /// <summary>
+        /// Backward-compatibility flag retained for consumers.
+        /// Rendering is now always painter-pipeline based.
+        /// </summary>
+        [DefaultValue(true)]
+        [Description("Backward-compatibility flag. Rendering is always painter-based.")]
+        public bool PreferPainterRendering
+        {
+            get => true;
+            set { _preferPainterRendering = true; Invalidate(); }
         }
 
         /// <summary>How unpinned tabs are sized within the available strip width.</summary>

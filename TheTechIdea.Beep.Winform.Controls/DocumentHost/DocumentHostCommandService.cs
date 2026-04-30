@@ -115,5 +115,72 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <inheritdoc/>
         public void DeleteWorkspace(string name)
             => _host.DeleteWorkspace(name);
+
+        /// <inheritdoc/>
+        public bool CanExecuteCommand(
+            string commandId,
+            DocumentCommandTargetScope scope = DocumentCommandTargetScope.ActiveDocument,
+            DocumentCommandContext? context = null)
+        {
+            ArgumentNullException.ThrowIfNull(commandId);
+            var effectiveContext = _host.EnableRoutedCommands
+                ? BuildRoutedContext(scope, context)
+                : context;
+            return _host.CommandRegistry.CanExecute(commandId, effectiveContext);
+        }
+
+        /// <inheritdoc/>
+        public bool ExecuteCommand(
+            string commandId,
+            DocumentCommandTargetScope scope = DocumentCommandTargetScope.ActiveDocument,
+            DocumentCommandContext? context = null)
+        {
+            ArgumentNullException.ThrowIfNull(commandId);
+            var effectiveContext = _host.EnableRoutedCommands
+                ? BuildRoutedContext(scope, context)
+                : context;
+            return _host.CommandRegistry.Execute(commandId, effectiveContext);
+        }
+
+        private DocumentCommandContext BuildRoutedContext(
+            DocumentCommandTargetScope scope,
+            DocumentCommandContext? incoming)
+        {
+            string? activeDocumentId = incoming?.ActiveDocumentId ?? _host.ActiveDocumentId;
+            string? activeGroupId = incoming?.ActiveGroupId ?? _host.GetActiveGroupId();
+            if (scope == DocumentCommandTargetScope.Host)
+            {
+                activeDocumentId = null;
+            }
+            else if (scope == DocumentCommandTargetScope.Global)
+            {
+                activeDocumentId = null;
+                activeGroupId = null;
+            }
+
+            var metadata = new System.Collections.Generic.Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["scope"] = scope.ToString(),
+                ["documentCount"] = _host.DocumentCount,
+                ["keyboardShortcutsEnabled"] = _host.KeyboardShortcutsEnabled
+            };
+
+            if (incoming?.Metadata != null)
+            {
+                foreach (var kvp in incoming.Metadata)
+                    metadata[kvp.Key] = kvp.Value;
+            }
+
+            return new DocumentCommandContext
+            {
+                ActiveDocumentId = activeDocumentId,
+                ActiveGroupId = activeGroupId,
+                IsFloatingDocument = scope == DocumentCommandTargetScope.Global
+                    ? false
+                    : incoming?.IsFloatingDocument
+                    ?? (!string.IsNullOrEmpty(activeDocumentId) && _host.IsDocumentFloating(activeDocumentId)),
+                Metadata = metadata
+            };
+        }
     }
 }

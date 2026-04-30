@@ -83,5 +83,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>Deletes the workspace with the given name.</summary>
         void DeleteWorkspace(string name);
+
+        // ── Routed commands (vNext) ───────────────────────────────────────────
+
+        /// <summary>
+        /// Evaluates whether a registered command can execute in the provided
+        /// routing scope and context.
+        /// </summary>
+        bool CanExecuteCommand(
+            string commandId,
+            DocumentCommandTargetScope scope = DocumentCommandTargetScope.ActiveDocument,
+            DocumentCommandContext? context = null);
+
+        /// <summary>
+        /// Executes a registered command through host routing semantics.
+        /// Returns <see langword="false"/> if the command cannot be executed.
+        /// </summary>
+        bool ExecuteCommand(
+            string commandId,
+            DocumentCommandTargetScope scope = DocumentCommandTargetScope.ActiveDocument,
+            DocumentCommandContext? context = null);
     }
 }

@@ -29,10 +29,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public Action Execute { get; set; } = static () => { };
 
         /// <summary>
+        /// Optional context-aware action used by routed command execution.
+        /// When set, this is preferred over <see cref="Execute"/>.
+        /// </summary>
+        public Action<DocumentCommandContext>? ExecuteWithContext { get; set; }
+
+        /// <summary>
         /// Optional predicate.  When non-null the command is only invocable when this
         /// returns <see langword="true"/>.
         /// </summary>
         public Func<bool>? CanExecute { get; set; }
+
+        /// <summary>
+        /// Optional context-aware predicate used by routed command evaluation.
+        /// When set, this is preferred over <see cref="CanExecute"/>.
+        /// </summary>
+        public Func<DocumentCommandContext, bool>? CanExecuteWithContext { get; set; }
 
         /// <summary>Number of times this command has been executed (used for MRU ranking).</summary>
         public int UsageCount { get; set; }

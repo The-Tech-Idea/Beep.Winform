@@ -313,6 +313,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             set => _designer.SetProperty("SessionFile", value);
         }
 
+        [Category("Session")]
+        [Description("Enable context-aware routed command execution for vNext command service APIs.")]
+        public bool EnableRoutedCommands
+        {
+            get => _designer.GetProperty<bool>("EnableRoutedCommands");
+            set => _designer.SetProperty("EnableRoutedCommands", value);
+        }
+
+        [Category("Session")]
+        [Description("Enable transaction-scoped docking operations for split/dock mutations.")]
+        public bool EnableTransactionalDocking
+        {
+            get => _designer.GetProperty<bool>("EnableTransactionalDocking");
+            set => _designer.SetProperty("EnableTransactionalDocking", value);
+        }
+
+        [Category("Session")]
+        [Description("Enable host telemetry event emission for command, docking, and restore flows.")]
+        public bool EnableHostTelemetry
+        {
+            get => _designer.GetProperty<bool>("EnableHostTelemetry");
+            set => _designer.SetProperty("EnableHostTelemetry", value);
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Document Actions
         // ─────────────────────────────────────────────────────────────────────
@@ -649,6 +673,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             items.Add(new DesignerActionHeaderItem("Session"));
             items.Add(new DesignerActionPropertyItem(nameof(AutoSaveLayout), "Auto Save Layout:", "Session", "Automatically save/restore tab layout."));
             items.Add(new DesignerActionPropertyItem(nameof(SessionFile),    "Session File:",     "Session", "File path for layout save/restore."));
+            items.Add(new DesignerActionPropertyItem(nameof(EnableRoutedCommands), "Enable Routed Commands:", "Session", "Enable vNext routed command execution."));
+            items.Add(new DesignerActionPropertyItem(nameof(EnableTransactionalDocking), "Enable Transactional Docking:", "Session", "Enable transaction-scoped split and docking operations."));
+            items.Add(new DesignerActionPropertyItem(nameof(EnableHostTelemetry), "Enable Host Telemetry:", "Session", "Emit profiler telemetry events for host operations."));
 
             return items;
         }

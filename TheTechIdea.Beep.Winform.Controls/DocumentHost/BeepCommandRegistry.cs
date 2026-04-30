@@ -100,6 +100,35 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
+        /// <summary>
+        /// Evaluates command enablement with optional routed context.
+        /// </summary>
+        public bool CanExecute(string id, DocumentCommandContext? context = null)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+            if (!_commands.TryGetValue(id, out var cmd)) return false;
+            if (cmd.CanExecuteWithContext != null)
+                return cmd.CanExecuteWithContext(context ?? new DocumentCommandContext());
+            return cmd.CanExecute?.Invoke() ?? true;
+        }
+
+        /// <summary>
+        /// Executes a command with optional routed context and records usage.
+        /// </summary>
+        public bool Execute(string id, DocumentCommandContext? context = null)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+            if (!_commands.TryGetValue(id, out var cmd)) return false;
+            if (!CanExecute(id, context)) return false;
+
+            var ctx = context ?? new DocumentCommandContext();
+            if (cmd.ExecuteWithContext != null) cmd.ExecuteWithContext(ctx);
+            else cmd.Execute?.Invoke();
+
+            RecordUsage(id);
+            return true;
+        }
+
         // ── Fuzzy scoring ─────────────────────────────────────────────────────
 
         /// <summary>

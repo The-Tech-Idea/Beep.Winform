@@ -34,6 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private TabColorMode     _tabColorMode  = TabColorMode.None;
         private bool             _autoSaveLayout = false;
         private string           _sessionFile   = string.Empty;
+        private bool             _enableRoutedCommands;
+        private bool             _enableTransactionalDocking;
+        private bool             _enableHostTelemetry;
 
         // 6.x — Command registry and breadcrumb
         private BeepCommandRegistry? _commandRegistry;
@@ -198,6 +201,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             get => _sessionFile;
             set => _sessionFile = value ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Enables context-aware routed command execution for vNext command service APIs.
+        /// </summary>
+        [DefaultValue(false)]
+        [Description("Enable routed command behavior for vNext command execution.")]
+        public bool EnableRoutedCommands
+        {
+            get => _enableRoutedCommands;
+            set => _enableRoutedCommands = value;
+        }
+
+        /// <summary>
+        /// Enables transaction scopes around docking/split/layout mutations.
+        /// </summary>
+        [DefaultValue(false)]
+        [Description("Enable transactional docking operations in vNext.")]
+        public bool EnableTransactionalDocking
+        {
+            get => _enableTransactionalDocking;
+            set => _enableTransactionalDocking = value;
+        }
+
+        /// <summary>
+        /// Enables host telemetry events for command/layout/docking operations.
+        /// </summary>
+        [DefaultValue(false)]
+        [Description("Enable host telemetry emission hooks.")]
+        public bool EnableHostTelemetry
+        {
+            get => _enableHostTelemetry;
+            set => _enableHostTelemetry = value;
         }
 
         /// <summary>Beep theme name propagated to the tab strip and all document panels.</summary>
@@ -500,24 +536,35 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Id = "document.close", Title = "Close Document", Category = "Documents",
                 Shortcut = "Ctrl+W",
                 Execute  = () => { if (_activeDocumentId != null) CloseDocument(_activeDocumentId); },
-                CanExecute = () => _activeDocumentId != null
+                CanExecute = () => _activeDocumentId != null,
+                ExecuteWithContext = ctx => { if (!string.IsNullOrEmpty(ctx.ActiveDocumentId)) CloseDocument(ctx.ActiveDocumentId); },
+                CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "document.close.all", Title = "Close All Documents", Category = "Documents",
-                Shortcut = "Ctrl+K Ctrl+W", Execute = () => CloseAllDocuments()
+                Shortcut = "Ctrl+K Ctrl+W",
+                Execute = () => CloseAllDocuments(),
+                ExecuteWithContext = _ => CloseAllDocuments(),
+                CanExecuteWithContext = ctx =>
+                    (ctx.Metadata.TryGetValue("documentCount", out var dc) && dc is int count && count > 0) || DocumentCount > 0
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "document.reopen", Title = "Reopen Closed Document", Category = "Documents",
-                Shortcut = "Ctrl+Shift+T", Execute = () => ReopenLastClosed()
+                Shortcut = "Ctrl+Shift+T",
+                Execute = () => ReopenLastClosed(),
+                ExecuteWithContext = _ => ReopenLastClosed(),
+                CanExecuteWithContext = _ => CanReopenClosed
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "document.float", Title = "Float Document", Category = "Documents",
                 Shortcut = "Ctrl+K Ctrl+F",
                 Execute  = () => { if (_activeDocumentId != null) FloatDocument(_activeDocumentId); },
-                CanExecute = () => _activeDocumentId != null
+                CanExecute = () => _activeDocumentId != null,
+                ExecuteWithContext = ctx => { if (!string.IsNullOrEmpty(ctx.ActiveDocumentId)) FloatDocument(ctx.ActiveDocumentId); },
+                CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
             reg.Register(new BeepCommandEntry
             {
@@ -529,7 +576,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     var tab = _tabStrip.Tabs.FirstOrDefault(t => t.Id == _activeDocumentId);
                     if (tab != null) PinDocument(_activeDocumentId, !tab.IsPinned);
                 },
-                CanExecute = () => _activeDocumentId != null
+                CanExecute = () => _activeDocumentId != null,
+                ExecuteWithContext = ctx =>
+                {
+                    var docId = ctx.ActiveDocumentId;
+                    if (string.IsNullOrEmpty(docId)) return;
+                    var tab = _tabStrip.Tabs.FirstOrDefault(t => t.Id == docId);
+                    if (tab != null) PinDocument(docId, !tab.IsPinned);
+                },
+                CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
 
             // ── Navigation ────────────────────────────────────────────────────
@@ -630,14 +685,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Id = "split.horizontal", Title = "Split View Horizontal", Category = "Layout",
                 Shortcut   = "Ctrl+K Ctrl+\\",
                 Execute    = () => { if (_activeDocumentId != null) SplitDocumentHorizontal(_activeDocumentId); },
-                CanExecute = () => _activeDocumentId != null
+                CanExecute = () => _activeDocumentId != null,
+                ExecuteWithContext = ctx => { if (!string.IsNullOrEmpty(ctx.ActiveDocumentId)) SplitDocumentHorizontal(ctx.ActiveDocumentId); },
+                CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "split.vertical", Title = "Split View Vertical", Category = "Layout",
                 Shortcut   = "Ctrl+K Ctrl+|",
                 Execute    = () => { if (_activeDocumentId != null) SplitDocumentVertical(_activeDocumentId); },
-                CanExecute = () => _activeDocumentId != null
+                CanExecute = () => _activeDocumentId != null,
+                ExecuteWithContext = ctx => { if (!string.IsNullOrEmpty(ctx.ActiveDocumentId)) SplitDocumentVertical(ctx.ActiveDocumentId); },
+                CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
             reg.Register(new BeepCommandEntry
             {

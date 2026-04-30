@@ -222,4 +222,9 @@
   <ItemGroup>
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>TheTechIdea.Beep.Winform.Controls.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

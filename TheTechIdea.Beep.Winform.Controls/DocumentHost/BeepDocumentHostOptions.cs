@@ -48,6 +48,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>File path used when <see cref="AutoSaveLayout"/> is <see langword="true"/>.</summary>
         public string? SessionFile { get; set; }
 
+        /// <summary>
+        /// Enables vNext routed command behavior and context-aware command evaluation.
+        /// </summary>
+        public bool EnableRoutedCommands { get; set; } = false;
+
+        /// <summary>
+        /// Enables transactional docking operations for split/dock/layout flows.
+        /// </summary>
+        public bool EnableTransactionalDocking { get; set; } = false;
+
+        /// <summary>
+        /// Enables host telemetry emission hooks for command/layout/docking operations.
+        /// </summary>
+        public bool EnableHostTelemetry { get; set; } = false;
+
         // ─────────────────────────────────────────────────────────────────────
         // Apply
         // ─────────────────────────────────────────────────────────────────────
@@ -68,6 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             host.CloseMode                  = CloseMode;
             host.ShowAddButton              = ShowAddButton;
             host.AutoSaveLayout             = AutoSaveLayout;
+            host.EnableRoutedCommands       = EnableRoutedCommands;
+            host.EnableTransactionalDocking = EnableTransactionalDocking;
+            host.EnableHostTelemetry        = EnableHostTelemetry;
 
             if (SessionFile != null)
                 host.SessionFile = SessionFile;

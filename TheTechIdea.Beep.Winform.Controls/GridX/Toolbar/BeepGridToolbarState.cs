@@ -106,8 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
             // === ACTIONS SECTION (text labels for primary CRUD) ===
             int actionsStartX = x;
+            int actionsEndX = x;
             CalculateButtonLayout(ActionButtons, ref x, y, iconSize, height, buttonGap, bounds.Width, margin, true);
-            ActionsSectionRect = new Rectangle(actionsStartX, y - (height - iconSize) / 2, x - actionsStartX, height);
+            actionsEndX = x;
+            bool hasVisibleActions = ActionButtons.Exists(b => b.IsVisible && !b.IsOverflow);
+            ActionsSectionRect = hasVisibleActions
+                ? new Rectangle(actionsStartX, y - (height - iconSize) / 2, actionsEndX - actionsStartX, height)
+                : Rectangle.Empty;
 
             // === SEARCH SECTION (flexible, fills remaining space) ===
             int searchIconX = x;
@@ -116,17 +121,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
             // Reserve space for filter + export sections
             int filterSectionWidth = iconSize * 2 + buttonGap * 2 + margin * 2 + (int)(16 * DpiScale); // badge
-            int exportVisibleCount = ExportButtons.Count(b => !b.IsOverflow);
+            int exportVisibleCount = ExportButtons.Count(b => b.IsVisible && !b.IsOverflow);
             int exportSectionWidth = exportVisibleCount * (iconSize + buttonGap) + margin;
             int overflowWidth = HasOverflowItems ? (iconSize + margin) : 0;
-            int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth + separatorWidth * 2 + margin;
+            int separatorCount = 0;
+            if (hasVisibleActions) separatorCount++;
+            if (exportVisibleCount > 0) separatorCount++;
+            if (HasOverflowItems) separatorCount++;
+            int reservedRight = filterSectionWidth + exportSectionWidth + overflowWidth + separatorWidth * separatorCount + margin;
 
             int searchWidth = bounds.Right - x - reservedRight;
-            searchWidth = Math.Max(100, searchWidth); // minimum 100px for search box
+            searchWidth = Math.Max(80, searchWidth); // minimum 80px for search box
 
             SearchBoxRect = new Rectangle(x, y, searchWidth, height);
             x = SearchBoxRect.Right + margin;
-            SearchSectionRect = new Rectangle(ActionsSectionRect.Right, y - (height - iconSize) / 2, x - ActionsSectionRect.Right, height);
+            SearchSectionRect = new Rectangle(SearchIconRect.Left, y - (height - iconSize) / 2, x - SearchIconRect.Left, height);
 
             // === FILTER SECTION ===
             x += separatorWidth;
@@ -146,14 +155,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             Separator2X = x - separatorWidth;
 
             int exportStartX = x;
+            int exportEndX = x;
             foreach (var btn in ExportButtons)
             {
                 if (!btn.IsVisible) continue;
                 if (btn.IsOverflow) continue; // hidden in overflow
                 btn.Bounds = new Rectangle(x, y, iconSize, iconSize);
+                exportEndX = x + iconSize;
                 x += iconSize + buttonGap;
             }
-            ExportSectionRect = new Rectangle(exportStartX, y - (height - iconSize) / 2, x - exportStartX, height);
+            ExportSectionRect = exportVisibleCount > 0
+                ? new Rectangle(exportStartX, y - (height - iconSize) / 2, exportEndX - exportStartX, height)
+                : Rectangle.Empty;
 
             // === OVERFLOW BUTTON ===
             if (HasOverflowItems)
@@ -170,11 +183,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
         private void BuildButtonLists(int iconSize, int height, int y)
         {
-            // Primary action buttons with text labels
+            // Primary action buttons with text labels (hidden by default - use navigator for CRUD)
             ActionButtons.Clear();
-            ActionButtons.Add(new ToolbarButtonItem { Key = "add", IconPath = "plus", Label = "New", IsVisible = true });
-            ActionButtons.Add(new ToolbarButtonItem { Key = "edit", IconPath = "edit", Label = "Edit", IsVisible = true });
-            ActionButtons.Add(new ToolbarButtonItem { Key = "delete", IconPath = "trash", Label = "Delete", IsVisible = true });
+            ActionButtons.Add(new ToolbarButtonItem { Key = "add", IconPath = "plus", Label = "New", IsVisible = false });
+            ActionButtons.Add(new ToolbarButtonItem { Key = "edit", IconPath = "edit", Label = "Edit", IsVisible = false });
+            ActionButtons.Add(new ToolbarButtonItem { Key = "delete", IconPath = "trash", Label = "Delete", IsVisible = false });
 
             // Export buttons (icon-only, overflow-capable)
             ExportButtons.Clear();
@@ -185,6 +198,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
 
         private void CalculateButtonLayout(List<ToolbarButtonItem> buttons, ref int x, int y, int iconSize, int height, int buttonGap, int totalWidth, int margin, bool showLabels)
         {
+            int availableWidth = totalWidth - margin * 4; // Reserve space for other sections
+
             foreach (var btn in buttons)
             {
                 if (!btn.IsVisible) continue;
@@ -202,7 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 }
 
                 // Check if button fits; if not, mark as overflow
-                if (x + btnWidth > totalWidth - margin * 2)
+                if (x + btnWidth > availableWidth)
                 {
                     btn.IsOverflow = true;
                     btn.Bounds = Rectangle.Empty;
@@ -222,8 +237,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             SearchIconRect = SearchBoxRect = FilterButtonRect = AdvancedButtonRect = Rectangle.Empty;
             ClearFilterRect = BadgeRect = Rectangle.Empty;
             Separator1X = Separator2X = Separator3X = 0;
-            foreach (var btn in ActionButtons) btn.Bounds = Rectangle.Empty;
-            foreach (var btn in ExportButtons) btn.Bounds = Rectangle.Empty;
+            foreach (var btn in ActionButtons)
+            {
+                btn.Bounds = Rectangle.Empty;
+                btn.IsOverflow = false;
+            }
+            foreach (var btn in ExportButtons)
+            {
+                btn.Bounds = Rectangle.Empty;
+                btn.IsOverflow = false;
+            }
         }
 
         public string? HitTest(Point p)

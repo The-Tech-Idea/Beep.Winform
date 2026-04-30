@@ -282,6 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         internal void ShowInlineQSComboIfClickedOn(Point clickLocation)
         {
+            if (!ShowTopFilterPanel) return;
             if (!_inlineQSComboRect.IsEmpty && _inlineQSComboRect.Contains(clickLocation))
             {
                 EnsureInlineQuickSearchControls();
@@ -367,6 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         internal void ShowInlineQSTextIfClickedOn(Point clickLocation)
         {
+            if (!ShowTopFilterPanel) return;
             if (!_inlineQSTextRect.IsEmpty && _inlineQSTextRect.Contains(clickLocation))
             {
                 EnsureInlineQuickSearchControls();

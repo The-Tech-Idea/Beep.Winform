@@ -68,10 +68,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                     g.FillPath(brush, path);
                 }
 
-                // Draw icon
+                // Draw icon centered vertically, aligned left with padding
                 string iconPath = ResolveIconPath(btn.IconPath);
                 int iconSize = (int)(16 * state.DpiScale);
-                var iconRect = new Rectangle(btn.Bounds.X + (int)(4 * state.DpiScale), btn.Bounds.Y + (btn.Bounds.Height - iconSize) / 2, iconSize, iconSize);
+                int iconX = btn.Bounds.X + (int)(4 * state.DpiScale);
+                int iconY = btn.Bounds.Y + (btn.Bounds.Height - iconSize) / 2;
+                var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
                 StyledImagePainter.PaintWithTint(g, iconRect, iconPath, _grid.ToolbarForeColor, 0.8f);
 
                 // Draw text label
@@ -93,7 +95,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         {
             var accentColor = Theme?.AccentColor ?? Color.DeepSkyBlue;
             var iconColor = state.SearchHasFocus ? accentColor : _grid.ToolbarForeColor;
-            StyledImagePainter.PaintWithTint(g, state.SearchIconRect, Svgs.Search, iconColor, 0.7f);
+
+            // Center search icon within its rect
+            PaintCenteredIcon(g, state.SearchIconRect, Svgs.Search, iconColor, 0.7f);
+
             PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus, state.DpiScale);
         }
 
@@ -124,13 +129,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         {
             var accentColor = Theme?.AccentColor ?? Color.DeepSkyBlue;
             var filterColor = state.IsFilterActive ? accentColor : _grid.ToolbarForeColor;
-            StyledImagePainter.PaintWithTint(g, state.FilterButtonRect, SvgsUI.Filter, filterColor,
+
+            // Paint filter icon centered within its rect
+            PaintCenteredIcon(g, state.FilterButtonRect, SvgsUI.Filter, filterColor,
                 state.IsFilterActive ? 1f : 0.6f);
-            StyledImagePainter.PaintWithTint(g, state.AdvancedButtonRect, SvgsUI.AdjustmentsHorizontal,
+
+            // Paint advanced/adjustments icon centered within its rect
+            PaintCenteredIcon(g, state.AdvancedButtonRect, SvgsUI.AdjustmentsHorizontal,
                 _grid.ToolbarForeColor, 0.6f);
 
             if (state.IsFilterActive)
-                PaintIconButton(g, state.ClearFilterRect, SvgsUI.X, "clearfilter",
+                PaintCenteredIcon(g, state.ClearFilterRect, SvgsUI.X, "clearfilter",
                     state.HoveredButtonKey == "clearfilter", state.PressedButtonKey == "clearfilter");
 
             if (state.ActiveFilterCount > 0)
@@ -146,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 bool isHovered = state.HoveredButtonKey == btn.Key;
                 bool isPressed = state.PressedButtonKey == btn.Key;
 
-                PaintIconButton(g, btn.Bounds, ResolveIconPath(btn.IconPath), btn.Key, isHovered, isPressed);
+                PaintCenteredIcon(g, btn.Bounds, ResolveIconPath(btn.IconPath), btn.Key, isHovered, isPressed);
             }
         }
 
@@ -165,9 +174,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 g.FillPath(brush, path);
             }
 
-            // Draw chevron-down icon
+            // Draw chevron-down icon centered in the overflow button rect
             var rect = state.OverflowButtonRect;
-            var center = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+            int iconSize = (int)(16 * state.DpiScale);
+            int iconX = rect.X + (rect.Width - iconSize) / 2;
+            int iconY = rect.Y + (rect.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+
+            var center = new Point(iconRect.X + iconRect.Width / 2, iconRect.Y + iconRect.Height / 2);
             int sz = (int)(6 * state.DpiScale);
             using var pen = new Pen(_grid.ToolbarForeColor, 1.5f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             g.DrawLine(pen, center.X - sz, center.Y - sz / 2, center.X, center.Y + sz / 2);
@@ -175,6 +189,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         }
 
         private void PaintIconButton(Graphics g, Rectangle bounds, string iconPath, string key,
+            bool isHovered, bool isPressed)
+        {
+            PaintCenteredIcon(g, bounds, iconPath, key, isHovered, isPressed);
+        }
+
+        private void PaintCenteredIcon(Graphics g, Rectangle bounds, string iconPath, string key,
             bool isHovered, bool isPressed)
         {
             if (bounds.Width <= 0 || bounds.Height <= 0) return;
@@ -187,20 +207,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 g.FillPath(brush: hoverBrush, path);
             }
 
-            StyledImagePainter.PaintWithTint(g, bounds, iconPath, _grid.ToolbarForeColor, 0.8f);
+            // Center icon within bounds at proper icon size
+            int iconSize = (int)(16 * _grid.ToolbarState.DpiScale);
+            int iconX = bounds.X + (bounds.Width - iconSize) / 2;
+            int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+
+            StyledImagePainter.PaintWithTint(g, iconRect, iconPath, _grid.ToolbarForeColor, 0.8f);
+        }
+
+        private void PaintCenteredIcon(Graphics g, Rectangle bounds, string iconPath, Color tint, float opacity)
+        {
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            // Center icon within bounds at proper icon size
+            int iconSize = (int)(16 * _grid.ToolbarState.DpiScale);
+            int iconX = bounds.X + (bounds.Width - iconSize) / 2;
+            int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+
+            StyledImagePainter.PaintWithTint(g, iconRect, iconPath, tint, opacity);
         }
 
         private void PaintSeparators(Graphics g, BeepGridToolbarState state)
         {
             using var pen = new Pen(_grid.ToolbarSeparatorColor, 1);
-            int top = state.ActionsSectionRect.Top + 4;
-            int bottom = state.ActionsSectionRect.Bottom - 4;
+            int top = state.ActionsSectionRect.IsEmpty ? state.SearchSectionRect.Top : state.ActionsSectionRect.Top + 4;
+            int bottom = state.ActionsSectionRect.IsEmpty ? state.SearchSectionRect.Bottom : state.ActionsSectionRect.Bottom - 4;
 
-            if (state.Separator1X > 0)
+            // Separator 1: between actions and search/filter (only draw if actions are visible)
+            bool hasVisibleActions = state.ActionButtons.Exists(b => b.IsVisible && !b.IsOverflow);
+            if (state.Separator1X > 0 && hasVisibleActions)
                 g.DrawLine(pen, state.Separator1X, top, state.Separator1X, bottom);
-            if (state.Separator2X > 0)
+
+            // Separator 2: between filter and export sections
+            bool hasVisibleExport = state.ExportButtons.Exists(b => b.IsVisible && !b.IsOverflow);
+            if (state.Separator2X > 0 && hasVisibleExport)
                 g.DrawLine(pen, state.Separator2X, top, state.Separator2X, bottom);
-            if (state.Separator3X > 0)
+
+            // Separator 3: before overflow button
+            if (state.Separator3X > 0 && state.HasOverflowItems)
                 g.DrawLine(pen, state.Separator3X, top, state.Separator3X, bottom);
         }
 

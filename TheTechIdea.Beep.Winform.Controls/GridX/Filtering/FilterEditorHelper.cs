@@ -28,22 +28,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
                 };
                 _searchEditor.LostFocus += OnSearchEditorLostFocus;
                 _searchEditor.KeyDown += OnSearchEditorKeyDown;
+                _searchEditor.TextChanged += OnSearchEditorTextChanged;
                 _grid.Controls.Add(_searchEditor);
             }
 
-            _searchEditor.Bounds = bounds;
+            // Position editor to match the search box rect exactly
+            _searchEditor.Bounds = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height);
             _searchEditor.Text = _grid.ToolbarState.SearchText;
             _searchEditor.Visible = true;
             _searchEditor.Focus();
             _searchEditor.SelectAll();
         }
 
-        public void HideSearchEditor()
+        private void OnSearchEditorTextChanged(object? sender, EventArgs e)
         {
-            if (_searchEditor != null)
-            {
-                _searchEditor.Visible = false;
-            }
+            // Trigger toolbar repaint to update painted search text in sync
+            _grid.ToolbarState.SearchText = _searchEditor?.Text ?? string.Empty;
+            _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
         }
 
         private void OnSearchEditorKeyDown(object? sender, KeyEventArgs e)
@@ -52,10 +53,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             {
                 CommitSearch();
                 _searchEditor!.Visible = false;
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
             else if (e.KeyCode == Keys.Escape)
             {
+                _grid.ToolbarState.SearchText = _searchEditor?.Text ?? string.Empty;
                 _searchEditor!.Visible = false;
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
             }
         }
 
@@ -63,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         {
             CommitSearch();
             _searchEditor!.Visible = false;
+            _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
         }
 
         private void CommitSearch()
@@ -74,12 +80,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             }
         }
 
+        public void HideSearchEditor()
+        {
+            if (_searchEditor != null)
+            {
+                // Commit current text before hiding
+                _grid.ToolbarState.SearchText = _searchEditor.Text;
+                _searchEditor.Visible = false;
+                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+            }
+        }
+
         public void Dispose()
         {
             if (_searchEditor != null)
             {
                 _searchEditor.LostFocus -= OnSearchEditorLostFocus;
                 _searchEditor.KeyDown -= OnSearchEditorKeyDown;
+                _searchEditor.TextChanged -= OnSearchEditorTextChanged;
                 _searchEditor.Dispose();
                 _searchEditor = null;
             }

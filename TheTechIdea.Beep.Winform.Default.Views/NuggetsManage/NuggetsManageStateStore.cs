@@ -5,7 +5,10 @@ using TheTechIdea.Beep.Editor;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
 {
-    public sealed class NuggetsWizardStateStore
+    /// <summary>
+    /// Persists NuggetsManage UI state (sources, installed packages, last search, etc.).
+    /// </summary>
+    public sealed class NuggetsManageStateStore
     {
         private readonly IDMEEditor _editor;
         private readonly JsonSerializerOptions _serializerOptions = new()
@@ -13,32 +16,32 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             WriteIndented = true
         };
 
-        public NuggetsWizardStateStore(IDMEEditor editor)
+        public NuggetsManageStateStore(IDMEEditor editor)
         {
             _editor = editor ?? throw new ArgumentNullException(nameof(editor));
         }
 
-        public NuggetsWizardPersistedState Load()
+        public NuggetsPersistedState Load()
         {
             var statePath = GetStatePath();
             if (!File.Exists(statePath))
             {
-                return new NuggetsWizardPersistedState();
+                return new NuggetsPersistedState();
             }
 
             try
             {
                 var json = File.ReadAllText(statePath);
-                return JsonSerializer.Deserialize<NuggetsWizardPersistedState>(json, _serializerOptions)
-                    ?? new NuggetsWizardPersistedState();
+                return JsonSerializer.Deserialize<NuggetsPersistedState>(json, _serializerOptions)
+                    ?? new NuggetsPersistedState();
             }
             catch
             {
-                return new NuggetsWizardPersistedState();
+                return new NuggetsPersistedState();
             }
         }
 
-        public void Save(NuggetsWizardPersistedState state)
+        public void Save(NuggetsPersistedState state)
         {
             var statePath = GetStatePath();
             var dir = Path.GetDirectoryName(statePath);
@@ -47,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
                 Directory.CreateDirectory(dir);
             }
 
-            var json = JsonSerializer.Serialize(state ?? new NuggetsWizardPersistedState(), _serializerOptions);
+            var json = JsonSerializer.Serialize(state ?? new NuggetsPersistedState(), _serializerOptions);
             File.WriteAllText(statePath, json);
         }
 
@@ -59,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
                 configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config");
             }
 
-            return Path.Combine(configPath, "NuggetsWizardState.json");
+            return Path.Combine(configPath, "NuggetsManageState.json");
         }
     }
 }

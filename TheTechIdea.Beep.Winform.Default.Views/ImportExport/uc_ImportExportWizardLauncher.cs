@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor.Importing;
+using TheTechIdea.Beep.Editor.Importing.Factories;
+using TheTechIdea.Beep.Editor.Importing.History;
 using TheTechIdea.Beep.Editor.Importing.Interfaces;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
@@ -42,8 +44,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private string _destinationEntityName = string.Empty;
 
         // ── Phase 4: history + last summary ────────────────────────────────────
-        private readonly List<(DateTime When, string Src, string Dst, int Rows, bool Success)>
-            _runHistory = new();
+        private IImportRunHistoryStore? _historyStore;
         private ImportRunSummary? _lastSummary;
         private DataTable _historyDt;
 
@@ -197,26 +198,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         // ── Core wizard launch ──────────────────────────────────────────────────
         private void LaunchWizard()
         {
+            if (_direction == ImportExportDirection.Export)
+            {
+                LaunchExportWizard();
+                return;
+            }
+
             var config = BuildInitialConfig();
 
-            // ── 5-step wizard ────────────────────────────────────────────────
+            // ── 5-step import wizard ───────────────────────────────────────────
             var selectStep = new uc_Import_SelectDSandEntity(_services);
             var colStep = new uc_Import_ColumnSelection(_services);
             var mapStep = new uc_Import_MapFields(_services);
             var optionsStep = new uc_Import_Options(_services);
             var runStep = new uc_Import_Run(_services);
 
-            bool isExport = _direction == ImportExportDirection.Export;
-            string title = isExport ? "Export Wizard" : "Import Wizard";
-            string desc = isExport
-                ? "Select source to export from and destination to export to, choose columns, map fields, set options, then run."
-                : "Select source/destination, choose columns, map fields, set options, then run import.";
-
             var wizardConfig = new WizardConfig
             {
                 Key = $"ImportExportWizard_{Guid.NewGuid():N}",
-                Title = title,
-                Description = desc,
+                Title = "Import Wizard",
+                Description = "Select source/destination, choose columns, map fields, set options, then run import.",
                 Style = WizardStyle.HorizontalStepper,
                 ShowProgressBar = true,
                 ShowStepList = true,
@@ -241,12 +242,63 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             var wizardInstance = WizardManager.CreateWizard(wizardConfig);
             wizardInstance.Context.SetValue(WizardKeys.ImportConfig, config);
 
-            AppendLog($"Launching {title}…");
+            AppendLog("Launching Import Wizard…");
             var owner = FindForm();
             var result = owner == null
                 ? wizardInstance.ShowDialog()
                 : wizardInstance.ShowDialog(owner);
             AppendLog($"Wizard closed: {result}");
+        }
+
+        private void LaunchExportWizard()
+        {
+            var exportConfig = new ExportConfiguration
+            {
+                SourceDataSourceName = cmbSourceDS.SelectedItem?.Text ?? string.Empty,
+                SourceEntityName = cmbSourceEntity.SelectedItem?.Text ?? string.Empty,
+                DestDataSourceName = cmbDestDS.SelectedItem?.Text ?? string.Empty,
+                DestEntityName = cmbDestEntity.SelectedItem?.Text ?? string.Empty
+            };
+
+            var colStep = new uc_Export_ColumnSelection(_services, exportConfig);
+            var runStep = new uc_Export_Run(_services, exportConfig);
+
+            var wizardConfig = new WizardConfig
+            {
+                Key = $"ExportWizard_{Guid.NewGuid():N}",
+                Title = "Export Wizard",
+                Description = "Select columns and export data.",
+                Style = WizardStyle.HorizontalStepper,
+                ShowProgressBar = true,
+                ShowStepList = true,
+                AllowBack = true,
+                AllowCancel = true,
+                Steps = new List<WizardStep>
+                {
+                    new WizardStep { Key = "columns", Title = "Select Columns", Description = "Choose which columns to export.", Content = colStep },
+                    new WizardStep { Key = "run", Title = "Review & Export", Description = "Review and execute the export.", Content = runStep }
+                }
+            };
+
+            wizardConfig.OnComplete = ctx =>
+            {
+                var summary = ctx.GetValue<ExportRunSummary?>(ExportWizardKeys.RunSummary, null);
+                if (summary != null)
+                {
+                    AppendLog($"Export complete: {summary.ExportedRows:N0} rows");
+                }
+            };
+            wizardConfig.OnCancel = _ => AppendLog("Export wizard cancelled.");
+
+            var wizardInstance = WizardManager.CreateWizard(wizardConfig);
+            wizardInstance.Context.SetValue(ExportWizardKeys.ExportConfig, exportConfig);
+
+            AppendLog("Launching Export Wizard…");
+            var owner = FindForm();
+            var result = owner == null
+                ? wizardInstance.ShowDialog()
+                : wizardInstance.ShowDialog(owner);
+            AppendLog($"Export wizard closed: {result}");
         }
 
         private void RunImportFromWizardContext(WizardContext context)
@@ -529,37 +581,64 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.DataSource = _historyDt;
         }
 
-        private void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
+        private async void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
         {
-            var entry = (
-                When: DateTime.Now,
-                Src: $"{config.SourceDataSourceName}/{config.SourceEntityName}",
-                Dst: $"{config.DestDataSourceName}/{config.DestEntityName}",
-                Rows: rowCount,
-                Success: success
-            );
-            _runHistory.Insert(0, entry);
-            if (_runHistory.Count > 50) _runHistory.RemoveAt(_runHistory.Count - 1);
+            try
+            {
+                _historyStore ??= LocalStoreFactory.CreateHistoryStore(Editor);
+                var record = new ImportRunRecord
+                {
+                    ContextKey = $"{config.SourceDataSourceName}/{config.SourceEntityName}/{config.DestDataSourceName}/{config.DestEntityName}",
+                    StartedAt = DateTime.UtcNow.AddMinutes(-1),
+                    FinishedAt = DateTime.UtcNow,
+                    RecordsRead = rowCount,
+                    RecordsWritten = rowCount,
+                    FinalState = success ? ImportState.Completed : ImportState.Faulted,
+                    Summary = $"Source: {config.SourceDataSourceName}/{config.SourceEntityName} -> Dest: {config.DestDataSourceName}/{config.DestEntityName}"
+                };
+                await _historyStore.SaveRunAsync(record);
+                btnViewLastSummary.Enabled = true;
+                if (IsHandleCreated)
+                    BeginInvoke(() => _ = RefreshHistoryGridAsync());
+            }
+            catch (Exception ex)
+            {
+                Editor?.AddLogMessage("ImportExport", $"Error saving history: {ex.Message}",
+                    DateTime.Now, 0, null, Errors.Failed);
+            }
+        }
 
-            btnViewLastSummary.Enabled = true;
-
-            if (IsHandleCreated)
-                BeginInvoke(RefreshHistoryGrid);
+        private async Task RefreshHistoryGridAsync()
+        {
+            try
+            {
+                InitHistoryGrid();
+                _historyDt.Rows.Clear();
+                _historyStore ??= LocalStoreFactory.CreateHistoryStore(Editor);
+                var runs = await _historyStore.GetRunsAsync("*");
+                foreach (var run in runs.Take(5))
+                {
+                    var parts = run.ContextKey?.Split('/') ?? new string[4];
+                    var src = parts.Length >= 2 ? $"{parts[0]}/{parts[1]}" : run.ContextKey;
+                    var dst = parts.Length >= 4 ? $"{parts[2]}/{parts[3]}" : "";
+                    _historyDt.Rows.Add(
+                        run.FinishedAt?.ToString("HH:mm:ss") ?? run.StartedAt.ToString("HH:mm:ss"),
+                        src,
+                        dst,
+                        run.RecordsRead.ToString("N0"),
+                        run.FinalState == ImportState.Completed ? "✓ OK" : "✕ Failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                Editor?.AddLogMessage("ImportExport", $"Error loading history: {ex.Message}",
+                    DateTime.Now, 0, null, Errors.Failed);
+            }
         }
 
         private void RefreshHistoryGrid()
         {
-            InitHistoryGrid();
-            _historyDt.Rows.Clear();
-            foreach (var h in _runHistory.Take(5))
-            {
-                _historyDt.Rows.Add(
-                    h.When.ToString("HH:mm:ss"),
-                    h.Src,
-                    h.Dst,
-                    h.Rows.ToString("N0"),
-                    h.Success ? "✓ OK" : "✕ Failed");
-            }
+            _ = RefreshHistoryGridAsync();
         }
 
         private void beepImage1_Click(object sender, EventArgs e)

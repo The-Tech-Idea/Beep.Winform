@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor.Importing;
 using TheTechIdea.Beep.Editor.Importing.Interfaces;
+using TheTechIdea.Beep.Editor.Importing.Quality;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
@@ -20,12 +22,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     public partial class uc_Import_Options : TemplateUserControl, IWizardStepContent
     {
         private DataImportConfiguration? _config;
+        private BindingList<QualityRuleRow> _qualityRows = new();
 
         public uc_Import_Options(IServiceProvider services) : base(services)
         {
             InitializeComponent();
             numBatchSize.ValueChanged  += (_, _) => { /* live update could go here */ };
             numDryRunRows.ValueChanged += (_, _) => { /* live update could go here */ };
+            WireQualityRuleEvents();
+        }
+
+        private void WireQualityRuleEvents()
+        {
+            btnAddQualityRule.Click += AddQualityRule_Click;
+            btnRemoveQualityRule.Click += RemoveQualityRule_Click;
+            btnClearQualityRules.Click += ClearQualityRules_Click;
         }
 
         // ── IWizardStepContent ───────────────────────────────────────────────
@@ -79,6 +90,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkSkipBlanks.Visible = purpose != ImportPurpose.AddOnly;
 
             UpdateDryRunRowsVisibility();
+            LoadQualityRules();
             RenderPreflight(context);
             RaiseValidationState();
         }
@@ -101,8 +113,152 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 _config.BatchSize = batchSize;
                 _config.SkipBlanks = chkSkipBlanks.CurrentValue;
+                _config.QualityRules = BuildQualityRulesFromRows();
             }
         }
+
+        // ── Data Quality Rules ────────────────────────────────────────────────
+
+        private void LoadQualityRules()
+        {
+            _qualityRows.Clear();
+            if (_config?.QualityRules == null) return;
+
+            foreach (var rule in _config.QualityRules)
+            {
+                _qualityRows.Add(new QualityRuleRow
+                {
+                    Selected = true,
+                    RuleType = GetRuleTypeName(rule),
+                    FieldName = rule.FieldName,
+                    Parameters = GetRuleParameters(rule),
+                    OnFailure = rule.OnFailure.ToString()
+                });
+            }
+            BindQualityGrid();
+        }
+
+        private void BindQualityGrid()
+        {
+            if (qualityRulesGrid != null)
+            {
+                qualityRulesGrid.DataSource = null;
+                qualityRulesGrid.DataSource = _qualityRows;
+            }
+        }
+
+        private void AddQualityRule_Click(object? sender, EventArgs e)
+        {
+            using var dlg = new Form
+            {
+                Text = "Add Quality Rule",
+                Size = new System.Drawing.Size(400, 280),
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterParent,
+                MinimizeBox = false,
+                MaximizeBox = false
+            };
+
+            var lblType = new Label { Text = "Rule Type:", Location = new System.Drawing.Point(12, 12), AutoSize = true };
+            var cmbType = new ComboBox { Location = new System.Drawing.Point(120, 12), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbType.Items.AddRange(new[] { "Not Null", "Unique", "Range", "Regex", "Accepted Values" });
+            cmbType.SelectedIndex = 0;
+
+            var lblField = new Label { Text = "Field Name:", Location = new System.Drawing.Point(12, 44), AutoSize = true };
+            var txtField = new TextBox { Location = new System.Drawing.Point(120, 44), Width = 250 };
+
+            var lblParams = new Label { Text = "Parameters:", Location = new System.Drawing.Point(12, 76), AutoSize = true };
+            var txtParams = new TextBox { Location = new System.Drawing.Point(120, 76), Width = 250, Text = "(optional - e.g., min,max for Range)" };
+
+            var lblAction = new Label { Text = "On Failure:", Location = new System.Drawing.Point(12, 108), AutoSize = true };
+            var cmbAction = new ComboBox { Location = new System.Drawing.Point(120, 108), Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbAction.Items.AddRange(new[] { "Block", "Quarantine", "Warn" });
+            cmbAction.SelectedIndex = 0;
+
+            var btnOk = new Button { Text = "OK", DialogResult = DialogResult.OK, Location = new System.Drawing.Point(200, 180), Width = 80 };
+            var btnCancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Location = new System.Drawing.Point(290, 180), Width = 80 };
+
+            dlg.Controls.AddRange(new Control[] { lblType, cmbType, lblField, txtField, lblParams, txtParams, lblAction, cmbAction, btnOk, btnCancel });
+            dlg.AcceptButton = btnOk;
+            dlg.CancelButton = btnCancel;
+
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+
+            var row = new QualityRuleRow
+            {
+                Selected = true,
+                RuleType = cmbType.Text,
+                FieldName = txtField.Text,
+                Parameters = txtParams.Text,
+                OnFailure = cmbAction.Text
+            };
+            _qualityRows.Add(row);
+            BindQualityGrid();
+        }
+
+        private void RemoveQualityRule_Click(object? sender, EventArgs e)
+        {
+            var selected = _qualityRows.Where(r => r.Selected).ToList();
+            foreach (var row in selected)
+                _qualityRows.Remove(row);
+            BindQualityGrid();
+        }
+
+        private void ClearQualityRules_Click(object? sender, EventArgs e)
+        {
+            _qualityRows.Clear();
+            BindQualityGrid();
+        }
+
+        private List<IDataQualityRule> BuildQualityRulesFromRows()
+        {
+            var rules = new List<IDataQualityRule>();
+            foreach (var row in _qualityRows.Where(r => r.Selected))
+            {
+                var action = Enum.TryParse<DataQualityAction>(row.OnFailure, out var a) ? a : DataQualityAction.Block;
+                switch (row.RuleType)
+                {
+                    case "Not Null":
+                        rules.Add(new NotNullRule(row.FieldName, action));
+                        break;
+                    case "Unique":
+                        rules.Add(new UniqueRule(row.FieldName, action));
+                        break;
+                    case "Range":
+                        var rangeParts = row.Parameters?.Split(',') ?? Array.Empty<string>();
+                        if (rangeParts.Length >= 2 && double.TryParse(rangeParts[0], out var min) && double.TryParse(rangeParts[1], out var max))
+                            rules.Add(new RangeRule(row.FieldName, min, max, action));
+                        break;
+                    case "Regex":
+                        if (!string.IsNullOrWhiteSpace(row.Parameters))
+                            rules.Add(new RegexRule(row.FieldName, row.Parameters, action));
+                        break;
+                    case "Accepted Values":
+                        var values = row.Parameters?.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)) ?? Array.Empty<string>();
+                        rules.Add(new AcceptedValuesRule(row.FieldName, values, action));
+                        break;
+                }
+            }
+            return rules;
+        }
+
+        private static string GetRuleTypeName(IDataQualityRule rule) => rule switch
+        {
+            NotNullRule => "Not Null",
+            UniqueRule => "Unique",
+            RangeRule => "Range",
+            RegexRule => "Regex",
+            AcceptedValuesRule => "Accepted Values",
+            _ => "Custom"
+        };
+
+        private static string GetRuleParameters(IDataQualityRule rule) => rule switch
+        {
+            RangeRule r => $"{r.Min},{r.Max}",
+            RegexRule r => r.GetType().GetField("_regex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r)?.ToString() ?? "",
+            AcceptedValuesRule r => string.Join(",", r.GetType().GetField("_accepted", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r) as System.Collections.Generic.HashSet<string> ?? new()),
+            _ => ""
+        };
 
         // ── Dry-run toggle ────────────────────────────────────────────────────
 
@@ -228,5 +384,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             ValidationStateChanged?.Invoke(this, new StepValidationEventArgs(IsComplete));
         }
+    }
+
+    public class QualityRuleRow
+    {
+        public bool Selected { get; set; } = true;
+        public string RuleType { get; set; } = string.Empty;
+        public string FieldName { get; set; } = string.Empty;
+        public string Parameters { get; set; } = string.Empty;
+        public string OnFailure { get; set; } = "Block";
     }
 }

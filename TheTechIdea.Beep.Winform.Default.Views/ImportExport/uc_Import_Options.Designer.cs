@@ -37,6 +37,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             grpPreflight     = new Panel();
             lblPreflightHdr  = new BeepLabel();
             txtPreflight     = new RichTextBox();
+            grpQualityRules  = new Panel();
+            qualityRulesGrid = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
+            btnAddQualityRule    = new BeepButton();
+            btnRemoveQualityRule = new BeepButton();
+            btnClearQualityRules = new BeepButton();
+            lblQualityRules      = new BeepLabel();
 
             outerPanel.SuspendLayout();
             grpBatch.SuspendLayout();
@@ -52,6 +58,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             outerPanel.Name    = "outerPanel";
             outerPanel.Padding = new Padding(12, 8, 12, 8);
             outerPanel.Controls.Add(grpPreflight);
+            outerPanel.Controls.Add(grpQualityRules);
             outerPanel.Controls.Add(grpValidation);
             outerPanel.Controls.Add(grpDryRun);
             outerPanel.Controls.Add(grpBatch);
@@ -166,6 +173,49 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblPreflightStatus.Theme     = "DefaultType";
             lblPreflightStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
+            // ── grpQualityRules ───────────────────────────────────────────────
+            grpQualityRules.Dock     = DockStyle.Top;
+            grpQualityRules.Name     = "grpQualityRules";
+            grpQualityRules.Height   = 160;
+            grpQualityRules.Padding  = new Padding(8, 4, 8, 4);
+            grpQualityRules.Controls.Add(btnClearQualityRules);
+            grpQualityRules.Controls.Add(btnRemoveQualityRule);
+            grpQualityRules.Controls.Add(btnAddQualityRule);
+            grpQualityRules.Controls.Add(qualityRulesGrid);
+            grpQualityRules.Controls.Add(lblQualityRules);
+
+            lblQualityRules.Dock        = DockStyle.Top;
+            lblQualityRules.Height      = 22;
+            lblQualityRules.Name        = "lblQualityRules";
+            lblQualityRules.Text        = "Data Quality Rules";
+            lblQualityRules.ShowAllBorders = false;
+            lblQualityRules.Theme       = "DefaultType";
+            lblQualityRules.TextAlign   = System.Drawing.ContentAlignment.MiddleLeft;
+
+            qualityRulesGrid.Dock      = DockStyle.Top;
+            qualityRulesGrid.Height    = 100;
+            qualityRulesGrid.Name      = "qualityRulesGrid";
+            qualityRulesGrid.Columns.Add(new TheTechIdea.Beep.Winform.Controls.Models.BeepColumnConfig { ColumnName = "Selected", ColumnCaption = "", Width = 30, IsSelectionCheckBox = true });
+            qualityRulesGrid.Columns.Add(new TheTechIdea.Beep.Winform.Controls.Models.BeepColumnConfig { ColumnName = "RuleType", ColumnCaption = "Rule Type", Width = 100 });
+            qualityRulesGrid.Columns.Add(new TheTechIdea.Beep.Winform.Controls.Models.BeepColumnConfig { ColumnName = "FieldName", ColumnCaption = "Field", Width = 100 });
+            qualityRulesGrid.Columns.Add(new TheTechIdea.Beep.Winform.Controls.Models.BeepColumnConfig { ColumnName = "Parameters", ColumnCaption = "Parameters", Width = 120 });
+            qualityRulesGrid.Columns.Add(new TheTechIdea.Beep.Winform.Controls.Models.BeepColumnConfig { ColumnName = "OnFailure", ColumnCaption = "On Failure", Width = 80 });
+
+            btnAddQualityRule.Text = "Add";
+            btnAddQualityRule.Location = new System.Drawing.Point(8, 130);
+            btnAddQualityRule.Size = new System.Drawing.Size(60, 24);
+            btnAddQualityRule.Name = "btnAddQualityRule";
+
+            btnRemoveQualityRule.Text = "Remove";
+            btnRemoveQualityRule.Location = new System.Drawing.Point(76, 130);
+            btnRemoveQualityRule.Size = new System.Drawing.Size(60, 24);
+            btnRemoveQualityRule.Name = "btnRemoveQualityRule";
+
+            btnClearQualityRules.Text = "Clear";
+            btnClearQualityRules.Location = new System.Drawing.Point(144, 130);
+            btnClearQualityRules.Size = new System.Drawing.Size(60, 24);
+            btnClearQualityRules.Name = "btnClearQualityRules";
+
             // ── grpPreflight — Summary ────────────────────────────────────────
             grpPreflight.Dock     = DockStyle.Fill;
             grpPreflight.Name     = "grpPreflight";
@@ -224,5 +274,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private Panel            grpPreflight;
         private BeepLabel        lblPreflightHdr;
         private RichTextBox      txtPreflight;
+        private Panel            grpQualityRules;
+        private TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro qualityRulesGrid;
+        private BeepButton       btnAddQualityRule;
+        private BeepButton       btnRemoveQualityRule;
+        private BeepButton       btnClearQualityRules;
+        private BeepLabel        lblQualityRules;
     }
 }

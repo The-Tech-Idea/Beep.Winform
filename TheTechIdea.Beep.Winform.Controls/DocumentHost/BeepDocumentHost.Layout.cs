@@ -31,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 return;
             }
 
-            var validation = Layout.LayoutTreeValidator.Validate(_layoutRoot);
+            var validation = LayoutTreeValidator.Validate(_layoutRoot);
             if (validation.IsValid) return;
 
-            var (repairedRoot, _) = Layout.LayoutTreeRepairer.Repair(_layoutRoot);
+            var (repairedRoot, _) = LayoutTreeRepairer.Repair(_layoutRoot);
 
             // Only accept repaired trees that still reference known runtime groups;
             // otherwise rebuild from runtime group state to prevent drift.
@@ -497,3 +497,4 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
     }
 }
+

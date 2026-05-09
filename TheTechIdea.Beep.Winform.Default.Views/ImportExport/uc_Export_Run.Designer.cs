@@ -17,11 +17,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private BeepProgressBar statusProgressBar;
         private BeepLabel statusLabelRows;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null)) components.Dispose();
-            base.Dispose(disposing);
-        }
+     
 
         private void InitializeComponent()
         {

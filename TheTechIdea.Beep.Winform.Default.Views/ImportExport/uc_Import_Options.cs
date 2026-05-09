@@ -184,12 +184,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             if (dlg.ShowDialog(this) != DialogResult.OK) return;
 
+            // Validate field name
+            if (string.IsNullOrWhiteSpace(txtField.Text))
+            {
+                MessageBox.Show("Field name is required.", "Validation Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Clear placeholder text if used as-is
+            var parameters = txtParams.Text == "(optional - e.g., min,max for Range)" ? "" : txtParams.Text;
+
             var row = new QualityRuleRow
             {
                 Selected = true,
                 RuleType = cmbType.Text,
-                FieldName = txtField.Text,
-                Parameters = txtParams.Text,
+                FieldName = txtField.Text.Trim(),
+                Parameters = parameters?.Trim() ?? "",
                 OnFailure = cmbAction.Text
             };
             _qualityRows.Add(row);
@@ -252,13 +263,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             _ => "Custom"
         };
 
-        private static string GetRuleParameters(IDataQualityRule rule) => rule switch
+        private static string GetRuleParameters(IDataQualityRule rule)
         {
-            RangeRule r => $"{r.Min},{r.Max}",
-            RegexRule r => r.GetType().GetField("_regex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r)?.ToString() ?? "",
-            AcceptedValuesRule r => string.Join(",", r.GetType().GetField("_accepted", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r) as System.Collections.Generic.HashSet<string> ?? new()),
-            _ => ""
-        };
+            try
+            {
+                return rule switch
+                {
+                    RangeRule r => $"{r.Min},{r.Max}",
+                    RegexRule r => r.GetType().GetField("_regex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r)?.ToString() ?? "",
+                    AcceptedValuesRule r => string.Join(",", r.GetType().GetField("_accepted", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(r) as System.Collections.Generic.HashSet<string> ?? new()),
+                    _ => ""
+                };
+            }
+            catch
+            {
+                return "";
+            }
+        }
 
         // ── Dry-run toggle ────────────────────────────────────────────────────
 

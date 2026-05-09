@@ -581,7 +581,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.DataSource = _historyDt;
         }
 
-        private async void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
+        private void AddToHistory(DataImportConfiguration config, int rowCount, bool success)
+        {
+            _ = AddToHistoryAsync(config, rowCount, success);
+        }
+
+        private async Task AddToHistoryAsync(DataImportConfiguration config, int rowCount, bool success)
         {
             try
             {

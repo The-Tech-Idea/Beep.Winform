@@ -12,12 +12,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // No background fill for underline style
             
             bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
-            DrawTabText(g, tabRect, TabControl.TabPages[index].Text, index, isSelected, vertical, alpha);
+            DrawTabText(g, tabRect, TabControl.GetTabTitle(index), index, isSelected, vertical, alpha);
 
             if (TabControl.ShowCloseButtons)
             {
                 DrawCloseButton(g, tabRect, vertical);
             }
+        }
+
+        public override void PaintTabItem(Graphics g, Tabs.Models.BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
+        {
+            DrawTabItemContent(g, itemLayout, alpha);
         }
     }
 }

@@ -1,6 +1,8 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Tabs.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 {
@@ -13,12 +15,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             // Shrink rect slightly to create spacing between buttons
             RectangleF buttonRect = new RectangleF(tabRect.X + 2, tabRect.Y + 2, tabRect.Width - 4, tabRect.Height - 4);
 
-            Color fillColor = isSelected ? Theme.PrimaryColor : Theme.ButtonBackColor;
-            Color foreColor = isSelected ? GetContrastColor(Theme.PrimaryColor) : Theme.ButtonForeColor;
+            Color fillColor = isSelected ? (Theme?.PrimaryColor ?? SystemColors.Highlight) : (Theme?.ButtonBackColor ?? SystemColors.Control);
+            Color foreColor = isSelected ? GetContrastColor(fillColor) : (Theme?.ButtonForeColor ?? SystemColors.ControlText);
             
             if (isHovered && !isSelected)
             {
-                fillColor = Theme.ButtonHoverBackColor;
+                fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
             }
 
             using (GraphicsPath path = GetRoundedRect(buttonRect, 4))
@@ -31,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
                 // Optional border
                 if (!isSelected)
                 {
-                    using (var pen = PaintersFactory.GetPen(Theme.BorderColor))
+                    using (var pen = PaintersFactory.GetPen(Theme?.BorderColor ?? SystemColors.ButtonShadow))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -43,10 +45,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             if (TabControl.ShouldShowTabText(index))
             {
                 // Custom text drawing to handle specific button colors
-                using (Font font = new Font(TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular))
+                using (Font font = TabFontHelpers.CreateDerivedSafeFont(TextFont ?? TabControl.Font, isSelected ? FontStyle.Bold : FontStyle.Regular, TabControl))
                 {
                     var textBrush = PaintersFactory.GetSolidBrush(foreColor);
-                    string text = TabControl.TabPages[index].Text;
+                    string text = TabControl.GetTabTitle(index);
                     
                     if (!vertical)
                     {
@@ -77,6 +79,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
         {
             float luminance = (0.299f * background.R + 0.587f * background.G + 0.114f * background.B) / 255f;
             return luminance > 0.5f ? Color.FromArgb(28, 27, 31) : Color.White;
+        }
+
+        public override void PaintTabItem(Graphics g, Tabs.Models.BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
+        {
+            RectangleF buttonRect = new RectangleF(itemLayout.Bounds.X + 2, itemLayout.Bounds.Y + 2, itemLayout.Bounds.Width - 4, itemLayout.Bounds.Height - 4);
+            Color fillColor = itemLayout.Item.IsSelected ? (Theme?.PrimaryColor ?? SystemColors.Highlight) : (Theme?.ButtonBackColor ?? SystemColors.Control);
+            Color foreColor = itemLayout.Item.IsSelected ? GetContrastColor(fillColor) : (Theme?.ButtonForeColor ?? SystemColors.ControlText);
+
+            if (itemLayout.Item.IsHovered && !itemLayout.Item.IsSelected)
+            {
+                fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
+            }
+
+            using (GraphicsPath path = GetRoundedRect(buttonRect, 4))
+            {
+                using (var brush = PaintersFactory.GetSolidBrush(fillColor))
+                {
+                    g.FillPath(brush, path);
+                }
+
+                if (!itemLayout.Item.IsSelected)
+                {
+                    using var pen = PaintersFactory.GetPen(Theme?.BorderColor ?? SystemColors.ButtonShadow);
+                    g.DrawPath(pen, path);
+                }
+            }
+
+            var contentLayout = new Tabs.Models.BeepTabHeaderItemLayout
+            {
+                Item = itemLayout.Item,
+                Bounds = Rectangle.Ceiling(buttonRect),
+                HasCloseButton = itemLayout.HasCloseButton
+            };
+
+            DrawTabItemContent(g, contentLayout, alpha, foreColor);
         }
     }
 }

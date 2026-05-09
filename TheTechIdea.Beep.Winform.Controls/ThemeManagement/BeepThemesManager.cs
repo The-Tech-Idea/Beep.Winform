@@ -469,17 +469,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
 
             if (fontSize <= 0) fontSize = 9.0f;
 
-            string fontFamily = style.FontFamily;
-            if (string.IsNullOrWhiteSpace(fontFamily))
-                fontFamily = "Segoe UI";
-
-            // Guard: fall back to Segoe UI for fonts not installed on this machine.
-            // GetFontIndex now correctly calls EnsureInitialized(), so this check is reliable.
-            // Without this guard, GDI+ creates substituted font handles that can throw
-            // "Parameter is not valid" in .NET 8 WinForms internals (System.Private.Windows.Core).
-            if (!BeepFontManager.IsFontAvailable(fontFamily))
-                fontFamily = "Segoe UI";
-
             FontStyle fontStyle = style.FontStyle;
             if (style.FontWeight >= FontWeight.Bold)
                 fontStyle |= FontStyle.Bold;
@@ -488,7 +477,41 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
             if (style.IsStrikeout)
                 fontStyle |= FontStyle.Strikeout;
 
-            return BeepFontManager.GetFont(fontFamily, fontSize, fontStyle) ?? BeepFontManager.DefaultFont;
+            // Cascade of fallback families: requested → Arial → Segoe UI → system default.
+            // Each candidate is tried both via BeepFontManager (cached) and a direct GDI+ new Font()
+            // so the method never throws even when IsFontAvailable gives a false positive.
+            string requestedFamily = string.IsNullOrWhiteSpace(style.FontFamily) ? string.Empty : style.FontFamily.Trim();
+            string[] candidates = { requestedFamily, "Arial", "Segoe UI" };
+
+            foreach (string candidate in candidates)
+            {
+                if (string.IsNullOrWhiteSpace(candidate))
+                    continue;
+
+                if (!BeepFontManager.IsFontAvailable(candidate))
+                    continue;
+
+                try
+                {
+                    Font? f = BeepFontManager.GetFont(candidate, fontSize, fontStyle);
+                    if (f != null)
+                        return f;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BeepThemesManager.ToFont] '{candidate}' failed: {ex.Message}");
+                }
+            }
+
+            // Last-resort: let the system pick a default font — this never throws.
+            try
+            {
+                return new Font(SystemFonts.DefaultFont.FontFamily, fontSize, fontStyle, GraphicsUnit.Point);
+            }
+            catch
+            {
+                return SystemFonts.DefaultFont;
+            }
         }
 
         /// <summary>

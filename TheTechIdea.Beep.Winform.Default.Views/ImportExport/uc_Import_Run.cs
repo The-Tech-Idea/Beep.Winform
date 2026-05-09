@@ -17,7 +17,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
     
-    public partial class uc_Import_Run : TemplateUserControl, IWizardStepContent
+    public partial class uc_Import_Run : TemplateUserControl, IWizardStepContent, IDisposable
     {
         private DataImportConfiguration? _config;
         private DataImportManager?       _importManager;
@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private bool _isRunning;
         private ImportRunSummary?        _lastSummary;
         private readonly System.Collections.Generic.List<ImportRowError> _errorRows = new();
+        private bool _disposed;
 
         public uc_Import_Run(IServiceProvider services) : base(services)
         {
@@ -37,6 +38,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnToggleSummary.Click  += (_, _) => ToggleSummaryCard();
             btnExportErrors.Click   += ExportErrors_Click;
             SetRunningState(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _cts?.Cancel();
+                    _cts?.Dispose();
+                    _importManager?.Dispose();
+                    statusTimer?.Stop();
+                    statusTimer?.Dispose();
+                }
+                _disposed = true;
+            }
+            base.Dispose(disposing);
         }
 
         public event EventHandler<StepValidationEventArgs>? ValidationStateChanged;
@@ -87,10 +105,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         // ── Button handlers ───────────────────────────────────────────────
 
-        private async void RunButton_Click(object? sender, EventArgs e)
+        private void RunButton_Click(object? sender, EventArgs e)
         {
             if (_config == null) { AppendLog("No import configuration found."); return; }
-            await ExecuteImportAsync();
+            _ = ExecuteImportAsyncWithErrorHandling();
+        }
+
+        private async Task ExecuteImportAsyncWithErrorHandling()
+        {
+            try
+            {
+                await ExecuteImportAsync();
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Unexpected error: {ex.Message}");
+                Editor?.AddLogMessage("ImportWizard", $"Unexpected error: {ex.Message}", DateTime.Now, 0, null, Errors.Failed);
+                SetRunningState(false);
+                RaiseValidationState();
+            }
         }
 
         private void PauseButton_Click(object? sender, EventArgs e)

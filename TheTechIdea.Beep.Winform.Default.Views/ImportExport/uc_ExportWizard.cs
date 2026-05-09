@@ -218,6 +218,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(_config.FilePath))
+            {
+                MessageBox.Show("Please specify a file path for the export.", "Export",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Simple export flow: select columns then run
             var colStep = new uc_Export_ColumnSelection(_services, _config);
             var runStep = new uc_Export_Run(_services, _config);
@@ -264,11 +271,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 SourceDataSourceName = cmbSourceDS.SelectedItem?.Text ?? string.Empty,
                 SourceEntityName = cmbSourceEntity.SelectedItem?.Text ?? string.Empty,
-                FilePath = txtFilePath.Text,
+                FilePath = txtFilePath.Text ?? string.Empty,
                 Format = Enum.TryParse<ExportFormat>(cmbFormat.SelectedItem?.Text, out var fmt) ? fmt : ExportFormat.Csv,
-                CsvDelimiter = txtDelimiter.Text,
+                CsvDelimiter = txtDelimiter.Text ?? ",",
                 IncludeHeaders = chkHeaders.CurrentValue,
-                BatchSize = (int)numBatchSize.Value
+                BatchSize = (int)(numBatchSize?.Value ?? 1000)
             };
         }
 

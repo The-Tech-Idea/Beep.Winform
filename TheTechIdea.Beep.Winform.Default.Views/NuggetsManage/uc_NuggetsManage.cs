@@ -82,32 +82,39 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
                 return;
             }
             RestoreLastTab();
+            LoadSearchSources();
+            RefreshInstalled();
+            RefreshSources();
+            RefreshLogs();
         }
 
         private void InitializeComponent()
         {
             SuspendLayout();
             
-            _tabs = new BeepTabs
-            {
-                Dock = DockStyle.Fill,
-                ShowCloseButtons = false
-            };
-
-            var tabSearch = new TabPage { Text = "Search & Install", Name = "tabSearch" };
-            var tabInstalled = new TabPage { Text = "Installed", Name = "tabInstalled" };
-            var tabSources = new TabPage { Text = "Sources", Name = "tabSources" };
-            var tabActivity = new TabPage { Text = "Activity", Name = "tabActivity" };
+            var tabSearch = new BeepTabPage { Text = "Search & Install", Name = "tabSearch" };
+            var tabInstalled = new BeepTabPage { Text = "Installed", Name = "tabInstalled" };
+            var tabSources = new BeepTabPage { Text = "Sources", Name = "tabSources" };
+            var tabActivity = new BeepTabPage { Text = "Activity", Name = "tabActivity" };
 
             BuildSearchTab(tabSearch);
             BuildInstalledTab(tabInstalled);
             BuildSourcesTab(tabSources);
             BuildActivityTab(tabActivity);
 
-            _tabs.TabPages.Add(tabSearch);
-            _tabs.TabPages.Add(tabInstalled);
-            _tabs.TabPages.Add(tabSources);
-            _tabs.TabPages.Add(tabActivity);
+            _tabs = new BeepTabs
+            {
+                Dock = DockStyle.Fill,
+                ShowCloseButtons = false,
+                HeaderHeight = 30,
+                HeaderPosition = TabHeaderPosition.Top,
+                TabStyle = TabStyle.Classic
+            };
+
+            _tabs.AddTab(tabSearch);
+            _tabs.AddTab(tabInstalled);
+            _tabs.AddTab(tabSources);
+            _tabs.AddTab(tabActivity);
 
             _tabs.SelectedIndexChanged += (_, _) =>
             {
@@ -125,13 +132,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             ResumeLayout(true);
         }
 
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            
+            if (_tabs != null)
+            {
+                _tabs.Theme = Theme;
+            }
+        }
+
         private void RestoreLastTab()
         {
             if (_tabs == null) return;
             try
             {
                 var state = GetService().LoadState();
-                if (state.LastActiveTabIndex >= 0 && state.LastActiveTabIndex < _tabs.TabPages.Count)
+                if (state.LastActiveTabIndex >= 0 && state.LastActiveTabIndex < _tabs.TabCount)
                 {
                     _tabs.SelectedIndex = state.LastActiveTabIndex;
                 }

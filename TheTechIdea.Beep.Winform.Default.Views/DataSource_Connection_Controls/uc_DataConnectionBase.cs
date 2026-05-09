@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private IBeepService beepService;
         private bool _lastConnectionTestSucceeded;
         private bool _requireSuccessfulTestBeforeSave;
-        private readonly Dictionary<TabPage, string> _tabBaseText = new();
+        private readonly Dictionary<BeepTabPage, string> _tabBaseText = new();
         private BeepLabel _statusBeepLabel;
         private BeepLabel _connectionStringPreviewLabel;
         private BeepTextBox _connectionStringPreviewBeepTextBox;
@@ -314,12 +314,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         /// <summary>
         /// Add a tab to the dialog - called by inherited controls to add custom tabs
         /// </summary>
-        /// <param name="tab">The TabPage to add to the dialog</param>
-        protected void AddTab(TabPage tab)
+        /// <param name="tab">The Beep tab page to add to the dialog</param>
+        protected void AddTab(BeepTabPage tab)
         {
-            if (beepTabs1 != null && tab != null && !beepTabs1.TabPages.Contains(tab))
+            if (beepTabs1 != null && tab != null && !beepTabs1.ContainsTab(tab))
             {
-                beepTabs1.TabPages.Add(tab);
+                beepTabs1.AddTab(tab);
             }
         }
 
@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             var isWeb = ConnectionProperties.Category == DatasourceCategory.WEBAPI || ConnectionProperties.IsWebApi;
             var isInMemory = ConnectionProperties.IsInMemory;
 
-            var desiredTabs = new List<TabPage>
+            var desiredTabs = new List<BeepTabPage>
             {
                 tabPage1,
                 tabPageGeneral,
@@ -476,10 +476,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             desiredTabs.Add(tabPageDriver);
             desiredTabs = desiredTabs.Where(t => t != null).Distinct().ToList();
 
-            beepTabs1.TabPages.Clear();
+            beepTabs1.ClearTabs();
             foreach (var page in desiredTabs)
             {
-                beepTabs1.TabPages.Add(page);
+                beepTabs1.AddTab(page);
             }
 
             MoveDriverTabToEnd();
@@ -610,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 : TabStateWarning;
         }
 
-        private void ApplyTabStatus(TabPage tabPage, string status)
+        private void ApplyTabStatus(BeepTabPage tabPage, string status)
         {
             if (tabPage == null)
             {
@@ -1590,10 +1590,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 return;
             }
 
-            if (beepTabs1.TabPages.Contains(tabPageDriver))
+            if (beepTabs1.ContainsTab(tabPageDriver))
             {
-                beepTabs1.TabPages.Remove(tabPageDriver);
-                beepTabs1.TabPages.Add(tabPageDriver);
+                beepTabs1.RemoveTab(tabPageDriver);
+                beepTabs1.AddTab(tabPageDriver);
             }
         }
 
@@ -1848,7 +1848,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                     ui.Theme = Theme;
                 }
 
-                if (child is TabPage page)
+                if (child is BeepTabPage page)
                 {
                     page.BackColor = _currentTheme?.BackgroundColor ?? page.BackColor;
                     page.ForeColor = _currentTheme?.ForeColor ?? page.ForeColor;

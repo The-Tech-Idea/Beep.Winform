@@ -974,11 +974,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                 }
 
-                // Try resolving directly from the system font families on-demand
-                var systemFamily = TryResolveSystemFamily(fontName);
-                if (systemFamily != null)
+                // Try resolving directly from the system font families on-demand.
+                // TryResolveSystemFamily returns only the canonical name string — never a FontFamily
+                // handle — so CreateValidFont(string,...) is used here, not the FontFamily overload.
+                var resolvedFamilyName = TryResolveSystemFamily(fontName);
+                if (resolvedFamilyName != null)
                 {
-                    return CreateValidFont(systemFamily, size, style);
+                    return CreateValidFont(resolvedFamilyName, size, style);
                 }
 
                 // Fallback: Try creating with original name (may work even if not in our config)
@@ -1014,8 +1016,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         /// <summary>
         /// Tries to find a system-installed font family by name without relying on prior scans.
+        /// Returns the canonical family name string, NOT a FontFamily handle.
+        /// Returning a FontFamily from inside a using(InstalledFontCollection) block is unsafe:
+        /// C# executes the using Dispose before the function returns, which calls
+        /// GdipDeleteFontCollection and frees all the family handles — leaving the caller
+        /// with a dangling GpFontFamily* that causes font.Height to throw ArgumentException.
+        /// A plain string is a managed heap object unaffected by the Dispose.
         /// </summary>
-        private static FontFamily TryResolveSystemFamily(string name)
+        private static string TryResolveSystemFamily(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return null;
             try
@@ -1026,7 +1034,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     foreach (var fam in installed.Families)
                     {
                         if (NormalizeFontName(fam.Name) == target)
-                            return fam;
+                            return fam.Name; // safe: string ref, not a GDI+ handle
                     }
                 }
             }
@@ -1035,20 +1043,32 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Creates a font with validation and fallback handling
+        /// Creates a font with validation and fallback handling.
+        /// Uses FontFamily(string) constructor which throws ArgumentException when the font is not
+        /// installed — unlike new Font(string,...) which silently substitutes a GDI+ fallback and
+        /// still reports font.Name as the requested name.
         /// </summary>
         private static Font CreateValidFont(string fontName, float size, FontStyle style)
         {
+            // Phase 1 — existence probe.
+            // FontFamily(string) throws ArgumentException if the font is not installed.
+            // Dispose the probe immediately so the native handle is freed before the
+            // Font is created; the font must NOT share this handle.
             try
             {
-                var font = new Font(fontName, size, style);
-                // Test that the font is fully accessible by accessing safe properties
-                // DO NOT access font.Height as it can throw for certain fonts
-                var _ = font.Size;
-                var __ = font.Name;
-                var ___ = font.FontFamily;
-                var ____ = font.FontFamily.Name;
-                return font;
+                using (new FontFamily(fontName)) { }
+            }
+            catch
+            {
+                return null;
+            }
+
+            // Phase 2 — create via string overload.
+            // new Font(string, ...) allocates its own independent GDI+ FontFamily handle,
+            // so disposing the probe above never invalidates font.Height or font metrics.
+            try
+            {
+                return new Font(fontName, size, style);
             }
             catch
             {
@@ -1263,12 +1283,15 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 // Try to get from cache
                 if (fontCache.TryGetValue(cacheKey, out var cachedFont))
                 {
-                    // Validate the cached font is still usable
+                    // Validate the cached font is still usable.
+                    // MUST include .Height: fonts built from a since-disposed FontFamily
+                    // still report .Size and .Name correctly (stored fields) but throw
+                    // ArgumentException from .Height because that requires a live GDI+ call.
                     try
                     {
-                        // Test if font is valid by accessing properties
                         var _ = cachedFont.Size;
                         var __ = cachedFont.Name;
+                        var ___ = cachedFont.Height; // ← GDI+ live call; throws for broken fonts
                         return cachedFont;
                     }
                     catch
@@ -1284,11 +1307,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     Font newFont = fontFactory();
                     if (newFont != null)
                     {
-                        // Validate new font before caching
+                        // Validate new font before caching.
+                        // Include .Height for the same reason as above.
                         try
                         {
-                            var _ = newFont.Size; // Test if valid
-                            var __ = newFont.Name; // Test if valid
+                            var _ = newFont.Size;
+                            var __ = newFont.Name;
+                            var ___ = newFont.Height; // ← must not throw before caching
                             fontCache[cacheKey] = newFont;
                             return newFont;
                         }

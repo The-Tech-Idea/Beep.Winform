@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         private DataTable? _dtSources;
         private NuGetSourceConfig? _editingSource;
 
-        private void BuildSourcesTab(TabPage tab)
+        private void BuildSourcesTab(BeepTabPage tab)
         {
             var topPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(6) };
 

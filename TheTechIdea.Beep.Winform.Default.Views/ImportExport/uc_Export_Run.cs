@@ -19,12 +19,13 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
-    public partial class uc_Export_Run : TemplateUserControl, IWizardStepContent
+    public partial class uc_Export_Run : TemplateUserControl, IWizardStepContent, IDisposable
     {
         private ExportConfiguration _config;
         private CancellationTokenSource? _cts;
         private bool _isRunning;
         private ExportRunSummary? _lastSummary;
+        private bool _disposed;
 
         public uc_Export_Run(IServiceProvider services, ExportConfiguration config) : base(services)
         {
@@ -33,6 +34,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepButton_Run.Click += RunButton_Click;
             beepButton_Cancel.Click += CancelButton_Click;
             SetRunningState(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _cts?.Cancel();
+                    _cts?.Dispose();
+                }
+                _disposed = true;
+            }
+            base.Dispose(disposing);
         }
 
         public event EventHandler<StepValidationEventArgs>? ValidationStateChanged;
@@ -55,8 +70,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         {
             var config = context.GetValue<ExportConfiguration?>(ExportWizardKeys.ExportConfig, null);
             if (config != null) _config = config;
-            beepCheckBoxLastRun.CurrentValue = false;
-            rtbLog.Clear();
+            if (beepCheckBoxLastRun != null)
+                beepCheckBoxLastRun.CurrentValue = false;
+            rtbLog?.Clear();
             SetRunningState(false);
             RenderSummary();
             RaiseValidationState();
@@ -72,9 +88,24 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         WizardValidationResult IWizardStepContent.Validate() => ValidateStep();
         public Task<WizardValidationResult> ValidateAsync() => Task.FromResult(ValidateStep());
 
-        private async void RunButton_Click(object? sender, EventArgs e)
+        private void RunButton_Click(object? sender, EventArgs e)
         {
-            await ExecuteExportAsync();
+            _ = ExecuteExportAsyncWithErrorHandling();
+        }
+
+        private async Task ExecuteExportAsyncWithErrorHandling()
+        {
+            try
+            {
+                await ExecuteExportAsync();
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Unexpected error: {ex.Message}");
+                Editor?.AddLogMessage("ExportWizard", $"Unexpected error: {ex.Message}", DateTime.Now, 0, null, Errors.Failed);
+                SetRunningState(false);
+                RaiseValidationState();
+            }
         }
 
         private void CancelButton_Click(object? sender, EventArgs e)
@@ -91,6 +122,24 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 AppendLog("No destination specified.");
                 return;
+            }
+
+            // Ensure output directory exists for file export
+            if (!string.IsNullOrWhiteSpace(_config.FilePath))
+            {
+                var dir = Path.GetDirectoryName(_config.FilePath);
+                if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                    catch (Exception ex)
+                    {
+                        AppendLog($"Error creating directory: {ex.Message}");
+                        return;
+                    }
+                }
             }
 
             SetRunningState(true);
@@ -115,6 +164,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 var table = ConvertToDataTable(data);
                 int totalRows = table?.Rows.Count ?? 0;
                 AppendLog($"Loaded {totalRows:N0} rows from source.");
+
+                if (totalRows == 0)
+                {
+                    AppendLog("No data to export.");
+                    return;
+                }
 
                 // Filter columns if specified
                 var columns = _config.SelectedFields?.Count > 0
@@ -178,6 +233,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 _cts?.Dispose();
                 _cts = null;
                 SetRunningState(false);
+                UpdateProgress(exported, exported > 0 ? exported : 1); // Show 100% or final state
                 RaiseValidationState();
             }
         }
@@ -214,6 +270,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             var encoding = GetSafeEncoding(_config.Encoding);
             await File.WriteAllTextAsync(_config.FilePath, sb.ToString(), encoding, _cts?.Token ?? default);
+            UpdateProgress(totalRows, totalRows); // Ensure 100% progress
             AppendLog($"CSV exported to: {_config.FilePath}");
         }
 
@@ -239,6 +296,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
             var json = JsonSerializer.Serialize(records, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(_config.FilePath, json, _cts?.Token ?? default);
+            UpdateProgress(totalRows, totalRows); // Ensure 100% progress
             AppendLog($"JSON exported to: {_config.FilePath}");
         }
 
@@ -269,6 +327,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             }
 
             await File.WriteAllTextAsync(_config.FilePath, root.ToString(), _cts?.Token ?? default);
+            UpdateProgress(totalRows, totalRows); // Ensure 100% progress
             AppendLog($"XML exported to: {_config.FilePath}");
         }
 
@@ -278,13 +337,42 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             if (destDs == null) { AppendLog("Destination data source not found."); return 0; }
             if (destDs.ConnectionStatus != System.Data.ConnectionState.Open) destDs.Openconnection();
 
+            // Check if destination entity exists, create if needed
+            var destStructure = destDs.GetEntityStructure(_config.DestEntityName, false);
+            if (destStructure == null)
+            {
+                AppendLog($"Destination entity '{_config.DestEntityName}' not found.");
+                return 0;
+            }
+
             int processed = 0;
-            // This is a simplified implementation - real implementation would use batch inserts
+            var errors = new List<string>();
             foreach (DataRow row in table.Rows)
             {
                 _cts?.Token.ThrowIfCancellationRequested();
-                // Create entity object and insert
-                // This would need proper entity mapping based on the destination structure
+                
+                try
+                {
+                    // Create a dictionary from the row data
+                    var record = new Dictionary<string, object>();
+                    foreach (var col in columns)
+                    {
+                        if (row.Table.Columns.Contains(col))
+                            record[col] = row[col] == DBNull.Value ? null : row[col];
+                    }
+
+                    // Insert the record
+                    var result = destDs.InsertEntity(_config.DestEntityName, record);
+                    if (result.Flag != Errors.Ok)
+                    {
+                        errors.Add($"Row {processed}: {result.Message}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Row {processed}: {ex.Message}");
+                }
+
                 processed++;
                 if (processed % 100 == 0)
                 {
@@ -293,7 +381,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
                 }
             }
 
-            AppendLog($"Exported {processed:N0} rows to {_config.DestDataSourceName}.{_config.DestEntityName}");
+            if (errors.Count > 0)
+            {
+                AppendLog($"Export completed with {errors.Count} errors:");
+                foreach (var error in errors.Take(10))
+                    AppendLog($"  {error}");
+            }
+            else
+            {
+                AppendLog($"Exported {processed:N0} rows to {_config.DestDataSourceName}.{_config.DestEntityName}");
+            }
+            
+            UpdateProgress(totalRows, totalRows); // Ensure 100% progress
             return processed;
         }
 
@@ -344,6 +443,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private void RenderSummary()
         {
+            if (txtSummary == null) return;
             var sb = new StringBuilder();
             sb.AppendLine("─── Export Configuration Summary ───────────────────────────");
             sb.AppendLine();
@@ -361,7 +461,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private void AppendLog(string message)
         {
-            if (!string.IsNullOrWhiteSpace(message))
+            if (!string.IsNullOrWhiteSpace(message) && rtbLog != null)
                 rtbLog.AppendText(message + Environment.NewLine);
         }
 
@@ -374,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private WizardValidationResult ValidateStep()
         {
-            if (!beepCheckBoxLastRun.CurrentValue)
+            if (beepCheckBoxLastRun == null || !beepCheckBoxLastRun.CurrentValue)
                 return WizardValidationResult.Error("Run the export first.");
             return WizardValidationResult.Success();
         }

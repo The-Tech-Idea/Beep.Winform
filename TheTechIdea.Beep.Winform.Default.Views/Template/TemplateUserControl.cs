@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Reflection;
 using TheTechIdea.Beep.Addin;
@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
         public virtual void SetError(string message) { }
 
-        public void ApplyTheme()
+        public virtual void ApplyTheme()
         {
             ApplyThemeToControls(this.Controls);
         }

@@ -39,6 +39,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected virtual bool IsContainerControl => false;
 
+        /// <summary>
+        /// When true, BaseControl routes mouse state through hit-testing, ripple, hover, and repaint helpers.
+        /// Override to false for passive container surfaces that raise normal WinForms mouse events but should not repaint on hover.
+        /// </summary>
+        protected virtual bool UseBaseMouseInputRouting => true;
+
         private string _themeName;
         internal IBeepTheme _currentTheme; // defer initialization to runtime-safe paths
         private string _guidId = Guid.NewGuid().ToString();

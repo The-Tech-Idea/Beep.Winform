@@ -1,5 +1,58 @@
 # MASTER TODO TRACKER
 
+## BeepTabs Commercialization Program
+
+### Phase 0 - Planning And Alignment
+- [x] Reset `Tabs/.plans/README.md` to the active commercial cutover plan
+- [x] Update `Tabs/.plans/00-overview-gap-matrix.md` to reflect the real blockers and phase ownership
+- [x] Rewrite `Tabs/.plans/01-phase1-foundation-and-architecture.md` around the Beep-owned page/content model
+- [x] Rewrite `Tabs/.plans/02-phase2-overflow-header-actions-and-rich-tabs.md` around the post-cutover header/render contract
+- [x] Rewrite `Tabs/.plans/03-phase3-document-workspace-and-advanced-interactions.md` around document/workspace product behavior
+- [x] Rewrite `Tabs/.plans/04-phase4-accessibility-design-time-and-quality.md` around the final page model and shipping-quality gates
+- [x] Update `Tabs/Readme.md` to remove stale feature-complete language and align with the active roadmap
+
+### Phase 1 - Foundation And Architecture
+- [x] Introduce a Beep-owned `BeepTabPage` container type
+- [x] Replace premium-facing `TabPage` API seams in `BeepTabs`
+- [x] Route runtime selected-content presentation through `BeepTabContentHost`
+- [x] Move tab metadata ownership off parallel dictionaries and onto the page model
+- [x] Move basic owner/helper/painter item-state and content forwarding off `BeepTabsRuntimeBridge`
+- [x] Remove `BeepTabsRuntimeBridge` and the unused header-metrics cache from the tabs core path
+- [x] Preserve and self-heal page order, including selected-index notifications after reorder
+- [ ] Unify runtime and design-time hosted-content workflow around the Beep-owned host architecture
+- [x] Remove the pass-through `BeepTabContentProjection` seam
+
+### Phase 2 - Overflow, Header Actions, And Rich Tabs
+- [ ] Unify painters around a single item-based render contract
+- [ ] Finalize commercial overflow policies and popup behavior
+- [ ] Finalize reusable header action-slot layout and routing
+- [ ] Complete rich header metadata layout for icon, badge, subtext, dirty, and busy states
+- [ ] Document and validate per-style behavior recipes
+
+### Phase 3 - Document And Workspace Product Behavior
+- [ ] Finalize mode-aware policies for Navigation, Documents, and Workspace
+- [ ] Harden pinned, preview, dirty, and close-guard behavior
+- [ ] Route all document/workspace commands through one shared command model
+- [ ] Finalize MRU and quick-switch behavior
+- [ ] Decide and document the long-term `DocumentHost` relationship
+
+### Phase 4 - Accessibility, Design-Time, And Quality
+- [x] Make designer verbs and smart-tag labels page-centric and expose the live selected-page metadata/workspace surface plus overflow/header preview
+- [x] Fix designer header hit testing to use BeepTabs client coordinates
+- [x] Persist selected-page tab metadata through page-owned BeepTabPage properties and reset that metadata cleanly
+- [x] Route selected-page metadata reset through serializer-visible page properties and designer change notifications
+- [x] Limit default designer page creation to newly dropped BeepTabs controls so empty saved tab sets are not recreated on reload
+- [x] Hide internal tab header/content hosts from the toolbox
+- [x] Hide runtime selection/state command surfaces from designer serialization
+- [x] Add focused BeepTabs persistence smoke tests for InitializeComponent-style page/control rehydration
+- [x] Run BeepTabs persistence smoke tests (`Passed: 3, Failed: 0`)
+- [ ] Rebuild the tabs designer around the Beep-owned page model
+- [ ] Manually verify BeepTabs designer save/reopen/run persistence for page add, page remove, child-control add/remove, and intentionally empty tab sets
+- [ ] Finalize accessibility, focus, RTL, high-contrast, and touch behavior
+- [ ] Expand the tabs demo/sample surface for commercial scenarios
+- [ ] Create a tabs regression matrix covering runtime, designer, and performance checks
+- [ ] Keep roadmap, README, samples, and tracker aligned after each implementation wave
+
 ## ComboBox Popup + Painter Overhaul
 
 ### Phase 0 - Planning Artifacts

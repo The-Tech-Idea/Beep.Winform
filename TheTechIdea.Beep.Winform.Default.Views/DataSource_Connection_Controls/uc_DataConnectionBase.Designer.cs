@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             GraphicsPath graphicsPath2 = new GraphicsPath();
             beepPanel1 = new BeepPanel();
             beepTabs1 = new BeepTabs();
-            tabPage1 = new TabPage();
+            tabPage1 = new BeepTabPage();
             ConnectionNamebeepTextBox = new BeepTextBox();
             DriverbeepComboBox = new BeepComboBox();
             ConnectionStringbeepTextBox = new BeepTextBox();
@@ -220,23 +220,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton = new BeepButton();
             SavebeepButton = new BeepButton();
             // Create child property controls and their tab pages
-            tabPageGeneral = new TabPage();
+            tabPageGeneral = new BeepTabPage();
             ucGeneralProperties = new uc_GeneralProperties();
-            tabPageTypeFlags = new TabPage();
+            tabPageTypeFlags = new BeepTabPage();
             ucTypeFlagsProperties = new uc_TypeandStateFlagsProperties();
-            tabPageDatabase = new TabPage();
+            tabPageDatabase = new BeepTabPage();
             ucDatabaseProperties = new uc_DatabaseProperties();
-            tabPageFile = new TabPage();
+            tabPageFile = new BeepTabPage();
             ucFileProperties = new uc_FileProperties();
-            tabPageNetwork = new TabPage();
+            tabPageNetwork = new BeepTabPage();
             ucNetworkProperties = new uc_NetwrokandRemoteProperties();
-            tabPageAuth = new TabPage();
+            tabPageAuth = new BeepTabPage();
             ucAuthProperties = new uc_AuthenticationandSecurityProperties();
-            tabPageDriver = new TabPage();
+            tabPageDriver = new BeepTabPage();
             ucDriverProperties = new uc_DriverProperties();
-            tabPageWebApi = new TabPage();
+            tabPageWebApi = new BeepTabPage();
             ucWebApiProperties = new uc_WebApiProperties();
-            tabPageOAuth = new TabPage();
+            tabPageOAuth = new BeepTabPage();
             ucOAuthProperties = new uc_webapiAuthenticationProperties();
             beepPanel1.SuspendLayout();
             beepTabs1.SuspendLayout();
@@ -420,7 +420,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepTabs1.AccessibleName = "Beep Tabs";
             beepTabs1.AccessibleRole = AccessibleRole.PageTabList;
             beepTabs1.AllowDrop = true;
-            beepTabs1.Appearance = TabAppearance.FlatButtons;
             beepTabs1.Controls.Add(tabPage1);
             beepTabs1.Controls.Add(tabPageGeneral);
             beepTabs1.Controls.Add(tabPageTypeFlags);
@@ -432,19 +431,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepTabs1.Controls.Add(tabPageWebApi);
             beepTabs1.Controls.Add(tabPageOAuth);
             beepTabs1.Dock = DockStyle.Fill;
-            beepTabs1.DrawMode = TabDrawMode.OwnerDrawFixed;
             beepTabs1.ForeColor = Color.DimGray;
             beepTabs1.HeaderHeight = 30;
             beepTabs1.HeaderPosition = TabHeaderPosition.Top;
-            beepTabs1.ItemSize = new Size(0, 1);
             beepTabs1.Location = new Point(0, 0);
             beepTabs1.Name = "beepTabs1";
-            beepTabs1.Padding = new Point(5, 5);
+            beepTabs1.Padding = new Padding(5, 5, 5, 5);
             beepTabs1.SelectedIndex = 0;
-            beepTabs1.SelectTab = tabPage1;
             beepTabs1.ShowCloseButtons = false;
             beepTabs1.Size = new Size(636, 723);
-            beepTabs1.SizeMode = TabSizeMode.Fixed;
             beepTabs1.TabIndex = 9;
             beepTabs1.Theme = "DefaultType";
             // 
@@ -3894,25 +3889,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected BeepButton CancelbeepButton;
         protected BeepButton SavebeepButton;
         public Controls.BeepTabs beepTabs1;
-        protected TabPage tabPage1;
+        protected BeepTabPage tabPage1;
         // Property tab pages and controls
-        protected TabPage tabPageGeneral;
+        protected BeepTabPage tabPageGeneral;
         protected uc_GeneralProperties ucGeneralProperties;
-        protected TabPage tabPageTypeFlags;
+        protected BeepTabPage tabPageTypeFlags;
         protected uc_TypeandStateFlagsProperties ucTypeFlagsProperties;
-        protected TabPage tabPageDatabase;
+        protected BeepTabPage tabPageDatabase;
         protected uc_DatabaseProperties ucDatabaseProperties;
-        protected TabPage tabPageFile;
+        protected BeepTabPage tabPageFile;
         protected uc_FileProperties ucFileProperties;
-        protected TabPage tabPageNetwork;
+        protected BeepTabPage tabPageNetwork;
         protected uc_NetwrokandRemoteProperties ucNetworkProperties;
-        protected TabPage tabPageAuth;
+        protected BeepTabPage tabPageAuth;
         protected uc_AuthenticationandSecurityProperties ucAuthProperties;
-        protected TabPage tabPageDriver;
+        protected BeepTabPage tabPageDriver;
         protected uc_DriverProperties ucDriverProperties;
-        protected TabPage tabPageWebApi;
+        protected BeepTabPage tabPageWebApi;
         protected uc_WebApiProperties ucWebApiProperties;
-        protected TabPage tabPageOAuth;
+        protected BeepTabPage tabPageOAuth;
         protected uc_webapiAuthenticationProperties ucOAuthProperties;
     }
 }

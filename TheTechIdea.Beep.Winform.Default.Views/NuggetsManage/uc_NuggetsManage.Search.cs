@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         private CancellationTokenSource? _searchCts;
         private List<NuGetSearchResult>? _lastSearchResults;
 
-        private void BuildSearchTab(TabPage tab)
+        private void BuildSearchTab(BeepTabPage tab)
         {
             var topPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(6) };
 
@@ -192,6 +192,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         {
             if (_btnSearch == null || _txtSearch == null || _dtSearchResults == null || _gridSearchResults == null || _lblSearchStatus == null) return;
 
+            var searchTerm = _txtSearch.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                _lblSearchStatus.Text = "Please enter a search term";
+                return;
+            }
+
             _searchCts?.Cancel();
             _searchCts?.Dispose();
             _searchCts = new CancellationTokenSource();
@@ -199,19 +206,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             _btnSearch.Enabled = false;
             _lblSearchStatus.Text = "Searching...";
             _dtSearchResults.Rows.Clear();
+            _gridSearchResults.DataSource = null;
+            _gridSearchResults.DataSource = _dtSearchResults;
 
             try
             {
-                var results = await GetService().SearchAsync(_txtSearch.Text, _chkPrerelease?.CurrentValue ?? false, _searchCts.Token);
+                var results = await GetService().SearchAsync(searchTerm, _chkPrerelease?.CurrentValue ?? false, _searchCts.Token);
                 _lastSearchResults = results;
                 foreach (var item in results)
                 {
                     _dtSearchResults.Rows.Add(item.PackageId, item.Version, item.TotalDownloads.ToString("N0"), Truncate(item.Description, 100));
                 }
+                _gridSearchResults.DataSource = null;
+                _gridSearchResults.DataSource = _dtSearchResults;
                 _lblSearchStatus.Text = $"Found {results.Count} packages";
 
                 var state = GetService().LoadState();
-                state.LastSearchTerm = _txtSearch.Text;
+                state.LastSearchTerm = searchTerm;
                 state.IncludePrerelease = _chkPrerelease?.CurrentValue ?? false;
                 GetService().SaveState(state);
             }
@@ -222,6 +233,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             catch (Exception ex)
             {
                 _lblSearchStatus.Text = $"Search failed: {ex.Message}";
+                Editor?.AddLogMessage("NuggetsManage", $"Search error: {ex}", DateTime.Now, 0, null, Errors.Failed);
             }
             finally
             {

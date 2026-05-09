@@ -19,49 +19,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Classic;
                     tabs.ShowCloseButtons = true;
                     tabs.HeaderHeight = 36;
-                    tabs.Padding = new Point(8, 6);
+                    tabs.Padding = new System.Windows.Forms.Padding(8, 6, 8, 6);
                     tabs.Theme = "Default";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule;
                     tabs.ShowCloseButtons = false;
                     tabs.HeaderHeight = 36;
-                    tabs.Padding = new Point(12, 8);
+                    tabs.Padding = new System.Windows.Forms.Padding(12, 8, 12, 8);
                     tabs.Theme = "Light";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Underline:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Underline;
                     tabs.ShowCloseButtons = false;
                     tabs.HeaderHeight = 28;
-                    tabs.Padding = new Point(10, 5);
+                    tabs.Padding = new System.Windows.Forms.Padding(10, 5, 10, 5);
                     tabs.Theme = "Light";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Minimal:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Minimal;
                     tabs.ShowCloseButtons = false;
                     tabs.HeaderHeight = 26;
-                    tabs.Padding = new Point(10, 4);
+                    tabs.Padding = new System.Windows.Forms.Padding(10, 4, 10, 4);
                     tabs.Theme = "Light";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Segmented:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Segmented;
                     tabs.ShowCloseButtons = false;
                     tabs.HeaderHeight = 40;
-                    tabs.Padding = new Point(10, 8);
+                    tabs.Padding = new System.Windows.Forms.Padding(10, 8, 10, 8);
                     tabs.Theme = "Light";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Card:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Card;
                     tabs.ShowCloseButtons = true;
                     tabs.HeaderHeight = 32;
-                    tabs.Padding = new Point(10, 6);
+                    tabs.Padding = new System.Windows.Forms.Padding(10, 6, 10, 6);
                     tabs.Theme = "Default";
                     break;
                 case TheTechIdea.Beep.Winform.Controls.TabStyle.Button:
                     tabs.TabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Button;
                     tabs.ShowCloseButtons = false;
                     tabs.HeaderHeight = 36;
-                    tabs.Padding = new Point(12, 8);
+                    tabs.Padding = new System.Windows.Forms.Padding(12, 8, 12, 8);
                     tabs.Theme = "Default";
                     break;
             }

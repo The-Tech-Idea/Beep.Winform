@@ -98,6 +98,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
                 // Load preview data (first 5 rows)
                 var data = await Task.Run(() => ds.GetEntity(_config.SourceEntityName, _config.Filters));
+                if (data == null)
+                {
+                    Editor?.AddLogMessage("ExportWizard", "No data returned from source.",
+                        DateTime.Now, 0, null, ConfigUtil.Errors.Failed);
+                    RaiseValidationState();
+                    return;
+                }
                 _previewData = ConvertToDataTable(data, structure.Fields.Select(f => f.FieldName).ToList());
 
                 // Build column rows
@@ -172,12 +179,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private void BindGrid()
         {
+            if (colGrid == null) return;
             colGrid.DataSource = null;
             colGrid.DataSource = _rows;
         }
 
         private void BindPreview()
         {
+            if (previewGrid == null) return;
             previewGrid.DataSource = null;
             previewGrid.DataSource = _previewData;
         }

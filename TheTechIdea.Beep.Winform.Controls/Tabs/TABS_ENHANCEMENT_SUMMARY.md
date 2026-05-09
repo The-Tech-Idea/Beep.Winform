@@ -1,5 +1,18 @@
 # Tabs Enhancement Summary
 
+## Status
+
+This file captures the helper, theme, and design-time enhancements that have already landed for the current Tabs implementation.
+
+The canonical forward-looking modernization roadmap now lives under `Tabs/.plans/` and is organized into:
+
+- `README.md`
+- `00-overview-gap-matrix.md`
+- `01-phase1-foundation-and-architecture.md`
+- `02-phase2-overflow-header-actions-and-rich-tabs.md`
+- `03-phase3-document-workspace-and-advanced-interactions.md`
+- `04-phase4-accessibility-design-time-and-quality.md`
+
 ## Overview
 
 This document summarizes the enhancements made to the Tabs directory. The tab system has been significantly improved with better theme integration, helper architecture, model classes, and enhanced design-time support.
@@ -62,7 +75,7 @@ This document summarizes the enhancements made to the Tabs directory. The tab sy
 - ✅ Icon integration using `StyledImagePainter` via `TabIconHelpers`
 - ✅ `TabStyle` property for selecting painter style (already existed)
 
-**Note**: BeepTabs inherits from `TabControl` (not `BaseControl`), so some BaseControl features are not available, but theme integration is fully supported.
+**Note**: BeepTabs now derives from `BaseControl`, so the premium tabs surface can use Beep control infrastructure while keeping its owned header and hosted-content runtime.
 
 ### ✅ Phase 5: Painter Enhancement (COMPLETED)
 
@@ -228,5 +241,5 @@ var iconSize = TabIconHelpers.GetTabIconSize(
 - Existing code continues to work without changes
 - New features are opt-in (helpers provide sensible defaults)
 - Helpers provide sensible defaults when theme is not available
-- BeepTabs inherits from `TabControl` (not `BaseControl`), so some BaseControl features are not available
+- BeepTabs now derives from `BaseControl`, so BaseControl services are available to the premium tabs surface
 - ClassicTabPainter serves as a reference implementation for theme/style helper integration

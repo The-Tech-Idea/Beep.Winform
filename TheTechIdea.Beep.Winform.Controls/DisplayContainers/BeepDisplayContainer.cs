@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private Panel ContainerPanel;
         private BeepTabs TabContainerPanel;
-        private Dictionary<string, (IDM_Addin Addin, TabPage TabPage)> _controls = new Dictionary<string, (IDM_Addin, TabPage)>();
+        private Dictionary<string, (IDM_Addin Addin, BeepTabPage? TabPage)> _controls = new Dictionary<string, (IDM_Addin, BeepTabPage?)>();
         private IDM_Addin _singlePanelAddin; // Tracks the current addin in SinglePanel mode
         private BeepButton _testButton; // Track the test button
 
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        public TabPage? currenttab { get; private set; }
+        public BeepTabPage? currenttab { get; private set; }
 
         public BeepDisplayContainer():base()
         {
@@ -199,12 +199,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //}
 
                 // Move all tabbed controls to single panel (show only the selected one)
-                if (TabContainerPanel.SelectedTab != null)
+                var selectedPage = TabContainerPanel.GetHostedSourceSelectedPage();
+                if (selectedPage != null)
                 {
-                    var selectedAddin = TabContainerPanel.SelectedTab.Tag as IDM_Addin;
+                    var selectedAddin = selectedPage.Tag as IDM_Addin;
                     if (selectedAddin != null)
                     {
-                        ShowControl(TabContainerPanel.SelectedTab.Text, selectedAddin);
+                        ShowControl(selectedPage.Text, selectedAddin);
                     }
                 }
                 else if (_controls.Count > 0)
@@ -374,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                var tabPage = new TabPage { Text = TitleText, Tag = control };
+                var tabPage = new BeepTabPage { Text = TitleText, Tag = control };
 
                 if (control is Control winControl)
                 { // Framework handles DPI scaling
@@ -388,10 +389,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                  //  ////MiscFunctions.SendLog($"Added control to tab {TitleText}, Bounds: {winControl.Bounds}, Visible: {winControl.Visible}");
                 }
 
-                TabContainerPanel.TabPages.Add(tabPage);
+                TabContainerPanel.AddHostedSourcePage(tabPage);
                 
                 _controls[TitleText] = (control, tabPage);
-                TabContainerPanel.SelectedTab = tabPage;
+                TabContainerPanel.TrySelectHostedSourcePage(tabPage);
                 TabContainerPanel.Invalidate();
                 TabContainerPanel.PerformLayout();
                 TabContainerPanel.Update(); // Force immediate update
@@ -417,7 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RemoveControl(entry.Key, entry.Value.Addin);
             }
             _controls.Clear();
-            TabContainerPanel.TabPages.Clear();
+            TabContainerPanel.ClearHostedSourcePages();
             ContainerPanel.Controls.Clear();
             // Re-add the test button to ContainerPanel
            // ContainerPanel.Controls.Add(_testButton);
@@ -472,7 +473,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                TabContainerPanel.TabPages.Remove(entry.TabPage);
+                if (entry.TabPage != null)
+                {
+                    TabContainerPanel.RemoveHostedSourcePage(entry.TabPage);
+                }
             }
 
             _controls.Remove(TitleText);
@@ -559,7 +563,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                TabContainerPanel.SelectedTab = entry.TabPage;
+                if (entry.TabPage != null)
+                {
+                    TabContainerPanel.TrySelectHostedSourcePage(entry.TabPage);
+                }
             }
 
             return true;
@@ -728,7 +735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 int tabIndex = TabContainerPanel.SelectedIndex;
                 if (tabIndex >= 0 && tabIndex < TabContainerPanel.TabCount)
                 {
-                    string tabText = TabContainerPanel.TabPages[tabIndex].Text;
+                    string tabText = TabContainerPanel.GetTabTitle(tabIndex);
                     if (_controls.ContainsKey(tabText))
                     {
               //         ////MiscFunctions.SendLog($"Processing click for existing tab: {tabText}");

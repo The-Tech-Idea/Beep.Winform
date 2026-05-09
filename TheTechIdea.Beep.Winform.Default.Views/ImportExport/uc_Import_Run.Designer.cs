@@ -10,12 +10,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-                components.Dispose();
-            base.Dispose(disposing);
-        }
+      
 
         #region Component Designer generated code
 

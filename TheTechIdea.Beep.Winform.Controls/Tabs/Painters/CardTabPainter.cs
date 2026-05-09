@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
@@ -10,8 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
 
         public override void PaintTab(Graphics g, RectangleF tabRect, int index, bool isSelected, bool isHovered, float alpha = 1.0f)
         {
-            Color baseColor = isSelected ? Theme.TabSelectedBackColor : Theme.TabBackColor;
-            Color borderColor = Theme.BorderColor;
+            Color baseColor = TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, isSelected, false);
+            Color borderColor = Theme?.BorderColor ?? SystemColors.ButtonShadow;
             
             // Adjust rect for card look (connect to bottom if selected)
             RectangleF drawRect = tabRect;
@@ -19,10 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             using (GraphicsPath path = GetRoundedTopRect(drawRect, 4))
             {
                 // Fill
-                Color fillColor = isSelected ? baseColor : Color.FromArgb((int)(alpha * 255), Theme.ButtonBackColor);
+                Color fillColor = isSelected ? baseColor : Color.FromArgb((int)(alpha * 255), Theme?.ButtonBackColor ?? SystemColors.Control);
                 if (isHovered && !isSelected)
                 {
-                    fillColor = Theme.ButtonHoverBackColor;
+                    fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
                 }
 
                 using (var brush = PaintersFactory.GetSolidBrush(fillColor))
@@ -47,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             }
 
             bool vertical = (TabControl.HeaderPosition == TabHeaderPosition.Left || TabControl.HeaderPosition == TabHeaderPosition.Right);
-            DrawTabText(g, tabRect, TabControl.TabPages[index].Text, index, isSelected, vertical, alpha);
+            DrawTabText(g, tabRect, TabControl.GetTabTitle(index), index, isSelected, vertical, alpha);
 
             if (TabControl.ShowCloseButtons)
             {
@@ -77,6 +78,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Painters
             
             path.CloseFigure();
             return path;
+        }
+
+        public override void PaintTabItem(Graphics g, Tabs.Models.BeepTabHeaderItemLayout itemLayout, float alpha = 1.0f)
+        {
+            Color borderColor = Theme?.BorderColor ?? SystemColors.ButtonShadow;
+            RectangleF drawRect = itemLayout.Bounds;
+
+            using (GraphicsPath path = GetRoundedTopRect(drawRect, 4))
+            {
+                Color fillColor = itemLayout.Item.IsSelected
+                    ? TheTechIdea.Beep.Winform.Controls.Tabs.Helpers.TabThemeHelpers.GetTabBackgroundColor(Theme, Theme != null, true, false)
+                    : Color.FromArgb((int)(alpha * 255), Theme?.ButtonBackColor ?? SystemColors.Control);
+
+                if (itemLayout.Item.IsHovered && !itemLayout.Item.IsSelected)
+                {
+                    fillColor = Theme?.ButtonHoverBackColor ?? SystemColors.ButtonHighlight;
+                }
+
+                using (var brush = PaintersFactory.GetSolidBrush(fillColor))
+                {
+                    g.FillPath(brush, path);
+                }
+
+                using (var pen = PaintersFactory.GetPen(borderColor))
+                {
+                    g.DrawPath(pen, path);
+                }
+
+                if (itemLayout.Item.IsSelected)
+                {
+                    using var pen = PaintersFactory.GetPen(fillColor);
+                    g.DrawLine(pen, drawRect.Left + 1, drawRect.Bottom, drawRect.Right - 1, drawRect.Bottom);
+                }
+            }
+
+            DrawTabItemContent(g, itemLayout, alpha);
         }
     }
 }

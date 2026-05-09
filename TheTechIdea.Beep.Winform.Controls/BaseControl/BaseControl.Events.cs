@@ -388,6 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseEnter(e); 
+            if (!UseBaseMouseInputRouting) return;
             IsHovered = true; 
             _input.OnMouseEnter(); 
         }
@@ -396,6 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseLeave(e); 
+            if (!UseBaseMouseInputRouting) return;
             IsHovered = false; 
             _input.OnMouseLeave(); 
         }
@@ -404,6 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseMove(e); 
+            if (!UseBaseMouseInputRouting) return;
             _input.OnMouseMove(e.Location); 
         }
         
@@ -411,6 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseDown(e); 
+            if (!UseBaseMouseInputRouting) return;
             if (e.Button == System.Windows.Forms.MouseButtons.Left) IsPressed = true; 
             _input.OnMouseDown(e); 
         }
@@ -419,6 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseUp(e); 
+            if (!UseBaseMouseInputRouting) return;
             if (e.Button == System.Windows.Forms.MouseButtons.Left) IsPressed = false; 
             _input.OnMouseUp(e); 
         }
@@ -427,6 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnMouseHover(e); 
+            if (!UseBaseMouseInputRouting) return;
             _input.OnMouseHover(); 
         }
         
@@ -434,6 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         { 
             if (IsDisposed || Disposing) return;
             base.OnClick(e); 
+            if (!UseBaseMouseInputRouting) return;
             _input.OnClick(); 
         }
 

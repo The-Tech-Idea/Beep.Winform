@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         private BeepLabel? _lblLogStatus;
         private DataTable? _dtLogs;
 
-        private void BuildActivityTab(TabPage tab)
+        private void BuildActivityTab(BeepTabPage tab)
         {
             var topPanel = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(6) };
 

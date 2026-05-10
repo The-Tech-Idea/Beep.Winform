@@ -33,6 +33,14 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Models
         [Description("Recommended padding")]
         public int RecommendedPadding { get; set; } = 4;
 
+        [Category("Layout")]
+        [Description("Recommended minimum width used during AutoSize calculations")]
+        public int RecommendedMinimumAutoSizeWidth { get; set; } = 0;
+
+        [Category("Layout")]
+        [Description("Recommended minimum interactive target size")]
+        public int RecommendedMinimumHitTargetSize { get; set; } = 32;
+
         [Category("Visual")]
         [Description("Recommended border radius")]
         public int RecommendedBorderRadius { get; set; } = 4;
@@ -45,6 +53,6 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Models
         [Description("Recommended check mark thickness")]
         public int RecommendedCheckMarkThickness { get; set; } = 2;
 
-        public override string ToString() => $"Style: {CheckBoxStyle}, Size: {RecommendedCheckBoxSize}, Spacing: {RecommendedSpacing}";
+        public override string ToString() => $"Style: {CheckBoxStyle}, Size: {RecommendedCheckBoxSize}, Spacing: {RecommendedSpacing}, HitTarget: {RecommendedMinimumHitTargetSize}, MinWidth: {RecommendedMinimumAutoSizeWidth}";
     }
 }

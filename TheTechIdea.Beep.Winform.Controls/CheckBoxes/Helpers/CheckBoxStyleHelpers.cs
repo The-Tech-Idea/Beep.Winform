@@ -84,6 +84,45 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers
         }
 
         /// <summary>
+        /// Gets recommended minimum width for AutoSize calculations.
+        /// Only styles with a productized horizontal silhouette need an explicit floor.
+        /// </summary>
+        public static int GetRecommendedMinimumAutoSizeWidth(CheckBoxStyle checkBoxStyle)
+        {
+            int checkBoxSize = GetRecommendedCheckBoxSize(checkBoxStyle);
+
+            return checkBoxStyle switch
+            {
+                CheckBoxStyle.iOS => Math.Max(checkBoxSize * 2, 44),
+                CheckBoxStyle.Switch => Math.Max(checkBoxSize * 2, 40),
+                CheckBoxStyle.Button => Math.Max(checkBoxSize * 2, 56),
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Gets recommended minimum interactive target size for checkbox styles.
+        /// Touch-oriented styles intentionally use larger baselines.
+        /// </summary>
+        public static int GetRecommendedMinimumHitTargetSize(CheckBoxStyle checkBoxStyle)
+        {
+            int checkBoxSize = GetRecommendedCheckBoxSize(checkBoxStyle);
+
+            return checkBoxStyle switch
+            {
+                CheckBoxStyle.Material3 => Math.Max(checkBoxSize + 12, 32),
+                CheckBoxStyle.Modern => Math.Max(checkBoxSize + 12, 34),
+                CheckBoxStyle.Classic => Math.Max(checkBoxSize + 10, 28),
+                CheckBoxStyle.Minimal => Math.Max(checkBoxSize + 8, 24),
+                CheckBoxStyle.iOS => Math.Max(checkBoxSize + 20, 44),
+                CheckBoxStyle.Fluent2 => Math.Max(checkBoxSize + 12, 32),
+                CheckBoxStyle.Switch => Math.Max(checkBoxSize + 20, 40),
+                CheckBoxStyle.Button => Math.Max(checkBoxSize + 16, 36),
+                _ => Math.Max(checkBoxSize + 12, 32)
+            };
+        }
+
+        /// <summary>
         /// Gets recommended border radius for checkbox style
         /// </summary>
         public static int GetRecommendedBorderRadius(CheckBoxStyle checkBoxStyle, BeepControlStyle controlStyle)

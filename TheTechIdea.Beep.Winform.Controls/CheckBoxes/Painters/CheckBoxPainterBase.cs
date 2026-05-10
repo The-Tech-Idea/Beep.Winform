@@ -13,6 +13,23 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     /// </summary>
     public abstract class CheckBoxPainterBase : ICheckBoxPainter
     {
+        #region Capability matrix
+
+        /// <summary>
+        /// Default capabilities shared by all standard glyph-based painters.
+        /// Override in a derived painter to declare intentional divergence.
+        /// </summary>
+        public virtual CheckBoxPainterCapabilities GetCapabilities() =>
+            new CheckBoxPainterCapabilities(
+                family: GetType().Name.Replace("CheckBoxPainter", string.Empty),
+                supportsThreeState: true,
+                supportsHoverHighlight: true,
+                supportsFocusRing: true,
+                supportsDisabledState: true,
+                supportsCustomCheckIcon: true);
+
+        #endregion
+
         #region Abstract Methods
 
         public abstract void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options);
@@ -48,6 +65,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 return (AdjustAlpha(background, 0.60f), AdjustAlpha(border, 0.50f));
             }
 
+            if (state.IsPressed)
+            {
+                // Pressed: slightly darker than hovered — gives tactile feedback
+                return (ShiftLuminance(background, -0.10f), ShiftLuminance(border, -0.08f));
+            }
+
             if (state.IsHovered)
             {
                 return (ShiftLuminance(background, 0.08f), ShiftLuminance(border, 0.06f));
@@ -60,6 +83,50 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         {
             int alpha = (int)(color.A * alphaFactor);
             return Color.FromArgb(alpha, color.R, color.G, color.B);
+        }
+
+        /// <summary>
+        /// Returns true when the operating system is running in a high-contrast accessibility theme.
+        /// Painters should call this and substitute <see cref="GetHighContrastColors"/> when true.
+        /// </summary>
+        protected static bool IsHighContrast => SystemInformation.HighContrast;
+
+        /// <summary>
+        /// Returns system-color-based colors suitable for rendering in Windows high-contrast themes.
+        /// </summary>
+        /// <param name="state">Current item state used to select the appropriate system brush.</param>
+        /// <returns>
+        /// background — fill color for the glyph box.<br/>
+        /// border — outline color for the glyph box.<br/>
+        /// checkMark — color for the check/dash glyph.<br/>
+        /// foreground — color for adjacent label text.
+        /// </returns>
+        protected static (Color background, Color border, Color checkMark, Color foreground) GetHighContrastColors(
+            CheckBoxItemState state)
+        {
+            if (state.IsDisabled)
+            {
+                return (
+                    SystemColors.Control,
+                    SystemColors.GrayText,
+                    SystemColors.GrayText,
+                    SystemColors.GrayText);
+            }
+
+            if (state.IsChecked || state.IsIndeterminate)
+            {
+                return (
+                    SystemColors.Highlight,
+                    SystemColors.Highlight,
+                    SystemColors.HighlightText,
+                    SystemColors.ControlText);
+            }
+
+            return (
+                SystemColors.Window,
+                SystemColors.WindowText,
+                SystemColors.WindowText,
+                SystemColors.ControlText);
         }
 
         private static Color ShiftLuminance(Color color, float shift)
@@ -272,6 +339,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
                 TextAlignment.Below => TextFormatFlags.HorizontalCenter,
                 _ => TextFormatFlags.Left
             };
+
+            if (options.RightToLeft)
+                flags |= TextFormatFlags.RightToLeft;
 
             if (bounds.Width > 0 && bounds.Height > 0)
             {

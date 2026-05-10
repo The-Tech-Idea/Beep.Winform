@@ -4,6 +4,24 @@
 
 This document summarizes the enhancements made to the CheckBoxes directory. The checkbox control system has been significantly improved with better theme integration, helper architecture, model classes, painter-based rendering system, and enhanced design-time support.
 
+## Commercialization Planning Update
+
+The directory now also has a commercialization planning track under `CheckBoxes/.plans`.
+
+That planning set is no longer based only on internal architecture review. It is now grounded in source-backed benchmark findings from mature WinForms libraries:
+
+- `IgnaceMaes/MaterialSkin` for cached geometry, explicit preferred sizing, and separated animation concerns
+- `Taiizor/ReaLTaiizor` for DPI-aware checkbox and switch behavior, read-only enforcement, and layered painting
+- `yhuse/SunnyUI` for base paint-pipeline separation, style token application, and grouped checkbox surfaces
+- `Krypton-Suite/Standard-Toolkit` for explicit `Checked`/`CheckState`/`ThreeState` contracts, focus overrides, and designer ergonomics
+
+Primary planning artifacts:
+
+- `CheckBoxes/.plans/00-overview-gap-matrix.md`
+- `CheckBoxes/.plans/07-github-source-benchmark-findings.md`
+- `CheckBoxes/.plans/todo-tracker.md`
+- `CheckBoxes/.plans/github-project-playbook.md`
+
 ## Completed Enhancements
 
 ### ✅ Phase 1: Folder Structure and File Organization (COMPLETED)
@@ -129,6 +147,11 @@ This document summarizes the enhancements made to the CheckBoxes directory. The 
 - ✅ Uses `CheckBoxFontHelpers` for fonts
 - ✅ Uses `CheckBoxIconHelpers` for icons
 - ✅ Uses `CheckBoxStyleHelpers` for layout
+- ✅ Applies the mapped BaseControl `ControlStyle` during initialization and runtime `CheckBoxStyle` changes, with `SyncControlStyleWithCheckBoxStyle` as an explicit opt-out
+- ✅ Treats direct `ControlStyle` edits as one-way overrides instead of guessing a reverse `CheckBoxStyle`
+- ✅ Applies recommended style layout metrics during initialization and runtime `CheckBoxStyle` changes, with `SyncLayoutMetricsWithStyle` as an explicit opt-out
+- ✅ Keeps `SyncLayoutMetricsWithStyle` enabled when setters receive the current style's recommended metric values, including `MinimumHitTargetSize`, so preset workflows do not accidentally disable sync
+- ✅ Adds `MouseHitMode` so mouse toggling can use the whole control or only the painted checkbox glyph
 - ✅ Added `CheckBoxStyle` property to select painter
 - ✅ Updated `Draw()` method to use painter
 - ✅ Maintains existing grid mode functionality
@@ -182,6 +205,18 @@ This document summarizes the enhancements made to the CheckBoxes directory. The 
 - `CheckBoxes/BeepCheckBox.Events.cs` - NEW (partial)
 - `CheckBoxes/BeepCheckBox.Methods.cs` - NEW (partial)
 - `CheckBoxes/BeepCheckBox.IBeepComponent.cs` - NEW (partial)
+
+### Planning
+- `CheckBoxes/.plans/00-overview-gap-matrix.md` - NEW
+- `CheckBoxes/.plans/01-phase1-contracts-state-and-api.md` - NEW
+- `CheckBoxes/.plans/02-phase2-layout-rendering-and-painter-contract.md` - NEW
+- `CheckBoxes/.plans/03-phase3-input-accessibility-and-ux.md` - NEW
+- `CheckBoxes/.plans/04-phase4-binding-grid-and-designer-workflows.md` - NEW
+- `CheckBoxes/.plans/05-phase5-performance-reliability-and-diagnostics.md` - NEW
+- `CheckBoxes/.plans/06-phase6-documentation-samples-and-release.md` - NEW
+- `CheckBoxes/.plans/07-github-source-benchmark-findings.md` - NEW
+- `CheckBoxes/.plans/todo-tracker.md` - NEW
+- `CheckBoxes/.plans/github-project-playbook.md` - NEW
 
 ### Design-Time
 - `Design.Server/Designers/BeepCheckBoxDesigner.cs` - NEW
@@ -277,6 +312,8 @@ checkBoxControl.ApplyTheme(); // Automatically uses theme colors
 ```csharp
 var checkBoxSize = CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(CheckBoxStyle.Material3);
 var spacing = CheckBoxStyleHelpers.GetRecommendedSpacing(CheckBoxStyle.Modern);
+var minimumHitTarget = CheckBoxStyleHelpers.GetRecommendedMinimumHitTargetSize(CheckBoxStyle.iOS);
+var minimumWidth = CheckBoxStyleHelpers.GetRecommendedMinimumAutoSizeWidth(CheckBoxStyle.Switch);
 var padding = CheckBoxStyleHelpers.GetRecommendedPadding(CheckBoxStyle.Classic);
 var borderRadius = CheckBoxStyleHelpers.GetRecommendedBorderRadius(CheckBoxStyle.Material3, BeepControlStyle.Material3);
 var borderWidth = CheckBoxStyleHelpers.GetRecommendedBorderWidth(CheckBoxStyle.Minimal);

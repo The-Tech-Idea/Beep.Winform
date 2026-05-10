@@ -36,82 +36,25 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Scale dimensions
-            int baseCheckBoxSize = CheckBoxSize;
-            int scaledCheckBoxSize = DpiScalingHelper.ScaleValue(baseCheckBoxSize, this);
+            // Compute layout using the shared calculator — single authoritative geometry path
+            int scaledCheckBoxSize = DpiScalingHelper.ScaleValue(CheckBoxSize, this);
             int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
-            int scaledPaddingLeft = DpiScalingHelper.ScaleValue(Padding.Left, this);
-            int scaledPaddingTop = DpiScalingHelper.ScaleValue(Padding.Top, this);
 
-            int checkBoxSize = Math.Min(scaledCheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
-            Rectangle checkBoxRect;
-            Rectangle textRect = Rectangle.Empty;
+            var layout = CheckBoxLayoutCalculator.Compute(
+                rectangle,
+                scaledCheckBoxSize,
+                scaledSpacing,
+                Padding,
+                HideText,
+                Text,
+                TextFont,
+                graphics,
+                TextAlignRelativeToCheckBox,
+                RightToLeft == RightToLeft.Yes);
 
-            // Ensure font is scaled (managed by helper, but good to ensure here if using local)
-            // But we use TextFont property which should be set via ApplyTheme correctly.
-            // Let's rely on CheckBoxFontHelpers updates in ApplyTheme.
-
-            Size textSize = HideText || string.IsNullOrEmpty(Text) ? Size.Empty : TextRenderer.MeasureText(graphics, Text, TextFont);
-
-            if (HideText)
-            {
-                checkBoxRect = new Rectangle(
-                    rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                    rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                    checkBoxSize, checkBoxSize);
-            }
-            else
-            {
-                switch (TextAlignRelativeToCheckBox)
-                {
-                    case TextAlignment.Right:
-                        checkBoxRect = new Rectangle(rectangle.X + scaledPaddingLeft,
-                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                            checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(
-                            checkBoxRect.Right + scaledSpacing,
-                            rectangle.Y + scaledPaddingTop,
-                            Math.Max(0, rectangle.Right - (checkBoxRect.Right + scaledSpacing) - Padding.Right),
-                            Math.Max(0, rectangle.Height - Padding.Vertical));
-                        break;
-
-                    case TextAlignment.Left:
-                        int checkBoxX = rectangle.Right - Padding.Right - checkBoxSize;
-                        checkBoxRect = new Rectangle(checkBoxX,
-                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                            checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(
-                            rectangle.X + scaledPaddingLeft,
-                            rectangle.Y + scaledPaddingTop,
-                            Math.Max(0, checkBoxRect.Left - scaledSpacing - (rectangle.X + scaledPaddingLeft)),
-                            Math.Max(0, rectangle.Height - Padding.Vertical));
-                        break;
-
-                    case TextAlignment.Above:
-                        int aboveTextWidth = Math.Max(0, rectangle.Width - Padding.Horizontal);
-                        textRect = new Rectangle(rectangle.X + Padding.Left,
-                            rectangle.Y + scaledPaddingTop,
-                            aboveTextWidth, textSize.Height);
-                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                            textRect.Bottom + scaledSpacing,
-                            checkBoxSize, checkBoxSize);
-                        break;
-
-                    case TextAlignment.Below:
-                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                            rectangle.Y + scaledPaddingTop,
-                            checkBoxSize, checkBoxSize);
-                        int belowTextWidth = Math.Max(0, rectangle.Width - Padding.Horizontal);
-                        textRect = new Rectangle(rectangle.X + Padding.Left,
-                            checkBoxRect.Bottom + scaledSpacing,
-                            belowTextWidth, textSize.Height);
-                        break;
-
-                    default:
-                        checkBoxRect = new Rectangle(rectangle.X, rectangle.Y, checkBoxSize, checkBoxSize);
-                        break;
-                }
-            }
+            Rectangle checkBoxRect = layout.CheckBoxRect;
+            Rectangle textRect = layout.TextRect;
+            int checkBoxSize = checkBoxRect.Width;
 
             _lastCheckBoxRect = checkBoxRect;
             _lastTextRect = textRect;
@@ -135,7 +78,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 TextFont = TextFont,
                 Text = Text,
                 HideText = HideText,
-                TextAlignment = TextAlignRelativeToCheckBox
+                TextAlignment = TextAlignRelativeToCheckBox,
+                RightToLeft = RightToLeft == RightToLeft.Yes
             };
 
             // Create item state
@@ -144,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 IsChecked = _state == CheckBoxState.Checked,
                 IsIndeterminate = _state == CheckBoxState.Indeterminate,
                 IsHovered = IsHovered,
+                IsPressed = IsPressed,
                 IsFocused = IsFocused && _keyboardFocusVisible,
                 IsDisabled = !Enabled
             };
@@ -163,6 +108,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             _stateChanged = false;
         }
 
+        // Grid-mode policy (BCHK-P4-003):
+        //   DrawForGrid is the supported rendering path when GridMode=true (set by the grid host).
+        //   Supported: flat glyph, checked/unchecked/indeterminate state, RTL, EndEllipsis text.
+        //   Intentionally simplified: no painter system, no rounded corners, no shadow, no animation.
+        //   The simplified rendering keeps grid-cell overhead minimal and avoids font/path cache
+        //   contention when hundreds of cells share the same control instance.
         private void DrawForGrid(Graphics graphics, Rectangle rectangle)
         {
             if (_currentTheme == null)
@@ -170,26 +121,17 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            int baseSize = CheckBoxSize;
-            int checkBoxSize = DpiScalingHelper.ScaleValue(Math.Min(16, baseSize), this);
-            checkBoxSize = Math.Min(checkBoxSize, Math.Min(rectangle.Width, rectangle.Height) - 4);
-            Rectangle checkBoxRect;
+            int gridGlyphSize = DpiScalingHelper.ScaleValue(Math.Min(16, CheckBoxSize), this);
+            int gridSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
 
-            if (HideText || string.IsNullOrEmpty(Text))
-            {
-                checkBoxRect = new Rectangle(
-                    rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                    rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                    checkBoxSize, checkBoxSize);
-            }
-            else
-            {
-                int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
-                checkBoxRect = new Rectangle(
-                    rectangle.X + 2,
-                    rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                    checkBoxSize, checkBoxSize);
-            }
+            var gridLayout = CheckBoxLayoutCalculator.ComputeGrid(
+                rectangle,
+                gridGlyphSize,
+                HideText,
+                Text,
+                gridSpacing);
+
+            Rectangle checkBoxRect = gridLayout.CheckBoxRect;
 
             Color backColor = _state == CheckBoxState.Checked
                 ? CheckBoxThemeHelpers.GetCheckedBackgroundColor(_currentTheme, UseThemeColors)
@@ -237,13 +179,10 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                     break;
             }
 
-            if (!HideText && !string.IsNullOrEmpty(Text))
+            if (!HideText && !string.IsNullOrEmpty(Text) && !gridLayout.TextRect.IsEmpty)
             {
-                Rectangle textRect = new Rectangle(
-                    checkBoxRect.Right + 4,
-                    rectangle.Y,
-                    rectangle.Width - checkBoxRect.Width - 6,
-                    rectangle.Height);
+                // Use the calculator's TextRect — no magic offset re-derivation
+                Rectangle textRect = gridLayout.TextRect;
 
                 Color textColor = CheckBoxThemeHelpers.GetForegroundColor(
                     _currentTheme,
@@ -254,8 +193,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                     textColor = ColorUtils.ShiftLuminance(textColor, 0.35f);
                 }
 
-                TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor,
-                    TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                TextFormatFlags textFlags = TextFormatFlags.VerticalCenter |
+                                            TextFormatFlags.Left |
+                                            TextFormatFlags.EndEllipsis;
+                if (RightToLeft == RightToLeft.Yes)
+                    textFlags |= TextFormatFlags.RightToLeft;
+
+                TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor, textFlags);
             }
         }
 
@@ -361,6 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             Size textSize = hasText ? TextRenderer.MeasureText(Text, TextFont) : Size.Empty;
             int checkBoxSize = CheckBoxSize;
             int minimumTarget = DpiScalingHelper.ScaleValue(_minimumHitTargetSize, this);
+            int minimumAutoSizeWidth = DpiScalingHelper.ScaleValue(_minimumAutoSizeWidth, this);
 
             int width, height;
 
@@ -389,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 }
             }
 
-            return new Size(Math.Max(width, Math.Max(minimumTarget, 100)), Math.Max(height, minimumTarget));
+            return new Size(Math.Max(width, Math.Max(minimumTarget, minimumAutoSizeWidth)), Math.Max(height, minimumTarget));
         }
         #endregion
     }

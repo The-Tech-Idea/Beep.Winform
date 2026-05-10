@@ -12,6 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         public bool IsChecked;
         public bool IsIndeterminate;
         public bool IsHovered;
+        /// <summary>True while the primary mouse button is held down over the control.</summary>
+        public bool IsPressed;
         public bool IsFocused;
         public bool IsDisabled;
     }
@@ -38,6 +40,63 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
         public string Text { get; set; }
         public bool HideText { get; set; }
         public TextAlignment TextAlignment { get; set; } = TextAlignment.Right;
+        /// <summary>When true, text and glyph order follow right-to-left reading direction.
+        /// Set from Control.RightToLeft by the draw path.</summary>
+        public bool RightToLeft { get; set; }
+    }
+
+    /// <summary>
+    /// Declares what a painter supports so the control and tooling can reason about style
+    /// parity without reading the full painter implementation.
+    /// Intentional divergence (e.g., Switch not supporting ThreeState) is documented here
+    /// rather than discovered at runtime.
+    /// </summary>
+    public readonly struct CheckBoxPainterCapabilities
+    {
+        /// <summary>Painter renders indeterminate state distinctly from checked and unchecked.</summary>
+        public readonly bool SupportsThreeState;
+
+        /// <summary>Painter renders a distinct hover highlight on the glyph or track.</summary>
+        public readonly bool SupportsHoverHighlight;
+
+        /// <summary>Painter renders a distinct keyboard-focus ring or indicator.</summary>
+        public readonly bool SupportsFocusRing;
+
+        /// <summary>Painter applies disabled-state color dimming instead of just falling through.</summary>
+        public readonly bool SupportsDisabledState;
+
+        /// <summary>Painter renders a user-supplied check icon image when CheckIconPath is set.</summary>
+        public readonly bool SupportsCustomCheckIcon;
+
+        /// <summary>
+        /// Painter family name for diagnostics and capability-matrix reporting.
+        /// e.g. "Material3", "Switch", "Button".
+        /// </summary>
+        public readonly string Family;
+
+        /// <summary>
+        /// Short note explaining any intentional divergence from the standard checkbox contract.
+        /// Empty string when the painter fully follows the standard contract.
+        /// </summary>
+        public readonly string IntentionalDivergenceNote;
+
+        public CheckBoxPainterCapabilities(
+            string family,
+            bool supportsThreeState,
+            bool supportsHoverHighlight,
+            bool supportsFocusRing,
+            bool supportsDisabledState,
+            bool supportsCustomCheckIcon,
+            string intentionalDivergenceNote = "")
+        {
+            Family = family;
+            SupportsThreeState = supportsThreeState;
+            SupportsHoverHighlight = supportsHoverHighlight;
+            SupportsFocusRing = supportsFocusRing;
+            SupportsDisabledState = supportsDisabledState;
+            SupportsCustomCheckIcon = supportsCustomCheckIcon;
+            IntentionalDivergenceNote = intentionalDivergenceNote ?? string.Empty;
+        }
     }
 
     /// <summary>
@@ -45,6 +104,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     /// </summary>
     public interface ICheckBoxPainter
     {
+        /// <summary>
+        /// Returns the capability matrix for this painter so callers can reason about style
+        /// parity and intentional divergence without reading the full implementation.
+        /// </summary>
+        CheckBoxPainterCapabilities GetCapabilities();
+
         /// <summary>
         /// Paint the checkbox box
         /// </summary>

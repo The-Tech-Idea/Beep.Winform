@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
@@ -105,6 +106,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         [Category("Appearance")]
+        [Description("BaseControl visual style override used for theming and border behavior")]
+        public BeepControlStyle ControlStyle
+        {
+            get => _designer.GetProperty<BeepControlStyle>("ControlStyle");
+            set => _designer.SetProperty("ControlStyle", value);
+        }
+
+        [Category("Appearance")]
         [Description("Text displayed next to the checkbox")]
         public string Text
         {
@@ -134,6 +143,102 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             get => _designer.GetProperty<bool>("HideText");
             set => _designer.SetProperty("HideText", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Position of the text relative to the checkbox glyph (Right, Left, Above, Below)")]
+        public TextAlignment TextAlignRelativeToCheckBox
+        {
+            get => _designer.GetProperty<TextAlignment>("TextAlignRelativeToCheckBox");
+            set => _designer.SetProperty("TextAlignRelativeToCheckBox", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Current boolean checked state")]
+        public bool Checked
+        {
+            get => _designer.GetProperty<bool>("Checked");
+            set => _designer.SetProperty("Checked", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Current checkbox state including indeterminate")]
+        public CheckBoxState CheckState
+        {
+            get => _designer.GetProperty<CheckBoxState>("CheckState");
+            set => _designer.SetProperty("CheckState", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Allow indeterminate state during automatic toggling")]
+        public bool ThreeState
+        {
+            get => _designer.GetProperty<bool>("ThreeState");
+            set => _designer.SetProperty("ThreeState", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Automatically toggle state when clicked or when Space/Enter is pressed")]
+        public bool AutoCheck
+        {
+            get => _designer.GetProperty<bool>("AutoCheck");
+            set => _designer.SetProperty("AutoCheck", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Determines whether mouse clicks toggle from anywhere in the control or only from the painted checkbox glyph")]
+        public CheckBoxMouseHitMode MouseHitMode
+        {
+            get => _designer.GetProperty<CheckBoxMouseHitMode>("MouseHitMode");
+            set => _designer.SetProperty("MouseHitMode", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Prevent user interaction from changing the state while keeping the control enabled")]
+        public bool ReadOnly
+        {
+            get => _designer.GetProperty<bool>("ReadOnly");
+            set => _designer.SetProperty("ReadOnly", value);
+        }
+
+        [Category("Behavior")]
+        [Description("Default binding property used by integrated binding helpers")]
+        public string BoundProperty
+        {
+            get => _designer.GetProperty<string>("BoundProperty") ?? string.Empty;
+            set => _designer.SetProperty("BoundProperty", value ?? string.Empty);
+        }
+
+        [Category("Layout")]
+        [Description("Minimum interactive size preserved by preferred-size calculations")]
+        public int MinimumHitTargetSize
+        {
+            get => _designer.GetProperty<int>("MinimumHitTargetSize");
+            set => _designer.SetProperty("MinimumHitTargetSize", value);
+        }
+
+        [Category("Layout")]
+        [Description("Optional minimum width used by AutoSize when computing preferred width")]
+        public int MinimumAutoSizeWidth
+        {
+            get => _designer.GetProperty<int>("MinimumAutoSizeWidth");
+            set => _designer.SetProperty("MinimumAutoSizeWidth", value);
+        }
+
+        [Category("Layout")]
+        [Description("Automatically apply recommended layout metrics when CheckBoxStyle changes")]
+        public bool SyncLayoutMetricsWithStyle
+        {
+            get => _designer.GetProperty<bool>("SyncLayoutMetricsWithStyle");
+            set => _designer.SetProperty("SyncLayoutMetricsWithStyle", value);
+        }
+
+        [Category("Appearance")]
+        [Description("Automatically apply the mapped BaseControl ControlStyle when CheckBoxStyle changes")]
+        public bool SyncControlStyleWithCheckBoxStyle
+        {
+            get => _designer.GetProperty<bool>("SyncControlStyleWithCheckBoxStyle");
+            set => _designer.SetProperty("SyncControlStyleWithCheckBoxStyle", value);
         }
 
         #endregion
@@ -209,6 +314,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             CheckBoxStyle = style;
             CheckBoxSize = CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(style);
             Spacing = CheckBoxStyleHelpers.GetRecommendedSpacing(style);
+            MinimumHitTargetSize = CheckBoxStyleHelpers.GetRecommendedMinimumHitTargetSize(style);
+            MinimumAutoSizeWidth = CheckBoxStyleHelpers.GetRecommendedMinimumAutoSizeWidth(style);
         }
 
         /// <summary>
@@ -233,6 +340,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Header
             items.Add(new DesignerActionHeaderItem("Style"));
             items.Add(new DesignerActionPropertyItem("CheckBoxStyle", "CheckBox Style", "Style", "Visual style of the checkbox"));
+            items.Add(new DesignerActionPropertyItem("ControlStyle", "Control Style", "Style", "BaseControl visual style override used for theming and border behavior"));
+            items.Add(new DesignerActionPropertyItem("SyncControlStyleWithCheckBoxStyle", "Sync Control Style", "Style", "Automatically apply the mapped BaseControl ControlStyle when CheckBoxStyle changes"));
 
             // Style presets
             items.Add(new DesignerActionHeaderItem("Style Presets"));
@@ -249,15 +358,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem("Text", "Text", "Appearance", "Text label"));
             items.Add(new DesignerActionPropertyItem("HideText", "Hide Text", "Appearance", "Hide text label"));
+            items.Add(new DesignerActionPropertyItem("TextAlignRelativeToCheckBox", "Text Alignment", "Appearance", "Position of the text relative to the checkbox glyph"));
+
+            // Behavior
+            items.Add(new DesignerActionHeaderItem("Behavior"));
+            items.Add(new DesignerActionPropertyItem("Checked", "Checked", "Behavior", "Current boolean checked state"));
+            items.Add(new DesignerActionPropertyItem("CheckState", "Check State", "Behavior", "Current checkbox state including indeterminate"));
+            items.Add(new DesignerActionPropertyItem("ThreeState", "Three State", "Behavior", "Allow indeterminate state during automatic toggling"));
+            items.Add(new DesignerActionPropertyItem("AutoCheck", "Auto Check", "Behavior", "Automatically toggle state when clicked or when Space/Enter is pressed"));
+            items.Add(new DesignerActionPropertyItem("MouseHitMode", "Mouse Hit Mode", "Behavior", "Choose whether mouse clicks toggle from anywhere in the control or only from the checkbox glyph"));
+            items.Add(new DesignerActionPropertyItem("ReadOnly", "Read Only", "Behavior", "Prevent user interaction from changing the state while keeping the control enabled"));
+            items.Add(new DesignerActionPropertyItem("BoundProperty", "Bound Property", "Behavior", "Default binding property used by integrated binding helpers"));
 
             // Layout
             items.Add(new DesignerActionHeaderItem("Layout"));
             items.Add(new DesignerActionPropertyItem("CheckBoxSize", "CheckBox Size", "Layout", "Size of the checkbox"));
             items.Add(new DesignerActionPropertyItem("Spacing", "Spacing", "Layout", "Spacing between checkbox and text"));
+            items.Add(new DesignerActionPropertyItem("MinimumHitTargetSize", "Minimum Hit Target", "Layout", "Minimum interactive size preserved by preferred-size calculations"));
+            items.Add(new DesignerActionPropertyItem("MinimumAutoSizeWidth", "Minimum AutoSize Width", "Layout", "Optional minimum width used by AutoSize when computing preferred width"));
+            items.Add(new DesignerActionPropertyItem("SyncLayoutMetricsWithStyle", "Sync Layout With Style", "Layout", "Automatically apply recommended layout metrics when CheckBoxStyle changes"));
 
             // Quick actions
             items.Add(new DesignerActionHeaderItem("Quick Actions"));
-            items.Add(new DesignerActionMethodItem(this, "SetRecommendedCheckBoxSize", "Set Recommended Size", "Quick Actions", "Set checkbox size and spacing based on current style"));
+            items.Add(new DesignerActionMethodItem(this, "SetRecommendedCheckBoxSize", "Set Recommended Size", "Quick Actions", "Set checkbox size, spacing, minimum hit target, and minimum AutoSize width based on current style"));
 
             return items;
         }

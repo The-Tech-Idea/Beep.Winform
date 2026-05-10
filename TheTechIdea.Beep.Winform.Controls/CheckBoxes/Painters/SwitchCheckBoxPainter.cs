@@ -13,6 +13,23 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     /// </summary>
     public class SwitchCheckBoxPainter : CheckBoxPainterBase
     {
+        /// <summary>
+        /// Switch painters intentionally do not support ThreeState: the track-and-thumb metaphor
+        /// has no meaningful visual encoding for an indeterminate position. Indeterminate state
+        /// falls through to unchecked (track off) rendering.
+        /// </summary>
+        public override CheckBoxPainterCapabilities GetCapabilities() =>
+            new CheckBoxPainterCapabilities(
+                family: "Switch",
+                supportsThreeState: false,
+                supportsHoverHighlight: true,
+                supportsFocusRing: true,
+                supportsDisabledState: true,
+                supportsCustomCheckIcon: false,
+                intentionalDivergenceNote:
+                    "ThreeState is not supported: the track-and-thumb metaphor has no indeterminate position. " +
+                    "Custom check icons are not supported: the track/thumb shape IS the check indicator.");
+
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;

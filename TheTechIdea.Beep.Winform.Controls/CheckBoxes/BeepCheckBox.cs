@@ -15,6 +15,12 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 {
+    public enum CheckBoxMouseHitMode
+    {
+        WholeControl,
+        CheckBoxGlyph
+    }
+
     //-------------------------------------------------
     // Non-generic wrapper for bool
     [ToolboxItem(true)]
@@ -94,8 +100,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private Rectangle _lastTextRect = Rectangle.Empty;
         private bool _keyboardFocusVisible;
         private int _minimumHitTargetSize = 32;
+        private int _minimumAutoSizeWidth;
         private bool _hideText = false;
+        private bool _autoCheck = true;
+        private bool _threeState = true;
+        private CheckBoxMouseHitMode _mouseHitMode = CheckBoxMouseHitMode.WholeControl;
+        private bool _syncControlStyleWithCheckBoxStyle = true;
+        private bool _syncLayoutMetricsWithStyle = true;
+        private bool _suppressCurrentValueNotifications;
         private Font _textFont;
+        private bool _ownsTextFont;
         private int checkboxsize = 15;
         private int _spacing = 5;
         private TextAlignment _textAlignRelativeToCheckBox = TextAlignment.Right;
@@ -113,13 +127,16 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             {
                 Theme = Theme
             };
-            BoundProperty = "State";
+            BoundProperty = nameof(CurrentValue);
 
             TabStop = true;
 
             _textFont = SystemFonts.MessageBoxFont;
+            _ownsTextFont = false;
 
             _painter = CheckBoxPainterFactory.GetPainter(_checkBoxStyle);
+            ApplyCheckBoxControlStyleRecommendation();
+            ApplyCheckBoxStyleRecommendations();
 
             ApplyTheme();
         }
@@ -160,7 +177,12 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             get => _textFont;
             set
             {
+                if (_ownsTextFont && _textFont != null)
+                {
+                    _textFont.Dispose();
+                }
                 _textFont = value;
+                _ownsTextFont = false;
                 //SafeApplyFont(_textFont);
                 UseThemeFont = false;
                 ClearGraphicsCaches();
@@ -202,6 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
         [Category("Appearance")]
         [Description("Checkbox visual style")]
+        [DefaultValue(CheckBoxStyle.Material3)]
         public CheckBoxStyle CheckBoxStyle
         {
             get => _checkBoxStyle;
@@ -211,9 +234,112 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 {
                     _checkBoxStyle = value;
                     _painter = CheckBoxPainterFactory.GetPainter(_checkBoxStyle);
+                    if (_syncControlStyleWithCheckBoxStyle)
+                    {
+                        ApplyCheckBoxControlStyleRecommendation();
+                    }
+                    if (_syncLayoutMetricsWithStyle)
+                    {
+                        ApplyCheckBoxStyleRecommendations();
+                    }
+                    else
+                    {
+                        ClearGraphicsCaches();
+                        RequestVisualRefresh(includeText: true);
+                    }
+                }
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("BaseControl visual style override. Setting this manually preserves the current CheckBoxStyle and disables automatic ControlStyle sync until re-enabled.")]
+        public new BeepControlStyle ControlStyle
+        {
+            get => base.ControlStyle;
+            set
+            {
+                if (base.ControlStyle != value)
+                {
+                    base.ControlStyle = value;
+                    if (_syncControlStyleWithCheckBoxStyle)
+                    {
+                        _syncControlStyleWithCheckBoxStyle = false;
+                    }
                     ClearGraphicsCaches();
                     RequestVisualRefresh(includeText: true);
                 }
+            }
+        }
+
+        [Category("Layout")]
+        [Description("Automatically apply recommended CheckBoxSize, Spacing, MinimumHitTargetSize, and MinimumAutoSizeWidth values when CheckBoxStyle changes.")]
+        [DefaultValue(true)]
+        public bool SyncLayoutMetricsWithStyle
+        {
+            get => _syncLayoutMetricsWithStyle;
+            set
+            {
+                if (_syncLayoutMetricsWithStyle != value)
+                {
+                    _syncLayoutMetricsWithStyle = value;
+                    if (_syncLayoutMetricsWithStyle)
+                    {
+                        ApplyCheckBoxStyleRecommendations();
+                    }
+                }
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Automatically apply the mapped BaseControl ControlStyle when CheckBoxStyle changes.")]
+        [DefaultValue(true)]
+        public bool SyncControlStyleWithCheckBoxStyle
+        {
+            get => _syncControlStyleWithCheckBoxStyle;
+            set
+            {
+                if (_syncControlStyleWithCheckBoxStyle != value)
+                {
+                    _syncControlStyleWithCheckBoxStyle = value;
+                    if (_syncControlStyleWithCheckBoxStyle)
+                    {
+                        ApplyCheckBoxControlStyleRecommendation();
+                    }
+                }
+            }
+        }
+
+        private void ApplyCheckBoxControlStyleRecommendation()
+        {
+            BeepControlStyle recommendedControlStyle = CheckBoxStyleHelpers.GetControlStyleForCheckBox(_checkBoxStyle);
+            if (base.ControlStyle != recommendedControlStyle)
+            {
+                base.ControlStyle = recommendedControlStyle;
+            }
+        }
+
+        private void ApplyCheckBoxStyleRecommendations()
+        {
+            checkboxsize = Math.Max(12, CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(_checkBoxStyle));
+            _spacing = Math.Max(2, CheckBoxStyleHelpers.GetRecommendedSpacing(_checkBoxStyle));
+            _minimumHitTargetSize = Math.Max(24, CheckBoxStyleHelpers.GetRecommendedMinimumHitTargetSize(_checkBoxStyle));
+            _minimumAutoSizeWidth = Math.Max(0, CheckBoxStyleHelpers.GetRecommendedMinimumAutoSizeWidth(_checkBoxStyle));
+
+            ClearGraphicsCaches();
+
+            if (AutoSize)
+            {
+                Size = GetPreferredSize(Size.Empty);
+            }
+
+            RequestVisualRefresh(includeText: true);
+        }
+
+        private void DisableLayoutSyncForManualOverrideIfNeeded(int normalizedValue, int recommendedValue)
+        {
+            if (_syncLayoutMetricsWithStyle && normalizedValue != recommendedValue)
+            {
+                _syncLayoutMetricsWithStyle = false;
             }
         }
 
@@ -226,12 +352,91 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             {
                 if (_state != value)
                 {
-                    _state = value;
-                    _stateChanged = true;
-                    UpdateCurrentValue();
-                    RequestVisualRefresh(includeText: true);
-                    RaiseSubmitChanges();
+                    SetStateCore(value, syncCurrentValue: true, raiseEvents: true, raiseSubmitChanges: true);
                 }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Indicates whether the checkbox is checked.")]
+        [DefaultValue(false)]
+        public bool Checked
+        {
+            get => _state == CheckBoxState.Checked;
+            set => State = value ? CheckBoxState.Checked : CheckBoxState.Unchecked;
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Gets or sets the current checkbox state.")]
+        [DefaultValue(CheckBoxState.Unchecked)]
+        public CheckBoxState CheckState
+        {
+            get => State;
+            set => State = value;
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, the control toggles through unchecked, checked, and indeterminate states.")]
+        [DefaultValue(true)]
+        public bool ThreeState
+        {
+            get => _threeState;
+            set
+            {
+                if (_threeState == value)
+                {
+                    return;
+                }
+
+                _threeState = value;
+                if (!_threeState && _state == CheckBoxState.Indeterminate)
+                {
+                    SetStateCore(CheckBoxState.Unchecked, syncCurrentValue: true, raiseEvents: true, raiseSubmitChanges: false);
+                }
+
+                RequestVisualRefresh(includeText: true);
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, keyboard and mouse interaction toggle the checkbox state automatically.")]
+        [DefaultValue(true)]
+        public bool AutoCheck
+        {
+            get => _autoCheck;
+            set => _autoCheck = value;
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Determines whether mouse clicks toggle from anywhere in the control or only from the painted checkbox glyph.")]
+        [DefaultValue(CheckBoxMouseHitMode.WholeControl)]
+        public CheckBoxMouseHitMode MouseHitMode
+        {
+            get => _mouseHitMode;
+            set => _mouseHitMode = value;
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Prevents user interaction from changing the state while keeping the control enabled.")]
+        [DefaultValue(false)]
+        public bool ReadOnly
+        {
+            get => IsReadOnly;
+            set
+            {
+                if (IsReadOnly == value)
+                {
+                    return;
+                }
+
+                IsReadOnly = value;
+                RequestVisualRefresh(includeText: false);
             }
         }
 
@@ -359,11 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         public T CurrentValue
         {
             get => _currentValue;
-            set
-            {
-                _currentValue = value;
-                UpdateStateFromValue();
-            }
+            set => SetCurrentValueCore(value, raiseEvents: !_suppressCurrentValueNotifications, raiseSubmitChanges: !_suppressCurrentValueNotifications);
         }
 
         [Category("Appearance")]
@@ -428,7 +629,28 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             get => _minimumHitTargetSize;
             set
             {
-                _minimumHitTargetSize = Math.Max(24, value);
+                int normalizedValue = Math.Max(24, value);
+                DisableLayoutSyncForManualOverrideIfNeeded(normalizedValue, Math.Max(24, CheckBoxStyleHelpers.GetRecommendedMinimumHitTargetSize(_checkBoxStyle)));
+                _minimumHitTargetSize = normalizedValue;
+                if (AutoSize)
+                {
+                    Size = GetPreferredSize(Size.Empty);
+                }
+                RequestVisualRefresh(includeText: true);
+            }
+        }
+
+        [Category("Layout")]
+        [Description("Minimum width used when AutoSize computes the preferred checkbox size. 0 disables an extra width floor.")]
+        [DefaultValue(0)]
+        public int MinimumAutoSizeWidth
+        {
+            get => _minimumAutoSizeWidth;
+            set
+            {
+                int normalizedValue = Math.Max(0, value);
+                DisableLayoutSyncForManualOverrideIfNeeded(normalizedValue, Math.Max(0, CheckBoxStyleHelpers.GetRecommendedMinimumAutoSizeWidth(_checkBoxStyle)));
+                _minimumAutoSizeWidth = normalizedValue;
                 if (AutoSize)
                 {
                     Size = GetPreferredSize(Size.Empty);
@@ -447,7 +669,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             get { return checkboxsize; }
             set
             {
-                checkboxsize = Math.Max(12, value);
+                int normalizedValue = Math.Max(12, value);
+                DisableLayoutSyncForManualOverrideIfNeeded(normalizedValue, Math.Max(12, CheckBoxStyleHelpers.GetRecommendedCheckBoxSize(_checkBoxStyle)));
+                checkboxsize = normalizedValue;
                 if (AutoSize)
                 {
                     Size = GetPreferredSize(Size.Empty);
@@ -461,7 +685,9 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             get => _spacing;
             set
             {
-                _spacing = Math.Max(2, value);
+                int normalizedValue = Math.Max(2, value);
+                DisableLayoutSyncForManualOverrideIfNeeded(normalizedValue, Math.Max(2, CheckBoxStyleHelpers.GetRecommendedSpacing(_checkBoxStyle)));
+                _spacing = normalizedValue;
                 if (AutoSize)
                 {
                     Size = GetPreferredSize(Size.Empty);
@@ -501,13 +727,24 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            // Apply font theme based on ControlStyle
-            _textFont = CheckBoxFontHelpers.GetCheckBoxFont(_currentTheme, ControlStyle, this);
+
+            // Apply theme font only while theme-font mode is enabled.
+            // This preserves user-assigned TextFont values during design-time/property-grid edits.
+            if (UseThemeFont || _textFont == null)
+            {
+                if (_ownsTextFont && _textFont != null)
+                {
+                    _textFont.Dispose();
+                }
+
+                // Apply font theme based on ControlStyle
+                _textFont = CheckBoxFontHelpers.GetCheckBoxFont(_currentTheme, ControlStyle, this);
+                _ownsTextFont = true;
+            }
           //  SafeApplyFont(_textFont);
             ClearGraphicsCaches();
 
-            if (_currentTheme != null)
+            if (_currentTheme != null && _beepImage != null)
             {
                 // Update specific theme properties if needed
                 _beepImage.Theme = Theme;
@@ -517,7 +754,76 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             RequestVisualRefresh(includeText: true);
         }
 
+        #region Accessibility
+
+        protected override AccessibleObject CreateAccessibilityInstance()
+        {
+            return new BeepCheckBoxAccessibleObject(this);
+        }
+
+        private sealed class BeepCheckBoxAccessibleObject : ControlAccessibleObject
+        {
+            private readonly BeepCheckBox<T> _owner;
+
+            public BeepCheckBoxAccessibleObject(BeepCheckBox<T> owner) : base(owner)
+            {
+                _owner = owner;
+            }
+
+            public override string Name =>
+                !string.IsNullOrEmpty(_owner.AccessibleName)
+                    ? _owner.AccessibleName
+                    : _owner.Text;
+
+            public override string Description =>
+                !string.IsNullOrEmpty(_owner.AccessibleDescription)
+                    ? _owner.AccessibleDescription
+                    : _owner._state switch
+                    {
+                        CheckBoxState.Checked => "Checked",
+                        CheckBoxState.Indeterminate => "Indeterminate",
+                        _ => "Unchecked"
+                    };
+
+            public override string DefaultAction =>
+                _owner._state == CheckBoxState.Checked ? "Uncheck" : "Check";
+
+            public override AccessibleRole Role => AccessibleRole.CheckButton;
+
+            public override AccessibleStates State
+            {
+                get
+                {
+                    var states = AccessibleStates.Focusable;
+                    if (_owner.Focused)
+                        states |= AccessibleStates.Focused;
+                    if (!_owner.Enabled)
+                        states |= AccessibleStates.Unavailable;
+                    if (_owner.IsReadOnly)
+                        states |= AccessibleStates.ReadOnly;
+                    if (_owner._state == CheckBoxState.Checked)
+                        states |= AccessibleStates.Checked;
+                    if (_owner._state == CheckBoxState.Indeterminate)
+                        states |= AccessibleStates.Indeterminate;
+                    return states;
+                }
+            }
+
+            public override void DoDefaultAction()
+            {
+                if (_owner.Enabled && !_owner.IsReadOnly && _owner.AutoCheck)
+                {
+                    _owner.ToggleState();
+                }
+            }
+        }
+
+        #endregion
+
         #region Events
+        public event EventHandler? CheckStateChanged;
+        public event EventHandler? CheckedChanged;
+
         // Declare the StateChanged event
         public event EventHandler? StateChanged;
         #endregion

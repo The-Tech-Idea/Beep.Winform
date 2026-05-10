@@ -23,10 +23,17 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 
             if (e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter)
             {
-                if (Enabled)
+                if (Enabled && !ReadOnly)
                 {
                     _keyboardFocusVisible = true;
-                    ToggleState();
+                    if (AutoCheck)
+                    {
+                        ToggleState();
+                    }
+                    else
+                    {
+                        RequestVisualRefresh(includeText: false);
+                    }
                     e.Handled = true;
                 }
             }
@@ -74,9 +81,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             }
             base.OnMouseClick(e);
 
-            // Make the entire control area clickable - this is standard checkbox behavior
-            // Users expect to be able to click anywhere on the control (text or checkbox) to toggle
-            if (Enabled)
+            bool canToggleFromMouse = MouseHitMode switch
+            {
+                CheckBoxMouseHitMode.CheckBoxGlyph => !_lastCheckBoxRect.IsEmpty && _lastCheckBoxRect.Contains(e.Location),
+                _ => ClientRectangle.Contains(e.Location)
+            };
+
+            if (e.Button == MouseButtons.Left && Enabled && !ReadOnly && AutoCheck && canToggleFromMouse)
             {
                 ToggleState();
             }
@@ -85,7 +96,13 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            Cursor = Enabled ? Cursors.Hand : Cursors.Default;
+            bool showHandCursor = Enabled && !ReadOnly && MouseHitMode switch
+            {
+                CheckBoxMouseHitMode.CheckBoxGlyph => !_lastCheckBoxRect.IsEmpty && _lastCheckBoxRect.Contains(e.Location),
+                _ => ClientRectangle.Contains(e.Location)
+            };
+
+            Cursor = showHandCursor ? Cursors.Hand : Cursors.Default;
             RequestVisualRefresh(includeText: false);
         }
 
@@ -94,6 +111,41 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             base.OnMouseLeave(e);
             Cursor = Cursors.Default;
             RequestVisualRefresh(includeText: false);
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left && Enabled && !ReadOnly)
+            {
+                IsPressed = true;
+                RequestVisualRefresh(includeText: false);
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (IsPressed)
+            {
+                IsPressed = false;
+                RequestVisualRefresh(includeText: false);
+            }
+        }
+
+        protected override bool ProcessMnemonic(char charCode)
+        {
+            if (CanSelect && IsMnemonic(charCode, Text))
+            {
+                if (Enabled && !ReadOnly && AutoCheck)
+                {
+                    _keyboardFocusVisible = true;
+                    Focus();
+                    ToggleState();
+                    return true;
+                }
+            }
+            return base.ProcessMnemonic(charCode);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes.Helpers;
 
@@ -7,8 +8,20 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
 {
     public partial class BeepCheckBox<T>
     {
+        // Cache lifecycle policy (BCHK-P5-001):
+        //   _brushCache / _penCache / _pathCache are GDI wrappers created on demand in Draw()
+        //   and cleared whenever the theme, DPI, or font changes (ClearGraphicsCaches).
+        //   They are also flushed in Dispose(true) below so no GDI handles leak if the
+        //   control is removed from a form without a theme-change event preceding it.
+        //   _textFont ownership is tracked by _ownsTextFont:
+        //     - true when created by theme helpers inside ApplyTheme()
+        //     - false when assigned from outside via TextFont property
+        //   Dispose(true) only disposes _textFont when _ownsTextFont is true.
+        //   _painter is stateless and allocated per CheckBoxStyle change; it holds no GDI resources
+        //   and does not need explicit disposal.
         private void ClearGraphicsCaches()
         {
+            BeepCheckBoxDiagnostics.RecordCacheRebuild();
             foreach (var brush in _brushCache.Values)
             {
                 brush?.Dispose();
@@ -26,6 +39,24 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 path?.Dispose();
             }
             _pathCache.Clear();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ClearGraphicsCaches();
+
+                // Dispose only theme-owned fonts created internally by ApplyTheme().
+                if (_ownsTextFont && _textFont != null)
+                {
+                    _textFont.Dispose();
+                    _textFont = null;
+                    _ownsTextFont = false;
+                }
+            }
+
+            base.Dispose(disposing);
         }
 
         private Rectangle GetDirtyRegion(bool includeText)
@@ -48,6 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private void RequestVisualRefresh(bool includeText)
         {
             _stateChanged = true;
+            BeepCheckBoxDiagnostics.RecordInvalidation();
             Invalidate(GetDirtyRegion(includeText));
         }
 
@@ -86,53 +118,133 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
         private void UpdateCurrentValue()
         {
             _currentValue = ResolveValueForState(_state);
-            OnStateChanged();
-        }
-
-        private void UpdateStateFromValue()
-        {
-            if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveCheckedStateValue()))
-            {
-                _state = CheckBoxState.Checked;
-            }
-            else if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveUncheckedStateValue()))
-            {
-                _state = CheckBoxState.Unchecked;
-            }
-            else if (EqualityComparer<T>.Default.Equals(_currentValue, ResolveIndeterminateStateValue()))
-            {
-                _state = CheckBoxState.Indeterminate;
-            }
-            else
-            {
-                if (typeof(T) == typeof(bool))
-                {
-                    bool current = Convert.ToBoolean(_currentValue);
-                    _state = current ? CheckBoxState.Checked : CheckBoxState.Unchecked;
-                }
-                else if (_currentValue == null)
-                {
-                    _state = CheckBoxState.Indeterminate;
-                }
-                else
-                {
-                    _state = CheckBoxState.Indeterminate;
-                }
-            }
-            RequestVisualRefresh(includeText: true);
-        }
-
-        private void OnStateChanged()
-        {
-            // Only update CurrentValue if necessary, avoid recursion
-            T newValue = ResolveValueForState(State);
-            _currentValue = newValue; // Set directly, bypass setter to avoid recursion
             StateChanged?.Invoke(this, EventArgs.Empty);
             RequestVisualRefresh(includeText: true);
         }
 
+        private void UpdateStateFromValue()
+        {
+            SetStateCore(ResolveStateFromCurrentValue(_currentValue), syncCurrentValue: false, raiseEvents: false, raiseSubmitChanges: false);
+        }
+
+        private void SetCurrentValueCore(T value, bool raiseEvents, bool raiseSubmitChanges)
+        {
+            if (EqualityComparer<T>.Default.Equals(_currentValue, value))
+            {
+                return;
+            }
+
+            _currentValue = value;
+            SetStateCore(ResolveStateFromCurrentValue(_currentValue), syncCurrentValue: false, raiseEvents: raiseEvents, raiseSubmitChanges: raiseSubmitChanges);
+        }
+
+        private CheckBoxState ResolveStateFromCurrentValue(T currentValue)
+        {
+            if (EqualityComparer<T>.Default.Equals(currentValue, ResolveCheckedStateValue()))
+            {
+                return CheckBoxState.Checked;
+            }
+
+            if (EqualityComparer<T>.Default.Equals(currentValue, ResolveUncheckedStateValue()))
+            {
+                return CheckBoxState.Unchecked;
+            }
+
+            if (EqualityComparer<T>.Default.Equals(currentValue, ResolveIndeterminateStateValue()))
+            {
+                return CheckBoxState.Indeterminate;
+            }
+
+            if (typeof(T) == typeof(bool))
+            {
+                bool isChecked = Convert.ToBoolean(currentValue);
+                return isChecked ? CheckBoxState.Checked : CheckBoxState.Unchecked;
+            }
+
+            return currentValue == null ? CheckBoxState.Indeterminate : CheckBoxState.Indeterminate;
+        }
+
+        private void SetStateCore(CheckBoxState newState, bool syncCurrentValue, bool raiseEvents, bool raiseSubmitChanges)
+        {
+            if (_state == newState)
+            {
+                if (syncCurrentValue)
+                {
+                    T resolvedValue = ResolveValueForState(newState);
+                    if (!EqualityComparer<T>.Default.Equals(_currentValue, resolvedValue))
+                    {
+                        _currentValue = resolvedValue;
+                        RequestVisualRefresh(includeText: true);
+                    }
+                }
+                // P5-002: No invalidation when state is unchanged and no value sync needed.
+                // WinForms will still repaint the control on parent-forced repaints via DrawContent.
+
+                if (raiseSubmitChanges)
+                {
+                    RaiseSubmitChanges();
+                }
+
+                return;
+            }
+
+            CheckBoxState previousState = _state;
+            bool previousChecked = previousState == CheckBoxState.Checked;
+
+            _state = newState;
+            _stateChanged = true;
+
+            if (syncCurrentValue)
+            {
+                _currentValue = ResolveValueForState(_state);
+            }
+
+            if (raiseEvents)
+            {
+                OnStateChanged(previousState, previousChecked != (_state == CheckBoxState.Checked), raiseSubmitChanges);
+                return;
+            }
+
+            RequestVisualRefresh(includeText: true);
+            if (raiseSubmitChanges)
+            {
+                RaiseSubmitChanges();
+            }
+        }
+
+        private void OnStateChanged(CheckBoxState previousState, bool raiseCheckedChanged, bool raiseSubmitChanges)
+        {
+            CheckStateChanged?.Invoke(this, EventArgs.Empty);
+            if (raiseCheckedChanged)
+            {
+                CheckedChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            StateChanged?.Invoke(this, EventArgs.Empty);
+            RequestVisualRefresh(includeText: true);
+
+            // Notify assistive technologies of the state change
+            if (IsHandleCreated)
+            {
+                AccessibilityNotifyClients(AccessibleEvents.StateChange, -1);
+                AccessibilityNotifyClients(AccessibleEvents.NameChange, -1);
+            }
+
+            if (raiseSubmitChanges)
+            {
+                RaiseSubmitChanges();
+            }
+        }
+
         private void ToggleState()
         {
+            BeepCheckBoxDiagnostics.RecordToggle();
+            if (!ThreeState)
+            {
+                State = Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                return;
+            }
+
             switch (State)
             {
                 case CheckBoxState.Unchecked:
@@ -141,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 case CheckBoxState.Checked:
                     State = CheckBoxState.Indeterminate;
                     break;
-                case CheckBoxState.Indeterminate:
+                default:
                     State = CheckBoxState.Unchecked;
                     break;
             }

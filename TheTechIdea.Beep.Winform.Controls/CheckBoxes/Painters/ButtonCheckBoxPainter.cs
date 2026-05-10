@@ -12,6 +12,23 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes.Painters
     /// </summary>
     public class ButtonCheckBoxPainter : CheckBoxPainterBase
     {
+        /// <summary>
+        /// Button-style painters render a full-bounds pressable surface instead of a small glyph.
+        /// The glyph bounds passed by the layout calculator represent the full control rect.
+        /// ThreeState is rendered as a dimmed pressed state rather than a distinct dash mark.
+        /// </summary>
+        public override CheckBoxPainterCapabilities GetCapabilities() =>
+            new CheckBoxPainterCapabilities(
+                family: "Button",
+                supportsThreeState: true,
+                supportsHoverHighlight: true,
+                supportsFocusRing: true,
+                supportsDisabledState: true,
+                supportsCustomCheckIcon: false,
+                intentionalDivergenceNote:
+                    "Custom check icons are not supported: the pressed/raised button surface IS the check indicator. " +
+                    "ThreeState is rendered as a dimmed pressed state, not a distinct dash mark.");
+
         public override void PaintCheckBox(Graphics g, Rectangle bounds, CheckBoxItemState state, CheckBoxRenderOptions options)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;

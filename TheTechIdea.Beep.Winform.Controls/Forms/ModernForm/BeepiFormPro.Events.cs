@@ -54,6 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         
                         ActivePainter.PaintBorders(e.Graphics, this);
                         PaintRegions(e.Graphics);
+                        PaintKeyboardCaptionFocusIndicator(e.Graphics);
                     }
                     finally
                     {
@@ -109,6 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                 // Paint any custom regions
                 PaintRegions(e.Graphics);
+                PaintKeyboardCaptionFocusIndicator(e.Graphics);
             }
             finally
             {
@@ -205,6 +207,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 SearchText = _searchText + e.KeyChar;
                 e.Handled = true;
             }
+        }
+
+        protected override void OnDeactivate(EventArgs e)
+        {
+            base.OnDeactivate(e);
+            ClearKeyboardCaptionFocus();
         }
 
     }

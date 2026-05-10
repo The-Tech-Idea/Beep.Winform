@@ -40,7 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             set
             {
                 _formpaintermaterics = value;
-                Invalidate(); // Redraw with new metrics
+                InvalidateLayout();
+                Invalidate(); // Redraw with new metrics and rebuilt layout
             }
         }
         private readonly SolidBrush _bgBrush; // Cache brush

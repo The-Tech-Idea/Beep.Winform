@@ -77,29 +77,29 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     
     // 1. Caption drag area
     layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-    owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
+    owner._hits.Register(FormHitAreaNames.Caption, layout.CaptionRect, HitAreaType.Drag);
     
     int buttonWidth = metrics.ButtonWidth;
     int buttonX = owner.ClientSize.Width - buttonWidth;
     
     // 2. Standard window buttons (right to left)
     layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Close, layout.CloseButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Maximize, layout.MaximizeButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Minimize, layout.MinimizeButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     // 3. ⚠️ CRITICAL: Style button (if enabled)
     if (owner.ShowStyleButton)
     {
         layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-        owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+        owner._hits.RegisterHitArea(FormHitAreaNames.Style, layout.StyleButtonRect, HitAreaType.Button);
         buttonX -= buttonWidth;
     }
     
@@ -107,7 +107,7 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     if (owner.ShowThemeButton)
     {
         layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-        owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+        owner._hits.RegisterHitArea(FormHitAreaNames.Theme, layout.ThemeButtonRect, HitAreaType.Button);
         buttonX -= buttonWidth;
     }
     
@@ -115,7 +115,7 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     if (!owner.ShowThemeButton && !owner.ShowStyleButton)
     {
         layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-        owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+        owner._hits.RegisterHitArea(FormHitAreaNames.CustomAction, layout.CustomActionButtonRect, HitAreaType.Button);
     }
     
     // 6. Icon positioning

@@ -78,6 +78,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
+            if (owner.ShowProfileButton && owner.CurrentLayout.ProfileButtonRect.Width > 0)
+            {
+                owner.ProfileButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ProfileButtonRect);
+            }
+
             // Draw title text with Fluent typography
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, 
@@ -103,30 +108,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int padding = (captionRect.Height - buttonSize) / 2;
 
             // Close button - red with acrylic reveal
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
-            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close", closeHovered);
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, FormHitAreaNames.Close, closeHovered);
 
             // Maximize button - green with acrylic reveal
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
-            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize", maxHovered);
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, FormHitAreaNames.Maximize, maxHovered);
 
             // Minimize button - blue with acrylic reveal
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
-            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize", minHovered);
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, FormHitAreaNames.Minimize, minHovered);
 
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
-                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "Style", styleHovered);
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
+                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, FormHitAreaNames.Style, styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
-                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme", themeHovered);
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
+                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, FormHitAreaNames.Theme, themeHovered);
             }
         }
 
@@ -211,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             switch (buttonType)
             {
-                case "close":
+                case FormHitAreaNames.Close:
                     // Clean X with 45° angles, 8x8px area
                     g.DrawLine(pen, centerX - iconSize / 2, centerY - iconSize / 2,
                         centerX + iconSize / 2, centerY + iconSize / 2);
@@ -219,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         centerX - iconSize / 2, centerY + iconSize / 2);
                     break;
                     
-                case "maximize":
+                case FormHitAreaNames.Maximize:
                     // Rounded square with 2px corner radius
                     using (var path = new GraphicsPath())
                     {
@@ -237,12 +242,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     }
                     break;
                     
-                case "minimize":
+                case FormHitAreaNames.Minimize:
                     // Horizontal line with round caps, 9px wide
                     g.DrawLine(pen, centerX - iconSize / 2 - 1, centerY, centerX + iconSize / 2 + 1, centerY);
                     break;
                     
-                case "Style":
+                case FormHitAreaNames.Style:
                     // Paint brush icon
                     // Brush handle
                     g.DrawLine(pen, centerX - 2, centerY - 2, centerX + 2, centerY + 2);
@@ -253,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     }
                     break;
                     
-                case "theme":
+                case FormHitAreaNames.Theme:
                     // Color wheel with 4 segments
                     int wheelRadius = iconSize / 2;
                     g.DrawEllipse(pen, centerX - wheelRadius, centerY - wheelRadius, iconSize, iconSize);
@@ -327,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowCloseButton)
             {
                 layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Close, layout.CloseButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -335,11 +340,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowMinMaxButtons)
             {
                 layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Maximize, layout.MaximizeButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
                 
                 layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Minimize, layout.MinimizeButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -347,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowStyleButton)
             {
                 layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Style, layout.StyleButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -355,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowThemeButton)
             {
                 layout.ThemeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Theme, layout.ThemeButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
@@ -363,18 +368,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             if (owner.ShowCustomActionButton)
             {
                 layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                owner._hits.RegisterHitArea(FormHitAreaNames.CustomAction, layout.CustomActionButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
+
+            if (owner.ShowProfileButton)
+            {
+                layout.ProfileButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Profile, layout.ProfileButtonRect, HitAreaType.Button);
                 buttonX -= buttonSize.Width;
             }
             
             // Search box (between title and buttons)
-            int searchBoxWidth = 200;
-            int searchBoxPadding = 8;
+            var searchMetrics = GetMetrics(owner);
+            int searchBoxWidth = searchMetrics.SearchBoxWidth;
+            int searchBoxPadding = searchMetrics.SearchBoxPadding;
             if (owner.ShowSearchBox)
             {
                 layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, buttonY + searchBoxPadding / 2, 
                     searchBoxWidth, captionHeight - searchBoxPadding);
-                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
+                owner._hits.RegisterHitArea(FormHitAreaNames.Search, layout.SearchBoxRect, HitAreaType.TextBox);
                 buttonX -= searchBoxWidth + searchBoxPadding;
             }
             else

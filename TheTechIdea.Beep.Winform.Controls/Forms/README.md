@@ -17,6 +17,9 @@ This guide shows how to use it, customize the caption bar, switch styles, and lo
 - Windows 10/11 effects: Acrylic, Mica, System Backdrop, Blur
 - Overlay painter registry for snap hints
 - DPI-aware layout and hit testing
+- Keyboard-accessible caption actions: `Ctrl+F` focuses caption search, `F6` and `Shift+F6` cycle visible caption actions, and `Enter` or `Space` activates the focused caption target
+- Caption accessibility metadata now follows keyboard focus more closely: when screen reader support is enabled, caption actions expose focused names, descriptions, roles, and default actions, and the focus ring automatically switches to a stronger high-contrast treatment when accessibility mode or the OS high-contrast setting is active
+- Custom caption regions can now opt into the same interaction model: interactive `FormRegion` entries participate in hit-testing automatically after layout, and caption-docked interactive regions join keyboard traversal plus caption accessibility metadata
 - Theme integration via `BeepThemesManager` (caption gradient, typography, colors)
 - 22 distinct visual styles with matching caption renderers
 
@@ -101,12 +104,18 @@ Caption Bar:
 - `bool ShowCaptionBar`, `int CaptionHeight`, `bool ShowSystemButtons`, `bool EnableCaptionGradient`
 - Logo: `bool ShowLogo`, `string LogoImagePath`, `Size LogoSize`, `Padding LogoMargin` (alias: `ShowIconInCaption`)
 - Caption extras:
-  - `bool ShowThemeButton`, `bool ShowStyleButton`
+  - `bool ShowThemeButton`, `bool ShowStyleButton`, `bool ShowProfileButton`
   - `string ThemeButtonIconPath`, `string StyleButtonIconPath`
+- Custom caption regions:
+  - `AddRegion(FormRegion region)` now invalidates layout as well as paint so custom-region hit targets stay in sync with caption geometry
+  - `FormRegion.IsInteractive` opts a region into hit-testing, and caption-docked interactive regions also participate in `F6` traversal and accessibility focus metadata
+  - For `RegionDock.Caption`, non-empty `FormRegion.Bounds` are resolved relative to the caption origin; empty bounds still fall back to the full caption area for built-in and legacy regions
+  - `FormRegion.AccessibleName`, `AccessibleDescription`, `AccessibleDefaultActionDescription`, and `AccessibleRole` can be supplied for screen-reader-friendly custom caption actions
 - Caption title overrides (runtime):
   - `Font? TitleFontOverride`, `Color? TitleForeColorOverride`
 
 Backdrops and Effects:
+- `BackdropEffect BackdropEffect` (None, Mica, Acrylic, MicaAlt, Blur) for paint-time backdrop styling inside the custom form renderer
 - `BackdropType Backdrop` (None, Mica, Acrylic, Tabbed, Transient, Blur)
 - `bool EnableAcrylicForGlass`, `bool EnableMicaBackdrop`, `bool UseImmersiveDarkMode`
 
@@ -157,6 +166,55 @@ public class MyWindow : BeepiForm
     }
 }
 ```
+
+## Interactive Caption Region Example
+
+```csharp
+public class CustomCaptionRegionForm : BeepiForm
+{
+  private readonly FormRegion _helpRegion;
+
+  public CustomCaptionRegionForm()
+  {
+    Title = "Custom Caption Region";
+    ShowCaptionBar = true;
+
+    _helpRegion = new FormRegion
+    {
+      Id = "help",
+      Dock = RegionDock.Caption,
+      Bounds = new Rectangle(48, 4, 28, 28),
+      IsInteractive = true,
+      AccessibleName = "Caption help button",
+      AccessibleDescription = "Opens help from the caption bar.",
+      AccessibleDefaultActionDescription = "Open help",
+      AccessibleRole = AccessibleRole.PushButton,
+      OnPaint = (graphics, rect) =>
+      {
+        ControlPaint.DrawButton(graphics, rect, ButtonState.Flat);
+        TextRenderer.DrawText(
+          graphics,
+          "?",
+          Font,
+          rect,
+          ForeColor,
+          TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+      }
+    };
+
+    AddRegion(_helpRegion);
+    RegionClick += (_, args) =>
+    {
+      if (!ReferenceEquals(args.Region, _helpRegion))
+        return;
+
+      MessageBox.Show(this, "Help clicked.", Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+    };
+  }
+}
+```
+
+For `RegionDock.Caption`, the example `Bounds` are relative to the caption bar, not the full form. Keyboard users can reach the region with `F6` or `Shift+F6` once it is interactive.
 
 
 ## Recipes (ready-to-use)
@@ -218,6 +276,8 @@ The `CaptionRenderer` property still exists for backward compatibility but is ma
 - **?? BREAKING: Unified Style System**: Consolidated `CaptionRendererKind` into `BeepFormStyle`. Single enum now controls everything.
 - **Ribbon Removed**: All ribbon-related functionality has been removed to simplify architecture.
 - **Enhanced Border Handling**: Fixed issues where style changes didn't properly update border thickness.
+- **BeepiFormPro Hit-Area Contract**: Built-in caption hit areas now have shared `FormHitAreaNames` constants, and painter code is being aligned to use those canonical keys for registration and interaction helpers instead of raw string literals.
+- **Custom Caption Region Contract**: Interactive caption regions now resolve non-empty bounds relative to the caption bar, participate in keyboard traversal, and can supply their own accessibility metadata.
 - **Automatic Caption Selection**: Caption renderers are now automatically selected based on `FormStyle`.
 - **Simplified API**: No more need to coordinate between two separate enums.
 - **22 Total Styles**: Complete coverage of all visual variants with matching caption renderers.

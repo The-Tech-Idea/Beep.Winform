@@ -203,7 +203,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public int AccentBarWidth { get; set; } = 0;
         public float FontHeightMultiplier { get; set; } = 2.5f;
         public int ButtonWidth { get; set; } = 32;
+        public int AuxiliaryButtonWidth { get; set; } = 32;
+        public int VisualButtonWidth { get; set; } = 32;
         public int ButtonSpacing { get; set; } = 4;
+        public int SearchBoxWidth { get; set; } = 200;
+        public int SearchBoxPadding { get; set; } = 8;
         public int TitleLeftPadding { get; set; } = 8;
         public int IconLeftPadding { get; set; } = 8;
         public int IconSize { get; set; } = 24;
@@ -585,6 +589,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.AccentBarWidth = 0;
                     break;
             }
+
+                    m.AuxiliaryButtonWidth = m.ButtonWidth;
+            m.VisualButtonWidth = m.ButtonWidth;
+                    switch (style)
+                    {
+                    case FormStyle.MacOS:
+                    case FormStyle.iOS:
+                        m.AuxiliaryButtonWidth = 32;
+                        break;
+                case FormStyle.GNOME:
+                    m.VisualButtonWidth = 28;
+                    break;
+                    }
+
             if ((theme != null) && (theme != m.beepTheme) && UseThemeColors)
             {
                 // Fill colors from the provided theme
@@ -1405,8 +1423,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Scale all size-based metrics using DpiScalingHelper
             m.CaptionHeight = DpiScalingHelper.ScaleValue(m.CaptionHeight, dpiScaleFactor);
             m.ButtonWidth = DpiScalingHelper.ScaleValue(m.ButtonWidth, dpiScaleFactor);
+            m.AuxiliaryButtonWidth = DpiScalingHelper.ScaleValue(m.AuxiliaryButtonWidth, dpiScaleFactor);
+            m.VisualButtonWidth = DpiScalingHelper.ScaleValue(m.VisualButtonWidth, dpiScaleFactor);
             m.IconSize = DpiScalingHelper.ScaleValue(m.IconSize, dpiScaleFactor);
             m.ButtonSpacing = DpiScalingHelper.ScaleValue(m.ButtonSpacing, dpiScaleFactor);
+            m.SearchBoxWidth = DpiScalingHelper.ScaleValue(m.SearchBoxWidth, dpiScaleFactor);
+            m.SearchBoxPadding = DpiScalingHelper.ScaleValue(m.SearchBoxPadding, dpiScaleFactor);
             m.TitleLeftPadding = DpiScalingHelper.ScaleValue(m.TitleLeftPadding, dpiScaleFactor);
             m.IconLeftPadding = DpiScalingHelper.ScaleValue(m.IconLeftPadding, dpiScaleFactor);
             

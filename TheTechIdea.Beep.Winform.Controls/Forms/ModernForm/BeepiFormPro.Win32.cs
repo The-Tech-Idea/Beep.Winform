@@ -10,6 +10,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     {
       
         private bool _drawCustomWindowBorder = true;
+        private FormWindowState _lastChromeSyncedWindowState = FormWindowState.Normal;
+        private Size _lastChromeSyncedClientSize = Size.Empty;
+
         [Category("Beep Window")]
         [DefaultValue(true)]
         [Description("Enables custom skinned form borders and title bar (DevExpress Style). Uses proper AutoScale-compatible implementation.")]
@@ -96,6 +99,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
         // WM_SHOWWINDOW constant
         private const int WM_SHOWWINDOW = 0x0018;
+
+        private bool ShouldRefreshChromeAfterWmSize()
+        {
+            if (!IsHandleCreated || ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return false;
+
+            bool windowStateChanged = _lastChromeSyncedWindowState != WindowState;
+            bool nonNormalSizeChanged = WindowState != FormWindowState.Normal && _lastChromeSyncedClientSize != ClientSize;
+
+            _lastChromeSyncedWindowState = WindowState;
+            _lastChromeSyncedClientSize = ClientSize;
+
+            return windowStateChanged || nonNormalSizeChanged;
+        }
         
         protected override void WndProc(ref Message m)
         {
@@ -332,6 +349,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
                             UpdateWindowRegion();
+
+                            // Maximize, restore, and monitor-driven non-client size changes do not
+                            // reliably flow through OnResizeEnd / WM_EXITSIZEMOVE. Refresh the full
+                            // chrome geometry only when the window-state transition settles.
+                            if (ShouldRefreshChromeAfterWmSize())
+                            {
+                                RefreshChromeGeometryAfterBoundsSettled();
+                                RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                            }
                         }
                         return;
                     case WM_EXITSIZEMOVE:
@@ -706,10 +732,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (InDesignModeSafe || IsDisposed || !IsHandleCreated)
                 return base.ProcessCmdKey(ref msg, keyData);
 
+            try { EnsureLayoutCalculated(); } catch { }
+
             if (keyData == (Keys.Alt | Keys.Space))
             {
                 ShowSystemMenu();
                 return true;
+            }
+
+            if (keyData == (Keys.Control | Keys.F))
+            {
+                if (ShowSearchBox && CurrentLayout.SearchBoxRect.Width > 0 && CurrentLayout.SearchBoxRect.Height > 0)
+                {
+                    SetKeyboardFocusedCaptionArea(FormHitAreaNames.Search, focusForm: true);
+                    return true;
+                }
+            }
+
+            if (keyData == Keys.F6 || keyData == (Keys.Shift | Keys.F6))
+            {
+                if (MoveKeyboardCaptionFocus(forward: keyData == Keys.F6))
+                    return true;
+            }
+
+            if (_searchBoxFocused)
+            {
+                if (keyData == Keys.Tab || keyData == (Keys.Shift | Keys.Tab))
+                    return MoveKeyboardCaptionFocus(forward: keyData == Keys.Tab);
+
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            if (HasKeyboardCaptionFocus)
+            {
+                if (keyData == Keys.Tab || keyData == Keys.Right || keyData == Keys.Down)
+                    return MoveKeyboardCaptionFocus(forward: true);
+
+                if (keyData == (Keys.Shift | Keys.Tab) || keyData == Keys.Left || keyData == Keys.Up)
+                    return MoveKeyboardCaptionFocus(forward: false);
+
+                if (keyData == Keys.Enter || keyData == Keys.Space)
+                    return ActivateKeyboardFocusedCaptionArea();
+
+                if (keyData == Keys.Escape)
+                {
+                    ClearKeyboardCaptionFocus();
+                    return true;
+                }
             }
 
             return base.ProcessCmdKey(ref msg, keyData);

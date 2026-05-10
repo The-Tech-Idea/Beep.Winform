@@ -7,15 +7,43 @@ This folder contains **33 specialized painter classes** that provide unique visu
 **Each painter is a DISTINCT, COMPLETE implementation.**
 
 - **NO base class inheritance** - each painter stands alone
-- **`CalculateLayoutAndHitAreas` is painter-specific** - button placement, sizes, spacing are all unique per style
+- **`CalculateLayoutAndHitAreas` stays painter-owned** - compatible families may delegate the repeated caption skeleton to `FormPainterLayoutHelper`, but painter-specific spacing, safe areas, and icon or title rules stay local
 - **All code is explicit and visible** in each painter file
 - **`FormPainterRenderHelper`** is ONLY for drawing utilities (shapes, colors), NOT layout logic
+- **`FormPainterLayoutHelper`** is for shared caption geometry patterns only, not rendering
 
 This ensures:
 1. Each painter can be understood in isolation
 2. No hidden behavior from base classes
 3. Easy debugging and maintenance
 4. Style-specific customizations without breaking other painters
+
+## Built-In Hit Area Contract
+
+Use `FormHitAreaNames` for all built-in caption interactions instead of raw string literals.
+
+- Use constants for registration: `FormHitAreaNames.Close`, `FormHitAreaNames.Maximize`, `FormHitAreaNames.Minimize`, `FormHitAreaNames.Theme`, `FormHitAreaNames.Style`, `FormHitAreaNames.Profile`, `FormHitAreaNames.CustomAction`, `FormHitAreaNames.Search`, `FormHitAreaNames.Caption`, `FormHitAreaNames.Icon`.
+- If a painter has internal helper methods that switch on button type strings, those switches should also use `FormHitAreaNames` constants.
+- The hit-area manager normalizes legacy spellings, but new painter code should write the canonical constants directly.
+
+## Shared Layout Family Helper
+
+Use `FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(...)` only for painters that share the standard right-aligned ordering for close, maximize, minimize, style, theme, custom action, and search regions.
+
+- Current adopters: Modern, Material, Material You, NextJS, RadixUI, Shadcn, Linear, Minimal, Metro, and Metro2.
+- Use the helper's explicit `includeCustomAction` policy to keep Metro-style button sets intact.
+- Use `FormPainterLayoutHelper.TryBuildTrafficLightCaptionLayout(...)` for MacOS and iOS, where the left-side traffic lights and the right-side optional button cluster are shared but icon, title, and safe-area rules remain painter-owned.
+- The shared helper families now reserve `ProfileButtonRect` alongside search, theme, style, and custom action when the painter opts into that caption cluster.
+- Caption search geometry should come from `FormPainterMetrics.SearchBoxWidth` and `FormPainterMetrics.SearchBoxPadding`; do not reintroduce local `200/8` search-box constants in new painter layout code.
+- Only replace local caption button widths with `FormPainterMetrics.ButtonWidth` when the painter already matches the shared metric. Several manual and traffic-light painters currently use intentionally different widths, so those values still require explicit design review.
+- Traffic-light painters should use `FormPainterMetrics.AuxiliaryButtonWidth` for any wider right-side auxiliary button cluster instead of hardcoding a second caption width locally.
+- Styles that intentionally paint a narrower visual shape inside a larger hit target, such as GNOME's pill buttons, should use `FormPainterMetrics.VisualButtonWidth` instead of hardcoding a paint-only width.
+- The current outlier review is tracked in `Forms/.plans/BeepiFormPro/CAPTION-BUTTON-WIDTH-AUDIT.md`; use that audit before changing any remaining manual width constants.
+- The follow-up decision paths for the remaining outliers are tracked in `Forms/.plans/BeepiFormPro/CAPTION-BUTTON-WIDTH-REFACTOR-PROPOSAL.md`; use the diagnostics host metrics/layout/hit-area view before deciding whether a manual painter should stay local, move to shared metrics, or introduce a new explicit metric token.
+- Manual painters that still own their own caption layout should reserve and paint `ProfileButtonRect` wherever they already support the same right-side search or optional-button cluster.
+- Ubuntu is not a traffic-light adopter in the current code path.
+- Keep any remaining styles with genuinely different caption ordering or safe-area rules on their own layout path.
+- Do not move drawing code into `FormPainterLayoutHelper`; keep render-only concerns in `FormPainterRenderHelper`.
 
 ## Overview
 
@@ -89,29 +117,29 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     
     // 1. Caption drag area
     layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-    owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
+    owner._hits.Register(FormHitAreaNames.Caption, layout.CaptionRect, HitAreaType.Drag);
     
     int buttonWidth = metrics.ButtonWidth;
     int buttonX = owner.ClientSize.Width - buttonWidth;
     
     // 2. Standard window buttons (right to left)
     layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Close, layout.CloseButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Maximize, layout.MaximizeButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-    owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+    owner._hits.RegisterHitArea(FormHitAreaNames.Minimize, layout.MinimizeButtonRect, HitAreaType.Button);
     buttonX -= buttonWidth;
     
     // 3. Style button (if enabled)
     if (owner.ShowStyleButton)
     {
         layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-        owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+        owner._hits.RegisterHitArea(FormHitAreaNames.Style, layout.StyleButtonRect, HitAreaType.Button);
         buttonX -= buttonWidth;
     }
     
@@ -119,7 +147,7 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     if (owner.ShowThemeButton)
     {
         layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-        owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+        owner._hits.RegisterHitArea(FormHitAreaNames.Theme, layout.ThemeButtonRect, HitAreaType.Button);
         buttonX -= buttonWidth;
     }
     
@@ -129,7 +157,7 @@ public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
     layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
     if (owner.ShowIcon && owner.Icon != null)
     {
-        owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
+        owner._hits.Register(FormHitAreaNames.Icon, layout.IconRect, HitAreaType.Icon);
     }
     
     int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;

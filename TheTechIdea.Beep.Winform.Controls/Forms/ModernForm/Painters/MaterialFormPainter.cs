@@ -75,6 +75,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
+            if (owner.ShowProfileButton && owner.CurrentLayout.ProfileButtonRect.Width > 0)
+            {
+                owner.ProfileButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ProfileButtonRect);
+            }
+
             // Draw title text with Material 3 typography spacing (16px padding)
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
@@ -102,30 +107,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Close button: Error color with state layer
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
-            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, "close", metrics, closeHovered);
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
+            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, FormHitAreaNames.Close, metrics, closeHovered);
             
             // Maximize button: On-surface variant with state layer
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
-            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "maximize", metrics, maxHovered);
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
+            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Maximize, metrics, maxHovered);
             
             // Minimize button: On-surface variant with state layer
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
-            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "minimize", metrics, minHovered);
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
+            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, FormHitAreaNames.Minimize, metrics, minHovered);
             
             // Theme/Style buttons if shown
             if (owner.ShowStyleButton)
             {
                 var styleRect = owner.CurrentLayout.StyleButtonRect;
-                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("Style")) ?? false;
-                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "Style", metrics, styleHovered);
+                bool styleHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
+                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, FormHitAreaNames.Style, metrics, styleHovered);
             }
 
             if (owner.ShowThemeButton)
             {
                 var themeRect = owner.CurrentLayout.ThemeButtonRect;
-                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("theme")) ?? false;
-                PaintMaterial3Button(g, themeRect, Color.FromArgb(230, 74, 25), padding, touchTarget, iconArea, "theme", metrics, themeHovered);
+                bool themeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
+                PaintMaterial3Button(g, themeRect, Color.FromArgb(230, 74, 25), padding, touchTarget, iconArea, FormHitAreaNames.Theme, metrics, themeHovered);
             }
         }
         
@@ -158,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 
                 switch (buttonType)
                 {
-                    case "close":
+                    case FormHitAreaNames.Close:
                         // Material X with rounded ends
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
                             iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
@@ -166,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                             iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
                         break;
                         
-                    case "maximize":
+                    case FormHitAreaNames.Maximize:
                         // Outlined square with 2px rounded corners
                         using (var path = new GraphicsPath())
                         {
@@ -184,12 +189,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         }
                         break;
                         
-                    case "minimize":
+                    case FormHitAreaNames.Minimize:
                         // Horizontal line with round caps
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
                         
-                    case "Style":
+                    case FormHitAreaNames.Style:
                         // Grid icon (Material Style)
                         int gridSize = 3;
                         int spacing = 5;
@@ -204,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                         }
                         break;
                         
-                    case "theme":
+                    case FormHitAreaNames.Theme:
                         // Contrast icon (Material accessibility)
                         g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
                         using (var fillBrush = new SolidBrush(baseColor))
@@ -383,91 +388,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
-            var layout = new PainterLayoutInfo();
             FormPainterMetrics metrics = FormPainterMetrics.DefaultForCached(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
             
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
-            
-            // If caption bar is hidden, skip button layout
-            if (!owner.ShowCaptionBar)
+            int captionHeight = owner.Font.Height + 32;
+
+            if (!FormPainterLayoutHelper.TryBuildStandardRightAlignedCaptionLayout(
+                owner,
+                captionHeight,
+                32,
+                200,
+                8,
+                includeCustomAction: true,
+                out var layout,
+                out var titleRightBoundary))
             {
-                layout.CaptionRect = Rectangle.Empty;
-                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
                 owner.CurrentLayout = layout;
                 return;
-            }
-            
-            // Calculate caption height based on font and padding (Material Design 3 uses more padding)
-            var captionHeight = owner.Font.Height + 32; // 16px padding top and bottom for Material 3
-            
-            // Set caption rectangle
-            layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-            
-            // Set content rectangle (below caption)
-            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
-            
-            // Calculate button positions (right-aligned in caption, accounting for accent bar)
-            var buttonSize = new Size(32, captionHeight);
-            var buttonY = 0;
-            var buttonX = owner.ClientSize.Width - buttonSize.Width;
-            
-            // Close button
-            if (owner.ShowCloseButton)
-            {
-                layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-            }
-            
-            // Maximize/Minimize buttons
-            if (owner.ShowMinMaxButtons)
-            {
-                layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-                
-                layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-            }
-            
-            // Style button (if shown)
-            if (owner.ShowStyleButton)
-            {
-                layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-            }
-            
-            // Theme button (if shown)
-            if (owner.ShowThemeButton)
-            {
-                layout.ThemeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-            }
-            
-            // Custom action button (only if ShowCustomActionButton is true)
-            if (owner.ShowCustomActionButton)
-            {
-                layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
-                buttonX -= buttonSize.Width;
-            }
-            
-            // Search box (between title and buttons)
-            int searchBoxWidth = 200;
-            int searchBoxPadding = 8;
-            if (owner.ShowSearchBox)
-            {
-                layout.SearchBoxRect = new Rectangle(buttonX - searchBoxWidth - searchBoxPadding, buttonY + searchBoxPadding / 2, 
-                    searchBoxWidth, captionHeight - searchBoxPadding);
-                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
-                buttonX -= searchBoxWidth + searchBoxPadding;
-            }
-            else
-            {
-                layout.SearchBoxRect = Rectangle.Empty;
             }
             
             // Icon and title areas (left side of caption, after accent bar)
@@ -479,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
             
             var titleX = accentBarWidth + iconPadding + iconSize + iconPadding;
-            var titleWidth = buttonX - titleX - iconPadding;
+            var titleWidth = titleRightBoundary - titleX - iconPadding;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
             

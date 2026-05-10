@@ -131,6 +131,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner.SearchBox?.OnPaint?.Invoke(g, owner.CurrentLayout.SearchBoxRect);
             }
 
+            if (owner.ShowProfileButton && owner.CurrentLayout.ProfileButtonRect.Width > 0)
+            {
+                owner.ProfileButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ProfileButtonRect);
+            }
+
             // Paint icon, theme/Style buttons (iOS only paints traffic lights, not system buttons)
             owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
             
@@ -156,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Close button (red circle)
-            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("close")) ?? false;
+            bool closeHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
             var closeRect = new Rectangle(startX, buttonY, buttonSize, buttonSize);
             Color closeColor = closeHovered ? ShiftLuminance(Color.FromArgb(255, 95, 86), 0.15f) : Color.FromArgb(255, 95, 86);
             using (var closeBrush = new SolidBrush(closeColor))
@@ -172,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Minimize button (yellow circle)
-            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("minimize")) ?? false;
+            bool minHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
             var minRect = new Rectangle(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize);
             Color minColor = minHovered ? ShiftLuminance(Color.FromArgb(255, 189, 46), 0.15f) : Color.FromArgb(255, 189, 46);
             using (var minBrush = new SolidBrush(minColor))
@@ -188,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Maximize button (green circle)
-            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea("maximize")) ?? false;
+            bool maxHovered = owner._interact?.IsHovered(owner._hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
             var maxRect = new Rectangle(startX + (buttonSize + buttonSpacing) * 2, buttonY, buttonSize, buttonSize);
             Color maxColor = maxHovered ? ShiftLuminance(Color.FromArgb(39, 201, 63), 0.15f) : Color.FromArgb(39, 201, 63);
             using (var maxBrush = new SolidBrush(maxColor))
@@ -309,94 +314,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
-            var layout = new PainterLayoutInfo();
             var metrics = GetMetrics(owner);
             
             // NOTE: _hits.Clear() is handled by EnsureLayoutCalculated - do not call here
             
-            // If caption bar is hidden, skip button layout
-            if (!owner.ShowCaptionBar)
-            {
-                layout.CaptionRect = Rectangle.Empty;
-                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
-                owner.CurrentLayout = layout;
-                return;
-            }
-            
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
-            
-            layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-            owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
-            
+
             // iOS: Traffic light buttons on LEFT (red, yellow, green circles)
             int buttonSize = 12; // Small circular buttons
-            int buttonY = (captionHeight - buttonSize) / 2;
             int buttonSpacing = 8;
-            int leftX = 10;
-            
-            // Close button (red circle, leftmost)
-            if (owner.ShowCloseButton)
-            {
-                layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-                leftX += buttonSize + buttonSpacing;
-            }
-            
-            // Minimize/Maximize buttons (yellow/green circles)
-            if (owner.ShowMinMaxButtons)
-            {
-                layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-                leftX += buttonSize + buttonSpacing;
-                
-                layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-                leftX += buttonSize + buttonSpacing;
-            }
-            
+
             // RIGHT side: Theme/Style buttons (standard Windows-Style placement)
-            int buttonWidth = 32; // Larger for theme/Style buttons
-            int rightX = owner.ClientSize.Width - buttonWidth;
-            
-            // Style button (if shown)
-            if (owner.ShowStyleButton)
+            int buttonWidth = metrics.AuxiliaryButtonWidth;
+            var searchMetrics = GetMetrics(owner);
+            int searchBoxWidth = searchMetrics.SearchBoxWidth;
+            int searchBoxPadding = searchMetrics.SearchBoxPadding;
+
+            if (!FormPainterLayoutHelper.TryBuildTrafficLightCaptionLayout(
+                owner,
+                captionHeight,
+                buttonSize,
+                buttonSpacing,
+                leftStartX: 10,
+                rightButtonWidth: buttonWidth,
+                rightInset: 0,
+                searchBoxWidth,
+                searchBoxPadding,
+                includeCustomAction: true,
+                out var layout,
+                out var leftBoundary,
+                out var rightBoundary))
             {
-                layout.StyleButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("Style", layout.StyleButtonRect, HitAreaType.Button);
-                rightX -= buttonWidth;
-            }
-            
-            // Theme button (if shown)
-            if (owner.ShowThemeButton)
-            {
-                layout.ThemeButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
-                rightX -= buttonWidth;
-            }
-            
-            // Custom action button (fallback if theme/Style not shown)
-            // Custom action button (only if ShowCustomActionButton is true)
-            if (owner.ShowCustomActionButton)
-            {
-                layout.CustomActionButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
-                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
-               
-                rightX -= buttonWidth;
-            }
-            
-            // Search box (between title and right-side buttons)
-            int searchBoxWidth = 200;
-            int searchBoxPadding = 8;
-            if (owner.ShowSearchBox)
-            {
-                layout.SearchBoxRect = new Rectangle(rightX - searchBoxWidth - searchBoxPadding, searchBoxPadding / 2, 
-                    searchBoxWidth, captionHeight - searchBoxPadding);
-                owner._hits.RegisterHitArea("search", layout.SearchBoxRect, HitAreaType.TextBox);
-                rightX -= searchBoxWidth + searchBoxPadding;
-            }
-            else
-            {
-                layout.SearchBoxRect = Rectangle.Empty;
+                owner.CurrentLayout = layout;
+                return;
             }
             
             // Icon positioning (after traffic lights), guarded by corner safe-area
@@ -404,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int iconY      = (captionHeight - metrics.IconSize) / 2;
             int safeIconX  = FormPainterMetrics.GetCaptionLeftSafeX(
                 cornerRadius.TopLeft, iconY + metrics.IconSize / 2, metrics.IconSize / 2) + 2;
-            int iconX      = Math.Max(leftX + 8, safeIconX);
+            int iconX      = Math.Max(leftBoundary + 8, safeIconX);
 
             layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
@@ -414,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Title area: between icon and right-side buttons (centered for iOS style)
             int titleX     = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = Math.Max(0, rightX - titleX - metrics.ButtonSpacing);
+            int titleWidth = Math.Max(0, rightBoundary - titleX - metrics.ButtonSpacing);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
 
             // Content rectangle and corner-safe insets

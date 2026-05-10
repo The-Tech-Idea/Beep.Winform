@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -16,6 +17,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public Rectangle Bounds { get; set; }
         public Action<Graphics, Rectangle> OnPaint { get; set; }
         public object Tag { get; set; }
+        public bool IsInteractive { get; set; } = false;
+        public bool IsEnabled { get; set; } = true;
+        public string AccessibleName { get; set; }
+        public string AccessibleDescription { get; set; }
+        public string AccessibleDefaultActionDescription { get; set; }
+        public AccessibleRole AccessibleRole { get; set; } = AccessibleRole.PushButton;
     }
 
     public sealed class HitArea
@@ -23,6 +30,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public string Name { get; set; }
         public Rectangle Bounds { get; set; }
         public object Data { get; set; }
+    }
+
+    public static class FormHitAreaNames
+    {
+        public const string Caption = "caption";
+        public const string Title = "title";
+        public const string Icon = "icon";
+        public const string Close = "close";
+        public const string Maximize = "maximize";
+        public const string Minimize = "minimize";
+        public const string Theme = "theme";
+        public const string Style = "Style";
+        public const string CustomAction = "customAction";
+        public const string Search = "search";
+        public const string Profile = "profile";
     }
 
     public class RegionEventArgs : EventArgs

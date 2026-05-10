@@ -1,5 +1,15 @@
 # BeepiFormPro Modernization Plan
 
+> Archived planning note.
+>
+> The active implementation roadmap now lives under `Forms/.plans/BeepiFormPro/`.
+>
+> Start with:
+> - `Forms/.plans/BeepiFormPro/INDEX.md`
+> - `Forms/.plans/BeepiFormPro/TODO-TRACKER.md`
+>
+> The content below is preserved as historical context only. It should not be treated as the current completion source of truth.
+
 Goal: Transform `BeepiFormPro` into a modern, stylable window form using multi-painters and BeepStyling, with partial classes and helper managers (layout, hit-test, interaction) similar to BeepTree.
 
 ## Objectives

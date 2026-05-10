@@ -14,14 +14,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             public System.Collections.Generic.IReadOnlyList<HitArea> Areas => _hits;
             public BeepiFormProHitAreaManager(BeepiFormPro owner) { _owner = owner; }
             public void Clear() => _hits.Clear();
+
+            internal static string NormalizeName(string name)
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    return string.Empty;
+
+                return name.Trim().ToLowerInvariant() switch
+                {
+                    "close" or "system:close" or "region:system:close" => FormHitAreaNames.Close,
+                    "maximize" or "system:maximize" or "region:system:maximize" => FormHitAreaNames.Maximize,
+                    "minimize" or "system:minimize" or "region:system:minimize" => FormHitAreaNames.Minimize,
+                    "theme" or "system:theme" or "region:system:theme" => FormHitAreaNames.Theme,
+                    "style" or "system:style" or "region:system:style" => FormHitAreaNames.Style,
+                    "customaction" or "custom:action" or "region:custom:action" => FormHitAreaNames.CustomAction,
+                    "search" or "system:search" or "region:system:search" => FormHitAreaNames.Search,
+                    "profile" or "system:profile" or "region:system:profile" => FormHitAreaNames.Profile,
+                    "title" => FormHitAreaNames.Title,
+                    "caption" => FormHitAreaNames.Caption,
+                    "icon" => FormHitAreaNames.Icon,
+                    _ => name.Trim()
+                };
+            }
+
             public void Register(string name, Rectangle rect, object data = null)
             {
+                name = NormalizeName(name);
                 if (rect.Width <= 0 || rect.Height <= 0) return;
                 if (!IsAreaEnabled(name)) return;
                 _hits.Add(new HitArea { Name = name, Bounds = rect, Data = data });
             }
             public void RegisterHitArea(string name, Rectangle rect, object data = null)
             {
+                name = NormalizeName(name);
                 if (rect.Width <= 0 || rect.Height <= 0) return;
                 if (!IsAreaEnabled(name)) return;
                 _hits.Add(new HitArea { Name = name, Bounds = rect, Data = data });
@@ -52,57 +77,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             public HitArea GetHitArea(string name)
             {
-                return _hits.FirstOrDefault(h => h.Name == name);
+                var normalized = NormalizeName(name);
+                return _hits.FirstOrDefault(h => h.Name == normalized);
             }
 
             private bool IsAreaEnabled(string name)
             {
-                if (string.IsNullOrWhiteSpace(name)) return false;
+                string key = NormalizeName(name);
+                if (string.IsNullOrWhiteSpace(key)) return false;
 
-                string key = name.Trim();
                 switch (key)
                 {
-                    case "close":
-                    case "system:close":
-                    case "region:system:close":
+                    case FormHitAreaNames.Close:
                         {
                             //Debug.Print($"Checking if close button is enabled: {_owner.ShowCloseButton}");
                             return _owner.ShowCloseButton;
                         }
                        
 
-                    case "maximize":
-                    case "minimize":
-                    case "system:maximize":
-                    case "system:minimize":
-                    case "region:system:maximize":
-                    case "region:system:minimize":
+                    case FormHitAreaNames.Maximize:
+                    case FormHitAreaNames.Minimize:
                         return _owner.ShowMinMaxButtons;
 
-                    case "theme":
-                    case "system:theme":
-                    case "region:system:theme":
+                    case FormHitAreaNames.Theme:
                         return _owner.ShowThemeButton;
 
-                    case "Style":
-                    case "style":
-                    case "system:Style":
-                    case "region:system:Style":
+                    case FormHitAreaNames.Style:
                         return _owner.ShowStyleButton;
 
-                    case "customAction":
-                    case "custom:action":
-                    case "region:custom:action":
+                    case FormHitAreaNames.CustomAction:
                         return _owner.ShowCustomActionButton;
 
-                    case "search":
-                    case "system:search":
-                    case "region:system:search":
+                    case FormHitAreaNames.Search:
                         return _owner.ShowSearchBox;
 
-                    case "profile":
-                    case "system:profile":
-                    case "region:system:profile":
+                    case FormHitAreaNames.Profile:
                         return _owner.ShowProfileButton;
                 }
 

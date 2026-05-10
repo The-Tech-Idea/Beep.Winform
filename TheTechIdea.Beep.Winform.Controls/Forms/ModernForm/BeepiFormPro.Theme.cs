@@ -14,7 +14,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _globalThemeEventsRegistered;
         private bool _isApplyingGlobalThemeStyle;
 
-        public string ThemeName { get; private set; }
+        public string ThemeName { get; private set; } = "DefaultTheme";
+
+        private void ApplyResolvedTheme(IBeepTheme? resolvedTheme)
+        {
+            var appliedTheme = resolvedTheme ?? BeepThemesManager.GetDefaultTheme();
+            if (appliedTheme == null)
+                return;
+
+            _currentTheme = appliedTheme;
+            _theme = appliedTheme.ThemeName;
+            ThemeName = appliedTheme.ThemeName;
+
+            try { PaintersFactory.ClearCache(); } catch { }
+            try { FormPainterMetrics.InvalidateCache(); } catch { }
+
+            ApplyTheme();
+        }
 
         public IBeepTheme CurrentTheme
         {
@@ -34,41 +50,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             set
             {
-                _currentTheme = value;
-                ThemeName = value.ThemeName; // Keep ThemeName in sync
-
-                // Clear painter caches when theme changes so cached brushes/rasters are regenerated
-                try { PaintersFactory.ClearCache(); } catch { }
-
-                Invalidate(); // Redraw with new theme
+                ApplyResolvedTheme(value);
             }
         }
 
        
         public virtual void ApplyTheme()
         {
-            if (_currentTheme == null)
-            {
-                return;
-            }
+            var appliedTheme = CurrentTheme;
+
+            _formpaintermaterics = null;
+            InvalidateLayout();
+            BackColor = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? appliedTheme : null).BackgroundColor;
 
           // pass theme to controls or apply theme-specific settings here
             foreach (var control in this.Controls)
             {
                 if (control is IBeepUIComponent themableControl)
                 {
-                    themableControl.Theme=Theme;
+                    themableControl.Theme = appliedTheme.ThemeName;
                 }
             }
-            Invalidate(); // Redraw with new theme
+            Invalidate(true); // Redraw with new theme
         }
         public virtual void ApplyTheme(string themeName)
         {
             var theme = BeepThemesManager.GetTheme(themeName);
             if (theme != null)
             {
-                CurrentTheme = theme;
-               // Invalidate();
+                ApplyResolvedTheme(theme);
             }
             else
             {

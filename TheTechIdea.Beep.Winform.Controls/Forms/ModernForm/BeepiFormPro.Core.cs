@@ -13,6 +13,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
     {
+        private const int WM_NCLBUTTONDOWN = 0x00A1;
+
         #region Layout Caching
         // Layout caching to prevent recalculating on every paint
         private Size _lastLayoutSize = Size.Empty;
@@ -23,6 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _lastShowMinMaxButtons = true;
         private bool _lastShowThemeButton = false;
         private bool _lastShowStyleButton = false;
+        private bool _lastShowProfileButton = false;
+        private bool _lastShowSearchBox = false;
         private bool _lastShowCustomActionButton = false;
 
         /// <summary>
@@ -45,6 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 || _lastShowMinMaxButtons != ShowMinMaxButtons
                 || _lastShowThemeButton != ShowThemeButton
                 || _lastShowStyleButton != ShowStyleButton
+                || _lastShowProfileButton != ShowProfileButton
+                || _lastShowSearchBox != ShowSearchBox
                 || _lastShowCustomActionButton != ShowCustomActionButton;
 
             if (!needsRecalc)
@@ -90,6 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // If it failed, leave _layoutDirty true so we retry on next call
             if (layoutSucceeded)
             {
+                RegisterInteractiveRegions();
                 _lastLayoutSize = ClientSize;
                 _lastLayoutStyle = FormStyle;
                 _lastShowCaptionBar = ShowCaptionBar;
@@ -97,8 +104,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 _lastShowMinMaxButtons = ShowMinMaxButtons;
                 _lastShowThemeButton = ShowThemeButton;
                 _lastShowStyleButton = ShowStyleButton;
+                _lastShowProfileButton = ShowProfileButton;
+                _lastShowSearchBox = ShowSearchBox;
                 _lastShowCustomActionButton = ShowCustomActionButton;
                 _layoutDirty = false;
+                ClearKeyboardCaptionFocusIfTargetMissing();
             }
         }
 
@@ -155,10 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             get => _theme;
             set
             {
-                if (value != _theme)
-                    _theme = value;
-               _currentTheme = BeepThemesManager.GetTheme(value);
-                ApplyTheme();
+                if (string.Equals(value, _theme, StringComparison.Ordinal) && _currentTheme != null)
+                    return;
+
+                ApplyResolvedTheme(BeepThemesManager.GetTheme(value) ?? BeepThemesManager.GetDefaultTheme());
             }
         }
         private Color _bordercolor= Color.LightGray;
@@ -292,6 +302,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         // Search box state
         private string _searchText = string.Empty;
         private bool _searchBoxFocused = false;
+        private string _keyboardFocusedCaptionAreaName = string.Empty;
+        private string _baseAccessibleName = string.Empty;
+        private string _baseAccessibleDescription = string.Empty;
+        private string _baseAccessibleDefaultActionDescription = string.Empty;
+        private AccessibleRole _baseAccessibleRole = AccessibleRole.Default;
+        private bool _captionAccessibilitySnapshotCaptured = false;
+        private bool _highContrastMode = false;
+        private bool _screenReaderSupport = true;
+        private FocusIndicatorStyle _focusIndicatorStyle = FocusIndicatorStyle.Subtle;
 
         // Events for region interaction
         public event EventHandler<RegionEventArgs> RegionHover;
@@ -302,6 +321,432 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public event EventHandler StyleButtonClicked;
         public event EventHandler ProfileButtonClicked;
         public event EventHandler<string> SearchBoxTextChanged;
+
+        private bool HasKeyboardCaptionFocus => !string.IsNullOrWhiteSpace(_keyboardFocusedCaptionAreaName);
+
+        private IEnumerable<FormRegion> GetInteractiveRegions()
+        {
+            return _regions.Where(region =>
+                region != null
+                && region.IsInteractive
+                && region.IsEnabled
+                && !string.IsNullOrWhiteSpace(region.Id));
+        }
+
+        private static string GetInteractiveRegionHitAreaName(FormRegion region)
+        {
+            if (region == null || string.IsNullOrWhiteSpace(region.Id))
+                return string.Empty;
+
+            return $"region:user:{region.Id.Trim()}";
+        }
+
+        private void RegisterInteractiveRegions()
+        {
+            foreach (var region in GetInteractiveRegions())
+            {
+                Rectangle bounds = ResolveRegionRect(region);
+                if (bounds.Width <= 0 || bounds.Height <= 0)
+                    continue;
+
+                _hits.RegisterHitArea(GetInteractiveRegionHitAreaName(region), bounds, region);
+            }
+        }
+
+        private FormRegion FindCustomCaptionRegion(string areaName, out Rectangle bounds)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            foreach (var region in GetInteractiveRegions())
+            {
+                if (region.Dock != RegionDock.Caption)
+                    continue;
+
+                if (BeepiFormProHitAreaManager.NormalizeName(GetInteractiveRegionHitAreaName(region)) != key)
+                    continue;
+
+                bounds = ResolveRegionRect(region);
+                if (bounds.Width <= 0 || bounds.Height <= 0)
+                    continue;
+
+                return region;
+            }
+
+            bounds = Rectangle.Empty;
+            return null;
+        }
+
+        private void AddKeyboardCaptionTarget(List<(string Name, Rectangle Bounds)> targets, string areaName, bool isVisible, Rectangle bounds)
+        {
+            if (!isVisible || bounds.Width <= 0 || bounds.Height <= 0)
+                return;
+
+            targets.Add((BeepiFormProHitAreaManager.NormalizeName(areaName), bounds));
+        }
+
+        private List<(string Name, Rectangle Bounds)> GetKeyboardCaptionTargets()
+        {
+            try { EnsureLayoutCalculated(); } catch { }
+
+            var targets = new List<(string Name, Rectangle Bounds)>();
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Search, ShowSearchBox, CurrentLayout.SearchBoxRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Profile, ShowProfileButton, CurrentLayout.ProfileButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.CustomAction, ShowCustomActionButton, CurrentLayout.CustomActionButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Theme, ShowThemeButton, CurrentLayout.ThemeButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Style, ShowStyleButton, CurrentLayout.StyleButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Minimize, ShowMinMaxButtons, CurrentLayout.MinimizeButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Maximize, ShowMinMaxButtons, CurrentLayout.MaximizeButtonRect);
+            AddKeyboardCaptionTarget(targets, FormHitAreaNames.Close, ShowCloseButton, CurrentLayout.CloseButtonRect);
+
+            foreach (var region in GetInteractiveRegions())
+            {
+                if (region.Dock != RegionDock.Caption)
+                    continue;
+
+                string areaName = GetInteractiveRegionHitAreaName(region);
+                string normalizedId = BeepiFormProHitAreaManager.NormalizeName(areaName);
+                if (targets.Any(target => target.Name == normalizedId))
+                    continue;
+
+                AddKeyboardCaptionTarget(targets, areaName, true, ResolveRegionRect(region));
+            }
+
+            return targets
+                .OrderBy(target => target.Bounds.Left)
+                .ThenBy(target => target.Bounds.Top)
+                .ToList();
+        }
+
+        private bool IsKeyboardCaptionTargetCurrentlyVisible(string areaName)
+        {
+            if (!ShowCaptionBar)
+                return false;
+
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            if (FindCustomCaptionRegion(key, out var customBounds) != null)
+                return customBounds.Width > 0 && customBounds.Height > 0;
+
+            Rectangle bounds = GetCaptionAreaBounds(key);
+            bool hasBounds = bounds.Width > 0 && bounds.Height > 0;
+
+            return key switch
+            {
+                FormHitAreaNames.Search => ShowSearchBox && hasBounds,
+                FormHitAreaNames.Profile => ShowProfileButton && hasBounds,
+                FormHitAreaNames.CustomAction => ShowCustomActionButton && hasBounds,
+                FormHitAreaNames.Theme => ShowThemeButton && hasBounds,
+                FormHitAreaNames.Style => ShowStyleButton && hasBounds,
+                FormHitAreaNames.Minimize => ShowMinMaxButtons && hasBounds,
+                FormHitAreaNames.Maximize => ShowMinMaxButtons && hasBounds,
+                FormHitAreaNames.Close => ShowCloseButton && hasBounds,
+                _ => false
+            };
+        }
+
+        private void ClearKeyboardCaptionFocusIfTargetMissing()
+        {
+            string current = BeepiFormProHitAreaManager.NormalizeName(_keyboardFocusedCaptionAreaName);
+            if (string.IsNullOrWhiteSpace(current) && !_searchBoxFocused)
+                return;
+
+            if (!IsKeyboardCaptionTargetCurrentlyVisible(current))
+                ClearKeyboardCaptionFocus();
+        }
+
+        private Rectangle GetCaptionAreaBounds(string areaName)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            return key switch
+            {
+                FormHitAreaNames.Search => CurrentLayout.SearchBoxRect,
+                FormHitAreaNames.Profile => CurrentLayout.ProfileButtonRect,
+                FormHitAreaNames.CustomAction => CurrentLayout.CustomActionButtonRect,
+                FormHitAreaNames.Theme => CurrentLayout.ThemeButtonRect,
+                FormHitAreaNames.Style => CurrentLayout.StyleButtonRect,
+                FormHitAreaNames.Minimize => CurrentLayout.MinimizeButtonRect,
+                FormHitAreaNames.Maximize => CurrentLayout.MaximizeButtonRect,
+                FormHitAreaNames.Close => CurrentLayout.CloseButtonRect,
+                _ => FindCustomCaptionRegion(key, out var bounds) != null ? bounds : Rectangle.Empty
+            };
+        }
+
+        private Rectangle GetKeyboardFocusedCaptionBounds()
+            => GetCaptionAreaBounds(_keyboardFocusedCaptionAreaName);
+
+        private void InvalidateKeyboardCaptionFocus(Rectangle oldBounds, Rectangle newBounds, bool forceCaptionRefresh = false)
+        {
+            Rectangle invalidRect = Rectangle.Empty;
+
+            if (!oldBounds.IsEmpty)
+                invalidRect = oldBounds;
+
+            if (!newBounds.IsEmpty)
+                invalidRect = invalidRect.IsEmpty ? newBounds : Rectangle.Union(invalidRect, newBounds);
+
+            if (!invalidRect.IsEmpty)
+            {
+                Invalidate(invalidRect, false);
+            }
+            else if (forceCaptionRefresh && !CurrentLayout.CaptionRect.IsEmpty)
+            {
+                Invalidate(CurrentLayout.CaptionRect, false);
+            }
+        }
+
+        private bool MoveKeyboardCaptionFocus(bool forward)
+        {
+            var targets = GetKeyboardCaptionTargets();
+            if (targets.Count == 0)
+                return false;
+
+            string current = BeepiFormProHitAreaManager.NormalizeName(_keyboardFocusedCaptionAreaName);
+            int currentIndex = string.IsNullOrWhiteSpace(current)
+                ? -1
+                : targets.FindIndex(target => target.Name == current);
+
+            int nextIndex;
+            if (currentIndex < 0)
+            {
+                nextIndex = forward ? 0 : targets.Count - 1;
+            }
+            else
+            {
+                nextIndex = (currentIndex + (forward ? 1 : -1) + targets.Count) % targets.Count;
+            }
+
+            SetKeyboardFocusedCaptionArea(targets[nextIndex].Name, focusForm: true);
+            return true;
+        }
+
+        private void SetKeyboardFocusedCaptionArea(string areaName, bool focusForm)
+        {
+            string normalized = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            var targets = GetKeyboardCaptionTargets();
+            var target = targets.FirstOrDefault(item => item.Name == normalized);
+            if (string.IsNullOrWhiteSpace(target.Name))
+            {
+                ClearKeyboardCaptionFocus();
+                return;
+            }
+
+            Rectangle oldBounds = GetKeyboardFocusedCaptionBounds();
+            bool searchFocusChanged = _searchBoxFocused != (normalized == FormHitAreaNames.Search);
+
+            _keyboardFocusedCaptionAreaName = normalized;
+            _searchBoxFocused = normalized == FormHitAreaNames.Search;
+
+            if (focusForm && CanFocus && !Focused)
+                Focus();
+
+            InvalidateKeyboardCaptionFocus(oldBounds, target.Bounds, searchFocusChanged);
+            UpdateCaptionAccessibilityFocus(normalized);
+        }
+
+        private void ClearKeyboardCaptionFocus()
+        {
+            Rectangle oldBounds = GetKeyboardFocusedCaptionBounds();
+            bool hadSearchFocus = _searchBoxFocused;
+
+            if (!HasKeyboardCaptionFocus && !hadSearchFocus)
+                return;
+
+            _keyboardFocusedCaptionAreaName = string.Empty;
+            _searchBoxFocused = false;
+
+            RestoreCaptionAccessibilityFocus();
+            InvalidateKeyboardCaptionFocus(oldBounds, Rectangle.Empty, hadSearchFocus);
+        }
+
+        private bool ActivateKeyboardFocusedCaptionArea()
+        {
+            if (!HasKeyboardCaptionFocus)
+                return false;
+
+            if (_keyboardFocusedCaptionAreaName == FormHitAreaNames.Search)
+            {
+                SetKeyboardFocusedCaptionArea(FormHitAreaNames.Search, focusForm: true);
+                return true;
+            }
+
+            var bounds = GetKeyboardFocusedCaptionBounds();
+            if (bounds.IsEmpty)
+                return false;
+
+            var area = _hits?.GetHitArea(_keyboardFocusedCaptionAreaName)
+                ?? new HitArea { Name = _keyboardFocusedCaptionAreaName, Bounds = bounds };
+
+            OnRegionClicked(area);
+            return true;
+        }
+
+        private void CaptureCaptionAccessibilitySnapshot()
+        {
+            if (_captionAccessibilitySnapshotCaptured)
+                return;
+
+            _baseAccessibleName = AccessibleName ?? string.Empty;
+            _baseAccessibleDescription = AccessibleDescription ?? string.Empty;
+            _baseAccessibleDefaultActionDescription = AccessibleDefaultActionDescription ?? string.Empty;
+            _baseAccessibleRole = AccessibleRole;
+            _captionAccessibilitySnapshotCaptured = true;
+        }
+
+        private AccessibleRole GetCaptionAccessibilityRole(string areaName)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            return key switch
+            {
+                FormHitAreaNames.Search => AccessibleRole.Text,
+                FormHitAreaNames.Profile => AccessibleRole.PushButton,
+                FormHitAreaNames.CustomAction => AccessibleRole.PushButton,
+                FormHitAreaNames.Theme => AccessibleRole.PushButton,
+                FormHitAreaNames.Style => AccessibleRole.PushButton,
+                FormHitAreaNames.Minimize => AccessibleRole.PushButton,
+                FormHitAreaNames.Maximize => AccessibleRole.PushButton,
+                FormHitAreaNames.Close => AccessibleRole.PushButton,
+                _ => FindCustomCaptionRegion(key, out _)?.AccessibleRole ?? AccessibleRole.PushButton
+            };
+        }
+
+        private string GetCaptionAccessibilityName(string areaName)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            FormRegion customRegion = FindCustomCaptionRegion(key, out _);
+            return key switch
+            {
+                FormHitAreaNames.Search => "Caption search box",
+                FormHitAreaNames.Profile => "Caption profile button",
+                FormHitAreaNames.CustomAction => "Caption custom action",
+                FormHitAreaNames.Theme => "Caption theme button",
+                FormHitAreaNames.Style => "Caption style button",
+                FormHitAreaNames.Minimize => "Caption minimize button",
+                FormHitAreaNames.Maximize => WindowState == FormWindowState.Maximized ? "Caption restore button" : "Caption maximize button",
+                FormHitAreaNames.Close => "Caption close button",
+                _ => !string.IsNullOrWhiteSpace(customRegion?.AccessibleName)
+                    ? customRegion.AccessibleName
+                    : $"Caption region {customRegion?.Id ?? key}"
+            };
+        }
+
+        private string GetCaptionAccessibilityDescription(string areaName)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            return key switch
+            {
+                FormHitAreaNames.Search => "Search box in the caption bar. Type to search, and press F6 or Tab to move to another caption action.",
+                FormHitAreaNames.Profile => "Profile button in the caption bar. Press Enter or Space to open the profile action.",
+                FormHitAreaNames.CustomAction => "Custom action button in the caption bar. Press Enter or Space to activate it.",
+                FormHitAreaNames.Theme => "Theme button in the caption bar. Press Enter or Space to open the theme menu.",
+                FormHitAreaNames.Style => "Style button in the caption bar. Press Enter or Space to open the style menu.",
+                FormHitAreaNames.Minimize => "Minimize button in the caption bar. Press Enter or Space to minimize the window.",
+                FormHitAreaNames.Maximize => WindowState == FormWindowState.Maximized
+                    ? "Restore button in the caption bar. Press Enter or Space to restore the window."
+                    : "Maximize button in the caption bar. Press Enter or Space to maximize the window.",
+                FormHitAreaNames.Close => "Close button in the caption bar. Press Enter or Space to close the window.",
+                _ => FindCustomCaptionRegion(key, out _) is FormRegion region && !string.IsNullOrWhiteSpace(region.AccessibleDescription)
+                    ? region.AccessibleDescription
+                    : "Custom caption region. Press Enter or Space to activate it."
+            };
+        }
+
+        private string GetCaptionAccessibilityDefaultActionDescription(string areaName)
+        {
+            string key = BeepiFormProHitAreaManager.NormalizeName(areaName);
+            return key switch
+            {
+                FormHitAreaNames.Search => "Edit search text",
+                FormHitAreaNames.Profile => "Open profile action",
+                FormHitAreaNames.CustomAction => "Activate custom action",
+                FormHitAreaNames.Theme => "Open theme menu",
+                FormHitAreaNames.Style => "Open style menu",
+                FormHitAreaNames.Minimize => "Minimize window",
+                FormHitAreaNames.Maximize => WindowState == FormWindowState.Maximized ? "Restore window" : "Maximize window",
+                FormHitAreaNames.Close => "Close window",
+                _ => FindCustomCaptionRegion(key, out _) is FormRegion region && !string.IsNullOrWhiteSpace(region.AccessibleDefaultActionDescription)
+                    ? region.AccessibleDefaultActionDescription
+                    : "Activate custom caption region"
+            };
+        }
+
+        private void InvalidateCaptionAccessibilityChrome()
+        {
+            if (CurrentLayout != null && !CurrentLayout.CaptionRect.IsEmpty)
+            {
+                Invalidate(CurrentLayout.CaptionRect);
+                return;
+            }
+
+            Invalidate();
+        }
+
+        private void UpdateCaptionAccessibilityFocus(string areaName)
+        {
+            if (!ScreenReaderSupport)
+                return;
+
+            CaptureCaptionAccessibilitySnapshot();
+            AccessibleName = GetCaptionAccessibilityName(areaName);
+            AccessibleDescription = GetCaptionAccessibilityDescription(areaName);
+            AccessibleDefaultActionDescription = GetCaptionAccessibilityDefaultActionDescription(areaName);
+            AccessibleRole = GetCaptionAccessibilityRole(areaName);
+
+            try
+            {
+                AccessibilityNotifyClients(AccessibleEvents.NameChange, 0);
+                AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, 0);
+                AccessibilityNotifyClients(AccessibleEvents.DefaultActionChange, 0);
+                AccessibilityNotifyClients(AccessibleEvents.Focus, 0);
+            }
+            catch
+            {
+                // Accessibility notifications are best-effort and should not block interaction.
+            }
+        }
+
+        private void RestoreCaptionAccessibilityFocus(bool force = false)
+        {
+            if ((!ScreenReaderSupport && !force) || !_captionAccessibilitySnapshotCaptured)
+                return;
+
+                AccessibleName = _baseAccessibleName;
+                AccessibleDescription = _baseAccessibleDescription;
+                AccessibleDefaultActionDescription = _baseAccessibleDefaultActionDescription;
+                AccessibleRole = _baseAccessibleRole;
+                _captionAccessibilitySnapshotCaptured = false;
+
+                try
+                {
+                    AccessibilityNotifyClients(AccessibleEvents.NameChange, 0);
+                    AccessibilityNotifyClients(AccessibleEvents.DescriptionChange, 0);
+                    AccessibilityNotifyClients(AccessibleEvents.DefaultActionChange, 0);
+                }
+                catch
+                {
+                    // Accessibility notifications are best-effort and should not block interaction.
+                }
+            }
+
+            /// <summary>
+            /// Returns a defensive snapshot of the currently registered hit areas.
+            /// This is intended for diagnostics surfaces and should not be mutated by callers.
+            /// </summary>
+            public IReadOnlyList<HitArea> GetRegisteredHitAreasSnapshot()
+            {
+                EnsureLayoutCalculated();
+
+                if (_hits == null || _hits.Areas.Count == 0)
+                {
+                    return Array.Empty<HitArea>();
+                }
+
+                return _hits.Areas
+                    .Select(area => new HitArea
+                    {
+                        Name = area.Name,
+                        Bounds = area.Bounds,
+                        Data = area.Data
+                    })
+                    .ToList();
+            }
 
           public event EventHandler OnFormClose;
         public event EventHandler OnFormLoad;
@@ -483,7 +928,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [System.ComponentModel.Category("Beep Accessibility")]
         [System.ComponentModel.DefaultValue(false)]
         [System.ComponentModel.Description("Enable high contrast mode for better accessibility")]
-        public bool HighContrastMode { get; set; } = false;
+        public bool HighContrastMode
+        {
+            get => _highContrastMode;
+            set
+            {
+                if (_highContrastMode == value)
+                    return;
+
+                _highContrastMode = value;
+                Invalidate(true);
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether screen reader support is enabled
@@ -491,7 +947,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [System.ComponentModel.Category("Beep Accessibility")]
         [System.ComponentModel.DefaultValue(true)]
         [System.ComponentModel.Description("Enable screen reader support for accessibility")]
-        public bool ScreenReaderSupport { get; set; } = true;
+        public bool ScreenReaderSupport
+        {
+            get => _screenReaderSupport;
+            set
+            {
+                if (_screenReaderSupport == value)
+                    return;
+
+                _screenReaderSupport = value;
+
+                if (!_screenReaderSupport)
+                {
+                    RestoreCaptionAccessibilityFocus(force: true);
+                    return;
+                }
+
+                if (HasKeyboardCaptionFocus)
+                    UpdateCaptionAccessibilityFocus(_keyboardFocusedCaptionAreaName);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the focus indicator Style for keyboard navigation
@@ -499,7 +974,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [System.ComponentModel.Category("Beep Accessibility")]
         [System.ComponentModel.DefaultValue(FocusIndicatorStyle.Subtle)]
         [System.ComponentModel.Description("Style of focus indicators for keyboard navigation")]
-        public FocusIndicatorStyle FocusIndicatorStyle { get; set; } = FocusIndicatorStyle.Subtle;
+        public FocusIndicatorStyle FocusIndicatorStyle
+        {
+            get => _focusIndicatorStyle;
+            set
+            {
+                if (_focusIndicatorStyle == value)
+                    return;
+
+                _focusIndicatorStyle = value;
+                InvalidateCaptionAccessibilityChrome();
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether micro-interactions are enabled
@@ -725,12 +1211,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             if (region == null) return;
             _regions.Add(region);
+            InvalidateLayout();
             Invalidate();
         }
 
         public void ClearRegions()
         {
             _regions.Clear();
+            InvalidateLayout();
             Invalidate();
         }
 
@@ -786,7 +1274,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
                     var m = GetCurrentMetrics();
-                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea("minimize")) ?? false;
+                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Minimize)) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
                         r,
@@ -807,7 +1295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
                     var m = GetCurrentMetrics();
-                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea("maximize")) ?? false;
+                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Maximize)) ?? false;
                     string symbol = WindowState == FormWindowState.Maximized ? "❐" : "□";
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
@@ -829,7 +1317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     if (!_showCloseButton || r.Width <= 0 || r.Height <= 0) return;
                     var m = GetCurrentMetrics();
-                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea("close")) ?? false;
+                    bool isHover = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Close)) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
                         r,
@@ -853,8 +1341,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (!_showCustomActionButton || r.Width <= 0 || r.Height <= 0) return;
                     var m = GetCurrentMetrics();
 
-                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("customAction")) ?? false;
-                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea("customAction")) ?? false;
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.CustomAction)) ?? false;
+                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea(FormHitAreaNames.CustomAction)) ?? false;
                     
                     // Hover/press indicator: circle outline around the icon
                     var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
@@ -879,8 +1367,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (r.Width <= 0 || r.Height <= 0 || !_showThemeButton) return;
                     var m = GetCurrentMetrics();
 
-                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("theme")) ?? false;
-                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea("theme")) ?? false;
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
+                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea(FormHitAreaNames.Theme)) ?? false;
                     
                     // Hover/press indicator: circle outline
                     var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
@@ -905,8 +1393,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     if (r.Width <= 0 || r.Height <= 0 || !_showStyleButton) return;
                     var m = GetCurrentMetrics();
 
-                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("Style")) ?? false;
-                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea("Style")) ?? false;
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
+                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea(FormHitAreaNames.Style)) ?? false;
                     
                     // Hover/press indicator: circle outline
                     var hoverColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
@@ -921,6 +1409,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
             };
 
+            _profileButton = new FormRegion
+            {
+                Id = "system:profile",
+                Dock = RegionDock.Caption,
+                OnPaint = (g, r) =>
+                {
+                    if (!_showProfileButton || r.Width <= 0 || r.Height <= 0) return;
+
+                    var m = GetCurrentMetrics();
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Profile)) ?? false;
+                    var isPressed = _interact?.IsPressed(_hits?.GetHitArea(FormHitAreaNames.Profile)) ?? false;
+                    var outlineColor = isPressed ? m.CaptionButtonPressedColor : m.CaptionButtonHoverColor;
+
+                    if (isHovered || isPressed)
+                        FormPainterRenderHelper.DrawHoverOutlineCircle(g, r, outlineColor, isPressed ? 3 : 2, 6);
+
+                    int avatarSize = Math.Max(12, Math.Min(r.Width, r.Height) - 12);
+                    var avatarRect = new Rectangle(
+                        r.Left + (r.Width - avatarSize) / 2,
+                        r.Top + (r.Height - avatarSize) / 2,
+                        avatarSize,
+                        avatarSize);
+
+                    var fillColor = Color.FromArgb(36, m.ForegroundColor);
+                    var oldSmoothing = g.SmoothingMode;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                    using (var fillBrush = new SolidBrush(fillColor))
+                    using (var borderPen = new Pen(m.ForegroundColor, 1.25f))
+                    {
+                        g.FillEllipse(fillBrush, avatarRect);
+                        g.DrawEllipse(borderPen, avatarRect);
+                    }
+
+                    g.SmoothingMode = oldSmoothing;
+
+                    using var font = new Font("Segoe MDL2 Assets", Font.Size + 1, FontStyle.Regular);
+                    TextRenderer.DrawText(g, "\uE77B", font, r, m.ForegroundColor,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                }
+            };
+
             // Search box region
             _searchBox = new FormRegion
             {
@@ -930,7 +1460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     if (!_showSearchBox || r.Width <= 0 || r.Height <= 0) return;
                     
-                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea("search")) ?? false;
+                    var isHovered = _interact?.IsHovered(_hits?.GetHitArea(FormHitAreaNames.Search)) ?? false;
                     var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? _currentTheme : null);
                     
                     // Background with rounded corners
@@ -1049,52 +1579,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             if (area?.Name == null) return;
 
-            // Normalize region names so painters can register simple keys like "close"/"minimize"/"title"
-            // but actions still work with our canonical "region:*" keys.
-            string key = area.Name;
-
-            switch (key)
-            {
-                // Accept simple keys
-                case "close": key = "region:system:close"; break;
-                case "maximize": key = "region:system:maximize"; break;
-                case "minimize": key = "region:system:minimize"; break;
-                case "theme": key = "region:system:theme"; break;
-                case "Style": key = "region:system:Style"; break;
-                case "customAction": key = "region:custom:action"; break;
-                case "search": key = "region:system:search"; break;
-                case "title": key = "caption"; break; // treat title hit as caption drag
-
-                // Accept semi-prefixed keys (without leading "region:")
-                case "system:close": key = "region:system:close"; break;
-                case "system:maximize": key = "region:system:maximize"; break;
-                case "system:minimize": key = "region:system:minimize"; break;
-                case "system:theme": key = "region:system:theme"; break;
-                case "system:Style": key = "region:system:Style"; break;
-                case "system:search": key = "region:system:search"; break;
-                case "custom:action": key = "region:custom:action"; break;
-            }
+            string key = BeepiFormProHitAreaManager.NormalizeName(area.Name);
+            if (key == FormHitAreaNames.Title)
+                key = FormHitAreaNames.Caption;
 
             var regionData = area.Data as FormRegion;
             RegionClick?.Invoke(this, new RegionEventArgs(area.Name, regionData, area.Bounds));
 
             switch (key)
             {
-                case "region:system:minimize":
+                case FormHitAreaNames.Minimize:
                     if (!ShowMinMaxButtons) return;
                     WindowState = FormWindowState.Minimized;
                     break;
 
-                case "region:system:maximize":
+                case FormHitAreaNames.Maximize:
                     if (!ShowMinMaxButtons) return;
                     WindowState = WindowState == FormWindowState.Maximized
                         ? FormWindowState.Normal
                         : FormWindowState.Maximized;
                     break;
 
-                case "region:system:close":
+                case FormHitAreaNames.Close:
                     if (!ShowCloseButton) return;
-                    BeginInvoke(new Action(() => 
+                    BeginInvoke(new Action(() =>
                     {
                         AutoValidate = AutoValidate.Disable;
                         _isForcedClose = true;
@@ -1102,65 +1610,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     }));
                     break;
 
-                case "region:custom:action":
+                case FormHitAreaNames.CustomAction:
                     if (!ShowCustomActionButton) return;
-                    // Custom action button clicked - override or subscribe to event
                     OnCustomActionClicked();
                     break;
 
-                case "region:system:theme":
+                case FormHitAreaNames.Theme:
                     if (!ShowThemeButton) return;
-                    // MenuStyle button clicked
                     ThemeButtonClicked?.Invoke(this, EventArgs.Empty);
-                    ShowThemeMenu();
+                    if (ThemeButtonClicked == null)
+                        ShowThemeMenu();
                     break;
 
-                case "region:system:Style":
+                case FormHitAreaNames.Style:
                     if (!ShowStyleButton) return;
-                    // Style button clicked
                     StyleButtonClicked?.Invoke(this, EventArgs.Empty);
-                    ShowFormStyleMenu();
+                    if (StyleButtonClicked == null)
+                        ShowFormStyleMenu();
                     break;
 
-                case "region:system:search":
+                case FormHitAreaNames.Profile:
+                    if (!ShowProfileButton) return;
+                    ProfileButtonClicked?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case FormHitAreaNames.Search:
                     if (!ShowSearchBox) return;
-                    // Search box clicked - focus it
-                    _searchBoxFocused = true;
-                    Focus(); // Focus the form to receive keyboard input
-                    Invalidate(CurrentLayout.SearchBoxRect);
+                    SetKeyboardFocusedCaptionArea(FormHitAreaNames.Search, focusForm: true);
                     break;
 
-                case "caption":
-                    // Allow window dragging
+                case FormHitAreaNames.Caption:
                     if (WindowState == FormWindowState.Normal)
                     {
                         ReleaseCapture();
-                        SendMessage(Handle, 0xA1, 0x2, 0);
+                        SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
                     }
-                    // Unfocus search box when clicking caption
+
                     if (_searchBoxFocused)
                     {
                         _searchBoxFocused = false;
                         Invalidate(CurrentLayout.SearchBoxRect);
                     }
+
+                    if (HasKeyboardCaptionFocus)
+                        ClearKeyboardCaptionFocus();
                     break;
             }
+
         }
+
         private void ShowFormStyleMenu()
         {
             var menu = new ContextMenuStrip();
             try
             {
-                foreach (FormStyle style in Enum.GetValues(typeof(FormStyle)).Cast<FormStyle>())
+                foreach (FormStyle style in Enum.GetValues(typeof(FormStyle)))
                 {
-                    var item = new ToolStripMenuItem(style.ToString());
+                    var item = new ToolStripMenuItem(style.ToString())
+                    {
+                        Checked = FormStyle == style
+                    };
                     item.Click += (s, e) =>
                     {
-                        // Only go through the global manager – it fires FormStyleChanged
-                        // which ApplyGlobalThemeAndStyle handles (sets FormStyle, Theme,
-                        // InvalidateLayout, PerformLayout, Invalidate).
-                        // Do NOT also set FormStyle directly – that causes a cascading
-                        // triple-application that corrupts hit areas and breaks buttons.
                         try
                         {
                             BeepThemesManager.SetCurrentStyle(style);
@@ -1171,7 +1682,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
             }
             catch { }
-            // Show menu below the Style button using the current layout rectangle
+
             var styleRect = CurrentLayout.StyleButtonRect;
             Point pt;
             if (styleRect.Width > 0 && styleRect.Height > 0)
@@ -1180,11 +1691,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             else
             {
-                // Fallback: show at cursor to avoid (0,0) when rect isn't available
                 pt = Cursor.Position;
             }
             menu.Show(pt);
-        }   
+        }
+
         private void ShowThemeMenu()
         {
             var menu = new ContextMenuStrip();

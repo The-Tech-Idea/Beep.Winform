@@ -58,6 +58,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (!ShowThemeButton && !ShowStyleButton)
                 _customActionButton?.OnPaint?.Invoke(g, CurrentLayout.CustomActionButtonRect);
 
+            if (ShowProfileButton)
+                _profileButton?.OnPaint?.Invoke(g, CurrentLayout.ProfileButtonRect);
+
             // Draw search box if visible
             if (ShowSearchBox && CurrentLayout.SearchBoxRect.Width > 0)
                 _searchBox?.OnPaint?.Invoke(g, CurrentLayout.SearchBoxRect);
@@ -75,7 +78,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             return region.Dock switch
             {
-                RegionDock.Caption => new Rectangle(CurrentLayout.CaptionRect.Left, CurrentLayout.CaptionRect.Top, CurrentLayout.CaptionRect.Width, CurrentLayout.CaptionRect.Height),
+                RegionDock.Caption => region.Bounds.Width > 0 && region.Bounds.Height > 0
+                    ? new Rectangle(
+                        CurrentLayout.CaptionRect.Left + region.Bounds.X,
+                        CurrentLayout.CaptionRect.Top + region.Bounds.Y,
+                        region.Bounds.Width,
+                        region.Bounds.Height)
+                    : new Rectangle(CurrentLayout.CaptionRect.Left, CurrentLayout.CaptionRect.Top, CurrentLayout.CaptionRect.Width, CurrentLayout.CaptionRect.Height),
                 RegionDock.Bottom => new Rectangle(ClientRectangle.Left, ClientRectangle.Bottom - 24, ClientRectangle.Width, 24),
                 RegionDock.Left => new Rectangle(ClientRectangle.Left, CurrentLayout.CaptionRect.Bottom, 24, ClientRectangle.Height - CurrentLayout.CaptionRect.Height),
                 RegionDock.Right => new Rectangle(ClientRectangle.Right - 24, CurrentLayout.CaptionRect.Bottom, 24, ClientRectangle.Height - CurrentLayout.CaptionRect.Height),
@@ -258,13 +267,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// </summary>
         private void DrawFocusIndicator(Graphics g, Rectangle bounds)
         {
-            if (FocusIndicatorStyle == FocusIndicatorStyle.None) return;
+            FocusIndicatorStyle effectiveFocusIndicatorStyle = HighContrastMode || SystemInformation.HighContrast
+                ? FocusIndicatorStyle.HighContrast
+                : FocusIndicatorStyle;
 
-            using var focusPen = FocusIndicatorStyle switch
+            if (effectiveFocusIndicatorStyle == FocusIndicatorStyle.None) return;
+
+            using var focusPen = effectiveFocusIndicatorStyle switch
             {
                 FocusIndicatorStyle.Subtle => new Pen(Color.FromArgb(100, ThemeAwareHighlight()), 1),
                 FocusIndicatorStyle.Prominent => new Pen(ThemeAwareHighlight(), 2),
-                FocusIndicatorStyle.HighContrast => new Pen(ThemeAwareWindowText(), 2),
+                FocusIndicatorStyle.HighContrast => new Pen(ThemeAwareWindowText(), 3),
                 _ => new Pen(ThemeAwareHighlight(), 1)
             };
 
@@ -272,6 +285,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             var focusRect = new Rectangle(bounds.X + 1, bounds.Y + 1, bounds.Width - 2, bounds.Height - 2);
             using var path = CreateRoundedRectanglePath(focusRect, new CornerRadius(2));
             g.DrawPath(focusPen, path);
+        }
+
+        private void PaintKeyboardCaptionFocusIndicator(Graphics g)
+        {
+            if (!HasKeyboardCaptionFocus)
+                return;
+
+            if (BeepiFormProHitAreaManager.NormalizeName(_keyboardFocusedCaptionAreaName) == FormHitAreaNames.Search)
+                return;
+
+            if (!Focused && !ContainsFocus)
+                return;
+
+            var focusBounds = GetKeyboardFocusedCaptionBounds();
+            if (focusBounds.Width <= 0 || focusBounds.Height <= 0)
+                return;
+
+            DrawFocusIndicator(g, focusBounds);
         }
 
         /// <summary>
@@ -357,6 +388,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
             // Ensure layout is fresh before checking ContentRect
             try { EnsureLayoutCalculated(); } catch { }
+
+            if (HasKeyboardCaptionFocus)
+            {
+                var focusedBounds = GetKeyboardFocusedCaptionBounds();
+                if (focusedBounds.IsEmpty || !focusedBounds.Contains(e.Location))
+                {
+                    ClearKeyboardCaptionFocus();
+                }
+            }
 
             // Handle search box unfocus when clicking outside
             if (ShowSearchBox && _searchBoxFocused)

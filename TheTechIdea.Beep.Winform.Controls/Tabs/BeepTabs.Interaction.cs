@@ -101,7 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             BeepTabHeaderAction action = ResolveHeaderAction(e.Location);
             if (BeepTabHeaderActionRouter.TryExecute(this, action))
             {
-                Invalidate();
+                // Selection change already invalidates the header inside SetSelectedHostedPage.
+                // Avoid repainting the content area which is handled by the page visibility change.
+                InvalidateHeader();
             }
         }
 
@@ -160,10 +162,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             UpdateHostedContentBounds();
-            if (IsHandleCreated && !IsDisposed && !Disposing)
-            {
-                BeginInvoke(new Action(UpdateHostedContentBounds));
-            }
         }
 
         private void UpdateHeaderHoverState(Point location)
@@ -194,14 +192,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void SyncHeaderSnapshot()
         {
-            if (IsHandleCreated && !IsDisposed)
+            if (!IsHandleCreated || IsDisposed)
             {
-                using Graphics graphics = CreateGraphics();
-                SyncHeaderSurface(graphics);
+                _headerHost.SyncSnapshot();
                 return;
             }
 
-            _headerHost.SyncSnapshot();
+            // Avoid expensive CreateGraphics() + full layout if the snapshot is still valid.
+            // The snapshot is rebuilt during every paint cycle, so it is fresh unless
+            // the layout has changed programmatically between paints.
+            BeepTabHeaderLayoutSnapshot snapshot = _headerHost.LayoutSnapshot;
+            int itemCount = GetHostedSourceItemCount();
+            if (snapshot != null && snapshot.Items.Count == itemCount && itemCount > 0)
+            {
+                return;
+            }
+
+            using Graphics graphics = CreateGraphics();
+            SyncHeaderSurface(graphics);
         }
 
         private bool TryBeginHeaderDrag(Point location, out int draggedTabIndex)

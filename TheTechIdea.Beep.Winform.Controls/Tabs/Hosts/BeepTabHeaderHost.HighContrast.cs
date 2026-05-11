@@ -123,12 +123,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 
             // ── Title text ────────────────────────────────────────────────────
             Color fgColor = GetHighContrastTabForeground(item);
-            if (!itemLayout.TextBounds.IsEmpty && !string.IsNullOrEmpty(item.Title))
+            Font? font = Font;
+            if (!itemLayout.TextBounds.IsEmpty && !string.IsNullOrEmpty(item.Title) && font != null)
             {
                 TextRenderer.DrawText(
                     graphics,
                     item.Title,
-                    Font,
+                    font,
                     itemLayout.TextBounds,
                     fgColor,
                     TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter | TextFormatFlags.Left);

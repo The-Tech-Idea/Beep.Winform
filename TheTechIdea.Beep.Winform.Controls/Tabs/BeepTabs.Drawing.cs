@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -17,11 +18,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            Rectangle headerRegion = BeepTabLayoutHelper.GetHeaderBounds(this);
-
-            if (!headerRegion.IsEmpty && e.ClipRectangle.IntersectsWith(headerRegion))
+            // Only clear the content area; the header is drawn in OnPaint.
+            Rectangle content = DisplayRectangle;
+            if (content.Width > 0 && content.Height > 0 && e.ClipRectangle.IntersectsWith(content))
             {
-                _painter?.PaintHeaderBackground(e.Graphics, headerRegion);
+                using var brush = new SolidBrush(BackColor);
+                e.Graphics.FillRectangle(brush, content);
             }
         }
 
@@ -34,19 +36,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
             Rectangle headerRegion = BeepTabLayoutHelper.GetHeaderBounds(this);
             if (!headerRegion.IsEmpty && e.ClipRectangle.IntersectsWith(headerRegion))
             {
                 _painter?.PaintHeaderBackground(e.Graphics, headerRegion);
-            }
-
-            if (!headerRegion.IsEmpty && e.ClipRectangle.IntersectsWith(headerRegion))
-            {
                 DrawTabHeaders(e.Graphics);
                 DrawHeaderSelectionIndicator(e.Graphics);
             }
 
-            // Draw error overlay when an operation failed
             DrawErrorOverlay(e.Graphics);
         }
 
@@ -102,6 +100,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void InvalidateHeaderSelectionChange(int oldSelectedIndex, int newSelectedIndex)
+        {
+            // Simply invalidate the entire header region.
+            // The header is only ~30 px tall; recalculating exact tab rectangles
+            // via CreateGraphics() is far more expensive than painting the whole strip.
+            InvalidateHeader();
+        }
+
         private void SyncHeaderSurface(Graphics graphics)
         {
             SyncHeaderHostFromOwner(graphics);
@@ -110,9 +116,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void SyncHeaderHostFromOwner(Graphics graphics)
         {
-            _headerHost.Font = TabFontHelpers.ResolveSafeFont(_textFont ?? Font, this);
-            _headerHost.ForeColor = ForeColor;
-            _headerHost.BackColor = BackColor;
             BeepTabHeaderAction[] headerActions = GetHeaderActionSlots(graphics);
             _headerHost.SetActionSlots(headerActions);
             _headerHost.SetOverflowState(GetHeaderOverflowState(graphics, headerActions));

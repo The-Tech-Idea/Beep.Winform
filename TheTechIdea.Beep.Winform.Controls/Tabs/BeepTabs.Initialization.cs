@@ -9,8 +9,6 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         private void InitializeControlDefaults()
         {
-            PainterKind = BaseControlPainterKind.None;
-
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 

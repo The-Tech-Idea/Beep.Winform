@@ -236,6 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             List<RectangleF> tabRects = new List<RectangleF>(itemCount);
             if (itemCount == 0)
             {
+                _cachedHeaderTabRects = tabRects;
                 return tabRects;
             }
 
@@ -296,12 +297,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
             }
 
+            _cachedHeaderTabRects = tabRects;
             return tabRects;
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            _cachedHeaderTabRects.Clear();
             RefreshHeaderLayoutState(updateItemSize: false);
         }
 

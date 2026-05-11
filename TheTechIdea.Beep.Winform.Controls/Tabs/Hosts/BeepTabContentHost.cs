@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 {
@@ -11,27 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
     [Category("Beep Controls")]
     [DisplayName("Beep Tab Content Host")]
     [Description("Container host for premium tab content presentation.")]
-    public class BeepTabContentHost : BaseControl
+    public class BeepTabContentHost : ContainerControl
     {
         private Control? _hostedContent;
         private bool _applyingPageLayout;
 
-        protected override bool IsContainerControl => true;
-        protected override bool UseBaseMouseInputRouting => false;
-
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams createParams = base.CreateParams;
-                createParams.ExStyle &= ~0x20;
-                return createParams;
-            }
-        }
-
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Control? HostedContent => _hostedContent;
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string Theme { get; set; } = string.Empty;
 
         public BeepTabContentHost()
         {
@@ -39,11 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             AccessibleName = "Beep Tab Content Host";
             Padding = Padding.Empty;
             TabStop = false;
-            CanBeHovered = false;
-            CanBePressed = false;
-            CanBeSelected = false;
-            HitAreaEventOn = false;
-            AutoDrawHitListComponents = false;
+            DoubleBuffered = true;
         }
 
         protected override void OnLayout(LayoutEventArgs levent)
@@ -58,35 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             SetSelectedPage(_hostedContent, ClientRectangle);
         }
 
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-
-            if (Visible)
-            {
-                RepaintSelectedPageImmediately(_hostedContent);
-            }
-        }
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            RepaintSelectedPageImmediately(_hostedContent);
-        }
-
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            PaintHostSurface(e.Graphics);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            PaintHostForeground(e.Graphics);
-        }
-
-        private void PaintHostSurface(Graphics graphics)
-        {
-            if (graphics == null || ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
+            if (ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
             {
                 return;
             }
@@ -98,15 +58,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             }
 
             using Brush brush = new SolidBrush(fillColor);
-            graphics.FillRectangle(brush, ClientRectangle);
+            e.Graphics.FillRectangle(brush, ClientRectangle);
         }
 
-        private void PaintHostForeground(Graphics graphics)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            if (graphics == null || ClientRectangle.Width <= 0 || ClientRectangle.Height <= 0)
-            {
-                return;
-            }
+            // Intentionally empty – children paint themselves.
         }
 
         public void AddPage(Control page)
@@ -250,8 +207,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             Rectangle pageBounds = new Rectangle(0, 0, Math.Max(0, bounds.Width), Math.Max(0, bounds.Height));
             bool showSelectedPage = page != null && pageBounds.Width > 0 && pageBounds.Height > 0;
 
-            Control? pageToRepaint = null;
-
             SuspendLayout();
             _applyingPageLayout = true;
             try
@@ -267,7 +222,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
                     if (ReferenceEquals(child, page))
                     {
                         selectedControl = child;
-                        pageToRepaint = child;
                         if (child.Bounds != pageBounds)
                         {
                             child.Bounds = pageBounds;
@@ -293,17 +247,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             {
                 try
                 {
-                    ResumeLayout(true);
+                    ResumeLayout(false);
                 }
                 finally
                 {
                     _applyingPageLayout = false;
                 }
-            }
-
-            if (showSelectedPage)
-            {
-                RepaintSelectedPageImmediately(pageToRepaint);
             }
         }
 
@@ -315,48 +264,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
         public void SetContent(Control? content)
         {
             SetSelectedPage(content, ClientRectangle);
-        }
-
-        private void RepaintSelectedPageImmediately(Control? page)
-        {
-            if (page == null || page.IsDisposed || !Visible)
-            {
-                return;
-            }
-
-            if (IsHandleCreated && !page.IsHandleCreated)
-            {
-                page.CreateControl();
-            }
-
-            page.PerformLayout();
-            CreateVisibleChildHandles(page);
-            page.Invalidate(true);
-            Invalidate(false);
-
-            if (page.IsHandleCreated)
-            {
-                page.Refresh();
-            }
-        }
-
-        private static void CreateVisibleChildHandles(Control parent)
-        {
-            foreach (Control child in parent.Controls)
-            {
-                if (child.IsDisposed || !child.Visible)
-                {
-                    continue;
-                }
-
-                if (!child.IsHandleCreated)
-                {
-                    child.CreateControl();
-                }
-
-                child.PerformLayout();
-                CreateVisibleChildHandles(child);
-            }
         }
     }
 }

@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
- 
+
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Hosts;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Helpers;
@@ -13,7 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Painters;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
- 
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public enum TabHeaderPosition { Top, Bottom, Left, Right }
@@ -23,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Tabs")]
     [Description("A fully custom tab control with themed headers and SVG close buttons.")]
-    public partial class BeepTabs : BaseControl
+    public partial class BeepTabs : ContainerControl
     {
         public new event EventHandler? SelectedIndexChanged;
 
@@ -130,16 +129,18 @@ namespace TheTechIdea.Beep.Winform.Controls
      
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
         
+        private string _themeName = string.Empty;
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
-        private string _theme;
+
         [Browsable(true)]
+        [Category("Appearance")]
         [TypeConverter(typeof(ThemeEnumConverter))]
         public string Theme
         {
-            get => _theme;
+            get => _themeName;
             set
             {
-                _theme = value;
+                _themeName = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
                 ApplyTheme();
             }
@@ -278,8 +279,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BeepImage closeIcon;
         private BeepTabContentHost? _contentHost;
+        private Font? _textFont;
+        private List<RectangleF> _cachedHeaderTabRects = new List<RectangleF>();
 
-        protected override bool UseBaseMouseInputRouting => false;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Font? TextFont => _textFont;
 
         public BeepTabs()
         {

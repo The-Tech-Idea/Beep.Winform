@@ -54,7 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <summary>
         /// Registers an assembly for font scanning.
         /// The assembly's manifest resources are inspected and any namespace prefix found on a
-        /// <c>.ttf</c> / <c>.otf</c> resource is also registered as a namespace root.
+        /// <c>.ttf</c> / <c>.otf</c> / <c>.ttc</c> / <c>.woff</c> / <c>.woff2</c> resource is also
+        /// registered as a namespace root.
         /// </summary>
         /// <param name="assembly">Assembly to register. Null is silently ignored.</param>
         public static void Register(Assembly assembly)
@@ -68,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 if (_registeredAssemblies.Add(assembly))
                 {
                     changed = true;
-                    // Auto-infer namespace roots from font resources in this assembly
+                    // Auto-infer namespace roots from font resources in this assembly.
                     InferNamespacesFromAssembly(assembly);
                 }
             }
@@ -84,6 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static void Register(IEnumerable<Assembly> assemblies)
         {
             if (assemblies == null) return;
+
             bool changed = false;
             _lock.EnterWriteLock();
             try
@@ -133,15 +135,28 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         /// <summary>
         /// Registers a file-system directory that will be scanned for <c>.ttf</c> / <c>.otf</c>
-        /// font files. Directory must exist; non-existent paths are silently ignored.
+        /// / <c>.ttc</c> font files. Directory must exist; non-existent paths are silently ignored.
         /// </summary>
         public static void RegisterFromDirectory(string directoryPath)
         {
             if (string.IsNullOrWhiteSpace(directoryPath)) return;
 
+            string fullPath;
+            try
+            {
+                fullPath = Path.GetFullPath(directoryPath.Trim());
+            }
+            catch
+            {
+                return;
+            }
+
+            if (!Directory.Exists(fullPath))
+                return;
+
             bool changed = false;
             _lock.EnterWriteLock();
-            try { changed = _registeredDirectories.Add(directoryPath.Trim()); }
+            try { changed = _registeredDirectories.Add(fullPath); }
             finally { _lock.ExitWriteLock(); }
 
             if (changed) RaiseChanged();
@@ -161,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static void RegisterFromAppDomain()
         {
             var candidates = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.IsDynamic)
+                .Where(a => a != null && !a.IsDynamic)
                 .Where(a =>
                 {
                     var fn = a.FullName ?? string.Empty;
@@ -175,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Returns <c>true</c> if the assembly contains at least one embedded .ttf/.otf resource
+        /// Returns <c>true</c> if the assembly contains at least one embedded font resource
         /// whose namespace prefix ends with <c>.Fonts</c>.
         /// </summary>
         public static bool HasConventionFontResource(Assembly assembly)
@@ -184,18 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             try
             {
                 return assembly.GetManifestResourceNames()
-                    .Any(r =>
-                    {
-                        var ext = Path.GetExtension(r)?.ToLowerInvariant();
-                        if (ext != ".ttf" && ext != ".otf") return false;
-                        // Namespace prefix = everything before the last dot + filename
-                        int lastDot = r.LastIndexOf('.');           // extension dot
-                        int prevDot = r.LastIndexOf('.', lastDot - 1); // separator before filename
-                        if (prevDot < 0) return false;
-                        string nsPrefix = r.Substring(0, prevDot);
-                        return nsPrefix.EndsWith(".Fonts", StringComparison.OrdinalIgnoreCase)
-                            || nsPrefix.EndsWith("Fonts", StringComparison.OrdinalIgnoreCase);
-                    });
+                    .Any(r => IsSupportedFontExtension(r) && IsFontNamespaceConvention(r));
             }
             catch { return false; }
         }
@@ -236,15 +240,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         private static void InferNamespacesFromAssembly(Assembly assembly)
         {
-            // Called inside write lock — no re-entrant lock needed
+            // Called inside write lock — no re-entrant lock needed.
             try
             {
                 foreach (var res in assembly.GetManifestResourceNames())
                 {
-                    var ext = Path.GetExtension(res)?.ToLowerInvariant();
-                    if (ext != ".ttf" && ext != ".otf") continue;
+                    if (!IsSupportedFontExtension(res)) continue;
 
-                    // Namespace prefix = everything up to (but not including) the last "." segment
+                    // Namespace prefix = everything up to (but not including) the filename segment.
                     int lastDot = res.LastIndexOf('.');
                     if (lastDot <= 0) continue;
                     int prevDot = res.LastIndexOf('.', lastDot - 1);
@@ -254,6 +257,25 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 }
             }
             catch { /* ignore reflection errors */ }
+        }
+
+        private static bool IsSupportedFontExtension(string resource)
+        {
+            var ext = Path.GetExtension(resource)?.ToLowerInvariant();
+            return ext == ".ttf" || ext == ".otf" || ext == ".ttc" || ext == ".woff" || ext == ".woff2";
+        }
+
+        private static bool IsFontNamespaceConvention(string resource)
+        {
+            if (string.IsNullOrWhiteSpace(resource)) return false;
+
+            int lastDot = resource.LastIndexOf('.');             // extension dot
+            int prevDot = lastDot > 0 ? resource.LastIndexOf('.', lastDot - 1) : -1; // separator before filename
+            if (prevDot < 0) return false;
+
+            string nsPrefix = resource.Substring(0, prevDot);
+            return nsPrefix.EndsWith(".Fonts", StringComparison.OrdinalIgnoreCase)
+                || nsPrefix.EndsWith("Fonts", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void RaiseChanged() =>

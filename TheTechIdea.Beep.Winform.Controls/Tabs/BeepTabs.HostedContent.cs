@@ -244,6 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     int clampedIndex = Math.Max(0, Math.Min(_hostedPages.Count, index));
                     _hostedPages.Insert(clampedIndex, page);
+                    _cachedHeaderTabRects.Clear();
                     GetOrCreateHostedTabMetadata(page);
                     ApplyThemeToHostedPage(page, _currentTheme, Theme);
                     if (ShouldKeepHostedPagesOnOwnerControlTree())
@@ -310,6 +311,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // sees it already registered and does not double-add when design-time
                 // ownership keeps the page on BeepTabs.Controls.
                 _hostedPages.Add(page);
+                _cachedHeaderTabRects.Clear();
                 GetOrCreateHostedTabMetadata(page);
                 ApplyThemeToHostedPage(page, _currentTheme, Theme);
                 if (ShouldKeepHostedPagesOnOwnerControlTree())
@@ -368,6 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DetachHostedPageFromCurrentParent(page);
 
             _hostedPages.Remove(page);
+            _cachedHeaderTabRects.Clear();
             RemoveHostedPageFromMru(page);
             page.Visible = false;
 
@@ -412,6 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             _hostedPages.Clear();
+            _cachedHeaderTabRects.Clear();
             ClearHostedPageMru();
             ClearClosedTabHistory();
             UpdateLayout();
@@ -442,6 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _hostedPages.RemoveAt(currentIndex);
             int insertionIndex = Math.Max(0, Math.Min(newIndex, _hostedPages.Count));
             _hostedPages.Insert(insertionIndex, page);
+            _cachedHeaderTabRects.Clear();
             SyncHostedPageControlTreeOrder(page, insertionIndex);
             SyncHostedPageOrderFromOwnerControlTree();
             SyncContentHostPageOrder();
@@ -527,6 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _hostedPages.Clear();
             _hostedPages.AddRange(orderedPages);
+            _cachedHeaderTabRects.Clear();
         }
 
         private int GetControlTreeIndexForHostedPageIndex(int hostedIndex)
@@ -592,7 +598,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         contentHost.Bounds = bounds;
                     }
 
-                    EnsureHostedPagesAttachedToContentHost(contentHost);
+                    // Only ensure the selected page is attached, not all pages
+                    EnsureHostedPageAttachedToContentHost(contentHost, _selectedHostedPage);
                     bool hasContentArea = bounds.Width > 0 && bounds.Height > 0;
                     if (contentHost.Visible != hasContentArea)
                     {
@@ -726,30 +733,39 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            int oldSelectedIndex = GetHostedSourceSelectedIndex();
             _selectedHostedPage = page;
             RecordHostedPageSelection(page);
 
-            if (UseContentHostPresentation())
+            SuspendLayout();
+            try
             {
-                ApplyHostedSourceContentBounds(DisplayRectangle);
-            }
-            else
-            {
-                Rectangle contentRect = DisplayRectangle;
-                foreach (BeepTabPage p in _hostedPages)
+                if (UseContentHostPresentation())
                 {
-                    if (ReferenceEquals(p, page))
+                    ApplyHostedSourceContentBounds(DisplayRectangle);
+                }
+                else
+                {
+                    Rectangle contentRect = DisplayRectangle;
+                    foreach (BeepTabPage p in _hostedPages)
                     {
-                        p.Dock = DockStyle.None;
-                        p.Bounds = contentRect;
-                        p.Visible = true;
-                        p.BringToFront();
-                    }
-                    else
-                    {
-                        p.Visible = false;
+                        if (ReferenceEquals(p, page))
+                        {
+                            p.Dock = DockStyle.None;
+                            p.Bounds = contentRect;
+                            p.Visible = true;
+                            p.BringToFront();
+                        }
+                        else
+                        {
+                            p.Visible = false;
+                        }
                     }
                 }
+            }
+            finally
+            {
+                ResumeLayout(false);
             }
 
             if (raiseSelectionChanged)
@@ -757,7 +773,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
             }
 
-            Invalidate();
+            // Only invalidate the header region that changed (old + new selected tabs)
+            // instead of repainting the entire control including content area
+            InvalidateHeaderSelectionChange(oldSelectedIndex, GetHostedSourceSelectedIndex());
         }
 
         private void UpdateHostedContentBounds()

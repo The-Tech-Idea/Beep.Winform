@@ -1,16 +1,13 @@
-using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 {
-    [ToolboxItem(false)]
-    [Category("Beep Controls")]
-    [DisplayName("Beep Tab Header Host")]
-    [Description("Custom premium tab header host that replaces stock header rendering over time.")]
-    public partial class BeepTabHeaderHost : BaseControl
+    /// <summary>
+    /// Pure helper class that owns header layout, hit-testing, and rendering state.
+    /// It is NOT a Control and is never added to the window hierarchy.
+    /// </summary>
+    public partial class BeepTabHeaderHost
     {
         private int _hoveredTabIndex = -1;
         private int _hoveredCloseTabIndex = -1;
@@ -20,36 +17,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
         private bool _hasActivePointerInteraction;
         private Point _pointerDownLocation = Point.Empty;
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTabs? TabsOwner { get; private set; }
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTabHeaderLayoutSnapshot LayoutSnapshot { get; private set; } = new BeepTabHeaderLayoutSnapshot();
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HoveredTabIndex => _hoveredTabIndex;
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int PressedTabIndex => _pressedTabIndex;
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int DraggingTabIndex => _draggingTabIndex;
 
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepTabHeaderDragFeedback DragFeedback { get; private set; } = BeepTabHeaderDragFeedback.Empty;
 
-        public BeepTabHeaderHost()
-        {
-            AccessibleRole = AccessibleRole.PageTabList;
-            AccessibleName = "Beep Tab Header Host";
-            TabStop = true;
-        }
+        /// <summary>Delegates to the owner control's font, or the default UI font.</summary>
+        public Font? Font => TabsOwner?.Font;
+
+        /// <summary>Delegates to the owner control's foreground colour.</summary>
+        public Color ForeColor => TabsOwner?.ForeColor ?? SystemColors.ControlText;
 
         public void AttachTabsOwner(BeepTabs tabsOwner)
         {

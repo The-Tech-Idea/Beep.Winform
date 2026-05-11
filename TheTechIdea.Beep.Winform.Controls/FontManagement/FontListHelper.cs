@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         // Tracks whether fonts were initialized to allow safe app-start calls
         private static bool _fontsLoaded = false;
         private static readonly object _initLock = new object();
+
+        // Keep unmanaged memory for AddMemoryFont alive for the lifetime of the private collection.
+        // GDI+ requires the memory passed to AddMemoryFont to remain valid while the font is in use.
+        private static readonly List<IntPtr> privateFontMemoryHandles = new List<IntPtr>();
+
+        // Caches the expensive system FontFamily existence probe used by CreateValidFont(string,...).
+        // This is intentionally separate from fontCache: fontCache stores Font instances by name+size+style,
+        // while this cache stores whether a system family name is valid at all.
+        private static readonly Dictionary<string, bool> systemFontValidationCache =
+            new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
         #region DPI Scaling Support
 
@@ -121,42 +132,23 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         private static readonly object fontCacheLock = new object();
 
         /// <summary>
-        /// Gets a cached font for common painter scenarios (avoids per-paint allocation)
+        /// Gets a cached font for common painter scenarios (avoids per-paint allocation).
+        /// Returned fonts are owned by FontListHelper and must not be disposed by callers.
         /// </summary>
         public static Font GetCachedFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
-            // Apply DPI scaling if enabled
-            float scaledSize = ApplyDpiScaling(size);
-            string key = $"{fontName}|{scaledSize}|{(int)style}";
-            lock (fontCacheLock)
-            {
-                if (fontCache.TryGetValue(key, out var cached))
-                    return cached;
-                
-                var font = GetFontInternal(fontName, scaledSize, style);
-                if (font != null)
-                    fontCache[key] = font;
-                return font;
-            }
+            // Keep this public convenience API, but delegate to the single cache path.
+            return GetFont(fontName, size, style);
         }
 
         /// <summary>
         /// Gets a cached font with explicit DPI scale factor.
+        /// Returned fonts are owned by FontListHelper and must not be disposed by callers.
         /// </summary>
         public static Font GetCachedFont(string fontName, float size, float dpiScaleFactor, FontStyle style = FontStyle.Regular)
         {
-            float scaledSize = ApplyDpiScaling(size, dpiScaleFactor);
-            string key = $"{fontName}|{scaledSize}|{(int)style}";
-            lock (fontCacheLock)
-            {
-                if (fontCache.TryGetValue(key, out var cached))
-                    return cached;
-                
-                var font = GetFontInternal(fontName, scaledSize, style);
-                if (font != null)
-                    fontCache[key] = font;
-                return font;
-            }
+            // Keep this public convenience API, but delegate to the single cache path.
+            return GetFont(fontName, size, dpiScaleFactor, style);
         }
 
         /// <summary>
@@ -169,12 +161,25 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Clears the font cache (use sparingly - only on theme changes or cleanup)
+        /// Clears the font cache (use sparingly - only on theme changes, DPI changes or cleanup).
+        /// Disposes cached Font instances because the cache owns them.
         /// </summary>
         public static void ClearFontCache()
         {
             lock (fontCacheLock)
             {
+                foreach (var font in fontCache.Values.Distinct())
+                {
+                    try
+                    {
+                        font?.Dispose();
+                    }
+                    catch
+                    {
+                        // Ignore dispose failures.
+                    }
+                }
+
                 fontCache.Clear();
             }
         }
@@ -304,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                     catch (Exception ex)
                     {
-                      //  Console.WriteLine($"Failed to load font file {file}: {ex.Message}");
+                        //  Console.WriteLine($"Failed to load font file {file}: {ex.Message}");
                     }
                 }
             }
@@ -480,20 +485,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         {
                             if (fontStream != null)
                             {
-                                // Create a byte array of the right size
-                                byte[] fontData = new byte[fontStream.Length];
-                                fontStream.Read(fontData, 0, (int)fontStream.Length);
+                                var family = AddMemoryFontFromStream(fontStream, out int lastIndex);
+                                if (family == null)
+                                    continue;
 
-                                // Add font data to private font collection
-                                IntPtr dataPointer = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
-                                System.Runtime.InteropServices.Marshal.Copy(fontData, 0, dataPointer, fontData.Length);
-                                privateFontCollection.AddMemoryFont(dataPointer, fontData.Length);
-                                System.Runtime.InteropServices.Marshal.FreeCoTaskMem(dataPointer);
-
-                                // Get the index of the last added font
-                                int lastIndex = privateFontCollection.Families.Length - 1;
-                                var family = privateFontCollection.Families[lastIndex];
-                                string fontName = family?.Name ?? Path.GetFileNameWithoutExtension(resource);
+                                string fontName = family.Name ?? Path.GetFileNameWithoutExtension(resource);
 
                                 var config = new FontConfiguration
                                 {
@@ -516,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     }
                     catch (Exception ex)
                     {
-                      //  Console.WriteLine($"Failed to load embedded font resource {resource}: {ex.Message}");
+                        //  Console.WriteLine($"Failed to load embedded font resource {resource}: {ex.Message}");
                     }
                 }
             }
@@ -615,8 +611,19 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (!forceReload && _fontsLoaded)
                 return;
 
-            LoadAllFonts(options);
-            _fontsLoaded = true;
+            lock (_initLock)
+            {
+                if (!forceReload && _fontsLoaded)
+                    return;
+
+                if (forceReload)
+                {
+                    ResetFontStoresForReload();
+                }
+
+                LoadAllFonts(options);
+                _fontsLoaded = true;
+            }
         }
 
         /// <summary>
@@ -689,17 +696,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     using (Stream fontStream = assembly.GetManifestResourceStream(resource))
                     {
                         if (fontStream == null) continue;
-                        byte[] fontData = new byte[fontStream.Length];
-                        fontStream.Read(fontData, 0, fontData.Length);
+                        var family = AddMemoryFontFromStream(fontStream, out int lastIndex);
+                        if (family == null)
+                            continue;
 
-                        IntPtr ptr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
-                        System.Runtime.InteropServices.Marshal.Copy(fontData, 0, ptr, fontData.Length);
-                        privateFontCollection.AddMemoryFont(ptr, fontData.Length);
-                        System.Runtime.InteropServices.Marshal.FreeCoTaskMem(ptr);
-
-                        int lastIndex = privateFontCollection.Families.Length - 1;
-                        var family = lastIndex >= 0 ? privateFontCollection.Families[lastIndex] : null;
-                        string fontName = family?.Name ?? BeepFontPaths.ExtractFontNameFromPath(resource);
+                        string fontName = family.Name ?? BeepFontPaths.ExtractFontNameFromPath(resource);
 
                         var config = new FontConfiguration
                         {
@@ -721,7 +722,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 }
                 catch (Exception ex)
                 {
-                  //  Console.WriteLine($"RegisterAndLoad: failed to load {resource}: {ex.Message}");
+                    //  Console.WriteLine($"RegisterAndLoad: failed to load {resource}: {ex.Message}");
                 }
             }
 
@@ -758,23 +759,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     {
                         if (s == null)
                             continue;
-                        var fontData = new byte[s.Length];
-                        s.Read(fontData, 0, fontData.Length);
-                        var ptr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
-                        try
-                        {
-                            System.Runtime.InteropServices.Marshal.Copy(fontData, 0, ptr, fontData.Length);
-                            privateFontCollection.AddMemoryFont(ptr, fontData.Length);
-                        }
-                        finally
-                        {
-                            System.Runtime.InteropServices.Marshal.FreeCoTaskMem(ptr);
-                        }
+                        // Use the last-added family for metadata.
+                        var family = AddMemoryFontFromStream(s, out int lastIndex);
+                        if (family == null)
+                            continue;
 
-                        // Use the last-added family for metadata
-                        int lastIndex = privateFontCollection.Families.Length - 1;
-                        var family = lastIndex >= 0 ? privateFontCollection.Families[lastIndex] : null;
-                        string fontName = family?.Name ?? BeepFontPaths.ExtractFontNameFromPath(res);
+                        string fontName = family.Name ?? BeepFontPaths.ExtractFontNameFromPath(res);
 
                         var config = new FontConfiguration
                         {
@@ -919,8 +909,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 fontName = "Segoe UI"; // Use default instead of Arial
             }
 
-            string cacheKey = $"{fontName}|{size}|{(int)style}";
-            
+            string cacheKey = BuildFontCacheKey(fontName, size, style);
+
             return GetOrCreateFont(cacheKey, () =>
             {
                 // Normalize known aliases (e.g., "segoeui" -> "Segoe UI")
@@ -937,7 +927,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 {
                     return CreateValidFont(fontName, size, style);
                 }
-                
+
                 // For private fonts, try by stored index, else by name lookup in private collection
                 if (fontConfig != null && fontConfig.IsPrivateFont)
                 {
@@ -1042,6 +1032,185 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             return null;
         }
 
+        private static string BuildFontCacheKey(string fontName, float size, FontStyle style)
+        {
+            string normalizedName = NormalizeFontName(string.IsNullOrWhiteSpace(fontName) ? "Segoe UI" : fontName);
+            float normalizedSize = NormalizeFontSizeForCache(size);
+            return $"{normalizedName}|{normalizedSize.ToString("0.###", CultureInfo.InvariantCulture)}|{(int)style}";
+        }
+
+        private static float NormalizeFontSizeForCache(float size)
+        {
+            if (float.IsNaN(size) || float.IsInfinity(size) || size <= 0)
+                return 9.0f;
+
+            // Avoid cache misses from tiny DPI floating-point differences.
+            return (float)Math.Round(size, 3, MidpointRounding.AwayFromZero);
+        }
+
+        private static bool IsSystemFontFamilyValid(string fontName)
+        {
+            try
+            {
+                using (new FontFamily(fontName))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static Font CloneDefaultFontSafely()
+        {
+            try
+            {
+                return (Font)SystemFonts.DefaultFont.Clone();
+            }
+            catch
+            {
+                return SystemFonts.DefaultFont;
+            }
+        }
+
+        private static FontFamily AddMemoryFontFromStream(Stream fontStream, out int privateFontIndex)
+        {
+            privateFontIndex = -1;
+
+            if (fontStream == null)
+                return null;
+
+            byte[] fontData = ReadAllBytes(fontStream);
+            if (fontData == null || fontData.Length == 0)
+                return null;
+
+            IntPtr dataPointer = IntPtr.Zero;
+
+            try
+            {
+                dataPointer = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
+                System.Runtime.InteropServices.Marshal.Copy(fontData, 0, dataPointer, fontData.Length);
+
+                lock (_initLock)
+                {
+                    privateFontCollection.AddMemoryFont(dataPointer, fontData.Length);
+
+                    // Keep this pointer alive until the private font collection is reset/disposed.
+                    privateFontMemoryHandles.Add(dataPointer);
+                    dataPointer = IntPtr.Zero;
+
+                    privateFontIndex = privateFontCollection.Families.Length - 1;
+                    return privateFontIndex >= 0 && privateFontIndex < privateFontCollection.Families.Length
+                        ? privateFontCollection.Families[privateFontIndex]
+                        : null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                if (dataPointer != IntPtr.Zero)
+                {
+                    try
+                    {
+                        System.Runtime.InteropServices.Marshal.FreeCoTaskMem(dataPointer);
+                    }
+                    catch
+                    {
+                        // Ignore cleanup failure.
+                    }
+                }
+            }
+        }
+
+        private static byte[] ReadAllBytes(Stream stream)
+        {
+            if (stream == null)
+                return Array.Empty<byte>();
+
+            if (stream.CanSeek)
+            {
+                long remaining = stream.Length - stream.Position;
+                if (remaining <= 0)
+                    return Array.Empty<byte>();
+
+                if (remaining > int.MaxValue)
+                    throw new InvalidOperationException("Font resource is too large to load into memory.");
+
+                var buffer = new byte[(int)remaining];
+                int offset = 0;
+                while (offset < buffer.Length)
+                {
+                    int read = stream.Read(buffer, offset, buffer.Length - offset);
+                    if (read <= 0)
+                        break;
+                    offset += read;
+                }
+
+                if (offset == buffer.Length)
+                    return buffer;
+
+                Array.Resize(ref buffer, offset);
+                return buffer;
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                stream.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        private static void ResetFontStoresForReload()
+        {
+            ClearFontCache();
+
+            lock (fontCacheLock)
+            {
+                systemFontValidationCache.Clear();
+            }
+
+            FontConfigurations.Clear();
+            index = -1;
+
+            try
+            {
+                privateFontCollection?.Dispose();
+            }
+            catch
+            {
+                // Ignore dispose failures.
+            }
+
+            privateFontCollection = new PrivateFontCollection();
+            FreePrivateFontMemoryHandles();
+            _fontsLoaded = false;
+        }
+
+        private static void FreePrivateFontMemoryHandles()
+        {
+            foreach (var ptr in privateFontMemoryHandles)
+            {
+                if (ptr == IntPtr.Zero)
+                    continue;
+
+                try
+                {
+                    System.Runtime.InteropServices.Marshal.FreeCoTaskMem(ptr);
+                }
+                catch
+                {
+                    // Ignore cleanup failure.
+                }
+            }
+
+            privateFontMemoryHandles.Clear();
+        }
+
         /// <summary>
         /// Creates a font with validation and fallback handling.
         /// Uses FontFamily(string) constructor which throws ArgumentException when the font is not
@@ -1050,25 +1219,35 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         private static Font CreateValidFont(string fontName, float size, FontStyle style)
         {
-            // Phase 1 — existence probe.
-            // FontFamily(string) throws ArgumentException if the font is not installed.
-            // Dispose the probe immediately so the native handle is freed before the
-            // Font is created; the font must NOT share this handle.
-            try
-            {
-                using (new FontFamily(fontName)) { }
-            }
-            catch
-            {
+            if (string.IsNullOrWhiteSpace(fontName))
                 return null;
+
+            // Phase 1 — existence probe, cached by normalized family name.
+            // FontFamily(string) throws ArgumentException if the font is not installed.
+            // This is expensive on repeated misses, so cache both valid and invalid results.
+            string validationKey = NormalizeFontName(fontName);
+            bool isValidFamily;
+
+            lock (fontCacheLock)
+            {
+                if (!systemFontValidationCache.TryGetValue(validationKey, out isValidFamily))
+                {
+                    isValidFamily = IsSystemFontFamilyValid(fontName);
+                    systemFontValidationCache[validationKey] = isValidFamily;
+                }
             }
+
+            if (!isValidFamily)
+                return null;
 
             // Phase 2 — create via string overload.
             // new Font(string, ...) allocates its own independent GDI+ FontFamily handle,
             // so disposing the probe above never invalidates font.Height or font metrics.
             try
             {
-                return new Font(fontName, size, style);
+                var font = new Font(fontName, size, style, GraphicsUnit.Point);
+                var _ = font.Height; // force a live GDI+ validation before returning
+                return font;
             }
             catch
             {
@@ -1218,20 +1397,20 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font GetFontWithFallback(string primaryFontName, string fallbackFontName, float size, FontStyle style = FontStyle.Regular)
         {
             EnsureInitialized();
-            
+
             // Try to get the primary font - GetFont handles all the caching and validation
             Font primaryFont = GetFont(primaryFontName, size, style);
-            
+
             // GetFont never returns null (it has GetUltimateFallbackFont), so we're done
             // But we can check if we got what we wanted
-            if (primaryFont != null && 
+            if (primaryFont != null &&
                 NormalizeFontName(primaryFont.FontFamily.Name) == NormalizeFontName(primaryFontName))
             {
                 return primaryFont;
             }
 
             // If primary didn't match, try fallback explicitly
-            if (!string.IsNullOrWhiteSpace(fallbackFontName) && 
+            if (!string.IsNullOrWhiteSpace(fallbackFontName) &&
                 !fallbackFontName.Equals(primaryFontName, StringComparison.OrdinalIgnoreCase))
             {
                 Font fallbackFont = GetFont(fallbackFontName, size, style);
@@ -1251,16 +1430,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font GetFontWithFallbackForControl(string primaryFontName, string fallbackFontName, float size, Control control, FontStyle style = FontStyle.Regular)
         {
             EnsureInitialized();
-            
+
             Font primaryFont = GetFontForControl(primaryFontName, size, control, style);
-            
-            if (primaryFont != null && 
+
+            if (primaryFont != null &&
                 NormalizeFontName(primaryFont.FontFamily.Name) == NormalizeFontName(primaryFontName))
             {
                 return primaryFont;
             }
 
-            if (!string.IsNullOrWhiteSpace(fallbackFontName) && 
+            if (!string.IsNullOrWhiteSpace(fallbackFontName) &&
                 !fallbackFontName.Equals(primaryFontName, StringComparison.OrdinalIgnoreCase))
             {
                 Font fallbackFont = GetFontForControl(fallbackFontName, size, control, style);
@@ -1329,8 +1508,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     System.Diagnostics.Debug.WriteLine($"Font creation failed: {ex.Message}");
                 }
 
-                // Ultimate fallback - always return a valid font
-                return GetUltimateFallbackFont();
+                // Ultimate fallback - always return a valid font and cache it under the requested key.
+                // This avoids repeatedly walking the failure path for missing fonts.
+                Font fallback = GetUltimateFallbackFont();
+                fontCache[cacheKey] = fallback;
+                return fallback;
             }
         }
 
@@ -1339,12 +1521,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// </summary>
         private static Font GetUltimateFallbackFont()
         {
-            // Try standard fallback fonts using CreateValidFont directly to avoid recursion
+            // Try standard fallback fonts using CreateValidFont directly to avoid recursion.
+            // Return an owned Font instance where possible because cached fonts are disposed by ClearFontCache.
             return CreateValidFont("Segoe UI", 9f, FontStyle.Regular) ??
                    CreateValidFont("Arial", 9f, FontStyle.Regular) ??
                    CreateValidFont(FontFamily.GenericSansSerif, 9f, FontStyle.Regular) ??
                    CreateValidFont("Microsoft Sans Serif", 9f, FontStyle.Regular) ??
-                   SystemFonts.DefaultFont;
+                   CloneDefaultFontSafely();
         }
 
         public static FontFamily GetFontFamily(string fontFamily)

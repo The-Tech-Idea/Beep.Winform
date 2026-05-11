@@ -105,13 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             set => _designer.SetProperty("CheckBoxStyle", value);
         }
 
-        [Category("Appearance")]
-        [Description("BaseControl visual style override used for theming and border behavior")]
-        public BeepControlStyle ControlStyle
-        {
-            get => _designer.GetProperty<BeepControlStyle>("ControlStyle");
-            set => _designer.SetProperty("ControlStyle", value);
-        }
+       
 
         [Category("Appearance")]
         [Description("Text displayed next to the checkbox")]

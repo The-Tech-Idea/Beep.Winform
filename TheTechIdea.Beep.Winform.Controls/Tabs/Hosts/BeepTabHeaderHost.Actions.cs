@@ -150,6 +150,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
                 return;
             }
 
+            Font? font = Font;
+            if (font == null)
+            {
+                return;
+            }
+
             using Pen borderPen = new Pen(Color.FromArgb(120, ForeColor));
             using SolidBrush hoverBrush = new SolidBrush(Color.FromArgb(24, ForeColor));
             using SolidBrush pressedBrush = new SolidBrush(Color.FromArgb(40, ForeColor));
@@ -174,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
                 TextRenderer.DrawText(
                     graphics,
                     action.DisplayText,
-                    Font,
+                    font,
                     action.Bounds,
                     ForeColor,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);

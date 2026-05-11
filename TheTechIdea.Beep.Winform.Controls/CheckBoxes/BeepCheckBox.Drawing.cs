@@ -39,6 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
             // Compute layout using the shared calculator — single authoritative geometry path
             int scaledCheckBoxSize = DpiScalingHelper.ScaleValue(CheckBoxSize, this);
             int scaledSpacing = DpiScalingHelper.ScaleValue(Spacing, this);
+            int scaledPadding = DpiScalingHelper.ScaleValue(Padding.Left, this);
 
             var layout = CheckBoxLayoutCalculator.Compute(
                 rectangle,
@@ -68,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CheckBoxes
                 CheckBoxStyle = _checkBoxStyle,
                 CheckBoxSize = checkBoxSize,
                 Spacing = scaledSpacing,
-                Padding = scaledPaddingLeft,
+                Padding = scaledPadding,
                 BorderRadius = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderRadius(_checkBoxStyle, ControlStyle), this),
                 BorderWidth = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedBorderWidth(_checkBoxStyle), this),
                 CheckMarkThickness = DpiScalingHelper.ScaleValue(CheckBoxStyleHelpers.GetRecommendedCheckMarkThickness(_checkBoxStyle), this),

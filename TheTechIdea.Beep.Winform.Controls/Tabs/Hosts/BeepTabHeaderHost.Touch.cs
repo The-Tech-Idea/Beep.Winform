@@ -56,15 +56,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 
         /// <summary>
         /// Converts the <paramref name="minWidth"/> value (in device-independent
-        /// pixels) to physical pixels using the DPI of the form that owns this host.
-        /// Returns the raw value unchanged when the owner form is unavailable.
+        /// pixels) to physical pixels using the DPI of the owner control.
+        /// Returns the raw value unchanged when the owner is unavailable.
         /// </summary>
         /// <param name="minWidth">Logical minimum width (dp).</param>
         public int ScaleTouchTarget(int minWidth)
         {
             try
             {
-                float dpiScale = DeviceDpi / 96f;
+                float dpiScale = (TabsOwner?.DeviceDpi ?? 96) / 96f;
                 return (int)Math.Ceiling(minWidth * dpiScale);
             }
             catch

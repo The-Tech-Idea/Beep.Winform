@@ -1,6 +1,3 @@
-using System;
-using System.Windows.Forms;
-
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 {
     public partial class BeepTabHeaderHost
@@ -32,19 +29,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
         public void RefreshSnapshot()
         {
             SyncSnapshot();
-            Invalidate();
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            RefreshSnapshot();
-        }
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            RefreshSnapshot();
         }
     }
 }

@@ -93,14 +93,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             int padding = DpiScalingHelper.ScaleValue(6, this);
             int thickness = DpiScalingHelper.ScaleValue(3, this);
 
-            using Graphics graphics = CreateGraphics();
-            var tabRects = GetCurrentHeaderTabRects(graphics);
-            if (selectedIndex >= tabRects.Count)
+            // Use cached tab rectangles to avoid expensive CreateGraphics() + layout recalculation
+            RectangleF selectedRect;
+            if (selectedIndex < _cachedHeaderTabRects.Count)
             {
-                return;
+                selectedRect = _cachedHeaderTabRects[selectedIndex];
+            }
+            else
+            {
+                // Fallback: recalculate if cache is stale
+                using Graphics graphics = CreateGraphics();
+                var tabRects = GetCurrentHeaderTabRects(graphics);
+                if (selectedIndex >= tabRects.Count)
+                {
+                    return;
+                }
+                selectedRect = tabRects[selectedIndex];
             }
 
-            RectangleF selectedRect = tabRects[selectedIndex];
             _underlineTargetRect = new RectangleF(
                 selectedRect.X + padding,
                 selectedRect.Bottom - thickness,
@@ -110,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_underlineCurrentRect == RectangleF.Empty)
             {
                 _underlineCurrentRect = _underlineTargetRect;
-                Invalidate();
+                InvalidateHeader();
                 return;
             }
 

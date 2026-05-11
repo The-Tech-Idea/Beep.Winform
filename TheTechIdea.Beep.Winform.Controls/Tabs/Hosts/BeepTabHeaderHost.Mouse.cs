@@ -335,24 +335,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
             return targetIndex > draggedIndex ? targetIndex - 1 : targetIndex;
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-
-            if (UpdateHoverState(e.Location))
-            {
-                Invalidate();
-            }
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-
-            if (ClearHoverState())
-            {
-                Invalidate();
-            }
-        }
     }
 }

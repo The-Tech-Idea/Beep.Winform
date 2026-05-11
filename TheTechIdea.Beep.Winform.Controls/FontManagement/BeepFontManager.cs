@@ -1,16 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 {
     /// <summary>
-    /// Static manager class for application fonts and typography
+    /// Static manager class for application fonts and typography.
     /// </summary>
     public static class BeepFontManager
     {
@@ -24,7 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         private static float _appFontSize = 9.0f;
         private static FontStyle _appFontStyle = FontStyle.Regular;
 
-        // Font instances for various UI elements
+        // Font instances for various UI elements. These are shared cached fonts from FontListHelper.
+        // Do not dispose them here; FontListHelper owns the lifecycle of its cached fonts.
         private static Font _defaultFont;
         private static Font _buttonFont;
         private static Font _labelFont;
@@ -38,6 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         // Flag to track initialization
         private static bool _isInitialized = false;
+        private static bool _registryEventSubscribed = false;
+        private static readonly SemaphoreSlim _initializeLock = new SemaphoreSlim(1, 1);
+
+        // Pixel-unit fonts are created here for custom painters, so this manager owns and disposes them.
+        private static readonly object _pixelFontCacheLock = new object();
+        private static readonly Dictionary<string, Font> _pixelFontCache =
+            new Dictionary<string, Font>(StringComparer.OrdinalIgnoreCase);
 
         #region "Properties"
         public static string DefaultFontName
@@ -48,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static float DefaultFontSize
         {
             get => _defaultFontSize;
-            set { if (_defaultFontSize != value) { _defaultFontSize = value; ResetFonts(); } }
+            set { if (Math.Abs(_defaultFontSize - value) > 0.001f) { _defaultFontSize = value; ResetFonts(); } }
         }
         public static FontStyle DefaultFontStyle
         {
@@ -63,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static float AppFontSize
         {
             get => _appFontSize;
-            set { if (_appFontSize != value) { _appFontSize = value; ResetFonts(); } }
+            set { if (Math.Abs(_appFontSize - value) > 0.001f) { _appFontSize = value; ResetFonts(); } }
         }
         public static FontStyle AppFontStyle
         {
@@ -77,13 +87,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font HeaderFont => _headerFont ??= GetOrCreateFont(_appFontName, _appFontSize + 2, FontStyle.Bold);
         public static Font TitleFont => _titleFont ??= GetOrCreateFont(_appFontName, _appFontSize + 4, FontStyle.Bold);
         public static Font MenuFont => _menuFont ??= GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
-        public static Font TooltipFont => _tooltipFont ??= GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle);
-        public static Font StatusBarFont => _statusBarFont ??= GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle);
+        public static Font TooltipFont => _tooltipFont ??= GetOrCreateFont(_appFontName, Math.Max(_appFontSize - 1, 6f), _appFontStyle);
+        public static Font StatusBarFont => _statusBarFont ??= GetOrCreateFont(_appFontName, Math.Max(_appFontSize - 1, 6f), _appFontStyle);
         public static Font DialogFont => _dialogFont ??= GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
         public static Font MonospaceFont => _monospaceFont ??= GetOrCreateFont("Consolas", _appFontSize, _appFontStyle);
 
         public static List<FontConfiguration> FontConfigurations => FontListHelper.FontConfigurations;
-        
+
         // NOTE: Renamed to avoid conflict with System.Drawing.SystemFonts class
         public static List<string> SystemFontNames => FontListHelper.GetSystemFontNames();
         public static List<string> CustomFontNames => FontListHelper.GetPrivateFontNames();
@@ -97,9 +107,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (_isInitialized)
                 return;
 
+            await _initializeLock.WaitAsync().ConfigureAwait(false);
             try
             {
-                // Merge registry-registered namespaces and directories into scan options
+                if (_isInitialized)
+                    return;
+
+                // Merge registry-registered namespaces and directories into scan options.
                 var embNamespaces = new List<string>
                 {
                     "TheTechIdea.Beep.Winform.Controls.Fonts",
@@ -117,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 {
                     ScanSystemFonts = true,
                     Directories = allDirs,
-                    EmbeddedNamespaces = embNamespaces.ToArray(),
+                    EmbeddedNamespaces = embNamespaces.Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
                     AdditionalAssemblies = BeepFontRegistry.GetRegisteredAssemblies().ToList(),
                     IncludeFrameworkAssemblies = false,
                     IncludeReferencedAssemblies = true,
@@ -125,29 +139,55 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     UseConventionDiscovery = true
                 };
 
-                await Task.Run(() => FontListHelper.LoadAllFonts(opt));
+                await Task.Run(() => FontListHelper.EnsureFontsLoaded(opt, false)).ConfigureAwait(false);
 
-                // Create default fonts
+                // Create default fonts.
                 CreateDefaultFonts();
 
-                _isInitialized = true;
+                if (!_registryEventSubscribed)
+                {
+                    BeepFontRegistry.Changed += OnRegistryChanged;
+                    _registryEventSubscribed = true;
+                }
 
-                // Subscribe to post-init registrations (plugins / theme packs loaded later)
-                BeepFontRegistry.Changed += OnRegistryChanged;
+                _isInitialized = true;
             }
-            catch
+            catch (Exception ex)
             {
-                // swallow, consumers will fallback to generic fonts
+                System.Diagnostics.Debug.WriteLine($"BeepFontManager.Initialize failed: {ex.Message}");
+                // Consumers still fall back to generic fonts through FontListHelper.
+            }
+            finally
+            {
+                _initializeLock.Release();
             }
         }
 
         private static void OnRegistryChanged(object sender, EventArgs e)
         {
-            // Incrementally load fonts from any newly registered assemblies
-            foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+            if (!_isInitialized)
+                return;
+
+            try
             {
-                FontListHelper.RegisterAndLoad(asm);
-                BeepFontPaths.RegisterFamilyFromAssembly(asm);
+                // Incrementally load fonts from newly registered assemblies.
+                foreach (var asm in BeepFontRegistry.GetRegisteredAssemblies())
+                {
+                    FontListHelper.RegisterAndLoad(asm);
+                    BeepFontPaths.RegisterFamilyFromAssembly(asm);
+                }
+
+                // Incrementally scan registered font directories too.
+                foreach (var dir in BeepFontRegistry.GetRegisteredDirectories())
+                {
+                    try { FontListHelper.GetFontFilesLocations(dir); } catch { }
+                }
+
+                ResetFonts();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BeepFontManager registry update failed: {ex.Message}");
             }
         }
 
@@ -159,8 +199,8 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             _headerFont = GetOrCreateFont(_appFontName, _appFontSize + 2, FontStyle.Bold);
             _titleFont = GetOrCreateFont(_appFontName, _appFontSize + 4, FontStyle.Bold);
             _menuFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
-            _tooltipFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle);
-            _statusBarFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle);
+            _tooltipFont = GetOrCreateFont(_appFontName, Math.Max(_appFontSize - 1, 6f), _appFontStyle);
+            _statusBarFont = GetOrCreateFont(_appFontName, Math.Max(_appFontSize - 1, 6f), _appFontStyle);
             _dialogFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
             _monospaceFont = GetOrCreateFont("Consolas", _appFontSize, _appFontStyle);
         }
@@ -178,6 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             _dialogFont = null;
             _monospaceFont = null;
 
+            ClearPixelFontCache();
             CreateDefaultFonts();
         }
 
@@ -186,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             var font = FontListHelper.GetFont(fontName, size, style);
             if (font != null) return font;
 
-            // resilient fallbacks
+            // Resilient fallbacks. These are only used if FontListHelper itself failed unexpectedly.
             try { return new Font(FontFamily.GenericSansSerif, size, style); }
             catch { }
             try { return new Font("Arial", size, style); }
@@ -215,6 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             {
                 FontListHelper.RegisterAndLoad(assembly);
                 BeepFontPaths.RegisterFamilyFromAssembly(assembly);
+                ResetFonts();
             }
         }
 
@@ -237,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Registers a file-system directory for .ttf/.otf scanning.
+        /// Registers a file-system directory for .ttf/.otf/.ttc scanning.
         /// If already initialized, scanning runs immediately.
         /// </summary>
         public static void RegisterDirectory(string directoryPath)
@@ -246,7 +288,12 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             BeepFontRegistry.RegisterFromDirectory(directoryPath);
             if (_isInitialized)
             {
-                try { FontListHelper.GetFontFilesLocations(directoryPath); } catch { }
+                try
+                {
+                    FontListHelper.GetFontFilesLocations(directoryPath);
+                    ResetFonts();
+                }
+                catch { }
             }
         }
 
@@ -265,13 +312,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     FontListHelper.RegisterAndLoad(asm);
                     BeepFontPaths.RegisterFamilyFromAssembly(asm);
                 }
+                ResetFonts();
             }
         }
         #endregion
 
         /// <summary>
         /// Gets a font using GraphicsUnit.Point (default for standard WinForms controls).
-        /// Per Microsoft guidance: Point fonts are DPI-independent and auto-scale with framework.
+        /// Point fonts are DPI-independent and normally scale with WinForms.
         /// </summary>
         public static Font GetFont(string fontName, float sizeInPoints, FontStyle style = FontStyle.Regular)
         {
@@ -279,8 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Gets a DPI-aware font for a control using GraphicsUnit.Point (Microsoft recommended).
-        /// WinForms automatically scales Point-based fonts when DPI changes.
+        /// Gets a DPI-aware font for a control using GraphicsUnit.Point.
         /// For custom-painted controls, use GetFontForPainter() instead.
         /// </summary>
         public static Font GetFontForControl(string fontName, float sizeInPoints, Control control, FontStyle style = FontStyle.Regular)
@@ -288,35 +335,53 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (control == null || !control.IsHandleCreated)
                 return GetFont(fontName, sizeInPoints, style);
 
-            // Per Microsoft docs: Use Control.DeviceDpi for accurate per-monitor DPI
-            // Point fonts scale automatically - no manual scaling needed
+            // Point fonts are the normal unit for WinForms controls. Avoid manual scaling here.
             return GetFont(fontName, sizeInPoints, style);
         }
 
         /// <summary>
         /// Gets a DPI-scaled font using GraphicsUnit.Pixel for custom painters.
-        /// Use this in OnPaint methods for precise manual scaling control.
-        /// Per Microsoft: Pixel fonts require manual DPI scaling.
+        /// Use this in OnPaint methods when you need a pixel-unit font for Graphics.DrawString.
+        /// Returned fonts are cached and owned by BeepFontManager; callers must not dispose them.
         /// </summary>
         public static Font GetFontForPainter(string fontName, float sizeInPoints, Control control, FontStyle style = FontStyle.Regular)
         {
             if (control == null || !control.IsHandleCreated)
                 return GetFont(fontName, sizeInPoints, style);
 
-            // Correct formula: pixels = points × (DPI ÷ 72)
-            // Previous code used / 96f which produced a pixel size ~25% too small
-            // (e.g. 8pt at 96 DPI = 8×96/72 ≈ 10.67px, not 8×96/96 = 8px)
-            float scaledSize = Math.Max(sizeInPoints * (control.DeviceDpi / 72.0f), 6.0f);
-            
-            try
+            string resolvedName = string.IsNullOrWhiteSpace(fontName) ? _appFontName : fontName.Trim();
+
+            // pixels = points × (DPI ÷ 72)
+            float pixelSize = Math.Max(sizeInPoints * (control.DeviceDpi / 72.0f), 6.0f);
+            string key = BuildPixelFontKey(resolvedName, pixelSize, style);
+
+            lock (_pixelFontCacheLock)
             {
-                // Create Pixel-unit font for custom painters using Graphics.DrawString
-                return new Font(fontName, scaledSize, style, GraphicsUnit.Pixel);
-            }
-            catch
-            {
-                // Fallback to Point-based font
-                return GetFont(fontName, sizeInPoints, style);
+                if (_pixelFontCache.TryGetValue(key, out var cached))
+                {
+                    try
+                    {
+                        var _ = cached.Height;
+                        return cached;
+                    }
+                    catch
+                    {
+                        _pixelFontCache.Remove(key);
+                    }
+                }
+
+                try
+                {
+                    var font = new Font(resolvedName, pixelSize, style, GraphicsUnit.Pixel);
+                    var _ = font.Height;
+                    _pixelFontCache[key] = font;
+                    return font;
+                }
+                catch
+                {
+                    // Fallback to the shared point-based font cache.
+                    return GetFont(resolvedName, sizeInPoints, style);
+                }
             }
         }
 
@@ -361,14 +426,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
         public static bool IsFontAvailable(string fontName)
         {
-            return FontListHelper.GetFontIndex(fontName) != -1 || 
+            if (string.IsNullOrWhiteSpace(fontName)) return false;
+            return FontListHelper.GetFontIndex(fontName) != -1 ||
                    EmbeddedFontFamilies.Contains(fontName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// Safely scales a control's font during DPI changes per Microsoft guidance.
-        /// Follows DevExpress pattern: only scales explicitly-set fonts (not inherited).
-        /// Uses GraphicsUnit.Point for standard controls (auto-scaling by framework).
+        /// Safely scales a control's font during DPI changes.
+        /// Only scales explicitly-set fonts, not inherited fonts, to reduce double-scaling risk.
         /// </summary>
         /// <param name="control">Control to scale</param>
         /// <param name="oldDpi">Previous DPI (e.g., 96 for 100%)</param>
@@ -382,7 +447,6 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
             if (oldDpi <= 0 || newDpi <= 0 || oldDpi == newDpi)
                 return false;
 
-            // Per Microsoft: Don't scale inherited fonts (prevents double-scaling)
             if (DpiScalingHelper.IsFontInherited(control, control.Font))
                 return false;
 
@@ -392,20 +456,16 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
 
             try
             {
-                // For Point fonts: WinForms auto-scales, but we may need to recreate for custom controls
-                // For Pixel fonts: Must manually scale
                 float newSize = currentFont.Unit == GraphicsUnit.Pixel
                     ? DpiScalingHelper.PixelsToPoints(currentFont.Size, oldScale) * newScale
-                    : currentFont.SizeInPoints; // Point fonts don't need manual scaling
+                    : currentFont.SizeInPoints;
 
-                Font newFont = new Font(currentFont.FontFamily, newSize, currentFont.Style, 
+                Font newFont = new Font(currentFont.FontFamily, newSize, currentFont.Style,
                     currentFont.Unit, currentFont.GdiCharSet, currentFont.GdiVerticalFont);
 
-                // Safe replacement: assign before disposing
                 Font oldFont = control.Font;
                 control.Font = newFont;
 
-                // Dispose old font if it's not a system font
                 if (!ReferenceEquals(oldFont, Control.DefaultFont) &&
                     !ReferenceEquals(oldFont, System.Drawing.SystemFonts.DefaultFont))
                 {
@@ -423,15 +483,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         public static Font ToFont(TypographyStyle style)
         {
             if (style == null) return DefaultFont;
-            float size = style.FontSize > 0 ? style.FontSize : _defaultFontSize;
-            string family = !string.IsNullOrWhiteSpace(style.FontFamily) ? style.FontFamily : _defaultFontName;
-            FontStyle fs = style.FontWeight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Regular;
-            return GetFont(family, size, fs) ?? DefaultFont;
+            return FontListHelper.CreateFontFromTypography(style) ?? DefaultFont;
         }
 
         /// <summary>
         /// Gets a cached font to avoid per-paint allocations in painters.
-        /// Use this in OnPaint methods instead of 'new Font(...)'
+        /// Use this in OnPaint methods instead of 'new Font(...)'.
+        /// Returned fonts are owned by FontListHelper; callers must not dispose them.
         /// </summary>
         public static Font GetCachedFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
@@ -439,11 +497,13 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         }
 
         /// <summary>
-        /// Clears the font cache (call on theme change or cleanup)
+        /// Clears the font cache (call on theme change or cleanup).
         /// </summary>
         public static void ClearFontCache()
         {
+            ClearPixelFontCache();
             FontListHelper.ClearFontCache();
+            ResetFontReferencesOnly();
         }
 
         public static float GetFontWeightMultiplier(FontWeight weight)
@@ -460,37 +520,28 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <returns>Font object or null if not found</returns>
         public static Font GetEmbeddedFont(string familyName, float size, FontStyle style = FontStyle.Regular)
         {
-            if (string.IsNullOrEmpty(familyName))
+            if (string.IsNullOrWhiteSpace(familyName))
                 return null;
 
             try
             {
-                // Map FontStyle to BeepFontPaths Style string
                 string styleString = MapFontStyleToString(style);
-
-                // Get the font path from BeepFontPaths
                 string fontPath = BeepFontPaths.GetFontPath(familyName, styleString);
-                
+
                 if (string.IsNullOrEmpty(fontPath))
-                {
-                    // Try with Regular Style as fallback
                     fontPath = BeepFontPaths.GetFontPath(familyName, "Regular");
-                }
 
                 if (!string.IsNullOrEmpty(fontPath))
                 {
-                    // Use the extension method to create font from resource
-                    var font = BeepFontPathsExtensions.CreateFontFromResource(fontPath, size, style);
+                    var font = GetEmbeddedFontFromResourcePath(fontPath, size, style);
                     if (font != null)
                         return font;
                 }
 
-                // Fallback to regular GetFont method
                 return GetFont(familyName, size, style);
             }
             catch
             {
-                // Return fallback font
                 return GetFont(familyName, size, style);
             }
         }
@@ -513,17 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <returns>Font object or null if not found</returns>
         public static Font GetEmbeddedFont(string fontResourcePath, float size)
         {
-            if (string.IsNullOrEmpty(fontResourcePath))
-                return null;
-
-            try
-            {
-                return BeepFontPathsExtensions.CreateFontFromResource(fontResourcePath, size);
-            }
-            catch
-            {
-                return DefaultFont;
-            }
+            return GetEmbeddedFontFromResourcePath(fontResourcePath, size, FontStyle.Regular);
         }
 
         /// <summary>
@@ -546,8 +587,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 FontStyle.Bold => "Bold",
                 FontStyle.Italic => "Italic",
                 FontStyle.Bold | FontStyle.Italic => "BoldItalic",
-                FontStyle.Underline => "Regular",
-                FontStyle.Strikeout => "Regular",
+                _ when style.HasFlag(FontStyle.Bold) && style.HasFlag(FontStyle.Italic) => "BoldItalic",
+                _ when style.HasFlag(FontStyle.Bold) => "Bold",
+                _ when style.HasFlag(FontStyle.Italic) => "Italic",
                 _ => "Regular"
             };
         }
@@ -559,10 +601,11 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         /// <returns>True if the embedded font exists</returns>
         public static bool IsEmbeddedFontAvailable(string familyName)
         {
-            if (string.IsNullOrEmpty(familyName))
+            if (string.IsNullOrWhiteSpace(familyName))
                 return false;
 
-            return BeepFontPaths.GetFontFamilyNames().Contains(familyName);
+            return BeepFontPaths.GetFontFamilyNames()
+                .Contains(familyName, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -588,16 +631,14 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         #region "Cleanup"
         public static void Cleanup()
         {
-            _defaultFont = null;
-            _buttonFont = null;
-            _labelFont = null;
-            _headerFont = null;
-            _titleFont = null;
-            _menuFont = null;
-            _tooltipFont = null;
-            _statusBarFont = null;
-            _dialogFont = null;
-            _monospaceFont = null;
+            if (_registryEventSubscribed)
+            {
+                BeepFontRegistry.Changed -= OnRegistryChanged;
+                _registryEventSubscribed = false;
+            }
+
+            ResetFontReferencesOnly();
+            ClearPixelFontCache();
             _isInitialized = false;
         }
 
@@ -605,7 +646,6 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         {
             try
             {
-                // get font family from theme
                 IBeepTheme theme = BeepThemesManager.CurrentTheme;
                 if (theme == null || string.IsNullOrEmpty(theme.FontFamily))
                     return null;
@@ -616,6 +656,92 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 return null;
             }
         }
+        #endregion
+
+        #region Private Helpers
+
+        private static Font GetEmbeddedFontFromResourcePath(string fontResourcePath, float size, FontStyle style)
+        {
+            if (string.IsNullOrWhiteSpace(fontResourcePath))
+                return null;
+
+            string familyName = TryExtractFamilyNameFromResourcePath(fontResourcePath);
+            if (!string.IsNullOrWhiteSpace(familyName))
+            {
+                var font = FontListHelper.GetFont(familyName, size, style);
+                if (font != null)
+                    return font;
+            }
+
+            // Last resort for older BeepFontPaths implementations. This may allocate, but only if the
+            // font has not already been loaded into FontListHelper's private collection.
+            try
+            {
+                return BeepFontPathsExtensions.CreateFontFromResource(fontResourcePath, size, style) ?? DefaultFont;
+            }
+            catch
+            {
+                return DefaultFont;
+            }
+        }
+
+        private static string TryExtractFamilyNameFromResourcePath(string fontResourcePath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fontResourcePath))
+                    return null;
+
+                // Prefer the official extractor if available in this project.
+                string name = BeepFontPaths.ExtractFontNameFromPath(fontResourcePath);
+                return string.IsNullOrWhiteSpace(name) ? null : name;
+            }
+            catch
+            {
+                try
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(fontResourcePath);
+                    return string.IsNullOrWhiteSpace(fileName) ? null : fileName;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        private static string BuildPixelFontKey(string fontName, float pixelSize, FontStyle style)
+        {
+            string resolvedName = string.IsNullOrWhiteSpace(fontName) ? _appFontName : fontName.Trim();
+            return $"{resolvedName}|{Math.Round(pixelSize, 2)}|{(int)style}|Pixel";
+        }
+
+        private static void ResetFontReferencesOnly()
+        {
+            _defaultFont = null;
+            _buttonFont = null;
+            _labelFont = null;
+            _headerFont = null;
+            _titleFont = null;
+            _menuFont = null;
+            _tooltipFont = null;
+            _statusBarFont = null;
+            _dialogFont = null;
+            _monospaceFont = null;
+        }
+
+        private static void ClearPixelFontCache()
+        {
+            lock (_pixelFontCacheLock)
+            {
+                foreach (var font in _pixelFontCache.Values.Distinct())
+                {
+                    try { font?.Dispose(); } catch { }
+                }
+                _pixelFontCache.Clear();
+            }
+        }
+
         #endregion
     }
 

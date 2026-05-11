@@ -616,15 +616,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
 
         public BeepImage()
         {
-            // Enable double buffering and optimized painting
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                       ControlStyles.AllPaintingInWmPaint |
-                       ControlStyles.UserPaint |
-                       ControlStyles.Selectable |
-                       ControlStyles.StandardClick |
-                       ControlStyles.ResizeRedraw |
-                       ControlStyles.SupportsTransparentBackColor, true);
-            UpdateStyles();
+            //// Enable double buffering and optimized painting
+            //SetStyle(ControlStyles.OptimizedDoubleBuffer |
+            //           ControlStyles.AllPaintingInWmPaint |
+            //           ControlStyles.UserPaint |
+            //           ControlStyles.Selectable |
+            //           ControlStyles.StandardClick |
+            //           ControlStyles.ResizeRedraw |
+            //           ControlStyles.SupportsTransparentBackColor, true);
+            //UpdateStyles();
 
             // Set default size for designer
             this.Size = new Size(100, 100);

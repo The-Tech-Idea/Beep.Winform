@@ -197,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+            //base.DrawContent(g);
 
             if (Focused && _enableFocusAnimation && _focusAnimationProgress > 0)
             {

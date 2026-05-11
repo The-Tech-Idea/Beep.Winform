@@ -378,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
 
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
+           // base.DrawContent(g);
             DrawImage(
                g,
                DrawingRect

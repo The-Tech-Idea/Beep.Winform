@@ -31,9 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             int gridTop = _rects.ViewSelectorRect.Bottom + CalendarLayoutMetrics.SectionSpacing;
             int actualSidebarWidth = _state.ShowSidebar ? sidebarWidth : 0;
 
-            // Apply left gutter only for time-based views (Week, Day) that need space for time labels
-            // Month and List views should start at the left edge
-            int actualLeftGutter = (_state.ViewMode == CalendarViewMode.Week || _state.ViewMode == CalendarViewMode.Day) 
+            // Apply left gutter only for time-based views that need space for time labels
+            // Month, Agenda, and List views should start at the left edge
+            int actualLeftGutter = (_state.ViewMode == CalendarViewMode.Week || _state.ViewMode == CalendarViewMode.WorkWeek || _state.ViewMode == CalendarViewMode.Day) 
                                  ? Math.Max(0, leftGutter) 
                                  : 0;
 

@@ -83,13 +83,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
         private void DrawMonthCell(Graphics g, CalendarRenderContext ctx, DateTime cellDate, Rectangle cellRect)
         {
-            bool isCurrentMonth = cellDate.Month == ctx.State.CurrentDate.Month;
-            bool isToday = cellDate.Date == DateTime.Today;
-            bool isSelected = cellDate.Date == ctx.State.SelectedDate.Date;
+            var events = ctx.EventService.GetEventsForDate(cellDate);
+            var state = CalendarViewStateHelper.BuildDayCellState(
+                cellDate,
+                ctx.State.CurrentDate,
+                ctx.State.SelectedDate,
+                ctx.HoveredDate,
+                ctx.FocusedDate,
+                ctx.IsKeyboardFocusVisible,
+                events.Count,
+                ctx.MaxEventsPerCell);
 
-            Color bgColor = isSelected ? ctx.Theme?.CalendarSelectedDateBackColor ?? ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244) :
-                           isToday ? ctx.Theme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255) :
-                           isCurrentMonth ? ctx.Theme?.CalendarBackColor ?? Color.White :
+            Color bgColor = state.IsSelected ? ctx.Theme?.CalendarSelectedDateBackColor ?? ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244) :
+                           state.IsToday ? ctx.Theme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255) :
+                           state.IsCurrentMonth ? ctx.Theme?.CalendarBackColor ?? Color.White :
                            Color.FromArgb(248, 249, 250);
 
             using (var brush = new SolidBrush(bgColor))
@@ -98,9 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             using (var pen = new Pen(ctx.Theme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
                 g.DrawRectangle(pen, cellRect);
 
-            Color textColor = isSelected ? ctx.Theme?.CalendarSelectedDateForColor ?? Color.White :
-                             isToday ? ctx.Theme?.CalendarTodayForeColor ?? Color.FromArgb(244, 67, 54) :
-                             isCurrentMonth ? ctx.Theme?.CalendarForeColor ?? Color.Black : Color.Gray;
+            Color textColor = state.IsSelected ? ctx.Theme?.CalendarSelectedDateForColor ?? Color.White :
+                             state.IsToday ? ctx.Theme?.CalendarTodayForeColor ?? Color.FromArgb(244, 67, 54) :
+                             state.IsCurrentMonth ? ctx.Theme?.CalendarForeColor ?? Color.Black : Color.Gray;
 
             using (var brush = new SolidBrush(textColor))
             {
@@ -108,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 g.DrawString(cellDate.Day.ToString(), ctx.DayFont, brush, dayRect);
             }
 
-            if (ctx.Owner.Focused && cellDate.Date == ctx.State.SelectedDate.Date)
+            if (state.IsFocused)
             {
                 using (var focusPen = new Pen(ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244), 2f))
                 {
@@ -118,12 +125,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             }
 
             // Events
-            var events = ctx.EventService.GetEventsForDate(cellDate);
             int eventStartOffset = CommonDrawing.ScaleMetric(25, ctx.DensityScale);
             int eventY = cellRect.Y + eventStartOffset;
             int eventHeight = Math.Min(CalendarLayoutMetrics.MinEventHitHeight, Math.Max(16, cellRect.Height / 4));
             int eventSpacing = CommonDrawing.ScaleMetric(2, ctx.DensityScale);
-            foreach (var evt in events.Take(3))
+            foreach (var evt in events.Take(ctx.MaxEventsPerCell))
             {
                 var rect = new Rectangle(cellRect.X + 2, eventY, cellRect.Width - 4, eventHeight);
                 var color = CommonDrawing.GetCategoryColor(ctx, evt);
@@ -138,10 +144,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 eventY += eventHeight + eventSpacing;
             }
 
-            if (events.Count > 3)
+            if (state.HasMoreEvents)
             {
                 using (var brush = new SolidBrush(ctx.Theme?.CalendarForeColor ?? Color.Gray))
-                    g.DrawString($"+{events.Count - 3} more", ctx.EventFont, brush, new PointF(cellRect.X + 2, eventY));
+                    g.DrawString($"+{events.Count - ctx.MaxEventsPerCell} more", ctx.EventFont, brush, new PointF(cellRect.X + 2, eventY));
             }
         }
 

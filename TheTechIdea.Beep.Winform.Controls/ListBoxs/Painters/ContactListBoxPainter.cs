@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.SubText))
             {
                 var roleRect = new Rectangle(textX, nameRect.Bottom, textW, lineH);
-                DrawSubText(g, roleRect, item.SubText, primaryFg, _owner.TextFont);
+                DrawSubText(g, roleRect, item.SubText, secondaryFg, _owner.TextFont);
             }
 
             // Line 3: Email / Phone (SubText2, tertiary, smaller)

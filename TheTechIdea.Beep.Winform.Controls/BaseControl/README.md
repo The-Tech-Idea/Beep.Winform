@@ -7,6 +7,7 @@ This document explains how `BaseControl` renders and how to extend it safely. It
 BaseControl uses a **Painter Strategy Pattern** to handle all visual rendering. This architecture separates outer styling (borders, shadows, backgrounds) from inner content, allowing for maximum flexibility and consistency across different visual styles.
 
 ## Recent updates
+- 2026-05-12: `BeepCalendar` was mechanically split into multiple partial files (`Core`, `Fields`, `Painting`, `LayoutTheme`, `EventOperations`, `Types`) while preserving `BaseControl` inheritance and rendering behavior.
 - `BaseControl` now exposes the protected `UseBaseMouseInputRouting` hook. Leave it `true` for interactive controls; override it to `false` only for passive container surfaces that should raise normal WinForms mouse events without BaseControl hover/ripple/hit-test repaint routing.
 - BeepGridPro top filter panel now supports a `GridTitle` label and is enabled by default via `ShowTopFilterPanel`.
 - Integrated workflow surfaces now prefer split architecture: visual helpers such as `BeepFormsToolbar` inherit `BaseControl`, while non-visual coordinators such as `BeepForms` stop owning shell chrome.

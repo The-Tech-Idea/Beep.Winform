@@ -24,6 +24,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         public override int GetPreferredItemHeight()
             => DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightComfortable, _owner ?? new Control());
 
+        protected override void DrawItemBackgroundEx(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
+        {
+            // Keep base row-state visuals while this painter only customizes the sentinel row.
+            base.DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+        }
+
         public override void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
         {
             base.Paint(g, owner, drawingRect);

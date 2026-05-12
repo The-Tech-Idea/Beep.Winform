@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
     internal sealed class RightSideLegendPainter : IChartLegendPainter
     {
-        public void DrawLegend(Graphics g, Rectangle chartRect, List<ChartDataSeries> data, List<Color> palette, Font font, Color textColor, Color backColor, Color shapeColor, BaseControl owner, Action<int> onToggleSeries, LegendPlacement placement = LegendPlacement.Right)
+        public void DrawLegend(Graphics g, Rectangle chartRect, List<ChartDataSeries> data, List<Color> palette, Font font, Color textColor, Color backColor, Color shapeColor, BaseControl owner, Action<int> onToggleSeries, Action<string, Rectangle> notifyAreaHit = null, LegendPlacement placement = LegendPlacement.Right)
         {
             if (data == null || data.Count == 0) return;
             int itemHeight = 20;
@@ -31,6 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             var useFont = font ?? PaintersFactory.GetFont(SystemFonts.DefaultFont);
 
             g.FillRectangle(backBrush, legendRect);
+            owner.AddHitArea("Legend", legendRect, null, () => notifyAreaHit?.Invoke("Legend", legendRect));
 
             int currentY = legendRect.Top + padding / 2;
             for (int i = 0; i < data.Count; i++)
@@ -48,7 +49,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 string name = string.IsNullOrEmpty(series.Name) ? $"Series {i + 1}" : series.Name;
                 g.DrawString(name, useFont, textBrush, swatchRect.Right + 6, itemRect.Top + 2);
 
-                owner.AddHitArea($"LegendItem_{i}", itemRect, null, () => onToggleSeries?.Invoke(i));
+                owner.AddHitArea($"LegendItem_{i}", itemRect, null, () =>
+                {
+                    onToggleSeries?.Invoke(i);
+                    notifyAreaHit?.Invoke($"LegendItem_{i}", itemRect);
+                });
                 currentY += itemHeight;
             }
         }

@@ -44,6 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (effectiveRect.Width <= 0 || effectiveRect.Height <= 0)
                 return;
 
+            // Rebuild chart-owned hit areas from the current layout each frame.
+            ClearHitList();
+
             // Create layout context
             var ctx = new ChartLayout
             {
@@ -100,8 +103,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             DrawSeriesByType(g, axisCtx);
 
             // Draw foreground elements
-            DrawHitAreas(axisCtx);
+            RegisterInteractiveAreas(axisCtx);
             _chartpainter?.DrawForeground(g, ctx);
+
+            // Draw trackball crosshair and tooltip if enabled
+            if (EnableTrackball && _trackballCrosshairX >= 0)
+            {
+                DrawTrackballCrosshair(g, axisCtx.PlotRect);
+                if (TrackballShowMultiSeriesValues && _trackballDataPoints.Count > 0)
+                {
+                    DrawTrackballTooltip(g, axisCtx.PlotRect);
+                }
+            }
         }
 
         private int DrawTitleSection(Graphics g, Rectangle bounds)
@@ -144,6 +157,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
         private AxisLayout CreateAxisContext(Rectangle bounds, int currentY)
         {
+            var labelIntervals = GetRecommendedLabelIntervals();
+
             return new AxisLayout
             {
                 Bounds = new Rectangle(bounds.Left, currentY, bounds.Width, bounds.Bottom - currentY),
@@ -168,7 +183,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 XLabelAngle = XLabelAngle,
                 YLabelAngle = YLabelAngle,
                 XTimeGranularity = XTimeGranularity,
-                YTimeGranularity = YTimeGranularity
+                YTimeGranularity = YTimeGranularity,
+                XLabelInterval = labelIntervals.XLabelInterval,
+                YLabelInterval = labelIntervals.YLabelInterval
             };
         }
 
@@ -185,21 +202,199 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 ViewportXMin, ViewportXMax, ViewportYMin, ViewportYMax, 
                 ChartDefaultSeriesColors, ChartAxisColor, ChartTextColor, _seriesOptions);
 
+            // Draw selection highlights
+            if (EnablePointSelection && HasSelection)
+            {
+                DrawSelectionHighlights(g, axisCtx.PlotRect);
+            }
+
+            // Draw keyboard focus indicator
+            if (EnableKeyboardNavigation && _keyboardFocusedSeriesIndex >= 0 && _keyboardFocusedSeriesIndex < _dataSeries.Count)
+            {
+                DrawKeyboardFocusIndicator(g, axisCtx.PlotRect);
+            }
+
+            // Draw fill patterns for accessibility/non-color state communication
+            if (EnableFillPatterns)
+            {
+                DrawSeriesFillPatterns(g, axisCtx.PlotRect);
+            }
+
+            if (CustomDraw)
+            {
+                CustomDrawSeries?.Invoke(this, new CustomDrawSeriesEventArgs(g, axisCtx.PlotRect, _dataSeries));
+            }
+
             // Draw legend if enabled
             if (ShowLegend)
             {
                 _legendPainter.DrawLegend(g, axisCtx.PlotRect, _dataSeries, ChartDefaultSeriesColors, 
                     PaintersFactory.GetFont(ChartValueFont), ChartLegendTextColor, ChartLegendBackColor, 
-                    ChartLegendShapeColor, this, ToggleSeriesByIndex, LegendPlacement);
+                    ChartLegendShapeColor, this, ToggleSeriesByIndex, OnInteractiveAreaHit, LegendPlacement);
             }
         }
 
-        private void DrawHitAreas(AxisLayout axisCtx)
+        private void RegisterInteractiveAreas(AxisLayout axisCtx)
         {
-            // Add legend hit area
-            var legendArea = new Rectangle(ChartDrawingRect.Right + 10, ChartDrawingRect.Top, 120, 
-                Math.Max(100, ChartDrawingRect.Height / 3));
-            AddHitArea("Legend", legendArea, null, () => { /* future: raise click */ });
+            _axisPainter?.UpdateHitAreas(this, axisCtx, OnInteractiveAreaHit);
+            _seriesPainter?.UpdateHitAreas(this, axisCtx.PlotRect, _dataSeries, GetScreenPoint, OnInteractiveAreaHit);
+        }
+
+        private void OnInteractiveAreaHit(string areaName, Rectangle bounds)
+        {
+            var args = BuildInteractiveAreaArgs(areaName, bounds);
+            InteractiveAreaHit?.Invoke(this, args);
+
+            if (args.DataPoint != null && args.SeriesIndex.HasValue && args.PointIndex.HasValue)
+            {
+                PointHit?.Invoke(this, new ChartPointHitEventArgs(
+                    args.AreaName,
+                    args.AreaType,
+                    args.SeriesIndex.Value,
+                    args.PointIndex.Value,
+                    args.Bounds,
+                    args.DataPoint));
+
+                // Handle point selection on click
+                if (EnablePointSelection)
+                {
+                    bool isCtrlHeld = (Control.ModifierKeys & Keys.Control) == Keys.Control;
+                    bool isShiftHeld = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+
+                    var key = (args.SeriesIndex.Value, args.PointIndex.Value);
+                    bool isSelected = _selectedPoints.Contains(key);
+
+                    if (isCtrlHeld || (_selectionMode == ChartSelectionMode.Multiple && isShiftHeld))
+                    {
+                        // Toggle selection
+                        if (isSelected)
+                        {
+                            DeselectPoint(args.SeriesIndex.Value, args.PointIndex.Value);
+                        }
+                        else
+                        {
+                            SelectPoint(args.SeriesIndex.Value, args.PointIndex.Value, addToSelection: true);
+                        }
+                    }
+                    else
+                    {
+                        // Single select
+                        if (!isSelected)
+                        {
+                            SelectPoint(args.SeriesIndex.Value, args.PointIndex.Value, addToSelection: false);
+                        }
+                        else if (_selectionMode == ChartSelectionMode.Single)
+                        {
+                            DeselectPoint(args.SeriesIndex.Value, args.PointIndex.Value);
+                        }
+                    }
+                }
+            }
+
+            if (string.Equals(args.AreaType, "XAxis", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(args.AreaType, "YAxis", StringComparison.OrdinalIgnoreCase))
+            {
+                AxisHit?.Invoke(this, new ChartAxisHitEventArgs(args.AreaName, args.AreaType, args.Bounds));
+            }
+
+            if (string.Equals(args.AreaType, "Legend", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(args.AreaType, "LegendItem", StringComparison.OrdinalIgnoreCase))
+            {
+                bool isLegendItem = string.Equals(args.AreaType, "LegendItem", StringComparison.OrdinalIgnoreCase);
+                LegendHit?.Invoke(this, new ChartLegendHitEventArgs(args.AreaName, isLegendItem, args.LegendItemIndex, args.Bounds));
+
+                // Handle legend item isolation on double-click
+                if (isLegendItem && args.LegendItemIndex.HasValue)
+                {
+                    HandleLegendItemClick(args.LegendItemIndex.Value);
+                }
+            }
+        }
+
+        private ChartInteractiveAreaEventArgs BuildInteractiveAreaArgs(string areaName, Rectangle bounds)
+        {
+            string areaType = areaName;
+            int? seriesIndex = null;
+            int? pointIndex = null;
+            int? legendItemIndex = null;
+
+            if (!string.IsNullOrWhiteSpace(areaName))
+            {
+                var parts = areaName.Split('_');
+                if (parts.Length > 0)
+                {
+                    areaType = parts[0];
+                }
+
+                if (parts.Length >= 2 && int.TryParse(parts[1], out int parsedFirstIndex))
+                {
+                    pointIndex = parsedFirstIndex;
+                }
+
+                if (parts.Length >= 3 && int.TryParse(parts[1], out int parsedSeriesIndex) && int.TryParse(parts[2], out int parsedPointIndex))
+                {
+                    seriesIndex = parsedSeriesIndex;
+                    pointIndex = parsedPointIndex;
+                }
+
+                if (string.Equals(areaType, "LegendItem", StringComparison.OrdinalIgnoreCase) &&
+                    parts.Length >= 2 && int.TryParse(parts[1], out int parsedLegendIndex))
+                {
+                    legendItemIndex = parsedLegendIndex;
+                }
+            }
+
+            if (string.Equals(areaType, "PieSlice", StringComparison.OrdinalIgnoreCase) && pointIndex.HasValue)
+            {
+                seriesIndex = 0;
+            }
+
+            var dataPoint = ResolveInteractivePoint(seriesIndex, pointIndex);
+            return new ChartInteractiveAreaEventArgs(areaName, bounds, areaType, seriesIndex, pointIndex, legendItemIndex, dataPoint);
+        }
+
+        private ChartDataPoint ResolveInteractivePoint(int? seriesIndex, int? pointIndex)
+        {
+            if (!seriesIndex.HasValue || !pointIndex.HasValue)
+            {
+                return null;
+            }
+
+            if (seriesIndex.Value < 0 || seriesIndex.Value >= _dataSeries.Count)
+            {
+                return null;
+            }
+
+            var series = _dataSeries[seriesIndex.Value];
+            if (series?.Points == null || pointIndex.Value < 0 || pointIndex.Value >= series.Points.Count)
+            {
+                return null;
+            }
+
+            return series.Points[pointIndex.Value];
+        }
+
+        private PointF GetScreenPoint(ChartDataPoint point)
+        {
+            if (point == null || ChartDrawingRect.Width <= 0 || ChartDrawingRect.Height <= 0)
+            {
+                return PointF.Empty;
+            }
+
+            float x = BeepChartDataHelper.ConvertXValue(this, point) is float xValue ? xValue : 0f;
+            float y = BeepChartDataHelper.ConvertYValue(this, point) is float yValue ? yValue : 0f;
+
+            float xRange = ViewportXMax - ViewportXMin;
+            float yRange = ViewportYMax - ViewportYMin;
+
+            if (xRange <= 0 || yRange <= 0)
+            {
+                return PointF.Empty;
+            }
+
+            return new PointF(
+                ChartDrawingRect.Left + (x - ViewportXMin) / xRange * ChartDrawingRect.Width,
+                ChartDrawingRect.Bottom - (y - ViewportYMin) / yRange * ChartDrawingRect.Height);
         }
 
         public override void ApplyTheme()
@@ -368,6 +563,192 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 (byte)(Hue(p, q, h + 1 / 3f) * 255),
                 (byte)(Hue(p, q, h)          * 255),
                 (byte)(Hue(p, q, h - 1 / 3f) * 255));
+        }
+
+        private void DrawTrackballCrosshair(Graphics g, Rectangle plotRect)
+        {
+            if (_trackballCrosshairX < plotRect.Left || _trackballCrosshairX > plotRect.Right)
+                return;
+
+            var crosshairPen = new Pen(TrackballCrosshairColor, TrackballCrosshairWidth);
+            // Vertical line across plot area
+            g.DrawLine(crosshairPen, _trackballCrosshairX, plotRect.Top, _trackballCrosshairX, plotRect.Bottom);
+            crosshairPen.Dispose();
+        }
+
+        private void DrawTrackballTooltip(Graphics g, Rectangle plotRect)
+        {
+            if (_trackballDataPoints.Count == 0)
+                return;
+
+            // Prepare text content
+            var lines = new List<string>();
+            foreach (var dp in _trackballDataPoints)
+            {
+                lines.Add($"{dp.SeriesName}: {dp.DisplayValue}");
+            }
+
+            var font = PaintersFactory.GetFont(ChartValueFont ?? SystemFonts.DefaultFont);
+            float maxWidth = 0, totalHeight = 0;
+
+            // Measure all lines
+            foreach (var line in lines)
+            {
+                var size = g.MeasureString(line, font);
+                maxWidth = Math.Max(maxWidth, size.Width);
+                totalHeight += size.Height + 2;
+            }
+
+            int padding = 8;
+            int tooltipWidth = (int)maxWidth + padding * 2;
+            int tooltipHeight = (int)totalHeight + padding * 2;
+
+            // Position tooltip near crosshair
+            int tooltipX = Math.Min((int)_trackballCrosshairX + 10, plotRect.Right - tooltipWidth - 5);
+            tooltipX = Math.Max(tooltipX, plotRect.Left + 5);
+            int tooltipY = plotRect.Top + 10;
+
+            // Draw background
+            var backBrush = new SolidBrush(TrackballTooltipBackColor);
+            var borderPen = new Pen(TrackballTooltipBorderColor, 1f);
+            g.FillRectangle(backBrush, tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+            g.DrawRectangle(borderPen, tooltipX, tooltipY, tooltipWidth - 1, tooltipHeight - 1);
+
+            // Draw text
+            var textBrush = PaintersFactory.GetSolidBrush(ChartTextColor);
+            float currentY = tooltipY + padding;
+            foreach (var dp in _trackballDataPoints)
+            {
+                var line = $"{dp.SeriesName}: {dp.DisplayValue}";
+                g.DrawString(line, font, textBrush, tooltipX + padding, currentY);
+                var lineHeight = g.MeasureString(line, font).Height;
+                currentY += lineHeight + 2;
+            }
+
+            backBrush.Dispose();
+            borderPen.Dispose();
+        }
+
+        private void DrawSelectionHighlights(Graphics g, Rectangle plotRect)
+        {
+            if (!HasSelection)
+                return;
+
+            float xRange = ViewportXMax - ViewportXMin;
+            float yRange = ViewportYMax - ViewportYMin;
+
+            if (xRange <= 0 || yRange <= 0 || plotRect.Width <= 0 || plotRect.Height <= 0)
+                return;
+
+            var selectionBrush = new SolidBrush(SelectionColor);
+            var selectionPen = new Pen(SelectionBorderColor, 1.5f);
+            float markerSize = SelectionMarkerSize * 2; // diameter
+
+            // Draw selected points
+            foreach (var (seriesIndex, pointIndex) in _selectedPoints)
+            {
+                if (seriesIndex < 0 || seriesIndex >= _dataSeries.Count)
+                    continue;
+
+                var series = _dataSeries[seriesIndex];
+                if (pointIndex < 0 || pointIndex >= series.Points.Count)
+                    continue;
+
+                var point = series.Points[pointIndex];
+                float x = BeepChartDataHelper.ConvertXValue(this, point) is float xVal ? xVal : 0f;
+                float y = BeepChartDataHelper.ConvertYValue(this, point) is float yVal ? yVal : 0f;
+
+                float screenX = plotRect.Left + (x - ViewportXMin) / xRange * plotRect.Width;
+                float screenY = plotRect.Bottom - (y - ViewportYMin) / yRange * plotRect.Height;
+
+                // Draw highlight circle
+                g.FillEllipse(selectionBrush, screenX - markerSize / 2, screenY - markerSize / 2, markerSize, markerSize);
+                g.DrawEllipse(selectionPen, screenX - markerSize / 2, screenY - markerSize / 2, markerSize, markerSize);
+            }
+
+            selectionBrush.Dispose();
+            selectionPen.Dispose();
+        }
+
+        private void DrawKeyboardFocusIndicator(Graphics g, Rectangle plotRect)
+        {
+            if (_keyboardFocusedSeriesIndex < 0 || _keyboardFocusedSeriesIndex >= _dataSeries.Count)
+                return;
+
+            var series = _dataSeries[_keyboardFocusedSeriesIndex];
+            if (_keyboardFocusedPointIndex < 0 || _keyboardFocusedPointIndex >= series.Points.Count)
+                return;
+
+            var point = series.Points[_keyboardFocusedPointIndex];
+            float xRange = ViewportXMax - ViewportXMin;
+            float yRange = ViewportYMax - ViewportYMin;
+
+            if (xRange <= 0 || yRange <= 0 || plotRect.Width <= 0 || plotRect.Height <= 0)
+                return;
+
+            float x = BeepChartDataHelper.ConvertXValue(this, point) is float xVal ? xVal : 0f;
+            float y = BeepChartDataHelper.ConvertYValue(this, point) is float yVal ? yVal : 0f;
+
+            float screenX = plotRect.Left + (x - ViewportXMin) / xRange * plotRect.Width;
+            float screenY = plotRect.Bottom - (y - ViewportYMin) / yRange * plotRect.Height;
+
+            // Draw focus indicator as a dashed rectangle around the point
+            float focusSize = SelectionMarkerSize * 3;
+            var focusPen = new Pen(Color.FromArgb(200, Color.Orange), 2f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
+            g.DrawRectangle(focusPen, screenX - focusSize / 2, screenY - focusSize / 2, focusSize, focusSize);
+            focusPen.Dispose();
+        }
+
+        private void DrawSeriesFillPatterns(Graphics g, Rectangle plotRect)
+        {
+            if (!EnableFillPatterns || _seriesFillPatterns.Count == 0)
+                return;
+
+            float xRange = ViewportXMax - ViewportXMin;
+            float yRange = ViewportYMax - ViewportYMin;
+
+            if (xRange <= 0 || yRange <= 0 || plotRect.Width <= 0 || plotRect.Height <= 0)
+                return;
+
+            // Draw pattern overlays on series fill areas
+            foreach (var kvp in _seriesFillPatterns)
+            {
+                int seriesIndex = kvp.Key;
+                var pattern = kvp.Value;
+
+                if (seriesIndex < 0 || seriesIndex >= _dataSeries.Count)
+                    continue;
+
+                var series = _dataSeries[seriesIndex];
+                if (!series.Visible || series.Points.Count == 0)
+                    continue;
+
+                DrawPatternOverlay(g, plotRect, pattern, series.Color);
+            }
+        }
+
+        private void DrawPatternOverlay(Graphics g, Rectangle plotRect, ChartSeriesFillPattern pattern, Color baseColor)
+        {
+            if (pattern == ChartSeriesFillPattern.Solid)
+                return;
+
+            var hatchBrush = pattern switch
+            {
+                ChartSeriesFillPattern.Horizontal => new HatchBrush(HatchStyle.Horizontal, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.Vertical => new HatchBrush(HatchStyle.Vertical, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.Diagonal => new HatchBrush(HatchStyle.ForwardDiagonal, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.BackDiagonal => new HatchBrush(HatchStyle.BackwardDiagonal, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.Cross => new HatchBrush(HatchStyle.Cross, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.DiagonalCross => new HatchBrush(HatchStyle.DiagonalCross, Color.FromArgb(100, baseColor), Color.Transparent),
+                ChartSeriesFillPattern.Dots => new HatchBrush(HatchStyle.SmallConfetti, Color.FromArgb(100, baseColor), Color.Transparent),
+                _ => null
+            };
+
+            if (hatchBrush != null)
+            {
+                g.FillRectangle(hatchBrush, plotRect);
+                hatchBrush.Dispose();
+            }
         }
     }
 }

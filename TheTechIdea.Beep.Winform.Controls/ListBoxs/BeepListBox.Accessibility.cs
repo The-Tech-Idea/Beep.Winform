@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -83,6 +84,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 : (_currentTheme?.PrimaryColor ?? SystemColors.Highlight);
         }
 
+        internal void SyncAccessibilityRole()
+        {
+            AccessibleRole = ShowHierarchy ? AccessibleRole.Outline : AccessibleRole.List;
+        }
+
         // ════════════════════════════════════════════════════════════════════════════
         //  Inner accessible-object classes
         // ════════════════════════════════════════════════════════════════════════════
@@ -93,26 +99,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             public BeepListBoxAccessible(BeepListBox owner) : base(owner) { }
 
-            public override AccessibleRole Role => AccessibleRole.List;
+            public override AccessibleRole Role => Owner.ShowHierarchy ? AccessibleRole.Outline : AccessibleRole.List;
 
             public override string Name => Owner.AccessibleName ?? "List Box";
 
+            private System.Collections.Generic.List<SimpleItem> GetVisibleItemsForA11y()
+                => Owner._helper?.GetVisibleItems()
+                   ?? Owner._listItems?.ToList()
+                   ?? new System.Collections.Generic.List<SimpleItem>();
+
             public override int GetChildCount()
-                => Owner._listItems?.Count ?? 0;
+                => GetVisibleItemsForA11y().Count;
 
             public override AccessibleObject? GetChild(int index)
             {
-                if (Owner._listItems == null || index < 0 || index >= Owner._listItems.Count)
+                var visible = GetVisibleItemsForA11y();
+                if (index < 0 || index >= visible.Count)
                     return null;
-                return new BeepListItemAccessible(Owner, index);
+                return new BeepListItemAccessible(Owner, visible[index], index, visible.Count);
             }
 
             public override AccessibleObject? GetFocused()
             {
+                var visible = GetVisibleItemsForA11y();
                 int fi = Owner._focusedIndex;
-                if (fi < 0 || Owner._listItems == null || fi >= Owner._listItems.Count)
+                if (fi < 0 || fi >= visible.Count)
                     return null;
-                return new BeepListItemAccessible(Owner, fi);
+                return new BeepListItemAccessible(Owner, visible[fi], fi, visible.Count);
             }
 
             public override AccessibleObject? GetSelected()
@@ -132,12 +145,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             private readonly BeepListBox _owner;
             private readonly int _index;
-            private SimpleItem Item => _owner._listItems[_index];
+            private readonly int _totalCount;
+            private readonly SimpleItem _item;
+            private SimpleItem Item => _item;
 
-            public BeepListItemAccessible(BeepListBox owner, int index)
+            public BeepListItemAccessible(BeepListBox owner, SimpleItem item, int index, int totalCount)
             {
                 _owner = owner;
+                _item = item;
                 _index = index;
+                _totalCount = totalCount;
             }
 
             public override string Name
@@ -145,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 get
                 {
                     string text = Item.Text ?? "";
-                    int total = _owner._listItems.Count;
+                    int total = Math.Max(0, _totalCount);
                     // Announce sub-text if item is BeepListItem
                     if (Item is ListBoxs.Models.BeepListItem rich && !string.IsNullOrEmpty(rich.SubText))
                         return $"{text}, {rich.SubText}, item {_index + 1} of {total}";
@@ -153,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            public override AccessibleRole Role => AccessibleRole.ListItem;
+            public override AccessibleRole Role => _owner.ShowHierarchy ? AccessibleRole.OutlineItem : AccessibleRole.ListItem;
 
             public override AccessibleStates State
             {
@@ -176,6 +193,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Disabled
                     if (Item is ListBoxs.Models.BeepListItem rich && rich.IsDisabled)
                         s |= AccessibleStates.Unavailable;
+
+                    if (_owner.ShowHierarchy && _owner._helper?.ItemHasChildren(Item) == true)
+                    {
+                        s |= Item.IsExpanded ? AccessibleStates.Expanded : AccessibleStates.Collapsed;
+                    }
 
                     return s;
                 }

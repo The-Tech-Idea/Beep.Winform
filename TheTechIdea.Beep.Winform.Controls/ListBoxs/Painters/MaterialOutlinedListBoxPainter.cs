@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -19,7 +20,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle gradient
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new LinearGradientBrush(itemRect, Color.FromArgb(30, Color.LightGray), Color.Transparent, LinearGradientMode.Vertical))
+                    var hover = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.LightGray;
+                    using (var hoverBrush = new LinearGradientBrush(itemRect,
+                        Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, hover),
+                        Color.Transparent,
+                        LinearGradientMode.Vertical))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -29,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw ripple effect on selected
             if (isSelected)
             {
-                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, 2f))
+                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, Scale(2)))
                 {
                     g.DrawLine(pen, itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
                 }

@@ -46,42 +46,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         {
             var labelBrush = PaintersFactory.GetSolidBrush(ctx.TextColor);
             var tickPen = PaintersFactory.GetPen(ctx.GridColor,1);
+            int xLabelInterval = Math.Max(1, ctx.XLabelInterval);
+            int yLabelInterval = Math.Max(1, ctx.YLabelInterval);
 
             if (ctx.BottomAxisType == AxisType.Numeric)
             {
-                DrawNumericTicks(g, ctx, isXAxis: true, ctx.XMin, ctx.XMax,5, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
+                DrawNumericTicks(g, ctx, isXAxis: true, ctx.XMin, ctx.XMax,5, xLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
             }
             else if (ctx.BottomAxisType == AxisType.Date)
             {
-                DrawDateTicks(g, ctx, isXAxis: true, ctx.XMin, ctx.XMax, ctx.XDateMin,5, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
+                DrawDateTicks(g, ctx, isXAxis: true, ctx.XMin, ctx.XMax, ctx.XDateMin,5, xLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
             }
             else
             {
-                DrawTextTicks(g, ctx, isXAxis: true, ctx.XCategories, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
+                DrawTextTicks(g, ctx, isXAxis: true, ctx.XCategories, xLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.XLabelAngle);
             }
 
             if (ctx.LeftAxisType == AxisType.Numeric)
             {
-                DrawNumericTicks(g, ctx, isXAxis: false, ctx.YMin, ctx.YMax,5, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
+                DrawNumericTicks(g, ctx, isXAxis: false, ctx.YMin, ctx.YMax,5, yLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
             }
             else if (ctx.LeftAxisType == AxisType.Date)
             {
-                DrawDateTicks(g, ctx, isXAxis: false, ctx.YMin, ctx.YMax, ctx.YDateMin,5, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
+                DrawDateTicks(g, ctx, isXAxis: false, ctx.YMin, ctx.YMax, ctx.YDateMin,5, yLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
             }
             else
             {
-                DrawTextTicks(g, ctx, isXAxis: false, ctx.YCategories, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
+                DrawTextTicks(g, ctx, isXAxis: false, ctx.YCategories, yLabelInterval, ctx.LabelFont, labelBrush, tickPen, ctx.YLabelAngle);
             }
         }
 
-        private void DrawNumericTicks(Graphics g, AxisLayout ctx, bool isXAxis, float minVal, float maxVal, int desiredTicks, Font font, Brush textBrush, Pen grid, float labelAngle)
+        private void DrawNumericTicks(Graphics g, AxisLayout ctx, bool isXAxis, float minVal, float maxVal, int desiredTicks, int labelInterval, Font font, Brush textBrush, Pen grid, float labelAngle)
         {
             if (maxVal <= minVal) return;
             float range = maxVal - minVal;
             float step = NiceStep(range / desiredTicks);
             float start = (float)Math.Floor(minVal / step) * step;
+            int tickIndex = 0;
             for (float v = start; v <= maxVal; v += step)
             {
+                if ((tickIndex++ % labelInterval) != 0)
+                    continue;
+
                 if (isXAxis)
                 {
                     float x = ctx.PlotRect.Left + (v - minVal) / range * ctx.PlotRect.Width;
@@ -97,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             }
         }
 
-        private void DrawDateTicks(Graphics g, AxisLayout ctx, bool isXAxis, float minVal, float maxVal, DateTime dateMin, int desiredTicks, Font font, Brush textBrush, Pen grid, float labelAngle)
+        private void DrawDateTicks(Graphics g, AxisLayout ctx, bool isXAxis, float minVal, float maxVal, DateTime dateMin, int desiredTicks, int labelInterval, Font font, Brush textBrush, Pen grid, float labelAngle)
         {
             if (maxVal <= minVal) return;
             float range = maxVal - minVal;
@@ -113,9 +119,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 
             float step = (float)stepUnits;
             float start = (float)Math.Floor(minVal / step) * step;
+            int tickIndex = 0;
 
             for (float v = start; v <= maxVal; v += step)
             {
+                if ((tickIndex++ % labelInterval) != 0)
+                    continue;
+
                 DateTime tickDate = dateMin.AddDays(v);
                 string label = format(tickDate);
                 if (isXAxis)
@@ -133,11 +143,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             }
         }
 
-        private void DrawTextTicks(Graphics g, AxisLayout ctx, bool isXAxis, System.Collections.Generic.Dictionary<string, int> categories, Font font, Brush textBrush, Pen grid, float labelAngle)
+        private void DrawTextTicks(Graphics g, AxisLayout ctx, bool isXAxis, System.Collections.Generic.Dictionary<string, int> categories, int labelInterval, Font font, Brush textBrush, Pen grid, float labelAngle)
         {
             if (categories == null || categories.Count ==0) return;
-            foreach (var kvp in categories)
+            int tickIndex = 0;
+            foreach (var kvp in categories.OrderBy(c => c.Value))
             {
+                if ((tickIndex++ % labelInterval) != 0)
+                    continue;
+
                 float v = kvp.Value;
                 string label = kvp.Key;
                 if (isXAxis)

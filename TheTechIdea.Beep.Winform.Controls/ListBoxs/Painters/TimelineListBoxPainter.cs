@@ -31,9 +31,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
-            int itemIndex = _owner.ListItems.IndexOf(item);
+            var visibleItems = _helper?.GetVisibleItems();
+            int itemIndex = visibleItems?.IndexOf(item) ?? -1;
+            if (itemIndex < 0)
+            {
+                itemIndex = 0;
+            }
+            int lastIndex = Math.Max(0, (visibleItems?.Count ?? 1) - 1);
             bool isFirst = itemIndex == 0;
-            bool isLast = itemIndex == _owner.ListItems.Count - 1;
+            bool isLast = itemIndex == lastIndex;
 
             // Draw timeline connector
             DrawTimelineConnector(g, itemRect, isFirst, isLast, isSelected);
@@ -191,7 +197,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var timeRect = new Rectangle(contentRect.Right - Scale(80), contentRect.Y + Scale(6), Scale(70), Scale(16));
                     using (var sf = new StringFormat { Alignment = StringAlignment.Far })
                     {
-                        g.DrawString(item.SubText2, smallFont, new SolidBrush(timeColor), timeRect, sf);
+                        using var timeBrush = new SolidBrush(timeColor);
+                        g.DrawString(item.SubText2, smallFont, timeBrush, timeRect, sf);
                     }
                 }
                 textWidth -= Scale(80);
@@ -237,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             Color arrowColor = isSelected 
                 ? (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215))
-                : (_theme?.BackgroundColor ?? Color.White);
+                : (_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White);
 
             using (var brush = new SolidBrush(arrowColor))
             {

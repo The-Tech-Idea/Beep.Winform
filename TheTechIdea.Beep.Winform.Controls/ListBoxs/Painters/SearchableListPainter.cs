@@ -1,8 +1,3 @@
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
-using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
-
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
     /// <summary>
@@ -11,74 +6,5 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     internal class SearchableListPainter : OutlinedListBoxPainter
     {
         public override bool SupportsSearch() => true;
-        
-        // Enhanced hover effects for the search box
-        protected override int DrawSearchArea(Graphics g, Rectangle drawingRect, int yOffset)
-        {
-            int searchHeight = Scale(ListBoxTokens.SearchBarHeight);
-            int margin = Scale(8);
-            Rectangle searchRect = new Rectangle(drawingRect.X + margin, yOffset + margin, drawingRect.Width - margin * 2, searchHeight);
-
-            using (var path = Beep.Winform.Controls.Styling.BeepStyling.CreateControlStylePath(searchRect, Style))
-            {
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBackground(g, path, Style);
-                Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
-
-                // Add hover effect with subtle shadow
-                if (_owner.IsSelected)
-                {
-                    using (var hoverBrush = new SolidBrush(PathPainterHelpers.WithAlphaIfNotEmpty(_theme?.AccentColor ?? Color.Empty, 30)))
-                    {
-                        g.FillPath(hoverBrush, path);
-                    }
-                }
-            }
-
-            // Draw search icon
-            int iconSize = Scale(ListBoxTokens.SearchIconSize);
-            int iconInset = Scale(12);
-            Rectangle iconRect = new Rectangle(searchRect.Left + iconInset, searchRect.Y + (searchRect.Height - iconSize) / 2, iconSize, iconSize);
-            DrawSearchIcon(g, iconRect);
-
-            // Draw placeholder or search text
-            string displayText = string.IsNullOrEmpty(_owner.SearchText) ? "Search..." : _owner.SearchText;
-            int textLeft = Scale(40);
-            int textRightPad = Scale(10);
-            Rectangle textRect = new Rectangle(searchRect.Left + textLeft, searchRect.Y, searchRect.Width - textLeft - textRightPad, searchRect.Height);
-            Color textColor = string.IsNullOrEmpty(_owner.SearchText) ? Color.Gray : (_theme?.PrimaryTextColor ?? Color.Black);
-
-            System.Windows.Forms.TextRenderer.DrawText(g, displayText, _owner.TextFont, textRect, textColor,
-                System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
-            
-            return yOffset + searchHeight + Scale(16);
-        }
-        
-        private void DrawSearchIcon(Graphics g, Rectangle iconRect)
-        {
-            using (var pen = new Pen(Color.Gray, 2f))
-            {
-                // Draw magnifying glass circle
-                int radius = iconRect.Width / 3;
-                g.DrawEllipse(pen, iconRect.X + 2, iconRect.Y + 2, radius * 2, radius * 2);
-                
-                // Draw handle
-                g.DrawLine(pen, iconRect.X + radius + radius - 2, iconRect.Y + radius + radius - 2,
-                          iconRect.Right - 4, iconRect.Bottom - 4);
-            }
-        }
-        
-        private GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter - 1, rect.Bottom - diameter - 1, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter - 1, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            
-            return path;
-        }
     }
 }

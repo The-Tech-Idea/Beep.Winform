@@ -31,6 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty || item == null) return;
 
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+
             // Calculate chip bounds (centered in row)
             int scaledChipH = Scale(_chipHeight);
             var chipRect = new Rectangle(
@@ -67,8 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Text
             var textRect = new Rectangle(contentX, chipRect.Y, chipRect.Right - contentX - Scale(_chipPadding), chipRect.Height);
             Color textColor = isSelected 
-                ? Color.White 
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(60, 60, 60));
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(60, 60, 60));
             
             using (var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center })
             {
@@ -90,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Selected: solid accent color
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                     using (var brush = new SolidBrush(accentColor))
                     {
                         g.FillPath(brush, path);
@@ -100,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var highlightRect = new Rectangle(chipRect.X, chipRect.Y, chipRect.Width, chipRect.Height / 2);
                     using (var highlightPath = GraphicsExtensions.CreateRoundedRectanglePath(highlightRect, new CornerRadius(Scale(_chipCornerRadius))))
                     using (var highlightBrush = new LinearGradientBrush(highlightRect,
-                        Color.FromArgb(40, 255, 255, 255),
+                        Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, 255, 255, 255),
                         Color.FromArgb(0, 255, 255, 255),
                         LinearGradientMode.Vertical))
                     {
@@ -110,12 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     // Hovered: light background with accent border
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
-                    using (var brush = new SolidBrush(Color.FromArgb(20, accentColor)))
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
                     {
                         g.FillPath(brush, path);
                     }
-                    using (var pen = new Pen(Color.FromArgb(100, accentColor), 1.5f))
+                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor), 1.5f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -123,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: outlined chip
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
+                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
@@ -138,9 +140,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawChipIcon(Graphics g, Rectangle iconRect, string imagePath, bool isSelected)
         {
             // Draw circular background
+            var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
             using (var brush = new SolidBrush(isSelected 
-                ? Color.FromArgb(40, 255, 255, 255) 
-                : Color.FromArgb(20, 0, 0, 0)))
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
             {
                 g.FillEllipse(brush, iconRect);
             }
@@ -154,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawChipCheckmark(Graphics g, Rectangle checkRect, bool isSelected)
         {
-            Color checkColor = isSelected ? Color.White : (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215));
+            Color checkColor = isSelected ? (_theme?.OnPrimaryColor ?? Color.White) : (_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue);
             int s2 = Scale(2);
             int s3 = Scale(3);
             
@@ -175,7 +178,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private void DrawCloseButton(Graphics g, Rectangle closeRect, bool isHovered)
         {
             // Draw X
-            Color xColor = isHovered ? Color.White : Color.FromArgb(200, 255, 255, 255);
+            Color xColor = isHovered
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White);
             int s3 = Scale(3);
             using (var pen = new Pen(xColor, 1.5f))
             {

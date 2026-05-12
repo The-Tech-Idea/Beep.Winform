@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                         Color shapeColor,
                         BaseControl owner,
                         Action<int> onToggleSeries,
+                        Action<string, Rectangle> notifyAreaHit = null,
                         LegendPlacement placement = LegendPlacement.Right);
     }
 }

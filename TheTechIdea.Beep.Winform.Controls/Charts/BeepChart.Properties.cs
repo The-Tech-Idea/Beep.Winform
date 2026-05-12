@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
 
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         private IChartLegendPainter _legendPainter = new RightSideLegendPainter();
         private ChartType _lastSeriesType;
         private ChartSurfaceStyle _surfaceStyle = ChartSurfaceStyle.Card;
+        private ChartVisualPreset _currentVisualPreset = ChartVisualPreset.Dashboard;
         private Color _accentColor = Color.FromArgb(0, 150, 136);
         private bool _showTitle = true;
         private readonly SeriesRenderOptions _seriesOptions = new SeriesRenderOptions();
@@ -28,6 +30,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         private Dictionary<string, int> _yAxisCategories = new Dictionary<string, int>();
         private DateTime _xAxisDateMin = DateTime.MinValue;
         private DateTime _yAxisDateMin = DateTime.MinValue;
+        private List<ChartTrackballDataPoint> _trackballDataPoints = new List<ChartTrackballDataPoint>();
+        private float _trackballCrosshairX = -1f;
+        private int _isolatedSeriesIndex = -1;
+        private Dictionary<int, bool> _seriesVisibilityBeforeIsolation = new Dictionary<int, bool>();
+        private int _lastLegendItemClickIndex = -1;
+        private DateTime _lastLegendItemClickTime = DateTime.MinValue;
+        private HashSet<(int SeriesIndex, int PointIndex)> _selectedPoints = new HashSet<(int, int)>();
+        private HashSet<int> _selectedSeries = new HashSet<int>();
+        private ChartSelectionMode _selectionMode = ChartSelectionMode.Multiple;
+        private Point _lastRightClickLocation = Point.Empty;
+        private int _keyboardFocusedSeriesIndex = 0;
+        private int _keyboardFocusedPointIndex = 0;
+        private bool _enablePerformanceMode = true;
+        private int _largeDatasetThreshold = 500;
+        private bool _enablePointCulling = true;
+        private bool _enableVertexSimplification = true;
+        private float _simplificationTolerance = 1.0f;
+        private Dictionary<int, List<ChartDataPoint>> _simplifiedPointsCache = new Dictionary<int, List<ChartDataPoint>>();
+        private Dictionary<int, ChartSeriesFillPattern> _seriesFillPatterns = new Dictionary<int, ChartSeriesFillPattern>();
+        private bool _enableFillPatterns = false;
+        private float _patternDensity = 3.0f;
+        private bool _enableDenseLabelOptimization = true;
+        private int _maxVisibleAxisLabels = 10;
+        private int _lastAppliedXLabelInterval = 1;
+        private int _lastAppliedYLabelInterval = 1;
+        private bool _enableRealTimeStreaming = true;
+        private int _streamRenderThrottleMs = 33;
+        private int _maxStreamPointsPerSeries = 5000;
+        private bool _autoScrollViewportOnStream = true;
+        private bool _streamRefreshPending = false;
+        private int _pendingStreamPointCount = 0;
+        private System.Windows.Forms.Timer _streamRenderTimer;
         #endregion
 
         #region Title Properties
@@ -75,8 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             set
             {
                 _dataSeries = value ?? new List<ChartDataSeries>();
-                BeepChartDataHelper.DetectAxisTypes(this);
-                BeepChartViewportHelper.AutoScaleViewport(this);
+                RefreshDataState();
             }
         }
 
@@ -103,6 +136,188 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         public float ViewportXMax { get; set; }
         public float ViewportYMin { get; set; }
         public float ViewportYMax { get; set; }
+
+        [Browsable(false)]
+        public bool CanResetViewport => _dataSeries != null && _dataSeries.Any(s => s.Points != null && s.Points.Any());
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableKeyboardViewportNavigation { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(0.08f)]
+        public float KeyboardPanStepPercent { get; set; } = 0.08f;
+
+        [Category("Interaction")]
+        [DefaultValue(0.10f)]
+        public float KeyboardZoomStepPercent { get; set; } = 0.10f;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableMouseWheelZoom { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(0.10f)]
+        public float MouseWheelZoomStepPercent { get; set; } = 0.10f;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableMouseDragPan { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(1.0f)]
+        public float MouseDragPanFactor { get; set; } = 1.0f;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableTrackball { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool TrackballShowCrosshair { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool TrackballShowMultiSeriesValues { get; set; } = true;
+
+        [Category("Appearance")]
+        public Color TrackballCrosshairColor { get; set; } = Color.FromArgb(180, 200, 200, 200);
+
+        [Category("Appearance")]
+        [DefaultValue(1.5f)]
+        public float TrackballCrosshairWidth { get; set; } = 1.5f;
+
+        [Category("Appearance")]
+        public Color TrackballTooltipBackColor { get; set; } = Color.FromArgb(240, 240, 240);
+
+        [Category("Appearance")]
+        public Color TrackballTooltipBorderColor { get; set; } = Color.FromArgb(200, 200, 200);
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableLegendIsolate { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnablePointSelection { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(typeof(ChartSelectionMode), "Multiple")]
+        public ChartSelectionMode SelectionMode
+        {
+            get => _selectionMode;
+            set => _selectionMode = value;
+        }
+
+        [Category("Appearance")]
+        public Color SelectionColor { get; set; } = Color.FromArgb(255, 255, 200, 50);
+
+        [Category("Appearance")]
+        public Color SelectionBorderColor { get; set; } = Color.FromArgb(255, 200, 100, 0);
+
+        [Category("Appearance")]
+        [DefaultValue(2.5f)]
+        public float SelectionMarkerSize { get; set; } = 2.5f;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableContextMenu { get; set; } = true;
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool EnableKeyboardNavigation { get; set; } = true;
+
+        [Category("Performance")]
+        [DefaultValue(true)]
+        public bool EnablePerformanceMode { get; set; } = true;
+
+        [Category("Performance")]
+        [DefaultValue(500)]
+        public int LargeDatasetThreshold { get; set; } = 500;
+
+        [Category("Performance")]
+        [DefaultValue(true)]
+        public bool EnablePointCulling { get; set; } = true;
+
+        [Category("Performance")]
+        [DefaultValue(true)]
+        public bool EnableVertexSimplification { get; set; } = true;
+
+        [Category("Performance")]
+        [DefaultValue(1.0f)]
+        public float SimplificationTolerance
+        {
+            get => _simplificationTolerance;
+            set => _simplificationTolerance = Math.Max(0.1f, value);
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        public bool EnableFillPatterns
+        {
+            get => _enableFillPatterns;
+            set { _enableFillPatterns = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(3.0f)]
+        public float PatternDensity
+        {
+            get => _patternDensity;
+            set { _patternDensity = Math.Max(0.5f, Math.Min(10.0f, value)); Invalidate(); }
+        }
+
+        [Category("Performance")]
+        [DefaultValue(true)]
+        public bool EnableDenseLabelOptimization
+        {
+            get => _enableDenseLabelOptimization;
+            set { _enableDenseLabelOptimization = value; Invalidate(); }
+        }
+
+        [Category("Performance")]
+        [DefaultValue(10)]
+        public int MaxVisibleAxisLabels
+        {
+            get => _maxVisibleAxisLabels;
+            set { _maxVisibleAxisLabels = Math.Max(3, Math.Min(30, value)); Invalidate(); }
+        }
+
+        [Category("Performance")]
+        [DefaultValue(true)]
+        public bool EnableRealTimeStreaming
+        {
+            get => _enableRealTimeStreaming;
+            set => _enableRealTimeStreaming = value;
+        }
+
+        [Category("Performance")]
+        [DefaultValue(33)]
+        public int StreamRenderThrottleMs
+        {
+            get => _streamRenderThrottleMs;
+            set => _streamRenderThrottleMs = Math.Max(0, Math.Min(1000, value));
+        }
+
+        [Category("Data")]
+        [DefaultValue(5000)]
+        public int MaxStreamPointsPerSeries
+        {
+            get => _maxStreamPointsPerSeries;
+            set => _maxStreamPointsPerSeries = Math.Max(100, value);
+        }
+
+        [Category("Interaction")]
+        [DefaultValue(true)]
+        public bool AutoScrollViewportOnStream
+        {
+            get => _autoScrollViewportOnStream;
+            set => _autoScrollViewportOnStream = value;
+        }
+
+        public int GetTotalPointCount() => _dataSeries.Sum(s => s.Points.Count);
+
+        public bool IsLargeDataset() => EnablePerformanceMode && GetTotalPointCount() > LargeDatasetThreshold;
         #endregion
 
         #region Chart Appearance Properties
@@ -132,6 +347,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         {
             get => _accentColor;
             set { _accentColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public ChartVisualPreset CurrentVisualPreset
+        {
+            get => _currentVisualPreset;
+            set
+            {
+                if (_currentVisualPreset != value)
+                {
+                    _currentVisualPreset = value;
+                    ApplyVisualPreset(value);
+                }
+            }
         }
 
         [Category("Appearance")]
@@ -208,6 +437,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         }
         internal ToolTip DataPointToolTip => _dataPointToolTip;
         internal System.Windows.Forms.Timer AnimTimer => _animTimer;
+        internal System.Windows.Forms.Timer StreamRenderTimer => _streamRenderTimer;
+        internal List<ChartTrackballDataPoint> TrackballDataPoints 
+        { 
+            get => _trackballDataPoints; 
+            set => _trackballDataPoints = value ?? new List<ChartTrackballDataPoint>(); 
+        }
+        internal float TrackballCrosshairX 
+        { 
+            get => _trackballCrosshairX; 
+            set => _trackballCrosshairX = value; 
+        }
+        internal HashSet<(int, int)> SelectedPoints => _selectedPoints;
+        internal HashSet<int> SelectedSeries => _selectedSeries;
         #endregion
     }
 }

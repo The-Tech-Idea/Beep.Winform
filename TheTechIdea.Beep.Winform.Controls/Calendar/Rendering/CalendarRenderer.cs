@@ -9,7 +9,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
     {
         private readonly ICalendarViewRenderer _month = new MonthViewRenderer();
         private readonly ICalendarViewRenderer _week = new WeekViewRenderer();
+        private readonly ICalendarViewRenderer _workWeek = new WorkWeekViewRenderer();
         private readonly ICalendarViewRenderer _day = new DayViewRenderer();
+        private readonly ICalendarViewRenderer _agenda = new AgendaViewRenderer();
+        private readonly ICalendarViewRenderer _timeline = new TimelineViewRenderer();
         private readonly ICalendarViewRenderer _list = new ListViewRenderer();
 
         public void Draw(Graphics g, CalendarRenderContext ctx)
@@ -43,7 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             {
                 CalendarViewMode.Month => _month,
                 CalendarViewMode.Week => _week,
+                CalendarViewMode.WorkWeek => _workWeek,
                 CalendarViewMode.Day => _day,
+                CalendarViewMode.Agenda => _agenda,
+                CalendarViewMode.Timeline => _timeline,
                 CalendarViewMode.List => _list,
                 _ => _month
             };
@@ -55,7 +61,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             {
                 CalendarViewMode.Month => d.ToString("MMMM yyyy"),
                 CalendarViewMode.Week => $"Week of {d.AddDays(-(int)d.DayOfWeek):MMMM dd, yyyy}",
+                CalendarViewMode.WorkWeek => $"Work week of {d.AddDays(-((int)d.DayOfWeek == 0 ? 6 : (int)d.DayOfWeek - 1)):MMMM dd, yyyy}",
                 CalendarViewMode.Day => d.ToString("dddd, MMMM dd, yyyy"),
+                CalendarViewMode.Agenda => d.ToString("MMMM yyyy") + " Agenda",
+                CalendarViewMode.Timeline => $"Timeline of {d:MMMM yyyy}",
                 CalendarViewMode.List => d.ToString("MMMM yyyy") + " Events",
                 _ => d.ToString("MMMM yyyy")
             };

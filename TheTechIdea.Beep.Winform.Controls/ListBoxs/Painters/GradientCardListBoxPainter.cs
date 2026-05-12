@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.TextFont.Height + Scale(28), Scale(52));
+            return DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightComfortable, _owner ?? new System.Windows.Forms.Control());
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -41,8 +41,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
-            // Get item index for gradient selection
-            int itemIndex = _owner.ListItems.IndexOf(item);
+            // Use visible-list index so gradients remain deterministic under filtering/grouping/hierarchy.
+            int itemIndex = _helper?.GetVisibleItems()?.IndexOf(item) ?? -1;
+            if (itemIndex < 0)
+            {
+                itemIndex = 0;
+            }
             
             // Draw gradient card background
             DrawGradientCard(g, itemRect, itemIndex, isHovered, isSelected);
@@ -67,10 +71,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Text - always white for contrast on gradient
-            Color textColor = Color.White;
+            Color textColor = _theme?.OnPrimaryColor ?? Color.White;
             if (!isSelected && !isHovered)
             {
-                textColor = _theme?.ListItemForeColor ?? Color.FromArgb(40, 40, 40);
+                textColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black;
             }
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
@@ -80,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
-                var subColor = Color.FromArgb(200, textColor);
+                var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
@@ -97,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Use theme primary color gradient for selected
-                    var primaryColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var primaryColor = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.DodgerBlue;
                     var secondaryColor = _theme?.AccentColor ?? DarkenColor(primaryColor, 0.3f);
                     
                     using (var brush = new LinearGradientBrush(cardRect,
@@ -114,15 +118,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     // Subtle gradient on hover
                     var palette = GetPalette(itemIndex);
                     using (var brush = new LinearGradientBrush(cardRect,
-                        Color.FromArgb(100, palette[0]),
-                        Color.FromArgb(100, palette[1]),
+                        Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, palette[0]),
+                        Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, palette[1]),
                         LinearGradientMode.Horizontal))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Hover border
-                    using (var pen = new Pen(Color.FromArgb(80, palette[0]), 1.5f))
+                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, palette[0]), 1.5f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -130,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Default: subtle background
-                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
+                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
@@ -163,8 +167,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw circular background
             var circleRect = iconRect;
             using (var brush = new SolidBrush(isSelected 
-                ? Color.FromArgb(60, 255, 255, 255) 
-                : Color.FromArgb(30, 0, 0, 0)))
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                : Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)))
             {
                 g.FillEllipse(brush, circleRect);
             }
@@ -190,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Checkmark
-                    using (var pen = new Pen(Color.White, 2f))
+                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
@@ -206,11 +210,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
                 else
                 {
-                    using (var brush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
+                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
+                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black)))
                     {
                         g.FillPath(brush, path);
                     }
-                    using (var pen = new Pen(Color.FromArgb(80, 0, 0, 0), 1f))
+                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f))
                     {
                         g.DrawPath(pen, path);
                     }

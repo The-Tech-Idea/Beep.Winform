@@ -2,6 +2,8 @@
 
 Recent integrated-forms note: keep visual workflow surfaces in dedicated themed controls such as `BeepFormsToolbar`; non-visual coordinators such as `BeepForms` should publish state, not own toolbar or message-strip chrome.
 
+Recent calendar note (2026-05-12): `BeepCalendar` was split into focused partial files (`Core`, `Fields`, `Painting`, `LayoutTheme`, `EventOperations`, `Types`) with styling behavior preserved and still routed through `BeepStyling`/calendar painters.
+
 
 
 ## 🎯 OverviewA comprehensive styling system for Beep WinForm controls with support for 21 distinct design systems.

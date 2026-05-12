@@ -25,6 +25,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     protected IBeepTheme _theme;
     protected BeepListBoxHelper _helper;
     protected BeepListBoxLayoutHelper _layout;
+    private Font _cachedTrailingMetaFont;
+    private string _cachedTrailingMetaFamily;
+    private float _cachedTrailingMetaSize = -1f;
     public BeepControlStyle Style { get; set; } = BeepControlStyle.Minimal;
 
     public Font TextFont { get; set; }
@@ -36,6 +39,34 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         _helper = owner.Helper;
         _layout = owner.LayoutHelper;
         TextFont = owner.ListBoxTextFont ?? owner.Font;
+        ResetTrailingMetaFontCache();
+    }
+
+    private void ResetTrailingMetaFontCache()
+    {
+        _cachedTrailingMetaFont?.Dispose();
+        _cachedTrailingMetaFont = null;
+        _cachedTrailingMetaFamily = null;
+        _cachedTrailingMetaSize = -1f;
+    }
+
+    private Font GetTrailingMetaFont()
+    {
+        var sourceFont = TextFont ?? _owner?.TextFont ?? SystemFonts.DefaultFont;
+        float targetSize = Math.Max(8f, sourceFont.Size - 1f);
+        string targetFamily = sourceFont.FontFamily.Name;
+
+        if (_cachedTrailingMetaFont == null ||
+            _cachedTrailingMetaSize != targetSize ||
+            !string.Equals(_cachedTrailingMetaFamily, targetFamily, StringComparison.Ordinal))
+        {
+            _cachedTrailingMetaFont?.Dispose();
+            _cachedTrailingMetaFont = BeepFontManager.GetFont(targetFamily, targetSize, FontStyle.Regular);
+            _cachedTrailingMetaFamily = targetFamily;
+            _cachedTrailingMetaSize = targetSize;
+        }
+
+        return _cachedTrailingMetaFont;
     }
         
         public virtual void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
@@ -44,6 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 return;
             
             _owner = owner;
+            _helper = owner.Helper;
+            _layout = owner.LayoutHelper;
             // Use the CurrentTheme property instead of MenuStyle string property
             _theme = owner._currentTheme;
             
@@ -53,15 +86,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             // Clear the drawing area with background color
-            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
+            using (var clearBrush = new SolidBrush(_theme?.BackgroundColor ?? ColorUtils.MapSystemColor(SystemColors.Window)))
             {
                 g.FillRectangle(clearBrush, drawingRect);
             }
             
             // Get layout and items
             var items = _helper.GetVisibleItems();
-            _layout.CalculateLayout(_owner);
             var cache = _layout.GetCachedLayout();
+            if ((cache == null || cache.Count == 0) && items != null && items.Count > 0)
+            {
+                _layout.CalculateLayout(_owner);
+            }
 
             // Optionally draw search at top (kept simple)
             int yOffset = drawingRect.Y;
@@ -161,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // The real BeepTextBox control handles search UI rendering.
             // This method only computes the Y offset to leave space for it.
             int searchHeight = DpiScalingHelper.ScaleValue(ListBoxTokens.SearchBarHeight, _owner);
-            return yOffset + searchHeight + DpiScalingHelper.ScaleValue(4, _owner);
+            return yOffset + searchHeight + DpiScalingHelper.ScaleValue(ListBoxTokens.ItemPaddingV, _owner);
         }
         
         protected virtual void DrawItems(Graphics g, Rectangle drawingRect, System.Collections.Generic.List<SimpleItem> items, int yOffset)
@@ -516,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int trailingReservation = 0;
             if (item is BeepListItem rich && !string.IsNullOrWhiteSpace(rich.TrailingMeta))
             {
-                using var metricFont = new Font((TextFont ?? _owner.TextFont).FontFamily, Math.Max(8f, (TextFont ?? _owner.TextFont).Size - 1f), FontStyle.Regular);
+                var metricFont = GetTrailingMetaFont();
                 var metricSize = TextRenderer.MeasureText(rich.TrailingMeta, metricFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                 int metricW = metricSize.Width + DpiScalingHelper.ScaleValue(8, _owner);
                 var metricRect = new Rectangle(

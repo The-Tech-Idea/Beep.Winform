@@ -28,6 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             try
             {
+                var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
+
                 // Add padding to item bounds
                 var contentBounds = new Rectangle(
                     itemRect.X + Scale(8),
@@ -51,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     
                     // Draw rounded icon background
                     using (var iconPath = GraphicsExtensions.CreateRoundedRectanglePath(iconRect, Scale(4)))
-                    using (var iconBgBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
+                    using (var iconBgBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, accentColor)))
                     {
                         g.FillPath(iconBgBrush, iconPath);
                     }
@@ -69,7 +71,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     contentBounds.Height
                 );
 
-                Color textColor = isSelected ? Color.White : _theme.LabelForeColor;
+                Color textColor = isSelected
+                    ? (_theme?.OnPrimaryColor ?? Color.White)
+                    : (_theme?.LabelForeColor ?? _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
                 
                 // Main text
                 using (var textBrush = new SolidBrush(textColor))
@@ -102,13 +106,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                         // Badge background
                         using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(4)))
-                        using (var badgeBrush = new SolidBrush(Color.FromArgb(50, _theme.AccentColor)))
+                        using (var badgeBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, accentColor)))
                         {
                             g.FillPath(badgeBrush, badgePath);
                         }
 
                         // Badge text
-                        Color badgeColor = Color.FromArgb(180, textColor);
+                        Color badgeColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                         using (var badgeTextBrush = new SolidBrush(badgeColor))
                         {
                             var sf = new StringFormat
@@ -130,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Scale(44); // HeroUI default item height
+            return Scale(ListBoxTokens.MinTouchTargetPx); // HeroUI default/minimum touch target
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -142,7 +146,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
+                    var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)))
                     {
                         g.FillPath(hoverBrush, path);
                     }

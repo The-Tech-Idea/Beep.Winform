@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -10,12 +11,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override int GetPreferredItemHeight()
         {
-            return Scale(24);
+            return Scale(ListBoxTokens.ItemHeightDense);
         }
         
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(Scale(6), Scale(2), Scale(6), Scale(2));
+            int h = Scale(ListBoxTokens.ItemPaddingH / 2);
+            int v = Scale(ListBoxTokens.ItemPaddingV / 2);
+            return new System.Windows.Forms.Padding(h, v, h, v);
         }
 
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
@@ -27,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
                 
                 // Filled background for selected
-                using (var brush = new SolidBrush(Color.FromArgb(40, selColor.R, selColor.G, selColor.B)))
+                using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
@@ -46,12 +49,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (isHovered)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(245, 245, 245)))
+                using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
 
-                using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 0.5f))
+                using (var pen = new Pen(_theme?.AccentColor ?? Color.Gray, 1f))
                 {
                     g.DrawRectangle(pen, itemRect.X, itemRect.Y, itemRect.Width - 1, itemRect.Height - 1);
                 }
@@ -59,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else
             {
                 // Normal compact style - minimal background
-                using (var brush = new SolidBrush(Color.White))
+                using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
                 {
                     g.FillRectangle(brush, itemRect);
                 }

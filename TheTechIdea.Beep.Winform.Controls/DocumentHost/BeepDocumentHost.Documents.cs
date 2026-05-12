@@ -296,8 +296,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             fw.TitleBarMouseUp += (s, ea) => OnFloatWindowDropped(documentId);
             fw.FormClosed  += (s, _) =>
             {
-                _dockOverlay?.HideOverlay();
+                if (_isDisposingHost)
+                    return;
+
+                try
+                {
+                    _dockOverlay?.HideOverlay();
+                }
+                catch
+                {
+                    // Ignore overlay teardown errors during fast host/window transitions.
+                }
+
                 _floatWindows.Remove(documentId);
+
+                // Do not report DocumentClosed when this close is part of docking-back.
+                if (_dockBackClosingIds.Remove(documentId))
+                    return;
+
                 DocumentClosed?.Invoke(this, new DocumentEventArgs(documentId, title));
             };
             _floatWindows[documentId] = fw;
@@ -317,6 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             var panel = fw.DetachPanel();
             _floatWindows.Remove(documentId);
+            _dockBackClosingIds.Add(documentId);
             fw.Close();
 
             string title = panel.DocumentTitle;

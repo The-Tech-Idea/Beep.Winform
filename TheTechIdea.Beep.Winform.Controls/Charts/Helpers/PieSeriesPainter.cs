@@ -50,6 +50,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         }
 
         public void UpdateHitAreas(BaseControl owner, Rectangle plotRect, List<ChartDataSeries> data,
-            Func<ChartDataPoint, PointF> toScreen, Action<string, Rectangle> notifyAreaHit) { }
+            Func<ChartDataPoint, PointF> toScreen, Action<string, Rectangle> notifyAreaHit)
+        {
+            var series = data?.FirstOrDefault();
+            if (series == null || !series.Visible || series.Points == null || !series.Points.Any()) return;
+
+            float totalValue = series.Points.Sum(p => p.Value);
+            if (totalValue <= 0) return;
+
+            int pieDiameter = Math.Min(plotRect.Width, plotRect.Height) - 20;
+            if (pieDiameter <= 0) return;
+
+            Rectangle pieRect = new Rectangle(
+                plotRect.Left + (plotRect.Width - pieDiameter) / 2,
+                plotRect.Top + (plotRect.Height - pieDiameter) / 2,
+                pieDiameter,
+                pieDiameter);
+
+            float centerX = pieRect.Left + (pieRect.Width / 2f);
+            float centerY = pieRect.Top + (pieRect.Height / 2f);
+            float anchorRadius = pieRect.Width * 0.35f;
+
+            float startAngle = 0f;
+            const int hitSize = 16;
+            for (int pointIndex = 0; pointIndex < series.Points.Count; pointIndex++)
+            {
+                float sliceValue = series.Points[pointIndex].Value;
+                if (sliceValue <= 0) continue;
+
+                float sweepAngle = sliceValue / totalValue * 360f;
+                float midRadians = (float)((startAngle + (sweepAngle / 2f)) * (Math.PI / 180d));
+
+                float anchorX = centerX + (float)Math.Cos(midRadians) * anchorRadius;
+                float anchorY = centerY + (float)Math.Sin(midRadians) * anchorRadius;
+
+                var hitRect = new Rectangle((int)anchorX - (hitSize / 2), (int)anchorY - (hitSize / 2), hitSize, hitSize);
+                owner.AddHitArea($"PieSlice_{pointIndex}", hitRect, null, () =>
+                    notifyAreaHit?.Invoke($"PieSlice_{pointIndex}", hitRect));
+
+                startAngle += sweepAngle;
+            }
+        }
     }
 }

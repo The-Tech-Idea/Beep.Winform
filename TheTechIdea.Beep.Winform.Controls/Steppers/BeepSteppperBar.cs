@@ -142,6 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Dictionary<int, ToolTipConfig> _stepTooltipConfigs = new Dictionary<int, ToolTipConfig>();
         private int _hoveredStepIndex = -1;
         private string _currentTooltipKey = null;
+        private BindingList<SimpleItem> _listItems = new();
         private BindingList<StepModel> _stepModels = new();
         #endregion
 
@@ -180,7 +181,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Data")]
         [Description("Collection of steps to display")]
-        public BindingList<SimpleItem> ListItems { get; set; } = new();
+        public BindingList<SimpleItem> ListItems
+        {
+            get => _listItems;
+            set
+            {
+                if (ReferenceEquals(_listItems, value))
+                {
+                    return;
+                }
+
+                if (_listItems != null)
+                {
+                    _listItems.ListChanged -= ListItems_ListChanged;
+                }
+
+                _listItems = value ?? new BindingList<SimpleItem>();
+                _listItems.ListChanged += ListItems_ListChanged;
+
+                SyncListItemsWithSteps();
+                ApplyAccessibilitySettings();
+                UpdateAllStepTooltips();
+                UpdateNavigationButtonsState();
+                Invalidate();
+            }
+        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -410,14 +435,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.DoubleBuffer, true);
             this.SetStyle(ControlStyles.ResizeRedraw, true);
             this.SetStyle(ControlStyles.UserPaint, true);
-            
-            ListItems.ListChanged += (s, e) => {
-                SyncListItemsWithSteps();
-                ApplyAccessibilitySettings();
-                UpdateAllStepTooltips();
-                UpdateNavigationButtonsState();
-                Invalidate();
-            };
+
+            _listItems.ListChanged += ListItems_ListChanged;
             _stepModels.ListChanged += StepModels_ListChanged;
 
             InitializeAnimation();
@@ -660,6 +679,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 ListItems.Add(item);
             }
+        }
+
+        private void ListItems_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            SyncListItemsWithSteps();
+            ApplyAccessibilitySettings();
+            UpdateAllStepTooltips();
+            UpdateNavigationButtonsState();
+            Invalidate();
         }
 
         private void SyncListItemsWithSteps()

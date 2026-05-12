@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls;
             BorderRadius = 3;
             
             // Accessibility properties
-            AccessibleRole = AccessibleRole.List;
+            SyncAccessibilityRole();
             AccessibleName = "List Box";
             AccessibleDescription = "List box with selectable items";
             

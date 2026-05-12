@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.TextFont.Height + Scale(20), Scale(44));
+            return DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightComfortable, _owner ?? new System.Windows.Forms.Control());
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -54,8 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // Text with proper contrast
             Color textColor = isSelected 
-                ? Color.White 
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(40, 40, 40));
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
 
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
-                var subColor = Color.FromArgb(140, textColor);
+                var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     // Selected: vibrant glass with accent color
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                     
                     // Glass background
                     using (var brush = new LinearGradientBrush(glassRect,
@@ -122,7 +122,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover border
-                    using (var pen = new Pen(Color.FromArgb(80, _theme?.AccentColor ?? Color.Gray), 1f))
+                    using (var pen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.Gray), 1f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -145,14 +146,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isChecked)
                 {
                     // Checked: accent color glass
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                     using (var brush = new SolidBrush(Color.FromArgb(200, accentColor)))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Checkmark
-                    using (var pen = new Pen(Color.White, 2f))
+                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;
@@ -173,7 +174,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     {
                         g.FillPath(brush, path);
                     }
-                    using (var pen = new Pen(Color.FromArgb(100, _theme?.BorderColor ?? Color.Gray), 1f))
+                    using (var pen = new Pen(Color.FromArgb(100,
+                        _theme?.BorderColor ?? _theme?.ListItemForeColor ?? Color.Gray), 1f))
                     {
                         g.DrawPath(pen, path);
                     }

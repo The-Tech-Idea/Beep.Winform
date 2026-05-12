@@ -59,6 +59,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         }
 
         public void UpdateHitAreas(BaseControl owner, Rectangle plotRect, List<ChartDataSeries> data,
-            Func<ChartDataPoint, PointF> toScreen, Action<string, Rectangle> notifyAreaHit) { }
+            Func<ChartDataPoint, PointF> toScreen, Action<string, Rectangle> notifyAreaHit)
+        {
+            if (data == null || toScreen == null) return;
+
+            const int hitSize = 14;
+            for (int sIndex = 0; sIndex < data.Count; sIndex++)
+            {
+                var series = data[sIndex];
+                if (!series.Visible || series.Points == null) continue;
+
+                for (int pointIndex = 0; pointIndex < series.Points.Count; pointIndex++)
+                {
+                    var screenPoint = toScreen(series.Points[pointIndex]);
+                    if (screenPoint == PointF.Empty) continue;
+
+                    var hitRect = new Rectangle((int)screenPoint.X - (hitSize / 2), (int)screenPoint.Y - (hitSize / 2), hitSize, hitSize);
+                    owner.AddHitArea($"BubblePoint_{sIndex}_{pointIndex}", hitRect, null, () =>
+                        notifyAreaHit?.Invoke($"BubblePoint_{sIndex}_{pointIndex}", hitRect));
+                }
+            }
+        }
     }
 }

@@ -51,6 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private bool _batchAdding;
         private bool _layoutSuspended;
+        private bool _isDisposingHost;
+        private bool _isDesignerDetaching;
+        private readonly HashSet<string> _dockBackClosingIds = new(StringComparer.Ordinal);
+
+        private bool IsDesignTimeHost
+            => LicenseManager.UsageMode == LicenseUsageMode.Designtime
+               || (Site?.DesignMode ?? false);
 
         // 5.3 — Layout re-entrancy guard (prevents the ResumeLayout→OnLayout double-pass)
         private bool _inLayoutRecalc;
@@ -126,6 +133,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             base.OnHandleCreated(e);
 
+            if (IsDesignTimeHost)
+            {
+                try
+                {
+                    _currentTheme = BeepThemesManager.GetTheme(BeepThemesManager.CurrentThemeName)
+                        ?? BeepThemesManager.GetDefaultTheme();
+                }
+                catch
+                {
+                    _currentTheme ??= new DefaultBeepTheme();
+                }
+
+                ApplyThemeColors();
+                return;
+            }
+
             try
             {
                 _currentTheme = BeepThemesManager.GetTheme(BeepThemesManager.CurrentThemeName)
@@ -148,6 +171,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 ApplyDesignTimeDocuments();
 
             BeepDocumentDragManager.Register(this);
+        }
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            if (!IsDesignTimeHost)
+            {
+                return;
+            }
+
+            // During designer remove/reparent operations, parent may become null before dispose.
+            if (Parent == null)
+            {
+                _isDesignerDetaching = true;
+                _isDisposingHost = true;
+            }
+        }
+
+        protected override void OnControlRemoved(ControlEventArgs e)
+        {
+            base.OnControlRemoved(e);
+
+            if (!IsDesignTimeHost)
+            {
+                return;
+            }
+
+            // Suppress runtime mutation/layout flows while designer is tearing down children.
+            _isDesignerDetaching = true;
+            _isDisposingHost = true;
         }
 
         private void OnGlobalThemeChanged(object? sender, ThemeChangeEventArgs e)
@@ -297,10 +351,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (disposing)
             {
+                _isDisposingHost = true;
+
+                if (IsDesignTimeHost)
+                {
+                    // In VS designer teardown, keep disposal minimal and defensive.
+                    try { _tabStrip?.Dispose(); } catch { }
+                    try { _dockOverlay?.Dispose(); } catch { }
+                    try { _splitterBar?.Dispose(); } catch { }
+                    foreach (var bar in _extraSplitters.ToList())
+                    {
+                        try { bar?.Dispose(); } catch { }
+                    }
+                    try { BeepDocumentDragManager.Unregister(this); } catch { }
+                    base.Dispose(disposing);
+                    return;
+                }
+
                 BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
                 _tabStrip?.Dispose();
-                foreach (var fw in _floatWindows.Values) fw?.Dispose();
-                foreach (var p in _panels.Values) p?.Dispose();
+
+                // Use snapshots because disposing float windows can trigger FormClosed handlers
+                // that mutate these dictionaries.
+                var floatWindows = _floatWindows.Values.ToList();
+                _floatWindows.Clear();
+                foreach (var fw in floatWindows) fw?.Dispose();
+
+                var panels = _panels.Values.ToList();
+                _panels.Clear();
+                foreach (var p in panels) p?.Dispose();
+
                 if (_autoSaveLayout && !string.IsNullOrEmpty(_sessionFile))
                     SaveLayoutToFile();
 

@@ -66,8 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             int iconArea = iconSize > 0 ? (iconSize + iconTextGap) : 0;
             int borderWidth = (int)StyleBorders.GetBorderWidth(_owner.ControlStyle) * 2;
 
-            foreach (var item in visibleItems)
+            for (int i = 0; i < visibleItems.Count; i++)
             {
+                var item = visibleItems[i];
                 int itemHeight = Math.Max(1, _owner.GetItemHeightForLayout(item) + borderWidth);
                 int screenY = drawingRect.Top + runningVirtualY - _owner.YOffset;
                 var row = new Rectangle(x, screenY, w, itemHeight);
@@ -80,9 +81,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
 
                 if (row.Top > viewportBottom)
                 {
-                    // We can stop populating cache once rows are below viewport, but keep tracking total height.
                     runningVirtualY += itemHeight;
-                    continue;
+                    for (int j = i + 1; j < visibleItems.Count; j++)
+                    {
+                        var rem = visibleItems[j];
+                        runningVirtualY += Math.Max(1, _owner.GetItemHeightForLayout(rem) + borderWidth);
+                    }
+                    break;
                 }
 
                 // Hierarchy indentation

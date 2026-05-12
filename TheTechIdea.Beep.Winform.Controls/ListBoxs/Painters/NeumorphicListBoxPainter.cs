@@ -17,22 +17,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         private readonly int _cornerRadius = 12;
         private readonly int _shadowBlur = 6;
-        private Color _baseColor = Color.FromArgb(235, 235, 240);
+        private Color _baseColor = SystemColors.ControlLight;
 
         public override int GetPreferredItemHeight()
         {
-            return Math.Max(_owner.TextFont.Height + Scale(24), Scale(48));
+            return DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightComfortable, _owner ?? new Control());
         }
 
         public override void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
         {
             // Set base color from theme
-            _baseColor = _theme?.BackgroundColor ?? Color.FromArgb(235, 235, 240);
+            _baseColor = owner?._currentTheme?.BackgroundColor ?? owner?.BackColor ?? SystemColors.ControlLight;
             
             // Ensure base color is light enough for neumorphism
             if (GetLuminance(_baseColor) < 0.5f)
             {
-                _baseColor = Color.FromArgb(235, 235, 240);
+                _baseColor = LightenColor(_baseColor, 0.55f);
             }
 
             base.Paint(g, owner, drawingRect);
@@ -67,10 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Text
-            Color textColor = _theme?.ListItemForeColor ?? Color.FromArgb(60, 60, 60);
+            Color textColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.DimGray;
             if (isSelected)
             {
-                textColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 100, 180);
+                textColor = _theme?.OnPrimaryColor ?? Color.White;
             }
             
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var subRect = new Rectangle(textRect.X, textRect.Y + textRect.Height / 2 + Scale(2), 
                     textRect.Width, textRect.Height / 2 - Scale(4));
-                var subColor = Color.FromArgb(140, textColor);
+                var subColor = Color.FromArgb(ListBoxTokens.SubTextAlpha, textColor);
                 using (var subFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                 {
                     DrawItemText(g, subRect, item.SubText, subColor, subFont);
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 DrawInsetNeumorphic(g, neuRect, lightShadow, darkShadow);
                 
                 // Accent indicator
-                var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                 using (var accentBrush = new SolidBrush(accentColor))
                 {
                     var accentRect = new Rectangle(neuRect.Left, neuRect.Top + Scale(4), Scale(4), neuRect.Height - Scale(8));
@@ -187,14 +187,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 using (var path = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, new CornerRadius(Scale(4))))
                 {
                     // Background
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                     using (var brush = new SolidBrush(accentColor))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Checkmark
-                    using (var pen = new Pen(Color.White, 2f))
+                    using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
                     {
                         pen.StartCap = LineCap.Round;
                         pen.EndCap = LineCap.Round;

@@ -55,7 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 Beep.Winform.Controls.Styling.BeepStyling.PaintStyleBorder(g, path, false, Style);
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(50, Color.Gray)))
+                    var hoverColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? _theme?.BorderColor ?? Color.Gray;
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, hoverColor)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -73,9 +74,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             else if (isHovered)
             {
-                return Color.FromArgb(245, 245, 245);
+                return _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.FromArgb(245, 245, 245);
             }
-            return Color.White;
+            return _theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White;
         }
         
         private Color GetItemStateColor(SimpleItem item, bool isSelected)
@@ -96,13 +97,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             else if (item.Text?.ToLower().Contains("payment") == true)
                 return Color.FromArgb(140, 100, 30); // Dark amber
             else
-                return Color.FromArgb(60, 60, 60); // Dark gray
+                return _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(60, 60, 60); // Dark gray
         }
         
         private void DrawColoredCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, Color stateColor)
         {
             // Draw checkbox background
-            Color bgColor = isChecked ? stateColor : Color.White;
+            Color bgColor = isChecked ? stateColor : (_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White);
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, checkboxRect);
@@ -117,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw checkmark if checked
             if (isChecked)
             {
-                using (var pen = new Pen(Color.White, 2f))
+                using (var pen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2f))
                 {
                     Point[] checkPoints = new Point[]
                     {
@@ -159,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return Scale(44);
+            return DpiScalingHelper.ScaleValue(ListBoxTokens.MinTouchTargetPx, _owner ?? new System.Windows.Forms.Control());
         }
     }
 }

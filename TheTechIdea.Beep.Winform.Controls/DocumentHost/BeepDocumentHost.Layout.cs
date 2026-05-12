@@ -69,6 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             base.OnLayout(levent);
             if (!IsHandleCreated) return;
+            if (IsDesignTimeHost && (_isDesignerDetaching || _isDisposingHost || Parent == null)) return;
             if (_inLayoutRecalc) return;
             RecalculateLayout();
             SyncPanelBounds();
@@ -150,6 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public void RecalculateLayout()
         {
             if (_layoutSuspended) return;
+            if (IsDesignTimeHost && (_isDesignerDetaching || _isDisposingHost || Parent == null)) return;
             if (_inLayoutRecalc) return;
             if (_tabStrip == null || _contentArea == null) return;
 

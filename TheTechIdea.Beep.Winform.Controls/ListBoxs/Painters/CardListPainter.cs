@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    using (var brush = new SolidBrush(Color.FromArgb(248, 248, 248)))
+                    using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
@@ -123,13 +123,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Card background
-                    using (var brush = new SolidBrush(Color.White))
+                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Card border
-                    using (var pen = new Pen(Color.FromArgb(225, 225, 225), 1f))
+                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(225, 225, 225), 1f))
                     {
                         g.DrawPath(pen, path);
                     }

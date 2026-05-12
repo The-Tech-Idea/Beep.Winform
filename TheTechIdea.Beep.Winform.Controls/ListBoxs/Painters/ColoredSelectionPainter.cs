@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
-                DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
+            DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected);
 
             int currentX = itemRect.Left + Scale(16);
 
@@ -35,19 +35,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Rectangle textRect = new Rectangle(currentX, itemRect.Y + Scale(8), itemRect.Width - currentX - textPad, itemRect.Height / 2);
             Color textColor = _owner.IsItemSelected(item)
                 ? Color.White
-                : Color.FromArgb(40, 40, 40);
+                : (_theme?.ListItemForeColor ?? Color.FromArgb(40, 40, 40));
 
-            Font boldFont = new Font(_owner.TextFont, FontStyle.Bold);
-            DrawItemText(g, textRect, item.Text, textColor, boldFont);
+            using (var boldFont = new Font(_owner.TextFont, FontStyle.Bold))
+            {
+                DrawItemText(g, textRect, item.Text, textColor, boldFont);
+            }
 
             // Draw description
             if (!string.IsNullOrEmpty(item.Description))
             {
-                Font smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
+                using var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1);
                 Rectangle descRect = new Rectangle(currentX, itemRect.Y + itemRect.Height / 2, itemRect.Width - currentX - textPad, itemRect.Height / 2 - Scale(8));
                 Color descColor = _owner.IsItemSelected(item)
-                    ? Color.FromArgb(200, 200, 200)
-                    : Color.FromArgb(120, 120, 120);
+                    ? Color.FromArgb((int)(ListBoxTokens.SubTextAlpha * 1.3f), 255, 255, 255)
+                    : Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.ListItemForeColor ?? Color.Gray);
 
                 System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
                     System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
@@ -89,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Draw background with hover effect
                 Color bgColor = isChecked
                     ? checkColor
-                    : (isHovered ? Color.FromArgb(240, 240, 240) : Color.White);
+                    : (isHovered ? (_theme?.ListItemHoverBackColor ?? Color.FromArgb(240, 240, 240)) : (_theme?.BackgroundColor ?? Color.White));
 
                 using (var brush = new SolidBrush(bgColor))
                 {

@@ -1,443 +1,360 @@
-# Phase 8 — Enhance All Remaining Painters
-
-**Priority**: Medium  
-**Status**: Not Started  
-**Depends on**: Phase 7 (base helpers `Scale()`, `DrawCircularAvatar()`, `GetInitials()`, tokens)
-
-## Problem
-
-Of 47 painters, only **10 are fully enhanced** (GOOD). The remaining **35 PARTIAL + 2 NEEDS_WORK** painters have a mix of:
-- Hardcoded magic pixel values (no DPI scaling)
-- Missing `ListBoxTokens` usage
-- Missing `Scale()` helper usage
-- Missing `DrawItemBackgroundEx()` calls
-- Non-scaled `GetPreferredItemHeight()` returns
-- Direct `BeepStyling.CurrentTheme` references instead of `_theme`
-- One painter (`BorderlessListBoxPainter`) bypasses `BaseListBoxPainter` entirely
-
----
-
-## Audit Summary
-
-### GOOD — No changes needed (10)
-
-| Painter | Notes |
-|---------|-------|
-| `ChatListBoxPainter` | Phase 7 — tokens, Scale(), avatar helper |
-| `CheckboxListPainter` | Tokens, Scale(), DrawItemBackgroundEx |
-| `CommandListBoxPainter` | Tokens, Scale(), DrawItemBackgroundEx |
-| `ContactListBoxPainter` | Phase 7 — tokens, Scale(), avatar helper |
-| `InfiniteScrollListBoxPainter` | Tokens, Scale() |
-| `NavigationRailListBoxPainter` | Tokens, Scale(), DrawItemBackgroundEx |
-| `NotificationListBoxPainter` | Phase 7 — tokens, Scale(), avatar helper |
-| `ProfileCardListBoxPainter` | Phase 7 — tokens, Scale(), avatar helper |
-| `StandardListBoxPainter` | Tokens, Scale(), DrawItemBackgroundEx |
-| `ThreeLineListBoxPainter` | Phase 7 — tokens, Scale(), avatar helper |
-
-### NEEDS_WORK — Structural problems (2)
-
-| Painter | Issue |
-|---------|-------|
-| `BorderlessListBoxPainter` | Implements `IListBoxPainter` directly, bypasses all base infrastructure. Own Paint loop, own DrawItemText, hardcoded 36px rows. |
-| `CategoryChipsPainter` | No `DrawItem` override; only overrides `DrawSearchArea` with hardcoded chip sizes. |
-
-### PARTIAL — Enhancement needed (35)
-
-Each needs a subset of the standard enhancement checklist (see below).
-
----
-
-## Inheritance Hierarchy
-
-Understanding the chain is critical — fixing a parent fixes behavior for all children.
-
-```
-IListBoxPainter
-├── BaseListBoxPainter (abstract)
-│   ├─ StandardListBoxPainter ✅ GOOD
-│   │   ├─ OutlinedListBoxPainter ⚠ PARTIAL
-│   │   │   ├─ CategoryChipsPainter ❌ NEEDS_WORK
-│   │   │   ├─ SearchableListPainter ⚠ PARTIAL
-│   │   │   ├─ MaterialOutlinedListBoxPainter ⚠ PARTIAL
-│   │   │   └─ WithIconsListBoxPainter ⚠ PARTIAL
-│   │   │       └─ LanguageSelectorPainter ⚠ PARTIAL
-│   │   ├─ MinimalListBoxPainter ⚠ PARTIAL
-│   │   │   └─ SimpleListPainter ⚠ PARTIAL
-│   │   └─ CompactListPainter ⚠ PARTIAL
-│   │
-│   ├─ AvatarListBoxPainter ⚠ PARTIAL
-│   ├─ CardListPainter ⚠ PARTIAL
-│   ├─ ChakraUIListBoxPainter ⚠ PARTIAL
-│   ├─ ChipStyleListBoxPainter ⚠ PARTIAL
-│   ├─ ColoredSelectionPainter ⚠ PARTIAL
-│   ├─ CustomListPainter ⚠ PARTIAL
-│   ├─ ErrorStatesPainter ⚠ PARTIAL
-│   ├─ FilledListBoxPainter ⚠ PARTIAL
-│   ├─ FilledStylePainter ⚠ PARTIAL
-│   ├─ FilterStatusPainter ⚠ PARTIAL
-│   ├─ GlassmorphismListBoxPainter ⚠ PARTIAL
-│   ├─ GradientCardListBoxPainter ⚠ PARTIAL
-│   ├─ GroupedListPainter ⚠ PARTIAL
-│   ├─ HeroUIListBoxPainter ⚠ PARTIAL
-│   ├─ MultiSelectionTealPainter ⚠ PARTIAL
-│   ├─ NeumorphicListBoxPainter ⚠ PARTIAL
-│   ├─ OutlinedCheckboxesPainter ⚠ PARTIAL
-│   ├─ RadioSelectionPainter ⚠ PARTIAL
-│   ├─ RaisedCheckboxesPainter ⚠ PARTIAL
-│   ├─ RekaUIListBoxPainter ⚠ PARTIAL
-│   ├─ RoundedListBoxPainter ⚠ PARTIAL
-│   ├─ TeamMembersPainter ⚠ PARTIAL
-│   └─ TimelineListBoxPainter ⚠ PARTIAL
-│
-├── BorderlessListBoxPainter ❌ NEEDS_WORK (raw IListBoxPainter!)
-```
+# Phase 8 - ListBox Painter Modernization Plan
+
+Priority: High  
+Status: Manual Validation In Progress (provisional code passes recorded; visual evidence pending)  
+Depends on: Phases 1-7 completion
+
+## Progress
+
+- [x] Core contract pass started.
+- [x] Added cache-aware layout recalculation in base painter path.
+- [x] Added hierarchy-aware accessibility role sync (List vs Outline).
+- [x] Added hierarchy expanded/collapsed accessibility states.
+- [x] Updated accessibility child enumeration to visible items.
+- [x] Enforced shared background pipeline in `ChipStyleListBoxPainter`.
+- [x] Normalized `CompactListPainter` height to token-based dense row metric.
+- [x] Tokenized `SimpleListPainter` corner radius.
+- [x] Aligned `SearchableListPainter` with shared search control rendering contract.
+- [x] Updated `OutlinedListBoxPainter` overlays and normal fill for theme/token consistency.
+- [x] Normalized `WithIconsListBoxPainter` padding and row height to tokenized metrics.
+- [x] Updated `MaterialOutlinedListBoxPainter` hover/selection visuals to theme-aware token usage.
+- [x] Refactored `AvatarListBoxPainter` to reuse shared circular-avatar fallback helper.
+- [x] Corrected secondary text hierarchy in `ContactListBoxPainter` and `ThreeLineListBoxPainter`.
+- [x] Tokenized badge sizing in `ChatListBoxPainter` and `NotificationListBoxPainter`.
+- [x] Updated `CardListPainter` surfaces/border to use theme colors instead of hardcoded light values.
+- [x] Fixed `NeumorphicListBoxPainter` theme initialization in overridden `Paint` flow.
+- [x] Updated `GradientCardListBoxPainter` and `TimelineListBoxPainter` to use visible-list indexing under filter/group/hierarchy modes.
+- [x] Hardened `HeroUIListBoxPainter` null-theme safety and tokenized minimum touch-target height.
+- [x] Normalized `CompactListPainter` hover/normal surfaces and spacing to theme/token rules.
+- [x] Tokenized `CheckboxListPainter` padding/height/border metrics and divider inset.
+- [x] Normalized shortcut-chip metrics in `CommandListBoxPainter` using list tokens.
+- [x] Improved `ErrorStatesPainter` theme-safe foreground/background behavior for normal and hover states.
+- [x] Reduced hardcoded fallback color usage in `ChipStyleListBoxPainter`.
+- [x] Added robust themed status-color fallback in `AvatarListBoxPainter`.
+- [x] Added resource-disposal and theme-safe text/background fixes in `ColoredSelectionPainter`.
+- [x] Added resource-disposal and tokenized badge metrics/path reuse in `ErrorStatesPainter`.
+- [x] Improved `CategoryChipsPainter` chip fallback colors and close-icon contrast behavior.
+- [x] Normalized `SimpleListPainter`, `RoundedListBoxPainter`, `ThreeLineListBoxPainter`, `RaisedCheckboxesPainter`, and `TimelineListBoxPainter` for remaining theme/token/resource gaps.
+- [x] Continue Batch B/C painter normalization (tokenization + parity).
+- [x] Finalized base painter owner-context synchronization (`_helper`/`_layout`) and tokenized search-spacing fallback.
+- [x] Reduced base painter scroll-path allocations by caching trailing-metadata font in `BaseListBoxPainter.DrawItem`.
+- [x] Normalized `ChakraUIListBoxPainter` text/badge/selection colors to theme-safe fallbacks and tokenized compact row height.
+- [x] Normalized `NeumorphicListBoxPainter` to theme-safe fallback colors and tokenized preferred row height.
+- [x] Normalized `GlassmorphismListBoxPainter` selection/text/check colors to theme-safe fallbacks and tokenized preferred row height.
+- [x] Normalized `HeroUIListBoxPainter` overlay/text/badge colors to theme-safe fallbacks and tokenized state alphas.
+- [x] Normalized `GradientCardListBoxPainter` selected/hover/default color fallbacks to theme-safe paths and tokenized overlay alphas.
+- [x] Normalized `FilterStatusPainter` hover/checkbox/text fallbacks and tokenized minimum touch-target height.
+- [x] Normalized `ChipStyleListBoxPainter` chip/icon/check/close color fallbacks to theme-safe chains and tokenized overlay alphas.
+- [x] Normalized `AvatarListBoxPainter` text/checkbox/avatar/status fallbacks to theme-safe chains and tokenized alpha values.
 
----
+## Goal
 
-## Standard Enhancement Checklist
+Bring all ListBox painters and shared feature behavior to a production-grade baseline aligned with:
 
-Every painter should satisfy all of these:
+- Material Design 3 list patterns
+- Fluent 2 list and navigation patterns
+- Figma Auto Layout spacing discipline
+- WCAG 2.2 AA interaction and contrast expectations
 
-- [ ] **E1 — `Scale()` for all pixel values**: Replace raw `8`, `12`, `16`, `20` etc. with `Scale(8)`, `Scale(12)`, etc.
-- [ ] **E2 — Token constants**: Replace repeated magic numbers with `ListBoxTokens.*` where a matching token exists (padding, icon sizes, gaps, alphas).
-- [ ] **E3 — Scaled height**: `GetPreferredItemHeight()` must return `Scale(N)` not raw `N`. Use a token constant where possible.
-- [ ] **E4 — `DrawItemBackgroundEx()`**: `DrawItem()` must call `DrawItemBackgroundEx(g, itemRect, item, isHovered, isSelected)` as its first operation (handles clear, selection, hover, HC, disabled dimming).
-- [ ] **E5 — `_theme` not `BeepStyling.CurrentTheme`**: All theme references must go through `_theme` field, not the static `BeepStyling.CurrentTheme`.
-- [ ] **E6 — Required `using` directives**: Add `ListBoxs.Tokens`, `Helpers`, `Styling` as needed.
-- [ ] **E7 — Inherit `BaseListBoxPainter`**: Must not implement `IListBoxPainter` directly (BorderlessListBoxPainter violation).
+This phase is no longer only a "scale and token cleanup" pass. It is now a full painter-platform hardening pass covering consistency, accessibility, performance, and modern interaction quality.
 
----
+## Audit Snapshot (Current)
 
-## Batched Implementation Plan
+- Painter files under review: 47
+- `GetPreferredItemHeight()` overrides: 43
+- Files calling `DrawItemBackgroundEx()`: 35
+- Shared rendering contract source: `BaseListBoxPainter`
 
-### Batch 1 — Structural Rewrites (2 painters)
+### Verified Structural Findings
 
-High-risk, high-impact. Must be done first since one bypasses all base infrastructure.
+1. `BaseListBoxPainter.Paint()` currently reassigns `_theme` from `_owner._currentTheme` and recalculates layout each paint pass. This increases coupling and repaint cost.
+2. `BaseListBoxPainter` contains strong default behavior, but several painters still carry local spacing styles and visual math not fully tokenized.
+3. Accessibility is present in the control layer, but hierarchy accessibility semantics are still list-centric (role stays List/ListItem).
+4. Search, grouping, and hierarchy exist, but visual consistency across all variants is not uniform.
 
-#### 1.1 `BorderlessListBoxPainter.cs` — Full rewrite
+## Success Criteria
 
-**Current**: Implements `IListBoxPainter` directly. Own `Paint()` loop, own `DrawItemText()`, hardcoded 36px rows, no DPI scaling, no theme field from base.
+- All painters obey a single draw contract and layout pipeline.
+- All dimensions are DPI-safe and token-driven.
+- All variants support keyboard focus visibility, disabled states, and high-contrast behavior.
+- Hierarchy and group visuals are consistent across style families.
+- Visual polish aligns with modern list UI patterns (leading/content/trailing zones, compact/comfortable density, predictable hover/selection layers).
 
-**Target**: Inherit `BaseListBoxPainter`. Override `DrawItem()` + `DrawItemBackground()` + `GetPreferredItemHeight()`. Use `Scale()`, `DrawItemBackgroundEx()`, `DrawItemText()` from base.
+## Design Baseline (Apply To All Painters)
 
-**Changes**:
-- Change `class BorderlessListBoxPainter : IListBoxPainter` → `class BorderlessListBoxPainter : BaseListBoxPainter`
-- Remove manual `_owner`/`_theme` fields, `Initialize()`, `Paint()`, `DrawItemText()`
-- Add `override DrawItem(...)` using base helpers
-- Add `override GetPreferredItemHeight()` → `Scale(36)`
-- Add `override DrawItemBackground(...)` with bottom-border selection style
-- Apply E1–E6
+### Row Composition
 
-#### 1.2 `CategoryChipsPainter.cs` — Add DrawItem, scale chips
+Every painter should treat a row as three zones:
 
-**Current**: Only overrides `DrawSearchArea()`. No `DrawItem()`. Chip sizing all hardcoded (24px chips, 32px text padding, 8px gaps).
+- Leading: checkbox, avatar, icon, hierarchy chevron
+- Content: title, subtext, optional secondary line
+- Trailing: metadata, badge, shortcut, status, disclosure affordance
 
-**Target**: Keep search-area chip rendering but scale all values. Verify inherits list items correctly from `OutlinedListBoxPainter` chain.
+### State Layers
 
-**Changes**:
-- Replace all raw pixel values with `Scale()`
-- Use `_theme` instead of `BeepStyling.CurrentTheme`
-- Apply E1, E2, E5, E6
+Use consistent state overlays from tokens/theme:
 
----
+- Hover
+- Pressed
+- Selected
+- Focused (keyboard)
+- Disabled
 
-### Batch 2 — Inheritance Ancestors (3 painters)
+### Density Modes
 
-Fix these before their children (Batch 3). Changes here cascade down.
+All painters must respect density mode consistently:
 
-#### 2.1 `OutlinedListBoxPainter.cs`
+- Dense
+- Compact
+- Comfortable
 
-**Current**: `DrawItemBackground()` uses `BeepStyling.CurrentTheme` directly (3 places).
+### Accessibility
 
-**Changes**:
-- E5: Replace `Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.PrimaryColor` → `_theme?.PrimaryColor`
-- E5: Replace `BeepStyling.CurrentTheme?.AccentColor` → `_theme?.AccentColor`
-- E5: Replace `BeepStyling.CurrentTheme?.BorderColor` → `_theme?.BorderColor`
+- Minimum 44px effective touch target for interactive elements
+- High contrast mode support for text, selection, focus ring
+- Keyboard-first parity with mouse interactions
+- Tooltip and accessible-name parity for text truncation
 
-#### 2.2 `MinimalListBoxPainter.cs`
+## Workstreams
 
-**Current**: `GetPreferredItemHeight()` returns raw `28`. No `Scale()`.
+## W1 - Contract Hardening (Critical)
 
-**Changes**:
-- E3: `return 28;` → `return Scale(28);`
-- E1: hardcoded `2` in accent bar → `Scale(2)`
+Scope:
 
-#### 2.3 `CompactListPainter.cs`
+- Make `BaseListBoxPainter` the enforced source of painter lifecycle behavior.
+- Minimize direct dependence on private owner internals in painters.
+- Ensure all painter overrides start from the same background/state pipeline.
 
-**Current**: Only overrides `GetPreferredItemHeight()`.
+Tasks:
 
-**Changes**:
-- E3: Ensure height is `Scale(N)`.
-- Check for any hardcoded values.
+- Keep one sanctioned path for theme resolution.
+- Guard layout recalculation to invalidation-driven flow where possible.
+- Enforce `DrawItemBackgroundEx()` usage in all custom `DrawItem()` overrides.
 
----
+Done when:
 
-### Batch 3 — Thin Wrappers / Children (6 painters)
+- All painter classes pass contract checks without exceptions.
 
-These inherit from Batch 2 painters. Many only override `DrawItemBackground` or `GetPreferredItemHeight`. Quick fixes.
+## W2 - Tokenization and DPI Consistency (Critical)
 
-| Painter | Parent | Changes |
-|---------|--------|---------|
-| `SimpleListPainter` | MinimalListBoxPainter | E1: `Scale(4)` for indicator width, accent bar |
-| `SearchableListPainter` | OutlinedListBoxPainter | E1: Scale all search area pixel values (40, 8, 16, 12, 20, 50). E5: use `_theme` |
-| `MaterialOutlinedListBoxPainter` | OutlinedListBoxPainter | E3: `return 48;` → `return Scale(48);`. E5: replace `BeepStyling.CurrentTheme` |
-| `WithIconsListBoxPainter` | OutlinedListBoxPainter | E3: `return 40;` → `return Scale(40);`. E1: Scale padding (16,6,12,6) |
-| `LanguageSelectorPainter` | WithIconsListBoxPainter | E5: replace `BeepStyling.CurrentTheme` (in DrawItemBackground) |
-| `CategoryChipsPainter` | OutlinedListBoxPainter | (Batch 1.2 — already planned) |
+Scope:
 
----
+- Remove hardcoded spacing/radius/icon sizing values where token equivalents exist.
+- Normalize row heights and paddings by density and painter type.
 
-### Batch 4 — Direct BaseListBoxPainter Children with Own DrawItem (23 painters)
+Tasks:
 
-These each have full `DrawItem()` overrides with hardcoded pixel values. They all need the same pattern:
-1. Add `using ...Tokens;` if missing
-2. Replace raw pixel literals with `Scale(N)`
-3. Replace `GetPreferredItemHeight()` return with `Scale(N)`
-4. Ensure `DrawItemBackgroundEx()` is called
-5. Replace any `BeepStyling.CurrentTheme` with `_theme`
+- Replace remaining raw layout values with `Scale()` and token constants.
+- Standardize `GetPreferredItemHeight()` to token-first returns.
+- Ensure icon/avatar/text vertical alignment is centered and deterministic.
 
-Ordered by complexity (simplest first):
+Done when:
 
-#### Tier A — Simple (mostly just need Scale + token usings)
+- No non-essential magic layout numbers remain in painter draw paths.
 
-| # | Painter | Key Issues |
-|---|---------|------------|
-| 1 | `ColoredSelectionPainter` | Hardcoded 4px indicator, 8px offsets |
-| 2 | `FilterStatusPainter` | Hardcoded 6px, 12px, status dot sizes |
-| 3 | `ErrorStatesPainter` | Hardcoded icon indent, margins |
-| 4 | `SimpleListPainter` | (Batch 3 — already planned) |
-| 5 | `MultiSelectionTealPainter` | Hardcoded 8px, checkbox sizes |
-| 6 | `OutlinedCheckboxesPainter` | Hardcoded 8px, 3px corner radius |
-| 7 | `RaisedCheckboxesPainter` | Hardcoded 8px, 4px radius, shadows |
+## W3 - Accessibility and Input Parity (High)
 
-#### Tier B — Medium (own DrawItem + custom background painting)
-
-| # | Painter | Key Issues |
-|---|---------|------------|
-| 8 | `CardListPainter` | Hardcoded 44px image, 48px offset, 8px margin, 12px radius |
-| 9 | `RoundedListBoxPainter` | Hardcoded 4/2px deflation, 8px radius. Uses layout cache correctly. |
-| 10 | `FilledListBoxPainter` | Hardcoded font offsets, margins |
-| 11 | `FilledStylePainter` | Hardcoded avatar 40px, 12px margins, 8px radius |
-| 12 | `GroupedListPainter` | Hardcoded group header heights, 8px padding, 4px radius |
-| 13 | `RadioSelectionPainter` | Hardcoded radio circle sizes, 8px gaps |
-| 14 | `RekaUIListBoxPainter` | Hardcoded 10px paddings, 8px radius, 6px corners |
-| 15 | `CustomListPainter` | Hardcoded padding, image sizes |
-
-#### Tier C — Complex (significant custom painting logic)
-
-| # | Painter | Key Issues |
-|---|---------|------------|
-| 16 | `AvatarListBoxPainter` | Hardcoded 40px avatar, 12px gap, 10/30px text Y offsets, 12px dot. Already uses StyledImagePainter.PaintInCircle but has own DrawInitialsAvatar + GetInitials (duplicates base). |
-| 17 | `TeamMembersPainter` | Hardcoded 36px avatar, 16px margin, 12px gap. Uses StyledImagePainter.PaintInCircle. |
-| 18 | `ChipStyleListBoxPainter` | Complex chip layout with wrapping. Hardcoded 28px height, 12px radius, 6px padding. Uses StyledImagePainter.PaintInCircle. |
-| 19 | `GlassmorphismListBoxPainter` | Complex glass effects, custom checkboxes. Hardcoded 20/44px heights, 12/8px radius. Missing DrawItemBackgroundEx. |
-| 20 | `GradientCardListBoxPainter` | Gradient cards with circular icons. Hardcoded 80px height, 16px margin, 8px gap, 36px icon. Missing DrawItemBackgroundEx. |
-| 21 | `NeumorphicListBoxPainter` | Complex neumorphic shadow effects. Hardcoded margins, radii. Missing DrawItemBackgroundEx. |
-| 22 | `HeroUIListBoxPainter` | Complex layout with hero sections. Hardcoded spacing throughout. |
-| 23 | `ChakraUIListBoxPainter` | Complex Chakra-style layout. Hardcoded 8px margins, 28px icons, 6px radius. |
-| 24 | `TimelineListBoxPainter` | Timeline vertical line + nodes. Hardcoded node sizes, line positions. Missing DrawItemBackgroundEx. |
-
----
-
-## Per-Painter Change Specification
-
-### Batch 4 Tier A: Detailed
-
-**`ColoredSelectionPainter`** — E1, E3
-```
-- GetPreferredItemHeight(): return N; → return Scale(N);
-- DrawItem: new Rectangle(..., 4, ...) → Scale(4) for indicator width
-- All hardcoded 8 → Scale(8)
-```
-
-**`FilterStatusPainter`** — E1, E3
-```
-- Scale all pixel values in status dot drawing
-- Height: return Scale(N)
-```
-
-**`ErrorStatesPainter`** — E1, E3
-```
-- Scale error icon indent, margins
-- Height: return Scale(N)
-```
-
-**`MultiSelectionTealPainter`** — E1, E3
-```
-- Scale checkbox sizes, 8px gaps
-- Height: return Scale(N)
-```
-
-**`OutlinedCheckboxesPainter`** — E1, E3
-```
-- Scale 8px offsets, 3px corner radius
-- Height: return Scale(N)
-```
-
-**`RaisedCheckboxesPainter`** — E1, E3
-```
-- Scale shadow offsets, checkbox sizes, 4px radius
-- Height: return Scale(N)
-```
-
-### Batch 4 Tier B: Detailed
-
-**`CardListPainter`** — E1, E2, E3
-```
-- 44px image → Scale(44), 48px offset → Scale(48)
-- 8px margin → Scale(8), 12px radius → Scale(12)
-- Height: return Scale(N)
-```
-
-**`RoundedListBoxPainter`** — E1, E3
-```
-- Deflation: -4, -2 → -Scale(4), -Scale(2)
-- ItemRadius 8 → Scale(8)
-- Height: (inherits base, check if overridden)
-```
-
-**`FilledListBoxPainter`** — E1, E3
-```
-- Scale all text Y offsets, padding values
-- Height: return Scale(N)
-```
-
-**`FilledStylePainter`** — E1, E3
-```
-- 40px avatar → Scale(40), 12px margins → Scale(12)
-- 8px radius → Scale(8)
-- Height: return Scale(N)
-```
-
-**`GroupedListPainter`** — E1, E3, E2
-```
-- 8px padding → Scale(8), group header 28px → Scale(28)
-- 4px radius → Scale(4)
-```
-
-**`RadioSelectionPainter`** — E1, E3
-```
-- Scale radio circle outer/inner sizes, gap values
-- Height: return Scale(N)
-```
-
-**`RekaUIListBoxPainter`** — E1, E3
-```
-- 10px padding → Scale(10), 8px radius → Scale(8)
-- Height: return Scale(N)
-```
-
-**`CustomListPainter`** — E1, E3
-```
-- Scale padding, image sizes
-- Height: return Scale(N)
-```
-
-### Batch 4 Tier C: Detailed
-
-**`AvatarListBoxPainter`** — E1, E2, E3, dedup
-```
-- 40px avatar → Scale(ListBoxTokens.AvatarSize) or Scale(40)
-- 12px gap → Scale(12), 10/30px text Y → Scale(10)/Scale(30)
-- 12px status dot → Scale(12)
-- Remove private GetInitials() (now in base)
-- Height: return Scale(56) (currently Math.Max with font height)
-```
-
-**`TeamMembersPainter`** — E1, E3
-```
-- 36px avatar → Scale(36), 16px margin → Scale(16), 12px gap → Scale(12)
-- Height: return Scale(N)
-```
-
-**`ChipStyleListBoxPainter`** — E1, E3
-```
-- 28px chip height → Scale(28), 12px radius → Scale(12)
-- 6px padding → Scale(6)
-- Height: return Scale(N)
-```
-
-**`GlassmorphismListBoxPainter`** — E1, E3, E4
-```
-- Add DrawItemBackgroundEx call in DrawItem (currently calls DrawGlassBackground directly)
-- 44px height → Scale(44), 12/8px radius → Scale values
-- Height: Scale the return value
-```
-
-**`GradientCardListBoxPainter`** — E1, E3, E4
-```
-- Add DrawItemBackgroundEx (currently no background clearing)
-- 80px/16px/8px/36px → Scale all
-- Height: return Scale(80)
-```
-
-**`NeumorphicListBoxPainter`** — E1, E3, E4
-```
-- Add DrawItemBackgroundEx
-- Scale all neumorphic shadow offsets and radii
-- Height: Scale return
-```
-
-**`HeroUIListBoxPainter`** — E1, E3
-```
-- Scale all spacing, icon sizes, margins
-- Height: Scale return
-```
-
-**`ChakraUIListBoxPainter`** — E1, E3
-```
-- 8px margins → Scale(8), 28px icons → Scale(28), 6px radius → Scale(6)
-- Height: Scale return (currently inherits base)
-```
-
-**`TimelineListBoxPainter`** — E1, E3, E4
-```
-- Add DrawItemBackgroundEx
-- Scale timeline node radius, vertical line positions, text offsets
-- Height: Scale return
-```
-
----
-
-## Implementation Order
-
-```
-Batch 1 — Structural rewrites         (2 painters)  ← do first
-Batch 2 — Inheritance ancestors         (3 painters)  ← fixes cascade to Batch 3
-Batch 3 — Thin wrappers                (5 painters)  ← quick after Batch 2
-Batch 4A — Simple Scale fixes           (6 painters)  ← low risk, fast
-Batch 4B — Medium (own DrawItem)        (8 painters)  ← moderate effort
-Batch 4C — Complex (custom painting)    (9 painters)  ← highest effort/risk
-                                        ─────────────
-                                TOTAL:  33 painters
-```
-
-Note: `SimpleListPainter` appears in both Batch 3 and Tier A — count it once (Batch 3).
-`CategoryChipsPainter` appears in both Batch 1.2 and Batch 3 — count it once (Batch 1.2).
-
----
-
-## Verification Checklist (per painter)
-
-- [ ] No raw pixel literals remain (except 0, 1 for pen widths, or alpha values 0-255)
-- [ ] `GetPreferredItemHeight()` returns `Scale(N)`
-- [ ] `DrawItem()` calls `DrawItemBackgroundEx()` as first operation
-- [ ] All theme references use `_theme` not `BeepStyling.CurrentTheme`
-- [ ] `using ...Tokens` present if tokens are referenced
-- [ ] 0 compile errors
-- [ ] Visual appearance preserved (only DPI scaling and consistency improved)
-
----
-
-## Files Modified
-
-| Batch | Files | Action |
-|-------|-------|--------|
-| 1 | `BorderlessListBoxPainter.cs`, `CategoryChipsPainter.cs` | Rewrite / major edit |
-| 2 | `OutlinedListBoxPainter.cs`, `MinimalListBoxPainter.cs`, `CompactListPainter.cs` | Edit |
-| 3 | `SimpleListPainter.cs`, `SearchableListPainter.cs`, `MaterialOutlinedListBoxPainter.cs`, `WithIconsListBoxPainter.cs`, `LanguageSelectorPainter.cs` | Edit |
-| 4A | `ColoredSelectionPainter.cs`, `FilterStatusPainter.cs`, `ErrorStatesPainter.cs`, `MultiSelectionTealPainter.cs`, `OutlinedCheckboxesPainter.cs`, `RaisedCheckboxesPainter.cs` | Edit |
-| 4B | `CardListPainter.cs`, `RoundedListBoxPainter.cs`, `FilledListBoxPainter.cs`, `FilledStylePainter.cs`, `GroupedListPainter.cs`, `RadioSelectionPainter.cs`, `RekaUIListBoxPainter.cs`, `CustomListPainter.cs` | Edit |
-| 4C | `AvatarListBoxPainter.cs`, `TeamMembersPainter.cs`, `ChipStyleListBoxPainter.cs`, `GlassmorphismListBoxPainter.cs`, `GradientCardListBoxPainter.cs`, `NeumorphicListBoxPainter.cs`, `HeroUIListBoxPainter.cs`, `ChakraUIListBoxPainter.cs`, `TimelineListBoxPainter.cs` | Edit |
-
-**Total: 33 painter files to modify**
+Scope:
+
+- Close gaps between visual painter behavior and accessibility behavior.
+
+Tasks:
+
+- Add hierarchy semantic path (`Tree` / `TreeItem`) when hierarchy mode is enabled.
+- Validate focus ring behavior for keyboard navigation in all variants.
+- Ensure disabled items are visually dimmed and non-interactive.
+- Validate tooltips and text truncation behavior in dense modes.
+
+Done when:
+
+- Keyboard-only navigation and AT behavior are equivalent to mouse behavior.
+
+## W4 - Performance and Layout Stability (High)
+
+Scope:
+
+- Reduce repaint and per-frame work in shared painter path.
+
+Tasks:
+
+- Avoid unnecessary per-frame layout work where cache is valid.
+- Ensure virtualization and clipping remain stable with large data sets.
+- Keep rendering allocations low in hot loops (fonts, brushes, gradients).
+
+Done when:
+
+- Scroll remains smooth for 1000+ items at 125% and 150% DPI.
+
+## W5 - Modern UI/UX Visual Upgrade (High)
+
+Scope:
+
+- Align visual quality with modern design systems while preserving Beep identity.
+
+Tasks:
+
+- Harmonize elevation, border, and fill treatment across painter families.
+- Ensure selection and hover affordances are clear and consistent.
+- Align typography hierarchy for title/subtext/meta rows.
+- Standardize badge and trailing metadata visuals.
+
+Done when:
+
+- Cross-painter visual language feels consistent and intentional.
+
+## W6 - Variant Rationalization (Medium)
+
+Scope:
+
+- Reduce duplicate logic and improve maintainability for style variants.
+
+Tasks:
+
+- Identify near-duplicate painter pairs and extract shared helper methods.
+- Move repeated avatar/chip/timeline primitives to shared painter helpers.
+- Keep specialized variants focused on style deltas only.
+
+Done when:
+
+- Variant-specific files mostly contain style decisions, not core row logic.
+
+## W7 - Validation Matrix and Regression Gates (High)
+
+Scope:
+
+- Add repeatable verification checklist per painter class family.
+
+Tasks:
+
+- Validate each painter against: DPI, density, selection, keyboard, tooltip, disabled, search, hierarchy.
+- Add screenshot comparison baseline for representative styles.
+- Document pass/fail status in this phase doc.
+
+Done when:
+
+- Every painter has explicit verification status and no untracked regressions.
+
+## Execution Batches
+
+### Batch A - Shared Core First
+
+- `BaseListBoxPainter`
+- `BeepListBoxLayoutHelper`
+- `BeepListBoxHelper`
+- Accessibility adjustments in `BeepListBox.Accessibility`
+
+Outcome:
+
+- Stable contract, state layers, and semantics before touching all variants.
+
+### Batch B - Structural or Legacy Outliers
+
+- Any painter with custom search/header or custom state background flow
+- Any painter still diverging from normalized row zone layout
+
+Outcome:
+
+- Eliminate fragile one-off behavior before broad token cleanup.
+
+### Batch C - Mainline Variant Families
+
+- Standard/Outlined/Minimal/Compact derivatives
+- Avatar/Card/Profile/Contact/Chat families
+- Checkbox/Radio/Multi-select families
+
+Outcome:
+
+- Full design consistency across most-used styles.
+
+### Batch D - Complex Visual Effect Painters
+
+- Neumorphic/Glassmorphism/Gradient/Hero/Timeline variants
+
+Outcome:
+
+- Effects remain performant and accessible without breaking shared contracts.
+
+## Definition Of Done
+
+- All painter files compile and conform to contract checks.
+- All layout-critical values are tokenized and DPI-safe.
+- Hierarchy and grouped modes remain stable across all painter families.
+- Accessibility role/state behavior is correct in both list and hierarchy modes.
+- Performance and UX checks pass in dense, compact, and comfortable layouts.
+
+## Deliverables
+
+1. Updated painter code across all variant families.
+2. Updated helper/accessibility core for list and hierarchy parity.
+3. Updated verification report section in this phase plan.
+4. Updated painter enhancement summary file after implementation.
+
+## Verification Report (2026-05-12)
+
+- Static diagnostics for recently touched painters and plan/readme files: no reported errors.
+- Shared contract parity: 30/30 `BaseListBoxPainter` derivatives audited; all 30 now contain explicit `DrawItemBackgroundEx()` contract coverage.
+- Base pipeline hardening validated: owner context now refreshes helper/layout references per paint pass.
+- Tokenization pass validated for final outlier set (`Simple`, `Rounded`, `ThreeLine`, `RaisedCheckboxes`, `Timeline`).
+- Performance-path hardening validated: trailing metadata text no longer allocates a new font per row draw in base painter path.
+- Neumorphic pass validated: hardcoded fallback colors removed from selected/text/accent/check paths and row height aligned to list tokens.
+- Glassmorphism pass validated: selected/text/subtext/checkbox paths now prefer theme-safe colors and tokenized row-height baseline.
+- HeroUI pass validated: accent scope consistency fixed and hover/badge/icon overlays now use list token alpha values.
+- GradientCard pass validated: text/checkbox/icon overlays now use theme-safe fallbacks and tokenized alpha values, with tokenized preferred height.
+- FilterStatus pass validated: hover overlays and checkbox/text defaults now resolve through theme-safe fallback chains and tokenized row height.
+- ChipStyle pass validated: selected/hover/icon/check/close visuals now use theme-safe fallback chains with list-token alpha overlays.
+- Avatar pass validated: primary/secondary text, avatar border, checkbox states, and status ring now use theme-safe fallback chains and list-token alphas.
+
+### W7 Family Matrix (Code Verification)
+
+- Core/shared layer: Complete (`BaseListBoxPainter`, `BeepListBoxLayoutHelper`, accessibility hierarchy role/state sync).
+- Standard/simple/outlined family: Complete (tokenized heights/padding and theme-safe hover/selection baselines).
+- Selection controls family (checkbox/radio/multi): Complete (`CheckboxList`, `OutlinedCheckboxes`, `RaisedCheckboxes`, `RadioSelection`, `MultiSelectionTeal`).
+- Rich content family: Complete (`Avatar`, `Contact`, `ThreeLine`, `Notification`, `ProfileCard`, `TeamMembers`, `Chat`).
+- Card/effect family: Complete (`Card`, `GradientCard`, `Glassmorphism`, `Neumorphic`, `HeroUI`, `Timeline`).
+- Command/navigation family: Complete (`CommandList`, `NavigationRail`, `FilterStatus`, `CategoryChips`, `ChipStyle`).
+- Special pipeline family: Complete with noted behavior (`InfiniteScroll` uses base row pipeline and custom sentinel rendering).
+- Special pipeline family: Complete (`InfiniteScroll` keeps sentinel-row customization and now declares explicit background contract override).
+
+### Remaining Manual Matrix (W7)
+
+- Visual regression sweep per density mode (Dense/Compact/Comfortable).
+- Keyboard and focus parity checks under grouped and hierarchy modes.
+- High-contrast interactive-state verification.
+- 125%/150% DPI screenshot baseline comparison across representative painter families.
+
+### Manual Closeout Checklist
+
+- [ ] Standard/simple/outlined representative screenshots captured in Dense, Compact, Comfortable.
+- [ ] Rich-content representative screenshots captured (`Contact`, `ThreeLine`, `Notification`, `Chat`).
+- [ ] Effect painter representative screenshots captured (`Neumorphic`, `GradientCard`, `Timeline`, `HeroUI`).
+- [ ] Grouped mode keyboard traversal validated (Up/Down, PageUp/PageDown, Home/End).
+- [ ] Hierarchy mode expand/collapse keyboard parity validated (selection + focus visibility).
+- [ ] High-contrast mode validated for selection border, hover layer, and focus ring.
+- [ ] Disabled item non-interactive behavior validated across at least one painter per family.
+
+### Manual Execution Matrix (Assigned Representatives)
+
+Use this matrix to capture pass/fail evidence in one sweep.
+
+| Validation Gate | Representative Painters | Status | Evidence Notes |
+|---|---|---|---|
+| Dense/Compact/Comfortable visual parity | `StandardListBoxPainter`, `SimpleListBoxPainter`, `OutlinedListBoxPainter` | Provisional Pass (Code) | Density tokens and tokenized item heights/padding are implemented in shared and representative painter paths. |
+| Rich row spacing + hierarchy of text | `ContactListBoxPainter`, `ThreeLineListBoxPainter`, `NotificationListBoxPainter`, `ChatListBoxPainter` | Provisional Pass (Code) | Rich row variants use dedicated list tokens for row heights, spacing, and subtext hierarchy. |
+| Effect readability + contrast | `NeumorphicListBoxPainter`, `GradientCardListBoxPainter`, `TimelineListBoxPainter`, `HeroUIListBoxPainter` | Provisional Pass (Code) | Effect painters are aligned to shared background/state pipeline and current theme fallbacks. |
+| Grouped keyboard traversal | `GroupedListPainter`, `StandardListBoxPainter` | Provisional Pass (Code) | Keyboard handling includes Up/Down/PageUp/PageDown/Home/End and grouped collapse APIs are present. |
+| Hierarchy expand/collapse keyboard parity | `StandardListBoxPainter`, `NavigationRailListBoxPainter` | Provisional Pass (Code) | Hierarchy-aware keyboard branches and chevron/expand state handling are present in control + painter pipeline. |
+| High-contrast interaction states | `OutlinedListBoxPainter`, `CheckboxListPainter`, `RadioSelectionPainter` | Provisional Pass (Code) | High-contrast helpers and focus/selection HC paint overrides are implemented in control and base painter. |
+| Disabled-item behavior across families | `ErrorStatesPainter`, `RaisedCheckboxesPainter`, `CommandListBoxPainter`, `ProfileCardListBoxPainter` | Provisional Pass (Code) | Disabled alpha/token dimming and non-interactive visual states are present across representative families. |
+| 125% and 150% DPI screenshot baseline | `StandardListBoxPainter`, `ContactListBoxPainter`, `TimelineListBoxPainter`, `NeumorphicListBoxPainter` | Pending (Manual Capture) | DPI scaling hooks and tokenized sizing are present; screenshot evidence still required. |
+
+### Manual Run Notes
+
+- For each gate marked `Provisional Pass (Code)`, confirm visually and then set to `Pass` or `Fail`.
+- For `Pending (Manual Capture)` rows, attach screenshot evidence first, then set `Pass` or `Fail`.
+- For failures, include a one-line defect note and owning painter.
+- After all gates are `Pass`, phase status can be set to `Completed`.
+
+## Notes
+
+- This phase is implementation-ready and can be executed incrementally by batch.
+- Use this file as the source of truth for painter modernization sequencing and acceptance.

@@ -1,4 +1,5 @@
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -9,12 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     {
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(Scale(16), Scale(6), Scale(12), Scale(6));
+            int left = Scale(ListBoxTokens.ItemPaddingH + (ListBoxTokens.IconTextGap / 2));
+            int top = Scale(ListBoxTokens.ItemPaddingV);
+            int right = Scale(ListBoxTokens.ItemPaddingH);
+            int bottom = Scale(ListBoxTokens.ItemPaddingV);
+            return new System.Windows.Forms.Padding(left, top, right, bottom);
         }
         
         public override int GetPreferredItemHeight()
         {
-            return Scale(40);
+            return Scale(ListBoxTokens.ItemHeightCompact);
         }
     }
 }

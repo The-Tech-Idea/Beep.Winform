@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Hover background
-                    using (var brush = new SolidBrush(Color.FromArgb(235, 235, 235)))
+                    using (var brush = new SolidBrush(_theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
@@ -103,13 +103,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Normal rounded style
-                    using (var brush = new SolidBrush(Color.White))
+                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Subtle border
-                    using (var pen = new Pen(Color.FromArgb(210, 210, 210), 1f))
+                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(210, 210, 210), 1f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return Scale(36);
+            return Scale(ListBoxTokens.ItemHeightCompact);
         }
     }
 }

@@ -5,6 +5,33 @@ using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
+    public enum ChartSelectionMode
+    {
+        Single,
+        Multiple
+    }
+
+    public enum ChartVisualPreset
+    {
+        Dashboard,      // Light colors, compact spacing, no grid
+        Analytical,     // High contrast, detailed grid, emphasis on precision
+        HighContrast,   // Accessibility: strong color separation, thick lines
+        Print,          // Monochrome-friendly, high detail, optimized for B&W output
+        Presentation    // Vibrant, larger fonts, bold colors, minimal clutter
+    }
+
+    public enum ChartSeriesFillPattern
+    {
+        Solid,          // Solid fill (default)
+        Horizontal,     // Horizontal lines
+        Vertical,       // Vertical lines
+        Diagonal,       // Diagonal forward slash
+        BackDiagonal,   // Diagonal backslash
+        Cross,          // Crosshatch
+        DiagonalCross,  // Diagonal crosshatch
+        Dots            // Dotted pattern
+    }
+
     public enum ChartSurfaceStyle
     {
         Classic,
@@ -43,6 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             {
                 DataPointToolTip?.Dispose();
                 AnimTimer?.Dispose();
+                StreamRenderTimer?.Dispose();
             }
             base.Dispose(disposing);
         }

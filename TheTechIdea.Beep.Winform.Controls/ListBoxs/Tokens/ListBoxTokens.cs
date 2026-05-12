@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens
         public const int FocusRingThickness    = 2;
         public const int PinnedAccentBarWidth  = 3;
         public const int SelectionCornerRadius = 6;
+        public const int CornerRadiusSmall = SelectionCornerRadius;
 
         // ── Opacity / alpha channels (0-255) ──────────────────────────────────────
 

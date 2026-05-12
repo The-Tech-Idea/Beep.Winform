@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Calendar;
 
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         private Dictionary<(DateTime, DateTime), List<CalendarEvent>> _monthCache;
         private int _cacheVersion;
         private int _lastCacheVersion;
+        internal Action<TimeSpan> QueryTimingSink { get; set; }
 
         public CalendarEventService(List<CalendarEvent> events)
         {
@@ -50,18 +52,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         /// </summary>
         public List<CalendarEvent> GetEventsForDate(DateTime date)
         {
-            // Check if cache needs reset
-            CheckCacheValidity();
-            
-            var dateKey = date.Date;
-            if (_dateCache.TryGetValue(dateKey, out var cached))
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                return cached;
-            }
+                CheckCacheValidity();
 
-            var result = _events.Where(e => e.StartTime.Date == dateKey).ToList();
-            _dateCache[dateKey] = result;
-            return result;
+                var dateKey = date.Date;
+                if (_dateCache.TryGetValue(dateKey, out var cached))
+                {
+                    return cached;
+                }
+
+                var dayStart = dateKey;
+                var dayEnd = dayStart.AddDays(1).AddTicks(-1);
+                var result = _events.Where(e => EventOverlapsRange(e, dayStart, dayEnd)).ToList();
+                _dateCache[dateKey] = result;
+                return result;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                QueryTimingSink?.Invoke(stopwatch.Elapsed);
+            }
         }
 
         /// <summary>
@@ -69,20 +81,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         /// </summary>
         public List<CalendarEvent> GetEventsForMonth(DateTime date)
         {
-            CheckCacheValidity();
-            
-            var firstDay = new DateTime(date.Year, date.Month, 1);
-            var lastDay = firstDay.AddMonths(1).AddDays(-1);
-            var key = (firstDay, lastDay);
-            
-            if (_monthCache.TryGetValue(key, out var cached))
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                return cached;
-            }
+                CheckCacheValidity();
 
-            var result = _events.Where(e => e.StartTime.Date >= firstDay && e.StartTime.Date <= lastDay).ToList();
-            _monthCache[key] = result;
-            return result;
+                var firstDay = new DateTime(date.Year, date.Month, 1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1);
+                var key = (firstDay, lastDay);
+
+                if (_monthCache.TryGetValue(key, out var cached))
+                {
+                    return cached;
+                }
+
+                var monthStart = firstDay.Date;
+                var monthEnd = lastDay.Date.AddDays(1).AddTicks(-1);
+                var result = _events.Where(e => EventOverlapsRange(e, monthStart, monthEnd)).ToList();
+                _monthCache[key] = result;
+                return result;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                QueryTimingSink?.Invoke(stopwatch.Elapsed);
+            }
         }
 
         /// <summary>
@@ -90,18 +113,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         /// </summary>
         public List<CalendarEvent> GetEventsForDateRange(DateTime startDate, DateTime endDate)
         {
-            CheckCacheValidity();
-            
-            var key = (startDate.Date, endDate.Date);
-            
-            if (_monthCache.TryGetValue(key, out var cached))
+            var stopwatch = Stopwatch.StartNew();
+            try
             {
-                return cached;
-            }
+                CheckCacheValidity();
 
-            var result = _events.Where(e => e.StartTime.Date >= startDate.Date && e.StartTime.Date <= endDate.Date).ToList();
-            _monthCache[key] = result;
-            return result;
+                var key = (startDate.Date, endDate.Date);
+
+                if (_monthCache.TryGetValue(key, out var cached))
+                {
+                    return cached;
+                }
+
+                var rangeStart = startDate.Date;
+                var rangeEnd = endDate.Date.AddDays(1).AddTicks(-1);
+                var result = _events.Where(e => EventOverlapsRange(e, rangeStart, rangeEnd)).ToList();
+                _monthCache[key] = result;
+                return result;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                QueryTimingSink?.Invoke(stopwatch.Elapsed);
+            }
+        }
+
+        public List<CalendarEvent> GetFilteredEvents(CalendarEventFilter filter)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                CheckCacheValidity();
+
+                if (filter == null)
+                {
+                    return _events.ToList();
+                }
+
+                IEnumerable<CalendarEvent> query = _events;
+
+                if (filter.RangeStart.HasValue || filter.RangeEnd.HasValue)
+                {
+                    var start = filter.RangeStart?.Date ?? DateTime.MinValue;
+                    var end = (filter.RangeEnd?.Date ?? DateTime.MaxValue.Date).AddDays(1).AddTicks(-1);
+                    query = query.Where(e => EventOverlapsRange(e, start, end));
+                }
+
+                if (filter.CategoryIds != null && filter.CategoryIds.Count > 0)
+                {
+                    query = query.Where(e => filter.CategoryIds.Contains(e.CategoryId));
+                }
+
+                if (filter.Statuses != null && filter.Statuses.Count > 0)
+                {
+                    query = query.Where(e => filter.Statuses.Contains(e.Status));
+                }
+
+                if (!filter.IncludeAllDayEvents)
+                {
+                    query = query.Where(e => !e.IsAllDay);
+                }
+
+                if (filter.Tags != null && filter.Tags.Count > 0)
+                {
+                    query = query.Where(e => e.Tags != null && e.Tags.Any(t => filter.Tags.Contains(t, StringComparer.OrdinalIgnoreCase)));
+                }
+
+                if (!string.IsNullOrWhiteSpace(filter.SearchText))
+                {
+                    var term = filter.SearchText.Trim();
+                    query = query.Where(e =>
+                        (!string.IsNullOrWhiteSpace(e.Title) && e.Title.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(e.Description) && e.Description.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrWhiteSpace(e.Location) && e.Location.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                        (e.Tags != null && e.Tags.Any(t => t != null && t.Contains(term, StringComparison.OrdinalIgnoreCase))));
+                }
+
+                return query.ToList();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                QueryTimingSink?.Invoke(stopwatch.Elapsed);
+            }
         }
 
         /// <summary>
@@ -117,7 +211,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             }
             
             // Otherwise count directly
-            return _events.Count(e => e.StartTime.Date == dateKey);
+            var dayStart = dateKey;
+            var dayEnd = dayStart.AddDays(1).AddTicks(-1);
+            return _events.Count(e => EventOverlapsRange(e, dayStart, dayEnd));
+        }
+
+        private static bool EventOverlapsRange(CalendarEvent calendarEvent, DateTime rangeStart, DateTime rangeEnd)
+        {
+            if (calendarEvent == null)
+            {
+                return false;
+            }
+
+            return calendarEvent.StartTime <= rangeEnd && calendarEvent.EndTime >= rangeStart;
         }
 
         private void CheckCacheValidity()

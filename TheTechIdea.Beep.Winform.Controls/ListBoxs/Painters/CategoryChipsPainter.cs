@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Enhanced chip background with gradient
-            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Empty;
+            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.DodgerBlue;
             using (var path = GraphicsExtensions.CreateRoundedRectanglePath(chipRect, chipRadius))
             using (var brush = new LinearGradientBrush(chipRect, Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B), Color.FromArgb(200, chipBg.R, chipBg.G, chipBg.B), LinearGradientMode.Vertical))
             {
@@ -95,7 +95,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             int xInset = Scale(20);
             int xYOff = Scale(6);
             Rectangle xRect = new Rectangle(chipRect.Right - xInset, y + xYOff, xSize, xSize);
-            using (var pen = new Pen(Color.White, 1.5f))
+            Color closeColor = chipBg.GetBrightness() > 0.6f ? Color.Black : Color.White;
+            using (var pen = new Pen(closeColor, 1.5f))
             {
                 g.DrawLine(pen, xRect.Left, xRect.Top, xRect.Right, xRect.Bottom);
                 g.DrawLine(pen, xRect.Right, xRect.Top, xRect.Left, xRect.Bottom);

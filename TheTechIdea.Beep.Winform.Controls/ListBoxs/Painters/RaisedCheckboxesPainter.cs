@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 // Add hover effect with subtle shadow
                 if (isHovered && !isSelected)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, Color.Red)))
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.AccentColor ?? _theme?.ErrorColor ?? Color.Gray)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -59,18 +59,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         private Color GetItemTextColor(SimpleItem item)
         {
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
-            return isDisabled ? Color.FromArgb(180, 180, 180) : Color.FromArgb(60, 60, 60);
+            return isDisabled
+                ? Color.FromArgb(ListBoxTokens.DisabledAlpha, _theme?.ListItemForeColor ?? Color.Gray)
+                : (_theme?.ListItemForeColor ?? Color.FromArgb(60, 60, 60));
         }
         
         private void DrawRaisedCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, SimpleItem item)
         {
             bool isDisabled = item.Text?.ToLower().Contains("disabled") == true;
-            Color borderColor = isDisabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(220, 53, 69);
-            Color bgColor = isChecked ? Color.FromArgb(220, 53, 69) : Color.White;
+            Color accent = _theme?.ErrorColor ?? _theme?.AccentColor ?? Color.FromArgb(220, 53, 69);
+            Color borderColor = isDisabled ? (_theme?.BorderColor ?? Color.FromArgb(200, 200, 200)) : accent;
+            Color bgColor = isChecked ? accent : (_theme?.BackgroundColor ?? Color.White);
             
             if (isDisabled)
             {
-                bgColor = Color.FromArgb(240, 240, 240);
+                bgColor = _theme?.BackgroundColor ?? Color.FromArgb(240, 240, 240);
             }
             
             // Draw checkbox shadow for raised effect

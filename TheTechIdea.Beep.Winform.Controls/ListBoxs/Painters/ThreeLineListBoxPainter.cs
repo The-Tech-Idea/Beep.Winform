@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 g.Restore(state);
 
                 // Subtle border
-                using var borderPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1f);
+                using var borderPen = new Pen(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, _theme?.BorderColor ?? Color.Black), 1f);
                 using var borderPath = GraphicsExtensions.CreateRoundedRectanglePath(
                     new RectangleF(imgRect.X, imgRect.Y, imgRect.Width, imgRect.Height), radius);
                 g.DrawPath(borderPen, borderPath);
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
             // ── Text lines ───────────────────────────────────────────────
             int textW = itemRect.Right - textX - hm;
-            int lineH = Scale(18);
+            int lineH = Math.Max(Scale(18), Scale(ListBoxTokens.ItemPaddingV * 2));
 
             Color primaryFg = isSelected
                 ? Color.White
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.SubText))
             {
                 DrawSubText(g, new Rectangle(textX, curY, textW, lineH),
-                    item.SubText, primaryFg, _owner.TextFont);
+                    item.SubText, secondaryFg, _owner.TextFont);
                 curY += lineH;
             }
 
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             if (!string.IsNullOrEmpty(item.SubText2))
             {
                 DrawSubText(g, new Rectangle(textX, curY, textW, lineH),
-                    item.SubText2, primaryFg, _owner.TextFont);
+                    item.SubText2, secondaryFg, _owner.TextFont);
                 curY += lineH;
             }
 

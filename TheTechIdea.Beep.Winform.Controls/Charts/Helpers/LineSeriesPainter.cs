@@ -96,10 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 {
                     foreach (var (pt, i) in pts.Select((p, i) => (p, i)))
                     {
-                        var p = series.Points[i];
                         DrawMarker(g, pt, series.DataPointStyle, color, 5);
-                        var hitRect = new Rectangle((int)pt.X - 6, (int)pt.Y - 6, 12, 12);
-                        _owner.AddHitArea($"Point_{sIndex}_{i}", hitRect, null, null);
                     }
                 }
             }
@@ -170,7 +167,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public void UpdateHitAreas(BaseControl owner, Rectangle plotRect, List<ChartDataSeries> data,
             Func<ChartDataPoint, PointF> toScreen, Action<string, Rectangle> notifyAreaHit)
         {
-            // Optional: extend hit areas later for hover tooltips
+            if (data == null || toScreen == null) return;
+
+            const int hitSize = 12;
+            for (int sIndex = 0; sIndex < data.Count; sIndex++)
+            {
+                var series = data[sIndex];
+                if (!series.Visible || series.Points == null) continue;
+
+                for (int pointIndex = 0; pointIndex < series.Points.Count; pointIndex++)
+                {
+                    var screenPoint = toScreen(series.Points[pointIndex]);
+                    if (screenPoint == PointF.Empty) continue;
+
+                    var hitRect = new Rectangle((int)screenPoint.X - (hitSize / 2), (int)screenPoint.Y - (hitSize / 2), hitSize, hitSize);
+                    owner.AddHitArea($"Point_{sIndex}_{pointIndex}", hitRect, null, () =>
+                        notifyAreaHit?.Invoke($"Point_{sIndex}_{pointIndex}", hitRect));
+                }
+            }
         }
     }
 }

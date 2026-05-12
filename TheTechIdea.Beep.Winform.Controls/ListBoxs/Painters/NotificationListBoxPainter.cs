@@ -97,15 +97,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 _owner.TextFont.Name, Math.Max(6f, _owner.TextFont.Size - 3.5f), FontStyle.Bold);
             var textSize = TextRenderer.MeasureText(text, font);
             int pad  = Scale(4);
-            int pillW = Math.Max(Scale(18), textSize.Width + pad);
-            int pillH = Math.Max(Scale(14), textSize.Height + 2);
+            int pillW = Math.Max(Scale(ListBoxTokens.BadgeMinWidth), textSize.Width + pad);
+            int pillH = Math.Max(Scale(ListBoxTokens.BadgePillRadius * 2), textSize.Height + 2);
             int pillX = areaX + areaW - pillW;
             var pillRect = new RectangleF(pillX, y, pillW, pillH);
 
             var fill = badgeColor == Color.Empty
                 ? (_theme?.PrimaryColor ?? Color.DodgerBlue)
                 : badgeColor;
-            int r = pillH / 2;
+            int r = Scale(ListBoxTokens.BadgePillRadius);
             using var path = GraphicsExtensions.CreateRoundedRectanglePath(pillRect, r);
             using var fillBrush = new SolidBrush(fill);
             g.FillPath(fillBrush, path);

@@ -244,3 +244,12 @@ ListBoxs/
 - Fixed `BeepListBox.GetItemAtPoint()` — migrated from uniform-height helper to layout-cache iteration, correctly handling variable row heights, grouped headers, and hierarchy.
 - Removed stale `GetItemAtPoint` from `BeepListBoxHelper` (superseded by layout cache).
 - Removed duplicate `using System.Collections.Generic;` in `BeepListBox.Core.cs`.
+
+## Recent Changes (2026-05-12)
+
+- Completed broad painter modernization pass for theme-safe surfaces, tokenized metrics, and resource disposal hardening across core, rich, and effect variants.
+- Normalized final outlier painters: `SimpleListPainter`, `RoundedListBoxPainter`, `ThreeLineListBoxPainter`, `RaisedCheckboxesPainter`, and `TimelineListBoxPainter`.
+- Hardened `BaseListBoxPainter.Paint` owner-context synchronization by refreshing helper/layout references per paint call.
+- Replaced remaining base search offset magic value with tokenized spacing (`ListBoxTokens.ItemPaddingV`).
+- Maintained hierarchy/group/filter visible-item correctness for timeline/gradient-family drawing paths.
+- Confirmed `DrawItemBackgroundEx` is the shared row-background extension hook; custom painters call it before their own chrome, and `InfiniteScrollListBoxPainter` remains the only painter that overrides it directly.

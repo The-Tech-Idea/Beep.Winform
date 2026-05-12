@@ -702,6 +702,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_showHierarchy != value)
                 {
                     _showHierarchy = value;
+                    SyncAccessibilityRole();
+                    NotifyA11yOrderChanged();
                     InvalidateLayoutCache();
                 }
             }

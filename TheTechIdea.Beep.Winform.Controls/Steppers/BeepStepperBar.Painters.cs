@@ -78,6 +78,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private List<StepModel> BuildPainterSteps()
         {
+            if (stepCount <= 0)
+            {
+                return new List<StepModel>();
+            }
+
             if (_stepModels != null && _stepModels.Count > 0)
             {
                 return _stepModels.Take(stepCount).Select((m, i) =>
@@ -93,20 +98,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }).ToList();
             }
 
+            ListItems ??= new BindingList<SimpleItem>();
             var steps = new List<StepModel>(stepCount);
             for (int i = 0; i < stepCount; i++)
             {
+                var item = i < ListItems.Count ? ListItems[i] : null;
                 bool showLabel = ShouldShowStepLabel(i);
-                string label = showLabel ? (i < ListItems.Count
-                    ? (ListItems[i].Name ?? $"Step {i + 1}")
+                string label = showLabel ? (item != null
+                    ? (item.Name ?? $"Step {i + 1}")
                     : GetStepLabel(i)) : string.Empty;
-                string subtitle = showLabel ? (i < ListItems.Count ? ListItems[i].Text : null) : string.Empty;
+                string subtitle = showLabel ? item?.Text : string.Empty;
 
                 steps.Add(new StepModel
                 {
                     Text = label,
                     Subtitle = subtitle,
-                    Tooltip = i < ListItems.Count ? GetStepTooltip(i) : label,
+                    Tooltip = item != null ? GetStepTooltip(i) : label,
                     State = GetStepState(i),
                     IsEnabled = true
                 });

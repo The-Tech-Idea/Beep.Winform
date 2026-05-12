@@ -41,6 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public float YLabelAngle;
         public TimeTickGranularity XTimeGranularity = TimeTickGranularity.Auto;
         public TimeTickGranularity YTimeGranularity = TimeTickGranularity.Auto;
+        public int XLabelInterval = 1;
+        public int YLabelInterval = 1;
     }
 
     internal interface IChartAxisPainter

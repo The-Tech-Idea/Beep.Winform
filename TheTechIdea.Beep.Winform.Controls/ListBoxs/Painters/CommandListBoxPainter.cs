@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 kbdFont = BeepFontManager.GetFont(_owner.TextFont.Name, Math.Max(7f, _owner.TextFont.Size - 1.5f));
                 shortcutWidth = DpiScalingHelper.ScaleValue(
-                    (int)g.MeasureString(shortcut, kbdFont).Width + 8, _owner);
+                    (int)g.MeasureString(shortcut, kbdFont).Width + ListBoxTokens.IconTextGap, _owner);
             }
 
             int nameWidth = itemRect.Right - textX - shortcutWidth - pad;
@@ -69,14 +69,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Shortcut chip
             if (!string.IsNullOrEmpty(shortcut) && kbdFont != null)
             {
-                int chipH  = DpiScalingHelper.ScaleValue(20, _owner);
+                int chipH  = DpiScalingHelper.ScaleValue(ListBoxTokens.BadgePillRadius * 2, _owner);
                 var chipRect = new Rectangle(itemRect.Right - shortcutWidth - pad,
                     itemRect.Top + (itemRect.Height - chipH) / 2,
                     shortcutWidth, chipH);
 
                 using var chipBrush = new SolidBrush(Color.FromArgb(alpha / 2,
                     _theme?.ButtonBackColor ?? Color.LightGray));
-                using var path = RoundedRect(chipRect, DpiScalingHelper.ScaleValue(4, _owner));
+                using var path = RoundedRect(chipRect, DpiScalingHelper.ScaleValue(ListBoxTokens.CornerRadiusSmall, _owner));
                 g.FillPath(chipBrush, path);
 
                 using var kbdBrush = new SolidBrush(Color.FromArgb(alpha,

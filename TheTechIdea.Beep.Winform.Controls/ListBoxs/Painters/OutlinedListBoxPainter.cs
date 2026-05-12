@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -22,13 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isSelected)
                 {
                     var selColor = _theme?.PrimaryColor ?? Color.LightBlue;
-                    using (var brush = new SolidBrush(Color.FromArgb(20, selColor.R, selColor.G, selColor.B)))
+                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, selColor.R, selColor.G, selColor.B)))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Thick selection border
-                    using (var pen = new Pen(selColor, 2f))
+                    using (var pen = new Pen(selColor, Scale(2)))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -36,13 +37,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else if (isHovered)
                 {
                     var hoverColor = _theme?.AccentColor ?? Color.FromArgb(100, 150, 200);
-                    using (var brush = new SolidBrush(Color.FromArgb(10, hoverColor.R, hoverColor.G, hoverColor.B)))
+                    using (var brush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha, hoverColor.R, hoverColor.G, hoverColor.B)))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Hover border with accent color
-                    using (var pen = new Pen(hoverColor, 1.5f))
+                    using (var pen = new Pen(hoverColor, Scale(1)))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -50,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 else
                 {
                     // Normal outlined style - just border
-                    using (var brush = new SolidBrush(Color.White))
+                    using (var brush = new SolidBrush(_theme?.BackgroundColor ?? Color.White))
                     {
                         g.FillPath(brush, path);
                     }
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw subtle divider line at bottom
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
             {
                 g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
             }

@@ -33,7 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 if (isHovered)
                 {
-                    using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
+                    using (var hoverBrush = new SolidBrush(Color.FromArgb(ListBoxTokens.HoverOverlayAlpha,
+                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue)))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -75,7 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var outerRect = contentBounds;
                     outerRect.Inflate(Scale(3), Scale(3));
                     using (var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(outerRect, new CornerRadius(Scale(9))))
-                    using (var outerPen = new Pen(Color.FromArgb(60, _theme.AccentColor), Scale(4)))
+                    using (var outerPen = new Pen(Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha,
+                        _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue), Scale(4)))
                     {
                         g.DrawPath(outerPen, outerPath);
                     }
@@ -84,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var innerRect = contentBounds;
                     innerRect.Inflate(Scale(1), Scale(1));
                     using (var innerPath = GraphicsExtensions.CreateRoundedRectanglePath(innerRect, new CornerRadius(Scale(7))))
-                    using (var innerPen = new Pen(_theme.AccentColor, 2))
+                    using (var innerPen = new Pen(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue, 2))
                     {
                         g.DrawPath(innerPen, innerPath);
                     }
@@ -124,13 +126,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                     // Rounded background for checkmark
                     using (var checkBgPath = GraphicsExtensions.CreateRoundedRectanglePath(checkRect, Scale(4)))
-                    using (var checkBgBrush = new SolidBrush(_theme.AccentColor))
+                    using (var checkBgBrush = new SolidBrush(_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue))
                     {
                         g.FillPath(checkBgBrush, checkBgPath);
                     }
 
                     // Draw checkmark
-                    using (var checkPen = new Pen(Color.White, 2))
+                    using (var checkPen = new Pen(_theme?.OnPrimaryColor ?? Color.White, 2))
                     {
                         checkPen.StartCap = LineCap.Round;
                         checkPen.EndCap = LineCap.Round;
@@ -158,8 +160,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
                 // Chakra uses specific text colors
                 Color textColor = _owner.IsItemSelected(item) 
-                    ? Color.White
-                    : Color.FromArgb(26, 32, 44); // gray.800
+                    ? (_theme?.OnPrimaryColor ?? Color.White)
+                    : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Black);
                 
                 using (var textBrush = new SolidBrush(textColor))
                 using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Regular))
@@ -186,7 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         contentBounds.Bottom - descY - Scale(4)
                     );
 
-                    Color descColor = Color.FromArgb(74, 85, 104); // gray.600
+                    Color descColor = Color.FromArgb(ListBoxTokens.SubTextAlpha,
+                        _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray);
                     using (var descBrush = new SolidBrush(descColor))
                     using (var descFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
                     {
@@ -217,7 +220,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         // Chakra badge styling
                         using (var badgePath = GraphicsExtensions.CreateRoundedRectanglePath(badgeRect, Scale(3)))
                         {
-                            Color badgeBgColor = Color.FromArgb(237, 242, 247); // gray.100
+                            Color badgeBgColor = _theme?.ListItemHoverBackColor
+                                ?? _theme?.BackgroundColor
+                                ?? Color.FromArgb(237, 242, 247);
                             using (var badgeBgBrush = new SolidBrush(badgeBgColor))
                             {
                                 g.FillPath(badgeBgBrush, badgePath);
@@ -225,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                         }
 
                         // Badge text
-                        Color badgeTextColor = Color.FromArgb(74, 85, 104); // gray.600
+                        Color badgeTextColor = _theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.Gray;
                         using (var badgeTextBrush = new SolidBrush(badgeTextColor))
                         {
                             var sf = new StringFormat
@@ -247,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         public override int GetPreferredItemHeight()
         {
-            return Scale(40); // Chakra UI default item height
+            return DpiScalingHelper.ScaleValue(ListBoxTokens.ItemHeightCompact, _owner ?? new Control());
         }
 
     }

@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     /// </summary>
     internal class AvatarListBoxPainter : BaseListBoxPainter
     {
-        private readonly int _avatarSize = 40;
+        private readonly int _avatarSize = ListBoxTokens.AvatarSize;
         private readonly int _cornerRadius = 8;
 
         public override int GetPreferredItemHeight()
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             var avatarRect = new Rectangle(contentX, contentY, scaledAvatar, scaledAvatar);
             DrawAvatar(g, avatarRect, item, isSelected);
 
-            contentX += scaledAvatar + Scale(12);
+            contentX += scaledAvatar + Scale(ListBoxTokens.IconTextGap);
 
             // Get layout info for checkbox
             var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
@@ -58,8 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Primary text (name)
             var primaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(10), textWidth, Scale(20));
             Color primaryColor = isSelected 
-                ? Color.White 
-                : (_theme?.ListItemForeColor ?? Color.FromArgb(30, 30, 30));
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : (_theme?.ListItemForeColor ?? _theme?.ListForeColor ?? Color.FromArgb(30, 30, 30));
             
             using (var boldFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size, FontStyle.Bold))
             {
@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 var secondaryTextRect = new Rectangle(contentX, itemRect.Y + Scale(30), textWidth, Scale(18));
                 Color secondaryColor = isSelected 
-                    ? Color.FromArgb(200, 255, 255, 255) 
+                    ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
                     : (_theme?.DisabledForeColor ?? Color.FromArgb(120, 120, 120));
                 
                 using (var smallFont = BeepFontManager.GetFont(_owner.TextFont.Name, _owner.TextFont.Size - 1, FontStyle.Regular))
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             {
                 if (isSelected)
                 {
-                    var accentColor = _theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215);
+                    var accentColor = _theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue;
                     using (var brush = new SolidBrush(accentColor))
                     {
                         g.FillPath(brush, path);
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 }
                 else if (isHovered)
                 {
-                    var hoverColor = _theme?.ListItemHoverBackColor ?? Color.FromArgb(245, 245, 245);
+                    var hoverColor = _theme?.ListItemHoverBackColor ?? _theme?.BackgroundColor ?? Color.FromArgb(245, 245, 245);
                     using (var brush = new SolidBrush(hoverColor))
                     {
                         g.FillPath(brush, path);
@@ -121,58 +121,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 
         private void DrawAvatar(Graphics g, Rectangle avatarRect, SimpleItem item, bool isSelected)
         {
-            if (!string.IsNullOrEmpty(item.ImagePath))
-            {
-                // Use StyledImagePainter for circular avatar rendering
-                float cx = avatarRect.X + avatarRect.Width / 2f;
-                float cy = avatarRect.Y + avatarRect.Height / 2f;
-                float radius = avatarRect.Width / 2f;
-                StyledImagePainter.PaintInCircle(g, cx, cy, radius, item.ImagePath);
-            }
-            else
-            {
-                // Draw initials avatar
-                DrawInitialsAvatar(g, avatarRect, item.Text ?? item.DisplayField, isSelected);
-            }
+            DrawCircularAvatar(g, avatarRect, item);
 
             // Draw avatar border
             using (var pen = new Pen(isSelected 
-                ? Color.FromArgb(100, 255, 255, 255) 
-                : Color.FromArgb(60, 0, 0, 0), 2f))
+                ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                : Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.BorderColor ?? Color.Gray), 2f))
             {
                 g.DrawEllipse(pen, avatarRect);
-            }
-        }
-
-        private void DrawInitialsAvatar(Graphics g, Rectangle avatarRect, string name, bool isSelected)
-        {
-            // Generate color from name
-            int hash = (name ?? "").GetHashCode();
-            Color[] avatarColors = new Color[]
-            {
-                Color.FromArgb(239, 83, 80),   // Red
-                Color.FromArgb(171, 71, 188),  // Purple
-                Color.FromArgb(66, 165, 245),  // Blue
-                Color.FromArgb(38, 166, 154),  // Teal
-                Color.FromArgb(102, 187, 106), // Green
-                Color.FromArgb(255, 167, 38),  // Orange
-                Color.FromArgb(141, 110, 99),  // Brown
-            };
-            Color bgColor = avatarColors[Math.Abs(hash) % avatarColors.Length];
-
-            // Draw background
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillEllipse(brush, avatarRect);
-            }
-
-            // Draw initials
-            string initials = GetInitials(name);
-            using (var font = BeepFontManager.GetFont(_owner.TextFont.Name, 14, FontStyle.Bold))
-            using (var brush = new SolidBrush(Color.White))
-            using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-            {
-                g.DrawString(initials, font, brush, avatarRect, sf);
             }
         }
 
@@ -186,13 +142,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 dotSize, dotSize);
 
             // White border
-            using (var brush = new SolidBrush(Color.White))
+            using (var brush = new SolidBrush(_theme?.BackgroundColor ?? _owner?.BackColor ?? Color.White))
             {
                 g.FillEllipse(brush, Rectangle.Inflate(dotRect, 2, 2));
             }
 
             // Status color
-            using (var brush = new SolidBrush(statusColor))
+            Color effectiveStatus = statusColor != Color.Empty
+                ? statusColor
+                : (_theme?.SuccessColor ?? _theme?.AccentColor ?? Color.LimeGreen);
+            using (var brush = new SolidBrush(effectiveStatus))
             {
                 g.FillEllipse(brush, dotRect);
             }
@@ -205,16 +164,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 if (isChecked)
                 {
                     var accentColor = isSelected 
-                        ? Color.White 
-                        : (_theme?.PrimaryColor ?? Color.FromArgb(0, 120, 215));
+                        ? (_theme?.OnPrimaryColor ?? Color.White)
+                        : (_theme?.AccentColor ?? _theme?.PrimaryColor ?? Color.DodgerBlue);
                     
-                    using (var brush = new SolidBrush(isSelected ? Color.FromArgb(60, 255, 255, 255) : accentColor))
+                    using (var brush = new SolidBrush(isSelected
+                        ? Color.FromArgb(ListBoxTokens.ActiveOverlayAlpha, _theme?.OnPrimaryColor ?? Color.White)
+                        : accentColor))
                     {
                         g.FillPath(brush, path);
                     }
 
                     // Checkmark
-                    Color checkColor = isSelected ? Color.White : Color.White;
+                    Color checkColor = _theme?.OnPrimaryColor ?? Color.White;
                     using (var pen = new Pen(checkColor, 2f))
                     {
                         pen.StartCap = LineCap.Round;
@@ -233,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     // Unchecked border
                     Color borderColor = isSelected 
-                        ? Color.FromArgb(150, 255, 255, 255) 
+                        ? Color.FromArgb(ListBoxTokens.SubTextAlpha, _theme?.OnPrimaryColor ?? Color.White)
                         : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
                     
                     using (var pen = new Pen(borderColor, 1.5f))

@@ -17,13 +17,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
-            return new System.Windows.Forms.Padding(12, 6, 12, 6);
+            return new System.Windows.Forms.Padding(
+                Scale(ListBoxTokens.ItemPaddingH),
+                Scale(ListBoxTokens.ItemPaddingV),
+                Scale(ListBoxTokens.ItemPaddingH),
+                Scale(ListBoxTokens.ItemPaddingV));
         }
 
         public override int GetPreferredItemHeight()
         {
             // Slightly taller for better checkbox targeting
-            return 32;
+            return Math.Max(Scale(ListBoxTokens.ItemHeightDense), Scale(ListBoxTokens.MinTouchTargetPx));
         }
 
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
@@ -105,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (g == null || itemRect.IsEmpty) return;
 
-            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, 3))
+            using (var path = GraphicsExtensions.CreateRoundedRectanglePath(itemRect, Scale(ListBoxTokens.CornerRadiusSmall)))
             {
                 if (isSelected)
                 {
@@ -151,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     }
 
                     // Normal border
-                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 0.5f))
+                    using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -159,9 +163,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
 
             // Draw subtle divider
-            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 0.5f))
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
             {
-                g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 1, itemRect.Right - 8, itemRect.Bottom - 1);
+                int inset = Scale(ListBoxTokens.IconTextGap - 2);
+                g.DrawLine(pen, itemRect.Left + inset, itemRect.Bottom - 1, itemRect.Right - inset, itemRect.Bottom - 1);
             }
         }
     }

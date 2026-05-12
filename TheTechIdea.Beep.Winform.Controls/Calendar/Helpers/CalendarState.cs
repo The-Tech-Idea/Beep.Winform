@@ -11,6 +11,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         public CalendarViewMode ViewMode { get; set; } = CalendarViewMode.Month;
         public DateTime SelectedDate { get; set; } = DateTime.Today;
         public CalendarEvent SelectedEvent { get; set; }
+        public DateTime? VisibleRangeStart { get; set; }
+        public DateTime? VisibleRangeEnd { get; set; }
+        public DateTime? HoveredDate { get; set; }
+        public int? HoveredEventId { get; set; }
+        public DateTime FocusedDate { get; set; } = DateTime.Today;
+        public bool IsKeyboardFocusVisible { get; set; }
+        public bool IsPointerDown { get; set; }
+        public Point? PointerDownLocation { get; set; }
+        public CalendarInteractionMode InteractionMode { get; set; } = CalendarInteractionMode.None;
+        public CalendarInteractionTargetKind InteractionTargetKind { get; set; } = CalendarInteractionTargetKind.None;
+        public int? InteractionEventId { get; set; }
         public bool ShowSidebar { get; set; } = false; // Default to false to avoid empty space
     }
 
@@ -27,27 +38,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
     // Metrics and constants
     internal static class CalendarLayoutMetrics
     {
-        public const int HeaderHeight = 60;
-        public const int BaseViewSelectorHeight = 40;
-        public const int SelectorVerticalPadding = 8;
-        public const int SectionSpacing = 4;
-        public const int OuterMargin = 10;
-        public const int ControlSpacing = 8;
-        public const int HeaderTextSpacingFromNav = 20;
-        public const int HeaderRightPadding = 20;
-        public const int EventInsetX = 10;
-        public const int EventInsetY = 2;
-        public const int MinEventHitHeight = 24;
-        public const int EventCornerRadius = 6;
-        public const int EventAccentWidth = 4;
-        public const int ListRowHeight = 76;
-        public const int ListRowSpacing = 10;
-        public const int SidebarPadding = 10;
-        public const int SidebarCardHeight = 200;
-        public const int SidebarCardGap = 20;
-        public const int SidebarWidth = 300;
-        public const int DayHeaderHeight = 30;
-        public const int TimeSlotHeight = 60;
-        public const int TimeColumnWidth = 60;
+        public const int HeaderHeight = CalendarTokens.HeaderHeight;
+        public const int BaseViewSelectorHeight = CalendarTokens.ViewSelectorHeight;
+        public const int SelectorVerticalPadding = CalendarTokens.SelectorVerticalPadding;
+        public const int SectionSpacing = CalendarTokens.SectionSpacing;
+        public const int OuterMargin = CalendarTokens.OuterMargin;
+        public const int ControlSpacing = CalendarTokens.ControlSpacing;
+        public const int HeaderTextSpacingFromNav = CalendarTokens.HeaderTextSpacing;
+        public const int HeaderRightPadding = CalendarTokens.HeaderRightPadding;
+        public const int EventInsetX = CalendarTokens.EventInsetX;
+        public const int EventInsetY = CalendarTokens.EventInsetY;
+        public const int MinEventHitHeight = CalendarTokens.MinEventHitHeight;
+        public const int EventCornerRadius = CalendarTokens.EventCornerRadius;
+        public const int EventAccentWidth = CalendarTokens.EventAccentWidth;
+        public const int MaxEventsPerCell = CalendarTokens.MaxEventsPerCell;
+        public const int ListRowHeight = CalendarTokens.ListRowHeight;
+        public const int ListRowSpacing = CalendarTokens.ListRowSpacing;
+        public const int SidebarPadding = CalendarTokens.SidebarPadding;
+        public const int SidebarCardHeight = CalendarTokens.SidebarCardHeight;
+        public const int SidebarCardGap = CalendarTokens.SidebarCardGap;
+        public const int SidebarWidth = CalendarTokens.SidebarWidth;
+        public const int DayHeaderHeight = CalendarTokens.DayHeaderHeight;
+        public const int TimeSlotHeight = CalendarTokens.TimeSlotHeight;
+        public const int TimeColumnWidth = CalendarTokens.TimeColumnWidth;
     }
 }

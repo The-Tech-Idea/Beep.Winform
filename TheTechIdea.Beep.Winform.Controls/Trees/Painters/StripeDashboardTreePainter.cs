@@ -35,6 +35,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (g == null || node.Item == null) return;
 
+ // Delegate to base for multi-column support
+ if (_owner?.IsMultiColumn == true)
+ {
+ base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+ return;
+ }
+
  var oldSmoothing = g.SmoothingMode;
  var oldTextRendering = g.TextRenderingHint;
  g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -53,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  using (var bgPath = CreateRoundedRectangle(bgBounds, CornerRadius))
  {
- Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+ Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
  var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
  g.FillPath(bgBrush, bgPath);
 
@@ -67,31 +74,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  }
 
  // STEP2: Draw Stripe chevron toggle
- bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
- if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
- {
- var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
- Color chevronColor = _theme.TreeForeColor;
+  bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
+  if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+  {
+  var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
+  Color chevronColor = _theme.TreeForeColor;
 
- using var pen = (Pen)PaintersFactory.GetPen(chevronColor,1.5f).Clone();
- pen.StartCap = LineCap.Round;
- pen.EndCap = LineCap.Round;
-
- int centerX = toggleRect.Left + toggleRect.Width /2;
- int centerY = toggleRect.Top + toggleRect.Height /2;
- int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
- if (node.Item.IsExpanded)
- {
- g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
- g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
- }
- else
- {
- g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
- g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
- }
- }
+  DrawChevron(g, toggleRect, chevronColor, 1.5f, node.Item.IsExpanded);
+  }
 
  // STEP3: Draw checkbox (clean Stripe Style)
  if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
@@ -109,20 +99,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  g.DrawPath(borderPen, checkPath);
  }
 
- if (node.Item.IsChecked)
- {
- using var checkPen = (Pen)PaintersFactory.GetPen(Color.White,1.5f).Clone();
- checkPen.StartCap = LineCap.Round;
- checkPen.EndCap = LineCap.Round;
-
- var points = new Point[]
- {
- new Point(checkRect.X + checkRect.Width /4, checkRect.Y + checkRect.Height /2),
- new Point(checkRect.X + checkRect.Width /2 -1, checkRect.Y + checkRect.Height *3 /4),
- new Point(checkRect.X + checkRect.Width *3 /4, checkRect.Y + checkRect.Height /4)
- };
- g.DrawLines(checkPen, points);
- }
+  if (node.Item.IsChecked)
+  {
+  DrawCheckmark(g, checkRect, Color.White, 1.5f);
+  }
  }
 
  // STEP4: Draw Stripe-Style icon (clean rounded with lines)
@@ -160,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  if (node.TextRectContent != Rectangle.Empty)
  {
  var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
  Rectangle adjustedTextRect = new Rectangle(
  textRect.X,
@@ -238,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
  var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
 

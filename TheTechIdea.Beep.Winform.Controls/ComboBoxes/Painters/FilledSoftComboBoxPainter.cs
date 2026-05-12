@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Material-style filled field — synced with <see cref="Popup.CardRowPopupContent"/>.
+    /// Material-style filled field — synced with BeepListBox (ListBoxType.CardList).
     /// Card-row popup uses rounded cards (radius 8) with shadow on hover and subtle borders.
     /// Field echoes: filled tint, 8px radius top corners, bottom underline accent,
     /// card-like shadow lift on hover to match popup card shadow.

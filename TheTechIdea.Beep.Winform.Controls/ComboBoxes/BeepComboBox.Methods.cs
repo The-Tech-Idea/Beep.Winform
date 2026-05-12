@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
-        /// Shows the dropdown menu
+        /// Shows the dropdown menu using BeepContextMenu (same as MenuBar - creates NEW instance each time)
         /// </summary>
         public void ShowDropdown()
         {
@@ -46,23 +46,62 @@ namespace TheTechIdea.Beep.Winform.Controls
                     SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
             }
 
-            if (_popupHost == null)
+            // Dispose old menu if exists (like Menu does - always fresh instance)
+            if (BeepContextMenu != null && !BeepContextMenu.IsDisposed)
             {
-                _popupHost = CreatePopupHostForType(ComboBoxType);
-                _popupHost.RowCommitted += OnPopupHostRowCommitted;
-                _popupHost.PopupClosed += OnPopupHostClosed;
-                _popupHost.SearchTextChanged += OnPopupHostSearchTextChanged;
-                _popupHost.KeyboardFocusChanged += OnPopupHostKeyboardFocusChanged;
+                BeepContextMenu.ItemClicked -= OnContextMenuItemClicked;
+                BeepContextMenu.MenuClosed -= OnDropdownMenuClosed;
+                BeepContextMenu.Dispose();
             }
 
-            var model = BuildPopupModel(_popupSearchText);
+            // Create NEW menu instance (exactly like ContextMenuManager.CreateMenu)
+            BeepContextMenu = new BeepContextMenu
+            {
+                ContextMenuType = FormStyle.Modern,
+                DestroyOnClose = true,  // Auto-dispose when closed (same as Menu)
+                MultiSelect = AllowMultipleSelection,
+                ShowCheckBox = AllowMultipleSelection,
+                ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(ComboBoxType) || ShowSearchInDropdown,
+                ShowImage = true,
+                ShowSeparators = false,
+                StartPosition = FormStartPosition.Manual,
+                CloseOnFocusLost = true,
+                EnableAnimations = false,  // No fade animation for dropdown (instant show)
+                Theme = this.Theme
+            };
 
-            _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
+            // Wire events fresh
+            BeepContextMenu.ItemClicked += OnContextMenuItemClicked;
+            BeepContextMenu.MenuClosed += OnDropdownMenuClosed;
+
+            // Populate items
+            foreach (var item in _listItems)
+            {
+                if (AllowMultipleSelection)
+                {
+                    item.IsChecked = SelectedItems?.Exists(x => IsSameSimpleItem(x, item)) ?? false;
+                }
+                BeepContextMenu.MenuItems.Add(item);
+            }
+
+            // Position below the combo box
+            Point screenLocation = this.PointToScreen(new Point(0, Height));
+            BeepContextMenu.Width = Width;
+            BeepContextMenu.RecalculateSize();
+            BeepContextMenu.Show(screenLocation, this);
 
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.StateChange, -1);
             AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.SystemMenuPopupStart, -1);
 
             PopupOpened?.Invoke(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        private void OnDropdownMenuClosed(object sender, BeepContextMenuClosedEventArgs e)
+        {
+            _isDropdownOpen = false;
+            TriggerChevronAnimation(false);
+            PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
         
@@ -74,7 +113,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!_isDropdownOpen)
                 return;
             
-            _popupHost?.ClosePopup(false);
+            if (BeepContextMenu != null && !BeepContextMenu.IsDisposed)
+            {
+                BeepContextMenu.Close();
+            }
             _isDropdownOpen = false;
             TriggerChevronAnimation(false);
 
@@ -85,49 +127,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
-
-        private void OnPopupHostRowCommitted(object sender, ComboBoxRowCommittedEventArgs e)
-        {
-            if (e.Row != null && e.Row.SourceItem != null)
-            {
-                if (AllowMultipleSelection)
-                {
-                    // Multi-select handling
-                    var item = e.Row.SourceItem;
-                    QueuePopupSelectionToggle(item, e.Row.IsChecked);
-                    return; // do not close
-                }
-                else
-                {
-                    // Single-select
-                    _inputText = string.Empty;
-                    SelectedItem = e.Row.SourceItem;
-                }
-            }
-            CloseDropdown();
-        }
-
-        private void OnPopupHostClosed(object sender, ComboBoxPopupClosedEventArgs e)
-        {
-            if (_popupHost != null)
-            {
-                _popupHost.RowCommitted -= OnPopupHostRowCommitted;
-                _popupHost.PopupClosed -= OnPopupHostClosed;
-                _popupHost.SearchTextChanged -= OnPopupHostSearchTextChanged;
-                _popupHost.KeyboardFocusChanged -= OnPopupHostKeyboardFocusChanged;
-                _popupHost = null;
-            }
-            _isDropdownOpen = false;
-            TriggerChevronAnimation(false);
-
-            if (AllowMultipleSelection && UseApplyCancelFooter && !e.Committed && _popupSelectionSnapshot != null)
-            {
-                SelectedItems = new System.Collections.Generic.List<SimpleItem>(_popupSelectionSnapshot);
-            }
-            _popupSelectionSnapshot = null;
-            _popupSearchText = string.Empty;
-            Invalidate();
-        }
         
         /// <summary>
         /// Toggles the dropdown menu
@@ -135,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ToggleDropdown()
         {
             // Sync state with actual menu visibility.
-            if (_isDropdownOpen && (_popupHost == null || !_popupHost.IsVisible))
+            if (_isDropdownOpen && (BeepContextMenu == null || !BeepContextMenu.Visible))
             {
                 _isDropdownOpen = false;
             }
@@ -324,11 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ShowDropdown();
                 }
 
-                if (_popupHost != null)
-                {
-                    var model = BuildPopupModel(typed);
-                    _popupHost.UpdateModel(model);
-                }
+                // BeepContextMenu handles search internally when ShowSearchBox is enabled
             }
             else if (_isDropdownOpen)
             {
@@ -723,64 +718,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal static bool IsSameSimpleItem(SimpleItem left, SimpleItem right)
             => string.Equals(GetSimpleItemIdentity(left), GetSimpleItemIdentity(right), StringComparison.OrdinalIgnoreCase);
 
-        private static IComboBoxPopupHost CreatePopupHostForType(ComboBoxType type)
-            => ComboBoxTypeRegistry.CreatePopupHost(type);
-
         private bool IsInlineEditorAllowed()
             => IsEditable || AllowFreeText || ComboBoxVisualTokenCatalog.SupportsInlineEditor(ComboBoxType);
-
-        private void OnPopupHostSearchTextChanged(object sender, ComboBoxSearchChangedEventArgs e)
-        {
-            if (_popupHost == null)
-            {
-                return;
-            }
-
-            string searchText = e?.SearchText ?? string.Empty;
-            _popupSearchText = searchText;
-            var model = BuildPopupModel(searchText);
-
-            _popupHost.UpdateModel(model);
-        }
-
-        private ComboBoxPopupModel BuildPopupModel(string searchText)
-        {
-            return ComboBoxPopupModelBuilder.Build(
-                _listItems,
-                SelectedItems,
-                SelectedItem,
-                searchText,
-                ComboBoxType,
-                AllowMultipleSelection,
-                ShowSelectAll,
-                ShouldShowPopupFooter(),
-                AllowMultipleSelection && UseApplyCancelFooter,
-                ShouldUsePrimaryActionFooter(),
-                ResolvePrimaryActionFooterText(),
-                showOptionDescription: ShowOptionDescription,
-                showStatusIcons: ShowStatusIcons,
-                emptyStateText: EmptyStateText);
-        }
-
-        private void SchedulePopupModelRefresh()
-        {
-            if (_popupHost == null || _popupRefreshQueued || IsDisposed)
-            {
-                return;
-            }
-
-            _popupRefreshQueued = true;
-            BeginInvoke(new Action(() =>
-            {
-                _popupRefreshQueued = false;
-                if (_popupHost == null)
-                {
-                    return;
-                }
-
-                _popupHost.UpdateModel(BuildPopupModel(_popupSearchText));
-            }));
-        }
 
         private void QueuePopupSelectionToggle(SimpleItem item, bool isChecked)
         {
@@ -826,14 +765,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _pendingPopupSelection = null;
                 }
 
-                SchedulePopupModelRefresh();
+                // Refresh dropdown if open
+                if (BeepContextMenu != null && !BeepContextMenu.IsDisposed && BeepContextMenu.Visible)
+                {
+                    BeepContextMenu.Invalidate();
+                }
             }));
-        }
-
-        private void OnPopupHostKeyboardFocusChanged(object sender, ComboBoxKeyboardFocusChangedEventArgs e)
-        {
-            // Hook point for preview-on-focus behavior; currently only triggers repaint.
-            Invalidate();
         }
 
         private bool ShouldUsePrimaryActionFooter()

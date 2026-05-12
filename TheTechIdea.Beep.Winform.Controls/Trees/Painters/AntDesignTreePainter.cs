@@ -34,6 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (g == null || node.Item == null) return;
 
+ // Delegate to base for multi-column support
+ if (_owner?.IsMultiColumn == true)
+ {
+ base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+ return;
+ }
+
  // Enable anti-aliasing for clean Ant Design appearance
  var oldSmoothing = g.SmoothingMode;
  var oldTextRendering = g.TextRenderingHint;
@@ -45,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  // STEP1: Draw flat rectangular background (no rounded corners)
  if (isSelected)
  {
- var bgBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+ var bgBrush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
  g.FillRectangle(bgBrush, nodeBounds);
 
  var accentPen = PaintersFactory.GetPen(_theme.AccentColor,2f);
@@ -53,37 +60,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  }
  else if (isHovered)
  {
- var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+ var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
  g.FillRectangle(hoverBrush, nodeBounds);
  }
 
- // STEP2: Draw Ant Design caret toggle
- bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
- if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
- {
- // CRITICAL: Transform to viewport coordinates
- var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
- Color caretColor = _theme.TreeForeColor;
+  // STEP2: Draw Ant Design caret toggle
+  bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
+  if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+  {
+  // CRITICAL: Transform to viewport coordinates
+  var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
+  Color caretColor = _theme.TreeForeColor;
 
- var pen = PaintersFactory.GetPen(caretColor,1.5f);
- pen.StartCap = LineCap.Round;
- pen.EndCap = LineCap.Round;
-
- int centerX = toggleRect.Left + toggleRect.Width /2;
- int centerY = toggleRect.Top + toggleRect.Height /2;
- int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
- if (node.Item.IsExpanded)
- {
- g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
- g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
- }
- else
- {
- g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
- g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
- }
- }
+  DrawChevron(g, toggleRect, caretColor, 1.5f, node.Item.IsExpanded);
+  }
 
  // STEP3: Draw Ant Design checkbox (clean rectangular with thin border)
  if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
@@ -111,21 +101,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  Math.Max(0, checkboxRect.Width -5),
  Math.Max(0, checkboxRect.Height -5));
 
- g.FillRectangle(fillBrush, fillRect);
+  g.FillRectangle(fillBrush, fillRect);
 
- var checkPen = PaintersFactory.GetPen(Color.White,2f);
- checkPen.StartCap = LineCap.Round;
- checkPen.EndCap = LineCap.Round;
+  using (var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 2f).Clone())
+  {
+  checkPen.StartCap = LineCap.Round;
+  checkPen.EndCap = LineCap.Round;
 
- int centerX = checkboxRect.Left + checkboxRect.Width /2;
- int centerY = checkboxRect.Top + checkboxRect.Height /2;
+  int centerX = checkboxRect.Left + checkboxRect.Width /2;
+  int centerY = checkboxRect.Top + checkboxRect.Height /2;
 
- g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
- g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
- }
- }
+  g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
+  g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
+  }
+  }
+  }
 
- // STEP4: Draw Ant Design folder icon
+  // STEP4: Draw Ant Design folder icon
  if (node.IconRectContent != Rectangle.Empty)
  {
  var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
@@ -138,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  // CRITICAL: Transform to viewport coordinates
  var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
  TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
  TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -157,48 +149,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  if (isSelected)
  {
- var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+ var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
  g.FillRectangle(brush, nodeBounds);
  }
  else if (isHovered)
  {
- var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+ var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
  g.FillRectangle(hoverBrush, nodeBounds);
  }
  }
 
- public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
- {
- if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
+  public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
+  {
+  if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
 
- Color caretColor = _theme.TreeForeColor;
+  Color caretColor = _theme.TreeForeColor;
 
- var pen = PaintersFactory.GetPen(caretColor,1.5f);
- pen.StartCap = LineCap.Round;
- pen.EndCap = LineCap.Round;
+  DrawChevron(g, toggleRect, caretColor, 1.5f, isExpanded);
+  }
 
- int centerX = toggleRect.Left + toggleRect.Width /2;
- int centerY = toggleRect.Top + toggleRect.Height /2;
- int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
- if (isExpanded)
- {
- g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
- g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
- }
- else
- {
- g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
- g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
- }
- }
-
- public override void PaintCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isHovered)
+ public override void PaintCheckbox(Graphics g, Rectangle checkboxRect, bool isChecked, bool isIndeterminate, bool isHovered)
  {
  if (checkboxRect.Width <=0 || checkboxRect.Height <=0) return;
 
  Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
- Color fillColor = isChecked ? _theme.AccentColor : _theme.TreeBackColor;
+ Color fillColor = isChecked || isIndeterminate ? _theme.AccentColor : _theme.TreeBackColor;
 
  var pen = PaintersFactory.GetPen(borderColor,1f);
  Rectangle checkRect = new Rectangle(
@@ -209,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  g.DrawRectangle(pen, checkRect);
 
- if (isChecked)
+ if (isChecked || isIndeterminate)
  {
  var brush = PaintersFactory.GetSolidBrush(fillColor);
  Rectangle fillRect = new Rectangle(
@@ -218,21 +193,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  Math.Max(0, checkboxRect.Width -5),
  Math.Max(0, checkboxRect.Height -5));
 
- g.FillRectangle(brush, fillRect);
+  g.FillRectangle(brush, fillRect);
 
- var checkPen = PaintersFactory.GetPen(Color.White,2f);
- checkPen.StartCap = LineCap.Round;
- checkPen.EndCap = LineCap.Round;
+  if (isChecked)
+  {
+    using (var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 2f).Clone())
+    {
+    checkPen.StartCap = LineCap.Round;
+    checkPen.EndCap = LineCap.Round;
 
- int centerX = checkboxRect.Left + checkboxRect.Width /2;
- int centerY = checkboxRect.Top + checkboxRect.Height /2;
+    int centerX = checkboxRect.Left + checkboxRect.Width /2;
+    int centerY = checkboxRect.Top + checkboxRect.Height /2;
 
- g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
- g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
- }
- }
+    g.DrawLine(checkPen, centerX -4, centerY, centerX -1, centerY +3);
+    g.DrawLine(checkPen, centerX -1, centerY +3, centerX +4, centerY -3);
+    }
+  }
+  else if (isIndeterminate)
+  {
+    // Draw indeterminate dash
+    var dashPen = PaintersFactory.GetPen(Color.White, 2f);
+    int centerY = checkboxRect.Top + checkboxRect.Height / 2;
+    int dashPadding = checkboxRect.Width / 4;
+    g.DrawLine(dashPen, checkboxRect.X + dashPadding, centerY, checkboxRect.Right - dashPadding, centerY);
+  }
+  }
+  }
 
- public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
+  public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
  {
  if (iconRect.Width <=0 || iconRect.Height <=0) return;
 
@@ -284,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
  TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
  TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

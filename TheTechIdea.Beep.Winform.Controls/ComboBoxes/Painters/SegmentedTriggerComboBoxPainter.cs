@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Split-button with accent trigger — synced with <see cref="Popup.GroupedSectionsPopupContent"/>.
+    /// Split-button with accent trigger — synced with BeepListBox (ListBoxType.Grouped).
     /// Popup section headers use accent bar (3px, FocusBorderColor) + tinted bg (alpha 30).
     /// Popup section pills use radius min(h/2,6) with accent fill for selected items.
     /// Field echoes: right accent-filled trigger segment, accent tint on body focus

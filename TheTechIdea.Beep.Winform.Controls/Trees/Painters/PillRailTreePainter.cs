@@ -28,6 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for pill appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -47,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     using (var pillPath = CreatePillShape(pillBounds))
                     {
-                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
                         g.FillPath(bgBrush, pillPath);
                     }
                 }
@@ -110,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     var renderFont = _regularFont;
                     if (isSelected)
                     {
@@ -188,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Selected: full pill shape
                 using (var path = CreatePillShape(nodeBounds))
                 {
-                    var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                    var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                     g.FillPath(brush, path);
                 }
             }
@@ -197,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle pill
                 using (var path = CreatePillShape(nodeBounds))
                 {
-                    var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                    var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                     g.FillPath(hoverBrush, path);
                 }
             }
@@ -245,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             TextRenderer.DrawText(g, text, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Utilities;
@@ -293,6 +294,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set => SetProperty(ref _isChecked, value, nameof(IsChecked));
         }
 
+        private bool _isIndeterminate = false;
+        public bool IsIndeterminate
+        {
+            get => _isIndeterminate;
+            set => SetProperty(ref _isIndeterminate, value, nameof(IsIndeterminate));
+        }
+
         private bool _isExpanded = false;
         public bool IsExpanded
         {
@@ -345,7 +353,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public bool IsDrawn { get; set; } = false;
         public string ComposedID { get; set; } // this helps to identify the item in the tree , so that RootnodeID.childid.childid.childid and so on
         public object Tag { get; set; }
-       
+
+        /// <summary>
+        /// Dictionary for storing additional field values (e.g., for multi-column tree data binding).
+        /// Key = field name, Value = field value.
+        /// </summary>
+        [NonSerialized]
+        private Dictionary<string, object> _data;
+        public Dictionary<string, object> Data
+        {
+            get
+            {
+                if (_data == null)
+                    _data = new Dictionary<string, object>();
+                return _data;
+            }
+            set => _data = value;
+        }
 
         public override string ToString()
         {

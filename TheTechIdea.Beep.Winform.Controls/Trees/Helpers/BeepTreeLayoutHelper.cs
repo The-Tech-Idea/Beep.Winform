@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using TheTechIdea.Beep.Winform.Controls.Trees.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 {
@@ -18,6 +19,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         private readonly BeepTree _owner;
         private readonly BeepTreeHelper _treeHelper;
         private readonly List<NodeInfo> _layoutCache;
+
+        // Background layout calculation for massive trees
+        private System.Threading.CancellationTokenSource _layoutCts;
+        private readonly object _layoutLock = new object();
+        private bool _isLayoutCalculating;
+
+        // Incremental update tracking
+        private int _lastViewportStart = -1;
+        private int _lastViewportEnd = -1;
+        private int _lastTotalContentHeight = 0;
 
         public BeepTreeLayoutHelper(BeepTree owner, BeepTreeHelper treeHelper)
         {
@@ -91,6 +102,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 
                 var nodeInfo = new NodeInfo { Item = item, Level = level, Y = yPos };
 
+                // Apply conditional formatting
+                if (_owner?.ConditionalFormats != null && _owner.ConditionalFormats.Count > 0)
+                {
+                    var (rowConfig, cellConfig) = _owner.ConditionalFormats.Evaluate(item);
+                    if (rowConfig != null)
+                    {
+                        nodeInfo.RowConfig = rowConfig;
+                    }
+                    if (cellConfig != null)
+                    {
+                        nodeInfo.CellConfigs = new Dictionary<int, BeepTreeCellConfig> { { 0, cellConfig } };
+                    }
+                }
+
                 if (i >= start && i <= end)
                 {
                     CalculateNodeLayout(ref nodeInfo);
@@ -104,7 +129,101 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
                 yPos += nodeInfo.RowHeight;
             }
 
+            // Update tracking
+            _lastTotalContentHeight = yPos;
+
             return _layoutCache;
+        }
+
+        /// <summary>
+        /// Performs layout calculation on a background thread for massive trees,
+        /// then invokes the owner to invalidate on the UI thread.
+        /// Use this when the tree has more than 10,000 visible nodes.
+        /// </summary>
+        public void RecalculateLayoutAsync()
+        {
+            // Cancel any previous calculation
+            _layoutCts?.Cancel();
+            _layoutCts = new System.Threading.CancellationTokenSource();
+            var token = _layoutCts.Token;
+
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                try
+                {
+                    lock (_layoutLock)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        _isLayoutCalculating = true;
+                        var result = RecalculateLayout();
+                        _isLayoutCalculating = false;
+
+                        if (!token.IsCancellationRequested && _owner != null && !_owner.IsDisposed)
+                        {
+                            _owner.BeginInvoke(new Action(() =>
+                            {
+                                if (!_owner.IsDisposed)
+                                {
+                                    _owner.UpdateScrollBars();
+                                    _owner.Invalidate();
+                                }
+                            }));
+                        }
+                    }
+                }
+                catch (System.OperationCanceledException)
+                {
+                    // Expected when cancelled
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BeepTreeLayoutHelper] Background layout error: {ex.Message}");
+                }
+                finally
+                {
+                    _isLayoutCalculating = false;
+                }
+            }, token);
+        }
+
+        /// <summary>
+        /// Checks if layout is currently being calculated in the background.
+        /// </summary>
+        public bool IsLayoutCalculating => _isLayoutCalculating;
+
+        /// <summary>
+        /// Updates only the viewport portion of the layout cache without rebuilding everything.
+        /// Useful for scroll operations where only the visible range changes.
+        /// </summary>
+        public void UpdateViewportLayout()
+        {
+            if (_layoutCache.Count == 0)
+            {
+                RecalculateLayout();
+                return;
+            }
+
+            var (start, end) = GetVirtualizationRange(_layoutCache.Select(n => n.Item).ToList());
+            
+            if (start == _lastViewportStart && end == _lastViewportEnd)
+                return; // Viewport hasn't changed
+
+            _lastViewportStart = start;
+            _lastViewportEnd = end;
+
+            // Recalculate detailed layout only for nodes in the new viewport range
+            for (int i = start; i <= end && i < _layoutCache.Count; i++)
+            {
+                var nodeInfo = _layoutCache[i];
+                if (nodeInfo.RowHeight == _owner.GetScaledMinRowHeight())
+                {
+                    // This was a placeholder, calculate real layout
+                    CalculateNodeLayout(ref nodeInfo);
+                    _layoutCache[i] = nodeInfo;
+                }
+            }
         }
 
         /// <summary>
@@ -119,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             Size textSize = MeasureText(text, _owner.TextFont);
 
             // Calculate row height
-            int rowHeight = CalculateRowHeight(textSize);
+            int rowHeight = CalculateRowHeight(textSize, nodeInfo);
             int baseIndent = CalculateIndent(nodeInfo.Level);
 
             // Toggle button
@@ -158,6 +277,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             nodeInfo.IconRectContent = iconRect;
             nodeInfo.TextRectContent = textRect;
             nodeInfo.RowRectContent = rowRect;
+
+            // Multi-column layout: calculate cell rectangles
+            if (_owner.IsMultiColumn)
+            {
+                CalculateMultiColumnLayout(ref nodeInfo, rowHeight, baseIndent);
+            }
+        }
+
+        /// <summary>
+        /// Calculates cell rectangles for multi-column mode.
+        /// </summary>
+        private void CalculateMultiColumnLayout(ref NodeInfo nodeInfo, int rowHeight, int baseIndent)
+        {
+            var columns = _owner.Columns;
+            if (columns == null || columns.Count == 0)
+                return;
+
+            int colIndex = 0;
+            int x = 0;
+
+            foreach (var column in columns.GetVisibleColumns())
+            {
+                var cellRect = new Rectangle(x, nodeInfo.Y, column.Width, rowHeight);
+
+                if (colIndex == 0)
+                {
+                    // First column: tree structure (indent, toggle, checkbox, icon, text)
+                    // Adjust for indent - the cell starts at indent position
+                    cellRect = new Rectangle(baseIndent, nodeInfo.Y, column.Width - baseIndent, rowHeight);
+                }
+
+                nodeInfo.SetCellRect(colIndex, cellRect);
+
+                // Measure cell text
+                string cellText = GetCellText(nodeInfo.Item, column);
+                Size cellTextSize = MeasureText(cellText, _owner.TextFont);
+                nodeInfo.SetCellTextSize(colIndex, cellTextSize);
+
+                x += column.Width;
+                colIndex++;
+            }
+
+            // Update row width to include all columns
+            nodeInfo.RowWidth = x;
+        }
+
+        /// <summary>
+        /// Gets the display text for a cell based on the column's field binding.
+        /// </summary>
+        private string GetCellText(SimpleItem item, BeepTreeColumn column)
+        {
+            if (item == null || column == null)
+                return string.Empty;
+
+            // For now, use the item's Text for the first column, and try to get
+            // additional values from the item's Data dictionary or properties
+            if (string.IsNullOrEmpty(column.FieldName))
+                return item.Text ?? string.Empty;
+
+            // Try to get value from item.Data dictionary
+            if (item.Data != null && item.Data.ContainsKey(column.FieldName))
+            {
+                var value = item.Data[column.FieldName];
+                if (value != null)
+                {
+                    if (!string.IsNullOrEmpty(column.FormatString))
+                        return string.Format("{0:" + column.FormatString + "}", value);
+                    return value.ToString();
+                }
+            }
+
+            // Fallback to item.Text for first column, empty for others
+            return column.FieldName == item.Text ? item.Text : string.Empty;
         }
 
         #endregion
@@ -176,17 +368,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         }
 
         /// <summary>
-        /// Calculates the row height for a node based on text size.
+        /// Calculates the row height for a node based on text size and custom row config.
         /// </summary>
-        public int CalculateRowHeight(Size textSize)
+        public int CalculateRowHeight(Size textSize, NodeInfo nodeInfo)
         {
             int minHeight = _owner.GetScaledMinRowHeight();
             int boxSize = _owner.GetScaledBoxSize();
             int imageSize = _owner.GetScaledImageSize();
             int vertPadding = _owner.GetScaledVerticalPadding();
 
+            // Check for custom row height from config
+            if (nodeInfo.RowConfig != null && nodeInfo.RowConfig.Height > 0)
+            {
+                int customHeight = nodeInfo.RowConfig.Height;
+                if (nodeInfo.RowConfig.MinHeight > 0)
+                {
+                    customHeight = Math.Max(customHeight, nodeInfo.RowConfig.MinHeight);
+                }
+                return Math.Max(minHeight, customHeight);
+            }
+
             int contentHeight = Math.Max(textSize.Height, Math.Max(boxSize, imageSize));
             return Math.Max(minHeight, contentHeight + 2 * vertPadding);
+        }
+
+        /// <summary>
+        /// Legacy overload for backward compatibility.
+        /// </summary>
+        public int CalculateRowHeight(Size textSize)
+        {
+            return CalculateRowHeight(textSize, default);
         }
 
         /// <summary>

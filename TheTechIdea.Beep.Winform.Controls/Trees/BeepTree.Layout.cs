@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Rebuilds the list of visible nodes by recursively traversing the tree.
         /// Only includes nodes that are actually visible (parent is expanded).
         /// </summary>
-        private void RebuildVisible()
+        internal void RebuildVisible()
         {
 #if DEBUG
             System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: Starting with {_nodes.Count} root nodes");
@@ -29,6 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             void Recurse(SimpleItem item, int level, SimpleItem parent = null)
             {
+                // Skip nodes that are filtered out (IsVisible = false)
+                if (item != null && !item.IsVisible)
+                    return;
+
                 // Ensure ParentItem linkage is correct for helpers relying on it
                 if (item != null && parent != null && item.ParentItem != parent)
                 {
@@ -199,6 +203,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Update total content height (virtual size is owned by RebuildVisible via layout helper)
             _totalContentHeight = y;
+
+            // Sync with layout helper cache
+            if (_layoutHelper != null)
+            {
+                _layoutHelper.SyncFromVisibleNodes(_visibleNodes);
+
+                // For massive trees, trigger background layout calculation
+                if (EnableBackgroundLayout && _visibleNodes.Count > 10000)
+                {
+                    _layoutHelper.RecalculateLayoutAsync();
+                }
+            }
         }
 
         #endregion

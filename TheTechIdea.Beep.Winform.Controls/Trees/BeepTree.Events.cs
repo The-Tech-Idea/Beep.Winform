@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Trees.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,6 +25,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure DrawingRect is current for viewport transforms
             UpdateDrawingRect();
             Point point = e.Location;
+
+            // Check for breadcrumb click
+            if (ShowBreadcrumb && e.Button == MouseButtons.Left)
+            {
+                for (int i = 0; i < _breadcrumbItemRects.Count; i++)
+                {
+                    if (_breadcrumbItemRects[i].Contains(point))
+                    {
+                        var clickedNode = _breadcrumbItems[i];
+                        if (clickedNode != null)
+                        {
+                            NavigateToBreadcrumbItem(clickedNode);
+                            return;
+                        }
+                    }
+                }
+            }
 
             // Right-click context menu
             string htName; SimpleItem htItem; Rectangle htRect;
@@ -67,6 +85,61 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // Multi-column: check for column header click or resize
+            if (IsMultiColumn && ShowColumnHeaders && e.Button == MouseButtons.Left)
+            {
+                var headerBounds = new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, ColumnHeaderHeight);
+                if (headerBounds.Contains(point))
+                {
+                    int x = DrawingRect.X;
+                    int colIndex = 0;
+                    foreach (var column in Columns.GetVisibleColumns())
+                    {
+                        var colRect = new Rectangle(x, headerBounds.Y, column.Width, headerBounds.Height);
+
+                        // Check for resize (near right edge)
+                        if (Math.Abs(point.X - colRect.Right) <= RESIZE_HIT_TEST_MARGIN)
+                        {
+                            _isResizingColumn = true;
+                            _resizingColumnIndex = colIndex;
+                            _resizeStartX = point.X;
+                            _resizeStartWidth = column.Width;
+                            return;
+                        }
+
+                        // Check for filter button click
+                        if (column.Filterable)
+                        {
+                            var filterRect = new Rectangle(colRect.Right - 20, colRect.Top + (colRect.Height - 16) / 2, 18, 18);
+                            if (filterRect.Contains(point))
+                            {
+                                ShowColumnFilterPopup(column, colIndex, filterRect);
+                                return;
+                            }
+                        }
+
+                        // Check for header click
+                        if (colRect.Contains(point))
+                        {
+                            OnColumnHeaderClick(column, colIndex, (ModifierKeys & Keys.Control) == Keys.Control);
+                            return;
+                        }
+                        x += column.Width;
+                        colIndex++;
+                    }
+                }
+            }
+
+            // Kinetic scrolling: start tracking on left click
+            if (e.Button == MouseButtons.Left && EnableKineticScrolling)
+            {
+                _isKineticScrolling = true;
+                _kineticScrollStartPoint = e.Location;
+                _kineticScrollStartYOffset = _yOffset;
+                _kineticVelocityY = 0;
+                _kineticTimer?.Stop();
+            }
+
             // Left or middle click on toggle/check/row
             if (hasHit)
             {
@@ -89,7 +162,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 NodeBeforeExpand?.Invoke(this, cancelArgs);
                             if (cancelArgs.Cancel) break;
 
-                            item.IsExpanded = !item.IsExpanded;
+                            // Lazy load: if expanding and no children, fire NodesNeeded
+                            if (!item.IsExpanded && LazyLoad && (item.Children == null || item.Children.Count == 0))
+                            {
+                                var neededArgs = new NodesNeededEventArgs(item);
+                                NodesNeeded?.Invoke(this, neededArgs);
+                                if (!neededArgs.ChildrenLoaded)
+                                {
+                                    // No children available, don't expand
+                                    break;
+                                }
+                            }
+
+                            bool expanding = !item.IsExpanded;
+                            item.IsExpanded = expanding;
+
+                            // Animate expand/collapse if enabled
+                            if (EnableAnimations && _animationHelper != null)
+                            {
+                                var nodeInfo = _visibleNodes.FirstOrDefault(n => n.Item == item);
+                                if (nodeInfo.Item != null)
+                                {
+                                    var bounds = _layoutHelper.TransformToViewport(nodeInfo.RowRectContent);
+                                    _animationHelper.AnimateExpandCollapse(bounds, expanding);
+                                }
+                            }
+
                             RebuildVisible();
                             UpdateScrollBars();
 
@@ -97,15 +195,52 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 NodeExpanded?.Invoke(this, args);
                             else
                                 NodeCollapsed?.Invoke(this, args);
+
+                            // Notify accessibility clients of state change
+                            var treeAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
+                            treeAccessibleObject?.NotifyStateChanged(item);
                             break;
 
                         case "check":
-                            item.IsChecked = !item.IsChecked;
+                            if (EnableThreeStateCheckboxes)
+                            {
+                                // Cycle through states: Unchecked -> Checked -> Indeterminate -> Unchecked
+                                if (!item.IsChecked && !item.IsIndeterminate)
+                                {
+                                    item.IsChecked = true;
+                                    item.IsIndeterminate = false;
+                                }
+                                else if (item.IsChecked && !item.IsIndeterminate)
+                                {
+                                    item.IsChecked = false;
+                                    item.IsIndeterminate = true;
+                                }
+                                else
+                                {
+                                    item.IsChecked = false;
+                                    item.IsIndeterminate = false;
+                                }
+
+                                // Cascade to children
+                                CascadeCheckState(item);
+
+                                // Update parent states
+                                UpdateParentCheckStates(item);
+                            }
+                            else
+                            {
+                                item.IsChecked = !item.IsChecked;
+                                item.IsIndeterminate = false;
+                            }
 
                             if (item.IsChecked)
                                 NodeChecked?.Invoke(this, args);
-                            else
+                            else if (!item.IsIndeterminate)
                                 NodeUnchecked?.Invoke(this, args);
+
+                            // Notify accessibility clients of state change
+                            var checkAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
+                            checkAccessibleObject?.NotifyStateChanged(item);
                             break;
 
                         case "row":
@@ -116,18 +251,91 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 _lastClickedNode = item;
                                 SelectedNode = item;
 
+                                // Check for slow double-click to start editing
+                                if (AllowEdit && item == _lastDoubleClickNode)
+                                {
+                                    var elapsed = DateTime.Now - _lastClickTime;
+                                    if (elapsed.TotalMilliseconds >= SLOW_DOUBLE_CLICK_MIN_MS &&
+                                        elapsed.TotalMilliseconds <= SLOW_DOUBLE_CLICK_MAX_MS)
+                                    {
+                                        BeginEdit(item);
+                                        _lastDoubleClickNode = null;
+                                        return;
+                                    }
+                                }
+
+                                _lastClickTime = DateTime.Now;
+                                _lastDoubleClickNode = item;
+
+                                // Initiate drag and drop if enabled
+                                if (AllowDragDrop && _dragDropManager != null)
+                                {
+                                    _dragDropManager.OnMouseDown(e, item);
+                                }
+
                                 if (AllowMultiSelect)
                                 {
-                                    if (SelectedNodes.Contains(item))
+                                    bool ctrlPressed = (ModifierKeys & Keys.Control) == Keys.Control;
+                                    bool shiftPressed = (ModifierKeys & Keys.Shift) == Keys.Shift;
+
+                                    if (shiftPressed && _lastSelectedNode != null && _lastSelectedNode != item)
                                     {
-                                        SelectedNodes.Remove(item);
-                                        item.IsSelected = false;
-                                        NodeDeselected?.Invoke(this, args);
+                                        // Shift+Click: select range from last selected to current
+                                        int anchorIndex = _visibleNodes.FindIndex(n => n.Item == _lastSelectedNode);
+                                        int currentIndex = _visibleNodes.FindIndex(n => n.Item == item);
+
+                                        if (anchorIndex >= 0 && currentIndex >= 0)
+                                        {
+                                            int start = Math.Min(anchorIndex, currentIndex);
+                                            int end = Math.Max(anchorIndex, currentIndex);
+
+                                            // Clear existing selection unless Ctrl is also held
+                                            if (!ctrlPressed)
+                                            {
+                                                foreach (var sel in SelectedNodes)
+                                                    sel.IsSelected = false;
+                                                SelectedNodes.Clear();
+                                            }
+
+                                            for (int i = start; i <= end; i++)
+                                            {
+                                                var nodeItem = _visibleNodes[i].Item;
+                                                if (!SelectedNodes.Contains(nodeItem))
+                                                {
+                                                    SelectedNodes.Add(nodeItem);
+                                                    nodeItem.IsSelected = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (ctrlPressed)
+                                    {
+                                        // Ctrl+Click: toggle individual node
+                                        if (SelectedNodes.Contains(item))
+                                        {
+                                            SelectedNodes.Remove(item);
+                                            item.IsSelected = false;
+                                            NodeDeselected?.Invoke(this, args);
+                                        }
+                                        else
+                                        {
+                                            SelectedNodes.Add(item);
+                                            item.IsSelected = true;
+                                        }
                                     }
                                     else
                                     {
-                                        SelectedNodes.Add(item);
+                                        // Plain click: single selection even in multi-select mode
+                                        foreach (var sel in SelectedNodes.ToList())
+                                        {
+                                            if (sel != item)
+                                                sel.IsSelected = false;
+                                        }
+                                        SelectedNodes.Clear();
+
                                         item.IsSelected = true;
+                                        SelectedNodes.Add(item);
+                                        SelectedNode = item;
                                     }
                                 }
                                 else
@@ -148,8 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 }
 
                                 LeftButtonClicked?.Invoke(this, args);
-                                NodeSelected?.Invoke(this, args);
-                                OnSelectedItemChanged(item);
+                                // NodeSelected and OnSelectedItemChanged are now fired by SelectedNode setter
                             }
                             else if (e.Button == MouseButtons.Middle)
                             {
@@ -165,12 +372,117 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void OnMouseUpHandler(object s, MouseEventArgs e)
         {
+            // End column resize
+            if (_isResizingColumn)
+            {
+                _isResizingColumn = false;
+                _resizingColumnIndex = -1;
+                Cursor = Cursors.Default;
+                RecalculateLayoutCache();
+                UpdateScrollBars();
+                Invalidate();
+            }
+
+            // End drag and drop
+            if (AllowDragDrop && _dragDropManager != null)
+            {
+                _dragDropManager.OnMouseUp(e);
+            }
+
+            // End kinetic scrolling and start momentum
+            if (EnableKineticScrolling && _isKineticScrolling)
+            {
+                _isKineticScrolling = false;
+                if (Math.Abs(_kineticVelocityY) >= KINETIC_MIN_VELOCITY)
+                {
+                    _kineticTimer?.Start();
+                }
+            }
+
             NodeMouseUp?.Invoke(this, new BeepMouseEventArgs("MouseUp", null));
         }
 
         private void OnMouseMoveHandler(object s, MouseEventArgs e)
         {
             UpdateDrawingRect();
+
+            // Drag and drop tracking
+            if (AllowDragDrop && _dragDropManager != null)
+            {
+                _dragDropManager.OnMouseMove(e);
+            }
+
+            // Kinetic scrolling: drag to scroll
+            if (EnableKineticScrolling && _isKineticScrolling && e.Button == MouseButtons.Left)
+            {
+                int deltaY = e.Y - _kineticScrollStartPoint.Y;
+                int newYOffset = _kineticScrollStartYOffset - deltaY;
+
+                // Calculate velocity for momentum (track actual movement per frame)
+                int actualDeltaY = _yOffset - newYOffset;
+                _kineticVelocityY = actualDeltaY;
+
+                if (_verticalScrollBar?.Visible == true)
+                {
+                    int clampedY = Math.Max(_verticalScrollBar.Minimum,
+                        Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange, newYOffset));
+                    if (clampedY != _yOffset)
+                    {
+                        _yOffset = clampedY;
+                        _verticalScrollBar.Value = clampedY;
+                        try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                        Invalidate();
+                    }
+                }
+                return;
+            }
+
+            // Column resize in progress
+            if (_isResizingColumn && _resizingColumnIndex >= 0)
+            {
+                int delta = e.X - _resizeStartX;
+                int newWidth = Math.Max(20, _resizeStartWidth + delta);
+
+                var visibleColumns = Columns.GetVisibleColumns().ToList();
+                if (_resizingColumnIndex < visibleColumns.Count)
+                {
+                    visibleColumns[_resizingColumnIndex].Width = newWidth;
+                    RecalculateLayoutCache();
+                    UpdateScrollBars();
+                    Invalidate();
+                }
+                return;
+            }
+
+            // Check for column resize cursor
+            if (IsMultiColumn && ShowColumnHeaders)
+            {
+                var headerBounds = new Rectangle(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, ColumnHeaderHeight);
+                if (headerBounds.Contains(e.Location))
+                {
+                    int x = DrawingRect.X;
+                    int colIndex = 0;
+                    foreach (var column in Columns.GetVisibleColumns())
+                    {
+                        var colRect = new Rectangle(x, headerBounds.Y, column.Width, headerBounds.Height);
+                        // Check if near right edge
+                        if (Math.Abs(e.X - colRect.Right) <= RESIZE_HIT_TEST_MARGIN && e.X >= colRect.Right - RESIZE_HIT_TEST_MARGIN)
+                        {
+                            Cursor = Cursors.VSplit;
+                            return;
+                        }
+                        x += column.Width;
+                        colIndex++;
+                    }
+                }
+            }
+
+            // Reset cursor if not resizing
+            if (!_isResizingColumn)
+            {
+                Cursor = Cursors.Default;
+            }
+
             // Only update hover; GetHover will invalidate small regions when changed
             GetHover();
             NodeMouseMove?.Invoke(this, new BeepMouseEventArgs("MouseMove", null));
@@ -207,6 +519,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
         }
 
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            base.OnDragOver(e);
+
+            if (AllowDragDrop && _dragDropManager != null)
+            {
+                Point clientPoint = PointToClient(new Point(e.X, e.Y));
+                _dragDropManager.OnDragOver(e, clientPoint);
+            }
+        }
+
+        protected override void OnDragDrop(DragEventArgs e)
+        {
+            base.OnDragDrop(e);
+
+            if (AllowDragDrop && _dragDropManager != null)
+            {
+                Point clientPoint = PointToClient(new Point(e.X, e.Y));
+                _dragDropManager.OnDragDrop(e, clientPoint);
+            }
+        }
+
         #endregion
 
         #region Keyboard Navigation
@@ -214,6 +548,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+
+            // Ctrl+F: Show find panel
+            if (e.KeyCode == Keys.F && e.Control)
+            {
+                ShowFindPanel();
+                e.Handled = true;
+                return;
+            }
 
             if (_visibleNodes == null || _visibleNodes.Count == 0)
                 return;
@@ -230,6 +572,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     e.Handled = true;
                     break;
 
+                case Keys.F2:
+                    if (AllowEdit && SelectedNode != null)
+                    {
+                        BeginEdit(SelectedNode);
+                        e.Handled = true;
+                    }
+                    break;
+
                 case Keys.Left:
                     if (SelectedNode != null && SelectedNode.IsExpanded && SelectedNode.Children?.Count > 0)
                     {
@@ -238,6 +588,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         UpdateScrollBars();
                         NodeCollapsed?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
                         Invalidate();
+
+                        // Notify accessibility clients
+                        var leftAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
+                        leftAccessibleObject?.NotifyStateChanged(SelectedNode);
                     }
                     else if (SelectedNode?.ParentItem != null)
                     {
@@ -247,13 +601,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case Keys.Right:
-                    if (SelectedNode != null && !(SelectedNode.IsExpanded) && SelectedNode.Children?.Count > 0)
+                    if (SelectedNode != null && !SelectedNode.IsExpanded)
                     {
-                        SelectedNode.IsExpanded = true;
-                        RebuildVisible();
-                        UpdateScrollBars();
-                        NodeExpanded?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
-                        Invalidate();
+                        bool hasChildren = SelectedNode.Children != null && SelectedNode.Children.Count > 0;
+
+                        // Lazy load: if no children, try to load them
+                        if (!hasChildren && LazyLoad)
+                        {
+                            var neededArgs = new NodesNeededEventArgs(SelectedNode);
+                            NodesNeeded?.Invoke(this, neededArgs);
+                            hasChildren = neededArgs.ChildrenLoaded;
+                        }
+
+                        if (hasChildren)
+                        {
+                            SelectedNode.IsExpanded = true;
+                            RebuildVisible();
+                            UpdateScrollBars();
+                            NodeExpanded?.Invoke(this, new BeepMouseEventArgs("keyboard", SelectedNode));
+                            Invalidate();
+
+                            // Notify accessibility clients
+                            var rightAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
+                            rightAccessibleObject?.NotifyStateChanged(SelectedNode);
+                        }
                     }
                     e.Handled = true;
                     break;
@@ -269,14 +640,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
 
                 case Keys.Home:
-                    if (_visibleNodes.Count > 0)
+                    if ((ModifierKeys & Keys.Control) == Keys.Control)
+                    {
+                        // Ctrl+Home: collapse all and select first root
+                        CollapseAll();
+                        if (_nodes.Count > 0)
+                            HighlightNode(_nodes[0]);
+                    }
+                    else if (_visibleNodes.Count > 0)
+                    {
                         HighlightNode(_visibleNodes[0].Item);
+                    }
                     e.Handled = true;
                     break;
 
                 case Keys.End:
-                    if (_visibleNodes.Count > 0)
+                    if ((ModifierKeys & Keys.Control) == Keys.Control)
+                    {
+                        // Ctrl+End: expand all and select last visible leaf
+                        ExpandAll();
+                        if (_visibleNodes.Count > 0)
+                            HighlightNode(_visibleNodes[_visibleNodes.Count - 1].Item);
+                    }
+                    else if (_visibleNodes.Count > 0)
+                    {
                         HighlightNode(_visibleNodes[_visibleNodes.Count - 1].Item);
+                    }
                     e.Handled = true;
                     break;
 
@@ -299,7 +688,261 @@ namespace TheTechIdea.Beep.Winform.Controls
                     e.Handled = true;
                     break;
                 }
+
+                default:
+                    // Type-ahead search: letter/number keys jump to matching node
+                    if (IsTypeAheadKey(e.KeyCode) && !e.Control && !e.Alt)
+                    {
+                        char keyChar = GetKeyChar(e.KeyCode);
+                        if (keyChar != '\0')
+                        {
+                            _typeAheadBuffer += keyChar;
+                            _typeAheadTimer?.Stop();
+                            _typeAheadTimer?.Start();
+
+                            int startIndex = SelectedNode != null
+                                ? _visibleNodes.FindIndex(n => n.Item == SelectedNode) + 1
+                                : 0;
+
+                            // Wrap around if needed
+                            if (startIndex >= _visibleNodes.Count)
+                                startIndex = 0;
+
+                            // Search from startIndex to end, then from beginning to startIndex
+                            SimpleItem match = null;
+                            for (int i = startIndex; i < _visibleNodes.Count; i++)
+                            {
+                                if (_visibleNodes[i].Item.Text?.StartsWith(_typeAheadBuffer, StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    match = _visibleNodes[i].Item;
+                                    break;
+                                }
+                            }
+
+                            if (match == null && startIndex > 0)
+                            {
+                                for (int i = 0; i < startIndex; i++)
+                                {
+                                    if (_visibleNodes[i].Item.Text?.StartsWith(_typeAheadBuffer, StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        match = _visibleNodes[i].Item;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (match != null)
+                            {
+                                HighlightNode(match);
+                            }
+
+                            e.Handled = true;
+                        }
+                    }
+                    break;
             }
+        }
+
+        /// <summary>
+        /// Determines if a key code is valid for type-ahead search (letters, digits, space).
+        /// </summary>
+        private static bool IsTypeAheadKey(Keys keyCode)
+        {
+            return (keyCode >= Keys.A && keyCode <= Keys.Z) ||
+                   (keyCode >= Keys.D0 && keyCode <= Keys.D9) ||
+                   (keyCode >= Keys.NumPad0 && keyCode <= Keys.NumPad9) ||
+                   keyCode == Keys.Space;
+        }
+
+        /// <summary>
+        /// Converts a Keys enum value to its character representation for type-ahead.
+        /// </summary>
+        private static char GetKeyChar(Keys keyCode)
+        {
+            if (keyCode >= Keys.A && keyCode <= Keys.Z)
+                return (char)('a' + (keyCode - Keys.A));
+            if (keyCode >= Keys.D0 && keyCode <= Keys.D9)
+                return (char)('0' + (keyCode - Keys.D0));
+            if (keyCode >= Keys.NumPad0 && keyCode <= Keys.NumPad9)
+                return (char)('0' + (keyCode - Keys.NumPad0));
+            if (keyCode == Keys.Space)
+                return ' ';
+            return '\0';
+        }
+
+        #endregion
+
+        #region Inline Editing
+
+        /// <summary>
+        /// Occurs when a node begins editing.
+        /// </summary>
+        public event EventHandler<BeepMouseEventArgs> NodeBeginEdit;
+
+        /// <summary>
+        /// Occurs when a node edit is validated.
+        /// </summary>
+        public event EventHandler<BeepTreeNodeValidatingEventArgs> NodeValidating;
+
+        /// <summary>
+        /// Occurs when a node edit is completed.
+        /// </summary>
+        public event EventHandler<BeepTreeNodeEndEditEventArgs> NodeEndEdit;
+
+        /// <summary>
+        /// Raises the NodeValidating event.
+        /// </summary>
+        internal void OnNodeValidating(BeepTreeNodeValidatingEventArgs args)
+        {
+            NodeValidating?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Raises the NodeEndEdit event.
+        /// </summary>
+        internal void OnNodeEndEdit(SimpleItem node, BeepTreeColumn column, object value)
+        {
+            NodeEndEdit?.Invoke(this, new BeepTreeNodeEndEditEventArgs(node, column, value));
+        }
+
+        /// <summary>
+        /// Begins editing the currently selected node.
+        /// </summary>
+        public bool BeginEdit()
+        {
+            return BeginEdit(SelectedNode);
+        }
+
+        /// <summary>
+        /// Begins editing the specified node.
+        /// </summary>
+        public bool BeginEdit(SimpleItem node)
+        {
+            if (!AllowEdit || node == null)
+                return false;
+
+            NodeBeginEdit?.Invoke(this, new BeepMouseEventArgs("BeginEdit", node));
+            return _cellEditor?.BeginEdit(node) ?? false;
+        }
+
+        /// <summary>
+        /// Ends the current edit operation.
+        /// </summary>
+        public bool EndEdit(bool acceptChanges)
+        {
+            return _cellEditor?.EndEdit(acceptChanges) ?? false;
+        }
+
+        /// <summary>
+        /// Cancels the current edit operation.
+        /// </summary>
+        public void CancelEdit()
+        {
+            _cellEditor?.CancelEdit();
+        }
+
+        #endregion
+
+        #region Custom Draw Events
+
+        /// <summary>
+        /// Occurs when a node is about to be drawn. Set Handled = true to skip default drawing.
+        /// </summary>
+        public event EventHandler<BeepTreeCustomDrawNodeEventArgs> CustomDrawNode;
+
+        /// <summary>
+        /// Occurs when a node background is about to be drawn.
+        /// </summary>
+        public event EventHandler<BeepTreeCustomDrawNodeBackgroundEventArgs> CustomDrawNodeBackground;
+
+        /// <summary>
+        /// Occurs when a cell is about to be drawn.
+        /// </summary>
+        public event EventHandler<BeepTreeCustomDrawCellEventArgs> CustomDrawCell;
+
+        /// <summary>
+        /// Occurs when a column header is about to be drawn.
+        /// </summary>
+        public event EventHandler<BeepTreeCustomDrawColumnHeaderEventArgs> CustomDrawColumnHeader;
+
+        /// <summary>
+        /// Raises the CustomDrawNode event.
+        /// </summary>
+        internal bool OnCustomDrawNode(Graphics g, Rectangle bounds, SimpleItem node, NodeInfo nodeInfo, bool isSelected, bool isHovered, Action defaultDraw)
+        {
+            if (CustomDrawNode == null) return false;
+            var args = new BeepTreeCustomDrawNodeEventArgs(g, bounds, node, nodeInfo, isSelected, isHovered, defaultDraw);
+            CustomDrawNode.Invoke(this, args);
+            return args.Handled;
+        }
+
+        /// <summary>
+        /// Raises the CustomDrawNodeBackground event.
+        /// </summary>
+        internal bool OnCustomDrawNodeBackground(Graphics g, Rectangle bounds, SimpleItem node, bool isSelected, bool isHovered, Action defaultDraw)
+        {
+            if (CustomDrawNodeBackground == null) return false;
+            var args = new BeepTreeCustomDrawNodeBackgroundEventArgs(g, bounds, node, isSelected, isHovered, defaultDraw);
+            CustomDrawNodeBackground.Invoke(this, args);
+            return args.Handled;
+        }
+
+        /// <summary>
+        /// Raises the CustomDrawCell event.
+        /// </summary>
+        internal bool OnCustomDrawCell(Graphics g, Rectangle bounds, SimpleItem node, BeepTreeColumn column, int columnIndex, object value, bool isSelected, Action defaultDraw)
+        {
+            if (CustomDrawCell == null) return false;
+            var args = new BeepTreeCustomDrawCellEventArgs(g, bounds, node, column, columnIndex, value, isSelected, defaultDraw);
+            CustomDrawCell.Invoke(this, args);
+            return args.Handled;
+        }
+
+        /// <summary>
+        /// Raises the CustomDrawColumnHeader event.
+        /// </summary>
+        internal bool OnCustomDrawColumnHeader(Graphics g, Rectangle bounds, BeepTreeColumn column, int columnIndex, Action defaultDraw)
+        {
+            if (CustomDrawColumnHeader == null) return false;
+            var args = new BeepTreeCustomDrawColumnHeaderEventArgs(g, bounds, column, columnIndex, defaultDraw);
+            CustomDrawColumnHeader.Invoke(this, args);
+            return args.Handled;
+        }
+
+        #endregion
+
+        #region Breadcrumb Navigation
+
+        /// <summary>
+        /// Occurs when a breadcrumb item is clicked.
+        /// </summary>
+        public event EventHandler<BeepMouseEventArgs> BreadcrumbClicked;
+
+        /// <summary>
+        /// Navigates to the specified node in the breadcrumb path.
+        /// </summary>
+        public void NavigateToBreadcrumbItem(SimpleItem node)
+        {
+            if (node == null)
+                return;
+
+            // Select the node
+            SelectedNode = node;
+
+            // Ensure all ancestors are expanded
+            var current = node.ParentItem;
+            while (current != null)
+            {
+                current.IsExpanded = true;
+                current = current.ParentItem;
+            }
+
+            RebuildVisible();
+            UpdateScrollBars();
+            ScrollToNode(node);
+            Invalidate();
+
+            BreadcrumbClicked?.Invoke(this, new BeepMouseEventArgs("BreadcrumbClick", node));
         }
 
         #endregion

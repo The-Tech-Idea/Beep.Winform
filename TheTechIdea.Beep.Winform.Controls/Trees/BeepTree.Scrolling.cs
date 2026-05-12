@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -49,11 +50,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Updates the scrollbar positions, visibility, and ranges based on content size.
         /// </summary>
+        private bool _isUpdatingScrollBars;
+
         internal void UpdateScrollBars()
         {
+            if (_isUpdatingScrollBars)
+                return;
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
+            _isUpdatingScrollBars = true;
+            try
+            {
             // Ensure DrawingRect is current before checking dimensions
             UpdateDrawingRect();
 
@@ -113,7 +121,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 availH -= hBarH;
             }
 
-            // Apply visibility
+            // Apply visibility with layout suspension to reduce flicker
+            _verticalScrollBar.SuspendLayout();
+            _horizontalScrollBar.SuspendLayout();
+            
             if (_verticalScrollBar.Visible != needsV)
                 _verticalScrollBar.Visible = needsV;
             if (_horizontalScrollBar.Visible != needsH)
@@ -179,6 +190,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _xOffset = 0;
             }
+            
+            _verticalScrollBar.ResumeLayout(true);
+            _horizontalScrollBar.ResumeLayout(true);
+            }
+            finally
+            {
+                _isUpdatingScrollBars = false;
+            }
         }
 
         #endregion
@@ -220,6 +239,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _yOffset = sb.Value;
             }
+
+            // Optimize: update viewport layout for virtualization
+            if (VirtualizeLayout && _layoutHelper != null)
+            {
+                _layoutHelper.UpdateViewportLayout();
+            }
+
             try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
@@ -235,6 +261,75 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
+        }
+
+        #endregion
+
+        #region Smooth Scrolling
+
+        /// <summary>
+        /// Gets or sets whether smooth scrolling is enabled.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, scrolling is animated smoothly.")]
+        [DefaultValue(false)]
+        public bool EnableSmoothScrolling { get; set; } = false;
+
+        private Timer _smoothScrollTimer;
+        private float _smoothScrollTargetY;
+        private float _smoothScrollCurrentY;
+        private const float SMOOTH_SCROLL_SPEED = 0.2f;
+
+        /// <summary>
+        /// Scrolls to the specified Y position with smooth animation.
+        /// </summary>
+        public void SmoothScrollTo(int targetY)
+        {
+            if (!EnableSmoothScrolling)
+            {
+                ScrollBy(0, targetY - _yOffset);
+                return;
+            }
+
+            _smoothScrollTargetY = targetY;
+            _smoothScrollCurrentY = _yOffset;
+
+            if (_smoothScrollTimer == null)
+            {
+                _smoothScrollTimer = new Timer { Interval = 16 };
+                _smoothScrollTimer.Tick += SmoothScrollTimer_Tick;
+            }
+
+            _smoothScrollTimer.Start();
+        }
+
+        private void SmoothScrollTimer_Tick(object sender, EventArgs e)
+        {
+            float diff = _smoothScrollTargetY - _smoothScrollCurrentY;
+
+            if (Math.Abs(diff) < 1f)
+            {
+                _smoothScrollCurrentY = _smoothScrollTargetY;
+                _smoothScrollTimer.Stop();
+            }
+            else
+            {
+                _smoothScrollCurrentY += diff * SMOOTH_SCROLL_SPEED;
+            }
+
+            int newY = (int)_smoothScrollCurrentY;
+            if (newY != _yOffset)
+            {
+                _yOffset = newY;
+                if (_verticalScrollBar?.Visible == true)
+                {
+                    _verticalScrollBar.Value = Math.Max(_verticalScrollBar.Minimum,
+                        Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange, newY));
+                }
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                Invalidate();
+            }
         }
 
         #endregion
@@ -316,6 +411,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             Invalidate();
+        }
+
+        #endregion
+
+        #region Scroll By Offset
+
+        /// <summary>
+        /// Scrolls the tree by the specified delta amounts.
+        /// </summary>
+        internal void ScrollBy(int deltaX, int deltaY)
+        {
+            if (deltaX != 0 && _horizontalScrollBar?.Visible == true)
+            {
+                int newX = Math.Max(_horizontalScrollBar.Minimum,
+                    Math.Min(_horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange, _xOffset + deltaX));
+                if (newX != _xOffset)
+                {
+                    _xOffset = newX;
+                    _horizontalScrollBar.Value = newX;
+                }
+            }
+
+            if (deltaY != 0 && _verticalScrollBar?.Visible == true)
+            {
+                int newY = Math.Max(_verticalScrollBar.Minimum,
+                    Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange, _yOffset + deltaY));
+                if (newY != _yOffset)
+                {
+                    _yOffset = newY;
+                    _verticalScrollBar.Value = newY;
+                }
+            }
+
+            if (deltaX != 0 || deltaY != 0)
+            {
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                Invalidate();
+            }
         }
 
         #endregion

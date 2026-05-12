@@ -66,8 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Duration of the open/close animation in milliseconds.")]
-        [DefaultValue(150)]
-        public int AnimationDurationMs { get; set; } = 150;
+        [DefaultValue(100)]
+        public int AnimationDurationMs { get; set; } = 100;
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
@@ -75,6 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         // Controls whether the popup should close immediately after an item is selected (default true)
         public bool CloseOnSelection { get; set; } = true;
+        // When true, skip fade animation when closing via selection (instant close)
+        public bool SkipAnimationOnSelection { get; set; } = true;
         // Public notifier to allow hosted controls to signal selection changes safely
         public void NotifySelectedItemChanged(SimpleItem selectedItem)
         {

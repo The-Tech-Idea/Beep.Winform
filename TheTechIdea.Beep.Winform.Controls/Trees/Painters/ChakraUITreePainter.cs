@@ -34,6 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (g == null || node.Item == null) return;
 
+ // Delegate to base for multi-column support
+ if (_owner?.IsMultiColumn == true)
+ {
+ base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+ return;
+ }
+
  var oldSmoothing = g.SmoothingMode;
  var oldTextRendering = g.TextRenderingHint;
  g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -46,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  using (var nodePath = CreateRoundedRectangle(nodeBounds, CornerRadius))
  {
- var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+ var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
  g.FillPath(bgBrush, nodePath);
 
  if (isSelected)
@@ -69,32 +76,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  }
  }
 
- // STEP3: Draw Chakra UI chevron toggle
- bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
- if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
- {
- var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
- Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
+  // STEP3: Draw Chakra UI chevron toggle
+  bool hasChildren = node.Item.Children != null && node.Item.Children.Count >0;
+  if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+  {
+  var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
+  Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
- var pen = PaintersFactory.GetPen(chevronColor,2f);
- pen.StartCap = LineCap.Round;
- pen.EndCap = LineCap.Round;
-
- int centerX = toggleRect.Left + toggleRect.Width /2;
- int centerY = toggleRect.Top + toggleRect.Height /2;
- int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
- if (node.Item.IsExpanded)
- {
- g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
- g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
- }
- else
- {
- g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
- g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
- }
- }
+  DrawChevron(g, toggleRect, chevronColor, 2f, node.Item.IsExpanded);
+  }
 
  // STEP4: Draw Chakra UI accessible checkbox
  if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
@@ -112,20 +102,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  g.DrawPath(borderPen, checkPath);
  }
 
- if (node.Item.IsChecked)
- {
- var checkPen = PaintersFactory.GetPen(Color.White,2.5f);
- checkPen.StartCap = LineCap.Round;
- checkPen.EndCap = LineCap.Round;
-
- var points = new Point[]
- {
- new Point(checkRect.X + checkRect.Width /4, checkRect.Y + checkRect.Height /2),
- new Point(checkRect.X + checkRect.Width /2 -1, checkRect.Y + checkRect.Height *3 /4),
- new Point(checkRect.X + checkRect.Width *3 /4 +1, checkRect.Y + checkRect.Height /4)
- };
- g.DrawLines(checkPen, points);
- }
+  if (node.Item.IsChecked)
+  {
+  DrawCheckmark(g, checkRect, Color.White, 2.5f);
+  }
  }
 
  // STEP5: Draw Chakra UI icon
@@ -139,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  if (node.TextRectContent != Rectangle.Empty)
  {
  var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
  TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
  TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -158,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
  if (isSelected)
  {
- var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+ var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
  g.FillPath(brush, CreateRoundedRectangle(nodeBounds, CornerRadius));
 
  var focusPen = PaintersFactory.GetPen(_theme.AccentColor, FocusRingWidth);
@@ -166,35 +146,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  }
  else if (isHovered)
  {
- var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+ var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
  g.FillPath(hoverBrush, CreateRoundedRectangle(nodeBounds, CornerRadius));
  }
  }
 
- public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
- {
- if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
+  public override void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
+  {
+  if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
 
- Color chevronColor = _theme.TreeForeColor;
- var pen = PaintersFactory.GetPen(chevronColor,2f);
- pen.StartCap = LineCap.Round;
- pen.EndCap = LineCap.Round;
-
- int centerX = toggleRect.Left + toggleRect.Width /2;
- int centerY = toggleRect.Top + toggleRect.Height /2;
- int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
- if (isExpanded)
- {
- g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
- g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
- }
- else
- {
- g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
- g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
- }
- }
+  Color chevronColor = _theme.TreeForeColor;
+  DrawChevron(g, toggleRect, chevronColor, 2f, isExpanded);
+  }
 
  public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
  {
@@ -230,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
  {
  if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
- Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+ Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
  TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
  TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
  }

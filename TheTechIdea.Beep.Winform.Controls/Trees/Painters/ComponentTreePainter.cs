@@ -29,6 +29,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for component tree clarity
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -40,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw component tree background
                 if (isSelected || isHovered)
                 {
-                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
                     g.FillRectangle(bgBrush, nodeBounds);
                 }
 
@@ -159,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    var textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
@@ -178,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: accent background
-                Color selectedColor = _theme.TreeNodeSelectedBackColor;
+                Color selectedColor = GetSelectedBackColor();
                 using (var path = CreateRoundedRectangle(nodeBounds, 3))
                 {
                     using (var brush = new SolidBrush(selectedColor))
@@ -195,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
             else if (isHovered)
             {
-                Color hoverColor = _theme.TreeNodeHoverBackColor;
+                Color hoverColor = GetHoverBackColor();
                 using (var path = CreateRoundedRectangle(nodeBounds, 3))
                 using (var brush = new SolidBrush(hoverColor))
                 {
@@ -312,7 +319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             // Use monospace-Style font for component names if selected
             Font renderFont = isSelected ? new Font("Consolas", font.Size, FontStyle.Bold) : font;

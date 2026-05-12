@@ -21,6 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -31,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP1: Draw standard background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                     g.FillRectangle(bgBrush, nodeBounds);
                 }
@@ -105,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _owner.TextFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }

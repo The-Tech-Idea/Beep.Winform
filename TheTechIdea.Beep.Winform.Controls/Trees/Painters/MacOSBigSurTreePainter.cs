@@ -41,6 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for macOS smooth appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -55,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     using (var bgPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
                     {
                         float alpha = isSelected ? VibrancyAlpha :0.5f;
-                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                        Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                         Color translucentColor = Color.FromArgb((int)(255 * alpha), bgColor);
 
                         var bgBrush = PaintersFactory.GetSolidBrush(translucentColor);
@@ -129,17 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White,2f);
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var points = new Point[]
-                        {
-                            new Point(checkRect.X + checkRect.Width /4, checkRect.Y + checkRect.Height /2),
-                            new Point(checkRect.X + checkRect.Width /2 -1, checkRect.Y + checkRect.Height *2 /3),
-                            new Point(checkRect.X + checkRect.Width *3 /4 +1, checkRect.Y + checkRect.Height /3)
-                        };
-                        g.DrawLines(checkPen, points);
+                        DrawCheckmark(g, checkRect, Color.White, 2f);
                     }
                 }
 
@@ -154,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     var renderFont = _regularFont ?? SystemFonts.DefaultFont;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
@@ -176,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    Color fillColor = Color.FromArgb((int)(255 * VibrancyAlpha), _theme.TreeNodeSelectedBackColor);
+                    Color fillColor = Color.FromArgb((int)(255 * VibrancyAlpha), GetSelectedBackColor());
                     var brush = PaintersFactory.GetSolidBrush(fillColor);
                     g.FillPath(brush, path);
 
@@ -192,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    Color hoverColor = Color.FromArgb((int)(255 *0.5f), _theme.TreeNodeHoverBackColor);
+                    Color hoverColor = Color.FromArgb((int)(255 *0.5f), GetHoverBackColor());
                     var hoverBrush = PaintersFactory.GetSolidBrush(hoverColor);
                     g.FillPath(hoverBrush, path);
                 }
@@ -281,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             var renderFont = _regularFont ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,

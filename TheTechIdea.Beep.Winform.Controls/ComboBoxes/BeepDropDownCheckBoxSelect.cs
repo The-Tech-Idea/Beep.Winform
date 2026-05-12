@@ -13,7 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Icons;
@@ -29,7 +29,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
     {
         private readonly List<SimpleItem> _items = new List<SimpleItem>();
         private readonly List<SimpleItem> _selected = new List<SimpleItem>();
-        private IComboBoxPopupHost _popupHost;
         private string _popupSearchText = string.Empty;
         private bool _popupRefreshQueued;
         private bool _multiSelectCommitQueued;
@@ -185,10 +184,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                         SelectionChanged?.Invoke(this, EventArgs.Empty);
                         SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(si));
                         Invalidate();
-                        if (_popupHost != null && _popupHost.IsVisible)
+                        // Refresh dropdown if open
+                        if (BeepContextMenu != null && BeepContextMenu.Visible)
                         {
-                            var model = BuildPopupModel(string.Empty);
-                            _popupHost.UpdateModel(model);
+                            RefreshDropdownItems();
                         }
                     }
                     return;
@@ -372,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
 
         private void TogglePopup()
         {
-            if (_popupHost != null && _popupHost.IsVisible)
+            if (BeepContextMenu != null && BeepContextMenu.Visible)
             {
                 ClosePopup();
                 return;
@@ -382,107 +381,86 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
 
         private void ShowPopup()
         {
-            if (_popupHost != null) ClosePopup();
-
+            ClosePopup();
             _popupSearchText = string.Empty;
-            _popupHost = CreatePopupHostForType(ComboBoxType);
-            _popupHost.RowCommitted += PopupHost_RowCommitted;
-            _popupHost.PopupClosed += PopupHost_PopupClosed;
-            _popupHost.SearchTextChanged += PopupHost_SearchTextChanged;
 
-            var model = BuildPopupModel(_popupSearchText);
+            // Configure inherited BeepContextMenu (same as MenuBar)
+            if (BeepContextMenu == null || BeepContextMenu.IsDisposed)
+            {
+                if (BeepContextMenu != null) BeepContextMenu.Dispose();
+                BeepContextMenu = new BeepContextMenu();
+            }
+            
+            BeepContextMenu.MenuItems.Clear();
+            foreach (var item in _items)
+            {
+                item.IsChecked = _selected.Exists(x => IsSameSimpleItem(x, item));
+                BeepContextMenu.MenuItems.Add(item);
+            }
 
-            _popupHost.ShowPopup(this, model, new Rectangle(0, 0, Width, Height));
+            BeepContextMenu.MultiSelect = true;
+            BeepContextMenu.ShowCheckBox = true;
+            BeepContextMenu.ShowSearchBox = true;
+            BeepContextMenu.ShowImage = true;
+            BeepContextMenu.ShowSeparators = false;
+            BeepContextMenu.Theme = this.Theme;
+            BeepContextMenu.DestroyOnClose = true;
+            BeepContextMenu.CloseOnFocusLost = true;
+            BeepContextMenu.EnableAnimations = false;  // No fade animation for dropdown (instant show)
+
+            // Wire events fresh each time
+            BeepContextMenu.ItemClicked -= OnMenuItemClicked;
+            BeepContextMenu.ItemClicked += OnMenuItemClicked;
+            BeepContextMenu.MenuClosed -= OnMenuClosed;
+            BeepContextMenu.MenuClosed += OnMenuClosed;
+
+            Point screenLocation = this.PointToScreen(new Point(0, Height));
+            BeepContextMenu.Width = Width;
+            BeepContextMenu.RecalculateSize();
+            BeepContextMenu.Show(screenLocation, this);
         }
 
-        private void PopupHost_RowCommitted(object sender, ComboBoxRowCommittedEventArgs e)
+        private void OnMenuItemClicked(object sender, MenuItemEventArgs e)
         {
-            if (e.Row == null || e.Row.SourceItem == null) return;
+            if (e.Item == null) return;
 
-            var item = e.Row.SourceItem;
-            bool newlyChecked = e.Row.IsChecked;
-
+            bool newlyChecked = !e.Item.IsChecked;
+            
             if (MaxSelection > 0 && _selected.Count >= MaxSelection && newlyChecked)
             {
-                // Enforce max selection limit
-                return;
+                return; // Enforce max selection limit
             }
 
-            QueuePopupSelectionToggle(item, newlyChecked);
+            QueuePopupSelectionToggle(e.Item, newlyChecked);
         }
 
-        private void PopupHost_SearchTextChanged(object sender, ComboBoxSearchChangedEventArgs e)
+        private void OnMenuClosed(object sender, BeepContextMenuClosedEventArgs e)
         {
-            if (_popupHost == null)
-            {
-                return;
-            }
-
-            _popupSearchText = e?.SearchText ?? string.Empty;
-            var model = BuildPopupModel(_popupSearchText);
-            _popupHost.UpdateModel(model);
-        }
-
-        private void PopupHost_PopupClosed(object sender, ComboBoxPopupClosedEventArgs e)
-        {
-            if (_popupHost != null)
-            {
-                _popupHost.RowCommitted -= PopupHost_RowCommitted;
-                _popupHost.PopupClosed -= PopupHost_PopupClosed;
-                _popupHost.SearchTextChanged -= PopupHost_SearchTextChanged;
-                _popupHost = null;
-            }
             _popupSearchText = string.Empty;
             Invalidate();
         }
 
         private void ClosePopup()
         {
-            if (_popupHost != null)
+            if (BeepContextMenu != null && !BeepContextMenu.IsDisposed)
             {
-                _popupHost.ClosePopup(false);
-                _popupHost = null;
+                BeepContextMenu.Close();
             }
             _popupSearchText = string.Empty;
         }
 
-        private static IComboBoxPopupHost CreatePopupHostForType(ComboBoxType type)
-            => ComboBoxTypeRegistry.CreatePopupHost(type);
-
-        private ComboBoxPopupModel BuildPopupModel(string searchText)
+        private void RefreshDropdownItems()
         {
-            return ComboBoxPopupModelBuilder.Build(
-                _items,
-                _selected,
-                null,
-                searchText,
-                ComboBoxType,
-                true,
-                true,
-                false,
-                showOptionDescription: true,
-                showStatusIcons: true,
-                emptyStateText: Placeholder);
-        }
-
-        private void SchedulePopupModelRefresh()
-        {
-            if (_popupHost == null || _popupRefreshQueued || IsDisposed)
+            if (BeepContextMenu == null || BeepContextMenu.IsDisposed || !BeepContextMenu.Visible) return;
+            
+            BeepContextMenu.MenuItems.Clear();
+            foreach (var item in _items)
             {
-                return;
+                item.IsChecked = _selected.Exists(x => IsSameSimpleItem(x, item));
+                BeepContextMenu.MenuItems.Add(item);
             }
-
-            _popupRefreshQueued = true;
-            BeginInvoke(new Action(() =>
-            {
-                _popupRefreshQueued = false;
-                if (_popupHost == null)
-                {
-                    return;
-                }
-
-                _popupHost.UpdateModel(BuildPopupModel(_popupSearchText));
-            }));
+            BeepContextMenu.RecalculateSize();
+            BeepContextMenu.Invalidate();
         }
 
         private void QueuePopupSelectionToggle(SimpleItem item, bool newlyChecked)
@@ -542,7 +520,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
                 }
                 else
                 {
-                    SchedulePopupModelRefresh();
+                    RefreshDropdownItems();
                 }
             }));
         }

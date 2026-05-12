@@ -30,6 +30,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Figma appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -50,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     using (var cardPath = CreateRoundedRectangle(cardBounds, CornerRadius))
                     {
                         // Fill background
-                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                        var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
                         g.FillPath(bgBrush, cardPath);
 
                         // Border (2px accent on selection, 1px on hover)
@@ -76,18 +83,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                             12);
 
                         Color handleColor = Color.FromArgb(isSelected ? 120 : 80, _theme.TreeForeColor);
-                        var pen = PaintersFactory.GetPen(handleColor, 1.5f);
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
+                        using (var pen = (Pen)PaintersFactory.GetPen(handleColor, 1.5f).Clone())
+                        {
+                            pen.StartCap = LineCap.Round;
+                            pen.EndCap = LineCap.Round;
 
-                        // Three horizontal lines (drag handle)
-                        int y1 = handleRect.Top;
-                        int y2 = handleRect.Top + 4;
-                        int y3 = handleRect.Top + 8;
+                            // Three horizontal lines (drag handle)
+                            int y1 = handleRect.Top;
+                            int y2 = handleRect.Top + 4;
+                            int y3 = handleRect.Top + 8;
 
-                        g.DrawLine(pen, handleRect.Left, y1, handleRect.Right, y1);
-                        g.DrawLine(pen, handleRect.Left, y2, handleRect.Right, y2);
-                        g.DrawLine(pen, handleRect.Left, y3, handleRect.Right, y3);
+                            g.DrawLine(pen, handleRect.Left, y1, handleRect.Right, y1);
+                            g.DrawLine(pen, handleRect.Left, y2, handleRect.Right, y2);
+                            g.DrawLine(pen, handleRect.Left, y3, handleRect.Right, y3);
+                        }
                     }
 
                     // STEP 3: Draw Figma triangle toggle
@@ -209,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     if (node.TextRectContent != Rectangle.Empty)
                     {
                         var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                        Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                        Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                         TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                     }
@@ -231,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Selected: card with accent border
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
+                    using (var brush = new SolidBrush(GetSelectedBackColor()))
                     {
                         g.FillPath(brush, path);
                     }
@@ -248,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle card
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
+                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -404,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             // Figma uses Inter font (Segoe UI fallback)
             Font renderFont = new Font("Segoe UI", font.Size, FontStyle.Regular);

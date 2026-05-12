@@ -1,5 +1,4 @@
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
 
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
 {
@@ -22,14 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
                 ComboBoxType.VisualDisplay => new VisualDisplayComboBoxPainter(),
                 _ => new OutlineDefaultComboBoxPainter()
             };
-        }
-
-        internal static IComboBoxPopupHost CreatePopupHost(ComboBoxType type)
-        {
-            // Popup host is now unified and style-driven (FormStyle/ControlStyle/theme),
-            // rather than variant-specific host subclasses.
-            _ = type;
-            return new ComboBoxPopupHostForm();
         }
     }
 }

@@ -31,6 +31,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for infrastructure clarity
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -42,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw infrastructure background
                 if (isSelected || isHovered)
                 {
-                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
                     g.FillRectangle(bgBrush, nodeBounds);
 
                     // STEP 2: Infrastructure border (accent on selection)
@@ -59,26 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
-                    var pen = PaintersFactory.GetPen(isHovered ? _theme.AccentColor : _theme.TreeForeColor, 2f);
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
+                    Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    int centerX = toggleRect.Left + toggleRect.Width / 2;
-                    int centerY = toggleRect.Top + toggleRect.Height / 2;
-                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                    if (node.Item.IsExpanded)
-                    {
-                        // Chevron down (v)
-                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                    }
-                    else
-                    {
-                        // Chevron right (>)
-                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                    }
+                    DrawChevron(g, toggleRect, chevronColor, 2f, node.Item.IsExpanded);
                 }
 
                 // STEP 4: Draw infrastructure checkbox
@@ -115,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    var textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
 
@@ -160,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: use tree-specific selected background color
-                backColor = _theme.TreeNodeSelectedBackColor;
+                backColor = GetSelectedBackColor();
                 using (var pen = new Pen(_theme.AccentColor, 1))
                 {
                     g.DrawRectangle(pen, nodeBounds.X, nodeBounds.Y, nodeBounds.Width - 1, nodeBounds.Height - 1);
@@ -169,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             else if (isHovered)
             {
                 // Hover: use tree-specific hover color
-                backColor = _theme.TreeNodeHoverBackColor;
+                backColor = GetHoverBackColor();
             }
             else
             {
@@ -188,28 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Chevron Style (modern infrastructure UI)
             Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
-            using (var pen = new Pen(chevronColor, 2))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                if (isExpanded)
-                {
-                    // Chevron down (v)
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Chevron right (>)
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
-            }
+            DrawChevron(g, toggleRect, chevronColor, 2f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)

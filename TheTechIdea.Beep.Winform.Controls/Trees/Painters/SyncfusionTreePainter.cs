@@ -41,6 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Syncfusion clean appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -52,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw Syncfusion flat background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                     g.FillRectangle(bgBrush, nodeBounds);
 
@@ -77,26 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    using var pen = (Pen)PaintersFactory.GetPen(arrowColor, 2f).Clone();
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
-
-                    int centerX = toggleRect.Left + toggleRect.Width / 2;
-                    int centerY = toggleRect.Top + toggleRect.Height / 2;
-                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                    if (node.Item.IsExpanded)
-                    {
-                        // Arrow down
-                        g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                        g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                    }
-                    else
-                    {
-                        // Arrow right
-                        g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                        g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                    }
+                    DrawChevron(g, toggleRect, arrowColor, 2f, node.Item.IsExpanded);
                 }
 
                 // STEP 4: Draw Syncfusion clean flat checkbox
@@ -119,17 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Clean checkmark
                     if (node.Item.IsChecked)
                     {
-                        using var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 2f).Clone();
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var points = new Point[]
-                        {
-                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                        };
-                        g.DrawLines(checkPen, points);
+                        DrawCheckmark(g, checkRect, Color.White, 2f);
                     }
                 }
 
@@ -144,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
@@ -165,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: flat with accent bar
-                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                 g.FillRectangle(brush, nodeBounds);
 
                 // Accent bar on left
@@ -181,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             else if (isHovered)
             {
                 // Hover: subtle background
-                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                 g.FillRectangle(hoverBrush, nodeBounds);
             }
         }
@@ -193,26 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Syncfusion arrow Style
             Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-            using var pen = (Pen)PaintersFactory.GetPen(arrowColor, 2f).Clone();
-            pen.StartCap = LineCap.Round;
-            pen.EndCap = LineCap.Round;
-
-            int centerX = toggleRect.Left + toggleRect.Width / 2;
-            int centerY = toggleRect.Top + toggleRect.Height / 2;
-            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-            if (isExpanded)
-            {
-                // Arrow down
-                g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-            }
-            else
-            {
-                // Arrow right
-                g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-            }
+            DrawChevron(g, toggleRect, arrowColor, 2f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -262,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             var renderFont = isSelected ? _boldFont ?? _regularFont : _regularFont;
 

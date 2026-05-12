@@ -41,6 +41,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Fluent Design
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -53,8 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 using (var acrylicPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
                     // Base surface color
-                    Color surfaceColor = isSelected ? _theme.TreeNodeSelectedBackColor :
-                                        isHovered ? _theme.TreeNodeHoverBackColor :
+                    Color surfaceColor = isSelected ? GetSelectedBackColor() :
+                                        isHovered ? GetHoverBackColor() :
                                         Color.Transparent;
 
                     if (isSelected || isHovered)
@@ -91,28 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
 
                     // Draw Fluent-Style chevron
-                    using (var pen = PaintersFactory.GetPen(chevronColor, 1.5f))
-                    {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        if (node.Item.IsExpanded)
-                        {
-                            // Chevron down
-                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                        }
-                        else
-                        {
-                            // Chevron right
-                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                        }
-                    }
+                    DrawChevron(g, toggleRect, chevronColor, 1.5f, node.Item.IsExpanded);
                 }
 
                 // STEP 5: Draw Fluent checkbox
@@ -134,17 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Fluent checkmark
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White, 1.5f);
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var points = new Point[]
-                        {
-                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                        };
-                        g.DrawLines(checkPen, points);
+                        DrawCheckmark(g, checkRect, Color.White, 1.5f);
                     }
                 }
 
@@ -159,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     var renderFont = _regularFont ?? SystemFonts.DefaultFont;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
@@ -183,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
                     // Acrylic base
-                    var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                    var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                     g.FillPath(brush, path);
 
                     // Tint overlay
@@ -200,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle reveal effect
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                    var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                     g.FillPath(hoverBrush, path);
 
                     // Reveal border (subtle)
@@ -225,28 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
 
             // Chevron icon
-            using (var pen = PaintersFactory.GetPen(chevronColor, 1.5f))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                if (isExpanded)
-                {
-                    // Chevron down
-                    g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
-                    g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
-                }
-                else
-                {
-                    // Chevron right
-                    g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
-                    g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
-                }
-            }
+            DrawChevron(g, toggleRect, chevronColor, 1.5f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -297,7 +252,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 g.FillPath(fillBrush, path);
 
                 // Outline
-                using (var pen = PaintersFactory.GetPen(iconColor, 1.5f))
+                var basePen = PaintersFactory.GetPen(iconColor, 1.5f);
+                using (var pen = (Pen)basePen.Clone())
                 {
                     pen.LineJoin = LineJoin.Round;
                     g.DrawPath(pen, path);
@@ -309,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             var renderFont = _regularFont ?? SystemFonts.DefaultFont;
             TextRenderer.DrawText(g, text, renderFont, textRect, textColor,

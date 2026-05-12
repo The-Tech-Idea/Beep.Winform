@@ -34,6 +34,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Bootstrap clean appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -56,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     using (var cardPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
                     {
-                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                        Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                         var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                         g.FillPath(bgBrush, cardPath);
 
@@ -125,17 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Bootstrap checkmark
                     if (node.Item.IsChecked)
                     {
-                        var checkPen = PaintersFactory.GetPen(Color.White, 2f);
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var points = new Point[]
-                        {
-                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                        };
-                        g.DrawLines(checkPen, points);
+                        DrawCheckmark(g, checkRect, Color.White, 2f);
                     }
                 }
 
@@ -150,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -172,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Selected: card with border
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
+                    using (var brush = new SolidBrush(GetSelectedBackColor()))
                     {
                         g.FillPath(brush, path);
                     }
@@ -189,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Hover: subtle card
                 using (var path = CreateRoundedRectangle(nodeBounds, CornerRadius))
                 {
-                    using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
+                    using (var hoverBrush = new SolidBrush(GetHoverBackColor()))
                     {
                         g.FillPath(hoverBrush, path);
                     }
@@ -293,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             // Bootstrap uses system fonts
             Font renderFont = new Font("Segoe UI", font.Size, FontStyle.Regular);

@@ -16,16 +16,20 @@ BeepComboBox (owner-drawn field)
 
   └── IComboBoxPopupHost (dropdown window)
         └── ComboBoxPopupHostForm
-              └── IPopupContentPanel (rows + search + footer)
-                    └── ComboBoxPopupContent (default)
-                    └── CardRowPopupContent, PillGridPopupContent, GroupedSectionsPopupContent,
-                        ChipHeaderPopupContent, DenseAvatarPopupContent, MinimalCleanPopupContent
+              └── BeepComboBoxPopupForm (hosts BeepListBox directly)
+                    ├── BeepListBox (handles scrolling, keyboard nav, PageUp/PageDown)
+                    ├── BeepTextBox (optional search)
+                    └── ComboBoxPopupFooter (optional for multi-select)
 
   └── ComboBoxLayoutEngine (stateless rect calculator)
   └── ComboBoxChipLayoutEngine (chip wrap / overflow)
   └── ComboBoxSearchEngine (prefix / contains / fuzzy filtering)
   └── ComboBoxStateFactory (render state snapshot)
   └── ComboBoxPopupModelBuilder (SimpleItem → popup row model)
+
+Note: All popup content is now handled by BeepListBox with automatic ListBoxType mapping
+from ComboBoxType (via ComboBoxListBoxTypeMapper). This provides consistent behavior
+across all variants with proper scrolling, keyboard navigation, and scrollbar visibility.
 ```
 
 ---
@@ -34,15 +38,17 @@ BeepComboBox (owner-drawn field)
 
 | Variant | Painter | Popup | Best For |
 |---------|---------|-------|----------|
-| **OutlineDefault** | 1px border, 6px radius, hover border tint | Clean rows, checkmark selected | Standard single-select dropdown |
-| **OutlineSearchable** | Same as Outline + magnifying-glass icon | Search box auto-focused, highlight matches | Typeahead / autocomplete |
-| **FilledSoft** | Subtle tinted fill, bottom underline | Card-style rows, warm hover | Material-style forms |
-| **RoundedPill** | Full pill radius (height/2) | Highly rounded popup, search at bottom | iOS / modern picker aesthetic |
-| **SegmentedTrigger** | Body + accent trigger zone | Accent category headers, row separators | Split-button / multi-level |
-| **MultiChipCompact** | Chips in field, +N overflow | Checkbox rows, select-all/clear-all footer | Multi-select tags |
-| **MultiChipSearch** | Chips + inline text cursor | Search + chip summary strip + checkbox rows | Searchable multi-select |
-| **DenseList** | Tight padding, 4px radius, 32px button | Compact 28px rows, keyboard bar focus | Data-dense tables |
-| **MinimalBorderless** | Transparent chrome, ghost underline | Shadow-only popup, no checkmark | Inline-edit in lists |
+| **OutlineDefault** | 1px border, 6px radius, hover border tint | ListBoxType.Outlined, clean rows | Standard single-select dropdown |
+| **OutlineSearchable** | Same as Outline + magnifying-glass icon | ListBoxType.SearchableList, search box auto-focused | Typeahead / autocomplete |
+| **FilledSoft** | Subtle tinted fill, bottom underline | ListBoxType.Filled, card-style rows | Material-style forms |
+| **RoundedPill** | Full pill radius (height/2) | ListBoxType.Rounded, highly rounded popup | iOS / modern picker aesthetic |
+| **SegmentedTrigger** | Body + accent trigger zone | ListBoxType.NavigationRail, accent category headers | Split-button / multi-level |
+| **MultiChipCompact** | Chips in field, +N overflow | ListBoxType.ChipStyle, checkbox rows | Multi-select tags |
+| **MultiChipSearch** | Chips + inline text cursor | ListBoxType.ChipStyle + search, chip summary strip | Searchable multi-select |
+| **DenseList** | Tight padding, 4px radius, 32px button | ListBoxType.Compact, compact 30px rows | Data-dense tables |
+| **MinimalBorderless** | Transparent chrome, ghost underline | ListBoxType.Borderless, shadow-only popup | Inline-edit in lists |
+
+**Custom ListBoxType**: Use `DropdownListBoxType` property on BeepComboBox to override the default mapping.
 
 ---
 
@@ -63,21 +69,17 @@ BeepComboBox (owner-drawn field)
 |-----|--------|
 | ↑ / ↓ | Move focus (or open popup) |
 | Home / End | First / last row |
-| PageUp / PageDown | Jump 6 rows |
+| PageUp / PageDown | Jump by visible page size (BeepListBox handles this correctly) |
 | Enter | Commit focused row |
 | Escape | Close without commit |
 | Backspace / Delete | Remove last chip (multi-select) |
 | Typeahead | Jump to first matching item (single-select, 700ms buffer) |
 
-### Accessibility
-- `AccessibleRole = ComboBox`
-- `AccessibleName` / `AccessibleDescription` set on init
-- `AccessibilityNotifyClients` on open/close state change
-
-### Theme & DPI
-- All colors/fonts resolved via `ComboBoxThemeTokens` from active `BeepTheme`.
-- `ScaleLogicalX/Y` helpers for 125%, 150%, 200% DPI.
-- RTL support via `MirrorRect` in layout and paint pipelines.
+### Scrollbar Behavior
+- BeepListBox's built-in BeepScrollBar handles scrolling correctly
+- Scrollbar only appears when content exceeds viewport
+- No "Page Up/Down" text is shown (custom BeepScrollBar is graphical only)
+- PageUp/PageDown correctly moves by visible items
 
 ---
 
@@ -130,6 +132,15 @@ var combo = new BeepComboBox
 };
 ```
 
+### Custom ListBoxType for popup
+```csharp
+var combo = new BeepComboBox
+{
+    ComboBoxType = ComboBoxType.OutlineDefault,
+    DropdownListBoxType = ListBoxType.CommandList  // Override default ListBoxType.Outlined
+};
+```
+
 ### Programmatically scroll to an item (chip click)
 ```csharp
 // Clicking a chip body (not the ×) automatically opens the popup
@@ -141,11 +152,14 @@ var combo = new BeepComboBox
 
 ## Popup Quality Features
 
+- **BeepListBox Integration** — Uses BeepListBox for all popup content, providing consistent scrolling and keyboard navigation
 - **Shadow** — configurable depth (light/medium/heavy) per profile.
 - **Corner radius** — matches field variant (6–16px).
-- **Fade animation** — 150ms ease-out cubic open/close via `BeepPopupForm.Opacity`.
-- **Row hover transition** — 100ms smooth background color blend per row.
+- **Fade animation** — 100ms ease-out cubic open/close via `BeepPopupForm.Opacity`.
+- **Row hover transition** — 100ms smooth background color blend per row (handled by BeepListBox painter).
 - **Footer** — themed Apply/Cancel + Select-all/Clear-all + selected count badge.
+- **Correct PageUp/PageDown** — Uses BeepListBox's viewport height for accurate page sizing.
+- **No scrollbar text issues** — BeepScrollBar is purely graphical with no text labels.
 
 ---
 
@@ -158,7 +172,7 @@ ComboBoxes/
   BeepComboBox.Drawing.cs    — DrawContent, Draw(g, rect), painter factory
   BeepComboBox.Events.cs     — mouse, keyboard, process dialog key
   BeepComboBox.Methods.cs    — Show/Close/ToggleDropdown, inline editor, search
-  BeepComboBox.Properties.cs — designer-visible properties
+  BeepComboBox.Properties.cs — designer-visible properties (includes DropdownListBoxType)
   BeepDropDownCheckBoxSelect.cs — standalone multi-select control
   Helpers/
     ComboBoxLayoutEngine.cs       — stateless rect calculator
@@ -169,32 +183,36 @@ ComboBoxes/
     ComboBoxRenderState.cs        — 22-field immutable state
     ComboBoxPopupModel.cs         — row kinds + model
     ComboBoxVisualTokens.cs       — per-variant geometry tokens
+    ComboBoxListBoxTypeMapper.cs  — maps ComboBoxType → ListBoxType for popup
     BeepComboBoxHelper.cs         — text measurement, color helpers, item lookup
   Painters/
     ComboBoxFieldPainterBase.cs              — base field painting (bg, border, text, image, chips, spinner, skeleton)
     DesignSystemComboBoxFieldPainterBase.cs  — adds filled/segmented/borderless/search overrides
-    ComboBoxChipPainter.cs                 — chip bg, text, close button, +N badge
+    ComboBoxChipPainter.cs                   — chip bg, text, close button, +N badge
     OutlineDefaultComboBoxPainter.cs         — 15-line variant overrides
     ... (8 more variant painters)
   Popup/
     IComboBoxPopupHost.cs            — host interface
-    IPopupContentPanel.cs            — content panel interface
-    ComboBoxPopupHostForm.cs         — default host wiring form + content + placement
-    ComboBoxPopupContent.cs          — default rows + search + footer + keyboard nav
+    ComboBoxPopupHostForm.cs         — default host using BeepComboBoxPopupForm
+    BeepComboBoxPopupForm.cs         — NEW: simplified popup form hosting BeepListBox directly
     ComboBoxPopupRow.cs              — per-row paint + hover animation + commit
     ComboBoxPopupFooter.cs           — Apply/Cancel/SelectAll/ClearAll buttons
     ComboBoxPopupPlacementHelper.cs  — below/above flip + viewport clamp
     ComboBoxPopupHostProfile.cs      — per-variant popup settings
-    *PopupHostForm.cs (9 files)      — one per variant, overrides CreateProfile/CreateContentPanel
-    *PopupContent.cs (6 files)       — specialized content panels
+    ComboBoxThemeTokens.cs           — theme colors for popup rows
 ```
+
+**Note**: Legacy popup content files (ComboBoxPopupContent, DenseAvatarPopupContent, ChipHeaderPopupContent, etc.) 
+have been removed. All popup content is now handled by BeepListBox with automatic ListBoxType mapping.
 
 ---
 
-## Recent Changes (2026-04-23)
+## Recent Changes (2026-05-11)
 
-- Added `ChipBodyRects` + chip-click → popup scroll-to-item.
-- Migrated `UpdateLayout()` from `BeepComboBoxHelper.CalculateLayout` to `ComboBoxLayoutEngine.Compute` for single-source-of-truth.
-- Removed dead `CalculateLayout` from `BeepComboBoxHelper`.
-- Verified `BeepDropDownCheckBoxSelect` has no legacy popup code.
-- Updated `BeepPopupForm` open/close fade animation (150ms ease-out cubic) and `ComboBoxPopupRow` hover transition (100ms blend).
+- **Rebuilt popup system** — Replaced legacy multi-content-panel system with single BeepComboBoxPopupForm hosting BeepListBox
+- **Fixed PageUp/PageDown** — Now correctly uses BeepListBox viewport height for accurate page sizing
+- **Fixed scrollbar issues** — No more "Page Up/Down" text appearing; BeepScrollBar is graphical only
+- **Added DropdownListBoxType property** — Allows overriding the default ListBoxType mapping for any ComboBoxType
+- **Deleted legacy popup content files** — DenseAvatarPopupContent, ChipHeaderPopupContent, MinimalCleanPopupContent, CardRowPopupContent, GroupedSectionsPopupContent, PillGridPopupContent, ComboBoxPopupContent, ComboBoxListBoxPopupContent, IPopupContentPanel
+- **Simplified architecture** — Single BeepComboBoxPopupForm handles all popup content via BeepListBox
+- **Fade animation** — Reduced to 100ms for faster popup open/close

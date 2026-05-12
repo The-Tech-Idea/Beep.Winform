@@ -28,6 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Telerik polished appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -44,14 +51,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     if (isSelected)
                     {
                         // Selected: gradient with glass effect (light to darker)
-                        topColor = ShiftLuminance(_theme.TreeNodeSelectedBackColor, 0.1f);
-                        bottomColor = _theme.TreeNodeSelectedBackColor;
+                        topColor = ShiftLuminance(GetSelectedBackColor(), 0.1f);
+                        bottomColor = GetSelectedBackColor();
                     }
                     else
                     {
                         // Hover: subtle glass gradient
-                        topColor = ShiftLuminance(_theme.TreeNodeHoverBackColor, 0.05f);
-                        bottomColor = _theme.TreeNodeHoverBackColor;
+                        topColor = ShiftLuminance(GetHoverBackColor(), 0.05f);
+                        bottomColor = GetHoverBackColor();
                     }
 
                     using (var gradientBrush = new LinearGradientBrush(
@@ -144,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
@@ -200,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         public override void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             TextRenderer.DrawText(g, text, _regularFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 

@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         /// <summary>
         /// Paint the checkbox for a node.
         /// </summary>
-        void PaintCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isHovered);
+        void PaintCheckbox(Graphics g, Rectangle checkRect, bool isChecked, bool isIndeterminate, bool isHovered);
 
         /// <summary>
         /// Paint the icon for a node.
@@ -53,5 +53,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         /// Calculate the preferred row height for a node.
         /// </summary>
         int GetPreferredRowHeight(SimpleItem item, Font font);
+
+        /// <summary>
+        /// Paint the column headers row.
+        /// </summary>
+        void PaintColumnHeaders(Graphics g, Rectangle headersBounds, BeepTreeColumnCollection columns);
+
+        /// <summary>
+        /// Paint a single cell in multi-column mode.
+        /// </summary>
+        void PaintCell(Graphics g, Rectangle cellRect, string text, Font font, BeepTreeColumn column, bool isSelected, bool isHovered);
+
+        /// <summary>
+        /// Paint grid lines between columns and rows.
+        /// </summary>
+        void PaintGridLines(Graphics g, Rectangle bounds, BeepTreeColumnCollection columns, int rowCount, int rowHeight);
     }
 }

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Multi-select chip field — synced with <see cref="Popup.ChipHeaderPopupContent"/>.
+    /// Multi-select chip field — synced with BeepListBox (ListBoxType.ChipStyle).
     /// Popup shows: selected-chips area at top, dashed separator, checkbox list below.
     /// Field echoes: inline chips via ChipPainter, dashed separator line below chips,
     /// count badge matching popup chip accent, focus ring using FocusBorderColor.

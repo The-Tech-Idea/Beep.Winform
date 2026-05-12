@@ -36,6 +36,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -46,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // Background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                     using (var nodePath = CreateRoundedRectangle(nodeBounds, CornerRadius))
                     {
@@ -74,24 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 {
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color arrowColor = _theme.TreeForeColor;
-                    var pen = PaintersFactory.GetPen(arrowColor,1.5f);
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
-
-                    int centerX = toggleRect.Left + toggleRect.Width /2;
-                    int centerY = toggleRect.Top + toggleRect.Height /2;
-                    int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
-                    if (node.Item.IsExpanded)
-                    {
-                        g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
-                        g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
-                    }
-                    else
-                    {
-                        g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
-                        g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
-                    }
+                    DrawChevron(g, toggleRect, arrowColor, 1.5f, node.Item.IsExpanded);
                 }
 
                 // Checkbox
@@ -150,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     var renderFont = isSelected ? new Font(_regularFont, _regularFont.Style | FontStyle.Bold) : _regularFont;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -171,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 var path = CreateRoundedRectangle(nodeBounds, CornerRadius);
-                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                 g.FillPath(brush, path);
 
                 Rectangle indicator = new Rectangle(nodeBounds.Left, nodeBounds.Top + nodeBounds.Height /4, IndicatorWidth, nodeBounds.Height /2);
@@ -181,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             else if (isHovered)
             {
                 var path = CreateRoundedRectangle(nodeBounds, CornerRadius);
-                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                 g.FillPath(hoverBrush, path);
 
                 Rectangle indicator = new Rectangle(nodeBounds.Left, nodeBounds.Top + nodeBounds.Height /3, IndicatorWidth /2, nodeBounds.Height /3);
@@ -195,24 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (!hasChildren || toggleRect.Width <=0 || toggleRect.Height <=0) return;
 
             Color arrowColor = _theme.TreeForeColor;
-            var pen = PaintersFactory.GetPen(arrowColor,1.5f);
-            pen.StartCap = LineCap.Round;
-            pen.EndCap = LineCap.Round;
-
-            int centerX = toggleRect.Left + toggleRect.Width /2;
-            int centerY = toggleRect.Top + toggleRect.Height /2;
-            int size = Math.Min(toggleRect.Width, toggleRect.Height) /3;
-
-            if (isExpanded)
-            {
-                g.DrawLine(pen, centerX - size, centerY - size /2, centerX, centerY + size /2);
-                g.DrawLine(pen, centerX, centerY + size /2, centerX + size, centerY - size /2);
-            }
-            else
-            {
-                g.DrawLine(pen, centerX - size /2, centerY - size, centerX + size /2, centerY);
-                g.DrawLine(pen, centerX + size /2, centerY, centerX - size /2, centerY + size);
-            }
+            DrawChevron(g, toggleRect, arrowColor, 1.5f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -250,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <=0 || textRect.Height <=0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             TextRenderer.DrawText(g, text, _regularFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }

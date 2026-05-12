@@ -38,6 +38,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for Vercel clean appearance
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -49,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw Vercel flat background
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                     g.FillRectangle(bgBrush, nodeBounds);
 
@@ -77,25 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color iconColor = _theme.TreeForeColor;
 
-                    using var pen = (Pen)PaintersFactory.GetPen(iconColor, 1.5f).Clone();
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
-
-                    int centerX = toggleRect.Left + toggleRect.Width / 2;
-                    int centerY = toggleRect.Top + toggleRect.Height / 2;
-                    int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
-
-                    if (node.Item.IsExpanded)
-                    {
-                        // Minus (horizontal line only)
-                        g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                    }
-                    else
-                    {
-                        // Plus (horizontal + vertical)
-                        g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                        g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-                    }
+                    DrawPlusMinus(g, toggleRect, iconColor, 1.5f, node.Item.IsExpanded);
                 }
 
                 // STEP 4: Draw Vercel minimal checkbox
@@ -114,17 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     // Minimalist checkmark
                     if (node.Item.IsChecked)
                     {
-                        using var checkPen = (Pen)PaintersFactory.GetPen(Color.White, 1.5f).Clone();
-                        checkPen.StartCap = LineCap.Round;
-                        checkPen.EndCap = LineCap.Round;
-
-                        var points = new Point[]
-                        {
-                            new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
-                            new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
-                            new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
-                        };
-                        g.DrawLines(checkPen, points);
+                        DrawCheckmark(g, checkRect, Color.White, 1.5f);
                     }
                 }
 
@@ -139,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _monoFont ?? _owner.TextFont, textRect, textColor,
                         TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -159,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: flat with left accent border
-                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                 g.FillRectangle(brush, nodeBounds);
 
                 // Left accent border
@@ -171,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             else if (isHovered)
             {
                 // Hover: very subtle border
-                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                 g.FillRectangle(hoverBrush, nodeBounds);
 
                 using (var pen = new Pen(Color.FromArgb(30, _theme.BorderColor), BorderWidth))
@@ -188,25 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Vercel Style: minimalist plus/minus
             Color iconColor = _theme.TreeForeColor;
 
-            using var pen = (Pen)PaintersFactory.GetPen(iconColor, 1.5f).Clone();
-            pen.StartCap = LineCap.Round;
-            pen.EndCap = LineCap.Round;
-
-            int centerX = toggleRect.Left + toggleRect.Width / 2;
-            int centerY = toggleRect.Top + toggleRect.Height / 2;
-            int size = Math.Min(toggleRect.Width, toggleRect.Height) / 4;
-
-            if (isExpanded)
-            {
-                // Minus (horizontal line)
-                g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-            }
-            else
-            {
-                // Plus (horizontal + vertical)
-                g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-                g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-            }
+            DrawPlusMinus(g, toggleRect, iconColor, 1.5f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -250,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             var fontToUse = _monoFont ?? font;
             TextRenderer.DrawText(g, text, fontToUse, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

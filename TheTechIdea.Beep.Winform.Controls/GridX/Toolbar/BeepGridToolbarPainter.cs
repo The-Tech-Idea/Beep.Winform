@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
@@ -74,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 int iconX = btn.Bounds.X + (int)(4 * state.DpiScale);
                 int iconY = btn.Bounds.Y + (btn.Bounds.Height - iconSize) / 2;
                 var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
-                StyledImagePainter.PaintWithTint(g, iconRect, iconPath, _grid.ToolbarForeColor, 0.8f);
+                PaintToolbarIcon(g, iconRect, iconPath, 0.8f);
 
                 // Draw text label
                 if (!string.IsNullOrEmpty(btn.Label))
@@ -97,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             var iconColor = state.SearchHasFocus ? accentColor : _grid.ToolbarForeColor;
 
             // Center search icon within its rect
-            PaintCenteredIcon(g, state.SearchIconRect, Svgs.Search, iconColor, 0.7f);
+            PaintCenteredIcon(g, state.SearchIconRect, SvgsUIcons.Common.Search, iconColor, 0.7f);
 
             PaintSearchBox(g, state.SearchBoxRect, state.SearchText, state.SearchHasFocus, state.DpiScale);
         }
@@ -131,15 +132,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             var filterColor = state.IsFilterActive ? accentColor : _grid.ToolbarForeColor;
 
             // Paint filter icon centered within its rect
-            PaintCenteredIcon(g, state.FilterButtonRect, SvgsUI.Filter, filterColor,
+            PaintCenteredIcon(g, state.FilterButtonRect, SvgsUIcons.Common.Filter, filterColor,
                 state.IsFilterActive ? 1f : 0.6f);
 
             // Paint advanced/adjustments icon centered within its rect
-            PaintCenteredIcon(g, state.AdvancedButtonRect, SvgsUI.AdjustmentsHorizontal,
+            PaintCenteredIcon(g, state.AdvancedButtonRect, SvgsUIcons.Common.Settings,
                 _grid.ToolbarForeColor, 0.6f);
 
             if (state.IsFilterActive)
-                PaintCenteredIcon(g, state.ClearFilterRect, SvgsUI.X, "clearfilter",
+                PaintCenteredIcon(g, state.ClearFilterRect, SvgsUIcons.Common.Close, "clearfilter",
                     state.HoveredButtonKey == "clearfilter", state.PressedButtonKey == "clearfilter");
 
             if (state.ActiveFilterCount > 0)
@@ -213,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
             var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
 
-            StyledImagePainter.PaintWithTint(g, iconRect, iconPath, _grid.ToolbarForeColor, 0.8f);
+            PaintToolbarIcon(g, iconRect, iconPath, 0.8f);
         }
 
         private void PaintCenteredIcon(Graphics g, Rectangle bounds, string iconPath, Color tint, float opacity)
@@ -226,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
             var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
 
-            StyledImagePainter.PaintWithTint(g, iconRect, iconPath, tint, opacity);
+            PaintToolbarIcon(g, iconRect, iconPath, opacity);
         }
 
         private void PaintSeparators(Graphics g, BeepGridToolbarState state)
@@ -283,16 +284,51 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             return path;
         }
 
+        /// <summary>
+        /// Paints a toolbar icon using theme-aware coloring.
+        /// Uses ImagePainter with DataGridView context so icons pick up GridHeaderForeColor from theme.
+        /// </summary>
+        private void PaintToolbarIcon(Graphics g, Rectangle bounds, string iconPath, float opacity = 0.8f)
+        {
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            var painter = new ImagePainter(iconPath);
+            if (!painter.HasImage)
+            {
+                painter.Dispose();
+                return;
+            }
+
+            // Set up theme-aware coloring
+            var theme = Theme;
+            if (theme != null)
+            {
+                painter.CurrentTheme = theme;
+                painter.ImageEmbededin = ImageEmbededin.DataGridView;
+                painter.ApplyThemeOnImage = true;
+            }
+            painter.Opacity = opacity;
+            
+            // Center icon within bounds at proper icon size
+            int iconSize = (int)(16 * _grid.ToolbarState.DpiScale);
+            int iconX = bounds.X + (bounds.Width - iconSize) / 2;
+            int iconY = bounds.Y + (bounds.Height - iconSize) / 2;
+            var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+
+            painter.DrawImage(g, iconRect);
+            painter.Dispose();
+        }
+
         private string ResolveIconPath(string iconKey)
         {
             return iconKey switch
             {
-                "plus" => SvgsUI.Plus,
-                "edit" => SvgsUI.Edit,
-                "trash" => SvgsUI.Trash,
-                "file_upload" => SvgsUI.FileUpload,
-                "download" => SvgsUI.Download,
-                "print" => Svgs.Print,
+                "plus" => SvgsUIcons.Common.Add,
+                "edit" => SvgsUIcons.Common.Edit,
+                "trash" => SvgsUIcons.Common.Delete,
+                "file_upload" => SvgsUIcons.Common.Upload,
+                "download" => SvgsUIcons.Common.Download,
+                "print" => SvgsUIcons.Devices.Printer,
                 _ => iconKey
             };
         }

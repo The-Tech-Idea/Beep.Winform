@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Painters;
+using TheTechIdea.Beep.Winform.Controls.Trees.Editors;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Images;
@@ -52,14 +53,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 		// Appearance
 		private bool _useScaledFont = false;
 		private bool _useThemeFont = true;
-		private Font _textFont = new Font("Arial", 10);
+		// Note: _textFont is inherited from BaseControl (protected)
 		private TextAlignment _textAlignment = TextAlignment.Left;
 		private bool _showCheckBox = false;
+		private bool _enableThreeStateCheckboxes = false;
 
 		// Behavior/performance
 		private bool _allowMultiSelect = false;
 		private bool _virtualizeLayout = true;
 		private int _virtualizationBufferRows = 100;
+		private bool _enableBackgroundLayout = true;
 
 		// Render helpers (basic placeholders for theme application)
 		private BeepButton _toggleRenderer = new BeepButton();
@@ -72,10 +75,62 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 		// Timers
 		private System.Windows.Forms.Timer _resizeTimer;
+		private System.Windows.Forms.Timer _typeAheadTimer;
 
 		// Phase 3: empty state and filter
 		private string _emptyStateText = "No items to display";
 		private string _filterText = string.Empty;
+
+		// Type-ahead search
+		private string _typeAheadBuffer = string.Empty;
+
+		// Column resizing
+		private bool _isResizingColumn = false;
+		private int _resizingColumnIndex = -1;
+		private int _resizeStartX = 0;
+		private int _resizeStartWidth = 0;
+		private const int RESIZE_HIT_TEST_MARGIN = 4;
+
+		// Drag and drop
+		private BeepTreeDragDropManager _dragDropManager;
+		private bool _allowDragDrop = false;
+
+		// Inline editing
+		private BeepTreeCellEditor _cellEditor;
+		private DateTime _lastClickTime = DateTime.MinValue;
+		private SimpleItem _lastDoubleClickNode = null;
+		private const int SLOW_DOUBLE_CLICK_MIN_MS = 300;
+		private const int SLOW_DOUBLE_CLICK_MAX_MS = 800;
+
+		// Kinetic scrolling
+		private bool _enableKineticScrolling = false;
+		private bool _isKineticScrolling = false;
+		private Point _kineticScrollStartPoint;
+		private int _kineticScrollStartYOffset;
+		private Timer _kineticTimer;
+		private float _kineticVelocityY = 0;
+		private const float KINETIC_FRICTION = 0.9f;
+		private const float KINETIC_MIN_VELOCITY = 1.0f;
+		private const int KINETIC_TIMER_INTERVAL = 16; // ~60 FPS
+
+		// Find panel
+		private BeepTreeFindPanel _findPanel;
+		private List<SimpleItem> _findMatches = new();
+		private int _currentFindIndex = -1;
+
+		// Breadcrumb navigation
+		private bool _showBreadcrumb = false;
+		private int _breadcrumbHeight = 24;
+		private List<Rectangle> _breadcrumbItemRects = new List<Rectangle>();
+		private List<SimpleItem> _breadcrumbItems = new List<SimpleItem>();
+
+		// Animation
+		private BeepTreeAnimationHelper _animationHelper;
+		private bool _enableAnimations = false;
+
+		// Async image loading
+		private BeepTreeAsyncImageLoader _asyncImageLoader;
+		private bool _enableAsyncImageLoading = true;
 		#endregion
 
 		#region Events
@@ -95,6 +150,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 		public event EventHandler<BeepMouseEventArgs> NodeUnchecked;
 	public event EventHandler<BeepMouseEventArgs> NodeAdded;
 	public event EventHandler<BeepMouseEventArgs> NodeDeleted;
+		public event EventHandler<NodesNeededEventArgs> NodesNeeded;
+		public event EventHandler<BeepTreeItemDragEventArgs> ItemDrag;
+		public event EventHandler<BeepTreeDragOverEventArgs> DragOverNode;
+		public event EventHandler<BeepTreeDragDropEventArgs> NodeDragDrop;
+		public event EventHandler<BeepTreeQueryAllowedPositionEventArgs> QueryAllowedPosition;
 		public event EventHandler<BeepMouseEventArgs> NodeMouseEnter;
 		public event EventHandler<BeepMouseEventArgs> NodeMouseLeave;
 		public event EventHandler<BeepMouseEventArgs> NodeMouseHover;
@@ -123,6 +183,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _treeHelper = new BeepTreeHelper(this);
 			_layoutHelper = new BeepTreeLayoutHelper(this, _treeHelper);
 			_treeHitTestHelper = new BeepTreeHitTestHelper(this, _layoutHelper);
+			_dragDropManager = new BeepTreeDragDropManager(this);
+			_cellEditor = new BeepTreeCellEditor(this);
+
+			// Wire up drag drop manager events
+			_dragDropManager.ItemDrag += (s, e) => ItemDrag?.Invoke(this, e);
+			_dragDropManager.DragOver += (s, e) => DragOverNode?.Invoke(this, e);
+			_dragDropManager.DragDrop += (s, e) => NodeDragDrop?.Invoke(this, e);
+			_dragDropManager.QueryAllowedPosition += (s, e) => QueryAllowedPosition?.Invoke(this, e);
 		
 			// Initialize render helpers
 			_toggleRenderer.IsChild = true;
@@ -140,7 +208,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 			MouseHover += OnMouseHoverHandler;
 			MouseEnter += (s, e) => NodeMouseEnter?.Invoke(this, new BeepMouseEventArgs("MouseEnter", null));
 			MouseLeave += (s, e) => NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
-			MouseWheel += (s, e) => NodeMouseWheel?.Invoke(this, new BeepMouseEventArgs("MouseWheel", null));
+			MouseWheel += (s, e) =>
+			{
+				// Perform scrolling
+				int scrollAmount = e.Delta / SystemInformation.MouseWheelScrollDelta * SystemInformation.MouseWheelScrollLines * GetScaledMinRowHeight();
+				_yOffset = Math.Max(0, Math.Min(_yOffset - scrollAmount, _totalContentHeight - GetClientArea().Height));
+				
+				// Update viewport layout for virtualization
+				if (VirtualizeLayout && _layoutHelper != null)
+				{
+					_layoutHelper.UpdateViewportLayout();
+				}
+				
+				try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+				Invalidate();
+				
+				// Fire event
+				NodeMouseWheel?.Invoke(this, new BeepMouseEventArgs("MouseWheel", null));
+			};
 
 		// Debounce timer for resize
 		_resizeTimer = new System.Windows.Forms.Timer { Interval = 50 };
@@ -158,7 +243,51 @@ namespace TheTechIdea.Beep.Winform.Controls
 			_layoutHelper?.SyncFromVisibleNodes(_visibleNodes);
 			UpdateScrollBars();
 			Invalidate();
-		};			// Initialize scrollbars
+		};
+
+		// Type-ahead search timer (resets buffer after 1 second of inactivity)
+		_typeAheadTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+		_typeAheadTimer.Tick += (s, e) =>
+		{
+			_typeAheadTimer.Stop();
+			_typeAheadBuffer = string.Empty;
+		};
+
+		// Kinetic scrolling timer
+		_kineticTimer = new System.Windows.Forms.Timer { Interval = KINETIC_TIMER_INTERVAL };
+		_kineticTimer.Tick += (s, e) =>
+		{
+			if (Math.Abs(_kineticVelocityY) < KINETIC_MIN_VELOCITY)
+			{
+				_kineticTimer.Stop();
+				_isKineticScrolling = false;
+				return;
+			}
+
+			ScrollBy(0, -(int)_kineticVelocityY);
+			_kineticVelocityY *= KINETIC_FRICTION;
+		};
+
+		// Find panel
+		_findPanel = new BeepTreeFindPanel(this);
+		_findPanel.Visible = false;
+		_findPanel.FindNext += (s, e) => FindNext(e.SearchText, e.MatchCase, e.WholeWord);
+		_findPanel.FindPrevious += (s, e) => FindPrevious(e.SearchText, e.MatchCase, e.WholeWord);
+		_findPanel.Closed += (s, e) =>
+		{
+			_findMatches.Clear();
+			_currentFindIndex = -1;
+			Invalidate();
+		};
+		this.Controls.Add(_findPanel);
+
+		// Animation helper
+		_animationHelper = new BeepTreeAnimationHelper(this);
+
+		// Async image loader
+		_asyncImageLoader = new BeepTreeAsyncImageLoader(this);
+
+			// Initialize scrollbars
 			InitializeScrollbars();
 
 			// Initialize painter and build initial layout
@@ -229,8 +358,91 @@ namespace TheTechIdea.Beep.Winform.Controls
 	internal int XOffset => _xOffset;
 	internal int YOffset => _yOffset;
 	internal BeepTreeLayoutHelper LayoutHelper => _layoutHelper;
+	internal BeepTreeHitTestHelper HitTestHelper => _treeHitTestHelper;
 	internal SimpleItem LastHoveredItem => _lastHoveredItem;
 	internal List<NodeInfo> VisibleNodes => _visibleNodes;
+
+	/// <summary>
+	/// Notifies accessibility clients of an event.
+	/// </summary>
+	public new void AccessibilityNotifyClients(AccessibleEvents accEvent, int childID)
+	{
+		base.AccessibilityNotifyClients(accEvent, childID);
+	}
+	#endregion
+
+	#region Disposal
+
+	/// <summary>
+	/// Creates the accessibility object for this tree control.
+	/// </summary>
+	protected override AccessibleObject CreateAccessibilityInstance()
+	{
+		return new BeepTreeAccessibleObject(this);
+	}
+
+	/// <summary>
+	/// Disposes resources used by the tree, including the async image loader.
+	/// </summary>
+	protected override void Dispose(bool disposing)
+	{
+		if (disposing)
+		{
+			// Dispose async image loader
+			_asyncImageLoader?.Dispose();
+			_asyncImageLoader = null;
+
+			// Dispose timers
+			_resizeTimer?.Stop();
+			_resizeTimer?.Dispose();
+			_resizeTimer = null;
+
+			_typeAheadTimer?.Stop();
+			_typeAheadTimer?.Dispose();
+			_typeAheadTimer = null;
+
+			_kineticTimer?.Stop();
+			_kineticTimer?.Dispose();
+			_kineticTimer = null;
+
+			// Dispose render helpers
+			_toggleRenderer?.Dispose();
+			_toggleRenderer = null;
+			_checkRenderer?.Dispose();
+			_checkRenderer = null;
+			_iconRenderer?.Dispose();
+			_iconRenderer = null;
+			_buttonRenderer?.Dispose();
+			_buttonRenderer = null;
+
+			// Dispose drag drop manager
+			_dragDropManager?.Dispose();
+			_dragDropManager = null;
+
+			// Dispose cell editor
+			_cellEditor?.Dispose();
+			_cellEditor = null;
+
+			// Dispose animation helper
+			_animationHelper?.Dispose();
+			_animationHelper = null;
+
+			// Remove and dispose find panel
+			if (_findPanel != null)
+			{
+				Controls.Remove(_findPanel);
+				_findPanel.Dispose();
+				_findPanel = null;
+			}
+
+			// Dispose smooth scroll timer
+			_smoothScrollTimer?.Stop();
+			_smoothScrollTimer?.Dispose();
+			_smoothScrollTimer = null;
+		}
+		base.Dispose(disposing);
+	}
+
 	#endregion
 	}
 
@@ -244,6 +456,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 		public SimpleItem Node { get; }
 
 		public BeepTreeNodeCancelEventArgs(SimpleItem node)
+		{
+			Node = node;
+		}
+	}
+
+	/// <summary>
+	/// Event arguments for the NodesNeeded event, used for on-demand loading.
+	/// </summary>
+	public sealed class NodesNeededEventArgs : EventArgs
+	{
+		/// <summary>The node that needs children loaded.</summary>
+		public SimpleItem Node { get; }
+
+		/// <summary>Set to true if children were loaded.</summary>
+		public bool ChildrenLoaded { get; set; }
+
+		public NodesNeededEventArgs(SimpleItem node)
 		{
 			Node = node;
 		}

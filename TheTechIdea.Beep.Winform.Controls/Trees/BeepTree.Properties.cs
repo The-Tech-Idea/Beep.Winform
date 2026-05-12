@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using TheTechIdea.Beep.Winform.Controls.Trees.Editors;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using System.Drawing.Design;
 
@@ -122,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Text Font displayed in the control.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TextFont
+        public new Font TextFont
         {
             get => _textFont;
             set
@@ -179,6 +180,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RecalculateLayoutCache();
                 UpdateScrollBars();
                 try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether checkboxes support three states (unchecked, checked, indeterminate)
+        /// with automatic cascade behavior to child and parent nodes.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, checkboxes support three states with cascade behavior to children and parents.")]
+        [DefaultValue(false)]
+        public bool EnableThreeStateCheckboxes
+        {
+            get => _enableThreeStateCheckboxes;
+            set
+            {
+                _enableThreeStateCheckboxes = value;
                 Invalidate();
             }
         }
@@ -300,12 +319,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         _lastSelectedNode.IsSelected = true;
                     }
+
+                    // Fire selection events consistently for all selection changes
+                    var args = new BeepMouseEventArgs("SelectionChanged", _lastSelectedNode);
+                    NodeSelected?.Invoke(this, args);
+                    OnSelectedItemChanged(_lastSelectedNode);
+
+                    // Notify accessibility clients (screen readers)
+                    var treeAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
+                    treeAccessibleObject?.NotifySelectionChanged(_lastSelectedNode);
                 }
-                else
+                else if (_lastSelectedNode != null)
                 {
-                    _lastSelectedNode = value;
-                    if (_lastSelectedNode != null)
-                        _lastSelectedNode.IsSelected = true;
+                    // Ensure IsSelected is set even if re-selecting same node
+                    _lastSelectedNode.IsSelected = true;
                 }
             }
         }
@@ -347,6 +374,240 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
+        /// <summary>
+        /// Gets or sets whether drag and drop operations are allowed.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, nodes can be dragged and dropped to reorder or reparent.")]
+        [DefaultValue(false)]
+        public bool AllowDragDrop
+        {
+            get => _allowDragDrop;
+            set
+            {
+                _allowDragDrop = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether inline editing is allowed.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, nodes can be edited inline by pressing F2 or slow double-clicking.")]
+        [DefaultValue(false)]
+        public bool AllowEdit { get; set; } = false;
+
+        /// <summary>
+        /// Gets the collection of conditional formatting rules.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Conditional formatting rules that change row/cell appearance based on values.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public BeepTreeConditionalFormatCollection ConditionalFormats { get; } = new BeepTreeConditionalFormatCollection();
+
+        /// <summary>
+        /// Gets or sets whether to show breadcrumb navigation above the tree.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("If true, shows breadcrumb navigation above the tree showing the path to the selected node.")]
+        [DefaultValue(false)]
+        public bool ShowBreadcrumb
+        {
+            get => _showBreadcrumb;
+            set
+            {
+                _showBreadcrumb = value;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether animations are enabled for expand/collapse and selection.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, enables smooth animations for expand/collapse and selection transitions.")]
+        [DefaultValue(false)]
+        public bool EnableAnimations
+        {
+            get => _enableAnimations;
+            set
+            {
+                _enableAnimations = value;
+                if (!value)
+                {
+                    _animationHelper?.StopAnimation();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the breadcrumb path from root to the selected node.
+        /// </summary>
+        [Browsable(false)]
+        public List<SimpleItem> BreadcrumbPath
+        {
+            get
+            {
+                var path = new List<SimpleItem>();
+                var current = SelectedNode;
+                while (current != null)
+                {
+                    path.Insert(0, current);
+                    current = current.ParentItem;
+                }
+                return path;
+            }
+        }
+
+        #region Theme Overrides
+
+        /// <summary>
+        /// Gets or sets the background color for selected nodes.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color for selected nodes. Set to Empty to use theme default.")]
+        public Color SelectedNodeBackColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the foreground color for selected nodes.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Foreground color for selected nodes. Set to Empty to use theme default.")]
+        public Color SelectedNodeForeColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the background color for hovered nodes.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color for hovered nodes. Set to Empty to use theme default.")]
+        public Color HoverNodeBackColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the foreground color for hovered nodes.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Foreground color for hovered nodes. Set to Empty to use theme default.")]
+        public Color HoverNodeForeColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the color for the focus indicator (dotted line around selected node).
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color for the focus indicator. Set to Empty to use theme default.")]
+        public new Color FocusIndicatorColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the color for column header text.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color for column header text. Set to Empty to use theme default.")]
+        public Color ColumnHeaderForeColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the background color for column headers.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color for column headers. Set to Empty to use theme default.")]
+        public Color ColumnHeaderBackColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the color for grid lines.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color for grid lines. Set to Empty to use theme default.")]
+        public Color GridLineColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the color for the sort indicator in column headers.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color for the sort indicator in column headers. Set to Empty to use theme default.")]
+        public Color SortIndicatorColor { get; set; } = Color.Empty;
+
+        /// <summary>
+        /// Gets or sets the color for the filter indicator in column headers.
+        /// Set to Empty to use the theme default.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color for the filter indicator in column headers. Set to Empty to use theme default.")]
+        public Color FilterIndicatorColor { get; set; } = Color.Empty;
+
+        #endregion
+
+        #region Async Image Loading
+
+        /// <summary>
+        /// Gets or sets whether async image loading from URLs is enabled.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, node images from URLs are loaded asynchronously with a loading placeholder.")]
+        [DefaultValue(true)]
+        public bool EnableAsyncImageLoading
+        {
+            get => _enableAsyncImageLoading;
+            set
+            {
+                _enableAsyncImageLoading = value;
+                if (!value)
+                    _asyncImageLoader?.ClearCache();
+            }
+        }
+
+        /// <summary>
+        /// Gets the async image loader instance for preloading or managing cached images.
+        /// </summary>
+        [Browsable(false)]
+        public BeepTreeAsyncImageLoader AsyncImageLoader => _asyncImageLoader;
+
+        #endregion
+
+        /// <summary>
+        /// Gets or sets whether kinetic (momentum) scrolling is enabled.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, scrolling continues with momentum after mouse drag release.")]
+        [DefaultValue(false)]
+        public bool EnableKineticScrolling
+        {
+            get => _enableKineticScrolling;
+            set
+            {
+                _enableKineticScrolling = value;
+                if (!value && _kineticTimer != null)
+                {
+                    _kineticTimer.Stop();
+                    _isKineticScrolling = false;
+                }
+            }
+        }
         
         #endregion
         
@@ -382,6 +643,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _virtualizationBufferRows = Math.Max(0, value);
                 Invalidate();
             }
+        }
+
+        /// <summary>
+        /// Gets or sets whether background layout calculation is enabled for massive trees.
+        /// When enabled and the tree has more than 10,000 nodes, layout is calculated
+        /// on a background thread to keep the UI responsive.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Performance")]
+        [Description("If true, layout for massive trees (>10,000 nodes) is calculated on a background thread.")]
+        [DefaultValue(true)]
+        public bool EnableBackgroundLayout
+        {
+            get => _enableBackgroundLayout;
+            set => _enableBackgroundLayout = value;
         }
         
         #endregion
@@ -457,6 +733,285 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _filterText = value ?? string.Empty;
                 ApplyFilter();
+            }
+        }
+
+        #endregion
+
+        #region Columns
+
+        private BeepTreeColumnCollection _columns;
+
+        /// <summary>
+        /// Gets the collection of columns for multi-column tree display.
+        /// When columns are present, the tree displays data in a grid-like format
+        /// with column headers and cell values.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The collection of columns for multi-column tree display.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(typeof(BeepTreeColumnCollectionEditor), typeof(UITypeEditor))]
+        public BeepTreeColumnCollection Columns
+        {
+            get
+            {
+                if (_columns == null)
+                {
+                    _columns = new BeepTreeColumnCollection(this);
+                    _columns.CollectionChanged += (s, e) =>
+                    {
+                        RecalculateLayoutCache();
+                        UpdateScrollBars();
+                        Invalidate();
+                    };
+                }
+                return _columns;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the tree is in multi-column mode (has visible columns).
+        /// </summary>
+        [Browsable(false)]
+        public bool IsMultiColumn => Columns != null && Columns.GetVisibleColumns().GetEnumerator().MoveNext();
+
+        /// <summary>
+        /// Gets or sets the height of the column header row.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The height of the column header row in pixels.")]
+        [DefaultValue(24)]
+        public int ColumnHeaderHeight { get; set; } = 24;
+
+        /// <summary>
+        /// Gets or sets whether to show column headers.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Whether to show column headers when in multi-column mode.")]
+        [DefaultValue(true)]
+        public bool ShowColumnHeaders { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether to show grid lines between columns.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Whether to show grid lines between columns and rows.")]
+        [DefaultValue(false)]
+        public bool ShowGridLines { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether selecting a node selects the entire row (true) or just the cell (false).
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Whether selecting a node selects the entire row (true) or just the cell (false).")]
+        [DefaultValue(true)]
+        public bool FullRowSelect { get; set; } = true;
+
+        #endregion
+
+        #region Data Binding
+
+        private object _dataSource;
+        private string _dataMember;
+        private string _keyFieldName;
+        private string _parentFieldName;
+        private string _displayMember;
+        private string _valueMember;
+        private string _imageMember;
+
+        /// <summary>
+        /// Gets or sets the data source for the tree.
+        /// Supports DataTable, BindingList, IList, and other bindable collections.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The data source for the tree. Supports DataTable, BindingList, IList, and other bindable collections.")]
+        [AttributeProvider(typeof(IListSource))]
+        public object DataSource
+        {
+            get => _dataSource;
+            set
+            {
+                if (_dataSource != value)
+                {
+                    _dataSource = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the data member in a complex data source.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The data member in a complex data source (e.g., DataSet table name).")]
+        public string DataMember
+        {
+            get => _dataMember;
+            set
+            {
+                if (_dataMember != value)
+                {
+                    _dataMember = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the field name that uniquely identifies each row (for self-referencing hierarchies).
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The field name that uniquely identifies each row (for self-referencing hierarchies).")]
+        public string KeyFieldName
+        {
+            get => _keyFieldName;
+            set
+            {
+                if (_keyFieldName != value)
+                {
+                    _keyFieldName = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the field name that identifies the parent row (for self-referencing hierarchies).
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The field name that identifies the parent row (for self-referencing hierarchies).")]
+        public string ParentFieldName
+        {
+            get => _parentFieldName;
+            set
+            {
+                if (_parentFieldName != value)
+                {
+                    _parentFieldName = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the field name to display as node text.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The field name to display as node text.")]
+        public string DisplayMember
+        {
+            get => _displayMember;
+            set
+            {
+                if (_displayMember != value)
+                {
+                    _displayMember = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the field name to use as the node value.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The field name to use as the node value.")]
+        public string ValueMember
+        {
+            get => _valueMember;
+            set
+            {
+                if (_valueMember != value)
+                {
+                    _valueMember = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the field name to use for node icons.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The field name to use for node icons.")]
+        public string ImageMember
+        {
+            get => _imageMember;
+            set
+            {
+                if (_imageMember != value)
+                {
+                    _imageMember = value;
+                    OnDataSourceChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the tree is bound to a data source.
+        /// </summary>
+        [Browsable(false)]
+        public bool IsDataBound => _dataSource != null;
+
+        /// <summary>
+        /// Gets or sets whether to load child nodes on demand when expanding.
+        /// When true, the NodesNeeded event is fired when a node is expanded and has no children.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("When true, child nodes are loaded on demand via the NodesNeeded event.")]
+        [DefaultValue(false)]
+        public bool LazyLoad { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets whether the tree is currently loading data.
+        /// </summary>
+        [Browsable(false)]
+        public bool IsLoading { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the text displayed when the tree is loading.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text displayed when the tree is loading data.")]
+        [DefaultValue("Loading...")]
+        public string LoadingText { get; set; } = "Loading...";
+
+        /// <summary>
+        /// Occurs when the data source changes.
+        /// </summary>
+        public event EventHandler DataSourceChanged;
+
+        /// <summary>
+        /// Raises the DataSourceChanged event and rebuilds the tree.
+        /// </summary>
+        protected virtual void OnDataSourceChanged()
+        {
+            DataSourceChanged?.Invoke(this, EventArgs.Empty);
+            // Rebuild tree from data source
+            if (_dataSource != null)
+            {
+                try
+                {
+                    RebuildFromDataSource();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BeepTree] Failed to rebuild from data source: {ex.Message}");
+                }
             }
         }
 

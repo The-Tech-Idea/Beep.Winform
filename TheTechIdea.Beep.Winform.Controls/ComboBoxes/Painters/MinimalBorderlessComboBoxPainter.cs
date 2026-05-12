@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Low-chrome borderless shell — synced with <see cref="Popup.MinimalCleanPopupContent"/>.
+    /// Low-chrome borderless shell — synced with BeepListBox (ListBoxType.Borderless).
     /// Popup is ultra-clean: text-only rows, no icons/checkmarks, rounded hover rect
     /// (radius 6, bg #F5F7FA), selected = bold + FocusBorderColor, group headers = small-caps muted.
     /// Field echoes: no border, rounded hover background matching popup hover rect,

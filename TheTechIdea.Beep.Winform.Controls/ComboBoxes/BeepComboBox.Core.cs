@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Popup;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -81,7 +81,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Dropdown state
         private bool _isDropdownOpen = false;
-        private IComboBoxPopupHost _popupHost;
         private List<SimpleItem> _popupSelectionSnapshot;
         private string _popupSearchText = string.Empty;
         

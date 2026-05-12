@@ -138,8 +138,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             HideInlineEditor(false);
                             ShowDropdown();
-                            // After the popup is built, ask the host to focus the row for this item
-                            _popupHost?.FocusItem(itemToFocus);
                         }
                         return;
                     }

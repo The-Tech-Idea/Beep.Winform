@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
+using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -673,6 +674,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Minimum width (in pixels) of the dropdown popup. 0 means the popup matches the control width.")]
         [DefaultValue(0)]
         public int MinDropdownWidth { get; set; } = 0;
+
+        // ── Dropdown sizing ───────────────────────────────────────────────────
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Maximum number of visible items in the dropdown. Determines the popup height.")]
+        [DefaultValue(8)]
+        public int DropDownRows { get; set; } = 8;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Automatically size dropdown width to fit the widest item.")]
+        [DefaultValue(true)]
+        public bool AutoSizeDropDown { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Explicit dropdown width. 0 means auto-size.")]
+        [DefaultValue(0)]
+        public int DropDownWidth { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the ListBoxType used for the dropdown popup.
+        /// Forwarded directly to the internal BeepListBox that displays popup items.
+        /// When set to null (default), automatically mapped from ComboBoxType using ComboBoxListBoxTypeMapper.
+        /// </summary>
+        /// <remarks>
+        /// This property allows overriding the default ListBoxType mapping for any ComboBoxType.
+        /// Useful for customizing the popup appearance independently from the combobox field style.
+        /// </remarks>
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("ListBoxType used in the dropdown popup. Null means auto-mapped from ComboBoxType.")]
+        public ListBoxType? DropdownListBoxType { get; set; } = null;
 
         // ── ENH-18 ──────────────────────────────────────────────────────────
         [Browsable(true)]

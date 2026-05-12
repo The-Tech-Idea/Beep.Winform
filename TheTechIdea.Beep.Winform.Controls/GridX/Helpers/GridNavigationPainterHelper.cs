@@ -32,7 +32,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Configuration properties
         public bool ShowGridLines { get; set; } = true;
         public DashStyle GridLineStyle { get; set; } = DashStyle.Solid;
-        public bool UsePainterNavigation { get; set; } = true; // Default to new painter system
+        
+        private bool _usePainterNavigation = true; // Default to new painter system
+        public bool UsePainterNavigation
+        {
+            get => _usePainterNavigation;
+            set
+            {
+                if (_usePainterNavigation != value)
+                {
+                    _usePainterNavigation = value;
+                    
+                    // Clean up legacy buttons when switching to painter mode
+                    if (value)
+                    {
+                        DisposeNavigatorButtons();
+                    }
+                }
+            }
+        }
 
         private IBeepTheme? Theme => _grid?._currentTheme;
 
@@ -71,6 +89,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var navRect = _grid.Layout.NavigatorRect;
             
             if (navRect.IsEmpty) return;
+            
+            // Don't draw anything if navigator is hidden
+            if (!_grid.ShowNavigator) return;
 
             // Use painter-based navigation if enabled
             if (UsePainterNavigation)
@@ -266,6 +287,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void EnsureNavigatorButtons()
         {
+            // Only create buttons if using legacy navigation
+            if (UsePainterNavigation) return;
+            
             if (_btnFirst != null) return;
 
             // CRUD buttons
@@ -305,6 +329,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _lblPageInfo.UseThemeFont = true;
                 _lblPageInfo.AutoSize = true;
             }
+        }
+        
+        /// <summary>
+        /// Disposes all legacy navigator buttons to free memory when switching to painter mode.
+        /// </summary>
+        private void DisposeNavigatorButtons()
+        {
+            _btnInsert?.Dispose(); _btnInsert = null;
+            _btnDelete?.Dispose(); _btnDelete = null;
+            _btnSave?.Dispose(); _btnSave = null;
+            _btnCancel?.Dispose(); _btnCancel = null;
+            _btnFirst?.Dispose(); _btnFirst = null;
+            _btnPrev?.Dispose(); _btnPrev = null;
+            _btnNext?.Dispose(); _btnNext = null;
+            _btnLast?.Dispose(); _btnLast = null;
+            _btnQuery?.Dispose(); _btnQuery = null;
+            _btnFilter?.Dispose(); _btnFilter = null;
+            _btnPrint?.Dispose(); _btnPrint = null;
+            _lblPageInfo?.Dispose(); _lblPageInfo = null;
         }
 
         private void SyncButtonThemes()

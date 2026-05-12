@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// Data-dense list variant — synced with <see cref="Popup.DenseAvatarPopupContent"/>.
+    /// Data-dense list variant — synced with BeepListBox (ListBoxType.AvatarList).
     /// Popup draws circular avatars (28px), initial-letter fallback, status dots, avatar ring
     /// for selected, compact 38px rows. Field echoes: circular avatar clip for leading image,
     /// status dot indicator, dense font, compact padding, thin crisp focus border.

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 {
     /// <summary>
-    /// High-radius pill shell — synced with <see cref="Popup.PillGridPopupContent"/>.
+    /// High-radius pill shell — synced with BeepListBox (ListBoxType.Rounded).
     /// Popup renders items as pill buttons (radius height/2) in a wrap-flow grid with
     /// neutral bg (245,245,248), border (220,220,228), and selected=FocusBorderColor.
     /// Field echoes: pill-shaped container, matching neutral tint, shadow lift on hover,

@@ -85,6 +85,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             SetStyle(ControlStyles.Selectable, true);
             UpdateStyles();
             
+            // Grid is a container - disable BaseControl hover/pressed effects
+            // Row hover and cell selection are handled by GridRenderHelper, not BaseControl
+            CanBeHovered = false;
+            CanBePressed = false;
+            
             // Disable base-frame right border and borders so DrawingRect uses full client area
             //ShowRightBorder = false;
             //ShowAllBorders = false;

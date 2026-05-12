@@ -29,6 +29,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             var oldSmoothing = g.SmoothingMode;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -37,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw timeline background
                 if (isSelected || isHovered)
                 {
-                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor);
+                    var bgBrush = PaintersFactory.GetSolidBrush(isSelected ? GetSelectedBackColor() : GetHoverBackColor());
                     g.FillRectangle(bgBrush, nodeBounds);
                 }
 
@@ -95,24 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
-                    using (var pen = new Pen(toggleColor, 1.5f))
-                    {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-
-                        int centerX = toggleRect.Left + toggleRect.Width / 2;
-                        int centerY = toggleRect.Top + toggleRect.Height / 2;
-                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                        // Horizontal line (always present)
-                        g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-
-                        if (!node.Item.IsExpanded)
-                        {
-                            // Vertical line (plus sign for collapsed)
-                            g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-                        }
-                    }
+                    DrawPlusMinus(g, toggleRect, toggleColor, 1.5f, node.Item.IsExpanded);
                 }
 
                 // STEP 4: Draw activity checkbox
@@ -151,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
                     using (var renderFont = FontListHelper.GetFont(_owner.TextFont.FontFamily.Name, _owner.TextFont.Size, FontStyle.Regular))
                     {
@@ -191,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (isSelected)
             {
                 // Selected: subtle highlight
-                Color selectedColor = _theme.TreeNodeSelectedBackColor;
+                Color selectedColor = GetSelectedBackColor();
                 using (var brush = new SolidBrush(selectedColor))
                 {
                     g.FillRectangle(brush, nodeBounds);
@@ -199,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
             else if (isHovered)
             {
-                Color hoverColor = _theme.TreeNodeHoverBackColor;
+                Color hoverColor = GetHoverBackColor();
                 using (var brush = new SolidBrush(hoverColor))
                 {
                     g.FillRectangle(brush, nodeBounds);
@@ -213,24 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Plus/minus toggle for activity groups
             Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
-            using (var pen = new Pen(toggleColor, 1.5f))
-            {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                int centerX = toggleRect.Left + toggleRect.Width / 2;
-                int centerY = toggleRect.Top + toggleRect.Height / 2;
-                int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
-
-                // Horizontal line
-                g.DrawLine(pen, centerX - size, centerY, centerX + size, centerY);
-
-                if (!isExpanded)
-                {
-                    // Vertical line (plus sign)
-                    g.DrawLine(pen, centerX, centerY - size, centerX, centerY + size);
-                }
-            }
+            DrawPlusMinus(g, toggleRect, toggleColor, 1.5f, isExpanded);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, string imagePath)
@@ -287,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
 
             TextRenderer.DrawText(g, text, font, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);

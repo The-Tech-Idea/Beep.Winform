@@ -35,6 +35,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (g == null || node.Item == null) return;
 
+            // Delegate to base for multi-column support
+            if (_owner?.IsMultiColumn == true)
+            {
+                base.PaintNode(g, node, nodeBounds, isHovered, isSelected);
+                return;
+            }
+
             // Enable high-quality rendering for file browser
             var oldSmoothing = g.SmoothingMode;
             var oldTextRendering = g.TextRenderingHint;
@@ -46,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 1: Draw file browser background (full-width)
                 if (isSelected || isHovered)
                 {
-                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    Color bgColor = isSelected ? GetSelectedBackColor() : GetHoverBackColor();
                     var bgBrush = PaintersFactory.GetSolidBrush(bgColor);
                     g.FillRectangle(bgBrush, nodeBounds);
                 }
@@ -144,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 if (node.TextRectContent != Rectangle.Empty)
                 {
                     var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
-                    var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+                    var textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _compactFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
                 }
 
@@ -250,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             if (isSelected)
             {
-                var brush = PaintersFactory.GetSolidBrush(_theme.TreeNodeSelectedBackColor);
+                var brush = PaintersFactory.GetSolidBrush(GetSelectedBackColor());
                 g.FillRectangle(brush, nodeBounds);
 
                 var pen = PaintersFactory.GetPen(_theme.AccentColor, 2);
@@ -258,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             }
             else if (isHovered)
             {
-                var hoverBrush = PaintersFactory.GetSolidBrush(_theme.TreeNodeHoverBackColor);
+                var hoverBrush = PaintersFactory.GetSolidBrush(GetHoverBackColor());
                 g.FillRectangle(hoverBrush, nodeBounds);
             }
         }
@@ -329,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         {
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0) return;
 
-            Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+            Color textColor = isSelected ? GetSelectedForeColor() : _theme.TreeForeColor;
             TextRenderer.DrawText(g, text, _compactFont, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
         }
 
@@ -367,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 using (var font = new Font("Segoe UI", 6.5f, FontStyle.Bold))
                 {
-                    TextRenderer.DrawText(g, extension.TrimStart('.').ToUpper(), font, badgeRect, _theme.TreeNodeSelectedForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    TextRenderer.DrawText(g, extension.TrimStart('.').ToUpper(), font, badgeRect, GetSelectedForeColor(), TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             }
         }

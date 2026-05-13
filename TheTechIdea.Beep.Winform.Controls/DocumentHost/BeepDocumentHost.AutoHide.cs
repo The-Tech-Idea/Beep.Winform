@@ -42,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private Panel?  _ahOverlay;
         private string? _ahActiveDocId;
         private System.Windows.Forms.Timer? _ahSlideTimer;
+        private System.Windows.Forms.Timer? _ahFocusTimer;   // delays focus-loss collapse
 
         // Thickness of each side strip in logical pixels
         private const int AhStripThickness = 24;
@@ -245,10 +246,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             _ahOverlay.BackColor = _currentTheme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
 
+            // Clear any leftover controls from the previous flyout (header buttons, etc.).
+            // The document panel was already returned to this.Controls by FinaliseAhClose.
+            _ahOverlay.Controls.Clear();
+
+            // ── Flyout header: title + Pin + Close ───────────────────────────
+            var header = BuildAhFlyoutHeader(documentId, panel.DocumentTitle);
+            _ahOverlay.Controls.Add(header);
+
             // Remove panel from hidden parent and dock it inside the overlay
             this.Controls.Remove(panel);
-            panel.Parent = _ahOverlay;
-            panel.Dock   = DockStyle.Fill;
+            panel.Parent  = _ahOverlay;
+            panel.Dock    = DockStyle.Fill;
             panel.Visible = true;
 
             // Size the overlay — use remembered size when available (G7), else default to 1/3
@@ -283,7 +292,88 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _ahOverlay.Visible = true;
             _ahOverlay.BringToFront();
 
+            // ── Focus-loss collapse: collapse the flyout when focus leaves it ─
+            AttachAhFocusLossCollapse();
+
             StartAhSlide(side, show: true);
+        }
+
+        /// <summary>
+        /// Builds the thin header bar shown at the top of the auto-hide flyout.
+        /// Contains the document title, a Pin button (restores to tab strip), and
+        /// a Close button (collapses the flyout with animation).
+        /// </summary>
+        private Panel BuildAhFlyoutHeader(string documentId, string title)
+        {
+            int headerH = AhS(28);
+            Color backColor = _currentTheme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
+            Color foreColor = _currentTheme?.PanelForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
+            Color sepColor  = _currentTheme?.BorderColor    ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
+
+            var header = new Panel
+            {
+                Dock      = DockStyle.Top,
+                Height    = headerH,
+                BackColor = backColor,
+                Padding   = new Padding(4, 0, 0, 0),
+            };
+
+            // Close button (rightmost)
+            var btnClose = new Button
+            {
+                Text      = "✕",
+                Width     = headerH,
+                Height    = headerH,
+                Dock      = DockStyle.Right,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = backColor,
+                ForeColor = foreColor,
+                Cursor    = Cursors.Hand,
+                TabStop   = false,
+            };
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.Click += (_, _) => CloseAhOverlay(animate: true);
+
+            // Pin button (to the left of Close — restores document to tab strip)
+            var btnPin = new Button
+            {
+                Text      = "📌",
+                Width     = headerH,
+                Height    = headerH,
+                Dock      = DockStyle.Right,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = backColor,
+                ForeColor = foreColor,
+                Cursor    = Cursors.Hand,
+                TabStop   = false,
+            };
+            btnPin.FlatAppearance.BorderSize = 0;
+            var capturedId = documentId;
+            btnPin.Click += (_, _) => RestoreAutoHideDocument(capturedId);
+
+            // Title label (fills remaining space)
+            var lblTitle = new Label
+            {
+                Text      = title,
+                Dock      = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = foreColor,
+                BackColor = Color.Transparent,
+            };
+
+            // Separator line at bottom of header
+            header.Paint += (_, pe) =>
+            {
+                using var pen = new Pen(sepColor, 1f);
+                pe.Graphics.DrawLine(pen, 0, header.Height - 1, header.Width - 1, header.Height - 1);
+            };
+
+            // Add in this order: Close (right), Pin (right), Title (fill)
+            header.Controls.Add(lblTitle);
+            header.Controls.Add(btnPin);
+            header.Controls.Add(btnClose);
+
+            return header;
         }
 
         private void CloseAhOverlay(bool animate)
@@ -305,6 +395,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void FinaliseAhClose()
         {
+            // Stop any running focus-loss timer
+            _ahFocusTimer?.Stop();
+            _ahFocusTimer?.Dispose();
+            _ahFocusTimer = null;
+
             if (_ahOverlay != null) _ahOverlay.Visible = false;
 
             if (_ahActiveDocId != null && _panels.TryGetValue(_ahActiveDocId, out var p))
@@ -320,6 +415,61 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 p.Visible = false;
             }
             _ahActiveDocId = null;
+        }
+
+        /// <summary>
+        /// Subscribes to Leave events on the overlay and all its children so
+        /// that the flyout collapses automatically when focus moves elsewhere.
+        /// A 600 ms debounce timer prevents flicker during child control transitions.
+        /// </summary>
+        private void AttachAhFocusLossCollapse()
+        {
+            if (_ahOverlay == null) return;
+
+            // Re-use a single timer; reset on every Leave event.
+            _ahFocusTimer?.Stop();
+            _ahFocusTimer?.Dispose();
+            _ahFocusTimer = new System.Windows.Forms.Timer { Interval = 600 };
+            _ahFocusTimer.Tick += (_, _) =>
+            {
+                _ahFocusTimer!.Stop();
+
+                // Do nothing if focus is still inside the overlay or in the host itself.
+                var focused = FindForm()?.ActiveControl;
+                if (focused != null)
+                {
+                    Control? c = focused;
+                    while (c != null)
+                    {
+                        if (c == _ahOverlay || c == this) return;
+                        c = c.Parent;
+                    }
+                }
+
+                if (_ahActiveDocId != null)
+                    CloseAhOverlay(animate: true);
+            };
+
+            // Wire Leave on the overlay and every control it contains.
+            void AttachLeave(Control ctrl)
+            {
+                ctrl.Leave += OnAhControlLeave;
+                foreach (Control child in ctrl.Controls)
+                    AttachLeave(child);
+            }
+
+            AttachLeave(_ahOverlay);
+        }
+
+        private void OnAhControlLeave(object? sender, EventArgs e)
+        {
+            // Start / restart the debounce timer so we only collapse after focus has
+            // truly left the flyout (not just moved between child controls).
+            if (_ahFocusTimer != null)
+            {
+                _ahFocusTimer.Stop();
+                _ahFocusTimer.Start();
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -361,7 +511,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 step++;
                 float t = Math.Min(1f, step / (float)Steps);
-                // Smooth ease-out
+                // Quadratic ease-out: fast start, decelerates to rest — correct for panel slide
                 float ease = 1f - (1f - t) * (1f - t);
 
                 ov.Left = startX + (int)((endX - startX) * ease);

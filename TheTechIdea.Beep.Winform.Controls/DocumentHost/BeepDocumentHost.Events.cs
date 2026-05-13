@@ -155,6 +155,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 return true;
             }
 
+            // Ctrl+Alt+Left — move active document to the previous split group
+            if (keyData == (Keys.Control | Keys.Alt | Keys.Left))
+            {
+                MoveActiveDocumentToGroup(next: false);
+                return true;
+            }
+
+            // Ctrl+Alt+Right — move active document to the next split group
+            if (keyData == (Keys.Control | Keys.Alt | Keys.Right))
+            {
+                MoveActiveDocumentToGroup(next: true);
+                return true;
+            }
+
+            // Ctrl+Shift+W — close all documents to the right of the active tab
+            if (keyData == (Keys.Control | Keys.Shift | Keys.W))
+            {
+                CloseAllDocumentsToRight();
+                return true;
+            }
+
+            // Ctrl+Shift+M — maximize / restore the active document panel
+            if (keyData == (Keys.Control | Keys.Shift | Keys.M))
+            {
+                ToggleMaximizeActiveDocument();
+                return true;
+            }
+
             // Ctrl+Z — undo layout change
             if (keyData == (Keys.Control | Keys.Z))
             {

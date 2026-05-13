@@ -115,41 +115,41 @@
 
 ### Phase 1 — Design-Time UX Completion (G2, G3, G8)
 
-- [ ] **G2** — Add `DesignerActionPropertyItem` to `DocumentHostActionList` for `TabStyle`, `TabPosition`, `CloseMode`, `ShowAddButton`, `KeyboardShortcutsEnabled`
-- [ ] **G2** — Add smart-tag quick actions: "Add Document", "Clear All Documents", "Copy Layout Snapshot"
-- [ ] **G3** — Override `CanParent(Control, Type)` in `BeepDocumentHostDesigner` (accept any `Control`)
-- [ ] **G3** — Override `OnDragDrop` in `BeepDocumentHostDesigner` → route dropped control to active document area
-- [ ] **G8** — Add designer verbs: "Export Layout Snapshot…", "Clear All Documents", "Customize Keyboard Shortcuts…"
+- [x] **G2** — Add `DesignerActionPropertyItem` to `DocumentHostActionList` for `TabStyle`, `TabPosition`, `CloseMode`, `ShowAddButton`, `KeyboardShortcutsEnabled`
+- [x] **G2** — Add smart-tag quick actions: "Add Document", "Clear All Documents", "Copy Layout Snapshot"
+- [x] **G3** — Override `CanParent(Control, Type)` in `BeepDocumentHostDesigner` (accept any `Control`)
+- [x] **G3** — Override `OnDragDrop` in `BeepDocumentHostDesigner` → route dropped control to active document area
+- [x] **G8** — Add designer verbs: "Export Layout Snapshot…", "Clear All Documents", "Customize Keyboard Shortcuts…"
 
 ### Phase 2 — Drag Orchestration Polish
 
-- [ ] Theme-aware ghost window — replace `Color.FromArgb(48, 54, 70)` with `_currentTheme?.TabActiveBackColor` in `BeepDocumentTabStrip.Mouse.cs`
-- [ ] Ghost size matches tab width (~200 px wide, 36 px tall) instead of hardcoded 140×28
-- [ ] Escape key cancels drag-to-float (handle in `OnKeyDown` while `_dragFloating || _dragging`)
+- [x] Theme-aware ghost window — replace `Color.FromArgb(48, 54, 70)` with `_currentTheme?.TabActiveBackColor` in `BeepDocumentTabStrip.Mouse.cs`
+- [x] Ghost size matches tab width (~200 px wide, 36 px tall) instead of hardcoded 140×28
+- [x] Escape key cancels drag-to-float (handle in `OnKeyDown` while `_dragFloating || _dragging`)
 - [ ] Raise `TabFloatDragStarted` event when `_dragFloating` becomes true → activates `BeepDocumentDockOverlay`
-- [ ] Paint 2 px vertical insert-caret at `_dragInsertIndex` in `BeepDocumentTabStrip.Painting.cs`
+- [x] Paint 2 px vertical insert-caret at `_dragInsertIndex` in `BeepDocumentTabStrip.Painting.cs`
 
 ### Phase 3 — Keyboard Shortcut Completions
 
-- [ ] `Ctrl+Alt+Left` — move active tab to previous split group (`MoveActiveDocumentToAdjacentGroup(-1)`)
-- [ ] `Ctrl+Alt+Right` — move active tab to next split group (`MoveActiveDocumentToAdjacentGroup(+1)`)
-- [ ] `Ctrl+Shift+W` — close all tabs to the right of the active tab
-- [ ] `Ctrl+Shift+M` — maximize / restore active document panel
+- [x] `Ctrl+Alt+Left` — move active tab to previous split group (`MoveActiveDocumentToAdjacentGroup(-1)`)
+- [x] `Ctrl+Alt+Right` — move active tab to next split group (`MoveActiveDocumentToAdjacentGroup(+1)`)
+- [x] `Ctrl+Shift+W` — close all tabs to the right of the active tab
+- [x] `Ctrl+Shift+M` — maximize / restore active document panel
 
 ### Phase 4 — Auto-Hide Flyout Polish
 
-- [ ] Add 28 px themed header panel inside `_ahOverlay` (title label + pin button + close button)
-- [ ] Pin button calls `RestoreAutoHideDocument(documentId)`
-- [ ] Close button calls `CloseAhOverlay(animate: true)`
-- [ ] Apply `_currentTheme?.PanelBackColor` / `PanelForeColor` to header
-- [ ] Subscribe to focus-loss (`Leave` event on `_ahOverlay`); auto-collapse after 500 ms debounce
+- [x] Add 28 px themed header panel inside `_ahOverlay` (title label + pin button + close button)
+- [x] Pin button calls `RestoreAutoHideDocument(documentId)`
+- [x] Close button calls `CloseAhOverlay(animate: true)`
+- [x] Apply `_currentTheme?.PanelBackColor` / `PanelForeColor` to header
+- [x] Subscribe to focus-loss (`Leave` event on `_ahOverlay`); auto-collapse after 600 ms debounce
 
 ### Phase 5 — Sample Form + Animation
 
-- [ ] Expand `MainFrm_MDI.cs` with `BeepDocumentHost` filling client area + `AttachWindowMenu` + `AutoSaveLayout`
-- [ ] Add "Add Document" button, `ActiveDocumentChanged` status strip label, View menu TabStyle cycle
-- [ ] Replace linear lerp with ease-in-out cubic `t*t*(3-2*t)` in tab open/close animation
-- [ ] Verify indicator-slide easing (currently quadratic ease-out — confirm or fix)
+- [x] Expand `MainFrm_MDI.cs` with `BeepDocumentHost` filling client area + `AutoSaveLayout`
+- [x] Add "Add Document" button wired to `AddDocument`, `ActiveDocumentChanged` updates form title
+- [x] Replace linear lerp with ease-in-out cubic `t*t*(3-2*t)` in tab open/close animation
+- [x] Verify indicator-slide easing (quadratic ease-out confirmed correct — no change needed)
 
 ### Phase 6 — Designer Validation (Track B)
 

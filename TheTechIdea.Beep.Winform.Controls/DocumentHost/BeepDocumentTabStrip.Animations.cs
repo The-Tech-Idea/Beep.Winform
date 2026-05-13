@@ -39,13 +39,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>
         /// Returns the animated effective width for a tab.
-        /// If the tab is currently opening, width is lerped from 0 to <paramref name="targetWidth"/>.
+        /// If the tab is currently opening, width is scaled from 0 to <paramref name="targetWidth"/>
+        /// using a cubic ease-in-out curve: <c>t*t*(3-2*t)</c>.
         /// Otherwise returns <paramref name="targetWidth"/> unchanged.
         /// </summary>
         internal int GetAnimatedWidth(string tabId, int targetWidth)
         {
-            if (_openingTabs.TryGetValue(tabId, out float progress))
-                return Math.Max(1, (int)Math.Round(targetWidth * progress));
+            if (_openingTabs.TryGetValue(tabId, out float t))
+            {
+                // Cubic ease-in-out: slow start, fast middle, slow finish
+                float eased = t * t * (3f - 2f * t);
+                return Math.Max(1, (int)Math.Round(targetWidth * eased));
+            }
             return targetWidth;
         }
 

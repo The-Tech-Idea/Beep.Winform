@@ -416,34 +416,76 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (_dragFloatGhost != null) return;
 
+            // Use theme colours when available, fall back to a sensible dark default.
+            System.Drawing.Color backColor = _currentTheme?.TabActiveBackColor
+                ?? System.Drawing.Color.FromArgb(48, 54, 70);
+            System.Drawing.Color foreColor = _currentTheme?.TabActiveForeColor
+                ?? System.Drawing.Color.White;
+
+            // Match the actual tab width so the ghost reads as the real tab.
+            int tabW = _dragStartTab >= 0 && _dragStartTab < _tabs.Count
+                ? Math.Max(S(120), _tabs[_dragStartTab].TabRect.Width)
+                : S(160);
+
             _dragFloatGhost = new Form
             {
                 FormBorderStyle = FormBorderStyle.None,
-                BackColor       = System.Drawing.Color.FromArgb(48, 54, 70),
-                Opacity         = 0.55,
+                BackColor       = backColor,
+                Opacity         = 0.72,
                 ShowInTaskbar   = false,
-                Size            = new System.Drawing.Size(S(140), S(28)),
+                Size            = new System.Drawing.Size(tabW, S(32)),
                 StartPosition   = FormStartPosition.Manual,
                 TopMost         = true
+            };
+
+            // Draw a 1px accent border so the ghost is clearly readable on all backgrounds.
+            System.Drawing.Color borderColor = _currentTheme?.PrimaryColor
+                ?? System.Drawing.Color.FromArgb(100, foreColor);
+            _dragFloatGhost.Paint += (_, pe) =>
+            {
+                using var pen = new System.Drawing.Pen(borderColor, 1f);
+                pe.Graphics.DrawRectangle(pen,
+                    new System.Drawing.Rectangle(0, 0,
+                        _dragFloatGhost!.Width - 1, _dragFloatGhost!.Height - 1));
             };
 
             var lbl = new Label
             {
                 Text      = title,
-                ForeColor = System.Drawing.Color.White,
+                ForeColor = foreColor,
                 TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
                 Dock      = DockStyle.Fill,
                 Font      = new System.Drawing.Font(Font, Font.Style)
             };
             _dragFloatGhost.Controls.Add(lbl);
-            _dragFloatGhost.Location = new System.Drawing.Point(screenPt.X - S(70), screenPt.Y - S(14));
+            _dragFloatGhost.Location = new System.Drawing.Point(
+                screenPt.X - tabW / 2, screenPt.Y - S(16));
             _dragFloatGhost.Show();
         }
 
         private void MoveDragFloatGhost(Point screenPt)
         {
             if (_dragFloatGhost == null) return;
-            _dragFloatGhost.Location = new System.Drawing.Point(screenPt.X - S(70), screenPt.Y - S(14));
+            int halfW = _dragFloatGhost.Width / 2;
+            _dragFloatGhost.Location = new System.Drawing.Point(
+                screenPt.X - halfW, screenPt.Y - S(16));
+        }
+
+        /// <summary>
+        /// Cancels any active drag operation (reorder or float) and cleans up
+        /// visual feedback.  Called when the user presses Escape.
+        /// </summary>
+        private void CancelDrag()
+        {
+            _dragFloatGhost?.Close();
+            _dragFloatGhost?.Dispose();
+            _dragFloatGhost  = null;
+            _dragFloating    = false;
+            _dragging        = false;
+            _dragStartTab    = -1;
+            _dragInsertIndex = -1;
+            Cursor           = Cursors.Default;
+            Invalidate();
         }
 
         // ─────────────────────────────────────────────────────────────────────

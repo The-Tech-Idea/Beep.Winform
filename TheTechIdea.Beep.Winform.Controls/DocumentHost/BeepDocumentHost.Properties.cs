@@ -1498,6 +1498,68 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 CloseDocument(id);
         }
 
+        /// <summary>
+        /// Closes all documents that appear to the right of the currently active
+        /// document in the active group's tab strip.
+        /// </summary>
+        private void CloseAllDocumentsToRight()
+        {
+            if (_activeDocumentId == null) return;
+
+            var group = _groups.FirstOrDefault(g => g.DocumentIds.Contains(_activeDocumentId!));
+            if (group == null) return;
+
+            var tabs  = group.TabStrip.Tabs;
+            int pivot = tabs.FindIndex(t => t.Id == _activeDocumentId);
+            if (pivot < 0 || pivot >= tabs.Count - 1) return;
+
+            var toClose = tabs.Skip(pivot + 1).Select(t => t.Id).ToList();
+            foreach (var id in toClose)
+                CloseDocument(id);
+        }
+
+        // ── Maximize / restore active document ───────────────────────────────
+
+        private bool   _documentMaximized;
+        private string? _maximizedDocId;
+
+        /// <summary>
+        /// Toggles the active document panel between maximized (filling the entire
+        /// content area, all other groups hidden) and the normal split layout.
+        /// </summary>
+        private void ToggleMaximizeActiveDocument()
+        {
+            if (_activeDocumentId == null) return;
+
+            if (_documentMaximized && _maximizedDocId == _activeDocumentId)
+            {
+                // Restore — show all groups again
+                foreach (var g in _groups)
+                    g.Container.Visible = true;
+
+                _documentMaximized = false;
+                _maximizedDocId    = null;
+                RecalculateLayout();
+            }
+            else
+            {
+                // Maximize — hide all groups except the one containing the active document
+                var activeGroup = _groups.FirstOrDefault(g =>
+                    g.DocumentIds.Contains(_activeDocumentId!));
+                if (activeGroup == null) return;
+
+                foreach (var g in _groups)
+                    g.Container.Visible = g == activeGroup;
+
+                activeGroup.Container.SetBounds(
+                    _contentArea.Left, _contentArea.Top,
+                    _contentArea.Width, _contentArea.Height);
+
+                _documentMaximized = true;
+                _maximizedDocId    = _activeDocumentId;
+            }
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Design-Time Documents collection
         // Seeded at design time; applied to the host in OnHandleCreated.

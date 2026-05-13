@@ -73,6 +73,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+
+            // Escape cancels any in-progress drag operation.
+            if (e.KeyCode == Keys.Escape && (_dragging || _dragFloating))
+            {
+                CancelDrag();
+                e.Handled = true;
+                return;
+            }
+
             if (_tabs.Count == 0) return;
 
             int next = _activeTabIndex;

@@ -69,7 +69,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         /// <summary>Close-button background on hover.</summary>
         public static Color CloseButtonHoverBackground(IBeepTheme? theme)
-            => Color.FromArgb(60, Color.Red);
+        {
+            if (SystemInformation.HighContrast)
+                return Color.FromArgb(80, SystemColors.Highlight);
+            return Color.FromArgb(60, Color.Red);
+        }
 
         /// <summary>Colour used for the badge pill background.</summary>
         public static Color BadgeBackground(IBeepTheme? theme)

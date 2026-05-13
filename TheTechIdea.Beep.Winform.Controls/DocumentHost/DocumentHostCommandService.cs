@@ -92,13 +92,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             ArgumentNullException.ThrowIfNull(filePath);
             if (!File.Exists(filePath)) return false;
             string json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
-            // Marshal back to the UI thread
+            // Marshal back to the UI thread.
+            // Guard: if the host was disposed while the file was being read,
+            // BeginInvoke itself throws ObjectDisposedException / InvalidOperationException.
             var tcs = new TaskCompletionSource<bool>();
-            _host.BeginInvoke(new Action(() =>
+            try
             {
-                try { tcs.SetResult(_host.RestoreLayout(json)); }
-                catch (Exception ex) { tcs.SetException(ex); }
-            }));
+                _host.BeginInvoke(new Action(() =>
+                {
+                    try { tcs.SetResult(_host.RestoreLayout(json)); }
+                    catch (Exception ex) { tcs.SetException(ex); }
+                }));
+            }
+            catch (Exception ex) when (ex is ObjectDisposedException or InvalidOperationException)
+            {
+                return false;
+            }
             return await tcs.Task.ConfigureAwait(false);
         }
 

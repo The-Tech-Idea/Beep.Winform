@@ -105,3 +105,58 @@
 - [ ] Run multi-select stress matrix on large dataset
 - [ ] Run property contract matrix and record pass/fail summary
 - [x] QA session log template created: `docs/plans/combobox-overhaul/manual-qa-session-log.md`
+
+---
+
+## DocumentHost Polish Layer (Commercial Parity)
+
+*Goal: close the remaining gap between BeepDocumentHost and DevExpress/Krypton quality.*
+*Plans detail: `TheTechIdea.Beep.Winform.Controls/DocumentHost/.plans/`*
+
+### Phase 1 — Design-Time UX Completion (G2, G3, G8)
+
+- [ ] **G2** — Add `DesignerActionPropertyItem` to `DocumentHostActionList` for `TabStyle`, `TabPosition`, `CloseMode`, `ShowAddButton`, `KeyboardShortcutsEnabled`
+- [ ] **G2** — Add smart-tag quick actions: "Add Document", "Clear All Documents", "Copy Layout Snapshot"
+- [ ] **G3** — Override `CanParent(Control, Type)` in `BeepDocumentHostDesigner` (accept any `Control`)
+- [ ] **G3** — Override `OnDragDrop` in `BeepDocumentHostDesigner` → route dropped control to active document area
+- [ ] **G8** — Add designer verbs: "Export Layout Snapshot…", "Clear All Documents", "Customize Keyboard Shortcuts…"
+
+### Phase 2 — Drag Orchestration Polish
+
+- [ ] Theme-aware ghost window — replace `Color.FromArgb(48, 54, 70)` with `_currentTheme?.TabActiveBackColor` in `BeepDocumentTabStrip.Mouse.cs`
+- [ ] Ghost size matches tab width (~200 px wide, 36 px tall) instead of hardcoded 140×28
+- [ ] Escape key cancels drag-to-float (handle in `OnKeyDown` while `_dragFloating || _dragging`)
+- [ ] Raise `TabFloatDragStarted` event when `_dragFloating` becomes true → activates `BeepDocumentDockOverlay`
+- [ ] Paint 2 px vertical insert-caret at `_dragInsertIndex` in `BeepDocumentTabStrip.Painting.cs`
+
+### Phase 3 — Keyboard Shortcut Completions
+
+- [ ] `Ctrl+Alt+Left` — move active tab to previous split group (`MoveActiveDocumentToAdjacentGroup(-1)`)
+- [ ] `Ctrl+Alt+Right` — move active tab to next split group (`MoveActiveDocumentToAdjacentGroup(+1)`)
+- [ ] `Ctrl+Shift+W` — close all tabs to the right of the active tab
+- [ ] `Ctrl+Shift+M` — maximize / restore active document panel
+
+### Phase 4 — Auto-Hide Flyout Polish
+
+- [ ] Add 28 px themed header panel inside `_ahOverlay` (title label + pin button + close button)
+- [ ] Pin button calls `RestoreAutoHideDocument(documentId)`
+- [ ] Close button calls `CloseAhOverlay(animate: true)`
+- [ ] Apply `_currentTheme?.PanelBackColor` / `PanelForeColor` to header
+- [ ] Subscribe to focus-loss (`Leave` event on `_ahOverlay`); auto-collapse after 500 ms debounce
+
+### Phase 5 — Sample Form + Animation
+
+- [ ] Expand `MainFrm_MDI.cs` with `BeepDocumentHost` filling client area + `AttachWindowMenu` + `AutoSaveLayout`
+- [ ] Add "Add Document" button, `ActiveDocumentChanged` status strip label, View menu TabStyle cycle
+- [ ] Replace linear lerp with ease-in-out cubic `t*t*(3-2*t)` in tab open/close animation
+- [ ] Verify indicator-slide easing (currently quadratic ease-out — confirm or fix)
+
+### Phase 6 — Designer Validation (Track B)
+
+- [ ] Properties window shows only categorized groups, no *Misc*
+- [ ] Smart-tag inline pickers change designer state immediately
+- [ ] Toolbox drag onto host → drops into first document area
+- [ ] "Export Layout Snapshot…" verb exports valid JSON
+- [ ] Designer reopen restores from `DesignTimeLayoutJson` without crash
+- [ ] Delete host → no orphaned child controls remain
+

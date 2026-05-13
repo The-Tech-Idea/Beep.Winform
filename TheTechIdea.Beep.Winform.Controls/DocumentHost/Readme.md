@@ -34,6 +34,39 @@ WinForms applications built on the Beep framework. Drop it onto any surface — 
 > `BaseControl` and use the Beep theme/painter pipeline, while preserving the existing
 > `Panel`-based document content model for hosted document surfaces.
 
+## Current Direction
+
+`BeepDocumentHost` is being positioned as the main MDI and docking surface for the
+Beep WinForms library. The next cycle should prioritize three things over feature
+count:
+
+- designer and runtime stability during add, remove, reparent, split, float, and restore flows
+- a simpler public API for open, activate, move, close, and restore workflows
+- user-friendly shell behavior such as window lists, context menus, predictable defaults, and clear persistence
+
+The design target is commercial-grade behavior comparable to products such as
+DevExpress, Telerik, and Syncfusion, while still feeling native to the Beep
+control model rather than cloning any vendor API.
+
+## Planning
+
+- See `.plans/README.md` for the planning index and product rules.
+- See `.plans/CURRENT-STATE-AUDIT.md` for the full-folder audit summary and readiness assessment.
+- See `.plans/COMMERCIAL-REFERENCE-NOTES.md` for the public reference patterns used as guidance.
+- See `.plans/IMPLEMENTATION-ROADMAP.md` for the phased enhancement and fix plan.
+
+## Current Assessment
+
+After a full review of the `DocumentHost` code surface, the control is already strong in
+tabs, groups, float and dock, auto-hide, keyboard workflows, persistence, and MVVM
+integration. The main remaining gaps for a polished default MDI experience are:
+
+- tab icon rendering completion
+- simpler open and activate APIs for duplicate-safe document workflows
+- public group-targeting APIs that do not bias the primary group
+- explicit dock-state and restore-callback contracts
+- design-time validation and regression coverage
+
 ---
 
 ## Classes
@@ -235,6 +268,20 @@ BeepDocumentPanel panel = host.AddDocument("My Document", iconPath: @"icons\file
 // Add with explicit id
 BeepDocumentPanel panel = host.AddDocument("doc-001", "My Document");
 
+// Open into the active or a specific group using the newer group-aware API
+var created = host.OpenOrActivate(
+    new DocumentDescriptor { Id = "doc-001", Title = "My Document", IconPath = @"icons\file.png" },
+    new DocumentOpenOptions { Target = DocumentOpenTarget.ActiveGroup });
+
+BeepDocumentPanel diagnosticsPanel = host.OpenDocument(
+    new DocumentDescriptor { Id = "diag-001", Title = "Diagnostics" },
+    new DocumentOpenOptions
+    {
+        Target = DocumentOpenTarget.SpecificGroup,
+        TargetGroupId = targetGroupId,
+        Activate = false
+    });
+
 // Activate
 host.SetActiveDocument("doc-001");
 
@@ -296,6 +343,17 @@ File.WriteAllText("session.json", json);
 host.RestoreLayout(json);
 ```
 
+### Dock State
+
+```csharp
+DocumentDockState state = host.GetDocumentDockState("doc-001");
+
+host.DocumentDockStateChanged += (s, e) =>
+{
+    Console.WriteLine($"{e.DocumentId}: {e.OldState} -> {e.NewState} (Group={e.GroupId})");
+};
+```
+
 ### Tab Metadata
 
 ```csharp
@@ -328,10 +386,11 @@ host.SetTabBadge("doc-001", "3", Color.Red);
 | `DocumentClosed` | `DocumentEventArgs` | After a document was removed. |
 | `DocumentFloated` | `DocumentEventArgs` | Document moved into a float window. |
 | `DocumentDocked` | `DocumentEventArgs` | Floated document docked back. |
+| `DocumentDockStateChanged` | `DocumentDockStateChangedEventArgs` | Docked, floating, and auto-hide transition notification. |
 | `DocumentPinChanged` | `DocumentEventArgs` | Tab was pinned or unpinned. |
 | `DocumentDetaching` | `DocumentTransferEventArgs` | About to transfer to another host. |
 | `LayoutSerialising` | `DocumentLayoutEventArgs` | Per-doc hook during `SaveLayout`. |
-| `LayoutRestoring` | `DocumentLayoutEventArgs` | Per-doc hook during `RestoreLayout`. |
+| `LayoutRestoring` | `DocumentLayoutEventArgs` | Per-doc hook during `RestoreLayout`, with dock-state and restore-descriptor hints. |
 
 ---
 
@@ -444,20 +503,39 @@ The `DocumentDetaching` event on the source fires before transfer — set `Cance
 - MRU snapshot
 - `customData` dictionary per tab (populated via the `LayoutSerialising` event)
 
+During restore, the saved layout tree is reapplied through `LayoutTreeApplier` before
+floating-window and auto-hide state is restored, so multi-group layouts and floated
+documents follow the saved topology instead of reopening only in the primary group.
+
 **v1 payloads are automatically migrated** via `LayoutMigrationService` on restore —
 no manual intervention required.
 
-Restoring returns a `LayoutRestoreReport` with per-document granularity:
+Restoring returns a `LayoutRestoreReport` with per-document granularity.
+During restore, `DocumentLayoutEventArgs` exposes `DockState`, `GroupId`, `Side`,
+`CustomData`, and `RestoreDescriptor` so the application can recreate content
+without manually calling `AddDocument` inside the restore event.
 
 ```csharp
+host.DocumentTemplate = desc =>
+{
+    var editor = new RichTextBox { Dock = DockStyle.Fill };
+    if (desc.Tag is string filePath && File.Exists(filePath))
+        editor.LoadFile(filePath);
+    return editor;
+};
+
+host.RestoreDocumentFactory = e =>
+{
+    var desc = DocumentDescriptor.Create(e.DocumentId, e.Title, e.IconPath);
+    if (e.CustomData.TryGetValue("filePath", out var filePath))
+        desc.Tag = filePath;
+    return desc;
+};
+
 host.LayoutRestoring += (s, e) =>
 {
-    // e.DocumentId, e.Title, e.IconPath, e.CustomData all available
-    var file = openFileMap[e.DocumentId];
-    var editor = new RichTextBox { Dock = DockStyle.Fill };
-    editor.LoadFile(file);
-    host.AddDocument(e.DocumentId, e.Title, e.IconPath, activate: false)
-        .Controls.Add(editor);
+    if (e.CustomData.TryGetValue("filePath", out var filePath) && !File.Exists(filePath))
+        e.Cancel = true;
 };
 
 // Detailed restore with diagnostics
@@ -521,9 +599,9 @@ All 7 groups are available in the smart-tag panel:
 
 | Group | Properties / Actions |
 |---|---|
-| **Documents** | Add New, Close Active, Close All, Reopen Last, Quick Switch, Float, Pin/Unpin |
+| **Documents** | Add New, Close Active, Close All, Reopen Last, Select Active Surface, Active Document Title, Quick Switch, Float, Pin/Unpin |
 | **Design-Time** | Edit Design-Time Documents… |
-| **Split View** | Split H/V, Merge All Groups, Apply Layout Preset…, MaxGroups, SplitRatio |
+| **Split View** | Layout Assistant…, Split H/V, Merge All Groups, Apply Layout Preset…, MaxGroups, SplitRatio |
 | **Tabs** | TabStyle, TabPosition, CloseMode, ShowAddButton, TabColorMode, KeyboardShortcuts |
 | **Tab Sizing** | TabSizeMode (Auto/Fixed/Fill), FixedTabWidth |
 | **Interaction** | TabTooltipMode, AllowDragFloat |
@@ -537,22 +615,36 @@ All 7 groups are available in the smart-tag panel:
 ### Additional design-time features
 | Feature | Details |
 |---|---|
-| `DoDefaultAction()` | Double-click on the control surface auto-adds a document |
+| `DoDefaultAction()` | Double-click on the control surface auto-creates a persisted design-time document surface |
 | `OnPaintAdornments()` | When the host has no documents, draws a centred hint overlay |
 | `PreFilterEvents()` | Removes 20+ low-level plumbing events from the Events grid |
 | `PreFilterProperties()` | Hides irrelevant Panel base properties |
 | Snap lines | Content-area edges exposed for sibling alignment |
 | `DesignTimeDocuments` | `Collection<DocumentDescriptor>` serialised into `InitializeComponent` |
+| `DesignTimeLayoutJson` | Hidden serialized layout snapshot maintained by the designer so splits, floating panes, and auto-hide survive reopen |
 | `ApplyDesignTimeDocuments()` | Applied automatically in `OnHandleCreated` |
+| Toolbox routing | Toolbox-dropped controls are parented into the active `BeepDocumentPanel`; an empty host auto-creates the first document surface |
+| Persisted smart-tag actions | Add, close, reopen, rename, pin, split, float, auto-hide, and layout preset actions mutate the design-time model and update the serialized layout snapshot |
+| One-step split authoring | Split actions create a new document surface and place it into the new pane so both sides stay authorable |
+| Designer context menu | Right-click the host, tab strip, or content chrome to access add, rename, float, auto-hide, split, merge, preset, and layout assistant actions |
+| Layout Assistant | Guided dialog for choosing a layout preset and naming the document surfaces it should create before applying the dock pattern |
+| Docking Compass | During drag operations, a 5-zone compass appears with live split preview visualization. Zones are center (tab into group), left/right (vertical split), top/bottom (horizontal split) |
+| Container edit safety | Removing or reparenting authored child controls does not mark the host as designer-detaching; reattaching clears transient design-time teardown flags |
 | Undo/Redo | All verb and smart-tag mutations wrapped in `DesignerTransaction` |
 
+Representative validation note:
+- `TheTechIdea.Beep.Winform.Default.Views/MainFrm_MDI.Designer.cs` persists authored child controls directly into `beepDocumentHost1.Controls`; this container scenario is now covered by focused regression tests in `TheTechIdea.Beep.Winform.Controls.Tests`.
+
 ### Layout Preset Picker
-`LayoutPresetPickerDialog` (in `Design.Server/Designers/`) shows 5 visual tiles:
+`LayoutPresetPickerDialog` (in `Design.Server/Designers/`) shows 8 visual tiles:
 - **Single** — one tab group fills the area
 - **Side-by-Side** — two groups split left/right (horizontal)
 - **Stacked** — two groups split top/bottom (vertical)
 - **Three-Way** — L-pattern (horizontal + vertical sub-split)
 - **Four-Up** — 2×2 grid
+- **Three-Way Nested** — left group plus nested right top/bottom
+- **Three Column** — three equal columns
+- **Five-Way** — left group plus 2×2 right grid
 
 ### Document Collection Editor
 `DesignTimeDocumentsEditor` (in `Design.Server/Editors/`) provides a tailored
@@ -560,6 +652,14 @@ All 7 groups are available in the smart-tag panel:
 - Sets `Id` to a GUID and `Title` to `"New Document"` on Add
 - Dialog title: "Edit Design-Time Documents"
 - Accessible via the "Edit Design-Time Documents…" smart-tag action
+- The designer verbs and smart-tag document actions now keep this collection in sync automatically, so the collection editor is optional rather than required for day-to-day authoring
+
+### Layout Assistant
+`DocumentHostLayoutAssistantDialog` (in `Design.Server/Designers/`) provides a guided designer-first workflow for commercial-style setups:
+- choose one of the built-in dock presets with a live preview sketch
+- declare how many document surfaces the layout should create
+- name each surface and optionally seed its placeholder content
+- apply the preset and document definitions in one transaction so the resulting layout persists into `InitializeComponent`
 
 ---
 
@@ -607,6 +707,9 @@ host.ThemeName = "BeepLight";
 | **Designer: `OnPaintAdornments()`** — empty-state hint overlay | 12 | ✅ Complete |
 | **Designer: `PreFilterEvents()`** — hides 20+ plumbing events | 12 | ✅ Complete |
 | **Smart-tag: 12 groups** — Tab Sizing, Interaction, Design-Time, Layout Preset groups added | 12 | ✅ Complete |
+| **Designer authoring UX** — toolbox drops target active document surfaces, split actions create new panes, and document verbs persist through `DesignTimeDocuments` | 20 | ✅ Complete |
+| **Designer layout persistence** — hidden `DesignTimeLayoutJson` snapshot serializes split/floating/auto-hide state and restores it on designer reopen | 20 | ✅ Complete |
+| **Designer dock context menu + layout assistant** — right-click shell menu and guided layout workflow for commercial-style authoring | 20 | ✅ Complete |
 | **`LayoutTreeBuilder`** — captures live group topology as `ILayoutNode` tree | 12 | ✅ Complete |
 | **`LayoutTreeApplier`** — restores `ILayoutNode` tree onto a live host | 12 | ✅ Complete |
 | **`MergeAllGroups()`** — collapses all split groups back to primary | 12 | ✅ Complete |

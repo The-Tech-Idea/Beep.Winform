@@ -25,6 +25,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set { _id = value ?? Guid.NewGuid().ToString(); OnPropertyChanged(nameof(Id)); }
         }
 
+        /// <summary>
+        /// Stable persistence key assigned once on creation.  Unlike <see cref="Id"/> (which
+        /// can be set externally) and <see cref="Title"/> (which the user can rename),
+        /// <c>PersistenceKey</c> is a fixed GUID that survives renames and is used as the
+        /// primary key in <see cref="BeepDocumentHost.SaveLayout"/> /
+        /// <see cref="BeepDocumentHost.TryRestoreLayout"/>.
+        /// </summary>
+        /// <remarks>
+        /// Set once by the host when the descriptor is registered.  Never change after creation.
+        /// Pattern matches DockPanel Suite's <c>PersistString</c> and AvalonDock's <c>ContentId</c>.
+        /// </remarks>
+        public string PersistenceKey { get; set; } = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Hint used when restoring a layout.  Records the last group the document belonged to
+        /// so it can be re-docked intelligently after a restore.
+        /// </summary>
+        public string? PreviousGroupId { get; set; }
+
         private string _title = "Document";
         /// <summary>Text shown in the tab header.</summary>
         public string Title

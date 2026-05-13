@@ -9,7 +9,7 @@ Design-time extensions for Beep WinForms controls, including `BeepDocumentHost` 
 | Folder | Contents |
 |---|---|
 | `ActionLists/` | Shared smart-tag infrastructure such as `CommonBeepControlActionList`, `ImagePathDesignerActionList`, `ContainerControlActionList`, `DataControlActionList`, `DocumentHostActionList`, and `WizardConfigActionList` |
-| `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `ThemePickerDialog`, **`GroupTabPositionDialog`**, **`LayoutTreeDialog`** |
+| `Designers/` | `BeepDocumentHostDesigner`, `LayoutPresetPickerDialog`, `DocumentHostLayoutAssistantDialog`, `DocumentHostTextPromptDialog`, `ThemePickerDialog`, **`GroupTabPositionDialog`**, **`LayoutTreeDialog`** |
 | `Editors/` | `DocumentDescriptorCollectionEditor`, `DesignTimeDocumentsEditor`, `IconPickerDialog`, `IntegratedFormsDefinitionEditors` |
 | `Helpers/` | Internal utilities used by designers |
 
@@ -82,11 +82,16 @@ Wizard / editor support:
 ### `BeepDocumentHostDesigner` (Designers/)
 Extends `ParentControlDesigner`. Provides:
 - Locked child controls (tab strip, content panel cannot be moved/deleted)
-- 9 designer verbs (Add, Close, Split H/V, Merge, Edit Docs, Apply Preset, **Set Group Tab Position**, **View Layout Tree**)
+- 12 designer verbs (Add, Close, Split With New Document H/V, Select Active Surface, Reopen Last Closed, **Layout Assistant**, Merge, Edit Docs, Apply Preset, **Set Group Tab Position**, **View Layout Tree**)
 - `OnPaintAdornments` — empty-state hint + **Sprint 17 docking compass** during drag
+- **Docking Compass with Split Preview** — During drag, renders 5 interactive zones (center, left, right, top, bottom) with live split visualization so designers see exactly where and how the split will occur
 - `SnapLines` — content area edges for sibling alignment
 - `PreFilterProperties` / `PreFilterEvents` — hides irrelevant base properties/events
-- `DoDefaultAction` — double-click adds a document
+- `DoDefaultAction` — double-click creates a persisted design-time document surface
+- `GetParentForComponent` — routes toolbox drops into the active `BeepDocumentPanel`, creating the first document surface automatically when needed
+- Design-time document mutations now flow through `DesignTimeDocuments`, so add / close / reopen / split / rename / pin actions persist into `InitializeComponent`
+- Layout mutations now also flow through a hidden serialized `DesignTimeLayoutJson` property so split groups, floating documents, and auto-hide state survive designer reopen
+- Right-clicking host chrome or a tab strip now opens a dock-style context menu with add, rename, float, auto-hide, split, merge, preset, and layout-assistant actions
 
 #### Sprint 19 — Nested Split Design-Time Support
 - `GroupTabPositionDialog` — per-group tab strip position editor for asymmetric nested layouts
@@ -95,7 +100,7 @@ Extends `ParentControlDesigner`. Provides:
 - 3 new layout presets: **Three-Way Nested**, **Three Column**, **Five-Way**
 
 #### Sprint 17.1 — Docking Guide Adorner
-When a control is dragged onto the host, `OnPaintAdornments` draws a 5-point compass:
+When a non-toolbox layout drag is routed onto the host, `OnPaintAdornments` draws a 5-point compass:
 
 | Zone | Result |
 |---|---|
@@ -105,14 +110,15 @@ When a control is dragged onto the host, `OnPaintAdornments` draws a 5-point com
 
 Zone hit-testing uses the host's client-space coordinates (`HitTestCompass`).
 The split is wrapped in a `DesignerTransaction` for full undo/redo support.
+Toolbox drags are excluded from the compass so ordinary control authoring drops into the active document surface instead of accidentally splitting the shell.
 
 ---
 
 ### `DocumentHostActionList` (ActionLists/)
 `DesignerActionList` with 13 groups:
-- **Documents** — Add, Close, Close All, Reopen, Quick Switch, Float, Pin/Unpin
+- **Documents** — Add, Close, Close All, Reopen, Select Active Surface, Active Document Title, Quick Switch, Float, Pin/Unpin
 - **Design-Time** — Edit Design-Time Documents…
-- **Split View** — Split H/V, Merge, Apply Layout Preset…, MaxGroups, SplitHorizontal, SplitRatio
+- **Split View** — Layout Assistant…, Split H/V, Merge, Apply Layout Preset…, MaxGroups, SplitHorizontal, SplitRatio
 - **Nested Splits** — GroupTabPositions (editable), LayoutTreeInfo (read-only tree view)
 - **Tabs** — TabStyle, TabPosition, CloseMode, ShowAddButton, TabColorMode
 - **Tab Sizing** — TabSizeMode, FixedTabWidth
@@ -123,6 +129,12 @@ The split is wrapped in a `DesignerTransaction` for full undo/redo support.
 - **History** — MaxRecent/MaxClosed
 - **Cross-Host Drag** — AllowDragBetweenHosts
 - **Session** — AutoSaveLayout, SessionFile
+
+Document-surface actions now prioritize authoring ergonomics rather than raw runtime calls:
+- Add / Close / Reopen mutate `DesignTimeDocuments` and the live host together
+- Split H/V creates a new document surface and docks it in the new pane immediately
+- The active document title can be edited directly from the smart-tag without opening the collection editor
+- Layout Assistant combines document creation and dock preset selection in one design-time flow
 
 ---
 
@@ -141,6 +153,7 @@ Using the editor:
 1. Select the `BeepDocumentHost` in the designer
 2. Smart-tag (▶) → **Edit Design-Time Documents…**  
    — or — Properties grid → `DesignTimeDocuments` → click `…`
+3. For routine authoring, you can also rely on the smart-tag and verb actions; they now keep the collection editor's backing data synchronized automatically
 
 ---
 
@@ -167,6 +180,13 @@ Visual theme picker with:
 | Four-Up | Four groups in 2×2 grid |
 | **Three Column** | **Three equal columns** |
 | **Five-Way** | **Five groups: left | 2×2 right grid** |
+
+### `DocumentHostLayoutAssistantDialog` (Designers/)
+Guided design-time workflow for DocumentHost shell setup:
+- live preview of the selected dock preset
+- document-count control that respects the preset minimum
+- per-surface title and initial-content editing
+- one-click application through the designer transaction pipeline so the resulting shell persists into the serialized design-time layout snapshot
 
 ---
 

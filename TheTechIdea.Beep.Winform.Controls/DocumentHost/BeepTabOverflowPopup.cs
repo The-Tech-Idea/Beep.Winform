@@ -260,7 +260,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // ── Separator ──────────────────────────────────────────────────
             if (row.IsSeparator)
             {
-                g.FillRectangle(new SolidBrush(back), r);
+                using var backBrSep = new SolidBrush(back);
+                g.FillRectangle(backBrSep, r);
                 int my = r.Top + r.Height / 2;
                 using var sep = new Pen(Color.FromArgb(40, fore));
                 g.DrawLine(sep, r.Left + 8, my, r.Right - 8, my);
@@ -270,12 +271,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // ── Section header ─────────────────────────────────────────────
             if (row.IsHeader)
             {
-                g.FillRectangle(new SolidBrush(back), r);
+                using var backBrHdr = new SolidBrush(back);
+                g.FillRectangle(backBrHdr, r);
                 using var hFnt = new Font("Segoe UI", 8f, FontStyle.Bold);
                 using var hBr  = new SolidBrush(subFore);
+                using var hdrFmt = new StringFormat { LineAlignment = StringAlignment.Center };
                 g.DrawString(row.Header, hFnt, hBr,
                     new RectangleF(r.Left + 8, r.Top, r.Width - 8, r.Height),
-                    new StringFormat { LineAlignment = StringAlignment.Center });
+                    hdrFmt);
                 return;
             }
 
@@ -286,7 +289,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Color fill = selected ? accent : back;
             Color text = selected ? (ContrastColor(accent)) : fore;
 
-            g.FillRectangle(new SolidBrush(fill), r);
+            using var fillBr = new SolidBrush(fill);
+            g.FillRectangle(fillBr, r);
 
             // Modified dot
             if (tab.IsModified)
@@ -299,8 +303,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             int textLeft = r.Left + (tab.IsModified ? 18 : 8);
 
             // Title
-            using var tFont = tab.IsActive ? new Font(_list.Font, FontStyle.Bold) : _list.Font;
-            bool ownFont    = tab.IsActive;
+            using Font? ownFont = tab.IsActive ? new Font(_list.Font, FontStyle.Bold) : null;
+            var tFont     = ownFont ?? _list.Font;
             using var tBr   = new SolidBrush(text);
             var titleRect   = new RectangleF(textLeft, r.Top, r.Width - textLeft - 4, r.Height);
             using var fmt   = new StringFormat

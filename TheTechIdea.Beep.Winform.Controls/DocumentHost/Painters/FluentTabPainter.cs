@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
     {
         public override string Name => "FluentTabPainter";
 
-        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
-            Color fill = context.GetTabBackground(tab, -1);
+            Color fill = context.GetTabBackground(tab, index);
             using var br = new SolidBrush(fill);
             g.FillRectangle(br, tab.TabRect);
 
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
                     tab.TabRect.Right - 1, tab.TabRect.Bottom - 2);
             }
 
-            if (context.IsTabActive(tab) || context.IsTabHovered(-1))
+            if (context.IsTabActive(tab) || context.IsTabHovered(index))
             {
                 using var topPen = new Pen(Color.FromArgb(60, context.Theme.BorderColor), 1f);
                 g.DrawLine(topPen, tab.TabRect.Left, tab.TabRect.Top, tab.TabRect.Right, tab.TabRect.Top);

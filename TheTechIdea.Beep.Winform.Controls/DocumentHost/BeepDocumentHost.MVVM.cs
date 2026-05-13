@@ -139,12 +139,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (vm.IsPinned)
                 PinDocument(vm.Id, true);
 
-            var tab = _tabStrip.FindTabById(vm.Id);
-            if (tab != null)
+            if (TryGetDocumentTab(vm.Id, out var tabStrip, out var tab))
             {
                 tab.TooltipText = vm.TooltipText;
                 if (!string.IsNullOrEmpty(vm.BadgeText))
-                    _tabStrip.SetBadge(vm.Id, vm.BadgeText);
+                    tabStrip.SetBadge(vm.Id, vm.BadgeText);
             }
 
             // Create content via factory
@@ -213,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void ApplyVmProperties(IDocumentViewModel vm, string? propName)
         {
             if (!_panels.TryGetValue(vm.Id, out var panel)) return;
-            var tab = _tabStrip.FindTabById(vm.Id);
+            TryGetDocumentTab(vm.Id, out var tabStrip, out var tab);
 
             // null propName → refresh all
             bool all = propName == null;
@@ -221,12 +220,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (all || propName == nameof(IDocumentViewModel.Title))
             {
                 panel.DocumentTitle = vm.Title;
-                if (tab != null) { tab.Title = vm.Title; _tabStrip.Invalidate(); }
+                if (tab != null) { tab.Title = vm.Title; tabStrip.Invalidate(); }
             }
             if (all || propName == nameof(IDocumentViewModel.IconPath))
             {
                 panel.IconPath = vm.IconPath;
-                if (tab != null) { tab.IconPath = vm.IconPath; _tabStrip.Invalidate(); }
+                if (tab != null) { tab.IconPath = vm.IconPath; tabStrip.Invalidate(); }
             }
             if (all || propName == nameof(IDocumentViewModel.IsModified))
                 panel.IsModified = vm.IsModified;
@@ -235,14 +234,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (all || propName == nameof(IDocumentViewModel.CanClose))
             {
                 panel.CanClose = vm.CanClose;
-                if (tab != null) { tab.CanClose = vm.CanClose; _tabStrip.Invalidate(); }
+                if (tab != null) { tab.CanClose = vm.CanClose; tabStrip.Invalidate(); }
             }
             if (all || propName == nameof(IDocumentViewModel.TooltipText))
             {
                 if (tab != null) tab.TooltipText = vm.TooltipText;
             }
             if (all || propName == nameof(IDocumentViewModel.BadgeText))
-                _tabStrip.SetBadge(vm.Id, vm.BadgeText);
+                SetBadge(vm.Id, vm.BadgeText);
         }
 
         /// <summary>

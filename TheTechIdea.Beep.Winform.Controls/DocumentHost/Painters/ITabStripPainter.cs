@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
     {
         string Name { get; }
         void PaintTab(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context);
-        void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context);
+        void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context);
         void PaintTabContent(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context);
         void PaintTabIcon(Graphics g, BeepDocumentTab tab, TabStripPaintContext context);
         void PaintTabText(Graphics g, BeepDocumentTab tab, TabStripPaintContext context);

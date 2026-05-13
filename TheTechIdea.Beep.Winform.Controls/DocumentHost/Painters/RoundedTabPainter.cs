@@ -7,9 +7,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
     {
         public override string Name => "RoundedTabPainter";
 
-        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
-            Color fill = context.GetTabBackground(tab, -1);
+            if (tab.TabRect.Width < 6 || tab.TabRect.Height < 6) return;
+            Color fill = context.GetTabBackground(tab, index);
             var r = Rectangle.Inflate(tab.TabRect, -2, -2);
             int radius = System.Math.Min(r.Height / 2, context.Scale(10));
 

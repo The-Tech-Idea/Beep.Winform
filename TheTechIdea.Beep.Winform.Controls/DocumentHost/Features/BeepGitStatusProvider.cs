@@ -132,23 +132,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
                 CreateNoWindow         = true,
             };
 
-            using var proc = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            var tcs = new TaskCompletionSource<string>();
-
-            proc.Exited += (_, _) =>
-            {
-                if (!tcs.Task.IsCompleted)
-                    tcs.TrySetResult(proc.StandardOutput.ReadToEnd());
-            };
-
+            using var proc = new Process { StartInfo = psi };
             proc.Start();
-            proc.BeginOutputReadLine();
-            proc.BeginErrorReadLine();
 
             using var reg = ct.Register(() => { try { proc.Kill(); } catch { } });
-            await Task.Run(() => proc.WaitForExit(10_000), ct);
-
-            return proc.StandardOutput.ReadToEnd();
+            // Read stdout async and wait for process exit concurrently.
+            // Do NOT mix BeginOutputReadLine (async) with ReadToEnd (sync) on the same stream.
+            var outputTask = proc.StandardOutput.ReadToEndAsync(ct);
+            await Task.Run(() => proc.WaitForExit(10_000), ct).ConfigureAwait(false);
+            return await outputTask.ConfigureAwait(false);
         }
 
         // ── Porcelain parser ──────────────────────────────────────────────────

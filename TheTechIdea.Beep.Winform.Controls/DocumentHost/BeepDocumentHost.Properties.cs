@@ -34,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private TabColorMode     _tabColorMode  = TabColorMode.None;
         private bool             _autoSaveLayout = false;
         private string           _sessionFile   = string.Empty;
+        private string           _designTimeLayoutJson = string.Empty;
         private bool             _enableRoutedCommands;
         private bool             _enableTransactionalDocking;
         private bool             _enableHostTelemetry;
@@ -100,6 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When <see langword="true"/> (default) a centered illustration is painted in the content
         /// area whenever there are no open documents.  Set to <see langword="false"/> to suppress it.
         /// </summary>
+        [Category("Document – Layout")]
         [DefaultValue(true)]
         [Description("Show a centred empty-state illustration when no documents are open.")]
         public bool ShowEmptyState
@@ -117,6 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>Where the tab strip is positioned relative to the document panels.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(TabStripPosition.Top)]
         [Description("Position of the tab strip relative to the document panels.")]
         public TabStripPosition TabPosition
@@ -126,6 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Show the new-document (+) button in the tab strip.</summary>
+        [Category("Document – Behavior")]
         [DefaultValue(true)]
         [Description("Show the new-document (+) button in the tab strip.")]
         public bool ShowAddButton
@@ -135,6 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Controls when the close (×) button appears on tabs.</summary>
+        [Category("Document – Behavior")]
         [DefaultValue(TabCloseMode.OnHover)]
         [Description("Controls when the close (×) button is visible on each tab.")]
         public TabCloseMode CloseMode
@@ -144,6 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Visual rendering style propagated to the tab strip.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(DocumentTabStyle.Chrome)]
         [Description("Visual style of the tab strip (Chrome / VSCode / Underline / Pill).")]
         public DocumentTabStyle TabStyle
@@ -153,6 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Specifies the border/elevation style of the document host container.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(DocumentHostStyle.Flat)]
         [Description("Border/elevation style of the document host container.")]
         public DocumentHostStyle ControlStyle
@@ -165,6 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When true, keyboard shortcuts on the tab strip (Ctrl+Tab, Ctrl+W, Ctrl+1-9) are active.
         /// Propagated to the underlying <see cref="BeepDocumentTabStrip"/>.
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(true)]
         [Description("Enable built-in keyboard shortcuts on the tab strip.")]
         public bool KeyboardShortcutsEnabled
@@ -174,6 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Controls how per-document tab colours are applied to tab backgrounds.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(TabColorMode.None)]
         [Description("How per-document tab colours are rendered: None, AccentBar, FullBackground, or BottomBorder.")]
         public TabColorMode TabColorMode
@@ -186,6 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When true, the tab layout is automatically saved to <see cref="SessionFile"/> on dispose
         /// and restored on the next load if the file exists.
         /// </summary>
+        [Category("Document – Persistence")]
         [DefaultValue(false)]
         [Description("Automatically save and restore the tab layout using SessionFile.")]
         public bool AutoSaveLayout
@@ -195,6 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Path to the JSON session file used by <see cref="AutoSaveLayout"/>.</summary>
+        [Category("Document – Persistence")]
         [DefaultValue("")]
         [Description("File path for the automatic layout save/restore (AutoSaveLayout must be true).")]
         public string SessionFile
@@ -206,6 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>
         /// Enables context-aware routed command execution for vNext command service APIs.
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(false)]
         [Description("Enable routed command behavior for vNext command execution.")]
         public bool EnableRoutedCommands
@@ -217,6 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>
         /// Enables transaction scopes around docking/split/layout mutations.
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(false)]
         [Description("Enable transactional docking operations in vNext.")]
         public bool EnableTransactionalDocking
@@ -228,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>
         /// Enables host telemetry events for command/layout/docking operations.
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(false)]
         [Description("Enable host telemetry emission hooks.")]
         public bool EnableHostTelemetry
@@ -237,6 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Beep theme name propagated to the tab strip and all document panels.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue("")]
         [Description("Beep theme name propagated to the tab strip and document panels.")]
         private string _themeName = string.Empty;
@@ -263,9 +278,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When exceeded, the least-recently-used panels beyond this limit are unloaded via
         /// <see cref="EvictInactivePanels"/>.  Set to 0 (default) for unlimited.
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(0)]
-        [Description("Maximum simultaneously loaded panels. 0 = unlimited. " +
-                     "Least-recently-used panels beyond this limit are unloaded to free memory.")]
+        [Description("Maximum simultaneously loaded panels. 0 = unlimited. Least-recently-used panels beyond this limit are unloaded to free memory.")]
         public int MaxActivePanels
         {
             get => _maxActivePanels;
@@ -350,6 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <see cref="LayoutHistory"/> on every significant structural change
         /// (split, merge, document move).
         /// </summary>
+        [Category("Document – Persistence")]
         [DefaultValue(true)]
         [Description("Automatically record layout snapshots on structural changes.")]
         public bool TrackLayoutHistory
@@ -478,6 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When <see langword="true"/> a clickable breadcrumb bar is shown above the document
         /// content area (Workspace › DocumentTitle).  Toggle via Ctrl+K Ctrl+B.
         /// </summary>
+        [Category("Document – Layout")]
         [DefaultValue(false)]
         [Description("Show a clickable breadcrumb navigation bar above the document content area.")]
         public bool ShowBreadcrumb
@@ -511,11 +528,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_breadcrumb == null || !_showBreadcrumb) return;
             string? workspace = ActiveWorkspaceName;
             string? docTitle  = null;
-            if (_activeDocumentId != null)
-            {
-                var tab = _tabStrip.Tabs.FirstOrDefault(t => t.Id == _activeDocumentId);
+            if (_activeDocumentId != null
+                && TryGetDocumentTab(_activeDocumentId, out _, out var tab))
                 docTitle = tab?.Title;
-            }
             _breadcrumb.SetActiveDocument(workspace, null, docTitle);
         }
 
@@ -573,16 +588,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Execute = () =>
                 {
                     if (_activeDocumentId == null) return;
-                    var tab = _tabStrip.Tabs.FirstOrDefault(t => t.Id == _activeDocumentId);
-                    if (tab != null) PinDocument(_activeDocumentId, !tab.IsPinned);
+                    if (TryGetDocumentTab(_activeDocumentId, out _, out var tab) && tab != null)
+                        PinDocument(_activeDocumentId, !tab.IsPinned);
                 },
                 CanExecute = () => _activeDocumentId != null,
                 ExecuteWithContext = ctx =>
                 {
                     var docId = ctx.ActiveDocumentId;
                     if (string.IsNullOrEmpty(docId)) return;
-                    var tab = _tabStrip.Tabs.FirstOrDefault(t => t.Id == docId);
-                    if (tab != null) PinDocument(docId, !tab.IsPinned);
+                    if (TryGetDocumentTab(docId, out _, out var tab) && tab != null)
+                        PinDocument(docId, !tab.IsPinned);
                 },
                 CanExecuteWithContext = ctx => !string.IsNullOrEmpty(ctx.ActiveDocumentId)
             });
@@ -666,17 +681,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             reg.Register(new BeepCommandEntry
             {
                 Id = "view.density.compact", Title = "Compact Density", Category = "View",
-                Execute = () => _tabStrip.TabDensity = TabDensityMode.Compact
+                Execute = () => { foreach (var g in _groups) g.TabStrip.TabDensity = TabDensityMode.Compact; }
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "view.density.comfortable", Title = "Comfortable Density", Category = "View",
-                Execute = () => _tabStrip.TabDensity = TabDensityMode.Comfortable
+                Execute = () => { foreach (var g in _groups) g.TabStrip.TabDensity = TabDensityMode.Comfortable; }
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "view.density.dense", Title = "Dense Density", Category = "View",
-                Execute = () => _tabStrip.TabDensity = TabDensityMode.Dense
+                Execute = () => { foreach (var g in _groups) g.TabStrip.TabDensity = TabDensityMode.Dense; }
             });
 
             // ── Layout / Splits ───────────────────────────────────────────────
@@ -701,12 +716,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             reg.Register(new BeepCommandEntry
             {
                 Id = "split.focus.left", Title = "Focus Left Split", Category = "Layout",
-                Shortcut = "Ctrl+K ←", Execute = () => FocusSplitGroup(-1)
+                Shortcut = "Ctrl+K ← / Alt+Left", Execute = () => FocusSplitGroup(-1)
             });
             reg.Register(new BeepCommandEntry
             {
                 Id = "split.focus.right", Title = "Focus Right Split", Category = "Layout",
-                Shortcut = "Ctrl+K →", Execute = () => FocusSplitGroup(+1)
+                Shortcut = "Ctrl+K → / Alt+Right", Execute = () => FocusSplitGroup(+1)
             });
             reg.Register(new BeepCommandEntry
             {
@@ -820,6 +835,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Raised after a previously floated document is docked back into the host.</summary>
         public event System.EventHandler<DocumentEventArgs>? DocumentDocked;
 
+        /// <summary>Raised after a document transitions between docked, floating, and auto-hide states.</summary>
+        public event System.EventHandler<DocumentDockStateChangedEventArgs>? DocumentDockStateChanged;
+
         /// <summary>Raised when a document's pinned state changes (from context menu or code).</summary>
         public event System.EventHandler<DocumentEventArgs>? DocumentPinChanged;
 
@@ -835,6 +853,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>Maximum number of document activations to remember in the MRU list.</summary>
+        [Category("Document – Behavior")]
         [DefaultValue(20)]
         [Description("Maximum number of recently-used documents tracked for MRU navigation.")]
         public int MaxRecentHistory
@@ -844,6 +863,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Maximum number of closed documents kept for the Reopen Closed Tab feature.</summary>
+        [Category("Document – Behavior")]
         [DefaultValue(10)]
         [Description("Maximum number of recently-closed documents available for Ctrl+Shift+T.")]
         public int MaxClosedHistory
@@ -873,6 +893,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When true, a tab dragged past the edge of this host will transfer to another
         /// <see cref="BeepDocumentHost"/> located under the cursor (if one is registered).
         /// </summary>
+        [Category("Document – Behavior")]
         [DefaultValue(false)]
         [Description("Allow tabs to be dragged from this host to another BeepDocumentHost in the same process.")]
         public bool AllowDragBetweenHosts
@@ -915,6 +936,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>Maximum number of simultaneous split groups (default 4).</summary>
+        [Category("Document – Layout")]
         [DefaultValue(4)]
         [Description("Maximum number of side-by-side document groups allowed.")]
         public int MaxGroups
@@ -927,6 +949,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// When true (default), groups are split side-by-side horizontally.
         /// When false, groups are split one above the other.
         /// </summary>
+        [Category("Document – Layout")]
         [DefaultValue(true)]
         [Description("True = side-by-side (horizontal) split; False = top/bottom (vertical) split.")]
         public bool SplitHorizontal
@@ -946,6 +969,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Fraction (0.1 – 0.9) of the host's width (or height in vertical split)
         /// allocated to the first group.  Default 0.5 = equal split.
         /// </summary>
+        [Category("Document – Layout")]
         [DefaultValue(0.5f)]
         [Description("Ratio of host space assigned to the first group (0.1 – 0.9).")]
         public float SplitRatio
@@ -1000,6 +1024,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>How tab widths are calculated: Equal, FitToContent, Compact, or Fixed.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(TabSizeMode.Equal)]
         [Description("How tab widths are calculated: Equal, FitToContent, Compact, or Fixed.")]
         public TabSizeMode TabSizeMode
@@ -1009,6 +1034,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Width of each tab in pixels when <see cref="TabSizeMode"/> = Fixed.</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(160)]
         [Description("Fixed width per tab in pixels (applies when TabSizeMode = Fixed).")]
         public int FixedTabWidth
@@ -1018,6 +1044,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Controls the tooltip style on tab hover: None, Simple, or Rich (thumbnail).</summary>
+        [Category("Document – Appearance")]
         [DefaultValue(TabTooltipMode.Simple)]
         [Description("Tooltip style on tab hover: None = off, Simple = title, Rich = thumbnail panel.")]
         public TabTooltipMode TabTooltipMode
@@ -1027,6 +1054,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>Allow the user to drag a tab out of the strip to float it in a new window.</summary>
+        [Category("Document – Behavior")]
         [DefaultValue(true)]
         [Description("Allow the user to drag a tab out of the strip to open it in a floating window.")]
         public bool AllowDragFloat
@@ -1126,6 +1154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Show or hide the rich status bar along the bottom edge of the host.
         /// Default is <see langword="true"/>.
         /// </summary>
+        [Category("Document – Layout")]
         [DefaultValue(true)]
         [Description("Show the rich status bar along the bottom edge of the document host.")]
         public bool ShowStatusBar
@@ -1133,8 +1162,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             get => _showStatusBar;
             set
             {
+                if (_showStatusBar == value) return;
                 _showStatusBar = value;
                 StatusBar.Visible = value;
+                RecalculateLayout();
             }
         }
 
@@ -1148,6 +1179,324 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public Features.BeepDocumentMiniToolbar MiniToolbar
             => _miniToolbar ??= new Features.BeepDocumentMiniToolbar(
                    System.Array.Empty<Features.MiniToolbarAction>());
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Policy Properties (P7-005)
+        // Global on/off switches for layout mutations.
+        // Checked by drag-to-float, context menus, and keyboard shortcuts.
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>Enum controlling when close (×) buttons are shown on document tabs.</summary>
+        public enum CloseButtonShowMode
+        {
+            /// <summary>Always visible on every tab.</summary>
+            Always,
+            /// <summary>Visible only on the tab the mouse is hovering.</summary>
+            OnHover,
+            /// <summary>Visible only on the currently active tab.</summary>
+            ActiveOnly,
+            /// <summary>Never shown (close via context menu or keyboard only).</summary>
+            Never,
+            /// <summary>Hidden entirely — close button is not rendered.</summary>
+            Hidden
+        }
+
+        private bool _allowFloat      = true;
+        private bool _allowSplit      = true;
+        private bool _allowPin        = true;
+        private bool _allowAutoHide   = true;
+        private int  _maxSplitDepth   = 4;
+        private bool _showPinButton   = true;
+        private bool _showMaximizeButton = false;
+        private int  _autoHideHoverDelay = 400;
+        private CloseButtonShowMode _closeButtonShowMode = CloseButtonShowMode.OnHover;
+
+        /// <summary>
+        /// When <see langword="false"/>, drag-to-float and "Float Document" actions are disabled
+        /// for all documents in this host.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(true)]
+        [Description("Allow documents to be floated into their own window via drag or context menu.")]
+        public bool AllowFloat
+        {
+            get => _allowFloat;
+            set
+            {
+                _allowFloat = value;
+                _tabStrip.PolicyAllowFloat = value;
+                // When the host-level float policy is disabled, also block drag-float
+                if (!value) _tabStrip.AllowDragFloat = false;
+            }
+        }
+
+        /// <summary>
+        /// When <see langword="false"/>, all split-group creation (via drag, context menu, or code)
+        /// is disabled.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(true)]
+        [Description("Allow documents to be split into side-by-side tab groups.")]
+        public bool AllowSplit
+        {
+            get => _allowSplit;
+            set
+            {
+                _allowSplit = value;
+                _tabStrip.PolicyAllowSplit = value;
+            }
+        }
+
+        /// <summary>
+        /// When <see langword="false"/>, the pin button is hidden and pinning is not permitted.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(true)]
+        [Description("Allow documents to be pinned (anchored to the left of the tab strip).")]
+        public bool AllowPin
+        {
+            get => _allowPin;
+            set
+            {
+                _allowPin = value;
+                _tabStrip.PolicyAllowPin = value;
+            }
+        }
+
+        /// <summary>
+        /// When <see langword="false"/>, auto-hide side strips are disabled.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(true)]
+        [Description("Allow documents to be minimised to auto-hide side strips.")]
+        public bool AllowAutoHide
+        {
+            get => _allowAutoHide;
+            set
+            {
+                _allowAutoHide = value;
+                _tabStrip.PolicyAllowAutoHide = value;
+            }
+        }
+
+        /// <summary>
+        /// Maximum depth of nested splits.  Default is 4.  Set to 1 for single-group-only mode.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(4)]
+        [Description("Maximum nesting depth for split groups (1 = no splits allowed).")]
+        public int MaxSplitDepth
+        {
+            get => _maxSplitDepth;
+            set => _maxSplitDepth = System.Math.Max(1, value);
+        }
+
+        /// <summary>
+        /// Controls when the close (×) button is rendered on tab items.
+        /// Overrides <see cref="CloseMode"/> when explicitly set.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(CloseButtonShowMode.OnHover)]
+        [Description("When close (×) buttons are shown: Always, OnHover, ActiveOnly, Never, or Hidden.")]
+        public CloseButtonShowMode CloseButtonMode
+        {
+            get => _closeButtonShowMode;
+            set
+            {
+                _closeButtonShowMode = value;
+                // Map to the underlying tab-strip CloseMode enum
+                _tabStrip.CloseMode = value switch
+                {
+                    CloseButtonShowMode.Always     => TabCloseMode.Always,
+                    CloseButtonShowMode.OnHover    => TabCloseMode.OnHover,
+                    CloseButtonShowMode.ActiveOnly => TabCloseMode.ActiveOnly,
+                    _                              => TabCloseMode.Never
+                };
+            }
+        }
+
+        /// <summary>
+        /// Show the pin-document button in each tab's header area.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(true)]
+        [Description("Show the pin button on tab headers.")]
+        public bool ShowPinButton
+        {
+            get => _showPinButton;
+            set => _showPinButton = value;
+        }
+
+        /// <summary>
+        /// Show the maximize button in the group caption bar.
+        /// </summary>
+        [Category("Document – Policies")]
+        [DefaultValue(false)]
+        [Description("Show a maximize button in the group caption bar.")]
+        public bool ShowMaximizeButton
+        {
+            get => _showMaximizeButton;
+            set => _showMaximizeButton = value;
+        }
+
+        /// <summary>
+        /// Delay in milliseconds before hovering over an auto-hide strip tab opens the
+        /// flyout panel.  Set to 0 to require a click.  Default is 400 ms.
+        /// </summary>
+        [Category("Document – Animation")]
+        [DefaultValue(400)]
+        [Description("Hover delay (ms) before an auto-hide strip tab reveals its flyout. 0 = click-only.")]
+        public int AutoHideHoverDelay
+        {
+            get => _autoHideHoverDelay;
+            set
+            {
+                _autoHideHoverDelay = System.Math.Max(0, value);
+                UpdateStripHoverDelays();
+            }
+        }
+
+        // Validation helper — called by split, float, and pin operations
+        internal bool CanSplitNow(int currentDepth) =>
+            _allowSplit && currentDepth < _maxSplitDepth;
+
+        internal bool CanFloatNow()  => _allowFloat;
+        internal bool CanPinNow()    => _allowPin;
+        internal bool CanAutoHideNow() => _allowAutoHide;
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Window Menu Builder (P7-006)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Populates a <see cref="System.Windows.Forms.ToolStripMenuItem"/> with standard MDI
+        /// Window menu commands: New Tab Group, Move To Group, Close All, and a numbered
+        /// list of all open documents.  The menu is rebuilt each time it opens via
+        /// <see cref="System.Windows.Forms.ToolStripDropDownItem.DropDownOpening"/>.
+        /// </summary>
+        /// <param name="windowMenuItem">The host application's "Window" menu item.</param>
+        public void PopulateWindowMenu(System.Windows.Forms.ToolStripMenuItem windowMenuItem)
+        {
+            if (windowMenuItem == null) throw new System.ArgumentNullException(nameof(windowMenuItem));
+            windowMenuItem.DropDownOpening -= OnWindowMenuOpening;
+            windowMenuItem.DropDownOpening += OnWindowMenuOpening;
+        }
+
+        /// <summary>
+        /// Finds or creates a "Window" menu item inside <paramref name="menuStrip"/> and wires
+        /// it to auto-populate with standard MDI Window commands whenever it is opened.
+        /// </summary>
+        /// <param name="menuStrip">The application's main <see cref="System.Windows.Forms.MenuStrip"/>.</param>
+        /// <param name="windowMenuItemText">Display text to search for or create. Default is "Window".</param>
+        public void AttachWindowMenu(System.Windows.Forms.MenuStrip menuStrip,
+                                     string windowMenuItemText = "Window")
+        {
+            if (menuStrip == null) throw new System.ArgumentNullException(nameof(menuStrip));
+
+            System.Windows.Forms.ToolStripMenuItem? existing = null;
+            foreach (System.Windows.Forms.ToolStripItem item in menuStrip.Items)
+            {
+                if (item is System.Windows.Forms.ToolStripMenuItem mi &&
+                    string.Equals(mi.Text, windowMenuItemText, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    existing = mi;
+                    break;
+                }
+            }
+
+            if (existing == null)
+            {
+                existing = new System.Windows.Forms.ToolStripMenuItem(windowMenuItemText);
+                menuStrip.Items.Add(existing);
+            }
+
+            PopulateWindowMenu(existing);
+        }
+
+        private void OnWindowMenuOpening(object? sender,
+                                          System.EventArgs e)
+        {
+            if (sender is not System.Windows.Forms.ToolStripMenuItem menu) return;
+            menu.DropDownItems.Clear();
+
+            // Layout actions
+            AddWindowMenuItem(menu, "New Horizontal Tab Group",
+                () => { if (_allowSplit) SplitActiveGroup(isHorizontal: false); });
+            AddWindowMenuItem(menu, "New Vertical Tab Group",
+                () => { if (_allowSplit) SplitActiveGroup(isHorizontal: true); });
+            AddWindowMenuItem(menu, "Move to Next Tab Group",
+                () => MoveActiveDocumentToGroup(next: true));
+            AddWindowMenuItem(menu, "Move to Previous Tab Group",
+                () => MoveActiveDocumentToGroup(next: false));
+
+            menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
+
+            // Close actions
+            AddWindowMenuItem(menu, "Close All Documents", CloseAllDocuments);
+            AddWindowMenuItem(menu, "Close All But This",
+                () => { if (_activeDocumentId != null) CloseAllBut(_activeDocumentId); });
+
+            menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
+
+            // Numbered document list
+            int n = 1;
+            foreach (var tab in _tabStrip.Tabs)
+            {
+                var id    = tab.Id;
+                var title = tab.Title;
+                bool isActive = id == _activeDocumentId;
+                var item = new System.Windows.Forms.ToolStripMenuItem(
+                    $"{(n < 10 ? "&" + n + " " : "  ")}{title}");
+                if (isActive)
+                    item.Checked = true;
+                item.Click += (_, _) => SetActiveDocument(id);
+                menu.DropDownItems.Add(item);
+                n++;
+            }
+        }
+
+        private static void AddWindowMenuItem(System.Windows.Forms.ToolStripMenuItem parent,
+                                               string text, System.Action action)
+        {
+            var item = new System.Windows.Forms.ToolStripMenuItem(text);
+            item.Click += (_, _) => action();
+            parent.DropDownItems.Add(item);
+        }
+
+        // Stubs for helper methods referenced above — forward to existing implementations
+        private void SplitActiveGroup(bool isHorizontal)
+        {
+            if (_groups.Count == 0) return;
+            if (!CanSplitNow(_groups.Count)) return;  // depth policy check
+            var docId = _activeDocumentId
+                ?? _groups[0].DocumentIds.FirstOrDefault();
+            if (string.IsNullOrEmpty(docId)) return;
+            if (isHorizontal) SplitDocumentHorizontal(docId);
+            else              SplitDocumentVertical(docId);
+        }
+
+        private void MoveActiveDocumentToGroup(bool next)
+        {
+            if (_activeDocumentId == null || _groups.Count < 2) return;
+            var currentGroup = _groups.FirstOrDefault(g => g.DocumentIds.Contains(_activeDocumentId!));
+            if (currentGroup == null) return;
+
+            int idx = _groups.IndexOf(currentGroup);
+            int targetIdx = next
+                ? (idx + 1) % _groups.Count
+                : (idx - 1 + _groups.Count) % _groups.Count;
+
+            MoveDocumentToGroup(_activeDocumentId!, _groups[targetIdx].GroupId);
+        }
+
+        private void CloseAllBut(string keepId)
+        {
+            var toClose = _panels.Keys
+                .Where(id => id != keepId)
+                .ToList();
+            foreach (var id in toClose)
+                CloseDocument(id);
+        }
 
         // ─────────────────────────────────────────────────────────────────────
         // Design-Time Documents collection
@@ -1169,6 +1518,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public System.Collections.ObjectModel.Collection<DocumentDescriptor> DesignTimeDocuments
             => _designTimeDocuments;
+
+        /// <summary>
+        /// Serialized design-time layout snapshot maintained by the DocumentHost designer.
+        /// Hidden from the property grid but persisted into <c>InitializeComponent</c>
+        /// so document groups, splits, and dock states survive designer reopen.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DefaultValue("")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string DesignTimeLayoutJson
+        {
+            get => _designTimeLayoutJson;
+            set => _designTimeLayoutJson = value ?? string.Empty;
+        }
+
+        public bool ShouldSerializeDesignTimeLayoutJson()
+            => !string.IsNullOrWhiteSpace(_designTimeLayoutJson);
+
+        public void ResetDesignTimeLayoutJson()
+            => _designTimeLayoutJson = string.Empty;
 
         /// <summary>
         /// Applies any entries in <see cref="DesignTimeDocuments"/> that are not already open.

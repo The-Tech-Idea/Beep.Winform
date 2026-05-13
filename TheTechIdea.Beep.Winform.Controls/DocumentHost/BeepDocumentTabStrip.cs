@@ -176,6 +176,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             g.SmoothingMode     = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
+            // Reset paint context on every draw so hover/close-mode state is never stale.
+            // TabStripPaintContext is a cheap immutable snapshot; reconstruction is negligible.
+            _paintContext = null;
+
             var painter = GetPainter();
             var ctx = GetPaintContext();
 

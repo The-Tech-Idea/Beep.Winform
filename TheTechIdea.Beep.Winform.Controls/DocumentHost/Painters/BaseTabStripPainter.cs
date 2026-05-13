@@ -15,13 +15,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
         public virtual void PaintTab(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
             if (tab.TabRect.IsEmpty) return;
-            PaintTabBackground(g, tab, context);
+            PaintTabBackground(g, tab, index, context);
             PaintTabContent(g, tab, index, context);
         }
 
-        public virtual void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public virtual void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
-            Color fill = context.GetTabBackground(tab, -1);
+            Color fill = context.GetTabBackground(tab, index);
             using var path = CreateTabPath(tab.TabRect, context);
             using var br = new SolidBrush(fill);
             g.FillPath(br, path);
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
 
                 if (img == null) return;
 
-                var path = new GraphicsPath();
+                using var path = new GraphicsPath();
                 path.AddRectangle(tab.IconRect);
 
                 if (tab.IsActive)
@@ -90,8 +90,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
                 {
                     StyledImagePainter.PaintWithTint(g, path, tab.IconPath ?? string.Empty, context.Theme.SecondaryTextColor, 0.55f);
                 }
-
-                path.Dispose();
             }
             finally
             {
@@ -104,9 +102,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
             if (tab.TitleRect.IsEmpty) return;
 
             Color textColor = context.GetTextColor(tab);
-            var font = tab.IsActive
-                ? new Font(context.TextFont, FontStyle.Bold)
-                : context.TextFont;
+            using Font? ownFont = tab.IsActive ? new Font(context.TextFont, FontStyle.Bold) : null;
+            var font = ownFont ?? context.TextFont;
 
             using var fmt = new StringFormat
             {
@@ -118,8 +115,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
 
             using var textBr = new SolidBrush(textColor);
             g.DrawString(tab.Title, font, textBr, tab.TitleRect, fmt);
-
-            if (tab.IsActive && font != context.TextFont) font.Dispose();
         }
 
         public virtual void PaintCloseButton(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
@@ -179,9 +174,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round
             };
+            int barOffset = (int)System.Math.Round(DocTokens.IndicatorThickness / 2f);
             g.DrawLine(pen,
-                tab.TabRect.Left + inset, tab.TabRect.Top + DocTokens.IndicatorThickness / 2,
-                tab.TabRect.Right - inset, tab.TabRect.Top + DocTokens.IndicatorThickness / 2);
+                tab.TabRect.Left + inset, tab.TabRect.Top + barOffset,
+                tab.TabRect.Right - inset, tab.TabRect.Top + barOffset);
         }
 
         public virtual void PaintPinnedTab(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
@@ -337,8 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
 
         public virtual void PaintGroupHeader(Graphics g, TabGroup group, BeepDocumentTab firstTab, TabStripPaintContext context)
         {
-            int hdrH = context.Scale(16);
-            int tabH = context.Scale(32);
+            int tabH = firstTab.TabRect.Height;
             int x = firstTab.TabRect.Left;
             int y = firstTab.TabRect.Top;
 

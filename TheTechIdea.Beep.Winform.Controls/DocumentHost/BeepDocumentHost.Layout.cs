@@ -162,7 +162,27 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 // Sync the tree with the current group topology
                 SyncLayoutTree();
 
-                _layoutRoot.Bounds = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+                // Reserve space for persistent chrome bars (status bar at bottom,
+                // breadcrumb at top) before assigning bounds to the layout tree.
+                int totalW = ClientSize.Width;
+                int totalH = ClientSize.Height;
+                int sbH = _showStatusBar ? AhS(DocTokens.StatusBarHeight) : 0;
+                int bcH = (_showBreadcrumb && _breadcrumb != null) ? _breadcrumb.Height : 0;
+
+                if (sbH > 0)
+                {
+                    var bar = StatusBar; // lazily creates if needed
+                    bar.SetBounds(0, totalH - sbH, totalW, sbH);
+                    bar.BringToFront();
+                }
+
+                if (bcH > 0)
+                {
+                    _breadcrumb!.SetBounds(0, 0, totalW, bcH);
+                    _breadcrumb.BringToFront();
+                }
+
+                _layoutRoot.Bounds = new Rectangle(0, bcH, totalW, totalH - sbH - bcH);
 
                 if (_layoutRoot is SplitLayoutNode rootSplit)
                     ApplyTreeLayout(rootSplit);
@@ -352,10 +372,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var b in _extraSplitters) b.Visible = false;
 
             int stripH = AhS(LogicalStripH);
-            int w = ClientSize.Width;
-            int h = ClientSize.Height;
 
-            _primaryGroup.GroupBounds = new Rectangle(0, 0, w, h);
+            // Use the bounds already computed by RecalculateLayout (excludes status bar
+            // and breadcrumb chrome so groups are correctly sized within the available area).
+            _primaryGroup.GroupBounds = _layoutRoot.Bounds;
             _primaryGroup.TabPosition = _tabPosition;
             _primaryGroup.ApplyBounds(stripH);
         }

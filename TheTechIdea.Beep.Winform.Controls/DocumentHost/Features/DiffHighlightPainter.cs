@@ -77,13 +77,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
                 string marker = line.Kind == DiffLineKind.Added ? "+" : "−";
                 using var fb = new SolidBrush(GutterTextColor);
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                var gutterStr = new StringFormat { Alignment = StringAlignment.Center,
+                using var gutterStr = new StringFormat { Alignment = StringAlignment.Center,
                     LineAlignment = StringAlignment.Center };
                 g.DrawString(marker, LineFont, fb, gutterRect, gutterStr);
             }
 
             // Line numbers
-            var sf = new StringFormat { Alignment = StringAlignment.Far,
+            using var sf = new StringFormat { Alignment = StringAlignment.Far,
                 LineAlignment = StringAlignment.Center, FormatFlags = StringFormatFlags.NoWrap };
             using var lnBrush = new SolidBrush(isSelected ? (_isDark ? Color.White : ColorUtils.MapSystemColor(SystemColors.HighlightText)) : LineNumberColor);
 
@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
                 RowHeight);
 
             using var textBrush = new SolidBrush(isSelected ? (_isDark ? Color.White : ColorUtils.MapSystemColor(SystemColors.HighlightText)) : LineTextColor);
-            var textSf = new StringFormat { FormatFlags = StringFormatFlags.NoWrap,
+            using var textSf = new StringFormat { FormatFlags = StringFormatFlags.NoWrap,
                 LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
             g.DrawString(line.Text ?? string.Empty, LineFont, textBrush, textRect, textSf);
         }

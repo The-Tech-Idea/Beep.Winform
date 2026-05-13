@@ -294,6 +294,75 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // Policies  group (P7-002 / P7-005)
+        // ─────────────────────────────────────────────────────────────────────
+
+        [Category("Policies")]
+        [Description("Allow documents to be floated into their own window via drag or context menu.")]
+        public bool AllowFloat
+        {
+            get => _designer.GetProperty<bool>("AllowFloat");
+            set => _designer.SetProperty("AllowFloat", value);
+        }
+
+        [Category("Policies")]
+        [Description("Allow documents to be split into side-by-side tab groups.")]
+        public bool AllowSplit
+        {
+            get => _designer.GetProperty<bool>("AllowSplit");
+            set => _designer.SetProperty("AllowSplit", value);
+        }
+
+        [Category("Policies")]
+        [Description("Allow documents to be pinned to the left of the tab strip.")]
+        public bool AllowPin
+        {
+            get => _designer.GetProperty<bool>("AllowPin");
+            set => _designer.SetProperty("AllowPin", value);
+        }
+
+        [Category("Policies")]
+        [Description("Allow documents to be minimised to auto-hide side strips.")]
+        public bool AllowAutoHide
+        {
+            get => _designer.GetProperty<bool>("AllowAutoHide");
+            set => _designer.SetProperty("AllowAutoHide", value);
+        }
+
+        [Category("Policies")]
+        [Description("Maximum nesting depth for split groups (1 = no splits allowed).")]
+        public int MaxSplitDepth
+        {
+            get => _designer.GetProperty<int>("MaxSplitDepth");
+            set => _designer.SetProperty("MaxSplitDepth", value);
+        }
+
+        [Category("Animation")]
+        [Description("Hover delay (ms) before an auto-hide strip tab reveals its flyout. 0 = click-only.")]
+        public int AutoHideHoverDelay
+        {
+            get => _designer.GetProperty<int>("AutoHideHoverDelay");
+            set => _designer.SetProperty("AutoHideHoverDelay", value);
+        }
+
+        /// <summary>Removes every document and resets the host to a blank state at design time.</summary>
+        public void ClearAllDocuments()
+            => _designer.CloseAllDesignTimeDocuments();
+
+        /// <summary>Copies the current design-time layout snapshot JSON to the clipboard.</summary>
+        public void SaveLayoutSnapshot()
+        {
+            if (Host == null) return;
+            var json = Host.SaveLayout();
+            System.Windows.Forms.Clipboard.SetText(json);
+            System.Windows.Forms.MessageBox.Show(
+                "Layout snapshot copied to clipboard.",
+                "Save Layout Snapshot",
+                System.Windows.Forms.MessageBoxButtons.OK,
+                System.Windows.Forms.MessageBoxIcon.Information);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Session  group
         // ─────────────────────────────────────────────────────────────────────
 
@@ -341,51 +410,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         // Document Actions
         // ─────────────────────────────────────────────────────────────────────
 
+        [Category("Documents")]
+        [Description("Title of the currently active design-time document surface.")]
+        public string ActiveDocumentTitle
+        {
+            get => _designer.GetActiveDocumentTitle();
+            set => _designer.SetActiveDocumentTitle(value);
+        }
+
         /// <summary>Adds a placeholder document at design time.</summary>
         public void AddNewDocument()
-        {
-            if (Host == null) return;
-            int idx   = Host.DocumentCount + 1;
-            string id    = $"doc{idx}";
-            string title = $"Document {idx}";
-            _designer.ExecuteAction($"Add Document '{title}'",
-                host => host.AddDocument(id, title, activate: true));
-        }
+            => _designer.AddDesignTimeDocument();
 
         /// <summary>Closes the currently active document.</summary>
         public void CloseActiveDocument()
-        {
-            if (Host == null) return;
-            var activeId = Host.ActiveDocumentId;
-            if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction($"Close Document '{activeId}'",
-                host => host.CloseDocument(activeId));
-        }
+            => _designer.CloseActiveDesignTimeDocument();
 
         /// <summary>Closes all documents.</summary>
         public void CloseAllDocuments()
-        {
-            if (Host == null) return;
-            _designer.ExecuteAction("Close All Documents", host =>
-            {
-                int safety = host.DocumentCount + 8;
-                while (host.DocumentCount > 0 && safety-- > 0)
-                {
-                    var id = host.ActiveDocumentId;
-                    if (string.IsNullOrEmpty(id)) break;
-                    host.CloseDocument(id);
-                }
-            });
-        }
+            => _designer.CloseAllDesignTimeDocuments();
 
         /// <summary>
         /// Reopens the most recently closed document (equivalent to Ctrl+Shift+T).
         /// </summary>
         public void ReopenLastClosed()
-        {
-            _designer.ExecuteAction("Reopen Last Closed Document",
-                host => host.ReopenLastClosed());
-        }
+            => _designer.ReopenLastClosedDesignTimeDocument();
+
+        /// <summary>Selects the active document panel so toolbox drops target that surface.</summary>
+        public void SelectActiveDocumentSurface()
+            => _designer.SelectActiveDocumentSurface();
 
         /// <summary>Opens the Quick-Switch document picker popup.</summary>
         public void ShowQuickSwitch()
@@ -395,13 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 
         /// <summary>Floats the active document into its own window.</summary>
         public void FloatActiveDocument()
-        {
-            if (Host == null) return;
-            var activeId = Host.ActiveDocumentId;
-            if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction($"Float Document '{activeId}'",
-                host => host.FloatDocument(activeId));
-        }
+            => _designer.FloatActiveDesignTimeDocument();
 
         /// <summary>Pins the active document (icon-only, no close).</summary>
         public void PinActiveDocument()
@@ -409,8 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             if (Host == null) return;
             var activeId = Host.ActiveDocumentId;
             if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction($"Pin Document '{activeId}'",
-                host => host.PinDocument(activeId, true));
+            _designer.SetActiveDocumentPinned(true);
         }
 
         /// <summary>Unpins the active document.</summary>
@@ -419,29 +465,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             if (Host == null) return;
             var activeId = Host.ActiveDocumentId;
             if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction($"Unpin Document '{activeId}'",
-                host => host.PinDocument(activeId, false));
+            _designer.SetActiveDocumentPinned(false);
         }
 
-        /// <summary>Splits the active document horizontally (side-by-side).</summary>
+        /// <summary>Creates a new side-by-side design surface and activates it.</summary>
         public void SplitActiveHorizontal()
-        {
-            if (Host == null) return;
-            var activeId = Host.ActiveDocumentId;
-            if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction("Split Horizontal",
-                host => host.SplitDocumentHorizontal(activeId));
-        }
+            => _designer.CreateSplitDesignTimeDocument(horizontal: true);
 
-        /// <summary>Splits the active document vertically (top / bottom).</summary>
+        /// <summary>Creates a new stacked design surface and activates it.</summary>
         public void SplitActiveVertical()
-        {
-            if (Host == null) return;
-            var activeId = Host.ActiveDocumentId;
-            if (string.IsNullOrEmpty(activeId)) return;
-            _designer.ExecuteAction("Split Vertical",
-                host => host.SplitDocumentVertical(activeId));
-        }
+            => _designer.CreateSplitDesignTimeDocument(horizontal: false);
+
+        /// <summary>Opens the guided layout assistant dialog.</summary>
+        public void OpenLayoutAssistant()
+            => _designer.ShowLayoutAssistant();
 
         // ─────────────────────────────────────────────────────────────────────        // Design-time Actions
         // ─────────────────────────────────────────────────────────────────
@@ -450,24 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         /// Opens the DesignTimeDocuments collection editor from the smart-tag.
         /// </summary>
         public void EditDesignTimeDocuments()
-        {
-            if (Host == null) return;
-            var prop = System.ComponentModel.TypeDescriptor.GetProperties(Host)["DesignTimeDocuments"];
-            if (prop == null) return;
-
-            var designerHost = _designer.Component?.Site?.GetService(typeof(IDesignerHost)) as IDesignerHost;
-            var services     = (IServiceProvider?)designerHost ?? _designer.Component?.Site;
-            if (services == null) return;
-
-            var ctx = new DesignTimeDocumentsEditorContext(Host, prop, services);
-            var editor = new Editors.DesignTimeDocumentsEditor(
-                typeof(System.Collections.ObjectModel.Collection<DocumentDescriptor>));
-
-            var current = prop.GetValue(Host);
-            var newVal  = editor.EditValue(ctx, ctx, current);
-            if (!ReferenceEquals(newVal, current))
-                _designer.SetProperty("DesignTimeDocuments", newVal);
-        }
+            => _designer.OpenDesignTimeDocumentsEditor();
 
         /// <summary>
         /// Opens the layout preset picker and applies the chosen multi-group template.
@@ -479,44 +499,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             using var dlg = new LayoutPresetPickerDialog();
             if (dlg.ShowDialog() != DialogResult.OK) return;
 
-            _designer.ExecuteAction($"Apply Layout Preset: {dlg.SelectedPreset}", h =>
-            {
-                switch (dlg.SelectedPreset)
-                {
-                    case LayoutPreset.SideBySide:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.Stacked:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeWay:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeWayNested:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.FourUp:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeColumn:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.FiveWay:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId)) h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    default:
-                        h.MergeAllGroups();
-                        break;
-                }
-            });
+            _designer.ApplyDesignTimeLayoutPreset(dlg.SelectedPreset);
         }
 
         /// <summary>
@@ -524,9 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         /// documents into the primary group.
         /// </summary>
         public void MergeAllGroups()
-        {
-            _designer.ExecuteAction("Merge All Groups", host => host.MergeAllGroups());
-        }
+            => _designer.MergeAllDesignTimeGroups();
 
         // ─────────────────────────────────────────────────────────────────        // Style preset shortcuts
         // ─────────────────────────────────────────────────────────────────────
@@ -568,7 +549,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             items.Add(new DesignerActionHeaderItem("Documents"));
             items.Add(new DesignerActionMethodItem(this, nameof(AddNewDocument),
                 "Add New Document", "Documents",
-                "Adds a placeholder document tab at design time.", true));
+                "Adds a persisted design-time document surface and selects it.", true));
             items.Add(new DesignerActionMethodItem(this, nameof(CloseActiveDocument),
                 "Close Active Document", "Documents",
                 "Closes the currently active document.", false));
@@ -577,19 +558,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                 "Removes every document from the host.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(ReopenLastClosed),
                 "Reopen Last Closed", "Documents",
-                "Reopens the most recently closed document (Ctrl+Shift+T).", false));
+                "Reopens the most recently closed design-time document.", false));
+            items.Add(new DesignerActionMethodItem(this, nameof(SelectActiveDocumentSurface),
+                "Select Active Document Surface", "Documents",
+                "Targets the active document panel for toolbox drops and direct authoring.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(ShowQuickSwitch),
                 "Quick Switch\u2026", "Documents",
                 "Opens the Quick-Switch document picker popup.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(FloatActiveDocument),
                 "Float Active Document", "Documents",
-                "Detaches the active document into a floating window.", false));
+                "Floats the active document and persists that dock state into the design-time layout snapshot.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(PinActiveDocument),
                 "Pin Active Document", "Documents",
                 "Pins the active tab (icon-only, un-closable).", false));
             items.Add(new DesignerActionMethodItem(this, nameof(UnpinActiveDocument),
                 "Unpin Active Document", "Documents",
                 "Restores the pinned tab to normal.", false));
+            items.Add(new DesignerActionPropertyItem(nameof(ActiveDocumentTitle),
+                "Active Document Title:", "Documents",
+                "Rename the currently active design-time document surface."));
 
             // ── Design-Time ──────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Design-Time"));
@@ -599,18 +586,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
 
             // ── Split View ───────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Split View"));
+            items.Add(new DesignerActionMethodItem(this, nameof(OpenLayoutAssistant),
+                "Layout Assistant...", "Split View",
+                "Guides you through choosing a dock pattern and naming the document surfaces it should create.", true));
             items.Add(new DesignerActionMethodItem(this, nameof(SplitActiveHorizontal),
                 "Split Horizontal \u2194", "Split View",
-                "Moves the active document into a new side-by-side pane.", false));
+                "Creates a new side-by-side document surface and activates it.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(SplitActiveVertical),
                 "Split Vertical \u2195", "Split View",
-                "Moves the active document into a new stacked pane.", false));
+                "Creates a new stacked document surface and activates it.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(MergeAllGroups),
                 "Merge All Groups", "Split View",
                 "Collapses all split groups back to a single group.", false));
             items.Add(new DesignerActionMethodItem(this, nameof(ApplyLayoutPreset),
                 "Apply Layout Preset\u2026", "Split View",
-                "Opens the visual layout preset picker (8 templates including nested splits).", true));
+                "Opens the visual layout preset picker and creates any missing document surfaces.", true));
             items.Add(new DesignerActionPropertyItem(nameof(MaxGroups),       "Max Groups:",       "Split View", "Maximum number of simultaneous split groups."));
             items.Add(new DesignerActionPropertyItem(nameof(SplitHorizontal), "Horizontal Split:",  "Split View", "True = side-by-side; False = top/bottom."));
             items.Add(new DesignerActionPropertyItem(nameof(SplitRatio),      "Split Ratio:",      "Split View", "Fraction of space for the first group (0.1\u20130.9)."));
@@ -668,6 +658,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             // ── Cross-Host Drag ──────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Cross-Host Drag"));
             items.Add(new DesignerActionPropertyItem(nameof(AllowDragBetweenHosts), "Allow Drag Between Hosts:", "Cross-Host Drag", "Allow tabs to be dragged between BeepDocumentHost instances."));
+
+            // ── Policies ─────────────────────────────────────────────────────
+            items.Add(new DesignerActionHeaderItem("Policies"));
+            items.Add(new DesignerActionPropertyItem(nameof(AllowFloat),    "Allow Float:",     "Policies", "Allow documents to be floated into their own window."));
+            items.Add(new DesignerActionPropertyItem(nameof(AllowSplit),    "Allow Split:",     "Policies", "Allow documents to be split into side-by-side groups."));
+            items.Add(new DesignerActionPropertyItem(nameof(AllowPin),      "Allow Pin:",       "Policies", "Allow documents to be pinned to the tab strip."));
+            items.Add(new DesignerActionPropertyItem(nameof(AllowAutoHide), "Allow Auto-Hide:", "Policies", "Allow documents to be minimised to auto-hide strips."));
+            items.Add(new DesignerActionPropertyItem(nameof(MaxSplitDepth), "Max Split Depth:", "Policies", "Maximum nesting depth for split groups."));
+
+            // ── Animation ────────────────────────────────────────────────────
+            items.Add(new DesignerActionHeaderItem("Animation"));
+            items.Add(new DesignerActionPropertyItem(nameof(AutoHideHoverDelay), "Auto-Hide Hover Delay:", "Animation", "Hover delay (ms) before auto-hide flyout opens."));
+
+            // ── Quick Actions ────────────────────────────────────────────────
+            items.Add(new DesignerActionHeaderItem("Quick Actions"));
+            items.Add(new DesignerActionMethodItem(this, nameof(ClearAllDocuments),
+                "Clear All Documents", "Quick Actions",
+                "Removes every document from the host and resets to blank state.", false));
+            items.Add(new DesignerActionMethodItem(this, nameof(SaveLayoutSnapshot),
+                "Save Layout Snapshot\u2026", "Quick Actions",
+                "Copies the current design-time layout JSON to the clipboard.", false));
 
             // ── Session ──────────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Session"));

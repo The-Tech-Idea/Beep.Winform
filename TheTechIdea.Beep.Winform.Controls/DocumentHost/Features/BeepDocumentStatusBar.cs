@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            var sf = new StringFormat(StringFormatFlags.NoWrap)
+            using var sf = new StringFormat(StringFormatFlags.NoWrap)
             {
                 Alignment     = align,
                 LineAlignment = StringAlignment.Center,
@@ -254,13 +254,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
                 string cnt = _info.Notifications > 9 ? "9+" : _info.Notifications.ToString();
                 using var badgeFont = new Font("Segoe UI", 6.5f, FontStyle.Bold);
                 using var whiteBr   = new SolidBrush(Color.Black);
-                var bsf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                using var bsf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(cnt, badgeFont, whiteBr, badgeRc, bsf);
                 x -= Scale(4);
             }
 
             // Main right text (zoom + git branch)
-            var sf = new StringFormat(StringFormatFlags.NoWrap)
+            using var sf = new StringFormat(StringFormatFlags.NoWrap)
             {
                 Alignment     = StringAlignment.Far,
                 LineAlignment = StringAlignment.Center,

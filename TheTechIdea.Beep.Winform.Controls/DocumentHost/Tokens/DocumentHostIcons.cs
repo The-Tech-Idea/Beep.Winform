@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens
         public static string Document => SvgsUI.FileText;
 
         /// <summary>Dirty / modified indicator — shown on unsaved tabs.</summary>
-        public static string Modified => SvgsUI.CircleX;   // closest available; swap when a dot icon is added
+        public static string Modified => SvgsUI.CircleDot;
 
         // ── Split / float ──────────────────────────────────────────────────────
 

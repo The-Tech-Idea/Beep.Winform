@@ -86,6 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal event EventHandler<TabEventArgs>? TabPinToggled;
         internal event EventHandler<TabReorderArgs>? TabReordered;
         internal event EventHandler? AddButtonClicked;
+        internal event EventHandler? GroupSplitHorizontalRequested;
+        internal event EventHandler? GroupSplitVerticalRequested;
+        internal event EventHandler? GroupCloseAllRequested;
 
         // ─────────────────────────────────────────────────────────────────────
         // Constructors
@@ -150,6 +153,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             TabStrip.TabPinToggled     += (s, e) => TabPinToggled?.Invoke(this, e);
             TabStrip.TabReordered      += (s, e) => TabReordered?.Invoke(this, e);
             TabStrip.AddButtonClicked  += (s, e) => AddButtonClicked?.Invoke(this, e);
+            TabStrip.GroupSplitHorizontalRequested += (s, e) => GroupSplitHorizontalRequested?.Invoke(this, e);
+            TabStrip.GroupSplitVerticalRequested   += (s, e) => GroupSplitVerticalRequested?.Invoke(this, e);
+            TabStrip.GroupCloseAllRequested        += (s, e) => GroupCloseAllRequested?.Invoke(this, e);
         }
 
         // ─────────────────────────────────────────────────────────────────────

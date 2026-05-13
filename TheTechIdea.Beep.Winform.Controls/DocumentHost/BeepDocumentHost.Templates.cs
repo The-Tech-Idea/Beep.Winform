@@ -320,6 +320,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             targetGroup.TabStrip.AddTab(docId, tab.Title, tab.IconPath);
             targetGroup.ContentArea.Controls.Add(panel);
             panel.Dock = DockStyle.Fill;
+
+            // Keep tracking state in sync with the canonical public overload
+            sourceGroup.DocumentIds.Remove(docId);
+            targetGroup.DocumentIds.Add(docId);
+            _docGroupMap[docId] = targetGroup.GroupId;
         }
     }
 }

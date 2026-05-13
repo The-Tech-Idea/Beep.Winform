@@ -30,6 +30,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly Dictionary<string, AutoHideSide> _autoHideMap
             = new(StringComparer.Ordinal);
 
+        // documentId → last flyout size (width for Left/Right, height for Top/Bottom)
+        // Populated when the overlay is closed (G7 — remember last auto-hide size)
+        private readonly Dictionary<string, int> _ahLastSize
+            = new(StringComparer.Ordinal);
+
         // One strip per side (null until first document is hidden on that side)
         private BeepAutoHideStrip? _ahLeft, _ahRight, _ahTop, _ahBottom;
 
@@ -53,15 +58,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_panels.TryGetValue(documentId, out var panel)) return;
             if (_autoHideMap.ContainsKey(documentId)) return;       // already auto-hidden
+            if (!CanAutoHideNow()) return;                          // policy check
+            PushUndoState();
 
             string title    = panel.DocumentTitle;
             string? icon    = panel.IconPath;
+            var previousState = GetDocumentDockState(documentId);
+            var ownerGroup = GetGroupForDocument(documentId);
+
+            // Record the source group for re-dock hints on restore (P4-002)
+            var ahDesc = _documents?.FirstOrDefault(d => d.Id == documentId);
+            if (ahDesc != null && ownerGroup != null)
+                ahDesc.PreviousGroupId = ownerGroup.GroupId;
+
             var coordinator = new DocumentHostTreeMutationCoordinator(this);
             coordinator.Execute(DocumentHostOperationNames.AutoHideDocument, () =>
             {
                 // Remove from the tab strip
-                int idx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-                if (idx >= 0) _tabStrip.RemoveTabAt(idx);
+                int idx = ownerGroup.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                if (idx >= 0) ownerGroup.TabStrip.RemoveTabAt(idx);
 
                 if (_activeDocumentId == documentId)
                 {
@@ -71,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 }
 
                 // Detach from content area; keep panel alive but invisible
-                _contentArea.Controls.Remove(panel);
+                ownerGroup.ContentArea.Controls.Remove(panel);
                 panel.Parent = this;
                 panel.Visible = false;
 
@@ -81,6 +96,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 // Add button to the appropriate strip
                 EnsureStrip(side).AddItem(documentId, title, icon);
             });
+
+            OnDocumentDockStateChanged(documentId, title, previousState, DocumentDockState.AutoHide, side);
         }
 
         /// <summary>
@@ -90,6 +107,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_autoHideMap.TryGetValue(documentId, out var side)) return;
             if (!_panels.TryGetValue(documentId, out var panel)) return;
+            PushUndoState();
+            var previousState = GetDocumentDockState(documentId);
+            var ownerGroup = GetGroupForDocument(documentId);
 
             // Close the overlay if it is showing this document
             if (_ahActiveDocId == documentId)
@@ -104,12 +124,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
                 // Re-parent to content area
                 this.Controls.Remove(panel);
-                panel.Parent = _contentArea;
+                panel.Parent = ownerGroup.ContentArea;
                 panel.Visible = true;
 
                 // Re-add to tab strip and activate
-                _tabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: true);
+                ownerGroup.TabStrip.AddTab(documentId, panel.DocumentTitle, panel.IconPath, activate: false);
+                SetActiveDocument(documentId);
             });
+
+            OnDocumentDockStateChanged(documentId, panel.DocumentTitle, previousState, DocumentDockState.Docked, side);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -123,14 +146,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 slot = new BeepAutoHideStrip(side, _currentTheme)
                 {
-                    Name    = $"_ah{side}",
-                    Visible = false
+                    Name       = $"_ah{side}",
+                    Visible    = false,
+                    HoverDelay = _autoHideHoverDelay
                 };
                 slot.ItemClicked += OnAhStripItemClicked;
                 Controls.Add(slot);
                 slot.BringToFront();
             }
             return slot;
+        }
+
+        /// <summary>
+        /// Updates the hover-trigger delay on all existing auto-hide strips.
+        /// Called automatically when <see cref="AutoHideHoverDelay"/> is changed at runtime.
+        /// </summary>
+        private void UpdateStripHoverDelays()
+        {
+            foreach (var strip in new[] { _ahLeft, _ahRight, _ahTop, _ahBottom })
+            {
+                if (strip != null)
+                    strip.HoverDelay = _autoHideHoverDelay;
+            }
         }
 
         private BeepAutoHideStrip? GetStrip(AutoHideSide side) => side switch
@@ -214,10 +251,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             panel.Dock   = DockStyle.Fill;
             panel.Visible = true;
 
-            // Size the overlay (about 1/3 of client in the slide direction)
+            // Size the overlay — use remembered size when available (G7), else default to 1/3
             var ca = _contentArea.Bounds;
-            int ow = Math.Min(Math.Max(AhS(220), ca.Width  / 3), ca.Width  - AhS(8));
-            int oh = Math.Min(Math.Max(AhS(160), ca.Height / 3), ca.Height - AhS(8));
+            bool isVertical = side == AutoHideSide.Left || side == AutoHideSide.Right;
+            int defaultW = Math.Min(Math.Max(AhS(220), ca.Width  / 3), ca.Width  - AhS(8));
+            int defaultH = Math.Min(Math.Max(AhS(160), ca.Height / 3), ca.Height - AhS(8));
+            int remembered = _ahLastSize.TryGetValue(documentId, out var ls) ? ls : -1;
+            int ow = isVertical
+                ? (remembered > 0 ? Math.Min(Math.Max(remembered, AhS(80)), ca.Width  - AhS(8)) : defaultW)
+                : defaultW;
+            int oh = !isVertical
+                ? (remembered > 0 ? Math.Min(Math.Max(remembered, AhS(60)), ca.Height - AhS(8)) : defaultH)
+                : defaultH;
 
             switch (side)
             {
@@ -264,6 +309,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (_ahActiveDocId != null && _panels.TryGetValue(_ahActiveDocId, out var p))
             {
+                // Remember current overlay size before hiding (G7)
+                if (_ahOverlay != null && _autoHideMap.TryGetValue(_ahActiveDocId, out var closingSide))
+                {
+                    bool isV = closingSide == AutoHideSide.Left || closingSide == AutoHideSide.Right;
+                    _ahLastSize[_ahActiveDocId] = isV ? _ahOverlay.Width : _ahOverlay.Height;
+                }
+
                 p.Parent  = this;
                 p.Visible = false;
             }
@@ -337,6 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _ahRight?.Dispose();
             _ahTop?.Dispose();
             _ahBottom?.Dispose();
+            _ahLastSize.Clear();
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -373,9 +426,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private IBeepTheme? _currentTheme;
         private int _hoverIndex = -1;
 
+        // Hover-trigger delay
+        private int    _hoverDelay;               // 0 = click-only
+        private System.Windows.Forms.Timer? _hoverTimer;
+        private int    _pendingHoverIndex = -1;   // index waiting for the timer
+
         internal event EventHandler<AhItemClickArgs>? ItemClicked;
 
         internal int ItemCount => _items.Count;
+
+        /// <summary>
+        /// Milliseconds to wait while hovering before the flyout is opened automatically.
+        /// Set to 0 (default) for click-only behaviour.
+        /// </summary>
+        internal int HoverDelay
+        {
+            get => _hoverDelay;
+            set
+            {
+                _hoverDelay = Math.Max(0, value);
+                // If a timer exists, update its interval immediately
+                if (_hoverTimer != null)
+                    _hoverTimer.Interval = Math.Max(1, _hoverDelay);
+            }
+        }
 
         internal BeepAutoHideStrip(AutoHideSide side, IBeepTheme? theme)
         {
@@ -405,21 +479,74 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             base.OnMouseMove(e);
             int hit = HitTest(e.Location);
-            if (hit != _hoverIndex) { _hoverIndex = hit; Invalidate(); }
+            if (hit != _hoverIndex)
+            {
+                _hoverIndex = hit;
+                Invalidate();
+
+                // Hover-trigger: restart timer on every new hit
+                StopHoverTimer();
+                if (hit >= 0 && _hoverDelay > 0)
+                {
+                    _pendingHoverIndex = hit;
+                    StartHoverTimer();
+                }
+            }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            StopHoverTimer();
             if (_hoverIndex >= 0) { _hoverIndex = -1; Invalidate(); }
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
+            StopHoverTimer();
             int hit = HitTest(e.Location);
             if (hit >= 0 && hit < _items.Count)
                 ItemClicked?.Invoke(this, new AhItemClickArgs(_items[hit].Id, _side));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _hoverTimer?.Stop();
+                _hoverTimer?.Dispose();
+                _hoverTimer = null;
+            }
+            base.Dispose(disposing);
+        }
+
+        private void StartHoverTimer()
+        {
+            if (_hoverTimer == null)
+            {
+                _hoverTimer = new System.Windows.Forms.Timer
+                {
+                    Interval = Math.Max(1, _hoverDelay)
+                };
+                _hoverTimer.Tick += OnHoverTimerTick;
+            }
+            _hoverTimer.Interval = Math.Max(1, _hoverDelay);
+            _hoverTimer.Start();
+        }
+
+        private void StopHoverTimer()
+        {
+            _hoverTimer?.Stop();
+            _pendingHoverIndex = -1;
+        }
+
+        private void OnHoverTimerTick(object? sender, EventArgs e)
+        {
+            StopHoverTimer();
+            if (_pendingHoverIndex < 0 || _pendingHoverIndex >= _items.Count) return;
+            ItemClicked?.Invoke(this,
+                new AhItemClickArgs(_items[_pendingHoverIndex].Id, _side));
         }
 
         private int HitTest(Point pt)

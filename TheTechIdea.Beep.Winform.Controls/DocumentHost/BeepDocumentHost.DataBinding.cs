@@ -118,91 +118,83 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void DescriptorAdded(DocumentDescriptor desc)
         {
-            if (_panels.ContainsKey(desc.Id)) return;   // already open
+            if (ContainsOpenDocument(desc.Id))
+            {
+                ApplyDescriptorState(desc);
+                return;
+            }
 
-            var panel = AddDocument(desc.Id, desc.Title, desc.IconPath, activate: false);
+            OpenDocumentCore(
+                desc,
+                new DocumentOpenOptions
+                {
+                    Target = DocumentOpenTarget.PrimaryGroup,
+                    Activate = false
+                },
+                attachDescriptorChanges: true,
+                raiseDocumentAddedEvent: true);
+        }
+
+        private void AttachDescriptorPropertyChanged(DocumentDescriptor desc)
+        {
+            desc.PropertyChanged -= OnDescriptorPropertyChanged;
+            desc.PropertyChanged += OnDescriptorPropertyChanged;
+        }
+
+        private void OnDescriptorPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is DocumentDescriptor desc)
+                DescriptorPropertyChanged(desc, e.PropertyName);
+        }
+
+        private void ApplyDescriptorToOpenDocument(DocumentDescriptor desc,
+                                                   BeepDocumentPanel panel,
+                                                   bool raiseDocumentAddedEvent)
+        {
+            ApplyDescriptorState(desc);
+
+            if (panel.Controls.Count == 0)
+            {
+                var child = DocumentTemplate?.Invoke(desc);
+                if (child != null)
+                {
+                    child.Dock = DockStyle.Fill;
+                    panel.Controls.Add(child);
+                }
+            }
+
+            if (raiseDocumentAddedEvent)
+                DocumentAdded?.Invoke(this, new DocumentAddedEventArgs(desc, panel));
+        }
+
+        private void ApplyDescriptorState(DocumentDescriptor desc)
+        {
+            if (!_panels.TryGetValue(desc.Id, out var panel)) return;
+
+            panel.DocumentTitle = desc.Title;
+            panel.IconPath = desc.IconPath;
             panel.IsModified = desc.IsModified;
-            panel.CanClose   = desc.CanClose;
 
-            if (desc.IsPinned)
-                PinDocument(desc.Id, true);
+            PinDocument(desc.Id, desc.IsPinned);
+            panel.CanClose = desc.CanClose;
 
-            // Set tooltip
-            var tab = _tabStrip.FindTabById(desc.Id);
-            if (tab != null) tab.TooltipText = desc.TooltipText;
-
-            // Set badge
-            if (!string.IsNullOrEmpty(desc.BadgeText))
-                _tabStrip.SetBadge(desc.Id, desc.BadgeText, desc.BadgeColor);
-
-            // Set tab colour
-            if (desc.TabColor != System.Drawing.Color.Empty)
+            if (TryGetDocumentTab(desc.Id, out var tabStrip, out var tab))
             {
-                var t = _tabStrip.FindTabById(desc.Id);
-                if (t != null) { t.TabColor = desc.TabColor; _tabStrip.Invalidate(); }
+                tab.Title = desc.Title;
+                tab.IconPath = desc.IconPath;
+                tab.CanClose = desc.CanClose;
+                tab.TooltipText = desc.TooltipText;
+                tab.TabColor = desc.TabColor;
+                tabStrip.Invalidate();
             }
 
-            // Populate content via factory
-            var child = DocumentTemplate?.Invoke(desc);
-            if (child != null)
-            {
-                child.Dock = DockStyle.Fill;
-                panel.Controls.Add(child);
-            }
-
-            DocumentAdded?.Invoke(this, new DocumentAddedEventArgs(desc, panel));
-
-            // Subscribe to future property changes on this descriptor
-            desc.PropertyChanged += (s, e) =>
-            {
-                if (s is DocumentDescriptor d)
-                    DescriptorPropertyChanged(d, e.PropertyName);
-            };
+            SetBadge(desc.Id, desc.BadgeText, desc.BadgeColor);
         }
 
         private void DescriptorPropertyChanged(DocumentDescriptor desc, string? propName)
         {
-            if (!_panels.TryGetValue(desc.Id, out var panel)) return;
-            var tab = _tabStrip.FindTabById(desc.Id);
-
-            switch (propName)
-            {
-                case nameof(DocumentDescriptor.Title):
-                    panel.DocumentTitle = desc.Title;
-                    if (tab != null) { tab.Title = desc.Title; _tabStrip.Invalidate(); }
-                    break;
-
-                case nameof(DocumentDescriptor.IconPath):
-                    panel.IconPath = desc.IconPath;
-                    if (tab != null) { tab.IconPath = desc.IconPath; _tabStrip.Invalidate(); }
-                    break;
-
-                case nameof(DocumentDescriptor.IsModified):
-                    panel.IsModified = desc.IsModified;
-                    break;
-
-                case nameof(DocumentDescriptor.IsPinned):
-                    PinDocument(desc.Id, desc.IsPinned);
-                    break;
-
-                case nameof(DocumentDescriptor.CanClose):
-                    panel.CanClose = desc.CanClose;
-                    if (tab != null) { tab.CanClose = desc.CanClose; _tabStrip.Invalidate(); }
-                    break;
-
-                case nameof(DocumentDescriptor.TooltipText):
-                    if (tab != null) tab.TooltipText = desc.TooltipText;
-                    break;
-
-                case nameof(DocumentDescriptor.BadgeText):
-                case nameof(DocumentDescriptor.BadgeColor):
-                    _tabStrip.SetBadge(desc.Id, desc.BadgeText, desc.BadgeColor);
-                    break;
-
-                case nameof(DocumentDescriptor.TabColor):
-                    if (tab != null) { tab.TabColor = desc.TabColor; _tabStrip.Invalidate(); }
-                    break;
-            }
+            if (!_panels.TryGetValue(desc.Id, out _)) return;
+            ApplyDescriptorState(desc);
         }
 
         private void SyncRemovedDescriptors()

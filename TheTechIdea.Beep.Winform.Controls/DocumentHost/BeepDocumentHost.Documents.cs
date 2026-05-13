@@ -81,6 +81,134 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             });
             return moved;
         }
+
+        private bool ContainsOpenDocument(string documentId)
+            => _panels.ContainsKey(documentId) || _floatWindows.ContainsKey(documentId);
+
+        /// <summary>
+        /// Returns the current dock placement for the specified document.
+        /// </summary>
+        public DocumentDockState GetDocumentDockState(string documentId)
+            => TryGetDocumentDockState(documentId, out var state) ? state : DocumentDockState.None;
+
+        /// <summary>
+        /// Returns <see langword="true"/> when the document is tracked by this host and
+        /// populates its current dock placement.
+        /// </summary>
+        public bool TryGetDocumentDockState(string documentId, out DocumentDockState state)
+        {
+            if (_floatWindows.ContainsKey(documentId))
+            {
+                state = DocumentDockState.Floating;
+                return true;
+            }
+
+            if (_autoHideMap.ContainsKey(documentId))
+            {
+                state = DocumentDockState.AutoHide;
+                return true;
+            }
+
+            if (_panels.ContainsKey(documentId))
+            {
+                state = DocumentDockState.Docked;
+                return true;
+            }
+
+            state = DocumentDockState.None;
+            return false;
+        }
+
+        private void OnDocumentDockStateChanged(string documentId,
+                                                string title,
+                                                DocumentDockState oldState,
+                                                DocumentDockState newState,
+                                                AutoHideSide? side = null)
+        {
+            if (oldState == newState)
+                return;
+
+            _docGroupMap.TryGetValue(documentId, out var groupId);
+            DocumentDockStateChanged?.Invoke(
+                this,
+                new DocumentDockStateChangedEventArgs(documentId,
+                                                      title,
+                                                      oldState,
+                                                      newState,
+                                                      groupId,
+                                                      side));
+        }
+
+        private bool TryGetDocumentTab(string documentId,
+                                       out BeepDocumentTabStrip tabStrip,
+                                       out BeepDocumentTab? tab)
+        {
+            tabStrip = GetGroupForDocument(documentId).TabStrip;
+            tab = tabStrip.FindTabById(documentId);
+            return tab != null;
+        }
+
+        private string ResolveOpenTargetGroupId(DocumentOpenOptions options)
+        {
+            ArgumentNullException.ThrowIfNull(options);
+
+            return options.Target switch
+            {
+                DocumentOpenTarget.PrimaryGroup => _primaryGroup.GroupId,
+                DocumentOpenTarget.SpecificGroup
+                    when !string.IsNullOrWhiteSpace(options.TargetGroupId)
+                         && _groupById.ContainsKey(options.TargetGroupId)
+                    => options.TargetGroupId,
+                _ => _activeGroup?.GroupId ?? _primaryGroup.GroupId
+            };
+        }
+
+        private bool TryActivateOpenDocument(string documentId)
+        {
+            if (_panels.ContainsKey(documentId))
+                return SetActiveDocument(documentId);
+
+            if (_floatWindows.TryGetValue(documentId, out var floatWindow))
+            {
+                if (floatWindow.WindowState == FormWindowState.Minimized)
+                    floatWindow.WindowState = FormWindowState.Normal;
+
+                floatWindow.BringToFront();
+                floatWindow.Activate();
+                return true;
+            }
+
+            return false;
+        }
+
+        private BeepDocumentPanel OpenDocumentCore(DocumentDescriptor descriptor,
+                                                   DocumentOpenOptions? options,
+                                                   bool attachDescriptorChanges,
+                                                   bool raiseDocumentAddedEvent)
+        {
+            ArgumentNullException.ThrowIfNull(descriptor);
+
+            if (ContainsOpenDocument(descriptor.Id))
+                throw new InvalidOperationException($"Document '{descriptor.Id}' already exists.");
+
+            options ??= new DocumentOpenOptions();
+
+            var panel = AddDocument(descriptor.Id, descriptor.Title, descriptor.IconPath, activate: false);
+            string targetGroupId = ResolveOpenTargetGroupId(options);
+
+            if (!string.Equals(targetGroupId, _primaryGroup.GroupId, StringComparison.Ordinal))
+                MoveDocumentToGroup(descriptor.Id, targetGroupId);
+
+            ApplyDescriptorToOpenDocument(descriptor, panel, raiseDocumentAddedEvent);
+
+            if (attachDescriptorChanges)
+                AttachDescriptorPropertyChanged(descriptor);
+
+            if (options.Activate)
+                SetActiveDocument(descriptor.Id);
+
+            return panel;
+        }
         // ─────────────────────────────────────────────────────────────────────
         // Add
         // ─────────────────────────────────────────────────────────────────────
@@ -100,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                                              string? iconPath = null,
                                              bool activate = true)
         {
-            if (_panels.ContainsKey(documentId))
+            if (ContainsOpenDocument(documentId))
                 throw new InvalidOperationException($"Document '{documentId}' already exists.");
 
             var panel = new BeepDocumentPanel(documentId, title)
@@ -131,6 +259,82 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 RecalculateLayout();
 
             return panel;
+        }
+
+        /// <summary>
+        /// Opens a descriptor-backed document in the requested group.
+        /// Throws when the document id is already open in this host.
+        /// </summary>
+        public BeepDocumentPanel OpenDocument(DocumentDescriptor descriptor,
+                                              DocumentOpenOptions? options = null)
+            => OpenDocumentCore(descriptor,
+                                options,
+                                attachDescriptorChanges: true,
+                                raiseDocumentAddedEvent: true);
+
+        /// <summary>
+        /// Opens a document with the given identity and title in the requested group.
+        /// Throws when the document id is already open in this host.
+        /// </summary>
+        public BeepDocumentPanel OpenDocument(string documentId,
+                                              string title,
+                                              string? iconPath = null,
+                                              DocumentOpenOptions? options = null)
+            => OpenDocumentCore(DocumentDescriptor.Create(documentId, title, iconPath),
+                                options,
+                                attachDescriptorChanges: false,
+                                raiseDocumentAddedEvent: false);
+
+        /// <summary>
+        /// Opens the descriptor-backed document when missing, or activates the existing
+        /// docked or floated document when it is already open.
+        /// Returns true when a new document was created; false when an existing one was activated.
+        /// </summary>
+        public bool OpenOrActivate(DocumentDescriptor descriptor,
+                                   DocumentOpenOptions? options = null)
+        {
+            ArgumentNullException.ThrowIfNull(descriptor);
+
+            if (ContainsOpenDocument(descriptor.Id))
+            {
+                if (_panels.TryGetValue(descriptor.Id, out _))
+                    ApplyDescriptorState(descriptor);
+
+                if ((options?.Activate).GetValueOrDefault(true))
+                    TryActivateOpenDocument(descriptor.Id);
+
+                return false;
+            }
+
+            OpenDocumentCore(descriptor,
+                             options,
+                             attachDescriptorChanges: true,
+                             raiseDocumentAddedEvent: true);
+            return true;
+        }
+
+        /// <summary>
+        /// Opens the document when missing, or activates the existing one when it is already open.
+        /// Returns true when a new document was created; false when an existing one was activated.
+        /// </summary>
+        public bool OpenOrActivate(string documentId,
+                                   string title,
+                                   string? iconPath = null,
+                                   DocumentOpenOptions? options = null)
+        {
+            if (ContainsOpenDocument(documentId))
+            {
+                if ((options?.Activate).GetValueOrDefault(true))
+                    TryActivateOpenDocument(documentId);
+
+                return false;
+            }
+
+            OpenDocumentCore(DocumentDescriptor.Create(documentId, title, iconPath),
+                             options,
+                             attachDescriptorChanges: false,
+                             raiseDocumentAddedEvent: false);
+            return true;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -251,12 +455,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <summary>
-        /// Closes every open document.  Returns <see langword="true"/> when at least one
-        /// document was closed.
+        /// Closes every open document that is allowed to close (respects <see cref="BeepDocumentPanel.CanClose"/>
+        /// and the pinned state).  Returns <see langword="true"/> when at least one document was closed.
         /// </summary>
         public bool CloseAllDocuments()
         {
-            var ids = new System.Collections.Generic.List<string>(_panels.Keys);
+            var ids = _panels.Keys.Where(CanCloseDocument).ToList();
+            if (ids.Count == 0) return false;
+            foreach (var id in ids)
+                CloseDocument(id);
+            return true;
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> when the document identified by
+        /// <paramref name="documentId"/> is allowed to close (i.e. not pinned and
+        /// not otherwise marked non-closable).
+        /// </summary>
+        private bool CanCloseDocument(string documentId)
+        {
+            if (_panels.TryGetValue(documentId, out var p)) return p.CanClose;
+            if (_floatWindows.TryGetValue(documentId, out var fw)) return fw.HostedPanel?.CanClose != false;
+            return true;
+        }
+
+        /// <summary>
+        /// Closes all <em>closable</em> documents in the specified group, respecting the
+        /// per-document <c>CanClose</c> flag (pinned tabs are skipped).
+        /// Returns <see langword="true"/> when at least one document was closed.
+        /// </summary>
+        public bool CloseGroupDocuments(string groupId)
+        {
+            var group = _groups?.Find(g => g.GroupId == groupId);
+            if (group == null) return false;
+            var ids = group.DocumentIds.Where(CanCloseDocument).ToList();
             if (ids.Count == 0) return false;
             foreach (var id in ids)
                 CloseDocument(id);
@@ -272,16 +504,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_panels.TryGetValue(documentId, out var panel)) return false;
             if (_floatWindows.ContainsKey(documentId)) return false;   // already floated
+            if (!CanFloatNow()) return false;                          // policy check
+            PushUndoState();
 
             string title = panel.DocumentTitle;
+            var previousState = GetDocumentDockState(documentId);
+            var ownerGroup = GetGroupForDocument(documentId);
+
+            // Record the source group so DockBack can re-target intelligently (P4-002)
+            var floatDesc = _documents?.FirstOrDefault(d => d.Id == documentId);
+            if (floatDesc != null && ownerGroup != null)
+                floatDesc.PreviousGroupId = ownerGroup.GroupId;
+
             var coordinator = new DocumentHostTreeMutationCoordinator(this);
             coordinator.Execute(DocumentHostOperationNames.FloatDocument, () =>
             {
-                _contentArea.Controls.Remove(panel);
+                ownerGroup.ContentArea.Controls.Remove(panel);
                 _panels.Remove(documentId);
 
-                int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
-                if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
+                int tabIdx = ownerGroup.TabStrip.Tabs.ToList().FindIndex(t => t.Id == documentId);
+                if (tabIdx >= 0) ownerGroup.TabStrip.RemoveTabAt(tabIdx);
 
                 if (_activeDocumentId == documentId)
                 {
@@ -294,6 +536,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             fw.DockBack       += (s, ea) => DockBackDocument(documentId);
             fw.WindowMoved    += (s, screenPt) => OnFloatWindowMoved(documentId, screenPt);
             fw.TitleBarMouseUp += (s, ea) => OnFloatWindowDropped(documentId);
+            // Block close when the document is pinned / non-closable (unless we are
+            // intentionally docking it back, in which case DockBackDocument has already
+            // added the id to _dockBackClosingIds before calling fw.Close()).
+            fw.FormClosing += (s, e) =>
+            {
+                if (!e.Cancel && !_dockBackClosingIds.Contains(documentId) && !CanCloseDocument(documentId))
+                    e.Cancel = true;
+            };
             fw.FormClosed  += (s, _) =>
             {
                 if (_isDisposingHost)
@@ -320,6 +570,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             fw.Show();
 
             DocumentFloated?.Invoke(this, new DocumentEventArgs(documentId, title));
+            OnDocumentDockStateChanged(documentId, title, previousState, DocumentDockState.Floating);
             return true;
         }
 
@@ -330,6 +581,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool DockBackDocumentInternal(string documentId, bool useCoordinator)
         {
             if (!_floatWindows.TryGetValue(documentId, out var fw)) return false;
+            PushUndoState();
+
+            var previousState = GetDocumentDockState(documentId);
 
             var panel = fw.DetachPanel();
             _floatWindows.Remove(documentId);
@@ -337,11 +591,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             fw.Close();
 
             string title = panel.DocumentTitle;
+            var targetGroup = GetGroupForDocument(documentId);
             Action mutation = () =>
             {
                 _panels[documentId] = panel;
-                _contentArea.Controls.Add(panel);
-                _tabStrip.AddTab(documentId, title, panel.IconPath, activate: false);
+                targetGroup.ContentArea.Controls.Add(panel);
+                targetGroup.TabStrip.AddTab(documentId, title, panel.IconPath, activate: false);
                 SetActiveDocument(documentId);
             };
 
@@ -356,6 +611,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             DocumentDocked?.Invoke(this, new DocumentEventArgs(documentId, title));
+            OnDocumentDockStateChanged(documentId, title, previousState, DocumentDockState.Docked);
             return true;
         }
 
@@ -686,15 +942,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_panels.TryGetValue(documentId, out var panel)) return false;
 
-            var tab = _tabStrip.FindTabById(documentId);
-            if (tab == null) return false;
+            if (!TryGetDocumentTab(documentId, out var tabStrip, out var tab)) return false;
 
             if (tab.IsPinned == pin) return true;   // already in requested state
 
             // Find current index and tell the strip to toggle
-            int index = _tabStrip.Tabs.ToList().IndexOf(tab);
+            int index = tabStrip.Tabs.ToList().IndexOf(tab);
             if (index >= 0)
-                _tabStrip.TogglePin(index);
+                tabStrip.TogglePin(index);
 
             // Sync CanClose on the panel
             panel.CanClose = !pin;
@@ -713,11 +968,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <param name="badgeColor">Badge colour. <see cref="System.Drawing.Color.Empty"/> = use theme ErrorColor.</param>
         public void SetBadge(string documentId, string? badgeText,
                               System.Drawing.Color badgeColor = default)
-            => _tabStrip.SetBadge(documentId, badgeText, badgeColor);
+        {
+            if (TryGetDocumentTab(documentId, out var tabStrip, out _))
+                tabStrip.SetBadge(documentId, badgeText, badgeColor);
+        }
 
         /// <summary>Removes the notification badge from the given document's tab.</summary>
         public void ClearBadge(string documentId)
-            => _tabStrip.ClearBadge(documentId);
+        {
+            if (TryGetDocumentTab(documentId, out var tabStrip, out _))
+                tabStrip.ClearBadge(documentId);
+        }
 
         // ─────────────────────────────────────────────────────────────────────
         // Cross-host document transfer
@@ -733,15 +994,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             string title    = panel.DocumentTitle;
             string? iconPath = panel.IconPath;
+            var sourceGroup = sourceHost.GetGroupForDocument(documentId);
 
             var sourceCoordinator = new DocumentHostTreeMutationCoordinator(sourceHost);
             sourceCoordinator.Execute(DocumentHostOperationNames.DetachExternalDocument, () =>
             {
-                int tabIdx = sourceHost._tabStrip.Tabs
+                int tabIdx = sourceGroup.TabStrip.Tabs
                     .ToList()
                     .FindIndex(t => t.Id == documentId);
-                if (tabIdx >= 0) sourceHost._tabStrip.RemoveTabAt(tabIdx);
-                sourceHost._contentArea.Controls.Remove(panel);
+                if (tabIdx >= 0) sourceGroup.TabStrip.RemoveTabAt(tabIdx);
+                sourceGroup.ContentArea.Controls.Remove(panel);
                 sourceHost._panels.Remove(documentId);
                 if (sourceHost._activeDocumentId == documentId)
                 {
@@ -853,6 +1115,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var currentGroup = _groups.Find(g => g.GroupId == currentGroupId);
                 if (currentGroup != null && currentGroup != targetGroup)
                 {
+                    // Record the previous group for intelligent re-dock hints (P4-002)
+                    var desc = _documents?.FirstOrDefault(d => d.Id == documentId);
+                    if (desc != null) desc.PreviousGroupId = currentGroupId;
+
                     currentGroup.DocumentIds.Remove(documentId);
                     int idx = currentGroup.TabStrip.Tabs.ToList()
                                           .FindIndex(t => t.Id == documentId);
@@ -891,6 +1157,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             grp.TabPinToggled     += (s, e) => OnTabPinToggled(grp.TabStrip, e);
             grp.TabReordered      += (s, e) => OnTabReordered(grp.TabStrip, e);
             grp.AddButtonClicked  += (s, e) => OnAddButtonClicked(grp.TabStrip, e);
+            grp.GroupSplitHorizontalRequested += (s, e) =>
+            {
+                var docId = grp.DocumentIds.FirstOrDefault() ?? _activeDocumentId;
+                if (!string.IsNullOrEmpty(docId))
+                    SplitDocumentHorizontal(docId);
+            };
+            grp.GroupSplitVerticalRequested += (s, e) =>
+            {
+                var docId = grp.DocumentIds.FirstOrDefault() ?? _activeDocumentId;
+                if (!string.IsNullOrEmpty(docId))
+                    SplitDocumentVertical(docId);
+            };
+            grp.GroupCloseAllRequested += (s, e) => CloseGroupDocuments(grp.GroupId);
         }
 
         /// <summary>

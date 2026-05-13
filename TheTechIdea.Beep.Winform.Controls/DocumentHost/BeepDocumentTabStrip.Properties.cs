@@ -39,6 +39,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal TabResponsiveMode _responsiveMode       = TabResponsiveMode.Normal;
         private bool _preferPainterRendering = true;
 
+        // Policy mirrors — propagated from BeepDocumentHost global policies (P7-005)
+        internal bool PolicyAllowFloat    = true;
+        internal bool PolicyAllowSplit    = true;
+        internal bool PolicyAllowPin      = true;
+        internal bool PolicyAllowAutoHide = true;
+
         // ─────────────────────────────────────────────────────────────────────
         // Read-only / hidden properties
         // ─────────────────────────────────────────────────────────────────────
@@ -116,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public TabCloseMode CloseMode
         {
             get => _closeMode;
-            set { _closeMode = value; Invalidate(); }
+            set { _closeMode = value; _paintContext = null; Invalidate(); }
         }
 
         /// <summary>Visual rendering style of the tab strip (Chrome / VSCode / Underline / Pill).</summary>
@@ -125,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public DocumentTabStyle TabStyle
         {
             get => _tabStyle;
-            set { _tabStyle = value; Invalidate(); }
+            set { _tabStyle = value; _tabPainter = null; _paintContext = null; Invalidate(); }
         }
 
         /// <summary>
@@ -202,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public TabColorMode TabColorMode
         {
             get => _tabColorMode;
-            set { _tabColorMode = value; Invalidate(); }
+            set { _tabColorMode = value; _paintContext = null; Invalidate(); }
         }
 
         /// <summary>Name of the Beep theme applied to this control.</summary>
@@ -272,6 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (_tabDensity == value) return;
                 _tabDensity = value;
                 ApplyDensityFont();
+                _paintContext = null;    // context caches Font; must rebuild after density change
                 if (IsHandleCreated) Height = TabHeight;
                 CalculateTabLayout();
                 Invalidate();
@@ -383,5 +390,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>Raised when the user requests a tab be moved to a different tab group.</summary>
         public event System.EventHandler<TabMoveGroupEventArgs>? TabMoveToGroupRequested;
+
+        /// <summary>Raised when the user requests a tab be sent to an auto-hide side strip.</summary>
+        public event System.EventHandler<TabEventArgs>?          TabAutoHideRequested;
+
+        /// <summary>
+        /// Raised from the empty-area context menu when the user selects
+        /// "New Horizontal Tab Group" (split current group side-by-side).
+        /// </summary>
+        public event System.EventHandler?                        GroupSplitHorizontalRequested;
+
+        /// <summary>
+        /// Raised from the empty-area context menu when the user selects
+        /// "New Vertical Tab Group" (split current group top-and-bottom).
+        /// </summary>
+        public event System.EventHandler?                        GroupSplitVerticalRequested;
+
+        /// <summary>
+        /// Raised from the empty-area context menu when the user selects
+        /// "Close All Documents" for this group.
+        /// </summary>
+        public event System.EventHandler?                        GroupCloseAllRequested;
     }
 }

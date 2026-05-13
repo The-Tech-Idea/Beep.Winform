@@ -12,6 +12,7 @@ using System.IO;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -126,9 +127,39 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Icon (centred)
             if (!tab.IconRect.IsEmpty)
             {
-                // TODO: render via StyledImagePainter when an icon path is set
+                if (!string.IsNullOrWhiteSpace(tab.IconPath))
+                {
+                    Color iconTint = active
+                        ? _currentTheme.PrimaryColor
+                        : Blend(_currentTheme.SecondaryTextColor, _currentTheme.PanelBackColor, 0.4f);
+
+                    StyledImagePainter.PaintWithTint(
+                        g,
+                        tab.IconRect,
+                        tab.IconPath,
+                        iconTint,
+                        opacity: 1f,
+                        cornerRadius: 2);
+                }
+                else
+                {
+                    // Draw a pin glyph (small filled circle) when no icon path is supplied.
+                    int r = S(5);
+                    int cx = tab.TabRect.Left + tab.TabRect.Width  / 2;
+                    int cy = tab.TabRect.Top  + tab.TabRect.Height / 2 - S(1);
+                    Color pinColor = active
+                        ? _currentTheme.PrimaryColor
+                        : Blend(_currentTheme.SecondaryTextColor, _currentTheme.PanelBackColor, 0.4f);
+                    using var br = new SolidBrush(pinColor);
+                    g.FillEllipse(br, cx - r, cy - r, r * 2, r * 2);
+
+                    // Small pin stem
+                    using var pen = new Pen(pinColor, S(2));
+                    g.DrawLine(pen, cx, cy + r, cx, cy + r + S(4));
+                }
             }
-            else
+
+            if (tab.IconRect.IsEmpty)
             {
                 // Draw a pin glyph (small filled circle) when no icon
                 int r = S(5);
@@ -456,15 +487,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     FormatFlags   = StringFormatFlags.NoWrap
                 };
 
-                // Bold font for active tab
-                var font = tab.IsActive
+                // Bold font for active tab (using-declaration ensures exception-safe disposal)
+                using Font? boldFont = tab.IsActive
                     ? new Font(Font, System.Drawing.FontStyle.Bold)
-                    : Font;
+                    : null;
+                var font = boldFont ?? Font;
 
                 using var textBr = new SolidBrush(textColor);
                 g.DrawString(tab.Title, font, textBr, tab.TitleRect, fmt);
-
-                if (tab.IsActive) font.Dispose();
             }
 
             // Dirty / modified dot

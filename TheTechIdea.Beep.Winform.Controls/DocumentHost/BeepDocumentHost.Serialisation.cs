@@ -44,6 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         public event EventHandler<DocumentLayoutEventArgs>? LayoutRestoring;
 
+        /// <summary>
+        /// Optional callback used during layout restore to recreate a descriptor for a
+        /// saved document before it is reopened.
+        /// </summary>
+        public Func<DocumentLayoutEventArgs, DocumentDescriptor?>? RestoreDocumentFactory { get; set; }
+
         // ─────────────────────────────────────────────────────────────────────
         // SaveLayout  (v2)
         // ─────────────────────────────────────────────────────────────────────
@@ -172,9 +178,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             report.SchemaVersion = snapshot.SchemaVersion;
             report.WasMigrated   = wasMigrated;
 
+            ILayoutNode? layoutTree = snapshot.LayoutTree != null
+                ? BuildLayoutNode(snapshot.LayoutTree)
+                : null;
+
+            var floatingIds = new HashSet<string>(
+                snapshot.FloatingWindows?
+                    .Where(fw => !string.IsNullOrWhiteSpace(fw.DocumentId))
+                    .Select(fw => fw.DocumentId!)
+                ?? Enumerable.Empty<string>(),
+                StringComparer.Ordinal);
+
+            var autoHideLookup = new Dictionary<string, AutoHideSide>(StringComparer.Ordinal);
+            foreach (var ah in snapshot.AutoHideEntries ?? Enumerable.Empty<AutoHideDto>())
+            {
+                if (string.IsNullOrWhiteSpace(ah.DocumentId))
+                    continue;
+
+                if (Enum.TryParse<AutoHideSide>(ah.Side, out var side))
+                    autoHideLookup[ah.DocumentId!] = side;
+            }
+
             // ── Restore tab groups ────────────────────────────────────────────
             if (snapshot.LayoutTree != null)
-                RestoreLayoutTreeNode(snapshot.LayoutTree, report);
+                RestoreLayoutTreeNode(snapshot.LayoutTree, report, floatingIds, autoHideLookup);
+
+            if (layoutTree != null)
+            {
+                var layoutReport = LayoutTreeApplier.Apply(this, layoutTree);
+                foreach (var missingId in layoutReport.MissingDocumentIds)
+                {
+                    if (!report.Failed.Any(f => string.Equals(f.Id, missingId, StringComparison.Ordinal)))
+                        report.Failed.Add((missingId, "Layout tree apply could not place the restored document."));
+                }
+
+                foreach (var warning in layoutReport.Warnings)
+                    report.Failed.Add(("(layout)", warning));
+            }
 
             // ── Restore float windows ─────────────────────────────────────────
             foreach (var fw in snapshot.FloatingWindows ?? Enumerable.Empty<FloatWindowDto>())
@@ -200,20 +240,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             // ── Restore auto-hide ─────────────────────────────────────────────
-            foreach (var ah in snapshot.AutoHideEntries ?? Enumerable.Empty<AutoHideDto>())
+            foreach (var (documentId, side) in autoHideLookup)
             {
-                if (string.IsNullOrEmpty(ah.DocumentId)) continue;
                 try
                 {
-                    if (_panels.ContainsKey(ah.DocumentId))
-                    {
-                        if (Enum.TryParse<AutoHideSide>(ah.Side, out var side))
-                            AutoHideDocument(ah.DocumentId, side);
-                    }
+                    if (_panels.ContainsKey(documentId))
+                        AutoHideDocument(documentId, side);
                 }
                 catch (Exception ex)
                 {
-                    report.Failed.Add((ah.DocumentId, $"Auto-hide restore: {ex.Message}"));
+                    report.Failed.Add((documentId, $"Auto-hide restore: {ex.Message}"));
                 }
             }
 
@@ -317,6 +353,93 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // Named workspace support (Track D)
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Saves the current layout under a named workspace alongside the
+        /// <see cref="BeepDocumentHost.SessionFile"/> base path.
+        /// Files are written as <c>{SessionFile}.{name}.json</c>.
+        /// </summary>
+        /// <param name="name">Workspace name (must be a valid file-name segment).</param>
+        /// <returns>
+        /// The full file path that was written, or <c>null</c> if
+        /// <see cref="BeepDocumentHost.SessionFile"/> is not configured.
+        /// </returns>
+        public string? SaveWorkspace(string name)
+        {
+            if (string.IsNullOrWhiteSpace(_sessionFile)) return null;
+            var path = WorkspacePath(name);
+            try { System.IO.File.WriteAllText(path, SaveLayout()); return path; }
+            catch { return null; }
+        }
+
+        /// <summary>
+        /// Restores a named workspace.
+        /// </summary>
+        /// <param name="name">Workspace name previously saved via <see cref="SaveWorkspace"/>.</param>
+        /// <returns><c>true</c> if the file was found and restored without failures.</returns>
+        public bool LoadWorkspace(string name)
+        {
+            if (string.IsNullOrWhiteSpace(_sessionFile)) return false;
+            var path = WorkspacePath(name);
+            if (!System.IO.File.Exists(path)) return false;
+            try { return RestoreLayout(System.IO.File.ReadAllText(path)); }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Deletes a named workspace file, if it exists.
+        /// </summary>
+        public void DeleteWorkspace(string name)
+        {
+            if (string.IsNullOrWhiteSpace(_sessionFile)) return;
+            var path = WorkspacePath(name);
+            try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); }
+            catch { /* swallow */ }
+        }
+
+        /// <summary>
+        /// Returns the names of all saved workspaces associated with the current
+        /// <see cref="BeepDocumentHost.SessionFile"/> base path.
+        /// </summary>
+        public System.Collections.Generic.IReadOnlyList<string> ListWorkspaces()
+        {
+            if (string.IsNullOrWhiteSpace(_sessionFile))
+                return System.Array.Empty<string>();
+
+            var dir  = System.IO.Path.GetDirectoryName(_sessionFile) ?? ".";
+            var stem = System.IO.Path.GetFileNameWithoutExtension(_sessionFile);
+            var ext  = System.IO.Path.GetExtension(_sessionFile);      // e.g. ".json"
+            var suffix = ext + ".workspace";                            // e.g. ".json.workspace"
+
+            var names = new System.Collections.Generic.List<string>();
+            try
+            {
+                foreach (var file in System.IO.Directory.EnumerateFiles(dir, $"{stem}.*.workspace"))
+                {
+                    // File name: {stem}.{name}.workspace
+                    var fn   = System.IO.Path.GetFileName(file);
+                    var name = fn.Substring(stem.Length + 1,
+                                            fn.Length - stem.Length - 1 - ".workspace".Length);
+                    if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
+                }
+            }
+            catch { /* swallow */ }
+            return names;
+        }
+
+        /// <summary>Builds the file path for a named workspace.</summary>
+        private string WorkspacePath(string name)
+        {
+            var dir  = System.IO.Path.GetDirectoryName(_sessionFile) ?? ".";
+            var stem = System.IO.Path.GetFileNameWithoutExtension(_sessionFile);
+            // e.g. "C:\App\session.json" → "C:\App\session.MyLayout.workspace"
+            var safeName = string.Concat(name.Split(System.IO.Path.GetInvalidFileNameChars()));
+            return System.IO.Path.Combine(dir, $"{stem}.{safeName}.workspace");
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // Private: build layout tree DTO from live group state
         // ─────────────────────────────────────────────────────────────────────
 
@@ -347,23 +470,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var docList = new List<TabLayoutEntryDto>();
             foreach (var docId in grp.DocumentIds)
             {
-                if (!_panels.TryGetValue(docId, out var panel)) continue;
+                if (!TryGetLayoutDocumentSnapshot(docId, out var panel, out var dockState, out var side)
+                    || panel == null)
+                    continue;
 
                 var tab = grp.TabStrip.Tabs.FirstOrDefault(t => t.Id == docId);
+                string title = tab?.Title ?? panel.DocumentTitle;
+                string? iconPath = tab?.IconPath ?? panel.IconPath;
+                bool isPinned = tab?.IsPinned ?? false;
+                // Stable persistence key + previous group — from descriptor if available (P7-007, P4-002)
+                var docDesc = _documents?.FirstOrDefault(d => d.Id == docId);
+                string? persistenceKey  = docDesc?.PersistenceKey;
+                string? previousGroupId = docDesc?.PreviousGroupId;
                 var evArgs = new DocumentLayoutEventArgs(
-                    docId, tab?.Title ?? string.Empty, tab?.IconPath,
-                    tab?.IsPinned ?? false, panel.IsModified);
+                    docId, title, iconPath,
+                    isPinned, panel.IsModified,
+                    dockState, grp.GroupId, side,
+                    persistenceKey: persistenceKey);
                 LayoutSerialising?.Invoke(this, evArgs);
                 if (evArgs.Cancel) continue;
 
                 docList.Add(new TabLayoutEntryDto
                 {
-                    Id         = docId,
-                    Title      = tab?.Title ?? string.Empty,
-                    IconPath   = tab?.IconPath,
-                    IsPinned   = tab?.IsPinned ?? false,
-                    IsModified = panel.IsModified,
-                    CustomData = evArgs.CustomData
+                    Id              = docId,
+                    PersistenceKey  = persistenceKey,
+                    PreviousGroupId = previousGroupId,
+                    Title           = title,
+                    IconPath        = iconPath,
+                    IsPinned        = isPinned,
+                    IsModified      = panel.IsModified,
+                    CustomData      = evArgs.CustomData
                 });
             }
 
@@ -386,22 +522,96 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Documents = new List<TabLayoutEntryDto>()
         };
 
+        private static ILayoutNode BuildLayoutNode(LayoutTreeNodeDto node)
+        {
+            if (string.Equals(node.Type, "split", StringComparison.OrdinalIgnoreCase))
+            {
+                var children = node.Children ?? new List<LayoutTreeNodeDto>();
+                ILayoutNode first = children.Count > 0
+                    ? BuildLayoutNode(children[0])
+                    : new GroupLayoutNode();
+                ILayoutNode second = children.Count > 1
+                    ? BuildLayoutNode(children[1])
+                    : new GroupLayoutNode();
+
+                var orientation = string.Equals(node.Orientation, "Vertical", StringComparison.OrdinalIgnoreCase)
+                    ? Orientation.Vertical
+                    : Orientation.Horizontal;
+
+                return new SplitLayoutNode(node.NodeId ?? Guid.NewGuid().ToString(),
+                                           first,
+                                           second,
+                                           orientation,
+                                           node.Ratio);
+            }
+
+            var documentIds = (node.Documents ?? Enumerable.Empty<TabLayoutEntryDto>())
+                .Where(doc => !string.IsNullOrWhiteSpace(doc.Id))
+                .Select(doc => doc.Id)
+                .ToList();
+
+            return new GroupLayoutNode(node.NodeId ?? Guid.NewGuid().ToString(),
+                                       node.GroupId ?? node.NodeId ?? Guid.NewGuid().ToString(),
+                                       documentIds,
+                                       node.SelectedDocumentId);
+        }
+
         // ─────────────────────────────────────────────────────────────────────
         // Private: restore from layout tree DTO
         // ─────────────────────────────────────────────────────────────────────
 
-        private void RestoreLayoutTreeNode(LayoutTreeNodeDto node, LayoutRestoreReport report)
+        private bool TryGetLayoutDocumentSnapshot(string documentId,
+                                                  out BeepDocumentPanel? panel,
+                                                  out DocumentDockState dockState,
+                                                  out AutoHideSide? side)
+        {
+            if (_floatWindows.TryGetValue(documentId, out var floatWindow)
+                && floatWindow.HostedPanel != null)
+            {
+                panel = floatWindow.HostedPanel;
+                dockState = DocumentDockState.Floating;
+                side = null;
+                return true;
+            }
+
+            if (_panels.TryGetValue(documentId, out var openPanel))
+            {
+                panel = openPanel;
+                if (_autoHideMap.TryGetValue(documentId, out var autoHideSide))
+                {
+                    dockState = DocumentDockState.AutoHide;
+                    side = autoHideSide;
+                }
+                else
+                {
+                    dockState = DocumentDockState.Docked;
+                    side = null;
+                }
+
+                return true;
+            }
+
+            panel = null;
+            dockState = DocumentDockState.None;
+            side = null;
+            return false;
+        }
+
+        private void RestoreLayoutTreeNode(LayoutTreeNodeDto node,
+                                           LayoutRestoreReport report,
+                                           HashSet<string> floatingIds,
+                                           Dictionary<string, AutoHideSide> autoHideLookup)
         {
             if (node.Type == "tabGroup")
             {
-                RestoreGroupNode(node, report);
+                RestoreGroupNode(node, report, floatingIds, autoHideLookup);
                 return;
             }
 
             if (node.Type == "split" && node.Children != null)
             {
                 foreach (var child in node.Children)
-                    RestoreLayoutTreeNode(child, report);
+                    RestoreLayoutTreeNode(child, report, floatingIds, autoHideLookup);
 
                 // Apply split orientation + ratio to host
                 if (node.Children.Count >= 2)
@@ -412,31 +622,105 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
-        private void RestoreGroupNode(LayoutTreeNodeDto grpNode, LayoutRestoreReport report)
+        private static DocumentDescriptor CreateRestoreDescriptor(DocumentLayoutEventArgs evArgs)
+        {
+            var descriptor = DocumentDescriptor.Create(
+                evArgs.DocumentId,
+                string.IsNullOrWhiteSpace(evArgs.Title) ? evArgs.DocumentId : evArgs.Title,
+                evArgs.IconPath);
+
+            ApplyRestoreDescriptorState(descriptor, evArgs);
+            return descriptor;
+        }
+
+        private static void ApplyRestoreDescriptorState(DocumentDescriptor descriptor,
+                                                        DocumentLayoutEventArgs evArgs)
+        {
+            descriptor.Id = evArgs.DocumentId;
+
+            if (string.IsNullOrWhiteSpace(descriptor.Title))
+                descriptor.Title = string.IsNullOrWhiteSpace(evArgs.Title)
+                    ? evArgs.DocumentId
+                    : evArgs.Title;
+
+            if (string.IsNullOrWhiteSpace(descriptor.IconPath)
+                && !string.IsNullOrWhiteSpace(evArgs.IconPath))
+            {
+                descriptor.IconPath = evArgs.IconPath;
+            }
+
+            descriptor.IsPinned = evArgs.IsPinned;
+            descriptor.IsModified = evArgs.IsModified;
+
+            if (descriptor.Tag == null && evArgs.Tag != null)
+                descriptor.Tag = evArgs.Tag;
+
+            foreach (var kv in evArgs.CustomData)
+            {
+                if (!descriptor.CustomData.ContainsKey(kv.Key))
+                    descriptor.CustomData[kv.Key] = kv.Value;
+            }
+        }
+
+        private void RestoreGroupNode(LayoutTreeNodeDto grpNode,
+                                      LayoutRestoreReport report,
+                                      HashSet<string> floatingIds,
+                                      Dictionary<string, AutoHideSide> autoHideLookup)
         {
             foreach (var entry in grpNode.Documents ?? Enumerable.Empty<TabLayoutEntryDto>())
             {
                 if (string.IsNullOrEmpty(entry.Id)) continue;
 
+                DocumentDockState dockState = DocumentDockState.Docked;
+                AutoHideSide? side = null;
+                if (autoHideLookup.TryGetValue(entry.Id, out var autoHideSide))
+                {
+                    dockState = DocumentDockState.AutoHide;
+                    side = autoHideSide;
+                }
+                else if (floatingIds.Contains(entry.Id))
+                {
+                    dockState = DocumentDockState.Floating;
+                }
+
                 var evArgs = new DocumentLayoutEventArgs(
                     entry.Id, entry.Title ?? string.Empty, entry.IconPath,
-                    entry.IsPinned, entry.IsModified);
+                    entry.IsPinned, entry.IsModified,
+                    dockState, grpNode.GroupId, side,
+                    persistenceKey: entry.PersistenceKey);
                 if (entry.CustomData != null)
                     foreach (var kv in entry.CustomData)
                         evArgs.CustomData[kv.Key] = kv.Value;
+
+                if (RestoreDocumentFactory != null)
+                    evArgs.RestoreDescriptor ??= RestoreDocumentFactory(evArgs);
 
                 LayoutRestoring?.Invoke(this, evArgs);
 
                 if (evArgs.Cancel) { report.Skipped.Add(entry.Id); continue; }
 
-                if (_panels.ContainsKey(entry.Id)) { report.Skipped.Add(entry.Id); continue; }
+                if (ContainsOpenDocument(entry.Id)) { report.Skipped.Add(entry.Id); continue; }
 
                 try
                 {
-                    var panel = AddDocument(entry.Id, entry.Title ?? entry.Id,
-                                            entry.IconPath, activate: false);
-                    if (entry.IsPinned)  PinDocument(entry.Id, true);
-                    if (entry.IsModified) panel.IsModified = true;
+                    var descriptor = evArgs.RestoreDescriptor ?? CreateRestoreDescriptor(evArgs);
+                    ApplyRestoreDescriptorState(descriptor, evArgs);
+
+                    // Restore PreviousGroupId hint so post-restore moves can be intelligent (P4-002)
+                    if (!string.IsNullOrEmpty(entry.PreviousGroupId))
+                        descriptor.PreviousGroupId = entry.PreviousGroupId;
+
+                    OpenDocumentCore(
+                        descriptor,
+                        new DocumentOpenOptions
+                        {
+                            Target = DocumentOpenTarget.SpecificGroup,
+                            TargetGroupId = grpNode.GroupId,
+                            Activate = false
+                        },
+                        attachDescriptorChanges: false,
+                        raiseDocumentAddedEvent: false);
+
                     report.Restored.Add(entry.Id);
                 }
                 catch (Exception ex)
@@ -505,11 +789,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private sealed class TabLayoutEntryDto
         {
-            public string  Id         { get; set; } = string.Empty;
-            public string? Title      { get; set; }
-            public string? IconPath   { get; set; }
-            public bool    IsPinned   { get; set; }
-            public bool    IsModified { get; set; }
+            public string  Id              { get; set; } = string.Empty;
+            public string? PersistenceKey  { get; set; }
+            public string? PreviousGroupId { get; set; }
+            public string? Title           { get; set; }
+            public string? IconPath        { get; set; }
+            public bool    IsPinned        { get; set; }
+            public bool    IsModified      { get; set; }
             public Dictionary<string, string>? CustomData { get; set; }
         }
 

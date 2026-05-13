@@ -231,7 +231,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 ? Color.FromArgb(200, foreCol)
                 : ThemeAwareGrayText(_currentTheme?.PanelBackColor);
 
-            e.Graphics.FillRectangle(new SolidBrush(backCol), e.Bounds);
+            using var backBr = new SolidBrush(backCol);
+            e.Graphics.FillRectangle(backBr, e.Bounds);
 
             // Active indicator bar
             if (tab.IsActive)

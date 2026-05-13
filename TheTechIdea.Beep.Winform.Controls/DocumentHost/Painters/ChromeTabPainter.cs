@@ -9,9 +9,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
     {
         public override string Name => "ChromeTabPainter";
 
-        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
-            Color fill = context.GetTabBackground(tab, -1);
+            Color fill = context.GetTabBackground(tab, index);
             using var path = CreateChromeTabPath(tab.TabRect, context.TabRadius);
             using var br = new SolidBrush(fill);
             g.FillPath(br, path);

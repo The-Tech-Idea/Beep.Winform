@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
             using var backBr = new SolidBrush(ThemeAwareControlDark(BackColor));
             g.FillRectangle(backBr, rect);
             using var textBr = new SolidBrush(ThemeAwareControlLightLight(BackColor));
-            var sf = new StringFormat { Alignment = StringAlignment.Center,
+            using var sf = new StringFormat { Alignment = StringAlignment.Center,
                 LineAlignment = StringAlignment.Center };
             g.DrawString(title, Font, textBr, rect, sf);
         }

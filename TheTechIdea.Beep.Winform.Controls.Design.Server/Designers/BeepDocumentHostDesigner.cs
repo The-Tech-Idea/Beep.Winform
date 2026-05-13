@@ -5,10 +5,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
@@ -17,6 +19,7 @@ using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -28,6 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// </summary>
     public class BeepDocumentHostDesigner : ParentControlDesigner
     {
+        private const string DesignTimeDocumentsPropertyName = nameof(BeepDocumentHost.DesignTimeDocuments);
+        private const string DesignTimeLayoutJsonPropertyName = nameof(BeepDocumentHost.DesignTimeLayoutJson);
+
         // ── Internal tab-strip / content-area panel names must not be moved ──
         private static readonly HashSet<string> _lockedChildTypes
             = new HashSet<string>(StringComparer.Ordinal)
@@ -35,6 +41,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             "BeepDocumentTabStrip",
             nameof(Panel)           // the _contentArea
         };
+
+        private readonly Stack<DocumentDescriptor> _designTimeClosedDocuments = new();
+        private readonly HashSet<Control> _contextMenuSurfaces = new();
+        private BeepDocumentHost? _wiredHost;
 
         // ── Action list ───────────────────────────────────────────────────────
 
@@ -65,49 +75,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     new DesignerVerb("Add Document", (s, e) =>
                     {
-                        if (Component is BeepDocumentHost host)
-                        {
-                            int    idx   = host.DocumentCount + 1;
-                            string id    = $"doc{idx}";
-                            string title = $"Document {idx}";
-                            ExecuteAction($"Add Document '{title}'",
-                                h => h.AddDocument(id, title, activate: true));
-                        }
+                        AddDesignTimeDocument();
                     }),
                     new DesignerVerb("Close Active Document", (s, e) =>
                     {
-                        if (Component is BeepDocumentHost host
-                            && !string.IsNullOrEmpty(host.ActiveDocumentId))
-                        {
-                            var id = host.ActiveDocumentId!;
-                            ExecuteAction($"Close Document '{id}'",
-                                h => h.CloseDocument(id));
-                        }
+                        CloseActiveDesignTimeDocument();
                     }),
-                    new DesignerVerb("Split Horizontal \u2194", (s, e) =>
+                    new DesignerVerb("Split With New Document \u2194", (s, e) =>
                     {
-                        if (Component is BeepDocumentHost host
-                            && !string.IsNullOrEmpty(host.ActiveDocumentId))
-                        {
-                            var id = host.ActiveDocumentId!;
-                            ExecuteAction("Split Horizontal",
-                                h => h.SplitDocumentHorizontal(id));
-                        }
+                        CreateSplitDesignTimeDocument(horizontal: true);
                     }),
-                    new DesignerVerb("Split Vertical \u2195", (s, e) =>
+                    new DesignerVerb("Split With New Document \u2195", (s, e) =>
                     {
-                        if (Component is BeepDocumentHost host
-                            && !string.IsNullOrEmpty(host.ActiveDocumentId))
-                        {
-                            var id = host.ActiveDocumentId!;
-                            ExecuteAction("Split Vertical",
-                                h => h.SplitDocumentVertical(id));
-                        }
+                        CreateSplitDesignTimeDocument(horizontal: false);
+                    }),
+                    new DesignerVerb("Select Active Document Surface", (s, e) =>
+                    {
+                        SelectActiveDocumentSurface();
+                    }),
+                    new DesignerVerb("Reopen Last Closed Document", (s, e) =>
+                    {
+                        ReopenLastClosedDesignTimeDocument();
+                    }),
+                    new DesignerVerb("Layout Assistant\u2026", (s, e) =>
+                    {
+                        ShowLayoutAssistant();
                     }),
                     new DesignerVerb("Merge All Groups", (s, e) =>
                     {
-                        ExecuteAction("Merge All Groups",
-                            h => h.MergeAllGroups());
+                        MergeAllDesignTimeGroups();
                     }),
                     new DesignerVerb("Edit Design-Time Documents\u2026", (s, e) =>
                     {
@@ -130,6 +126,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         if (Component is BeepDocumentHost host)
                             ShowLayoutTreeDialog(host);
                     }),
+                    // Phase 7 designer verbs (P7-003)
+                    new DesignerVerb("Export Layout Snapshot\u2026", (s, e) =>
+                    {
+                        if (Component is BeepDocumentHost host)
+                        {
+                            var json = host.SaveLayout();
+                            System.Windows.Forms.Clipboard.SetText(json);
+                            System.Windows.Forms.MessageBox.Show(
+                                "Layout snapshot copied to clipboard.",
+                                "Export Layout Snapshot",
+                                System.Windows.Forms.MessageBoxButtons.OK,
+                                System.Windows.Forms.MessageBoxIcon.Information);
+                        }
+                    }),
+                    new DesignerVerb("Clear All Documents", (s, e) =>
+                    {
+                        var r = System.Windows.Forms.MessageBox.Show(
+                            "Remove all design-time documents from the host?",
+                            "Clear All Documents",
+                            System.Windows.Forms.MessageBoxButtons.YesNo,
+                            System.Windows.Forms.MessageBoxIcon.Warning);
+                        if (r == System.Windows.Forms.DialogResult.Yes)
+                            CloseAllDesignTimeDocuments();
+                    }),
+                    new DesignerVerb("Customize Keyboard Shortcuts\u2026", (s, e) =>
+                    {
+                        if (Component is BeepDocumentHost host)
+                        {
+                            var registry = host.EnsureCommandRegistry();
+                            using var dlg = new DocumentHostShortcutEditorDialog(registry);
+                            dlg.ShowDialog();
+                        }
+                    }),
                 };
                 return _verbs;
             }
@@ -146,8 +175,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // moved, resized, or deleted through the design surface.
             if (component is BeepDocumentHost host)
             {
+                _wiredHost = host;
                 foreach (Control child in host.Controls)
                     LockChild(child);
+
+                WireDesignContextMenuSurfaces(host);
+                host.ControlAdded += Host_ControlAdded;
+                host.ControlRemoved += Host_ControlRemoved;
 
                 // When the control gets its handle, force the designer surface
                 // to recalculate glyph adorners (ensures snap points are fresh)
@@ -161,6 +195,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                             selSvc.SetSelectedComponents(null);
                             selSvc.SetSelectedComponents(new object[] { host });
                         }
+
+                        WireDesignContextMenuSurfaces(host);
                     }
                     catch { /* safe at design-time */ }
                 };
@@ -168,6 +204,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Sprint 17.1: register the docking-guide compass adorner
             InitializeDockAdorner();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && _wiredHost != null)
+            {
+                _wiredHost.ControlAdded -= Host_ControlAdded;
+                _wiredHost.ControlRemoved -= Host_ControlRemoved;
+
+                foreach (Control control in _contextMenuSurfaces.ToList())
+                {
+                    UnhookDesignContextMenuSurface(control);
+                }
+
+                _contextMenuSurfaces.Clear();
+                _wiredHost = null;
+            }
+
+            base.Dispose(disposing);
         }
 
         private void LockChild(Control child)
@@ -261,14 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         public override void DoDefaultAction()
         {
-            if (Component is BeepDocumentHost host)
-            {
-                int    idx   = host.DocumentCount + 1;
-                string id    = $"doc{idx}";
-                string title = $"Document {idx}";
-                ExecuteAction($"Add Document '{title}'",
-                    h => h.AddDocument(id, title, activate: true));
-            }
+            AddDesignTimeDocument();
         }
 
         // ── OnPaintAdornments ─────────────────────────────────────────────────
@@ -304,8 +352,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Centred hint text
             const string Line1 = "BeepDocumentHost";
-            const string Line2 = "Double-click to add a document";
-            const string Line3 = "Drag to split  |  Smart-Tag (►) for all options  |  Nested splits supported";
+            const string Line2 = "Double-click to create a document surface";
+            const string Line3 = "Toolbox drops go to the active document  |  Smart-Tag (►) for split/layout actions";
 
             using var titleFont = new Font("Segoe UI", 11f, FontStyle.Bold);
             using var hintFont  = new Font("Segoe UI",  8f);
@@ -390,9 +438,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             var svc     = GetService(typeof(System.Windows.Forms.Design.IWindowsFormsEditorService))
                           as System.Windows.Forms.Design.IWindowsFormsEditorService;
 
-            var newVal = editor.EditValue(ctx, ctx, current);
-            if (!ReferenceEquals(newVal, current))
-                SetProperty("DesignTimeDocuments", newVal);
+            editor.EditValue(ctx, ctx, current);
+
+            ExecuteDesignTimeDocumentsAction("Edit Design-Time Documents", (h, docs) =>
+            {
+                SyncHostWithDesignTimeDocuments(h, docs);
+            });
         }
 
         /// <summary>Shows a dialog to edit per-group tab positions for nested splits.</summary>
@@ -422,59 +473,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             using var dlg = new LayoutPresetPickerDialog();
             if (dlg.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
 
-            ExecuteAction($"Apply Layout Preset: {dlg.SelectedPreset}", h =>
+            ApplyDesignTimeLayoutPreset(dlg.SelectedPreset);
+        }
+
+        /// <summary>
+        /// Routes toolbox-dropped controls into the active document surface, creating
+        /// a design-time document when the host is empty.
+        /// </summary>
+        protected override Control GetParentForComponent(IComponent component)
+        {
+            if (Component is not BeepDocumentHost)
             {
-                switch (dlg.SelectedPreset)
+                return base.GetParentForComponent(component);
+            }
+
+            BeepDocumentPanel? targetPanel = EnsureDesignSurfaceForDroppedContent();
+            if (targetPanel != null)
+            {
+                return targetPanel;
+            }
+
+            return base.GetParentForComponent(component);
+        }
+
+        /// <summary>
+        /// Prevents the document host's internal infrastructure controls from being
+        /// added directly from the toolbox, but allows any other control so that
+        /// toolbox drops are routed to the active document surface.
+        /// </summary>
+        public override bool CanParent(Control control)
+        {
+            // Block internal plumbing — these are managed exclusively by BeepDocumentHost itself
+            if (control?.GetType().Name is nameof(BeepDocumentPanel)
+                                        or nameof(BeepDocumentTabStrip)
+                                        or "BeepDocumentDockOverlay"
+                                        or "BeepAutoHideStrip")
+            {
+                return false;
+            }
+
+            // Allow everything else so the designer can route toolbox drops to the
+            // active document panel surface (P7-004).
+            return true;
+        }
+
+        /// <summary>
+        /// Intercepts drag-drop from the toolbox or component tray and redirects
+        /// the dropped control to the currently active design-time document panel
+        /// rather than to the BeepDocumentHost root.
+        /// </summary>
+        protected override void OnDragDrop(DragEventArgs de)
+        {
+            // Try to redirect to the active document panel designer
+            if (Component is BeepDocumentHost host)
+            {
+                var activePanel = GetActiveDocumentPanel(host);
+                if (activePanel != null)
                 {
-                    case LayoutPreset.SideBySide:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.Stacked:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeWay:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeWayNested:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.FourUp:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.ThreeColumn:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    case LayoutPreset.FiveWay:
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentVertical(h.ActiveDocumentId);
-                        if (!string.IsNullOrEmpty(h.ActiveDocumentId))
-                            h.SplitDocumentHorizontal(h.ActiveDocumentId);
-                        break;
-                    default: // Single — merge back
-                        h.MergeAllGroups();
-                        break;
+                    // Forward to the inner panel's designer so the dropped control ends up there
+                    var designerHost = GetDesignerHost();
+                    if (designerHost?.GetDesigner(activePanel) is System.ComponentModel.Design.ControlDesigner panelDesigner)
+                    {
+                        panelDesigner.GetType()
+                            .GetMethod("OnDragDrop",
+                                System.Reflection.BindingFlags.Instance |
+                                System.Reflection.BindingFlags.NonPublic |
+                                System.Reflection.BindingFlags.Public,
+                                null,
+                                new[] { typeof(DragEventArgs) }, null)
+                            ?.Invoke(panelDesigner, new object[] { de });
+                        return;
+                    }
                 }
-            });
+            }
+
+            base.OnDragDrop(de);
         }
 
         // ── Generic property helpers (used by DocumentHostActionList) ─────────
@@ -519,8 +592,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (Component is not BeepDocumentHost host) return;
 
-            var designerHost = GetService(typeof(IDesignerHost)) as IDesignerHost;
-            var changeSvc    = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            var designerHost = GetDesignerHost();
+            var changeSvc    = GetChangeService();
 
             DesignerTransaction? txn = null;
             try
@@ -538,6 +611,1110 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 txn?.Cancel();
                 throw;
             }
+
+            RefreshDesignerActionUI();
+        }
+
+        public void AddDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Add Document", (h, docs) =>
+            {
+                AddDesignTimeDocumentInternal(h, docs, activate: true, selectSurface: true);
+            });
+        }
+
+        public void CloseActiveDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            ExecuteDesignTimeDocumentsAction($"Close Document '{activeDocumentId}'", (h, docs) =>
+            {
+                DocumentDescriptor snapshot = CaptureDocumentDescriptor(h, docs, activeDocumentId);
+                if (!CloseDesignTimeDocument(h, activeDocumentId))
+                {
+                    return;
+                }
+
+                DocumentDescriptor? existing = FindDesignTimeDocument(docs, activeDocumentId);
+                if (existing != null)
+                {
+                    docs.Remove(existing);
+                }
+
+                _designTimeClosedDocuments.Push(snapshot);
+                SyncDesignerSelection((object?)h.ActivePanel ?? h);
+            });
+        }
+
+        public void CloseAllDesignTimeDocuments()
+        {
+            if (Component is not BeepDocumentHost)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Close All Documents", (h, docs) =>
+            {
+                foreach (DocumentDescriptor descriptor in docs.ToList())
+                {
+                    if (string.IsNullOrWhiteSpace(descriptor.Id))
+                    {
+                        continue;
+                    }
+
+                    DocumentDescriptor snapshot = CloneDescriptor(descriptor);
+                    if (CloseDesignTimeDocument(h, descriptor.Id))
+                    {
+                        _designTimeClosedDocuments.Push(snapshot);
+                        docs.Remove(descriptor);
+                    }
+                }
+
+                SyncDesignerSelection(h);
+            });
+        }
+
+        public void ReopenLastClosedDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost || _designTimeClosedDocuments.Count == 0)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Reopen Last Closed Document", (h, docs) =>
+            {
+                DocumentDescriptor descriptor = CloneDescriptor(_designTimeClosedDocuments.Pop());
+                if (FindDesignTimeDocument(docs, descriptor.Id) == null)
+                {
+                    docs.Add(descriptor);
+                }
+
+                BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(h, descriptor, activate: true);
+                SyncDesignerSelection((object?)panel ?? h);
+            });
+        }
+
+        public void CreateSplitDesignTimeDocument(bool horizontal)
+        {
+            if (Component is not BeepDocumentHost)
+            {
+                return;
+            }
+
+            string description = horizontal ? "Split Horizontal" : "Split Vertical";
+            ExecuteDesignTimeDocumentsAction(description, (h, docs) =>
+            {
+                CreateSplitDesignTimeDocumentInternal(h, docs, horizontal, selectSurface: true);
+            });
+        }
+
+        public void ApplyDesignTimeLayoutPreset(LayoutPreset preset)
+        {
+            if (Component is not BeepDocumentHost)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction($"Apply Layout Preset: {preset}", (h, docs) =>
+            {
+                ApplyDesignTimeLayoutPresetCore(h, docs, preset, selectSurface: true);
+            });
+        }
+
+        public void SelectActiveDocumentSurface()
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return;
+            }
+
+            if (host.ActivePanel != null)
+            {
+                SyncDesignerSelection(host.ActivePanel);
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Select Active Document Surface", (h, docs) =>
+            {
+                BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(h, docs, selectSurface: true);
+                SyncDesignerSelection((object?)panel ?? h);
+            });
+        }
+
+        public string GetActiveDocumentTitle()
+            => (Component as BeepDocumentHost)?.ActivePanel?.DocumentTitle ?? string.Empty;
+
+        public void SetActiveDocumentTitle(string value)
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string title = string.IsNullOrWhiteSpace(value) ? "Document" : value.Trim();
+            string activeDocumentId = host.ActiveDocumentId!;
+
+            ExecuteDesignTimeDocumentsAction($"Rename Document '{activeDocumentId}'", (h, docs) =>
+            {
+                DocumentDescriptor descriptor = FindDesignTimeDocument(docs, activeDocumentId)
+                    ?? AddDescriptorSnapshotToDesignTimeDocuments(h, docs, activeDocumentId);
+
+                descriptor.Title = title;
+
+                if (h.GetPanel(activeDocumentId) is BeepDocumentPanel panel)
+                {
+                    panel.DocumentTitle = title;
+                }
+
+                foreach (BeepDocumentGroup group in h.Groups)
+                {
+                    BeepDocumentTab? tab = group.TabStrip.FindTabById(activeDocumentId);
+                    if (tab != null)
+                    {
+                        tab.Title = title;
+                        group.TabStrip.Invalidate();
+                    }
+                }
+
+                h.RecalculateLayout();
+                SyncDesignerSelection((object?)h.ActivePanel ?? h);
+            });
+        }
+
+        public void SetActiveDocumentPinned(bool pinned)
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            string description = pinned ? $"Pin Document '{activeDocumentId}'" : $"Unpin Document '{activeDocumentId}'";
+            ExecuteDesignTimeDocumentsAction(description, (h, docs) =>
+            {
+                DocumentDescriptor descriptor = FindDesignTimeDocument(docs, activeDocumentId)
+                    ?? AddDescriptorSnapshotToDesignTimeDocuments(h, docs, activeDocumentId);
+                descriptor.IsPinned = pinned;
+                h.PinDocument(activeDocumentId, pinned);
+                SyncDesignerSelection((object?)h.ActivePanel ?? h);
+            });
+        }
+
+        public void MergeAllDesignTimeGroups()
+        {
+            if (Component is not BeepDocumentHost)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Merge All Groups", (h, docs) =>
+            {
+                h.MergeAllGroups();
+                BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(h, docs, selectSurface: true);
+                SyncDesignerSelection((object?)panel ?? h);
+            });
+        }
+
+        public void FloatActiveDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            ExecuteDesignTimeDocumentsAction($"Float Document '{activeDocumentId}'", (h, docs) =>
+            {
+                h.FloatDocument(activeDocumentId);
+                SyncDesignerSelection(h);
+            });
+        }
+
+        public void DockBackActiveDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            ExecuteDesignTimeDocumentsAction($"Dock Document '{activeDocumentId}'", (h, docs) =>
+            {
+                h.DockBackDocument(activeDocumentId);
+                BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(h, docs, selectSurface: true);
+                SyncDesignerSelection((object?)panel ?? h);
+            });
+        }
+
+        public void AutoHideActiveDesignTimeDocument(AutoHideSide side)
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            ExecuteDesignTimeDocumentsAction($"Auto Hide Document '{activeDocumentId}'", (h, docs) =>
+            {
+                h.AutoHideDocument(activeDocumentId, side);
+                SyncDesignerSelection(h);
+            });
+        }
+
+        public void RestoreAutoHideActiveDesignTimeDocument()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            string activeDocumentId = host.ActiveDocumentId!;
+            ExecuteDesignTimeDocumentsAction($"Restore Auto Hide Document '{activeDocumentId}'", (h, docs) =>
+            {
+                h.RestoreAutoHideDocument(activeDocumentId);
+                BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(h, docs, selectSurface: true);
+                SyncDesignerSelection((object?)panel ?? h);
+            });
+        }
+
+        public void ShowLayoutAssistant()
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return;
+            }
+
+            using var dialog = new DocumentHostLayoutAssistantDialog(host.DesignTimeDocuments);
+            if (dialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            ExecuteDesignTimeDocumentsAction("Layout Assistant", (h, docs) =>
+            {
+                ApplyLayoutAssistant(h, docs, dialog.SelectedPreset, dialog.Documents);
+            });
+        }
+
+        public void RenameActiveDesignTimeDocumentWithPrompt()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return;
+            }
+
+            using var dialog = new DocumentHostTextPromptDialog(
+                "Rename Document",
+                "Document title:",
+                GetActiveDocumentTitle());
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                SetActiveDocumentTitle(dialog.Value);
+            }
+        }
+
+        public void OpenDesignTimeDocumentsEditor()
+        {
+            if (Component is BeepDocumentHost host)
+            {
+                EditDesignTimeDocuments(host);
+            }
+        }
+
+        public bool CanReopenLastClosedDesignTimeDocument => _designTimeClosedDocuments.Count > 0;
+
+        public DocumentDockState GetActiveDocumentDockState()
+        {
+            if (Component is not BeepDocumentHost host || string.IsNullOrWhiteSpace(host.ActiveDocumentId))
+            {
+                return DocumentDockState.None;
+            }
+
+            return host.GetDocumentDockState(host.ActiveDocumentId!);
+        }
+
+        private IDesignerHost? GetDesignerHost()
+            => GetService(typeof(IDesignerHost)) as IDesignerHost;
+
+        /// <summary>
+        /// Returns the <see cref="BeepDocumentPanel"/> that is currently active in the host,
+        /// or <c>null</c> if none is available.  Used by <see cref="OnDragDrop"/> to redirect
+        /// toolbox drops to the correct inner panel.
+        /// </summary>
+        private static BeepDocumentPanel? GetActiveDocumentPanel(BeepDocumentHost host)
+        {
+            var activeId = host.ActiveDocumentId;
+            if (string.IsNullOrEmpty(activeId)) return null;
+
+            // Walk the host's Controls to find the matching panel
+            foreach (Control c in host.Controls)
+            {
+                if (c is BeepDocumentPanel panel &&
+                    panel.Name == activeId)
+                    return panel;
+            }
+            return null;
+        }
+
+        private IComponentChangeService? GetChangeService()
+            => GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+
+        private ISelectionService? GetSelectionService()
+            => GetService(typeof(ISelectionService)) as ISelectionService;
+
+        private DesignerActionUIService? GetDesignerActionUiService()
+            => GetService(typeof(DesignerActionUIService)) as DesignerActionUIService;
+
+        private PropertyDescriptor? GetDesignTimeDocumentsProperty()
+            => Component == null ? null : TypeDescriptor.GetProperties(Component)[DesignTimeDocumentsPropertyName];
+
+        private PropertyDescriptor? GetDesignTimeLayoutProperty()
+            => Component == null ? null : TypeDescriptor.GetProperties(Component)[DesignTimeLayoutJsonPropertyName];
+
+        private void RefreshDesignerActionUI()
+        {
+            if (Component == null)
+            {
+                return;
+            }
+
+            GetDesignerActionUiService()?.Refresh(Component);
+        }
+
+        private void SyncDesignerSelection(object? selectionTarget)
+        {
+            if (selectionTarget == null)
+            {
+                return;
+            }
+
+            GetSelectionService()?.SetSelectedComponents(new object[] { selectionTarget }, SelectionTypes.Replace);
+            RefreshDesignerActionUI();
+        }
+
+        private void ExecuteDesignTimeDocumentsAction(string description, Action<BeepDocumentHost, Collection<DocumentDescriptor>> action)
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return;
+            }
+
+            IDesignerHost? designerHost = GetDesignerHost();
+            IComponentChangeService? changeService = GetChangeService();
+            PropertyDescriptor? property = GetDesignTimeDocumentsProperty();
+            PropertyDescriptor? layoutProperty = GetDesignTimeLayoutProperty();
+            string previousLayout = host.DesignTimeLayoutJson;
+
+            DesignerTransaction? transaction = null;
+            try
+            {
+                transaction = designerHost?.CreateTransaction(description);
+                changeService?.OnComponentChanging(host, property);
+                if (layoutProperty != null)
+                    changeService?.OnComponentChanging(host, layoutProperty);
+
+                action(host, host.DesignTimeDocuments);
+
+                string currentLayout = CaptureDesignTimeLayout(host, host.DesignTimeDocuments);
+                host.DesignTimeLayoutJson = currentLayout;
+
+                changeService?.OnComponentChanged(host, property, null, host.DesignTimeDocuments);
+                if (layoutProperty != null)
+                    changeService?.OnComponentChanged(host, layoutProperty, previousLayout, host.DesignTimeLayoutJson);
+                transaction?.Commit();
+            }
+            catch
+            {
+                transaction?.Cancel();
+                throw;
+            }
+
+            WireDesignContextMenuSurfaces(host);
+            RefreshDesignerActionUI();
+        }
+
+        private void Host_ControlAdded(object? sender, ControlEventArgs e)
+            => HookDesignContextMenuSurface(e.Control);
+
+        private void Host_ControlRemoved(object? sender, ControlEventArgs e)
+            => UnhookDesignContextMenuSurface(e.Control);
+
+        private void WireDesignContextMenuSurfaces(BeepDocumentHost host)
+        {
+            HookDesignContextMenuSurface(host);
+            foreach (Control child in host.Controls)
+            {
+                HookDesignContextMenuSurface(child);
+            }
+        }
+
+        private void HookDesignContextMenuSurface(Control control)
+        {
+            if (!IsDesignContextMenuSurface(control) || !_contextMenuSurfaces.Add(control))
+            {
+                return;
+            }
+
+            control.MouseUp += DesignContextSurface_MouseUp;
+        }
+
+        private void UnhookDesignContextMenuSurface(Control control)
+        {
+            if (!_contextMenuSurfaces.Remove(control))
+            {
+                return;
+            }
+
+            control.MouseUp -= DesignContextSurface_MouseUp;
+        }
+
+        private static bool IsDesignContextMenuSurface(Control control)
+            => control is BeepDocumentHost or BeepDocumentTabStrip || control.Parent is BeepDocumentHost;
+
+        private void DesignContextSurface_MouseUp(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right || Component is not BeepDocumentHost host)
+            {
+                return;
+            }
+
+            Control surface = sender as Control ?? host;
+            if (surface is BeepDocumentTabStrip strip
+                && strip.ActiveTabIndex >= 0
+                && strip.ActiveTabIndex < strip.Tabs.Count)
+            {
+                string tabId = strip.Tabs[strip.ActiveTabIndex].Id;
+                if (!string.IsNullOrWhiteSpace(tabId))
+                {
+                    host.SetActiveDocument(tabId);
+                }
+            }
+
+            ShowDesignContextMenu(host, surface, e.Location);
+        }
+
+        private void ShowDesignContextMenu(BeepDocumentHost host, Control surface, Point location)
+        {
+            var menu = BuildDesignContextMenu(host);
+            ApplyThemeToDesignMenu(host, menu);
+            menu.Closed += (s, e) => menu.Dispose();
+            menu.Show(surface, location);
+        }
+
+        private ContextMenuStrip BuildDesignContextMenu(BeepDocumentHost host)
+        {
+            var menu = new ContextMenuStrip { ShowImageMargin = false };
+            bool hasActiveDocument = !string.IsNullOrWhiteSpace(host.ActiveDocumentId);
+            DocumentDockState dockState = GetActiveDocumentDockState();
+            bool isPinned = hasActiveDocument
+                && FindDesignTimeDocument(host.DesignTimeDocuments, host.ActiveDocumentId!)?.IsPinned == true;
+
+            if (hasActiveDocument)
+            {
+                string title = GetActiveDocumentTitle();
+                menu.Items.Add(new ToolStripMenuItem($"Active Document: {title}") { Enabled = false });
+                menu.Items.Add(new ToolStripMenuItem($"Dock State: {dockState}") { Enabled = false });
+                menu.Items.Add(new ToolStripSeparator());
+            }
+
+            menu.Items.Add(CreateDesignMenuItem("Add Document", AddDesignTimeDocument));
+            menu.Items.Add(CreateDesignMenuItem("Layout Assistant…", ShowLayoutAssistant));
+            menu.Items.Add(CreateDesignMenuItem("Edit Design-Time Documents…", () =>
+            {
+                if (Component is BeepDocumentHost currentHost)
+                {
+                    EditDesignTimeDocuments(currentHost);
+                }
+            }));
+
+            if (hasActiveDocument)
+            {
+                menu.Items.Add(new ToolStripSeparator());
+                menu.Items.Add(CreateDesignMenuItem("Rename Active Document…", RenameActiveDesignTimeDocumentWithPrompt));
+                menu.Items.Add(CreateDesignMenuItem("Select Active Document Surface", SelectActiveDocumentSurface));
+                menu.Items.Add(CreateDesignMenuItem("Close Active Document", CloseActiveDesignTimeDocument));
+                menu.Items.Add(CreateDesignMenuItem(
+                    dockState == DocumentDockState.Floating ? "Dock Back" : "Float",
+                    dockState == DocumentDockState.Floating ? DockBackActiveDesignTimeDocument : FloatActiveDesignTimeDocument,
+                    dockState is DocumentDockState.Docked or DocumentDockState.Floating));
+                menu.Items.Add(CreateDesignMenuItem(
+                    isPinned ? "Unpin Active Document" : "Pin Active Document",
+                    () => SetActiveDocumentPinned(!isPinned),
+                    dockState != DocumentDockState.None));
+
+                if (dockState == DocumentDockState.AutoHide)
+                {
+                    menu.Items.Add(CreateDesignMenuItem("Restore Auto Hide", RestoreAutoHideActiveDesignTimeDocument));
+                }
+
+                if (dockState == DocumentDockState.Docked)
+                {
+                    menu.Items.Add(BuildAutoHideMenu());
+                }
+            }
+
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(CreateDesignMenuItem("Split With New Document Right", () => CreateSplitDesignTimeDocument(horizontal: true)));
+            menu.Items.Add(CreateDesignMenuItem("Split With New Document Down", () => CreateSplitDesignTimeDocument(horizontal: false)));
+            menu.Items.Add(CreateDesignMenuItem("Merge All Groups", MergeAllDesignTimeGroups, host.Groups.Count > 1));
+            menu.Items.Add(BuildLayoutPresetMenu());
+
+            if (CanReopenLastClosedDesignTimeDocument)
+            {
+                menu.Items.Add(CreateDesignMenuItem("Reopen Last Closed", ReopenLastClosedDesignTimeDocument));
+            }
+
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(CreateDesignMenuItem("View Layout Tree…", () => ShowLayoutTreeDialog(host)));
+            menu.Items.Add(CreateDesignMenuItem("Set Group Tab Position…", () => EditGroupTabPositions(host), host.Groups.Count > 1));
+
+            return menu;
+        }
+
+        private ToolStripMenuItem BuildAutoHideMenu()
+        {
+            var menuItem = new ToolStripMenuItem("Auto Hide");
+            foreach (AutoHideSide side in Enum.GetValues(typeof(AutoHideSide)))
+            {
+                menuItem.DropDownItems.Add(CreateDesignMenuItem($"{GetAutoHideLabel(side)}", () => AutoHideActiveDesignTimeDocument(side)));
+            }
+
+            return menuItem;
+        }
+
+        private ToolStripMenuItem BuildLayoutPresetMenu()
+        {
+            var menuItem = new ToolStripMenuItem("Quick Layout Presets");
+            foreach (LayoutPreset preset in GetLayoutPresetOrder())
+            {
+                menuItem.DropDownItems.Add(CreateDesignMenuItem(GetLayoutPresetDisplayName(preset), () => ApplyDesignTimeLayoutPreset(preset)));
+            }
+
+            return menuItem;
+        }
+
+        private static ToolStripMenuItem CreateDesignMenuItem(string text, Action action, bool enabled = true)
+        {
+            var menuItem = new ToolStripMenuItem(text) { Enabled = enabled };
+            menuItem.Click += (s, e) => action();
+            return menuItem;
+        }
+
+        private void ApplyThemeToDesignMenu(BeepDocumentHost host, ContextMenuStrip menu)
+        {
+            menu.BackColor = host.BackColor;
+            menu.ForeColor = host.ForeColor;
+            menu.Renderer = new DocumentHostDesignerMenuRenderer(host.BackColor, host.ForeColor);
+
+            foreach (ToolStripItem item in menu.Items)
+            {
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.DropDownOpening += (s, e) =>
+                    {
+                        if (menuItem.DropDown is ContextMenuStrip dropDown)
+                        {
+                            ApplyThemeToDesignMenu(host, dropDown);
+                        }
+                    };
+                }
+            }
+        }
+
+        private void ApplyLayoutAssistant(BeepDocumentHost host,
+                                          Collection<DocumentDescriptor> docs,
+                                          LayoutPreset preset,
+                                          IReadOnlyList<DocumentLayoutAssistantItem> documents)
+        {
+            ApplyAssistantDocumentSpecifications(host, docs, documents);
+            SyncHostWithDesignTimeDocuments(host, docs);
+            ApplyDesignTimeLayoutPresetCore(host, docs, preset, selectSurface: false);
+
+            BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(host, docs, selectSurface: true);
+            SyncDesignerSelection((object?)panel ?? host);
+        }
+
+        private void ApplyAssistantDocumentSpecifications(BeepDocumentHost host,
+                                                          Collection<DocumentDescriptor> docs,
+                                                          IReadOnlyList<DocumentLayoutAssistantItem> documents)
+        {
+            int requiredCount = Math.Max(1, documents.Count);
+            while (docs.Count < requiredCount)
+            {
+                docs.Add(CreateNextDesignTimeDocumentDescriptor(host, docs));
+            }
+
+            for (int index = 0; index < requiredCount; index++)
+            {
+                DocumentLayoutAssistantItem specification = documents[index];
+                DocumentDescriptor descriptor = docs[index];
+                descriptor.Title = NormalizeDocumentTitle(specification.Title, index + 1);
+                descriptor.InitialContent = specification.InitialContent;
+            }
+
+            for (int index = docs.Count - 1; index >= requiredCount; index--)
+            {
+                DocumentDescriptor descriptor = docs[index];
+                _designTimeClosedDocuments.Push(CloneDescriptor(descriptor));
+                CloseDesignTimeDocument(host, descriptor.Id);
+                docs.RemoveAt(index);
+            }
+        }
+
+        private void ApplyDesignTimeLayoutPresetCore(BeepDocumentHost host,
+                                                     Collection<DocumentDescriptor> docs,
+                                                     LayoutPreset preset,
+                                                     bool selectSurface)
+        {
+            switch (preset)
+            {
+                case LayoutPreset.Single:
+                    EnsureDesignDocumentCount(host, docs, 1);
+                    host.MergeAllGroups();
+                    break;
+
+                case LayoutPreset.SideBySide:
+                    EnsureDesignDocumentCount(host, docs, 2);
+                    host.TemplateLibrary.ApplyTemplate("side-by-side", host);
+                    break;
+
+                case LayoutPreset.Stacked:
+                    EnsureDesignDocumentCount(host, docs, 2);
+                    host.TemplateLibrary.ApplyTemplate("stacked", host);
+                    break;
+
+                case LayoutPreset.ThreeWay:
+                    EnsureDesignDocumentCount(host, docs, 3);
+                    host.TemplateLibrary.ApplyTemplate("three-way", host);
+                    break;
+
+                case LayoutPreset.FourUp:
+                    EnsureDesignDocumentCount(host, docs, 4);
+                    host.TemplateLibrary.ApplyTemplate("four-up", host);
+                    break;
+
+                case LayoutPreset.ThreeWayNested:
+                    EnsureDesignDocumentCount(host, docs, 2);
+                    host.TemplateLibrary.ApplyTemplate("side-by-side", host);
+                    EnsureDesignDocumentCount(host, docs, 3);
+                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: false, selectSurface: false);
+                    break;
+
+                case LayoutPreset.ThreeColumn:
+                    EnsureDesignDocumentCount(host, docs, 3);
+                    host.TemplateLibrary.ApplyTemplate("side-by-side", host);
+                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false);
+                    break;
+
+                case LayoutPreset.FiveWay:
+                    EnsureDesignDocumentCount(host, docs, 4);
+                    host.TemplateLibrary.ApplyTemplate("four-up", host);
+                    EnsureDesignDocumentCount(host, docs, 5);
+                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false);
+                    break;
+            }
+
+            BeepDocumentPanel? panel = EnsureActiveDesignDocumentSurface(host, docs, selectSurface: selectSurface);
+            if (selectSurface)
+            {
+                SyncDesignerSelection((object?)panel ?? host);
+            }
+        }
+
+        private void SyncHostWithDesignTimeDocuments(BeepDocumentHost host, Collection<DocumentDescriptor> docs)
+        {
+            var desiredDescriptors = docs
+                .Where(descriptor => !string.IsNullOrWhiteSpace(descriptor.Id))
+                .ToList();
+            var desiredIds = new HashSet<string>(desiredDescriptors.Select(descriptor => descriptor.Id), StringComparer.OrdinalIgnoreCase);
+
+            foreach (string openDocumentId in GetOpenDocumentIds(host))
+            {
+                if (!desiredIds.Contains(openDocumentId))
+                {
+                    CloseDesignTimeDocument(host, openDocumentId);
+                }
+            }
+
+            foreach (DocumentDescriptor descriptor in desiredDescriptors)
+            {
+                EnsureDesignTimeDocumentOpen(host, descriptor, activate: false);
+                ApplyDescriptorToOpenDocument(host, descriptor);
+            }
+
+            if (string.IsNullOrWhiteSpace(host.ActiveDocumentId) && desiredDescriptors.Count > 0)
+            {
+                host.SetActiveDocument(desiredDescriptors[0].Id);
+            }
+        }
+
+        private void ApplyDescriptorToOpenDocument(BeepDocumentHost host, DocumentDescriptor descriptor)
+        {
+            if (host.GetPanel(descriptor.Id) is BeepDocumentPanel panel)
+            {
+                panel.DocumentTitle = descriptor.Title;
+                panel.IconPath = descriptor.IconPath;
+                panel.CanClose = descriptor.CanClose;
+                panel.IsModified = descriptor.IsModified;
+            }
+
+            foreach (BeepDocumentGroup group in host.Groups)
+            {
+                BeepDocumentTab? tab = group.TabStrip.FindTabById(descriptor.Id);
+                if (tab == null)
+                {
+                    continue;
+                }
+
+                tab.Title = descriptor.Title;
+                tab.IconPath = descriptor.IconPath;
+                tab.CanClose = descriptor.CanClose;
+                tab.IsModified = descriptor.IsModified;
+                tab.IsPinned = descriptor.IsPinned;
+                group.TabStrip.Invalidate();
+            }
+
+            if (host.GetDocumentDockState(descriptor.Id) == DocumentDockState.Docked)
+            {
+                host.PinDocument(descriptor.Id, descriptor.IsPinned);
+            }
+        }
+
+        private bool CloseDesignTimeDocument(BeepDocumentHost host, string documentId)
+        {
+            switch (host.GetDocumentDockState(documentId))
+            {
+                case DocumentDockState.Floating:
+                    host.DockBackDocument(documentId);
+                    break;
+                case DocumentDockState.AutoHide:
+                    host.RestoreAutoHideDocument(documentId);
+                    break;
+            }
+
+            return host.CloseDocument(documentId);
+        }
+
+        private static IReadOnlyList<string> GetOpenDocumentIds(BeepDocumentHost host)
+        {
+            try
+            {
+                using JsonDocument json = JsonDocument.Parse(host.SaveLayout());
+                var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                CollectDocumentIds(json.RootElement, ids);
+                return ids.ToList();
+            }
+            catch
+            {
+                return host.Groups
+                    .SelectMany(group => group.DocumentIds)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+        }
+
+        private static void CollectDocumentIds(JsonElement element, HashSet<string> ids)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    foreach (JsonProperty property in element.EnumerateObject())
+                    {
+                        if ((property.NameEquals("id") || property.NameEquals("documentId"))
+                            && property.Value.ValueKind == JsonValueKind.String)
+                        {
+                            string? value = property.Value.GetString();
+                            if (!string.IsNullOrWhiteSpace(value))
+                            {
+                                ids.Add(value);
+                            }
+                        }
+
+                        CollectDocumentIds(property.Value, ids);
+                    }
+                    break;
+
+                case JsonValueKind.Array:
+                    foreach (JsonElement item in element.EnumerateArray())
+                    {
+                        CollectDocumentIds(item, ids);
+                    }
+                    break;
+            }
+        }
+
+        private static string CaptureDesignTimeLayout(BeepDocumentHost host, Collection<DocumentDescriptor> docs)
+        {
+            if (!docs.Any(descriptor => !string.IsNullOrWhiteSpace(descriptor.Id)))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                return host.SaveLayout();
+            }
+            catch
+            {
+                return host.DesignTimeLayoutJson;
+            }
+        }
+
+        private static string NormalizeDocumentTitle(string? title, int ordinal)
+            => string.IsNullOrWhiteSpace(title) ? $"Document {ordinal}" : title.Trim();
+
+        private static IReadOnlyList<LayoutPreset> GetLayoutPresetOrder()
+            => new[]
+            {
+                LayoutPreset.Single,
+                LayoutPreset.SideBySide,
+                LayoutPreset.Stacked,
+                LayoutPreset.ThreeWay,
+                LayoutPreset.ThreeWayNested,
+                LayoutPreset.FourUp,
+                LayoutPreset.ThreeColumn,
+                LayoutPreset.FiveWay
+            };
+
+        private static string GetLayoutPresetDisplayName(LayoutPreset preset)
+            => preset switch
+            {
+                LayoutPreset.SideBySide => "Side-by-Side",
+                LayoutPreset.ThreeWay => "Three-Way",
+                LayoutPreset.ThreeWayNested => "Three-Way Nested",
+                LayoutPreset.FourUp => "Four-Up",
+                LayoutPreset.ThreeColumn => "Three Column",
+                LayoutPreset.FiveWay => "Five-Way",
+                _ => preset.ToString()
+            };
+
+        private static string GetAutoHideLabel(AutoHideSide side)
+            => side switch
+            {
+                AutoHideSide.Left => "Left",
+                AutoHideSide.Right => "Right",
+                AutoHideSide.Top => "Top",
+                AutoHideSide.Bottom => "Bottom",
+                _ => side.ToString()
+            };
+
+        private BeepDocumentPanel? EnsureDesignSurfaceForDroppedContent()
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return null;
+            }
+
+            if (host.ActivePanel != null)
+            {
+                return host.ActivePanel;
+            }
+
+            BeepDocumentPanel? panel = null;
+            ExecuteDesignTimeDocumentsAction("Create Document For Dropped Control", (h, docs) =>
+            {
+                panel = EnsureActiveDesignDocumentSurface(h, docs, selectSurface: false);
+            });
+
+            return (Component as BeepDocumentHost)?.ActivePanel ?? panel;
+        }
+
+        private BeepDocumentPanel? EnsureActiveDesignDocumentSurface(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool selectSurface)
+        {
+            if (host.ActivePanel != null)
+            {
+                if (selectSurface)
+                {
+                    SyncDesignerSelection(host.ActivePanel);
+                }
+
+                return host.ActivePanel;
+            }
+
+            if (docs.Count == 0)
+            {
+                return AddDesignTimeDocumentInternal(host, docs, activate: true, selectSurface: selectSurface);
+            }
+
+            host.ApplyDesignTimeDocuments();
+
+            DocumentDescriptor? descriptor = docs.FirstOrDefault(doc => !string.IsNullOrWhiteSpace(doc.Id));
+            if (descriptor == null)
+            {
+                return AddDesignTimeDocumentInternal(host, docs, activate: true, selectSurface: selectSurface);
+            }
+
+            BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(host, descriptor, activate: true);
+            if (selectSurface)
+            {
+                SyncDesignerSelection((object?)panel ?? host);
+            }
+
+            return panel;
+        }
+
+        private void EnsureDesignDocumentCount(BeepDocumentHost host, Collection<DocumentDescriptor> docs, int count)
+        {
+            while (docs.Count(doc => !string.IsNullOrWhiteSpace(doc.Id)) < count)
+            {
+                AddDesignTimeDocumentInternal(host, docs, activate: false, selectSurface: false);
+            }
+        }
+
+        private BeepDocumentPanel? AddDesignTimeDocumentInternal(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool activate, bool selectSurface)
+        {
+            DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
+            docs.Add(descriptor);
+
+            BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(host, descriptor, activate);
+            if (selectSurface)
+            {
+                SyncDesignerSelection((object?)panel ?? host);
+            }
+
+            return panel;
+        }
+
+        private BeepDocumentPanel? CreateSplitDesignTimeDocumentInternal(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool horizontal, bool selectSurface)
+        {
+            BeepDocumentPanel? anchorPanel = EnsureActiveDesignDocumentSurface(host, docs, selectSurface: false);
+            if (anchorPanel == null)
+            {
+                return null;
+            }
+
+            DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
+            docs.Add(descriptor);
+
+            BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(host, descriptor, activate: true);
+            if (panel == null)
+            {
+                return null;
+            }
+
+            if (horizontal)
+            {
+                host.SplitDocumentHorizontal(descriptor.Id);
+            }
+            else
+            {
+                host.SplitDocumentVertical(descriptor.Id);
+            }
+
+            host.SetActiveDocument(descriptor.Id);
+
+            if (selectSurface)
+            {
+                SyncDesignerSelection(panel);
+            }
+
+            return panel;
+        }
+
+        private BeepDocumentPanel? EnsureDesignTimeDocumentOpen(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)
+        {
+            if (host.GetPanel(descriptor.Id) == null)
+            {
+                host.ApplyDesignTimeDocuments();
+            }
+
+            if (activate)
+            {
+                host.SetActiveDocument(descriptor.Id);
+            }
+
+            return host.GetPanel(descriptor.Id);
+        }
+
+        private DocumentDescriptor CreateNextDesignTimeDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs)
+        {
+            var usedIds = new HashSet<string>(
+                docs.Where(doc => !string.IsNullOrWhiteSpace(doc.Id)).Select(doc => doc.Id),
+                StringComparer.OrdinalIgnoreCase);
+
+            int index = 1;
+            string id;
+            do
+            {
+                id = $"doc{index}";
+                index++;
+            }
+            while (usedIds.Contains(id) || host.GetPanel(id) != null);
+
+            return new DocumentDescriptor
+            {
+                Id = id,
+                Title = $"Document {index - 1}",
+                InitialContent = DocumentInitialContent.Empty
+            };
+        }
+
+        private static DocumentDescriptor? FindDesignTimeDocument(IEnumerable<DocumentDescriptor> docs, string documentId)
+            => docs.FirstOrDefault(doc => string.Equals(doc.Id, documentId, StringComparison.OrdinalIgnoreCase));
+
+        private DocumentDescriptor AddDescriptorSnapshotToDesignTimeDocuments(BeepDocumentHost host, Collection<DocumentDescriptor> docs, string documentId)
+        {
+            DocumentDescriptor descriptor = CaptureDocumentDescriptor(host, docs, documentId);
+            docs.Add(descriptor);
+            return descriptor;
+        }
+
+        private DocumentDescriptor CaptureDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs, string documentId)
+        {
+            DocumentDescriptor? existing = FindDesignTimeDocument(docs, documentId);
+            if (existing != null)
+            {
+                return CloneDescriptor(existing);
+            }
+
+            BeepDocumentPanel? panel = host.GetPanel(documentId);
+            return new DocumentDescriptor
+            {
+                Id = documentId,
+                Title = panel?.DocumentTitle ?? documentId,
+                IconPath = panel?.IconPath,
+                IsModified = panel?.IsModified ?? false,
+                CanClose = panel?.CanClose ?? true,
+                InitialContent = DocumentInitialContent.Empty
+            };
+        }
+
+        private static DocumentDescriptor CloneDescriptor(DocumentDescriptor source)
+        {
+            var clone = new DocumentDescriptor
+            {
+                Id = source.Id,
+                Title = source.Title,
+                IconPath = source.IconPath,
+                IsModified = source.IsModified,
+                IsPinned = source.IsPinned,
+                CanClose = source.CanClose,
+                Category = source.Category,
+                TooltipText = source.TooltipText,
+                Tag = source.Tag,
+                BadgeText = source.BadgeText,
+                BadgeColor = source.BadgeColor,
+                TabColor = source.TabColor,
+                AccentColor = source.AccentColor,
+                InitialContent = source.InitialContent
+            };
+
+            foreach (KeyValuePair<string, string> pair in source.CustomData)
+            {
+                clone.CustomData[pair.Key] = pair.Value;
+            }
+
+            return clone;
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -561,6 +1738,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override void OnDragEnter(DragEventArgs de)
         {
             base.OnDragEnter(de);
+
+            if (IsToolboxDrag(de))
+            {
+                _dragActive = false;
+                _dragZone = DockZone.None;
+                InvalidateHost();
+                return;
+            }
+
             _dragActive = true;
             _dragZone   = DockZone.None;
             de.Effect   = DragDropEffects.Move;
@@ -570,6 +1756,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override void OnDragOver(DragEventArgs de)
         {
             base.OnDragOver(de);
+
+            if (IsToolboxDrag(de))
+            {
+                _dragActive = false;
+                _dragZone = DockZone.None;
+                InvalidateHost();
+                return;
+            }
 
             if (Component is BeepDocumentHost host)
             {
@@ -591,9 +1785,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         protected override void OnDragDrop(DragEventArgs de)
         {
+            bool toolboxDrag = IsToolboxDrag(de);
             base.OnDragDrop(de);
 
-            if (Component is BeepDocumentHost host)
+            if (!toolboxDrag && Component is BeepDocumentHost host)
             {
                 var screenPt = new Point(de.X, de.Y);
                 var clientPt = host.PointToClient(screenPt);
@@ -622,6 +1817,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             _dragActive = false;
             _dragZone   = DockZone.None;
             InvalidateHost();
+        }
+
+        private static bool IsToolboxDrag(DragEventArgs de)
+        {
+            try
+            {
+                return de.Data
+                    .GetFormats()
+                    .Any(format => format.IndexOf("Toolbox", StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>Determines which compass zone contains <paramref name="pt"/>.</summary>
@@ -659,12 +1868,117 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             using var dimBrush = new SolidBrush(Color.FromArgb(35, 0, 0, 0));
             g.FillRectangle(dimBrush, rc);
 
+            // Draw split preview if a zone is active
+            if (_dragZone != DockZone.None && _dragZone != DockZone.Center)
+            {
+                DrawSplitPreview(g, rc, _dragZone);
+            }
+
             // Five compass zones: Center, Left, Right, Top, Bottom
             DrawCompassArrow(g, new Rectangle(cx - Sz,     cy - Sz,     Sz * 2, Sz * 2), "●", DockZone.Center);
             DrawCompassArrow(g, new Rectangle(cx - Sz * 3, cy - Sz,     Sz * 2, Sz * 2), "◄", DockZone.Left);
             DrawCompassArrow(g, new Rectangle(cx + Sz,     cy - Sz,     Sz * 2, Sz * 2), "►", DockZone.Right);
             DrawCompassArrow(g, new Rectangle(cx - Sz,     cy - Sz * 3, Sz * 2, Sz * 2), "▲", DockZone.Top);
             DrawCompassArrow(g, new Rectangle(cx - Sz,     cy + Sz,     Sz * 2, Sz * 2), "▼", DockZone.Bottom);
+
+            // Draw zone labels below compass
+            DrawCompassLabels(g, rc);
+        }
+
+        private void DrawSplitPreview(Graphics g, Rectangle hostRc, DockZone zone)
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            int splitX = hostRc.X + hostRc.Width / 2;
+            int splitY = hostRc.Y + hostRc.Height / 2;
+            const int PreviewMargin = 40;
+            var previewRc = new Rectangle(
+                hostRc.X + PreviewMargin,
+                hostRc.Y + PreviewMargin,
+                hostRc.Width - (PreviewMargin * 2),
+                hostRc.Height - (PreviewMargin * 2));
+
+            using var previewPen = new Pen(Color.FromArgb(200, 100, 180, 255), 2f);
+            using var fillBrush = new SolidBrush(Color.FromArgb(40, 100, 180, 255));
+
+            switch (zone)
+            {
+                case DockZone.Left:
+                    // Vertical split: show left pane as active
+                    int splitLineX = previewRc.X + previewRc.Width / 2;
+                    g.FillRectangle(fillBrush, previewRc.X, previewRc.Y, previewRc.Width / 2, previewRc.Height);
+                    g.DrawLine(previewPen, splitLineX, previewRc.Y, splitLineX, previewRc.Y + previewRc.Height);
+                    g.DrawRectangle(previewPen, previewRc);
+                    DrawPreviewLabel(g, "Left Split Preview", previewRc);
+                    break;
+
+                case DockZone.Right:
+                    // Vertical split: show right pane as active
+                    splitLineX = previewRc.X + previewRc.Width / 2;
+                    g.FillRectangle(fillBrush, previewRc.X + previewRc.Width / 2, previewRc.Y, previewRc.Width / 2, previewRc.Height);
+                    g.DrawLine(previewPen, splitLineX, previewRc.Y, splitLineX, previewRc.Y + previewRc.Height);
+                    g.DrawRectangle(previewPen, previewRc);
+                    DrawPreviewLabel(g, "Right Split Preview", previewRc);
+                    break;
+
+                case DockZone.Top:
+                    // Horizontal split: show top pane as active
+                    int splitLineY = previewRc.Y + previewRc.Height / 2;
+                    g.FillRectangle(fillBrush, previewRc.X, previewRc.Y, previewRc.Width, previewRc.Height / 2);
+                    g.DrawLine(previewPen, previewRc.X, splitLineY, previewRc.X + previewRc.Width, splitLineY);
+                    g.DrawRectangle(previewPen, previewRc);
+                    DrawPreviewLabel(g, "Top Split Preview", previewRc);
+                    break;
+
+                case DockZone.Bottom:
+                    // Horizontal split: show bottom pane as active
+                    splitLineY = previewRc.Y + previewRc.Height / 2;
+                    g.FillRectangle(fillBrush, previewRc.X, previewRc.Y + previewRc.Height / 2, previewRc.Width, previewRc.Height / 2);
+                    g.DrawLine(previewPen, previewRc.X, splitLineY, previewRc.X + previewRc.Width, splitLineY);
+                    g.DrawRectangle(previewPen, previewRc);
+                    DrawPreviewLabel(g, "Bottom Split Preview", previewRc);
+                    break;
+            }
+        }
+
+        private static void DrawPreviewLabel(Graphics g, string text, Rectangle previewRc)
+        {
+            using var font = new Font("Segoe UI", 11f, FontStyle.Bold);
+            using var brush = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            var labelRc = new Rectangle(previewRc.X, previewRc.Y + 8, previewRc.Width, 24);
+            g.DrawString(text, font, brush, labelRc, sf);
+        }
+
+        private void DrawCompassLabels(Graphics g, Rectangle hostRc)
+        {
+            int cx = hostRc.X + hostRc.Width / 2;
+            int cy = hostRc.Y + hostRc.Height / 2;
+            const int Distance = 100;
+
+            using var font = new Font("Segoe UI", 9f);
+            using var brush = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+
+            // Only show labels when hovering over compass zones
+            if (_dragZone != DockZone.None)
+            {
+                string label = _dragZone switch
+                {
+                    DockZone.Center => "Drop here to add to group",
+                    DockZone.Left => "Split Left",
+                    DockZone.Right => "Split Right",
+                    DockZone.Top => "Split Top",
+                    DockZone.Bottom => "Split Bottom",
+                    _ => string.Empty
+                };
+
+                if (!string.IsNullOrEmpty(label))
+                {
+                    var labelRc = new Rectangle(cx - 80, cy + Distance, 160, 24);
+                    g.DrawString(label, font, brush, labelRc, sf);
+                }
+            }
         }
 
         private void DrawCompassArrow(Graphics g, Rectangle rc, string symbol, DockZone zone)
@@ -684,6 +1998,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString(symbol, fnt, fg, rc, sf);
+        }
+    }
+
+    internal sealed class DocumentHostDesignerMenuRenderer : ToolStripProfessionalRenderer
+    {
+        public DocumentHostDesignerMenuRenderer(Color backColor, Color foreColor)
+            : base(new DocumentHostDesignerColorTable(backColor, foreColor))
+        {
+        }
+
+        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+        {
+            e.TextColor = e.Item.Enabled
+                ? e.Item.ForeColor
+                : Color.FromArgb(140, e.Item.ForeColor);
+            base.OnRenderItemText(e);
+        }
+    }
+
+    internal sealed class DocumentHostDesignerColorTable : ProfessionalColorTable
+    {
+        private readonly Color _background;
+        private readonly Color _foreground;
+        private readonly Color _highlight;
+
+        public DocumentHostDesignerColorTable(Color background, Color foreground)
+        {
+            _background = background;
+            _foreground = foreground;
+            _highlight = Blend(background, SystemColors.Highlight, 0.22f);
+        }
+
+        public override Color MenuBorder => Blend(_background, _foreground, 0.15f);
+        public override Color MenuItemBorder => Color.Transparent;
+        public override Color MenuItemSelected => _highlight;
+        public override Color MenuItemSelectedGradientBegin => _highlight;
+        public override Color MenuItemSelectedGradientEnd => _highlight;
+        public override Color ToolStripDropDownBackground => _background;
+        public override Color MenuStripGradientBegin => _background;
+        public override Color MenuStripGradientEnd => _background;
+        public override Color SeparatorDark => Blend(_background, _foreground, 0.18f);
+        public override Color SeparatorLight => _background;
+        public override Color ImageMarginGradientBegin => _background;
+        public override Color ImageMarginGradientMiddle => _background;
+        public override Color ImageMarginGradientEnd => _background;
+
+        private static Color Blend(Color a, Color b, float amount)
+        {
+            amount = Math.Max(0f, Math.Min(1f, amount));
+            return Color.FromArgb(
+                255,
+                (int)Math.Round(a.R + ((b.R - a.R) * amount)),
+                (int)Math.Round(a.G + ((b.G - a.G) * amount)),
+                (int)Math.Round(a.B + ((b.B - a.B) * amount)));
         }
     }
 

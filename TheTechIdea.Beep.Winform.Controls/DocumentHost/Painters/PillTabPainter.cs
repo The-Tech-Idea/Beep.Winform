@@ -9,10 +9,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
         private const int PillPadV = 4;
         private const int PillRadius = 8;
 
-        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
             bool active = context.IsTabActive(tab);
-            bool hovered = context.IsTabHovered(-1);
+            bool hovered = context.IsTabHovered(index);
 
             if (active || hovered)
             {

@@ -70,12 +70,35 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 new DocumentEventArgs(e.Tab.Id, panel.DocumentTitle));
         }
 
+        private void OnTabAutoHideRequested(object? sender, TabEventArgs e)
+            => AutoHideDocument(e.Tab.Id, AutoHideSide.Left); // default side; caller can override via LayoutRestoring
+
         // ── Host-level keyboard shortcut routing ──────────────────────────────
         // Merged with chord-system and command palette logic (BeepDocumentHost.Keyboard.cs)
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
         {
             if (!_keyboardShortcutsEnabled)
                 return base.ProcessCmdKey(ref msg, keyData);
+
+            // Escape closes any visible auto-hide flyout before the key reaches children.
+            if (keyData == Keys.Escape && !string.IsNullOrWhiteSpace(_ahActiveDocId))
+            {
+                CloseAhOverlay(animate: true);
+                return true;
+            }
+
+            // Alt+Left / Alt+Right provides quick pane-to-pane navigation when the host has split groups.
+            if (keyData == (Keys.Alt | Keys.Left))
+            {
+                FocusSplitGroup(-1);
+                return true;
+            }
+
+            if (keyData == (Keys.Alt | Keys.Right))
+            {
+                FocusSplitGroup(+1);
+                return true;
+            }
 
             // Consume chord second key before delegating to children
             if (_chordPending)
@@ -201,6 +224,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             panel.Dock = DockStyle.Fill;
             Controls.Add(panel);
+
+            // Basic shell context menu on float window chrome.
+            var ctx = new ContextMenuStrip();
+            var dockBackItem = new ToolStripMenuItem("Dock Back");
+            dockBackItem.Click += (s, e) => OnDockBackRequested();
+            var closeItem = new ToolStripMenuItem("Close");
+            closeItem.Click += (s, e) => Close();
+            ctx.Items.Add(dockBackItem);
+            ctx.Items.Add(new ToolStripSeparator());
+            ctx.Items.Add(closeItem);
+            ContextMenuStrip = ctx;
         }
 
         // ── WndProc ───────────────────────────────────────────────────────────
@@ -217,6 +251,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ── Public helpers ────────────────────────────────────────────────────
+
+        /// <summary>The hosted panel while the float window owns it, or null after detach.</summary>
+        public BeepDocumentPanel? HostedPanel => _panel;
 
         /// <summary>
         /// Removes the hosted panel from this window without disposing it,

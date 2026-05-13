@@ -227,6 +227,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     }
 
     /// <summary>
+    /// High-level placement state of a document within <see cref="BeepDocumentHost"/>.
+    /// </summary>
+    public enum DocumentDockState
+    {
+        /// <summary>The document is not currently tracked by the host.</summary>
+        None,
+        /// <summary>The document is docked inside a document group.</summary>
+        Docked,
+        /// <summary>The document is hosted inside a floating window.</summary>
+        Floating,
+        /// <summary>The document is collapsed into an auto-hide strip.</summary>
+        AutoHide
+    }
+
+    /// <summary>
+    /// Arguments raised when a document moves between docked, floating, and auto-hide states.
+    /// </summary>
+    public sealed class DocumentDockStateChangedEventArgs : DocumentEventArgs
+    {
+        /// <summary>The state before the transition.</summary>
+        public DocumentDockState OldState { get; }
+
+        /// <summary>The state after the transition.</summary>
+        public DocumentDockState NewState { get; }
+
+        /// <summary>The owning group id tracked for the document, when available.</summary>
+        public string? GroupId { get; }
+
+        /// <summary>
+        /// Auto-hide side involved in the transition, when applicable.
+        /// </summary>
+        public AutoHideSide? Side { get; }
+
+        public DocumentDockStateChangedEventArgs(string documentId,
+                                                 string title,
+                                                 DocumentDockState oldState,
+                                                 DocumentDockState newState,
+                                                 string? groupId,
+                                                 AutoHideSide? side)
+            : base(documentId, title)
+        {
+            OldState = oldState;
+            NewState = newState;
+            GroupId = groupId;
+            Side = side;
+        }
+    }
+
+    /// <summary>
     /// Cancellable event arguments raised just before a tab is closed,
     /// allowing the host or consumer to prevent the close.
     /// </summary>
@@ -315,6 +364,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>The document id from the saved layout.</summary>
         public string  DocumentId   { get; }
 
+        /// <summary>
+        /// Stable persistence key saved alongside the document id.  This GUID-based key
+        /// never changes even when the title is renamed; use it as the primary restore key.
+        /// May be <c>null</c> for legacy layouts that pre-date persistence-key support.
+        /// </summary>
+        public string? PersistenceKey { get; }
+
         /// <summary>The document title from the saved layout.</summary>
         public string  Title        { get; }
 
@@ -326,6 +382,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>True if the tab had unsaved changes at save time.</summary>
         public bool    IsModified   { get; }
+
+        /// <summary>Dock placement captured for this document entry.</summary>
+        public DocumentDockState DockState { get; }
+
+        /// <summary>Owning group id captured for this document entry, when available.</summary>
+        public string? GroupId { get; }
+
+        /// <summary>Auto-hide side captured for this document entry, when applicable.</summary>
+        public AutoHideSide? Side { get; }
 
         /// <summary>
         /// Set to <c>true</c> inside <c>LayoutRestoring</c> to prevent this
@@ -347,14 +412,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public System.Collections.Generic.Dictionary<string, string> CustomData { get; }
             = new System.Collections.Generic.Dictionary<string, string>();
 
+        /// <summary>
+        /// Optional descriptor supplied by the application during restore.
+        /// When set, the host uses this descriptor instead of creating a default one.
+        /// </summary>
+        public DocumentDescriptor? RestoreDescriptor { get; set; }
+
         public DocumentLayoutEventArgs(string documentId, string title,
-                               string? iconPath, bool isPinned, bool isModified)
+                               string? iconPath, bool isPinned, bool isModified,
+                               DocumentDockState dockState = DocumentDockState.Docked,
+                               string? groupId = null,
+                               AutoHideSide? side = null,
+                               string? persistenceKey = null)
         {
-            DocumentId = documentId ?? throw new System.ArgumentNullException(nameof(documentId));
-            Title      = title      ?? string.Empty;
-            IconPath   = iconPath;
-            IsPinned   = isPinned;
-            IsModified = isModified;
+            DocumentId     = documentId ?? throw new System.ArgumentNullException(nameof(documentId));
+            PersistenceKey = persistenceKey;
+            Title          = title      ?? string.Empty;
+            IconPath       = iconPath;
+            IsPinned       = isPinned;
+            IsModified      = isModified;
+            DockState      = dockState;
+            GroupId        = groupId;
+            Side           = side;
         }
     }
 

@@ -11,6 +11,7 @@
 - [ ] Float and dock-back flows preserve panel content and tab metadata.
 - [ ] Auto-hide restore retains placement and active document correctness.
 - [ ] Layout save/restore works across same-version and migrated payloads.
+- [x] Automated regression coverage exists for floated-document restore and multi-group layout reapply.
 
 ## Command and UX Validation Matrix
 - [ ] Command service resolves command IDs and reports `CanExecute` correctly.
@@ -28,6 +29,9 @@
 - [ ] Smart-tag exposes new vNext toggles.
 - [ ] Designer transactions apply without serialization regressions.
 - [ ] Design-time documents still serialize and restore into `InitializeComponent`.
+- [x] Representative container-host audit completed against `TheTechIdea.Beep.Winform.Default.Views/MainFrm_MDI.Designer.cs`.
+- [x] Automated regression coverage exists for authored-child remove/reparent on a design-mode host.
+- [ ] Manual delete/remove/reparent/reopen validation in the Visual Studio designer is still pending.
 
 ## Release Exit Criteria
 - [ ] Target project builds without errors.

@@ -85,7 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (hasTab)
             {
                 string pinLabel = (tab?.IsPinned ?? false) ? "Unpin Tab" : "Pin Tab";
-                var pinItem = new ToolStripMenuItem(pinLabel);
+                var pinItem = new ToolStripMenuItem(pinLabel)
+                    { Enabled = PolicyAllowPin };
                 pinItem.Click += (s, e) =>
                 {
                     if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
@@ -98,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (hasTab)
             {
                 var floatItem = new ToolStripMenuItem("Float")
-                    { Enabled = !(tab?.IsPinned ?? true) };
+                    { Enabled = PolicyAllowFloat && !(tab?.IsPinned ?? true) };
                 floatItem.Click += (s, e) =>
                 {
                     if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
@@ -113,7 +114,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // ── Split ─────────────────────────────────────────────────────
             if (hasTab)
             {
-                var splitH = new ToolStripMenuItem("Split Right");
+                var splitH = new ToolStripMenuItem("Split Right")
+                    { Enabled = PolicyAllowSplit };
                 splitH.Click += (s, e) =>
                 {
                     if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
@@ -122,7 +124,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 };
                 menu.Items.Add(splitH);
 
-                var splitV = new ToolStripMenuItem("Split Down");
+                var splitV = new ToolStripMenuItem("Split Down")
+                    { Enabled = PolicyAllowSplit };
                 splitV.Click += (s, e) =>
                 {
                     if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
@@ -180,6 +183,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 menu.Items.Add(moveToGroup);
             }
 
+            // ── Auto-Hide ───────────────────────────────────────────────
+            if (hasTab)
+            {
+                var autoHideItem = new ToolStripMenuItem("Auto-Hide")
+                    { Enabled = PolicyAllowAutoHide && !(tab?.IsPinned ?? true) };
+                autoHideItem.Click += (s, e) =>
+                {
+                    if (_contextTabIndex >= 0 && _contextTabIndex < _tabs.Count)
+                        TabAutoHideRequested?.Invoke(this,
+                            new TabEventArgs(_contextTabIndex, _tabs[_contextTabIndex]));
+                };
+                menu.Items.Add(autoHideItem);
+            }
+
             // ── Copy Title ────────────────────────────────────────────────
             if (hasTab)
             {
@@ -204,6 +221,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var args = new TabContextMenuEventArgs(_contextTabIndex, tab, menu);
             TabContextMenuOpening?.Invoke(this, args);
             if (args.Cancel) { menu.Dispose(); return; }
+
+            // ── Group-level items (empty area or always shown below separator) ──
+            if (!hasTab && _tabs.Count == 0)
+            {
+                // Nothing to show — dispose silently
+                menu.Dispose();
+                return;
+            }
+
+            if (!hasTab)
+            {
+                // Right-click on empty tab-strip area → group-level actions
+                menu.Items.Add(new ToolStripSeparator());
+
+                var newH = new ToolStripMenuItem("New Horizontal Tab Group")
+                    { Enabled = PolicyAllowSplit };
+                newH.Click += (s, e) => GroupSplitHorizontalRequested?.Invoke(this, EventArgs.Empty);
+                menu.Items.Add(newH);
+
+                var newV = new ToolStripMenuItem("New Vertical Tab Group")
+                    { Enabled = PolicyAllowSplit };
+                newV.Click += (s, e) => GroupSplitVerticalRequested?.Invoke(this, EventArgs.Empty);
+                menu.Items.Add(newV);
+
+                menu.Items.Add(new ToolStripSeparator());
+
+                var closeAll2 = new ToolStripMenuItem("Close All Documents")
+                    { Enabled = _tabs.Any(t => t.CanClose) };
+                closeAll2.Click += (s, e) => GroupCloseAllRequested?.Invoke(this, EventArgs.Empty);
+                menu.Items.Add(closeAll2);
+            }
 
             menu.Show(this, PointToClient(screenPoint));
             menu.Closed += (s, e) => menu.Dispose();

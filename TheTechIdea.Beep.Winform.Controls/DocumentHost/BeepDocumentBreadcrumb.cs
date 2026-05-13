@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             float total = Pad;
             for (int i = 0; i < _segments.Count; i++)
             {
-                widths[i] = g.MeasureString(_segments[i].Label, font).Width + Pad * 2;
+                widths[i] = g.MeasureString(_segments[i].Label, (i == _segments.Count - 1) ? boldFont : font).Width + Pad * 2;
                 total += widths[i] + SepWidth;
             }
             overflow = total > Width;
@@ -176,11 +176,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     g.FillRectangle(hlBr, segRect);
                 }
 
-                var textBr = new SolidBrush(last ? fore : dim);
+                using var textBr = new SolidBrush(last ? fore : dim);
                 var f      = last ? boldFont : font;
                 g.DrawString(seg.Label, f, textBr,
                     new RectangleF(x + Pad / 2f, (Height - f.Height) / 2f, sw, Height));
-                textBr.Dispose();
 
                 x += (int)sw;
 

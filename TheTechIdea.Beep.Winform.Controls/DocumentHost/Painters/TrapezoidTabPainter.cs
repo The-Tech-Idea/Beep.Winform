@@ -7,13 +7,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
     {
         public override string Name => "TrapezoidTabPainter";
 
-        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, TabStripPaintContext context)
+        public override void PaintTabBackground(Graphics g, BeepDocumentTab tab, int index, TabStripPaintContext context)
         {
-            Color fill = context.GetTabBackground(tab, -1);
+            Color fill = context.GetTabBackground(tab, index);
             int slant = context.Scale(8);
             var r = tab.TabRect;
 
-            var path = new GraphicsPath();
+            using var path = new GraphicsPath();
             path.AddPolygon(new PointF[]
             {
                 new(r.Left, r.Bottom),
@@ -26,8 +26,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Painters
                 g.FillPath(br, path);
             using (var pen = new Pen(context.Theme.BorderColor, 1f))
                 g.DrawPath(pen, path);
-
-            path.Dispose();
         }
 
         public override GraphicsPath CreateTabPath(Rectangle bounds, TabStripPaintContext context)

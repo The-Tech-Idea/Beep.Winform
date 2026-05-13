@@ -103,10 +103,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _tabStrip.TabClosing += OnTabClosing;
             _tabStrip.TabFloatRequested += OnTabFloatRequested;
             _tabStrip.TabPinToggled += OnTabPinToggled;
+            _tabStrip.TabAutoHideRequested += OnTabAutoHideRequested;
             _tabStrip.AddButtonClicked += OnAddButtonClicked;
             _tabStrip.TabReordered += OnTabReordered;
             _tabStrip.TabSplitHorizontalRequested += (s, e) => SplitDocumentHorizontal(e.Tab.Id);
             _tabStrip.TabSplitVerticalRequested   += (s, e) => SplitDocumentVertical(e.Tab.Id);
+            _tabStrip.GroupSplitHorizontalRequested += (s, e) => { if (_activeDocumentId != null) SplitDocumentHorizontal(_activeDocumentId); };
+            _tabStrip.GroupSplitVerticalRequested   += (s, e) => { if (_activeDocumentId != null) SplitDocumentVertical(_activeDocumentId); };
+            _tabStrip.GroupCloseAllRequested        += (s, e) => CloseGroupDocuments(_primaryGroup.GroupId);
             // 5.8 — Record a paint frame for FPS tracking whenever the tab strip repaints
             _tabStrip.Paint += (s, e) => _profiler?.RecordFrame();
 
@@ -146,6 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 }
 
                 ApplyThemeColors();
+                ApplyDesignTimeSeedState();
                 return;
             }
 
@@ -173,6 +178,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             BeepDocumentDragManager.Register(this);
         }
 
+        private void ApplyDesignTimeSeedState()
+        {
+            try
+            {
+                ApplyDesignTimeDocuments();
+
+                if (!string.IsNullOrWhiteSpace(_designTimeLayoutJson))
+                {
+                    TryRestoreLayout(_designTimeLayoutJson, out _);
+                }
+            }
+            catch
+            {
+                // Design-time restore should never break the VS designer surface.
+            }
+        }
+
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
@@ -187,7 +209,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 _isDesignerDetaching = true;
                 _isDisposingHost = true;
+                return;
             }
+
+            _isDesignerDetaching = false;
+            _isDisposingHost = false;
         }
 
         protected override void OnControlRemoved(ControlEventArgs e)
@@ -199,9 +225,49 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 return;
             }
 
-            // Suppress runtime mutation/layout flows while designer is tearing down children.
-            _isDesignerDetaching = true;
-            _isDisposingHost = true;
+            // Suppress runtime mutation/layout flows only when the designer is tearing down
+            // the host's own infrastructure. Normal child-control remove/reparent operations
+            // are valid when the host is used as a design-time container.
+            if (IsInternalDesignerInfrastructure(e.Control))
+            {
+                _isDesignerDetaching = true;
+                _isDisposingHost = true;
+            }
+        }
+
+        private bool IsInternalDesignerInfrastructure(Control? control)
+        {
+            if (control == null)
+                return false;
+
+            if (ReferenceEquals(control, _tabStrip)
+                || ReferenceEquals(control, _contentArea)
+                || ReferenceEquals(control, _splitterBar)
+                || ReferenceEquals(control, _ahOverlay)
+                || ReferenceEquals(control, _ahLeft)
+                || ReferenceEquals(control, _ahRight)
+                || ReferenceEquals(control, _ahTop)
+                || ReferenceEquals(control, _ahBottom))
+            {
+                return true;
+            }
+
+            foreach (var group in _groups)
+            {
+                if (ReferenceEquals(control, group.TabStrip)
+                    || ReferenceEquals(control, group.ContentArea))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var splitter in _extraSplitters)
+            {
+                if (ReferenceEquals(control, splitter))
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnGlobalThemeChanged(object? sender, ThemeChangeEventArgs e)
@@ -233,14 +299,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             ApplyThemeColors();
             _tabStrip.ThemeName = themeName;
             foreach (var panel in _panels.Values)
-                panel.Theme = themeName;
+            {
+                try { panel.Theme = themeName; }
+                catch { /* isolate per-panel theme errors from propagating to siblings */ }
+            }
             foreach (var grp in _groups)
+            {
                 if (!grp.IsPrimary)
-                    grp.ApplyTheme(themeName, _currentTheme);
+                {
+                    try { grp.ApplyTheme(themeName, _currentTheme); }
+                    catch { /* isolate per-group theme errors */ }
+                }
+            }
             if (_splitterBar != null)
                 _splitterBar.ApplyTheme(_currentTheme);
             foreach (var bar in _extraSplitters)
-                bar.ApplyTheme(_currentTheme);
+            {
+                try { bar.ApplyTheme(_currentTheme); }
+                catch { /* isolate per-splitter theme errors */ }
+            }
         }
 
         public override void ApplyTheme()
@@ -322,9 +399,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     iy + iconSize + DpiScalingHelper.ScaleValue(16, this),
                     area.Width - DpiScalingHelper.ScaleValue(40, this),
                     DpiScalingHelper.ScaleValue(28, this));
-                var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                using var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("No open documents", titleFont, titleBrush, titleRect, fmt);
-                fmt.Dispose();
             }
 
             var subFont = BeepFontManager.GetCachedFont("Segoe UI", 9f, FontStyle.Regular);
@@ -335,9 +411,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     iy + iconSize + DpiScalingHelper.ScaleValue(46, this),
                     area.Width - DpiScalingHelper.ScaleValue(40, this),
                     DpiScalingHelper.ScaleValue(22, this));
-                var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                using var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("Press Ctrl+N or click  +  to start", subFont, subBrush, subRect, fmt);
-                fmt.Dispose();
             }
         }
 

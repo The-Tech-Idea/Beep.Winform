@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
             g.Clear(BackColor);
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            var glyphFont = new Font("Segoe UI Symbol", 11f, FontStyle.Regular);
+            using var glyphFont = new Font("Segoe UI Symbol", 11f, FontStyle.Regular);
 
             for (int i = 0; i < _actions.Count; i++)
             {
@@ -152,12 +152,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Features
 
                 var glyphColor = act.Enabled ? Color.White : Color.Gray;
                 using var fb = new SolidBrush(glyphColor);
-                var sf = new StringFormat { Alignment = StringAlignment.Center,
-                                            LineAlignment = StringAlignment.Center };
+                using var sf = new StringFormat { Alignment = StringAlignment.Center,
+                                                  LineAlignment = StringAlignment.Center };
                 g.DrawString(act.Glyph, glyphFont, fb, rect, sf);
             }
-
-            glyphFont.Dispose();
         }
 
         // ── Mouse ─────────────────────────────────────────────────────────────

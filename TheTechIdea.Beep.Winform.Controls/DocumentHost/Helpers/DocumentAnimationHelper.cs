@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
         private readonly Action _onComplete;
         private readonly double _durationMs;
         private readonly Func<double, double> _easing;
-        private double _startMs;
+        private long _startMs;
         private double _from;
         private double _to;
 
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
         {
             _from = from;
             _to = to;
-            _startMs = Environment.TickCount;
+            _startMs = Environment.TickCount64;
             IsRunning = true;
             _timer.Interval = 16;
             _timer.Start();
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Helpers
 
         private void OnTick(object sender, EventArgs e)
         {
-            double elapsed = Environment.TickCount - _startMs;
+            double elapsed = Environment.TickCount64 - _startMs;
             double progress = Math.Min(1.0, elapsed / _durationMs);
             double eased = _easing(progress);
             double value = _from + (_to - _from) * eased;

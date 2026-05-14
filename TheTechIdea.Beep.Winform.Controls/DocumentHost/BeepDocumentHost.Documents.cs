@@ -254,6 +254,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             panel.ModifiedChanged += (s, _) =>
                 _tabStrip.SetTabModified(documentId, panel.IsModified);
 
+            // Auto-show the mini toolbar when the mouse enters the document panel
+            WireMiniToolbarToPanel(panel, documentId);
+
             // Skip the expensive layout pass when batching — EndBatchAddDocuments will flush
             if (!_batchAdding)
                 RecalculateLayout();
@@ -493,6 +496,87 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var id in ids)
                 CloseDocument(id);
             return true;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Mini toolbar — hover-triggered contextual action bar
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Wires <see cref="Features.BeepDocumentMiniToolbar"/> hover show/hide to
+        /// <paramref name="panel"/>.  The toolbar fades in 150 ms after <c>MouseEnter</c>
+        /// and fades out when the pointer leaves both the panel and the toolbar.
+        /// </summary>
+        private void WireMiniToolbarToPanel(BeepDocumentPanel panel, string documentId)
+        {
+            System.Windows.Forms.Timer? leaveTimer = null;
+
+            panel.MouseEnter += (_, _) =>
+            {
+                leaveTimer?.Stop();
+                var tb = MiniToolbar;
+                tb.SetActions(BuildPanelMiniToolbarActions(documentId));
+                tb.ShowAt(panel);
+            };
+
+            panel.MouseLeave += (_, _) =>
+            {
+                if (leaveTimer == null)
+                {
+                    leaveTimer = new System.Windows.Forms.Timer { Interval = 150 };
+                    leaveTimer.Tick += (__, ___) =>
+                    {
+                        leaveTimer.Stop();
+                        // Stay visible if the pointer moved onto the toolbar itself
+                        if (!MiniToolbar.Bounds.Contains(System.Windows.Forms.Cursor.Position))
+                            MiniToolbar.FadeOut();
+                    };
+                }
+                leaveTimer.Start();
+            };
+        }
+
+        /// <summary>
+        /// Builds the default set of mini-toolbar actions for a document panel:
+        /// Float, Pin, Maximize / Restore, Close.
+        /// </summary>
+        private Features.MiniToolbarAction[] BuildPanelMiniToolbarActions(string documentId)
+        {
+            return new Features.MiniToolbarAction[]
+            {
+                new Features.MiniToolbarAction
+                {
+                    Glyph       = "\uD83D\uDDD7",   // 🗗 restore / float
+                    ToolTipText = "Float",
+                    CommandId   = "document.float",
+                    Enabled     = CanFloatNow(),
+                    Execute     = () => FloatDocument(documentId),
+                },
+                new Features.MiniToolbarAction
+                {
+                    Glyph       = "\uD83D\uDCCC",   // 📌 pin
+                    ToolTipText = "Pin",
+                    CommandId   = "document.pin",
+                    Enabled     = CanPinNow(),
+                    Execute     = () => PinDocument(documentId),
+                },
+                new Features.MiniToolbarAction
+                {
+                    Glyph       = "\u2610",          // ☐ maximize / restore
+                    ToolTipText = "Maximize",
+                    CommandId   = "document.maximize",
+                    Enabled     = true,
+                    Execute     = ToggleMaximizeActiveDocument,
+                },
+                new Features.MiniToolbarAction
+                {
+                    Glyph       = "\u2715",          // ✕ close
+                    ToolTipText = "Close",
+                    CommandId   = "document.close",
+                    Enabled     = true,
+                    Execute     = () => CloseDocument(documentId),
+                },
+            };
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -894,13 +978,66 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Opens the Quick-Switch popup with documents sorted in MRU order and the
+        /// second-most-recent entry pre-selected (VS Code / VS 2022 Ctrl+Tab behaviour).
+        /// While the popup is open, Tab / Ctrl+Tab advances the selection;
+        /// Shift+Tab / Ctrl+Shift+Tab reverses it.  Enter commits; Escape cancels.
+        /// </summary>
+        /// <param name="reverse">
+        /// When <c>true</c>, the last item in the MRU list is pre-selected (Ctrl+Shift+Tab).
+        /// </param>
+        internal void ShowQuickSwitchMru(bool reverse)
+        {
+            var allTabs = GetAllTabs();
+            if (allTabs.Count <= 1) return;
+
+            // Build MRU-sorted list: _mruList order first, then any tab not yet in the list.
+            var tabById = allTabs.ToDictionary(t => t.Id, t => t);
+            var sorted  = _mruList
+                .Where(id  => tabById.ContainsKey(id))
+                .Select(id => tabById[id])
+                .ToList();
+
+            // Append any open tabs that have never been explicitly activated (new windows).
+            foreach (var t in allTabs)
+                if (!sorted.Contains(t)) sorted.Add(t);
+
+            // Pre-select: index 1 for forward (skip the current active at index 0),
+            // last item for reverse.
+            int startIndex = reverse
+                ? sorted.Count - 1
+                : Math.Min(1, sorted.Count - 1);
+
+            var stripPt = _tabStrip.PointToScreen(Point.Empty);
+            int popW    = 420, popH = 340;
+            int x       = stripPt.X + (_tabStrip.Width  - popW) / 2;
+            int y       = stripPt.Y;
+            var screen  = Screen.FromControl(this).WorkingArea;
+            x = Math.Max(screen.Left, Math.Min(x, screen.Right  - popW));
+            y = Math.Max(screen.Top,  Math.Min(y, screen.Bottom - popH));
+
+            using var popup = new BeepDocumentQuickSwitch(
+                sorted,
+                activeDocumentId: null,
+                _currentTheme,
+                new Point(x, y),
+                initialIndex: startIndex);
+
+            popup.ShowDialog(this);
+
+            if (!string.IsNullOrEmpty(popup.SelectedDocumentId))
+                SetActiveDocument(popup.SelectedDocumentId);
+        }
+
+        /// <summary>
         /// Opens the Quick-Switch document picker above the tab strip.
         /// The user can type a filter, navigate with arrow keys, and press Enter
         /// to switch to the selected document.
         /// </summary>
         public void ShowQuickSwitch()
         {
-            var tabs = _tabStrip.Tabs.ToList();
+            // Collect tabs from every split group so multi-group layouts are covered.
+            var tabs = GetAllTabs().ToList();
             if (tabs.Count == 0) return;
 
             // Position the popup centred over the tab strip

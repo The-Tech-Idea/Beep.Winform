@@ -19,6 +19,9 @@ Before you begin, ensure you have the following:
 8. Image Always referenced by string path in all Beep Controls.(ImagePath)
 9. Dont Run build or run Test or run any git unless i say so.
 10. Follow coding standards and best practices.
+10a. **NEVER** write backward-compatible, legacy, or shim code. **NEVER** keep deprecated aliases, obsolete properties, or compatibility wrappers "just in case". Always write clean, production-ready code. When an API changes, delete the old one and update every call site — do not leave it behind under a new name.
+10b. Production-ready means: no `// TODO`, no `// HACK`, no swallowed exceptions that hide real bugs, no placeholder verbs / methods that "will be implemented later". Either ship it or delete it.
+10c. When refactoring, prefer replacement over coexistence. Two ways to do the same thing is a defect.
 11. Test the Beep Control thoroughly to ensure it works as expected.
 12. Document any changes made to the Beep Control for future reference.
 

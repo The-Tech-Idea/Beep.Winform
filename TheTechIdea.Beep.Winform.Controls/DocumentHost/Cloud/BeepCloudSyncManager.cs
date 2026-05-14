@@ -14,8 +14,14 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
     /// <summary>
-    /// Orchestrates sync between local <see cref="WorkspaceManager"/> state and
-    /// a remote <see cref="ICloudSyncProvider"/>.
+    /// Orchestrates sync between local workspace state and a remote
+    /// <see cref="ICloudSyncProvider"/>.
+    /// <para>
+    /// Preferred constructor: pass a <see cref="BeepDocumentManager"/> so the sync
+    /// manager re-wires itself automatically when the user switches view modes
+    /// (Phase 03: Tabbed → NativeMdi → etc.).  The legacy
+    /// <see cref="WorkspaceManager"/> overload still works for host-only scenarios.
+    /// </para>
     /// </summary>
     public sealed class BeepCloudSyncManager : IDisposable
     {
@@ -26,7 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         };
 
         private readonly ICloudSyncProvider _provider;
-        private readonly WorkspaceManager   _workspaces;
+        private readonly WorkspaceManager?  _workspaces;       // host-only path
+        private readonly BeepDocumentManager? _manager;         // preferred path
         private readonly System.Windows.Forms.Timer? _timer;
         private bool _disposed;
 
@@ -50,6 +57,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         // ── Construction ──────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Preferred constructor.  Subscribes to <paramref name="manager"/>-level
+        /// workspace events so the sync manager survives view switches.
+        /// </summary>
+        public BeepCloudSyncManager(
+            ICloudSyncProvider    provider,
+            BeepDocumentManager   manager,
+            BeepCloudSyncSettings? settings = null)
+        {
+            ArgumentNullException.ThrowIfNull(provider);
+            ArgumentNullException.ThrowIfNull(manager);
+            _provider = provider;
+            _manager  = manager;
+
+            var s = settings ?? new BeepCloudSyncSettings();
+
+            if (s.SyncOnSave)
+                _manager.WorkspaceSaved += OnManagerWorkspaceSavedAsync;
+
+            if (s.SyncInterval > TimeSpan.Zero)
+            {
+                _timer          = new System.Windows.Forms.Timer
+                {
+                    Interval = (int)Math.Max(5000, s.SyncInterval.TotalMilliseconds)
+                };
+                _timer.Tick    += OnTimerTickAsync;
+                _timer.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Legacy constructor for host-only usage (no view-switch re-wiring).
+        /// Prefer the <see cref="BeepDocumentManager"/> overload in new code.
+        /// </summary>
         public BeepCloudSyncManager(
             ICloudSyncProvider provider,
             WorkspaceManager   workspaces,
@@ -104,8 +145,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             try
             {
+                // Obtain the workspace list from whichever source is configured.
+                var allWorkspaces = _manager != null
+                    ? _manager.GetAllWorkspaces()
+                    : (IReadOnlyList<WorkspaceDefinition>)(_workspaces!.GetAll());
+
                 // Upload local workspaces
-                foreach (var ws in _workspaces.GetAll())
+                foreach (var ws in allWorkspaces)
                 {
                     ct.ThrowIfCancellationRequested();
                     await UploadWorkspaceAsync(ws, ct).ConfigureAwait(false);
@@ -116,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 foreach (var key in remoteKeys)
                 {
                     ct.ThrowIfCancellationRequested();
-                    await PullWorkspaceAsync(key, ct).ConfigureAwait(false);
+                    await PullWorkspaceAsync(key, allWorkspaces, ct).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException) { throw; }
@@ -152,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
-        private async Task PullWorkspaceAsync(string key, CancellationToken ct)
+        private async Task PullWorkspaceAsync(string key, IReadOnlyList<WorkspaceDefinition> localWorkspaces, CancellationToken ct)
         {
             try
             {
@@ -162,10 +208,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var ws = JsonSerializer.Deserialize<WorkspaceDefinition>(content, _json);
                 if (ws == null) return;
 
-                var local = _workspaces.FindById(ws.Id);
-                if (local == null)
+                bool alreadyLocal = localWorkspaces.Any(w => w.Id == ws.Id);
+                if (!alreadyLocal)
                 {
-                    _workspaces.Save(ws.Name, ws.LayoutJson);
+                    // Persist into the correct store
+                    if (_manager != null)
+                        _manager.SaveWorkspace(ws.Name);
+                    else
+                        _workspaces!.Save(ws.Name, ws.LayoutJson);
+
                     Downloaded?.Invoke(this, new SyncEventArgs(key, ws.Name));
                 }
             }
@@ -188,7 +239,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         // ── Event handlers ────────────────────────────────────────────────────
 
+        // Legacy path: direct WorkspaceManager subscription
         private async void OnWorkspaceSavedAsync(object? sender, WorkspaceEventArgs e)
+        {
+            try
+            {
+                await UploadWorkspaceAsync(e.Workspace).ConfigureAwait(false);
+            }
+            catch { /* fire-and-forget; SyncError event raised inside */ }
+        }
+
+        // Manager path: BeepDocumentManager re-wires on view switch automatically
+        private async void OnManagerWorkspaceSavedAsync(object? sender, WorkspaceEventArgs e)
         {
             try
             {
@@ -213,7 +275,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_disposed) return;
             _disposed = true;
             _timer?.Dispose();
-            _workspaces.WorkspaceSaved -= OnWorkspaceSavedAsync;
+
+            // Unsubscribe from whichever source was used
+            if (_manager != null)
+                _manager.WorkspaceSaved -= OnManagerWorkspaceSavedAsync;
+            else
+                _workspaces!.WorkspaceSaved -= OnWorkspaceSavedAsync;
         }
     }
 

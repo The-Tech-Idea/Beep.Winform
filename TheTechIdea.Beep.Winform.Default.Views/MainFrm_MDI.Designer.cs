@@ -212,11 +212,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             GraphicsPath graphicsPath13 = new GraphicsPath();
             GraphicsPath graphicsPath14 = new GraphicsPath();
             GraphicsPath graphicsPath15 = new GraphicsPath();
+            components = new System.ComponentModel.Container();
             beepDocumentHost1 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepDocumentHost();
             beepTextBox1 = new BeepTextBox();
             beepStepperBar1 = new BeepStepperBar();
             beepComboBox1 = new BeepComboBox();
             beepButton1 = new BeepButton();
+            beepTabbedView1 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepTabbedView(components);
+            beepDocumentManager1 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepDocumentManager(components);
             beepDocumentHost1.SuspendLayout();
             SuspendLayout();
             // 
@@ -3357,6 +3360,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // MainFrm_MDI
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
+            // 
+            // beepTabbedView1
+            // 
+            beepTabbedView1.Host = beepDocumentHost1;
+            // 
+            // beepDocumentManager1
+            // 
+            ((System.ComponentModel.ISupportInitialize)(beepDocumentManager1)).BeginInit();
+            beepDocumentManager1.AutoSaveLayout = true;
+            beepDocumentManager1.SessionFile = @"%AppData%\Beep\Sessions\MainFrm_MDI.json";
+            beepDocumentManager1.View = beepTabbedView1;
+            ((System.ComponentModel.ISupportInitialize)(beepDocumentManager1)).EndInit();
+            // 
+            // MainFrm_MDI
+            // 
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1279, 537);
             Controls.Add(beepDocumentHost1);
@@ -3370,6 +3388,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         #endregion
         private Controls.BeepStepperBar beepStepperBar1;
         private Controls.DocumentHost.BeepDocumentHost beepDocumentHost1;
+        private Controls.DocumentHost.BeepTabbedView beepTabbedView1;
+        private Controls.DocumentHost.BeepDocumentManager beepDocumentManager1;
         private Controls.BeepComboBox beepComboBox1;
         private Controls.BeepButton beepButton1;
         private Controls.BeepTextBox beepTextBox1;

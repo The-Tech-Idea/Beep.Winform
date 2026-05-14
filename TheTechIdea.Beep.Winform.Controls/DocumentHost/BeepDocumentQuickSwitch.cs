@@ -11,6 +11,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
+using TheTechIdea.Beep.Winform.Controls.ImageManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -25,11 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly TextBox  _search;
         private readonly ListBox  _list;
         private readonly Panel    _frame;
+        private readonly Panel    _preview;
+        private readonly PictureBox _previewIcon;
+        private readonly Label    _previewTitle;
+        private readonly Label    _previewPath;
+        private readonly Label    _previewMeta;
 
         // ── Data ─────────────────────────────────────────────────────────────
 
         private readonly IReadOnlyList<BeepDocumentTab> _allTabs;
         private readonly IBeepTheme?                    _currentTheme;
+        private readonly int                            _initialIndex;   // -1 = use preselectId
         private List<BeepDocumentTab>                   _filtered = new();
 
         // ── Result ───────────────────────────────────────────────────────────
@@ -39,11 +46,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         // ── Layout constants ──────────────────────────────────────────────────
 
-        private const int PopupWidth  = 420;
+        private const int PopupWidth  = 640;
         private const int PopupHeight = 340;
         private const int SearchH     = 36;
         private const int Pad         = 8;
         private const int ItemH       = 30;
+        private const int PreviewW    = 220;
 
         // ════════════════════════════════════════════════════════════════════
         // Constructor
@@ -53,10 +61,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             IReadOnlyList<BeepDocumentTab> tabs,
             string?                        activeDocumentId,
             IBeepTheme?                    theme,
-            Point                          screenPosition)
+            Point                          screenPosition,
+            int                            initialIndex = -1)
         {
-            _allTabs = tabs;
-            _currentTheme   = theme;
+            _allTabs      = tabs;
+            _currentTheme = theme;
+            _initialIndex = initialIndex;
 
             // ── Form setup ───────────────────────────────────────────────────
             FormBorderStyle = FormBorderStyle.None;
@@ -92,10 +102,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // ── Results list ─────────────────────────────────────────────────
             _list = new ListBox
             {
-                Bounds         = new Rectangle(Pad, Pad + SearchH + 4, PopupWidth - Pad * 2,
+                Bounds         = new Rectangle(Pad, Pad + SearchH + 4, PopupWidth - PreviewW - Pad * 3,
                                                PopupHeight - SearchH - Pad * 3 - 4),
                 Anchor         = AnchorStyles.Top | AnchorStyles.Bottom
-                                | AnchorStyles.Left | AnchorStyles.Right,
+                                | AnchorStyles.Left,
                 DrawMode       = DrawMode.OwnerDrawFixed,
                 ItemHeight     = ItemH,
                 BorderStyle    = BorderStyle.None,
@@ -105,13 +115,66 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 IntegralHeight = false,
             };
 
+            // ── Preview panel ────────────────────────────────────────────────
+            _preview = new Panel
+            {
+                Bounds      = new Rectangle(_list.Right + Pad, _list.Top, PreviewW, _list.Height),
+                Anchor      = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right,
+                BackColor   = ThemeAwareColor(_currentTheme?.BackgroundColor, SystemColors.Window),
+                Padding     = new Padding(14)
+            };
+
+            _previewIcon = new PictureBox
+            {
+                Bounds      = new Rectangle(14, 14, 48, 48),
+                BackColor   = Color.Transparent,
+                SizeMode    = PictureBoxSizeMode.Zoom
+            };
+
+            _previewTitle = new Label
+            {
+                Bounds      = new Rectangle(14, 74, PreviewW - 28, 48),
+                AutoSize    = false,
+                BackColor   = Color.Transparent,
+                ForeColor   = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
+                Font        = BeepFontManager.GetCachedFont("Segoe UI", 11f, FontStyle.Bold),
+                TextAlign   = ContentAlignment.TopLeft
+            };
+
+            _previewPath = new Label
+            {
+                Bounds      = new Rectangle(14, 132, PreviewW - 28, 84),
+                AutoSize    = false,
+                BackColor   = Color.Transparent,
+                ForeColor   = ThemeAwareGrayText(_currentTheme?.PanelBackColor),
+                Font        = BeepFontManager.GetCachedFont("Segoe UI", 8.75f, FontStyle.Regular),
+                TextAlign   = ContentAlignment.TopLeft
+            };
+
+            _previewMeta = new Label
+            {
+                Bounds      = new Rectangle(14, 226, PreviewW - 28, 78),
+                AutoSize    = false,
+                BackColor   = Color.Transparent,
+                ForeColor   = ThemeAwareColor(_currentTheme?.ForeColor, SystemColors.WindowText),
+                Font        = BeepFontManager.GetCachedFont("Segoe UI", 8.75f, FontStyle.Regular),
+                TextAlign   = ContentAlignment.TopLeft
+            };
+
+            _preview.Controls.Add(_previewIcon);
+            _preview.Controls.Add(_previewTitle);
+            _preview.Controls.Add(_previewPath);
+            _preview.Controls.Add(_previewMeta);
+
             _frame.Controls.Add(_search);
             _frame.Controls.Add(_list);
+            _frame.Controls.Add(_preview);
             Controls.Add(_frame);
 
             // ── Wire events ──────────────────────────────────────────────────
             _search.TextChanged  += OnSearchChanged;
             _list.DrawItem       += OnDrawItem;
+            _list.SelectedIndexChanged += OnSelectedIndexChanged;
             _list.MouseDoubleClick += (s, e) => CommitSelection();
 
             KeyDown  += OnKeyDown;
@@ -147,17 +210,116 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _list.Items.Add(t.Title);
             _list.EndUpdate();
 
-            // Pre-select — the active document (when no filter) or the first match
+            // Pre-select — honour initialIndex (MRU mode first), then preselectId, then index 0
             if (_filtered.Count > 0)
             {
                 int sel = 0;
-                if (preselectId != null)
+                if (_initialIndex >= 0 && string.IsNullOrWhiteSpace(filter))
                 {
-                    int idx = _filtered.FindIndex(t => t.Id == preselectId);
-                    if (idx >= 0) sel = idx;
+                    sel = Math.Clamp(_initialIndex, 0, _filtered.Count - 1);
+                }
+                else if (preselectId != null)
+                {
+                    int found = _filtered.FindIndex(t => t.Id == preselectId);
+                    if (found >= 0) sel = found;
                 }
                 _list.SelectedIndex = sel;
             }
+            else
+            {
+                UpdatePreview(null);
+            }
+        }
+
+        private void OnSelectedIndexChanged(object? sender, EventArgs e)
+        {
+            var tab = _list.SelectedIndex >= 0 && _list.SelectedIndex < _filtered.Count
+                ? _filtered[_list.SelectedIndex]
+                : null;
+            UpdatePreview(tab);
+        }
+
+        private void UpdatePreview(BeepDocumentTab? tab)
+        {
+            var oldImage = _previewIcon.Image;
+            _previewIcon.Image = null;
+            if (oldImage != null)
+                oldImage.Dispose();
+
+            if (tab == null)
+            {
+                _previewTitle.Text = "No document selected";
+                _previewPath.Text = string.Empty;
+                _previewMeta.Text = string.Empty;
+                return;
+            }
+
+            _previewTitle.Text = string.IsNullOrWhiteSpace(tab.Title) ? "Untitled document" : tab.Title;
+            _previewPath.Text = $"Path\r\n{GetPreviewPath(tab)}";
+            _previewMeta.Text = BuildMetaText(tab);
+            _previewIcon.Image = ResolvePreviewImage(tab);
+        }
+
+        private static string GetPreviewPath(BeepDocumentTab tab)
+        {
+            if (!string.IsNullOrWhiteSpace(tab.TooltipText))
+                return tab.TooltipText!;
+            return tab.Id;
+        }
+
+        private static string BuildMetaText(BeepDocumentTab tab)
+        {
+            var parts = new List<string>();
+            if (tab.IsActive) parts.Add("Active");
+            if (tab.IsModified) parts.Add("Modified");
+            if (tab.IsPinned) parts.Add("Pinned");
+            if (!tab.CanClose) parts.Add("Locked");
+            if (!string.IsNullOrWhiteSpace(tab.DocumentCategory)) parts.Add(tab.DocumentCategory!);
+            if (!string.IsNullOrWhiteSpace(tab.Group)) parts.Add($"Group: {tab.Group}");
+            return string.Join("\r\n", parts);
+        }
+
+        private static Image? ResolvePreviewImage(BeepDocumentTab tab)
+        {
+            if (tab.ImageList != null && tab.ImageIndex >= 0 && tab.ImageIndex < tab.ImageList.Images.Count)
+                return new Bitmap(tab.ImageList.Images[tab.ImageIndex]);
+
+            if (!string.IsNullOrWhiteSpace(tab.IconPath))
+            {
+                var resolved = ImageListHelper.GetImageFromName(tab.IconPath!);
+                if (resolved is Icon icon)
+                    return icon.ToBitmap();
+                if (resolved is Image image)
+                    return new Bitmap(image);
+            }
+
+            return CreateFallbackImage(tab);
+        }
+
+        private static Image CreateFallbackImage(BeepDocumentTab tab)
+        {
+            var bmp = new Bitmap(48, 48);
+            using var g = Graphics.FromImage(bmp);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.Clear(Color.Transparent);
+
+            Color back = tab.AccentColor != Color.Empty ? tab.AccentColor : Color.SteelBlue;
+            using var backBr = new SolidBrush(back);
+            g.FillEllipse(backBr, 0, 0, 47, 47);
+
+            string glyph = string.IsNullOrWhiteSpace(tab.Title)
+                ? "D"
+                : char.ToUpperInvariant(tab.Title.Trim()[0]).ToString();
+            using var font = BeepFontManager.GetCachedFont("Segoe UI", 18f, FontStyle.Bold);
+            using var textBr = new SolidBrush(Color.White);
+            using var fmt = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            g.DrawString(glyph, font, textBr, new RectangleF(0, 0, 48, 48), fmt);
+            return bmp;
         }
 
         // ── Keyboard handling ────────────────────────────────────────────────
@@ -202,6 +364,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     e.SuppressKeyPress = true;
                     break;
             }
+        }
+
+        // ── Ctrl+Tab / Ctrl+Shift+Tab cycling while the popup is visible ────────
+        // Intercept before WinForms dialog-key processing so holding Ctrl and
+        // pressing Tab repeatedly steps through the MRU list without closing the popup.
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (_list.Items.Count > 0)
+            {
+                if (keyData == (Keys.Control | Keys.Tab))
+                {
+                    _list.SelectedIndex = (_list.SelectedIndex + 1) % _list.Items.Count;
+                    return true;
+                }
+                if (keyData == (Keys.Control | Keys.Shift | Keys.Tab))
+                {
+                    _list.SelectedIndex = (_list.SelectedIndex - 1 + _list.Items.Count) % _list.Items.Count;
+                    return true;
+                }
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void CommitSelection()
@@ -288,6 +472,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             using var pen = new Pen(borderCol, 1);
             e.Graphics.DrawRectangle(pen,
                 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+
+            using var dividerPen = new Pen(Color.FromArgb(60, borderCol), 1);
+            e.Graphics.DrawLine(dividerPen, _preview.Left - (Pad / 2), _preview.Top,
+                _preview.Left - (Pad / 2), _preview.Bottom);
         }
 
         // ── WndProc: resizable via owner-drawn border ─────────────────────────

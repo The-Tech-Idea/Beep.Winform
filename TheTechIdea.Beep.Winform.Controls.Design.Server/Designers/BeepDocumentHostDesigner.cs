@@ -46,6 +46,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private readonly HashSet<Control> _contextMenuSurfaces = new();
         private BeepDocumentHost? _wiredHost;
 
+        // Stored so we can unhook it in Dispose (anonymous lambdas cannot be removed).
+        private EventHandler? _handleCreatedHandler;
+        // Stored so we can unsubscribe from ComponentRemoving in Dispose.
+        private IComponentChangeService? _changeSvcSubscribed;
+
         // ── Action list ───────────────────────────────────────────────────────
 
         private DesignerActionListCollection? _actionLists;
@@ -66,13 +71,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         // ── Design-time verbs ─────────────────────────────────────────────────
 
         private DesignerVerbCollection? _verbs;
+        /// <summary>
+        /// Cached reference so we can toggle <see cref="DesignerVerb.Enabled"/>
+        /// when a <see cref="BeepDocumentManager"/> already surfaces this verb.
+        /// </summary>
+        private DesignerVerb? _shortcutsVerb;
 
         public override DesignerVerbCollection Verbs
         {
             get
             {
-                _verbs ??= new DesignerVerbCollection
+                if (_verbs == null)
                 {
+                    _verbs = new DesignerVerbCollection
+                    {
                     new DesignerVerb("Add Document", (s, e) =>
                     {
                         AddDesignTimeDocument();
@@ -160,8 +172,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         }
                     }),
                 };
+
+                    _shortcutsVerb = (DesignerVerb)_verbs[_verbs.Count - 1];
+                }
+
+                // A4: suppress host-level verb when BeepDocumentManager on the
+                // same form already provides "Customize Keyboard Shortcuts…".
+                if (_shortcutsVerb != null)
+                    _shortcutsVerb.Enabled = !HasBoundManager();
+
                 return _verbs;
             }
+        }
+
+        /// <summary>
+        /// Returns <see langword="true"/> when a <see cref="BeepDocumentManager"/>
+        /// on the same design surface has its <see cref="BeepTabbedView.Host"/>
+        /// set to this <see cref="BeepDocumentHost"/>.
+        /// </summary>
+        private bool HasBoundManager()
+        {
+            if (Component is not BeepDocumentHost host) return false;
+            var container = host.Site?.Container;
+            if (container == null) return false;
+
+            foreach (IComponent comp in container.Components)
+            {
+                if (comp is BeepDocumentManager mgr &&
+                    (mgr.View as BeepTabbedView)?.Host == host)
+                    return true;
+            }
+            return false;
         }
 
         // ── Initialise ────────────────────────────────────────────────────────
@@ -183,9 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 host.ControlAdded += Host_ControlAdded;
                 host.ControlRemoved += Host_ControlRemoved;
 
-                // When the control gets its handle, force the designer surface
-                // to recalculate glyph adorners (ensures snap points are fresh)
-                host.HandleCreated += (s, e) =>
+                // Store as a named field so Dispose can unhook it.
+                // Anonymous lambdas cannot be removed from event subscriptions.
+                _handleCreatedHandler = (s, e) =>
                 {
                     try
                     {
@@ -200,6 +241,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     }
                     catch { /* safe at design-time */ }
                 };
+                host.HandleCreated += _handleCreatedHandler;
+
+                // Subscribe ComponentRemoving so we can do designer-side scrub
+                // BEFORE the host is disposed (prevents paint-during-teardown crash).
+                if (GetService(typeof(IComponentChangeService)) is IComponentChangeService changeSvc)
+                {
+                    _changeSvcSubscribed = changeSvc;
+                    changeSvc.ComponentRemoving += OnComponentRemoving;
+                }
             }
 
             // Sprint 17.1: register the docking-guide compass adorner
@@ -208,21 +258,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _wiredHost != null)
+            if (disposing)
             {
-                _wiredHost.ControlAdded -= Host_ControlAdded;
-                _wiredHost.ControlRemoved -= Host_ControlRemoved;
-
-                foreach (Control control in _contextMenuSurfaces.ToList())
+                // Unsubscribe ComponentRemoving before anything else.
+                if (_changeSvcSubscribed != null)
                 {
-                    UnhookDesignContextMenuSurface(control);
+                    try { _changeSvcSubscribed.ComponentRemoving -= OnComponentRemoving; }
+                    catch { /* safe */ }
+                    _changeSvcSubscribed = null;
                 }
 
-                _contextMenuSurfaces.Clear();
-                _wiredHost = null;
+                if (_wiredHost != null)
+                {
+                    try { _wiredHost.ControlAdded -= Host_ControlAdded; } catch { }
+                    try { _wiredHost.ControlRemoved -= Host_ControlRemoved; } catch { }
+
+                    if (_handleCreatedHandler != null)
+                    {
+                        try { _wiredHost.HandleCreated -= _handleCreatedHandler; } catch { }
+                        _handleCreatedHandler = null;
+                    }
+
+                    foreach (Control control in _contextMenuSurfaces.ToList())
+                    {
+                        try { UnhookDesignContextMenuSurface(control); } catch { }
+                    }
+
+                    _contextMenuSurfaces.Clear();
+                    _wiredHost = null;
+                }
             }
 
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Fired by <see cref="IComponentChangeService.ComponentRemoving"/> when any component
+        /// is about to be removed from the designer host. When <em>this</em> host is the one
+        /// being removed we do a pre-disposal scrub so the host's own <c>Dispose</c> runs clean.
+        /// </summary>
+        private void OnComponentRemoving(object? sender, ComponentEventArgs e)
+        {
+            if (!ReferenceEquals(e.Component, _wiredHost)) return;
+
+            try
+            {
+                // Signal the host that the designer is detaching before dispose.
+                if (_wiredHost != null)
+                {
+                    // Unhook the HandleCreated handler now (before the handle is destroyed).
+                    if (_handleCreatedHandler != null)
+                    {
+                        _wiredHost.HandleCreated -= _handleCreatedHandler;
+                        _handleCreatedHandler = null;
+                    }
+
+                    _wiredHost.ControlAdded -= Host_ControlAdded;
+                    _wiredHost.ControlRemoved -= Host_ControlRemoved;
+
+                    foreach (Control control in _contextMenuSurfaces.ToList())
+                        try { UnhookDesignContextMenuSurface(control); } catch { }
+                    _contextMenuSurfaces.Clear();
+
+                    _wiredHost = null;
+                }
+
+                // Unsubscribe ourselves now — the Dispose will no-op on the null ref.
+                if (_changeSvcSubscribed != null)
+                {
+                    _changeSvcSubscribed.ComponentRemoving -= OnComponentRemoving;
+                    _changeSvcSubscribed = null;
+                }
+            }
+            catch { /* must never throw inside ComponentRemoving */ }
         }
 
         private void LockChild(Control child)
@@ -242,26 +350,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// <summary>
         /// Hides low-level Panel infrastructure properties from the Properties
         /// grid so it only shows meaningful BeepDocumentHost properties.
+        /// All remaining visible properties have an explicit <c>[Category]</c>
+        /// attribute so none land in the default "Misc" group.
         /// </summary>
         protected override void PreFilterProperties(IDictionary properties)
         {
             base.PreFilterProperties(properties);
 
-            // Hide verbose base-Panel plumbing that is not relevant to the
-            // BeepDocumentHost abstraction.
+            // ── Inherited Panel / ScrollableControl plumbing ─────────────────
+            // These are not relevant to BeepDocumentHost; hide them so the
+            // Properties window only shows meaningful document-host properties.
             string[] hiddenProps =
             {
+                // ScrollableControl
                 "AutoScroll",
                 "AutoScrollMargin",
                 "AutoScrollMinSize",
                 "AutoScrollOffset",
                 "AutoScrollPosition",
-                "BorderStyle",
                 "HorizontalScroll",
                 "VerticalScroll",
-                "Padding",
+
+                // Panel
+                "BorderStyle",
+
+                // Layout
                 "AutoSize",
                 "AutoSizeMode",
+                "Padding",
+                "Margin",
+                "MinimumSize",
+                "MaximumSize",
+
+                // Appearance — theme-controlled, direct editor not useful
+                "BackColor",
+                "BackgroundImage",
+                "BackgroundImageLayout",
+                "ForeColor",
+                "Font",
+                "Cursor",
+                "RightToLeft",
+                "UseCompatibleTextRendering",
+
+                // Behavior — not applicable
+                "ImeMode",
+                "CausesValidation",
+                "UseWaitCursor",
+                "AllowDrop",
+
+                // Misc-bound properties
+                "Text",
+                "Tag",
+
+                // Accessibility — not tuned per-host
+                "AccessibleDescription",
+                "AccessibleName",
+                "AccessibleRole",
             };
 
             foreach (var name in hiddenProps)
@@ -360,7 +504,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             using var titleBrush = new SolidBrush(SystemColors.ControlText);
             using var hintBrush  = new SolidBrush(SystemColors.GrayText);
 
-            var sf = new StringFormat
+            using var sf = new StringFormat
             {
                 Alignment     = StringAlignment.Center,
                 LineAlignment = StringAlignment.Center
@@ -1066,6 +1210,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             control.MouseUp += DesignContextSurface_MouseUp;
+
+            // Left-click on a tab header → select that document's panel in the Properties window
+            if (control is BeepDocumentTabStrip)
+                control.MouseDown += DesignTabStrip_MouseDown;
         }
 
         private void UnhookDesignContextMenuSurface(Control control)
@@ -1076,10 +1224,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             control.MouseUp -= DesignContextSurface_MouseUp;
+
+            if (control is BeepDocumentTabStrip)
+                control.MouseDown -= DesignTabStrip_MouseDown;
         }
 
         private static bool IsDesignContextMenuSurface(Control control)
             => control is BeepDocumentHost or BeepDocumentTabStrip || control.Parent is BeepDocumentHost;
+
+        /// <summary>
+        /// Left-click on a tab header selects the corresponding <see cref="BeepDocumentPanel"/>
+        /// in the Visual Studio Properties window — identical to DevExpress XtraTabbedView behaviour.
+        /// </summary>
+        private void DesignTabStrip_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left
+                || sender is not BeepDocumentTabStrip strip
+                || Component is not BeepDocumentHost host)
+                return;
+
+            var hit = strip.HitTestTab(e.Location);
+            if (!hit.Hit || hit.TabIndex < 0 || hit.TabIndex >= strip.Tabs.Count)
+                return;
+
+            // Ignore close-button / add-button / scroll-button clicks
+            if (hit.IsCloseButton || hit.IsAddButton || hit.IsScrollLeft || hit.IsScrollRight || hit.IsOverflowButton)
+                return;
+
+            string tabId = strip.Tabs[hit.TabIndex].Id;
+            if (string.IsNullOrWhiteSpace(tabId)) return;
+
+            var panel = host.GetPanel(tabId);
+            if (panel == null) return;
+
+            // Route selection to the panel so the Properties window shows its properties
+            GetSelectionService()?.SetSelectedComponents(
+                new object[] { panel },
+                SelectionTypes.Replace);
+        }
 
         private void DesignContextSurface_MouseUp(object? sender, MouseEventArgs e)
         {

@@ -249,12 +249,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>The descriptor that was added to <see cref="BeepDocumentHost.Documents"/>.</summary>
         public DocumentDescriptor Descriptor { get; }
 
-        /// <summary>The freshly created (empty) panel.  Populate it inside the handler.</summary>
-        public BeepDocumentPanel Panel { get; }
+        /// <summary>
+        /// The freshly created (empty) panel — populate it inside the handler.
+        /// Will be <see langword="null"/> for views that do not back documents with
+        /// a <see cref="BeepDocumentPanel"/> (e.g. <c>BeepNativeMdiView</c>).
+        /// </summary>
+        public BeepDocumentPanel? Panel { get; }
 
-        internal DocumentAddedEventArgs(DocumentDescriptor descriptor, BeepDocumentPanel panel)
+        public DocumentAddedEventArgs(DocumentDescriptor descriptor, BeepDocumentPanel? panel)
         {
-            Descriptor = descriptor;
+            Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             Panel      = panel;
         }
     }

@@ -132,7 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             RegisterControl(typeof(BeepMetricWidget), typeof(BeepMetricWidgetDesigner));
 
             // Document Host
-            RegisterControl(typeof(BeepDocumentHost), typeof(BeepDocumentHostDesigner));
+            RegisterControl(typeof(BeepDocumentHost),  typeof(BeepDocumentHostDesigner));
+            // Panel designer: clicking a tab header selects the panel and shows
+            // only the meaningful per-document properties (Title, Icon, CanClose …)
+            RegisterControl(typeof(BeepDocumentPanel), typeof(BeepDocumentPanelDesigner));
 
             RegisterControl(typeof(BeepChartWidget), typeof(BeepChartWidgetDesigner));
             RegisterControl(typeof(BeepListWidget), typeof(BeepListWidgetDesigner));

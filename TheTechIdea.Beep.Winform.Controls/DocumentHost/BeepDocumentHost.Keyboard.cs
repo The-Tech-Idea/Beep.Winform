@@ -202,6 +202,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             return tabs;
         }
 
+        // ── Host-level ProcessCmdKey — Ctrl+Tab MRU cycling (Phase 06 E1) ───────
+        // Fires before the tab strip's own handler so Ctrl+Tab shows the MRU popup
+        // regardless of which control inside the host has focus.
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (!_keyboardShortcutsEnabled || IsDesignTimeHost)
+                return base.ProcessCmdKey(ref msg, keyData);
+
+            if (keyData == (Keys.Control | Keys.Tab))
+            {
+                // Two or more docs: show MRU picker.  One or zero: fall through to strip.
+                if (_panels.Count >= 2) { ShowQuickSwitchMru(reverse: false); return true; }
+            }
+            else if (keyData == (Keys.Control | Keys.Shift | Keys.Tab))
+            {
+                if (_panels.Count >= 2) { ShowQuickSwitchMru(reverse: true); return true; }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         // ── Split focus cycling ───────────────────────────────────────────────
 
         private void FocusSplitGroup(int direction)
@@ -212,6 +234,79 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             int next = (idx + direction + _groups.Count) % _groups.Count;
             _activeGroup = _groups[next];
             _activeGroup.TabStrip.Focus();
+        }
+
+        // ── Global shortcut filter (Phase 06 D1) ─────────────────────────────
+        // Intercepts Ctrl+Shift+P and Ctrl+P even when focus is on a MenuStrip,
+        // ToolStrip, floating window, or any control outside the host hierarchy.
+
+        private HostKeyFilter? _globalKeyFilter;
+
+        internal void InstallGlobalKeyFilter()
+        {
+            if (_globalKeyFilter != null) return;
+            _globalKeyFilter = new HostKeyFilter(this);
+            Application.AddMessageFilter(_globalKeyFilter);
+        }
+
+        internal void RemoveGlobalKeyFilter()
+        {
+            if (_globalKeyFilter == null) return;
+            Application.RemoveMessageFilter(_globalKeyFilter);
+            _globalKeyFilter = null;
+        }
+
+        private sealed class HostKeyFilter : IMessageFilter
+        {
+            private const int WM_KEYDOWN = 0x0100;
+            private const int VK_P = 0x50;
+
+            private readonly WeakReference<BeepDocumentHost> _host;
+
+            internal HostKeyFilter(BeepDocumentHost host)
+                => _host = new WeakReference<BeepDocumentHost>(host);
+
+            public bool PreFilterMessage(ref Message m)
+            {
+                if (m.Msg != WM_KEYDOWN) return false;
+                if (!_host.TryGetTarget(out var host) || host.IsDisposed) return false;
+                if (!host._keyboardShortcutsEnabled) return false;
+
+                // Only fire when the host's parent form is the active top-level window.
+                var ownerForm = host.FindForm();
+                if (ownerForm == null || Form.ActiveForm != ownerForm) return false;
+
+                int vk = m.WParam.ToInt32();
+                if (vk != VK_P) return false;
+
+                bool ctrl  = (Control.ModifierKeys & Keys.Control) != 0;
+                bool shift = (Control.ModifierKeys & Keys.Shift)   != 0;
+                bool alt   = (Control.ModifierKeys & Keys.Alt)     != 0;
+                if (!ctrl || alt) return false;
+
+                // If the focused control is already inside the host, ProcessCmdKey on the host
+                // would handle this via the normal WinForms routing — don't double-fire.
+                var focused = Control.FromHandle(m.HWnd);
+                if (focused != null && IsDescendantOfHost(host, focused)) return false;
+
+                if (shift)
+                    host.ShowCommandPalette(CommandPaletteMode.Commands);
+                else
+                    host.ShowCommandPalette(CommandPaletteMode.GoToFile);
+
+                return true;  // consumed — suppress default key handling
+            }
+
+            private static bool IsDescendantOfHost(BeepDocumentHost host, Control c)
+            {
+                Control? p = c;
+                while (p != null)
+                {
+                    if (ReferenceEquals(p, host)) return true;
+                    p = p.Parent;
+                }
+                return false;
+            }
         }
 
         // ── Theme-aware color fallbacks ──────────────────────────────────────

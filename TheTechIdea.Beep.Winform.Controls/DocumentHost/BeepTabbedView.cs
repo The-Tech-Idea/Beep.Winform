@@ -1,0 +1,259 @@
+// BeepTabbedView.cs
+// Default IBeepDocumentManagerView implementation — wraps a BeepDocumentHost
+// and provides the familiar docked / tabbed document experience.
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Usage:
+//   // Designer (component tray):
+//   beepDocumentManager1.View = beepTabbedView1;
+//   beepTabbedView1.Host = beepDocumentHost1;
+//
+//   // Code-behind:
+//   var view = manager.ChangeView<BeepTabbedView>();
+//   view.Host = beepDocumentHost1;
+// ─────────────────────────────────────────────────────────────────────────────────────────
+using System;
+using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
+{
+    /// <summary>
+    /// Default <see cref="IBeepDocumentManagerView"/> that delegates all document
+    /// operations to an associated <see cref="BeepDocumentHost"/> control.
+    /// </summary>
+    /// <remarks>
+    /// Drag this component from the toolbox onto the form tray, set its
+    /// <see cref="Host"/> property to the <see cref="BeepDocumentHost"/> on the form,
+    /// then assign it to <see cref="BeepDocumentManager.View"/>.
+    /// </remarks>
+    [ToolboxItem(true)]
+    [ToolboxBitmap(typeof(BeepTabbedView), "Resources.BeepTabbedView.bmp")]
+    [DesignerCategory("Component")]
+    [DefaultProperty(nameof(Host))]
+    [Description("Default IBeepDocumentManagerView — delegates to a BeepDocumentHost.")]
+    public sealed class BeepTabbedView : Component, IBeepDocumentManagerView
+    {
+        // ── Private state ─────────────────────────────────────────────────────
+
+        private BeepDocumentHost?     _host;
+        private BeepDocumentManager?  _manager;
+        private bool                  _disposed;
+
+        // ── Constructors ──────────────────────────────────────────────────────
+
+        public BeepTabbedView() { }
+
+        /// <summary>Designer-friendly overload that adds this component to a container.</summary>
+        public BeepTabbedView(IContainer container) { container?.Add(this); }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // Properties
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// The <see cref="BeepDocumentHost"/> control that physically renders
+        /// the document tabs.  May be set before or after assigning this view to
+        /// <see cref="BeepDocumentManager.View"/>.
+        /// </summary>
+        [Category("Document Manager")]
+        [Description("The BeepDocumentHost control that renders document tabs.")]
+        [DefaultValue(null)]
+        public BeepDocumentHost? Host
+        {
+            get => _host;
+            set
+            {
+                if (_host == value) return;
+                UnwireHost();
+                _host = value;
+                if (_manager != null)
+                    WireHost();
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // IBeepDocumentManagerView — Lifecycle
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        public void Attach(BeepDocumentManager manager)
+        {
+            _manager = manager;
+            WireHost();
+        }
+
+        /// <inheritdoc/>
+        public void Detach()
+        {
+            UnwireHost();
+            _manager = null;
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // IBeepDocumentManagerView — Document operations
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        public BeepDocumentPanel? AddDocument(DocumentDescriptor desc)
+        {
+            if (desc == null) return null;
+            return AddDocument(desc.Title ?? string.Empty, desc.IconPath ?? string.Empty, true);
+        }
+
+        /// <inheritdoc/>
+        public BeepDocumentPanel? AddDocument(string title, string iconPath, bool activate)
+            => _host?.AddDocument(title, iconPath, activate);
+
+        /// <inheritdoc/>
+        public bool RemoveDocument(string id)
+            => _host?.CloseDocument(id) ?? false;
+
+        /// <inheritdoc/>
+        public void ActivateDocument(string id)
+        {
+            if (_host == null || string.IsNullOrEmpty(id)) return;
+            _host.CommandService.ActivateDocument(id);
+        }
+
+        /// <inheritdoc/>
+        public void BeginBatchAddDocuments() => _host?.BeginBatchAddDocuments();
+
+        /// <inheritdoc/>
+        public void EndBatchAddDocuments() => _host?.EndBatchAddDocuments();
+
+        /// <inheritdoc/>
+        public bool CloseAllDocuments() => _host?.CloseAllDocuments() ?? false;
+
+        /// <inheritdoc/>
+        public BeepDocumentPanel? GetPanel(string documentId)
+            => _host?.GetPanel(documentId);
+
+        // ══════════════════════════════════════════════════════════════════════
+        // IBeepDocumentManagerView — Layout persistence
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        public string SaveLayout()
+            => _host?.SaveLayout() ?? string.Empty;
+
+        /// <inheritdoc/>
+        public void SaveLayoutToFile(string? filePath)
+            => _host?.SaveLayoutToFile(filePath);
+
+        /// <inheritdoc/>
+        public bool TryRestoreLayout(string json)
+        {
+            if (_host == null || string.IsNullOrEmpty(json)) return false;
+            try
+            {
+                _host.TryRestoreLayout(json, out var report);
+                return report?.IsSuccess ?? false;
+            }
+            catch { return false; }
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // IBeepDocumentManagerView — Settings push
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        public void PushPolicy(BeepDocumentPolicy policy)
+        {
+            if (_host == null || policy == null) return;
+            _host.AllowFloat    = policy.AllowFloat;
+            _host.AllowPin      = policy.AllowPin;
+            _host.AllowSplit    = policy.AllowSplit;
+            _host.MaxSplitDepth = policy.MaxSplitDepth;
+        }
+
+        /// <inheritdoc/>
+        public void PushTheme(string themeName)
+        {
+            if (_host != null && !string.IsNullOrEmpty(themeName))
+                _host.ThemeName = themeName;
+        }
+
+        /// <inheritdoc/>
+        public void PushPersistence(bool autoSave, string sessionFile)
+        {
+            if (_host == null) return;
+            _host.AutoSaveLayout = autoSave;
+            if (!string.IsNullOrEmpty(sessionFile))
+                _host.SessionFile = sessionFile;
+        }
+
+        /// <inheritdoc/>
+        public void AttachWindowMenu(MenuStrip menu, string menuText)
+        {
+            if (_host == null || menu == null) return;
+            _host.AttachWindowMenu(menu, menuText);
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // IBeepDocumentManagerView — Events
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        public event EventHandler<DocumentAddedEventArgs>? DocumentAdded;
+
+        /// <inheritdoc/>
+        public event EventHandler<DocumentEventArgs>?      DocumentRemoved;
+
+        /// <inheritdoc/>
+        public event EventHandler<DocumentEventArgs>?      ActiveDocumentChanged;
+
+        /// <inheritdoc/>
+        public event EventHandler<TabClosingEventArgs>?    DocumentClosing;
+
+        // ══════════════════════════════════════════════════════════════════════
+        // Private helpers — host event bridge
+        // ══════════════════════════════════════════════════════════════════════
+
+        private void WireHost()
+        {
+            if (_host == null) return;
+            _host.DocumentAdded         += OnHostDocumentAdded;
+            _host.DocumentClosed        += OnHostDocumentClosed;
+            _host.ActiveDocumentChanged += OnHostActiveDocumentChanged;
+            _host.DocumentClosing       += OnHostDocumentClosing;
+        }
+
+        private void UnwireHost()
+        {
+            if (_host == null) return;
+            try { _host.DocumentAdded         -= OnHostDocumentAdded;         } catch { }
+            try { _host.DocumentClosed        -= OnHostDocumentClosed;        } catch { }
+            try { _host.ActiveDocumentChanged -= OnHostActiveDocumentChanged; } catch { }
+            try { _host.DocumentClosing       -= OnHostDocumentClosing;       } catch { }
+        }
+
+        private void OnHostDocumentAdded(object? s, DocumentAddedEventArgs e)
+            => DocumentAdded?.Invoke(this, e);
+
+        private void OnHostDocumentClosed(object? s, DocumentEventArgs e)
+            => DocumentRemoved?.Invoke(this, e);
+
+        private void OnHostActiveDocumentChanged(object? s, DocumentEventArgs e)
+            => ActiveDocumentChanged?.Invoke(this, e);
+
+        private void OnHostDocumentClosing(object? s, TabClosingEventArgs e)
+            => DocumentClosing?.Invoke(this, e);
+
+        // ══════════════════════════════════════════════════════════════════════
+        // Dispose
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                _disposed = true;
+                UnwireHost();
+                _host    = null;
+                _manager = null;
+            }
+            base.Dispose(disposing);
+        }
+    }
+}

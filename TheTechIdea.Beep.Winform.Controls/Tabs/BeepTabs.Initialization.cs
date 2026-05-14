@@ -66,6 +66,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void BeepTabs_HandleCreated(object sender, EventArgs e)
         {
             closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
+
+            // At runtime, project any designer-authored pages that are still parented to
+            // BeepTabs.Controls into BeepTabContentHost so the runtime content-host
+            // presentation path is fully active before the first layout/paint cycle.
+            // OnControlAdded handles projection per-page as InitializeComponent runs,
+            // but this sweep seals the state and covers unusual initialisation orders.
+            if (!IsInHostedContentDesignMode())
+            {
+                ProjectDesignerPagesToContentHost();
+            }
+
             UpdateLayout();
             UpdateItemSize();
             _headerHost.SyncSnapshot();

@@ -19,7 +19,7 @@
 - [x] Move basic owner/helper/painter item-state and content forwarding off `BeepTabsRuntimeBridge`
 - [x] Remove `BeepTabsRuntimeBridge` and the unused header-metrics cache from the tabs core path
 - [x] Preserve and self-heal page order, including selected-index notifications after reorder
-- [ ] Unify runtime and design-time hosted-content workflow around the Beep-owned host architecture
+- [x] Unify runtime and design-time hosted-content workflow around the Beep-owned host architecture
 - [x] Remove the pass-through `BeepTabContentProjection` seam
 
 ### Phase 2 - Overflow, Header Actions, And Rich Tabs
@@ -126,7 +126,7 @@
 - [x] Theme-aware ghost window — replace `Color.FromArgb(48, 54, 70)` with `_currentTheme?.TabActiveBackColor` in `BeepDocumentTabStrip.Mouse.cs`
 - [x] Ghost size matches tab width (~200 px wide, 36 px tall) instead of hardcoded 140×28
 - [x] Escape key cancels drag-to-float (handle in `OnKeyDown` while `_dragFloating || _dragging`)
-- [ ] Raise `TabFloatDragStarted` event when `_dragFloating` becomes true → activates `BeepDocumentDockOverlay`
+- [x] Raise `TabFloatDragStarted` event when `_dragFloating` becomes true → activates `BeepDocumentDockOverlay`
 - [x] Paint 2 px vertical insert-caret at `_dragInsertIndex` in `BeepDocumentTabStrip.Painting.cs`
 
 ### Phase 3 — Keyboard Shortcut Completions
@@ -153,10 +153,33 @@
 
 ### Phase 6 — Designer Validation (Track B)
 
-- [ ] Properties window shows only categorized groups, no *Misc*
-- [ ] Smart-tag inline pickers change designer state immediately
-- [ ] Toolbox drag onto host → drops into first document area
-- [ ] "Export Layout Snapshot…" verb exports valid JSON
-- [ ] Designer reopen restores from `DesignTimeLayoutJson` without crash
-- [ ] Delete host → no orphaned child controls remain
+- [x] Properties window shows only categorized groups, no *Misc*
+- [x] Smart-tag inline pickers change designer state immediately
+- [x] Toolbox drag onto host → drops into first document area
+- [x] "Export Layout Snapshot…" verb exports valid JSON
+- [x] Designer reopen restores from `DesignTimeLayoutJson` without crash
+- [x] Delete host → no orphaned child controls remain
+
+### Phase 7 — Feature Chrome Wiring (Track F)
+
+- [x] Wire `BeepDocumentStatusBar` to `ActiveDocumentChanged` with `IDocumentStatusInfoProvider` support
+- [x] Apply theme to `BeepDocumentStatusBar` in `CreateStatusBar()` and `PropagateTheme()`
+- [x] Fix `UpdateBreadcrumb()` to pass actual group name instead of `null`
+- [x] Wire `BeepDocumentMiniToolbar` auto-show on panel hover via `WireMiniToolbarToPanel()` in `AddDocument()`
+- [x] `ToggleMaximizeActiveDocument` promoted to `internal` so mini toolbar can invoke it from Documents.cs
+
+### Phase 8 — Design-Time "Total Control" (DevExpress parity)
+
+- [x] Left-click on tab header → `ISelectionService.SetSelectedComponents(panel)` → Properties window updates to show that document's properties
+- [x] `BeepDocumentPanelDesigner` — filters Properties window to 5 meaningful properties: `DocumentTitle`, `IconPath`, `CanClose`, `DocumentCategory`, `ShowStatusBar`
+- [x] `BeepDocumentPanelDesigner` registered in `DesignRegistration`
+
+### Phase 9 — MDI Sample Form Completion
+
+- [x] `MenuStrip` with File (New Document / Close Active / Exit) + View (Cycle Tab Style / Show Breadcrumb) + Window menus added programmatically in `WireMenuBar()`
+- [x] `AttachWindowMenu(menuStrip, "Window")` wired in `WireMenuBar()` — auto-populates Window menu with split/move/MRU entries
+- [x] `StatusStrip` with `ToolStripStatusLabel` added in `WireStatusBar()` — `OnActiveDocumentChanged` pushes active title to label
+- [x] View menu `Cycle Tab Style` item in sync with `beepComboBox1` picker
+- [x] `TabStyleChanged` event added to `BeepDocumentHost` (raised whenever `TabStyle` property changes)
+- [x] Right-side `StatusStrip` mode label updates via `TabStyleChanged`
 

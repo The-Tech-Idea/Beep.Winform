@@ -60,18 +60,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             if (version < 3)
                 obj = UpgradeFromV2ToV3(obj);
 
+            if (version < 4)
+                obj = UpgradeFromV3ToV4(obj);
+
             return obj.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
         }
 
         /// <summary>
-        /// Returns <c>true</c> if the given JSON string is already at the current schema version (v3).
+        /// Returns <c>true</c> if the given JSON string is already at the current schema version (v4).
         /// </summary>
         public static bool IsCurrentVersion(string json)
         {
             try
             {
                 var root = JsonNode.Parse(json);
-                return (root?["schemaVersion"]?.GetValue<int>() ?? 0) >= 3;
+                return (root?["schemaVersion"]?.GetValue<int>() ?? 0) >= 4;
             }
             catch { return false; }
         }
@@ -184,7 +187,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
                 if (child is JsonObject childObj)
                     StampNodeExtensions(childObj);
         }
-    }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // v3 → v4  (adds empty dockPanels array)
+        // ─────────────────────────────────────────────────────────────────────
+
+        private static JsonObject UpgradeFromV3ToV4(JsonObject v3)
+        {
+            var v4 = new JsonObject();
+            foreach (var kvp in v3)
+                v4[kvp.Key] = kvp.Value?.DeepClone();
+
+            v4["schemaVersion"] = 4;
+
+            if (v4["dockPanels"] is null)
+                v4["dockPanels"] = new JsonArray();
+
+            return v4;
+        }
 
     // ─────────────────────────────────────────────────────────────────────────
     // LayoutRestoreReport

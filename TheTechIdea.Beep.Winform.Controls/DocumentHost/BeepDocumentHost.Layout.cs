@@ -182,7 +182,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     _breadcrumb.BringToFront();
                 }
 
-                _layoutRoot.Bounds = new Rectangle(0, bcH, totalW, totalH - sbH - bcH);
+                var fullBounds = new Rectangle(0, bcH, totalW, totalH - sbH - bcH);
+                _layoutRoot.Bounds = ShrinkForDockRails(fullBounds);
 
                 if (_layoutRoot is SplitLayoutNode rootSplit)
                     ApplyTreeLayout(rootSplit);
@@ -190,6 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     ApplySingleGroupLayout();
 
                 PositionAutoHideStrips();
+                PositionDockRails(fullBounds);
             }
             finally
             {

@@ -313,6 +313,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     _dragging        = false;
                     _dragInsertIndex = -1;
                     ShowDragFloatGhost(_tabs[_dragStartTab].Title, PointToScreen(current));
+                    // Notify the host so it can activate the dock-overlay compass UI.
+                    TabFloatDragStarted?.Invoke(this,
+                        new TabEventArgs(_tabs[_dragStartTab].Id, _dragStartTab));
                 }
                 Cursor = Cursors.SizeAll;
                 MoveDragFloatGhost(PointToScreen(current));

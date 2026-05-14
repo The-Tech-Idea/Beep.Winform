@@ -34,6 +34,65 @@ WinForms applications built on the Beep framework. Drop it onto any surface — 
 > `BaseControl` and use the Beep theme/painter pipeline, while preserving the existing
 > `Panel`-based document content model for hosted document surfaces.
 
+## Quick Start (5 minutes)
+
+> The recommended entry point is **`BeepDocumentManager`** — a non-visual component
+> that lives in the form's component tray and orchestrates the visible host.
+> See [`BeepDocumentManager.Readme.md`](BeepDocumentManager.Readme.md) for the full reference
+> and the [10-minute tutorial](Tutorials/01-IdeShell.md) for a complete walkthrough.
+
+### Designer (recommended)
+
+1. Drop a `BeepTabbedView` onto your form.
+2. From the Toolbox, drag a `BeepDocumentManager` onto the form's component tray.
+3. In the Properties grid, set `BeepDocumentManager.View` → your `BeepTabbedView`.
+4. Optionally set `WindowMenuOwner`, `StatusStripOwner`, `AutoSaveLayout`, `SessionFile`.
+5. Use the `"Edit Documents…"` smart-tag action to seed the initial document list.
+
+### Code-only
+
+```csharp
+// 1. Create the manager (no visual size — lives in component tray)
+var manager = new BeepDocumentManager();
+
+// 2. Create and attach the view
+var view = new BeepTabbedView { Dock = DockStyle.Fill };
+Controls.Add(view);
+manager.View = view;
+
+// 3. (Optional) wire menu, status strip, and auto-save
+manager.WindowMenuOwner   = mainMenuStrip;
+manager.StatusStripOwner  = statusStrip1;
+manager.AutoSaveLayout    = true;
+manager.SessionFile       = @"%AppData%\MyApp\layout.json";
+
+// 4. Add documents
+var doc = manager.AddDocument("Welcome", iconPath: null, activate: true);
+doc!.Controls.Add(new Label { Text = "Hello, Beep!", Dock = DockStyle.Fill });
+
+// 5. React to events
+manager.ActiveDocumentChanged += (s, e) => Text = $"{e.DocumentTitle} — MyApp";
+manager.DocumentClosing       += (s, e) =>
+{
+    if (e.Panel.IsModified)
+        e.Cancel = MessageBox.Show("Unsaved changes. Close anyway?",
+            "Confirm", MessageBoxButtons.YesNo) == DialogResult.No;
+};
+```
+
+### Keyboard shortcuts (built-in)
+
+| Chord | Action |
+|-------|--------|
+| `Ctrl+Tab` | MRU quick-switch popup |
+| `Ctrl+W` / `Ctrl+F4` | Close active document |
+| `Ctrl+1–9` | Jump to tab by position |
+| `Ctrl+Shift+T` | Reopen last closed tab |
+| `Ctrl+P` | Command palette |
+| `Ctrl+Shift+P` | Workspace switcher |
+
+---
+
 ## Current Direction
 
 `BeepDocumentHost` is being positioned as the main MDI and docking surface for the
@@ -100,11 +159,11 @@ integration. The main remaining gaps for a polished default MDI experience are:
 | `BeepDocumentHost.Layout.cs` | RecalculateLayout, splitter bar, group geometry |
 | `BeepDocumentHost.Events.cs` | Tab-strip event handlers + float window class |
 | `BeepDocumentHost.AutoHide.cs` | Auto-hide strips + slide overlay |
-| `BeepDocumentHost.Serialisation.cs` | SaveLayout / RestoreLayout (JSON, SchemaVersion 2 — full layout) |
+| `BeepDocumentHost.Serialisation.cs` | SaveLayout / RestoreLayout (JSON, SchemaVersion 3 — full layout) |
 | `Layout/ILayoutNode.cs` | Hierarchical layout tree interfaces and visitor pattern |
 | `Layout/SplitLayoutNode.cs` | Binary split node (orientation + ratio + two children) |
 | `Layout/GroupLayoutNode.cs` | Leaf group node (document IDs + selected doc) |
-| `Layout/LayoutMigrationService.cs` | Migrate saved JSON v0/v1 → v2; `LayoutRestoreReport` |
+| `Layout/LayoutMigrationService.cs` | Migrate saved JSON v0→v1→v2→v3; `LayoutRestoreReport` |
 | `BeepDocumentHost.Preview.cs` | Tab thumbnail snapshot / rich tooltip |
 | `BeepDocumentHost.MVVM.cs` | `IDocumentViewModel` binding |
 | `BeepDocumentHost.DataBinding.cs` | WinForms data-source integration |
@@ -253,6 +312,28 @@ Orchestrates tab strips, content panels, groups, float windows, and auto-hide st
 |---|---|---|---|
 | `AutoSaveLayout` | `bool` | `false` | Save layout automatically to `SessionFile`. |
 | `SessionFile` | `string` | `""` | File path for auto-save. |
+
+### `BeepDocumentManager` tray integration
+
+When `BeepDocumentHost` is driven through `BeepDocumentManager`, the tray
+component can also own shell-level chrome that would otherwise be hand-wired in
+each form.
+
+| Manager Property | Type | Default | Behavior |
+|---|---|---|---|
+| `WindowMenuOwner` | `MenuStrip?` | `null` | Auto-builds the Window menu from open documents. |
+| `StatusStripOwner` | `StatusStrip?` | `null` | Adds document title, dirty indicator, cursor position, and workspace dropdown items. |
+| `AutoPopulateStatusStrip` | `bool` | `true` | Opt-out switch for the default status-strip items. |
+
+The workspace dropdown is active when `View` is a `BeepTabbedView` with a bound
+`Host`. It shows `Save Current As…` plus dynamic entries from
+`BeepDocumentHost.GetAllWorkspaces()` and tracks host workspace events so the
+label stays aligned with `ActiveWorkspaceName`.
+
+Cursor reporting is automatic when the active document content contains a
+`TextBoxBase` / `RichTextBox`. Custom document surfaces can participate by
+implementing `IDocumentStatusInfoProvider` and raising `StatusInfoChanged` when
+their `StatusBarInfo` payload changes.
 
 ---
 

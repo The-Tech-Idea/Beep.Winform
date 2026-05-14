@@ -6,7 +6,7 @@ Establish the commercial core of `BeepTabs` by replacing the remaining `TabPage`
 
 ## Current Status
 
-Phase 1 is in progress.
+Phase 1 is complete.
 
 Completed in the current cutover:
 
@@ -22,8 +22,7 @@ Completed in the current cutover:
 - design-time page initialization now uses the canonical `Pages` surface, page order self-heals between the Beep-owned page list and owner control tree for serializer reload stability, and reordering raises `SelectedIndexChanged` when the selected page's index changes
 - selected-page tab metadata now persists through page-owned `BeepTabPage` properties and resets through the page model instead of living only in runtime-only smart-tag state
 - page-centric members such as `AddPage(...)`, `InsertPageAt(...)`, and `ClearPages()` now carry the canonical hosted-page behavior, while older `...Tab...` wrappers are compatibility aliases only
-
-Remaining Phase 1 work is concentrated in unifying the runtime/design-time host workflow around the Beep-owned page and host architecture.
+- runtime/design-time hosted-content workflow unified: `BeepTabs_HandleCreated` calls `ProjectDesignerPagesToContentHost()` at runtime to sweep any designer-authored pages that are still parented to `BeepTabs.Controls` into `BeepTabContentHost`, finalising the content-host presentation state before the first layout/paint cycle
 
 ## In Scope
 
@@ -112,9 +111,9 @@ Avoid adding any new members that accept or return `TabPage`.
 
 ### 3. Move Content Ownership Into `BeepTabContentHost`
 
-Status: initial stable all-page runtime host implemented; designer authoring polish and manual validation still pending.
+Status: complete.
 
-`BeepTabs.HostedContent.cs` should stop mixing collection ownership, selection, and direct control-parenting assumptions in one place. `BeepTabContentHost` becomes the only runtime page host and selected-content presenter.
+`BeepTabs.HostedContent.cs` stops mixing collection ownership, selection, and direct control-parenting assumptions in one place. `BeepTabContentHost` is the only runtime page host and selected-content presenter.
 
 Key rules:
 
@@ -130,14 +129,15 @@ Runtime/design-time split:
 
 - Runtime: pages are attached once to `BeepTabContentHost`; selected page is visible and topmost; unselected pages are hidden or behind but remain hosted.
 - Design time: pages stay under `BeepTabs.Controls` so WinForms designer serialization, page selection, and child-control dropping remain predictable.
-- Transition: designer-authored pages are projected into the runtime host when not in design mode without changing the public page model.
+- Transition: `BeepTabs_HandleCreated` calls `ProjectDesignerPagesToContentHost()` when not in design mode. This sweep calls `EnsureHostedPagesAttachedToContentHost` (moves any pages still parented to `BeepTabs.Controls` into `BeepTabContentHost`) and `SyncContentHostPageOrder` (aligns z-order with `_hostedPages`), then calls `ApplyHostedSourceContentBounds` to size and show the selected page. `OnControlAdded` handles per-page projection as `InitializeComponent` runs; the `HandleCreated` sweep seals the state and covers unusual initialisation orders.
 
-Implemented target:
+Implemented:
 
 - replace selected-page `SetContent` swapping with explicit `AddPage`, `RemovePage`, `ClearPages`, `SetSelectedPage`, and `UpdatePageBounds` host operations
 - guard content-host layout with an internal applying-layout flag to prevent recursive reentry
 - avoid setting `Visible = false` on the selected page during resize/layout paths
 - keep header visibility based on page metadata/header snapshots, never on page control visibility
+- `ProjectDesignerPagesToContentHost()` runtime sweep added to `BeepTabs.HostedContent.cs` and called from `BeepTabs_HandleCreated`
 
 ### 4. Move Metadata Ownership To The Page Model
 

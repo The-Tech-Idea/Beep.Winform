@@ -59,6 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private Features.BeepDocumentMiniToolbar? _miniToolbar;
         private bool _showStatusBar = true;
 
+        // Status-bar live update
+        private IDocumentStatusInfoProvider? _activeStatusProvider;
+
         // MRU tracking
         private readonly System.Collections.Generic.LinkedList<string>  _mruList     = new System.Collections.Generic.LinkedList<string>();
         private int _maxRecentHistory = 20;
@@ -155,7 +158,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public DocumentTabStyle TabStyle
         {
             get => _tabStyle;
-            set { _tabStyle = value; _tabStrip.TabStyle = value; }
+            set
+            {
+                if (_tabStyle == value) return;
+                _tabStyle = value;
+                _tabStrip.TabStyle = value;
+                TabStyleChanged?.Invoke(this, System.EventArgs.Empty);
+            }
         }
 
         /// <summary>Specifies the border/elevation style of the document host container.</summary>
@@ -403,6 +412,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         internal void PushUndoState()
         {
+            // Skip at design time — designer edits must not seed the runtime undo stack.
+            if (IsDesignTimeHost) return;
             _undoRedo ??= new BeepLayoutUndoRedo();
             _undoRedo.Push(SaveLayout());
         }
@@ -526,12 +537,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         internal void UpdateBreadcrumb()
         {
             if (_breadcrumb == null || !_showBreadcrumb) return;
+
             string? workspace = ActiveWorkspaceName;
+            string? groupName = null;
             string? docTitle  = null;
+
             if (_activeDocumentId != null
                 && TryGetDocumentTab(_activeDocumentId, out _, out var tab))
+            {
                 docTitle = tab?.Title;
-            _breadcrumb.SetActiveDocument(workspace, null, docTitle);
+
+                // Resolve the document's group so the breadcrumb shows the full path:
+                // Workspace › Group N › Document Title
+                var ownerGroup = _groups
+                    .FirstOrDefault(g => g.DocumentIds.Contains(_activeDocumentId!));
+                if (ownerGroup != null && !ownerGroup.IsPrimary)
+                {
+                    int idx = _groups.IndexOf(ownerGroup);
+                    groupName = $"Group {idx + 1}";
+                }
+            }
+
+            _breadcrumb.SetActiveDocument(workspace, groupName, docTitle);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -813,6 +840,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
         // Events
         // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>Raised when <see cref="TabStyle"/> changes.</summary>
+        public event System.EventHandler? TabStyleChanged;
 
         /// <summary>Raised when the active document changes.</summary>
         public event System.EventHandler<DocumentEventArgs>? ActiveDocumentChanged;
@@ -1145,9 +1175,86 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private Features.BeepDocumentStatusBar CreateStatusBar()
         {
             var bar = new Features.BeepDocumentStatusBar();
+
+            // Apply current theme immediately so the bar is never "un-themed"
+            ApplyStatusBarTheme(bar);
+
             Controls.Add(bar);
             bar.BringToFront();
+
+            // Keep the status bar in sync with the active document
+            ActiveDocumentChanged += (_, _) => UpdateStatusBar();
+
             return bar;
+        }
+
+        /// <summary>Applies the current host theme colours to <paramref name="bar"/>.</summary>
+        private void ApplyStatusBarTheme(Features.BeepDocumentStatusBar bar)
+        {
+            if (_currentTheme == null) return;
+            bar.ApplyTheme(
+                backColor      : _currentTheme.PanelBackColor,
+                foreColor      : _currentTheme.ForeColor,
+                hotBack        : _currentTheme.BackgroundColor,
+                separatorColor : _currentTheme.BorderColor,
+                accentColor    : _currentTheme.PrimaryColor,
+                warnColor      : System.Drawing.Color.FromArgb(0xff, 0xcc, 0x00));
+        }
+
+        /// <summary>
+        /// Refreshes the status bar with information from the active document.
+        /// When the active panel's content implements <see cref="IDocumentStatusInfoProvider"/>
+        /// that provider is used and its <see cref="IDocumentStatusInfoProvider.StatusInfoChanged"/>
+        /// event is subscribed so the bar stays live. Otherwise sensible defaults are shown.
+        /// </summary>
+        internal void UpdateStatusBar()
+        {
+            if (_statusBar == null || !_showStatusBar) return;
+
+            // Unsubscribe from the previous document's provider
+            if (_activeStatusProvider != null)
+            {
+                _activeStatusProvider.StatusInfoChanged -= OnStatusInfoChanged;
+                _activeStatusProvider = null;
+            }
+
+            if (_activeDocumentId != null &&
+                _panels.TryGetValue(_activeDocumentId, out var panel))
+            {
+                // Look for IDocumentStatusInfoProvider in the panel content hierarchy
+                var provider = panel.Controls
+                                   .OfType<IDocumentStatusInfoProvider>()
+                                   .FirstOrDefault()
+                               ?? panel as IDocumentStatusInfoProvider;
+
+                if (provider != null)
+                {
+                    _activeStatusProvider = provider;
+                    _activeStatusProvider.StatusInfoChanged += OnStatusInfoChanged;
+                    _statusBar.UpdateInfo(provider.GetStatusInfo());
+                    return;
+                }
+
+                // Fallback: show document title as type, UTC-8 / CRLF defaults
+                _statusBar.UpdateInfo(new Features.StatusBarInfo
+                {
+                    DocumentType = panel.DocumentTitle,
+                    Encoding     = "UTF-8",
+                    LineEnding   = "CRLF",
+                    Line         = 1,
+                    Column       = 1,
+                });
+            }
+            else
+            {
+                _statusBar.UpdateInfo(new Features.StatusBarInfo());
+            }
+        }
+
+        private void OnStatusInfoChanged(object? sender, System.EventArgs e)
+        {
+            if (_activeStatusProvider != null && _statusBar != null)
+                _statusBar.UpdateInfo(_activeStatusProvider.GetStatusInfo());
         }
 
         /// <summary>
@@ -1419,7 +1526,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (sender is not System.Windows.Forms.ToolStripMenuItem menu) return;
             menu.DropDownItems.Clear();
 
-            // Layout actions
+            // ── Split group actions ───────────────────────────────────────────
             AddWindowMenuItem(menu, "New Horizontal Tab Group",
                 () => { if (_allowSplit) SplitActiveGroup(isHorizontal: false); });
             AddWindowMenuItem(menu, "New Vertical Tab Group",
@@ -1431,14 +1538,23 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
 
-            // Close actions
+            // ── Close actions ─────────────────────────────────────────────────
             AddWindowMenuItem(menu, "Close All Documents", CloseAllDocuments);
             AddWindowMenuItem(menu, "Close All But This",
                 () => { if (_activeDocumentId != null) CloseAllBut(_activeDocumentId); });
+            AddWindowMenuItem(menu, "Close All to the Right",
+                () => CloseAllDocumentsToRight());
 
             menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
 
-            // Numbered document list
+            // ── Layout persistence ────────────────────────────────────────────
+            AddWindowMenuItem(menu, "Save Layout As\u2026", ShowSaveLayoutDialog);
+            AddWindowMenuItem(menu, "Load Layout\u2026",    ShowLoadLayoutDialog);
+            AddWindowMenuItem(menu, "Reset Layout",         ResetLayoutToSingle);
+
+            menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
+
+            // ── Numbered document list ────────────────────────────────────────
             int n = 1;
             foreach (var tab in _tabStrip.Tabs)
             {
@@ -1453,6 +1569,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 menu.DropDownItems.Add(item);
                 n++;
             }
+        }
+
+        private void ShowSaveLayoutDialog()
+        {
+            using var dlg = new System.Windows.Forms.SaveFileDialog
+            {
+                Title            = "Save Layout As",
+                Filter           = "Layout files (*.json)|*.json|All files (*.*)|*.*",
+                DefaultExt       = "json",
+                FileName         = System.IO.Path.GetFileName(_sessionFile) is { Length: > 0 } fn ? fn : "layout.json",
+                InitialDirectory = System.IO.Path.GetDirectoryName(_sessionFile) is { Length: > 0 } d  ? d  : string.Empty,
+            };
+            if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                SaveLayoutToFile(dlg.FileName);
+        }
+
+        private void ShowLoadLayoutDialog()
+        {
+            using var dlg = new System.Windows.Forms.OpenFileDialog
+            {
+                Title            = "Load Layout",
+                Filter           = "Layout files (*.json)|*.json|All files (*.*)|*.*",
+                DefaultExt       = "json",
+                InitialDirectory = System.IO.Path.GetDirectoryName(_sessionFile) is { Length: > 0 } d ? d : string.Empty,
+            };
+            if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                RestoreLayoutFromFile(dlg.FileName);
+        }
+
+        private void ResetLayoutToSingle()
+        {
+            PushUndoState();
+            CloseAllDocuments();
+            MergeAllGroups();
         }
 
         private static void AddWindowMenuItem(System.Windows.Forms.ToolStripMenuItem parent,
@@ -1527,7 +1677,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Toggles the active document panel between maximized (filling the entire
         /// content area, all other groups hidden) and the normal split layout.
         /// </summary>
-        private void ToggleMaximizeActiveDocument()
+        internal void ToggleMaximizeActiveDocument()
         {
             if (_activeDocumentId == null) return;
 
@@ -1576,6 +1726,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// At runtime, if <see cref="AutoSaveLayout"/> is true and a session
         /// file exists, the restored layout takes precedence over this collection.
         /// </summary>
+        [Category("Document – Persistence")]
         [Description("Documents opened when the host is first created. Configure at design time.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public System.Collections.ObjectModel.Collection<DocumentDescriptor> DesignTimeDocuments

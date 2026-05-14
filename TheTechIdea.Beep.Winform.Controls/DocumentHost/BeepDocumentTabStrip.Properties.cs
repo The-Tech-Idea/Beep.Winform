@@ -367,6 +367,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Raised when the user requests a tab be floated into its own window.</summary>
         public event System.EventHandler<TabEventArgs>?          TabFloatRequested;
 
+        /// <summary>
+        /// Raised the moment a drag-float ghost appears (i.e. the user has started
+        /// dragging a tab outside the strip).  Allows the host to activate the
+        /// <c>BeepDocumentDockOverlay</c> compass UI for drop-zone targeting.
+        /// </summary>
+        public event System.EventHandler<TabEventArgs>?          TabFloatDragStarted;
+
         /// <summary>Raised when a tab's pinned state is toggled via context menu.</summary>
         public event System.EventHandler<TabEventArgs>?          TabPinToggled;
 

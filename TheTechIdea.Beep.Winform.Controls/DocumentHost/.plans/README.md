@@ -14,9 +14,24 @@ predictable at runtime, and extensible enough for more advanced IDE-style shells
 
 ## Planning Files
 
-- `CURRENT-STATE-AUDIT.md`: full-folder capability and gap summary.
-- `COMMERCIAL-REFERENCE-NOTES.md`: public-product and GitHub patterns used as guidance.
-- `IMPLEMENTATION-ROADMAP.md`: phased roadmap, code-audit gaps, and exit criteria.
+### Active Plan (start here)
+
+- **[MASTER-TODO-TRACKER.md](MASTER-TODO-TRACKER.md)** — the single source of truth.
+  Indexes 8 phases of work toward DevExpress-grade UX. New work goes here.
+- `PHASE-01-stabilise-designer.md` — fix the designer delete-crash. **Must ship first.**
+- `PHASE-02-document-manager-component.md` — new `BeepDocumentManager` non-visual component.
+- `PHASE-03-view-modes.md` — Tabbed / NativeMdi / WindowsUI switchable views.
+- `PHASE-04-documents-collection.md` — design-time collection editor.
+- `PHASE-05-dock-panels.md` — `BeepDockManager` tool-window panels.
+- `PHASE-06-commands-and-menu.md` — Window menu / shortcuts / palette.
+- `PHASE-07-persistence-pack.md` — wrap & validate existing persistence.
+- `PHASE-08-samples-docs.md` — sample form, tutorials, NuGet readme.
+
+### Historic / Background
+
+- `CURRENT-STATE-AUDIT.md` — full-folder capability and gap summary.
+- `COMMERCIAL-REFERENCE-NOTES.md` — public-product and GitHub patterns used as guidance.
+- `IMPLEMENTATION-ROADMAP.md` — earlier phased roadmap (superseded by the master tracker).
 
 ## Planning Rules
 

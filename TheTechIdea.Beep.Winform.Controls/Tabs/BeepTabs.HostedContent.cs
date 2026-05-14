@@ -1012,5 +1012,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        /// <summary>
+        /// Transitions all registered <see cref="BeepTabPage"/> instances from the
+        /// design-time owner control tree (<see cref="BeepTabs"/>.Controls) into the
+        /// runtime <see cref="BeepTabContentHost"/>. Called once from
+        /// <see cref="BeepTabs_HandleCreated"/> when the control is not in design mode.
+        /// <para>
+        /// <see cref="OnControlAdded"/> projects each page individually as it is added
+        /// via <c>Controls.Add</c>, but this sweep finalises the state after all pages
+        /// have been loaded and guarantees that every page in <see cref="_hostedPages"/>
+        /// is parented to the content host — not to <see cref="BeepTabs"/> itself.
+        /// </para>
+        /// </summary>
+        private void ProjectDesignerPagesToContentHost()
+        {
+            if (_hostedPages.Count == 0)
+            {
+                return;
+            }
+
+            BeepTabContentHost contentHost = EnsureContentHost();
+
+            // Move every registered page into the content host if it is not already there.
+            EnsureHostedPagesAttachedToContentHost(contentHost);
+
+            // Guarantee that the z-order of pages inside BeepTabContentHost matches
+            // the canonical _hostedPages order established by the serializer.
+            SyncContentHostPageOrder(contentHost);
+
+            // Apply bounds for the currently selected page now that all pages are
+            // correctly parented to the content host.
+            ApplyHostedSourceContentBounds(DisplayRectangle);
+        }
+
     }
 }

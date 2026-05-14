@@ -53,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool _layoutSuspended;
         private bool _isDisposingHost;
         private bool _isDesignerDetaching;
+        private bool _disposed;
         private readonly HashSet<string> _dockBackClosingIds = new(StringComparer.Ordinal);
 
         private bool IsDesignTimeHost
@@ -176,6 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 ApplyDesignTimeDocuments();
 
             BeepDocumentDragManager.Register(this);
+            InstallGlobalKeyFilter();
         }
 
         private void ApplyDesignTimeSeedState()
@@ -318,6 +320,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 try { bar.ApplyTheme(_currentTheme); }
                 catch { /* isolate per-splitter theme errors */ }
             }
+            if (_statusBar != null)
+                ApplyStatusBarTheme(_statusBar);
+            ApplyThemeToDockRails();
         }
 
         public override void ApplyTheme()
@@ -424,13 +429,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         protected override void Dispose(bool disposing)
         {
+            if (_disposed) return;
+            _disposed = true;
+
             if (disposing)
             {
                 _isDisposingHost = true;
 
                 if (IsDesignTimeHost)
                 {
-                    // In VS designer teardown, keep disposal minimal and defensive.
+                    // ── Design-time teardown: stop every timer FIRST so no ticks fire
+                    // after we start releasing sub-controls.
+                    try { _chordTimer.Stop(); } catch { }
+                    try { _collapseAnimTimer?.Stop(); _collapseAnimTimer?.Dispose(); _collapseAnimTimer = null; } catch { }
+
+                    // DisposeAutoHide handles _ahSlideTimer + strips.
+                    try { DisposeAutoHide(); } catch { }
+
+                    // Extra focus / hover timers in the AutoHide partial.
+                    try { _ahFocusTimer?.Stop(); _ahFocusTimer?.Dispose(); _ahFocusTimer = null; } catch { }
+
+                    // Snapshot-dispose any panels created by smart-tag "Add Document".
+                    var dtPanels = _panels.Values.ToList();
+                    _panels.Clear();
+                    foreach (var p in dtPanels) { try { p?.Dispose(); } catch { } }
+
+                    // Snapshot-dispose float windows (may have been opened at design time).
+                    var dtFloat = _floatWindows.Values.ToList();
+                    _floatWindows.Clear();
+                    foreach (var fw in dtFloat) { try { fw?.Dispose(); } catch { } }
+
+                    // Non-primary groups may own Controls — dispose them.
+                    foreach (var grp in _groups)
+                        if (!grp.IsPrimary) { try { grp.Dispose(); } catch { } }
+
                     try { _tabStrip?.Dispose(); } catch { }
                     try { _dockOverlay?.Dispose(); } catch { }
                     try { _splitterBar?.Dispose(); } catch { }
@@ -467,6 +499,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 DisposeMvvm();
                 DisposePreviewCache();
                 DisposeAutoHide();
+                DisposeDockRails();
+                RemoveGlobalKeyFilter();
                 BeepDocumentDragManager.Unregister(this);
             }
             base.Dispose(disposing);

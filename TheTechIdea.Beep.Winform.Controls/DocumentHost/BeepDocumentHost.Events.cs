@@ -127,6 +127,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 return true;
             }
 
+            // Ctrl+Tab — quick-switch document picker
+            if (keyData == (Keys.Control | Keys.Tab))
+            {
+                ShowQuickSwitch();
+                return true;
+            }
+
             // Ctrl+K — begin chord sequence
             if (keyData == (Keys.Control | Keys.K))
             {

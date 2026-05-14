@@ -85,12 +85,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             var snapshot = new LayoutSnapshotV2
             {
-                SchemaVersion    = 2,
+                SchemaVersion    = 4,
                 ActiveDocumentId = _activeDocumentId,
                 LayoutTree       = layoutTree,
                 FloatingWindows  = floats,
                 AutoHideEntries  = autoHides,
-                MruSnapshot      = mru
+                MruSnapshot      = mru,
+                DockPanels       = CollectDockPanelDtos()
             };
 
             return JsonSerializer.Serialize(snapshot, _jsonOptions);
@@ -264,6 +265,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 SetActiveDocument(_panels.Keys.First());
             }
 
+            // ── Restore dock panels ───────────────────────────────────────────
+            RestoreDockPanels(snapshot.DockPanels);
+
             EmitRestoreTelemetry(correlationId, report.IsSuccess, sw.Elapsed.TotalMilliseconds, report.IsSuccess ? null : "Restore completed with failures.");
             return report;
         }
@@ -280,6 +284,64 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 DurationMs = durationMs,
                 Error = error
             });
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // Dock-panel serialisation helpers
+        // ─────────────────────────────────────────────────────────────────────
+
+        private List<DockPanelDto> CollectDockPanelDtos()
+        {
+            var result = new List<DockPanelDto>();
+            // Walk all BeepDockManager instances whose Host is this DocumentHost.
+            foreach (var mgr in BeepDockManager.FindManagersForHost(this))
+            {
+                foreach (var desc in mgr.Panels)
+                {
+                    result.Add(new DockPanelDto
+                    {
+                        PersistenceKey = desc.PersistenceKey,
+                        Edge           = desc.Edge.ToString(),
+                        SizePercent    = desc.SizePercent,
+                        IsAutoHidden   = desc.IsAutoHidden,
+                        IsVisible      = desc.IsVisible
+                    });
+                }
+            }
+            return result;
+        }
+
+        private void RestoreDockPanels(List<DockPanelDto>? dtos)
+        {
+            if (dtos is null || dtos.Count == 0) return;
+
+            foreach (var mgr in BeepDockManager.FindManagersForHost(this))
+            {
+                foreach (var dto in dtos)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.PersistenceKey)) continue;
+
+                    var desc = mgr.Panels.FirstOrDefault(p =>
+                        string.Equals(p.PersistenceKey, dto.PersistenceKey, StringComparison.Ordinal));
+
+                    if (desc is null) continue;
+
+                    if (Enum.TryParse<DockEdge>(dto.Edge, out var edge))
+                        desc.Edge = edge;
+
+                    desc.SizePercent  = dto.SizePercent;
+                    desc.IsAutoHidden = dto.IsAutoHidden;
+                    desc.IsVisible    = dto.IsVisible;
+
+                    // Re-apply the restored state
+                    if (!desc.IsVisible)
+                        mgr.HidePanel(desc.Id);
+                    else if (desc.IsAutoHidden)
+                        mgr.AutoHidePanel(desc.Id);
+                    else
+                        mgr.DockPanel(desc.Id, desc.Edge);
+                }
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -770,6 +832,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             public List<FloatWindowDto>? FloatingWindows  { get; set; }
             public List<AutoHideDto>?    AutoHideEntries  { get; set; }
             public List<string>?         MruSnapshot      { get; set; }
+            public List<DockPanelDto>?   DockPanels       { get; set; }
         }
 
         private sealed class LayoutTreeNodeDto
@@ -810,6 +873,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             public string? DocumentId { get; set; }
             public string? Side       { get; set; }
+        }
+
+        private sealed class DockPanelDto
+        {
+            public string? PersistenceKey { get; set; }
+            public string? Edge           { get; set; }
+            public double  SizePercent    { get; set; }
+            public bool    IsAutoHidden   { get; set; }
+            public bool    IsVisible      { get; set; }
         }
 
         private sealed class BoundsDto

@@ -24,6 +24,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Features;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using static TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.LayoutMigrationService;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -143,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>Extends every <see cref="Control"/> on the same form except itself.</summary>
         public bool CanExtend(object extendee) =>
-            extendee is Control c && c is not BeepDocumentManager;
+            extendee is Control && !ReferenceEquals(extendee, this);
 
         // ----- DocumentTitle --------------------------------------------------
 
@@ -1221,10 +1222,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var ws in all)
             {
                 string name = ws.Name;
-                _statusWorkspace.DropDownItems.Add(new ToolStripMenuItem(name)
+                var item = new ToolStripMenuItem(name)
                 {
                     Checked = string.Equals(name, host.ActiveWorkspaceName, StringComparison.OrdinalIgnoreCase)
-                }).Click += (_, _) => SwitchWorkspaceFromStatusStrip(name);
+                };
+                item.Click += (_, _) => SwitchWorkspaceFromStatusStrip(name);
+                _statusWorkspace.DropDownItems.Add(item);
             }
         }
 

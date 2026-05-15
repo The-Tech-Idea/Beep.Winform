@@ -13,6 +13,7 @@ using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
+using Microsoft.DotNet.DesignTools.Designers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {

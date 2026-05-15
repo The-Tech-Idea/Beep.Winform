@@ -381,8 +381,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.SlideFrom = SlideDirection.Left;
             beepDocumentHost1.StaticNotMoving = false;
             beepDocumentHost1.TabIndex = 4;
-            beepDocumentHost1.Tag = this;
-            beepDocumentHost1.TempBackColor = Color.LightGray;
+
             beepDocumentHost1.TextFont = new Font("Consolas", 12F);
             beepDocumentHost1.Theme = "ModernTheme";
             beepDocumentHost1.ThemeName = "DefaultTheme";
@@ -582,7 +581,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 5;
             beepTextBox1.Tag = beepDocumentHost1;
-            beepTextBox1.TempBackColor = Color.LightGray;
+           
             beepTextBox1.Text = "beepTextBox1";
             beepTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepTextBox1.TextFont = new Font("Segoe UI", 8F);
@@ -760,7 +759,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepStepperBar1.StepCount = 1;
             beepStepperBar1.TabIndex = 4;
             beepStepperBar1.Tag = beepDocumentHost1;
-            beepStepperBar1.TempBackColor = Color.LightGray;
+            
             beepStepperBar1.Text = "beepStepperBar1";
             beepStepperBar1.TextFont = new Font("Consolas", 12F);
             beepStepperBar1.Theme = "ModernTheme";
@@ -3143,7 +3142,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.StaticNotMoving = false;
             beepComboBox1.TabIndex = 3;
             beepComboBox1.Tag = beepDocumentHost1;
-            beepComboBox1.TempBackColor = Color.LightGray;
+          
             beepComboBox1.Text = "beepComboBox1";
             beepComboBox1.TextFont = new Font("Segoe UI", 8F);
             beepComboBox1.Theme = "ModernTheme";
@@ -3337,7 +3336,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 2;
             beepButton1.Tag = this;
-            beepButton1.TempBackColor = Color.LightGray;
+           
             beepButton1.Text = "beepButton1";
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Segoe UI", 10F);

@@ -19,6 +19,7 @@ using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Wizards;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
+using TheTechIdea.Beep.Winform.Default.Views.Setup;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -35,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     {
         private readonly IServiceProvider _services;
         private bool _isLoading;
+
+        public event EventHandler<ImportExportSelectionSnapshot>? SelectionSnapshotChanged;
 
         // ── Backing fields ──────────────────────────────────────────────────────
         private ImportExportDirection _direction = ImportExportDirection.Import;
@@ -120,6 +123,67 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             set { if (!_isLoading) chkAddMissing.CurrentValue = value; }
         }
 
+        public ImportExportSelectionSnapshot GetSelectionSnapshot()
+        {
+            return new ImportExportSelectionSnapshot
+            {
+                Direction = _direction,
+                SourceDataSourceName = cmbSourceDS.SelectedItem?.Text ?? _sourceDataSourceName,
+                SourceEntityName = cmbSourceEntity.SelectedItem?.Text ?? _sourceEntityName,
+                DestinationDataSourceName = cmbDestDS.SelectedItem?.Text ?? _destinationDataSourceName,
+                DestinationEntityName = cmbDestEntity.SelectedItem?.Text ?? _destinationEntityName,
+                CreateDestinationIfNotExists = chkCreateIfNotExists.CurrentValue,
+                AddMissingColumns = chkAddMissing.CurrentValue
+            };
+        }
+
+        public void ApplySelectionSnapshot(ImportExportSelectionSnapshot snapshot)
+        {
+            if (snapshot == null)
+                return;
+
+            _isLoading = true;
+            try
+            {
+                Direction = snapshot.Direction;
+                SourceDataSourceName = snapshot.SourceDataSourceName;
+                SourceEntityName = snapshot.SourceEntityName;
+                DestinationDataSourceName = snapshot.DestinationDataSourceName;
+                DestinationEntityName = snapshot.DestinationEntityName;
+                CreateDestinationIfNotExists = snapshot.CreateDestinationIfNotExists;
+                AddMissingColumns = snapshot.AddMissingColumns;
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+
+            SyncDirectionUI();
+            LoadDataSources();
+            NotifySelectionSnapshotChanged();
+        }
+
+        public void ApplySetupSnapshot(uc_SetupWizard.SetupWizardSnapshot snapshot)
+        {
+            if (snapshot == null)
+                return;
+
+            var cp = snapshot.ConnectionProperties;
+            var sourceName = cp?.ConnectionName ?? string.Empty;
+            var entityName = cp?.Database ?? string.Empty;
+
+            ApplySelectionSnapshot(new ImportExportSelectionSnapshot
+            {
+                Direction = ImportExportDirection.Import,
+                SourceDataSourceName = sourceName,
+                SourceEntityName = entityName,
+                DestinationDataSourceName = sourceName,
+                DestinationEntityName = entityName,
+                CreateDestinationIfNotExists = true,
+                AddMissingColumns = true
+            });
+        }
+
         // ── Constructor ─────────────────────────────────────────────────────────
         public uc_ImportExportWizardLauncher(IServiceProvider services) : base(services)
         {
@@ -172,9 +236,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.CurrentValue = true;
 
             // Wire events
-            cmbDirection.SelectedItemChanged += (_, _) => SyncDirectionFromCombo();
-            cmbSourceDS.SelectedItemChanged += (_, _) => LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity);
-            cmbDestDS.SelectedItemChanged += (_, _) => LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity);
+            cmbDirection.SelectedItemChanged += (_, _) =>
+            {
+                SyncDirectionFromCombo();
+                NotifySelectionSnapshotChanged();
+            };
+            cmbSourceDS.SelectedItemChanged += (_, _) =>
+            {
+                LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity);
+                NotifySelectionSnapshotChanged();
+            };
+            cmbDestDS.SelectedItemChanged += (_, _) =>
+            {
+                LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity);
+                NotifySelectionSnapshotChanged();
+            };
+            cmbSourceEntity.SelectedItemChanged += (_, _) => NotifySelectionSnapshotChanged();
+            cmbDestEntity.SelectedItemChanged += (_, _) => NotifySelectionSnapshotChanged();
             btnLaunch.Click += (_, _) => LaunchWizard();
             btnClearLog.Click += (_, _) => txtLog.Clear();
             btnSwap.Click += (_, _) => SwapSourceDest();
@@ -193,6 +271,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             LoadDataSources();
             InitHistoryGrid();
             LoadRecentTemplates();
+            NotifySelectionSnapshotChanged();
         }
 
         // ── Core wizard launch ──────────────────────────────────────────────────
@@ -398,6 +477,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // Cascade entity combos
             LoadEntities(cmbSourceDS.SelectedItem?.Text, cmbSourceEntity, _sourceEntityName);
             LoadEntities(cmbDestDS.SelectedItem?.Text, cmbDestEntity, _destinationEntityName);
+            NotifySelectionSnapshotChanged();
         }
 
         private void LoadEntities(string dataSourceName, BeepComboBox combo, string restoreValue = null)
@@ -441,6 +521,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.SelectItemByText(srcDs);
             cmbDestEntity.SelectItemByText(srcEntity);
             AppendLog("Source and destination swapped.");
+            NotifySelectionSnapshotChanged();
         }
 
         private void SyncDirectionFromCombo()
@@ -649,6 +730,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void beepImage1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void NotifySelectionSnapshotChanged()
+        {
+            if (_isLoading)
+                return;
+
+            SelectionSnapshotChanged?.Invoke(this, GetSelectionSnapshot());
+        }
+
+        public sealed class ImportExportSelectionSnapshot
+        {
+            public ImportExportDirection Direction { get; set; } = ImportExportDirection.Import;
+            public string SourceDataSourceName { get; set; } = string.Empty;
+            public string SourceEntityName { get; set; } = string.Empty;
+            public string DestinationDataSourceName { get; set; } = string.Empty;
+            public string DestinationEntityName { get; set; } = string.Empty;
+            public bool CreateDestinationIfNotExists { get; set; } = true;
+            public bool AddMissingColumns { get; set; } = true;
         }
     }
 }

@@ -15,6 +15,7 @@ using System.ComponentModel.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers;
+using Microsoft.DotNet.DesignTools.Designers.Behaviors;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -76,8 +77,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             => parentDesigner?.Component is BeepDocumentHost;
 
         // ── Snap-lines: none — the panel fills whatever space the host gives it ─
-        public override System.Collections.Generic.IList<object> SnapLines
-            => new List<object>();
+        public override System.Collections.Generic.IList<SnapLine> SnapLines
+            => new List<SnapLine>();
 
         // ── Initialize: lock all children so they do not interfere ────────────
 
@@ -117,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void LockPanelChild(Control child)
         {
             TypeDescriptor.AddAttributes(child,
-                new LockedAttribute(true));
+                new ReadOnlyAttribute(true));
         }
     }
 }

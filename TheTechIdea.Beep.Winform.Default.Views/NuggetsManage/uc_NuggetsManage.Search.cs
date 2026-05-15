@@ -333,10 +333,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             {
                 var result = await GetService().InstallAsync(request, progress);
                 _lblSearchStatus.Text = result.Message;
+                RaisePackageInstallCompleted(packageId, version, result.Success, result.Message);
             }
             catch (Exception ex)
             {
                 _lblSearchStatus.Text = $"Install failed: {ex.Message}";
+                RaisePackageInstallCompleted(packageId, version, false, ex.Message);
             }
             finally
             {

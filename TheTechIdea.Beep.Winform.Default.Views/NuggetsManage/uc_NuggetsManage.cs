@@ -24,6 +24,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         private BeepTabs? _tabs;
         private bool _disposed;
 
+        public event EventHandler<NuggetInstallCompletedEventArgs>? PackageInstallCompleted;
+
         private NuggetsManageService GetService()
         {
             if (_service == null)
@@ -154,6 +156,27 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
                 }
             }
             catch { /* ignore restore errors */ }
+        }
+
+        internal void RaisePackageInstallCompleted(string packageId, string version, bool success, string message)
+        {
+            PackageInstallCompleted?.Invoke(this, new NuggetInstallCompletedEventArgs(packageId, version, success, message));
+        }
+
+        public sealed class NuggetInstallCompletedEventArgs : EventArgs
+        {
+            public NuggetInstallCompletedEventArgs(string packageId, string version, bool success, string message)
+            {
+                PackageId = packageId;
+                Version = version;
+                Success = success;
+                Message = message;
+            }
+
+            public string PackageId { get; }
+            public string Version { get; }
+            public bool Success { get; }
+            public string Message { get; }
         }
     }
 }

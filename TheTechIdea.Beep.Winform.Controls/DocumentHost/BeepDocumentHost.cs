@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             Controls.Add(_contentArea);
             Controls.Add(_tabStrip);
 
-            _contentArea.Resize += (s, ea) => SyncPanelBounds();
+            _contentArea.Resize += (s, ea) => { if (!_isDisposingHost && !_isDesignerDetaching) SyncPanelBounds(); };
             _contentArea.Paint += OnContentAreaPaint;
 
             // Initialize layout tree with a single root group
@@ -211,6 +211,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 _isDesignerDetaching = true;
                 _isDisposingHost = true;
+
+                // Immediately detach hosted document panels from _contentArea so the designer
+                // does not pick them up as orphaned controls and try to serialize or display
+                // them on the parent form — which crashes the design-tools server.
+                try { DetachHostedPanelsForDesignerRemoval(); } catch { }
                 return;
             }
 
@@ -270,6 +275,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Removes all hosted document panels from their parent panels so the designer does not
+        /// try to re-parent or serialize them after the DocumentHost itself is removed from the form.
+        /// Called only at design time when the host's parent becomes null (designer detach).
+        /// </summary>
+        private void DetachHostedPanelsForDesignerRemoval()
+        {
+            // Detach panels sitting in any group's ContentArea
+            foreach (var panel in _panels.Values)
+            {
+                try
+                {
+                    if (panel != null && panel.Parent != null)
+                        panel.Parent.Controls.Remove(panel);
+                }
+                catch { }
+            }
+
+            // Detach panels that were reparented to the host itself (e.g. auto-hide state)
+            var hostedControls = Controls.OfType<BeepDocumentPanel>().ToList();
+            foreach (var p in hostedControls)
+            {
+                try { Controls.Remove(p); } catch { }
+            }
         }
 
         private void OnGlobalThemeChanged(object? sender, ThemeChangeEventArgs e)

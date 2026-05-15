@@ -87,8 +87,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
         {
             var v1 = new JsonObject();
             v1["schemaVersion"] = 1;
-            v1["activeId"]      = v0["activeId"]     ?? v0["ActiveId"];
-            v1["scrollOffset"]  = v0["scrollOffset"] ?? v0["ScrollOffset"] ?? 0;
+            v1["activeId"] = v0["activeId"] ?? v0["ActiveId"];
+            v1["scrollOffset"] = v0["scrollOffset"] ?? v0["ScrollOffset"] ?? 0;
 
             // Normalise array name (old code used PascalCase)
             var tabs = v0["tabs"] ?? v0["Tabs"];
@@ -108,8 +108,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             string activeId = v1["activeId"]?.GetValue<string>() ?? string.Empty;
 
             // Build a single-group layout tree that contains all the tabs
-            var groupId   = Guid.NewGuid().ToString();
-            var docArray  = new JsonArray();
+            var groupId = Guid.NewGuid().ToString();
+            var docArray = new JsonArray();
 
             foreach (var tab in tabs)
             {
@@ -117,11 +117,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
 
                 var doc = new JsonObject
                 {
-                    ["id"]         = t["id"]        ?? t["Id"],
-                    ["title"]      = t["title"]     ?? t["Title"],
-                    ["iconPath"]   = t["iconPath"]  ?? t["IconPath"],
-                    ["isPinned"]   = t["isPinned"]  ?? t["IsPinned"]   ?? false,
-                    ["isModified"] = t["isModified"]?? t["IsModified"] ?? false,
+                    ["id"] = t["id"] ?? t["Id"],
+                    ["title"] = t["title"] ?? t["Title"],
+                    ["iconPath"] = t["iconPath"] ?? t["IconPath"],
+                    ["isPinned"] = t["isPinned"] ?? t["IsPinned"] ?? false,
+                    ["isModified"] = t["isModified"] ?? t["IsModified"] ?? false,
                     ["customData"] = new JsonObject()
                 };
                 docArray.Add(doc);
@@ -129,21 +129,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
 
             var groupNode = new JsonObject
             {
-                ["type"]               = "tabGroup",
-                ["groupId"]            = groupId,
+                ["type"] = "tabGroup",
+                ["groupId"] = groupId,
                 ["selectedDocumentId"] = activeId,
-                ["documents"]          = docArray
+                ["documents"] = docArray
             };
 
             // v2 root object
             var v2 = new JsonObject
             {
-                ["schemaVersion"]      = 2,
-                ["activeDocumentId"]   = activeId,
-                ["layoutTree"]         = groupNode,
-                ["floatingWindows"]    = new JsonArray(),
-                ["autoHideEntries"]    = new JsonArray(),
-                ["mruSnapshot"]        = new JsonArray()
+                ["schemaVersion"] = 2,
+                ["activeDocumentId"] = activeId,
+                ["layoutTree"] = groupNode,
+                ["floatingWindows"] = new JsonArray(),
+                ["autoHideEntries"] = new JsonArray(),
+                ["mruSnapshot"] = new JsonArray()
             };
 
             return v2;
@@ -206,47 +206,48 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout
             return v4;
         }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // LayoutRestoreReport
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Diagnostic report returned by <see cref="BeepDocumentHost.TryRestoreLayout"/>.
-    /// Describes which documents were restored, which were skipped, and any failures.
-    /// </summary>
-    public sealed class LayoutRestoreReport
-    {
-        /// <summary>IDs of documents that were successfully restored.</summary>
-        public List<string> Restored { get; } = new List<string>();
+        // ─────────────────────────────────────────────────────────────────────────
+        // LayoutRestoreReport
+        // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// IDs of documents that were skipped — either because a
-        /// <see cref="BeepDocumentHost.LayoutRestoring"/> handler cancelled them,
-        /// or because they were already open.
+        /// Diagnostic report returned by <see cref="BeepDocumentHost.TryRestoreLayout"/>.
+        /// Describes which documents were restored, which were skipped, and any failures.
         /// </summary>
-        public List<string> Skipped { get; } = new List<string>();
+        public sealed class LayoutRestoreReport
+        {
+            /// <summary>IDs of documents that were successfully restored.</summary>
+            public List<string> Restored { get; } = new List<string>();
 
-        /// <summary>
-        /// IDs of documents that failed to restore, paired with a short reason message.
-        /// </summary>
-        public List<(string Id, string Reason)> Failed { get; } = new List<(string, string)>();
+            /// <summary>
+            /// IDs of documents that were skipped — either because a
+            /// <see cref="BeepDocumentHost.LayoutRestoring"/> handler cancelled them,
+            /// or because they were already open.
+            /// </summary>
+            public List<string> Skipped { get; } = new List<string>();
 
-        /// <summary>
-        /// <c>true</c> when <see cref="Failed"/> is empty.  Skipped entries are not failures.
-        /// </summary>
-        public bool IsSuccess => Failed.Count == 0;
+            /// <summary>
+            /// IDs of documents that failed to restore, paired with a short reason message.
+            /// </summary>
+            public List<(string Id, string Reason)> Failed { get; } = new List<(string, string)>();
 
-        /// <summary>The schema version of the JSON that was restored.</summary>
-        public int SchemaVersion { get; internal set; }
+            /// <summary>
+            /// <c>true</c> when <see cref="Failed"/> is empty.  Skipped entries are not failures.
+            /// </summary>
+            public bool IsSuccess => Failed.Count == 0;
 
-        /// <summary>Whether a migration was applied before restoring (v1 → v2).</summary>
-        public bool WasMigrated { get; internal set; }
+            /// <summary>The schema version of the JSON that was restored.</summary>
+            public int SchemaVersion { get; internal set; }
 
-        /// <summary>
-        /// Human-readable summary for logging.
-        /// </summary>
-        public override string ToString()
-            => $"LayoutRestoreReport: {Restored.Count} restored, {Skipped.Count} skipped, " +
-               $"{Failed.Count} failed (schema v{SchemaVersion}{(WasMigrated ? ", migrated" : "")}).";
+            /// <summary>Whether a migration was applied before restoring (v1 → v2).</summary>
+            public bool WasMigrated { get; internal set; }
+
+            /// <summary>
+            /// Human-readable summary for logging.
+            /// </summary>
+            public override string ToString()
+                => $"LayoutRestoreReport: {Restored.Count} restored, {Skipped.Count} skipped, " +
+                   $"{Failed.Count} failed (schema v{SchemaVersion}{(WasMigrated ? ", migrated" : "")}).";
+        }
     }
 }

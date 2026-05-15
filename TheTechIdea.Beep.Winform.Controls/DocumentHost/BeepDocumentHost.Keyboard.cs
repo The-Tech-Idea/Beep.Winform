@@ -202,28 +202,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             return tabs;
         }
 
-        // ── Host-level ProcessCmdKey — Ctrl+Tab MRU cycling (Phase 06 E1) ───────
-        // Fires before the tab strip's own handler so Ctrl+Tab shows the MRU popup
-        // regardless of which control inside the host has focus.
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            if (!_keyboardShortcutsEnabled || IsDesignTimeHost)
-                return base.ProcessCmdKey(ref msg, keyData);
-
-            if (keyData == (Keys.Control | Keys.Tab))
-            {
-                // Two or more docs: show MRU picker.  One or zero: fall through to strip.
-                if (_panels.Count >= 2) { ShowQuickSwitchMru(reverse: false); return true; }
-            }
-            else if (keyData == (Keys.Control | Keys.Shift | Keys.Tab))
-            {
-                if (_panels.Count >= 2) { ShowQuickSwitchMru(reverse: true); return true; }
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
-        }
-
         // ── Split focus cycling ───────────────────────────────────────────────
 
         private void FocusSplitGroup(int direction)
@@ -274,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
                 // Only fire when the host's parent form is the active top-level window.
                 var ownerForm = host.FindForm();
-                if (ownerForm == null || Form.ActiveForm != ownerForm) return false;
+                if (ownerForm == null || System.Windows.Forms.Form.ActiveForm != ownerForm) return false;
 
                 int vk = m.WParam.ToInt32();
                 if (vk != VK_P) return false;

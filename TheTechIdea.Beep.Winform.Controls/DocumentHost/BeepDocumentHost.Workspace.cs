@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
+using static TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.LayoutMigrationService;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {

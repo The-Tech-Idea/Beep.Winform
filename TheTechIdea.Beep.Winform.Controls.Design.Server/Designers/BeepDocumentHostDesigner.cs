@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     {
                         if (Component is BeepDocumentHost host)
                         {
-                            var registry = host.EnsureCommandRegistry();
+                            var registry = host.CommandRegistry;
                             using var dlg = new DocumentHostShortcutEditorDialog(registry);
                             dlg.ShowDialog();
                         }
@@ -668,15 +668,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// </summary>
         protected override void OnDragDrop(DragEventArgs de)
         {
-            // Try to redirect to the active document panel designer
-            if (Component is BeepDocumentHost host)
+            bool toolboxDrag = IsToolboxDrag(de);
+
+            // For toolbox drops, try to redirect to the active document panel designer
+            // so the dropped control lands in the document surface, not the host root.
+            if (toolboxDrag && Component is BeepDocumentHost hostForToolbox)
             {
-                var activePanel = GetActiveDocumentPanel(host);
+                var activePanel = GetActiveDocumentPanel(hostForToolbox);
                 if (activePanel != null)
                 {
-                    // Forward to the inner panel's designer so the dropped control ends up there
                     var designerHost = GetDesignerHost();
-                    if (designerHost?.GetDesigner(activePanel) is System.ComponentModel.Design.ControlDesigner panelDesigner)
+                    if (designerHost?.GetDesigner(activePanel) is ControlDesigner panelDesigner)
                     {
                         panelDesigner.GetType()
                             .GetMethod("OnDragDrop",
@@ -686,12 +688,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                                 null,
                                 new[] { typeof(DragEventArgs) }, null)
                             ?.Invoke(panelDesigner, new object[] { de });
+                        _dragActive = false;
+                        _dragZone   = DockZone.None;
+                        InvalidateHost();
                         return;
                     }
                 }
             }
 
             base.OnDragDrop(de);
+
+            // For non-toolbox (document tab) drags, handle dock-zone-based splitting.
+            if (!toolboxDrag && Component is BeepDocumentHost host)
+            {
+                var screenPt = new Point(de.X, de.Y);
+                var clientPt = host.PointToClient(screenPt);
+                var zone     = HitTestCompass(host.ClientRectangle, clientPt);
+
+                switch (zone)
+                {
+                    case DockZone.Left:
+                    case DockZone.Right:
+                        if (!string.IsNullOrEmpty(host.ActiveDocumentId))
+                            ExecuteAction("Split Horizontal",
+                                h => h.SplitDocumentHorizontal(h.ActiveDocumentId!));
+                        break;
+
+                    case DockZone.Top:
+                    case DockZone.Bottom:
+                        if (!string.IsNullOrEmpty(host.ActiveDocumentId))
+                            ExecuteAction("Split Vertical",
+                                h => h.SplitDocumentVertical(h.ActiveDocumentId!));
+                        break;
+
+                    // DockZone.Center → no split; tab dropped into existing group
+                }
+            }
+
+            _dragActive = false;
+            _dragZone   = DockZone.None;
+            InvalidateHost();
         }
 
         // ── Generic property helpers (used by DocumentHostActionList) ─────────
@@ -1960,42 +1996,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         protected override void OnDragLeave(EventArgs e)
         {
             base.OnDragLeave(e);
-            _dragActive = false;
-            _dragZone   = DockZone.None;
-            InvalidateHost();
-        }
-
-        protected override void OnDragDrop(DragEventArgs de)
-        {
-            bool toolboxDrag = IsToolboxDrag(de);
-            base.OnDragDrop(de);
-
-            if (!toolboxDrag && Component is BeepDocumentHost host)
-            {
-                var screenPt = new Point(de.X, de.Y);
-                var clientPt = host.PointToClient(screenPt);
-                var zone     = HitTestCompass(host.ClientRectangle, clientPt);
-
-                switch (zone)
-                {
-                    case DockZone.Left:
-                    case DockZone.Right:
-                        if (!string.IsNullOrEmpty(host.ActiveDocumentId))
-                            ExecuteAction("Split Horizontal",
-                                h => h.SplitDocumentHorizontal(h.ActiveDocumentId!));
-                        break;
-
-                    case DockZone.Top:
-                    case DockZone.Bottom:
-                        if (!string.IsNullOrEmpty(host.ActiveDocumentId))
-                            ExecuteAction("Split Vertical",
-                                h => h.SplitDocumentVertical(h.ActiveDocumentId!));
-                        break;
-
-                    // DockZone.Center → no split; tab dropped into existing group
-                }
-            }
-
             _dragActive = false;
             _dragZone   = DockZone.None;
             InvalidateHost();

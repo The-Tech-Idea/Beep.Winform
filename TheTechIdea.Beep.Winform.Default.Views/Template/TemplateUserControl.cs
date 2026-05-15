@@ -101,8 +101,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public FormStyle ControlFormStyle { get; private set; }
 
         public event EventHandler? OnStart;
-    public event EventHandler? OnStop;
-    public event EventHandler<ErrorEventArgs>? OnError;
+        public event EventHandler? OnStop;
+        public event EventHandler<ErrorEventArgs>? OnError;
 
     // Note: All explicit scaling/DPI-blocking logic was removed to rely on default .NET 8 behavior.
 

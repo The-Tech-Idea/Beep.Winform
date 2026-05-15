@@ -62,6 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             base.OnResize(e);
             if (!IsHandleCreated) return;
+            if (IsDesignTimeHost && (_isDesignerDetaching || _isDisposingHost || Parent == null)) return;
             RecalculateLayout();
         }
 
@@ -150,6 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// </summary>
         public void RecalculateLayout()
         {
+            if (_disposed) return;
             if (_layoutSuspended) return;
             if (IsDesignTimeHost && (_isDesignerDetaching || _isDisposingHost || Parent == null)) return;
             if (_inLayoutRecalc) return;
@@ -391,9 +393,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Resizes every visible panel to fill its group's content area.</summary>
         private void SyncPanelBounds()
         {
+            if (_disposed || _isDisposingHost || _isDesignerDetaching) return;
             foreach (var grp in _groups)
             {
-                if (!grp.ContentArea.IsHandleCreated) continue;
+                if (grp.ContentArea == null || !grp.ContentArea.IsHandleCreated) continue;
                 foreach (var id in grp.DocumentIds)
                     if (_panels.TryGetValue(id, out var p) && p.Visible)
                         p.Bounds = grp.ContentArea.ClientRectangle;

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout;
+using static TheTechIdea.Beep.Winform.Controls.DocumentHost.Layout.LayoutMigrationService;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -448,17 +449,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!System.IO.File.Exists(path)) return false;
             try { return RestoreLayout(System.IO.File.ReadAllText(path)); }
             catch { return false; }
-        }
-
-        /// <summary>
-        /// Deletes a named workspace file, if it exists.
-        /// </summary>
-        public void DeleteWorkspace(string name)
-        {
-            if (string.IsNullOrWhiteSpace(_sessionFile)) return;
-            var path = WorkspacePath(name);
-            try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); }
-            catch { /* swallow */ }
         }
 
         /// <summary>

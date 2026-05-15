@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (theme is null) return;
             _backColor   = theme.PanelBackColor;
-            _foreColor   = theme.PanelForeColor;
+            _foreColor   = theme.ForeColor;
             _borderColor = theme.BorderColor;
             _headerBack  = theme.PrimaryColor;
             BackColor    = _backColor;
@@ -600,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 BackColor         = theme.PanelBackColor;
                 _header.BackColor = theme.PrimaryColor;
-                _titleLabel.ForeColor = theme.PanelForeColor;
+                _titleLabel.ForeColor = theme.ForeColor;
             }
         }
 
@@ -635,7 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             public void ApplyTheme(BeepTheme theme)
             {
                 _backColor = theme.PanelBackColor;
-                _foreColor = theme.PanelForeColor;
+                _foreColor = theme.ForeColor;
                 BackColor  = _backColor;
                 Invalidate();
             }

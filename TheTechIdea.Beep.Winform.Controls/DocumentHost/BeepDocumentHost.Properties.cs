@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepCommandRegistry CommandRegistry => EnsureCommandRegistry();
 
-        internal BeepCommandRegistry EnsureCommandRegistry()
+        public BeepCommandRegistry EnsureCommandRegistry()
         {
             if (_commandRegistry != null) return _commandRegistry;
             _commandRegistry = new BeepCommandRegistry();
@@ -1539,7 +1539,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             menu.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
 
             // ── Close actions ─────────────────────────────────────────────────
-            AddWindowMenuItem(menu, "Close All Documents", CloseAllDocuments);
+            AddWindowMenuItem(menu, "Close All Documents", () => CloseAllDocuments());
             AddWindowMenuItem(menu, "Close All But This",
                 () => { if (_activeDocumentId != null) CloseAllBut(_activeDocumentId); });
             AddWindowMenuItem(menu, "Close All to the Right",
@@ -1660,7 +1660,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (group == null) return;
 
             var tabs  = group.TabStrip.Tabs;
-            int pivot = tabs.FindIndex(t => t.Id == _activeDocumentId);
+            int pivot = tabs.ToList().FindIndex(t => t.Id == _activeDocumentId);
             if (pivot < 0 || pivot >= tabs.Count - 1) return;
 
             var toClose = tabs.Skip(pivot + 1).Select(t => t.Id).ToList();
@@ -1685,7 +1685,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 // Restore — show all groups again
                 foreach (var g in _groups)
-                    g.Container.Visible = true;
+                    g.ContentArea.Visible = true;
 
                 _documentMaximized = false;
                 _maximizedDocId    = null;
@@ -1699,9 +1699,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (activeGroup == null) return;
 
                 foreach (var g in _groups)
-                    g.Container.Visible = g == activeGroup;
+                    g.ContentArea.Visible = g == activeGroup;
 
-                activeGroup.Container.SetBounds(
+                activeGroup.ContentArea.SetBounds(
                     _contentArea.Left, _contentArea.Top,
                     _contentArea.Width, _contentArea.Height);
 

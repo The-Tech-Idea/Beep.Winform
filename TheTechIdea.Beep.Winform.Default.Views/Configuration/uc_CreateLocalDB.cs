@@ -198,7 +198,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.SelectedItemChanged += LocalDbTypebeepComboBox_SelectedItemChanged;
             SystemFolderbeepComboBox.SelectedItemChanged += SystemFolderbeepComboBox_SelectedItemChanged;
         }
-
+        public override void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            base.OnNavigatedTo(parameters);
+            //  ViewModel.CreateLocalConnection();  
+        }
         private void SystemFolderbeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
            if(e.SelectedItem != null)
@@ -235,11 +239,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             }
         }
 
-        public override void OnNavigatedTo(Dictionary<string, object> parameters)
-        {
-            base.OnNavigatedTo(parameters);
-            //  ViewModel.CreateLocalConnection();  
-        }
+        
         private void CreateDBbutton(object sender, EventArgs e)
         {
             try

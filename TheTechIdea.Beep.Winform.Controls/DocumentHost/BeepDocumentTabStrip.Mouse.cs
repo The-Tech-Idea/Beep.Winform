@@ -315,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     ShowDragFloatGhost(_tabs[_dragStartTab].Title, PointToScreen(current));
                     // Notify the host so it can activate the dock-overlay compass UI.
                     TabFloatDragStarted?.Invoke(this,
-                        new TabEventArgs(_tabs[_dragStartTab].Id, _dragStartTab));
+                        new TabEventArgs(_dragStartTab, _tabs[_dragStartTab]));
                 }
                 Cursor = Cursors.SizeAll;
                 MoveDragFloatGhost(PointToScreen(current));
@@ -420,9 +420,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_dragFloatGhost != null) return;
 
             // Use theme colours when available, fall back to a sensible dark default.
-            System.Drawing.Color backColor = _currentTheme?.TabActiveBackColor
+            System.Drawing.Color backColor = _currentTheme?.TabSelectedBackColor
                 ?? System.Drawing.Color.FromArgb(48, 54, 70);
-            System.Drawing.Color foreColor = _currentTheme?.TabActiveForeColor
+            System.Drawing.Color foreColor = _currentTheme?.TabSelectedForeColor
                 ?? System.Drawing.Color.White;
 
             // Match the actual tab width so the ghost reads as the real tab.

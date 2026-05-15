@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             UnregisterDockRail(edge);
 
             _dockRails[edge] = rail;
-            rail.ApplyTheme(_currentTheme);
+            rail.ApplyTheme((BeepTheme?)_currentTheme);
             Controls.Add(rail);
             rail.BringToFront();
 
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void ApplyThemeToDockRails()
         {
             foreach (var rail in _dockRails.Values)
-                rail.ApplyTheme(_currentTheme);
+                rail.ApplyTheme((BeepTheme?)_currentTheme);
         }
 
         // ─────────────────────────────────────────────────────────────────────

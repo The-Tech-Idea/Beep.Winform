@@ -13,6 +13,7 @@ using System.ComponentModel.Design;
 using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
@@ -39,11 +40,40 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void OnEditPanels(object? sender, EventArgs e)
         {
             var mgr = (BeepDockManager)Component;
-            var svc = GetService<IDesignerHost>();
-            var uiSvc = GetService<IUIService>();
 
-            // Use EditorServiceContext to open the default CollectionEditor for Panels.
-            EditorServiceContext.EditValue(this, mgr, nameof(BeepDockManager.Panels));
+            var propDescriptor = TypeDescriptor.GetProperties(mgr)[nameof(BeepDockManager.Panels)];
+            if (propDescriptor == null) return;
+
+            var editor = propDescriptor.GetEditor(typeof(UITypeEditor)) as UITypeEditor;
+            if (editor == null) return;
+
+            var host = GetService<IDesignerHost>();
+            var ctx  = new DesignerTypeDescriptorContext(host, propDescriptor, mgr);
+            editor.EditValue(ctx, ctx, propDescriptor.GetValue(mgr));
+        }
+
+        // Minimal ITypeDescriptorContext + IServiceProvider bridge for UITypeEditor.EditValue.
+        private sealed class DesignerTypeDescriptorContext : ITypeDescriptorContext, IServiceProvider
+        {
+            private readonly IDesignerHost?       _host;
+            private readonly PropertyDescriptor   _prop;
+            private readonly object               _instance;
+
+            internal DesignerTypeDescriptorContext(IDesignerHost? host, PropertyDescriptor prop, object instance)
+            {
+                _host     = host;
+                _prop     = prop;
+                _instance = instance;
+            }
+
+            public IContainer?         Container           => _host?.Container;
+            public object              Instance            => _instance;
+            public PropertyDescriptor  PropertyDescriptor  => _prop;
+            public void                OnComponentChanged() { }
+            public bool                OnComponentChanging() => true;
+
+            public object? GetService(Type serviceType)
+                => _host?.GetService(serviceType);
         }
 
         private void OnAutoPair(object? sender, EventArgs e)

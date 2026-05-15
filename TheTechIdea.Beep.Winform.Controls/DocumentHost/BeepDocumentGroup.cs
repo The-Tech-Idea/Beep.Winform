@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>The tab strip owned by this group.</summary>
-        internal BeepDocumentTabStrip TabStrip { get; }
+        public BeepDocumentTabStrip TabStrip { get; }
 
         /// <summary>The content panel that hosts document panels belonging to this group.</summary>
         internal Panel ContentArea { get; }
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>Ordered list of document IDs belonging to this group.</summary>
-        internal List<string> DocumentIds { get; } = new List<string>();
+        public List<string> DocumentIds { get; } = new List<string>();
 
         /// <summary>True when this group contains no documents.</summary>
         public bool IsEmpty => DocumentIds.Count == 0;

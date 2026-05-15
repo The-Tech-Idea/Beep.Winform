@@ -231,6 +231,45 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         /// </summary>
         public DialogResult DialogResult { get; private set; }
 
+        /// <summary>
+        /// Raised when the connection is successfully validated and persisted.
+        /// </summary>
+        public event EventHandler<ConnectionSavedEventArgs>? ConnectionSaved;
+
+        /// <summary>
+        /// Raised when the user cancels the editor.
+        /// </summary>
+        public event EventHandler? ConnectionCancelled;
+
+        /// <summary>
+        /// Raised when test connection completes.
+        /// </summary>
+        public event EventHandler<ConnectionTestCompletedEventArgs>? ConnectionTestCompleted;
+
+        public sealed class ConnectionSavedEventArgs : EventArgs
+        {
+            public ConnectionSavedEventArgs(ConnectionProperties connectionProperties)
+            {
+                ConnectionProperties = connectionProperties;
+            }
+
+            public ConnectionProperties ConnectionProperties { get; }
+        }
+
+        public sealed class ConnectionTestCompletedEventArgs : EventArgs
+        {
+            public ConnectionTestCompletedEventArgs(ConnectionProperties connectionProperties, bool success, string message)
+            {
+                ConnectionProperties = connectionProperties;
+                Success = success;
+                Message = message;
+            }
+
+            public ConnectionProperties ConnectionProperties { get; }
+            public bool Success { get; }
+            public string Message { get; }
+        }
+
         #region Private Fields
         // Properties for dialog behavior
         DataSourceType SourceType;
@@ -871,6 +910,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 }
             }
 
+            ConnectionSaved?.Invoke(this, new ConnectionSavedEventArgs(ConnectionProperties));
+
             this.DialogResult = DialogResult.OK;
             if (this.ParentForm != null)
             {
@@ -880,6 +921,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         }
         private void CancelbeepButton_Click(object sender, EventArgs e)
         {
+            ConnectionCancelled?.Invoke(this, EventArgs.Empty);
             this.DialogResult = DialogResult.Cancel;
             
             // If parent is a form, close it
@@ -907,12 +949,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 
                 if (success)
                 {
+                    ConnectionTestCompleted?.Invoke(this,
+                        new ConnectionTestCompletedEventArgs(ConnectionProperties, true, "Connection test successful."));
                     MessageBox.Show("Connection test successful!", "Connection Test", 
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     _lastConnectionTestSucceeded = false;
+                    ConnectionTestCompleted?.Invoke(this,
+                        new ConnectionTestCompletedEventArgs(ConnectionProperties, false, "Connection test failed."));
                     MessageBox.Show("Connection test failed. Please check your connection properties.", 
                         "Connection Test Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -920,6 +966,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             catch (Exception ex)
             {
                 _lastConnectionTestSucceeded = false;
+                ConnectionTestCompleted?.Invoke(this,
+                    new ConnectionTestCompletedEventArgs(ConnectionProperties, false, ex.Message));
                 MessageBox.Show($"Error testing connection: {ex.Message}", "Connection Test Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

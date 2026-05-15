@@ -307,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             int headerH = AhS(28);
             Color backColor = _currentTheme?.PanelBackColor ?? ColorUtils.MapSystemColor(SystemColors.Control);
-            Color foreColor = _currentTheme?.PanelForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
+            Color foreColor = _currentTheme?.ForeColor ?? ColorUtils.MapSystemColor(SystemColors.ControlText);
             Color sepColor  = _currentTheme?.BorderColor    ?? ColorUtils.MapSystemColor(SystemColors.ControlDark);
 
             var header = new Panel

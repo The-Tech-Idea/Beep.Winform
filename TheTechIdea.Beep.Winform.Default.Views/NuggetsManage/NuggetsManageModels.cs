@@ -102,4 +102,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         Warning,
         Error
     }
+
+    /// <summary>
+    /// Shared context keys used across the install wizard steps.
+    /// </summary>
+    public static class NuggetWizardKeys
+    {
+        public const string Service           = "Service";
+        public const string PackageId         = "PackageId";
+        public const string IncludePrerelease = "IncludePrerelease";
+        public const string SelectedVersion   = "SelectedVersion";
+        public const string SelectedSourceUrl = "SelectedSourceUrl";
+        public const string LoadAfterInstall  = "LoadAfterInstall";
+        public const string SharedContext     = "SharedContext";
+        public const string UseProcessHost    = "UseProcessHost";
+        public const string InstallPath       = "InstallPath";
+        public const string InstallResult     = "InstallResult";
+    }
 }

@@ -5,7 +5,6 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
@@ -21,7 +20,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
     {
         private readonly IServiceProvider _services;
         private NuggetsManageService? _service;
-        private BeepTabs? _tabs;
         private bool _disposed;
 
         public event EventHandler<NuggetInstallCompletedEventArgs>? PackageInstallCompleted;
@@ -41,21 +39,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         {
             _services = services;
             InitializeComponent();
+           
             Details.AddinName = "Nugget Manager";
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _service?.Dispose();
-                    _searchCts?.Dispose();
-                }
-                _disposed = true;
-            }
-            base.Dispose(disposing);
         }
 
         #region IAddinVisSchema
@@ -74,7 +59,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         public string BranchClass { get; set; } = "ADDIN";
         public string AddinName { get; set; } = "uc_NuggetsManage";
         #endregion
-
+        public override void Configure(Dictionary<string, object> settings)
+        {
+            base.Configure(settings);
+            InitializeSearchData();
+            InitializeInstalledData();
+            InitializeSourcesData();
+            InitializeActivityData();
+        }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
@@ -83,6 +75,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
                 MessageBox.Show("Editor is not available. Cannot initialize Nugget Manager.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            // Wire grid double-click to install wizard
+            _gridSearchResults.DoubleClick -= GridSearchResults_DoubleClick;
+            _gridSearchResults.DoubleClick += GridSearchResults_DoubleClick;
+
             RestoreLastTab();
             LoadSearchSources();
             RefreshInstalled();
@@ -90,72 +86,44 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             RefreshLogs();
         }
 
-        private void InitializeComponent()
+        private void GridSearchResults_DoubleClick(object? sender, EventArgs e)
         {
-            SuspendLayout();
-            
-            var tabSearch = new BeepTabPage { Text = "Search & Install", Name = "tabSearch" };
-            var tabInstalled = new BeepTabPage { Text = "Installed", Name = "tabInstalled" };
-            var tabSources = new BeepTabPage { Text = "Sources", Name = "tabSources" };
-            var tabActivity = new BeepTabPage { Text = "Activity", Name = "tabActivity" };
+            var packageId = _gridSearchResults?.CurrentRow?.Cells["PackageId"]?.Value?.ToString();
+            if (!string.IsNullOrWhiteSpace(packageId))
+                LaunchInstallWizard(packageId);
+        }
 
-            BuildSearchTab(tabSearch);
-            BuildInstalledTab(tabInstalled);
-            BuildSourcesTab(tabSources);
-            BuildActivityTab(tabActivity);
-
-            _tabs = new BeepTabs
-            {
-                Dock = DockStyle.Fill,
-                ShowCloseButtons = false,
-                HeaderHeight = 30,
-                HeaderPosition = TabHeaderPosition.Top,
-                TabStyle = TabStyle.Classic
-            };
-
-            _tabs.AddTab(tabSearch);
-            _tabs.AddTab(tabInstalled);
-            _tabs.AddTab(tabSources);
-            _tabs.AddTab(tabActivity);
-
-            _tabs.SelectedIndexChanged += (_, _) =>
-            {
-                try
-                {
-                    var state = GetService().LoadState();
-                    state.LastActiveTabIndex = _tabs.SelectedIndex;
-                    GetService().SaveState(state);
-                }
-                catch { /* ignore save errors */ }
-            };
-
-            Controls.Add(_tabs);
-            
-            ResumeLayout(true);
+        protected override void InitLayout()
+        {
+            base.InitLayout();
         }
 
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            if (_tabs != null)
-            {
-                _tabs.Theme = Theme;
-            }
+            if(_tabs!=null)   _tabs.Theme = Theme;
         }
 
         private void RestoreLastTab()
         {
-            if (_tabs == null) return;
             try
             {
                 var state = GetService().LoadState();
                 if (state.LastActiveTabIndex >= 0 && state.LastActiveTabIndex < _tabs.TabCount)
-                {
                     _tabs.SelectedIndex = state.LastActiveTabIndex;
-                }
             }
             catch { /* ignore restore errors */ }
+        }
+
+        private void Tabs_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            try
+            {
+                var state = GetService().LoadState();
+                state.LastActiveTabIndex = _tabs.SelectedIndex;
+                GetService().SaveState(state);
+            }
+            catch { /* ignore save errors */ }
         }
 
         internal void RaisePackageInstallCompleted(string packageId, string version, bool success, string message)

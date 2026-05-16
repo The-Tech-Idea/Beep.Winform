@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         /// <summary>
         /// Optional SVG/image resource path rendered via StyledImagePainter left of the title.
-        /// Use SvgsUI constants, e.g. SvgsUI.File, SvgsUI.Database.
+        /// Use SvgsUI constants, e.g. SvgsUIcons.File, SvgsUIcons.Database.
         /// </summary>
         public string IconPath { get; set; }
 

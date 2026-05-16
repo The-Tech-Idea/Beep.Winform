@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Icons
 
         // Shared helper for nested icon categories
         private static string Require(string file)
-            => ToResourcePath(file) ?? throw new InvalidOperationException($"UI icon not found: {file}");
+            => $"{BaseNamespace}.{file}" ?? string.Empty;
 
         /// <summary>
         /// Strongly-typed curated subset of common UI icons.

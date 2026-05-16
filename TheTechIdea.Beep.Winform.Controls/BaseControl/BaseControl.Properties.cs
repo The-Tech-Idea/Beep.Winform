@@ -1269,15 +1269,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Update tooltip if it uses ControlStyle
                     UpdateTooltipTheme();
                     
-                    // Auto-resize to compensate chrome when style-based painting is used
-                    try
-                    {
-                        if (UseFormStylePaint && !_preserveExplicitSizeDuringStyleChange && !IsDisposed)
-                        {
-                            AdjustSizeForControlStyle(oldStyle, value);
-                        }
-                    }
-                    catch { /* design-time safe */ }
+                    //// Auto-resize to compensate chrome when style-based painting is used
+                    //try
+                    //{
+                    //    if (UseFormStylePaint && !_preserveExplicitSizeDuringStyleChange && !IsDisposed)
+                    //    {
+                    //        AdjustSizeForControlStyle(oldStyle, value);
+                    //    }
+                    //}
+                    //catch { /* design-time safe */ }
                     // CRITICAL: Synchronize BorderPainter with ControlStyle
                     // This ensures border style, color, and width update when ControlStyle changes
                     if (_borderPainterStyle != value)

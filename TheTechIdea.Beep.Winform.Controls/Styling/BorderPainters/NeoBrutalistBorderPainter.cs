@@ -55,13 +55,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float borderWidth = configuredWidth;
             borderColor = BorderPainterHelpers.EnsureVisibleBorderColor(borderColor, theme, state);
 
+            // PenAlignment.Inset is unreliable for GraphicsPath in GDI+.
+            // Manually inset the path by half the stroke width and draw with Center alignment.
+            int detectedRadius = (int)GraphicsExtensions.DetectRadiusFromRoundedRectPath(path);
+            float halfStroke = borderWidth / 2f;
+            using var insetPath = path.CreateInsetPath(halfStroke, detectedRadius);
+            GraphicsPath drawTarget = (insetPath != null && insetPath.PointCount > 2) ? insetPath : path;
+
             var savedPixel = g.PixelOffsetMode;
             g.PixelOffsetMode = PixelOffsetMode.None;
             using (var pen = new Pen(borderColor, borderWidth))
             {
-                pen.LineJoin = LineJoin.Miter;
-                pen.Alignment = PenAlignment.Inset;
-                g.DrawPath(pen, path);
+                pen.LineJoin  = LineJoin.Miter;
+                pen.Alignment = PenAlignment.Center;
+                g.DrawPath(pen, drawTarget);
             }
             g.PixelOffsetMode = savedPixel;
 

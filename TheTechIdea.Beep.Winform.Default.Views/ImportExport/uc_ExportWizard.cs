@@ -210,39 +210,28 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private void LaunchExportWizard()
         {
             _config = BuildConfig();
-            if (string.IsNullOrWhiteSpace(_config.SourceDataSourceName) ||
-                string.IsNullOrWhiteSpace(_config.SourceEntityName))
-            {
-                MessageBox.Show("Please select a source data source and entity.", "Export",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
-            if (string.IsNullOrWhiteSpace(_config.FilePath))
-            {
-                MessageBox.Show("Please specify a file path for the export.", "Export",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Simple export flow: select columns then run
-            var colStep = new uc_Export_ColumnSelection(_services, _config);
-            var runStep = new uc_Export_Run(_services, _config);
+            // Use the new 3-step flow: Configure → Select Columns → Run
+            var selectStep = new uc_Export_SelectDSandFile(_services);
+            var colStep    = new uc_Export_ColumnSelection(_services, _config);
+            var runStep    = new uc_Export_Run(_services, _config);
 
             var wizardConfig = new WizardConfig
             {
-                Key = $"ExportWizard_{Guid.NewGuid():N}",
-                Title = "Export Wizard",
-                Description = "Select columns and export data.",
-                Style = WizardStyle.HorizontalStepper,
-                ShowProgressBar = true,
-                ShowStepList = true,
-                AllowBack = true,
-                AllowCancel = true,
+                Key              = $"ExportWizard_{Guid.NewGuid():N}",
+                Title            = "Export Wizard",
+                Description      = "Choose source, select columns, then export data.",
+                Style            = WizardStyle.HorizontalStepper,
+                ShowProgressBar  = true,
+                ShowStepList     = true,
+                AllowBack        = true,
+                AllowCancel      = true,
+                ShowInlineErrors = true,
                 Steps = new List<WizardStep>
                 {
-                    new WizardStep { Key = "columns", Title = "Select Columns", Description = "Choose which columns to export.", Content = colStep },
-                    new WizardStep { Key = "run", Title = "Review & Export", Description = "Review and execute the export.", Content = runStep }
+                    new WizardStep { Key = "select",  Title = "Configure",       Description = "Choose source entity and export destination.", Content = selectStep },
+                    new WizardStep { Key = "columns", Title = "Select Columns",  Description = "Choose which columns to export.",               Content = colStep   },
+                    new WizardStep { Key = "run",     Title = "Review & Export", Description = "Review summary and execute the export.",        Content = runStep   }
                 }
             };
 
@@ -250,18 +239,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 var summary = ctx.GetValue<ExportRunSummary?>(ExportWizardKeys.RunSummary, null);
                 if (summary != null)
-                {
                     AppendLog($"Export complete: {summary.ExportedRows:N0} rows exported to {summary.FilePath}");
-                }
             };
+            wizardConfig.OnCancel = _ => AppendLog("Export wizard cancelled.");
 
             var wizardInstance = WizardManager.CreateWizard(wizardConfig);
             wizardInstance.Context.SetValue(ExportWizardKeys.ExportConfig, _config);
 
-            var owner = FindForm();
-            var result = owner == null
-                ? wizardInstance.ShowDialog()
-                : wizardInstance.ShowDialog(owner);
+            var owner  = FindForm();
+            var result = owner == null ? wizardInstance.ShowDialog() : wizardInstance.ShowDialog(owner);
             AppendLog($"Export wizard closed: {result}");
         }
 

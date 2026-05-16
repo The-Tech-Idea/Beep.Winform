@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
@@ -589,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             AddSourcebeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             AddSourcebeepButton.ImageClicked = null;
             AddSourcebeepButton.ImageEmbededin = ImageEmbededin.Button;
-            AddSourcebeepButton.ImagePath = null;
+            AddSourcebeepButton.ImagePath = SvgsUIcons.Common.Add;
             AddSourcebeepButton.InactiveBorderColor = Color.Gray;
     //        AddSourcebeepButton.Info = (SimpleItem)resources.GetObject("AddSourcebeepButton.Info");
             AddSourcebeepButton.IsAcceptButton = false;
@@ -920,7 +921,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnRefreshCount.Location = new System.Drawing.Point(218, 100);
             btnRefreshCount.Size     = new System.Drawing.Size(28, 24);
             btnRefreshCount.Name     = "btnRefreshCount";
-            btnRefreshCount.Text     = "↺";
+            btnRefreshCount.ImagePath = SvgsUIcons.Common.Refresh;
             btnRefreshCount.TabIndex = 23;
             btnRefreshCount.Theme    = "DefaultType";
             // 

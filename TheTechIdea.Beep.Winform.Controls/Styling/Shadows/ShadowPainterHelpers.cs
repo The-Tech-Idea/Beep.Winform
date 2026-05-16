@@ -95,12 +95,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             RectangleF boundsRect = bounds.GetBounds();
 
-            // Disable anti-aliasing for crisp hard edges
-            var prevMode = g.SmoothingMode;
-            g.SmoothingMode = SmoothingMode.None;
-
+            // Save full graphics state so ExcludeClip and SmoothingMode changes
+            // don't leak into subsequent drawing calls.
+            var savedState = g.Save();
             try
             {
+                // Disable anti-aliasing for crisp hard edges
+                g.SmoothingMode = SmoothingMode.None;
+
                 using (var exclude = new Region(bounds))
                     g.ExcludeClip(exclude);
 
@@ -115,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             }
             finally
             {
-                g.SmoothingMode = prevMode;
+                g.Restore(savedState);
             }
 
             return bounds;
@@ -574,7 +576,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 using (GraphicsPath glowPath = bounds.CreateInsetPath(-i))
                 {
                     var glowBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, glowColor));
-                    g.FillPath(glowBrush, glowPath);
+                    // Exclude the control interior so glow stays outside the content area
+                    FillShadowExcluding(g, glowBrush, glowPath, bounds);
                 }
             }
 
@@ -879,7 +882,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 using (var spreadPath = bounds.CreateInsetPath(-i))
                 {
                     var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, 0, 0, 0));
-                    g.FillPath(brush, spreadPath);
+                    // Exclude the control interior so ambient glow stays outside the content area
+                    FillShadowExcluding(g, brush, spreadPath, bounds);
                 }
             }
 
@@ -893,7 +897,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Outer glow
+            // Outer glow — stays outside the control boundary
             for (int i = 0; i < 6; i++)
             {
                 int alpha = (int)(30 * opacity * (1f - (float)i / 6));
@@ -902,7 +906,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 using (var glowPath = bounds.CreateInsetPath(-i))
                 {
                     var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, tintColor));
-                    g.FillPath(brush, glowPath);
+                    // Exclude the control interior so the outer glow doesn't paint over content
+                    FillShadowExcluding(g, brush, glowPath, bounds);
                 }
             }
 

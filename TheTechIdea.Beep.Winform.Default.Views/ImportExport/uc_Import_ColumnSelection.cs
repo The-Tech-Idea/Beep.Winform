@@ -50,6 +50,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
+            btnSelectAll.Click += (_, _) => ToggleAll(true);
+            btnSelectNone.Click += (_, _) => ToggleAll(false);
+            btnRefreshPreview.Click += (_, _) => _ = LoadPreviewAsync();
             RaiseValidationState();
         }
 

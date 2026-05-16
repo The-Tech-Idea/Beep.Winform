@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.GridX;
@@ -203,11 +204,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             GraphicsPath graphicsPath12 = new GraphicsPath();
             Controls.Forms.ModernForm.Painters.CornerRadius cornerRadius3 = new Controls.Forms.ModernForm.Painters.CornerRadius();
             Controls.Forms.ModernForm.Painters.ShadowEffect shadowEffect3 = new Controls.Forms.ModernForm.Painters.ShadowEffect();
-            GraphicsPath graphicsPath13 = new GraphicsPath();
-            GraphicsPath graphicsPath14 = new GraphicsPath();
             GraphicsPath graphicsPath15 = new GraphicsPath();
             GraphicsPath graphicsPath16 = new GraphicsPath();
             GraphicsPath graphicsPath17 = new GraphicsPath();
+            GraphicsPath graphicsPath13 = new GraphicsPath();
+            GraphicsPath graphicsPath14 = new GraphicsPath();
             GraphicsPath graphicsPath18 = new GraphicsPath();
             Controls.Forms.ModernForm.Painters.CornerRadius cornerRadius4 = new Controls.Forms.ModernForm.Painters.CornerRadius();
             Controls.Forms.ModernForm.Painters.ShadowEffect shadowEffect4 = new Controls.Forms.ModernForm.Painters.ShadowEffect();
@@ -242,9 +243,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             GraphicsPath graphicsPath43 = new GraphicsPath();
             GraphicsPath graphicsPath44 = new GraphicsPath();
             GraphicsPath graphicsPath45 = new GraphicsPath();
-            GraphicsPath graphicsPath46 = new GraphicsPath();
-            GraphicsPath graphicsPath47 = new GraphicsPath();
-            GraphicsPath graphicsPath48 = new GraphicsPath();
             GraphicsPath graphicsPath49 = new GraphicsPath();
             GraphicsPath graphicsPath50 = new GraphicsPath();
             GraphicsPath graphicsPath51 = new GraphicsPath();
@@ -255,14 +253,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             GraphicsPath graphicsPath56 = new GraphicsPath();
             GraphicsPath graphicsPath57 = new GraphicsPath();
             GraphicsPath graphicsPath58 = new GraphicsPath();
+            GraphicsPath graphicsPath59 = new GraphicsPath();
+            GraphicsPath graphicsPath60 = new GraphicsPath();
+            GraphicsPath graphicsPath61 = new GraphicsPath();
             BeepColumnConfig beepColumnConfig1 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig2 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig3 = new BeepColumnConfig();
-            GraphicsPath graphicsPath59 = new GraphicsPath();
-            GraphicsPath graphicsPath63 = new GraphicsPath();
-            GraphicsPath graphicsPath60 = new GraphicsPath();
-            GraphicsPath graphicsPath61 = new GraphicsPath();
             GraphicsPath graphicsPath62 = new GraphicsPath();
+            GraphicsPath graphicsPath63 = new GraphicsPath();
+            GraphicsPath graphicsPath46 = new GraphicsPath();
+            GraphicsPath graphicsPath47 = new GraphicsPath();
+            GraphicsPath graphicsPath48 = new GraphicsPath();
             directionPanel = new Panel();
             cmbDirection = new BeepComboBox();
             lblMode = new BeepLabel();
@@ -294,12 +295,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             txtLog = new RichTextBox();
             directionPanel.SuspendLayout();
             sourcePanel.SuspendLayout();
+            lblSourceDS.SuspendLayout();
             destPanel.SuspendLayout();
             optionsPanel.SuspendLayout();
             templatePanel.SuspendLayout();
             buttonPanel.SuspendLayout();
             historyPanel.SuspendLayout();
-            historyGrid.SuspendLayout();
             SuspendLayout();
             // 
             // directionPanel
@@ -310,7 +311,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             directionPanel.Location = new Point(0, 0);
             directionPanel.Name = "directionPanel";
             directionPanel.Padding = new Padding(4, 4, 4, 0);
-            directionPanel.Size = new Size(757, 36);
+            directionPanel.Size = new Size(893, 36);
             directionPanel.TabIndex = 0;
             // 
             // cmbDirection
@@ -2392,7 +2393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             typographyStyle156.TextColor = Color.FromArgb(236, 240, 241);
             defaultTheme1.TextBoxSelectedFont = typographyStyle156;
             defaultTheme1.TextBoxSelectedForeColor = Color.Black;
-            defaultTheme1.ThemeGuid = "82d79b1b-1770-4d31-ae14-9f1e2640cef7";
+            defaultTheme1.ThemeGuid = "26639611-e581-46c1-af10-97f4ab125ac3";
             typographyStyle157.FontFamily = "Segoe UI";
             typographyStyle157.FontSize = 16F;
             typographyStyle157.FontStyle = FontStyle.Regular;
@@ -2520,7 +2521,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect1.OffsetY = 2;
             shadowEffect1.Spread = 0;
             cmbDirection.BeepContextMenu.ShadowEffect = shadowEffect1;
-            cmbDirection.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbDirection.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbDirection.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbDirection.BeepContextMenu.Theme = "DefaultType";
             cmbDirection.BeepContextMenu.Visible = false;
@@ -2531,7 +2532,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath1.FillMode = FillMode.Alternate;
             cmbDirection.BorderPath = graphicsPath1;
             cmbDirection.BorderRadius = 4;
-            cmbDirection.BorderRect = new Rectangle(0, 0, 130, 28);
+            cmbDirection.BorderRect = new Rectangle(0, 0, 189, 27);
             cmbDirection.BorderStyle = BorderStyle.FixedSingle;
             cmbDirection.BorderThickness = 1;
             cmbDirection.BottomoffsetForDrawingRect = 0;
@@ -2551,11 +2552,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbDirection.DisabledBorderColor = Color.LightGray;
             cmbDirection.DisabledForeColor = Color.Gray;
-            cmbDirection.DrawingRect = new Rectangle(1, 1, 128, 26);
+            cmbDirection.DrawingRect = new Rectangle(1, 1, 187, 25);
             cmbDirection.DropdownButtonWidth = 34;
             cmbDirection.DropdownIconPath = "dropdown_arrow";
+            cmbDirection.DropdownListBoxType = null;
             cmbDirection.Easing = EasingType.Linear;
-            cmbDirection.EnableHighQualityRendering = true;            cmbDirection.EnableRippleEffect = false;
+            cmbDirection.EnableHighQualityRendering = true;
+            cmbDirection.EnableRippleEffect = false;
             cmbDirection.EnableSplashEffect = false;
             cmbDirection.ErrorColor = Color.Empty;
             cmbDirection.ErrorText = "";
@@ -2586,6 +2589,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbDirection.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbDirection.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbDirection.IconKey = "";
             cmbDirection.IconSize = 20;
             cmbDirection.Id = -1;
             cmbDirection.InactiveBorderColor = Color.Gray;
@@ -2615,7 +2619,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.IsTransparentBackground = false;
             cmbDirection.IsValid = true;
             cmbDirection.IsVisible = true;
-            cmbDirection.Items = (List<object>)resources.GetObject("cmbDirection.Items");
             cmbDirection.LabelPosition = LabelPosition.Left;
             cmbDirection.LabelText = "";
             cmbDirection.LabelTextOn = false;
@@ -2623,7 +2626,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.LeadingImagePath = "";
             cmbDirection.LeftoffsetForDrawingRect = 0;
             cmbDirection.LinkedProperty = null;
-            cmbDirection.Location = new Point(82, 5);            cmbDirection.MaxHitListDrawPerFrame = 0;
+            cmbDirection.Location = new Point(82, 5);
+            cmbDirection.MaxHitListDrawPerFrame = 0;
             cmbDirection.MinimumSize = new Size(80, 28);
             cmbDirection.ModernGradientType = ModernGradientType.None;
             cmbDirection.Name = "cmbDirection";
@@ -2660,7 +2664,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.ShowSearchInDropdown = false;
             cmbDirection.ShowShadow = false;
             cmbDirection.ShowTopBorder = false;
-            cmbDirection.Size = new Size(130, 28);
+            cmbDirection.Size = new Size(190, 28);
             cmbDirection.SlideFrom = SlideDirection.Left;
             cmbDirection.StaticNotMoving = false;
             cmbDirection.TabIndex = 1;
@@ -2688,6 +2692,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblMode
             // 
+            lblMode.AccessibleDescription = "Mode:";
+            lblMode.AccessibleName = "Mode:";
+            lblMode.AccessibleRole = AccessibleRole.StaticText;
             lblMode.AnimationDuration = 500;
             lblMode.AnimationType = DisplayAnimationType.None;
             lblMode.ApplyThemeOnImage = false;
@@ -2706,7 +2713,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath4.FillMode = FillMode.Alternate;
             lblMode.BorderPath = graphicsPath4;
             lblMode.BorderRadius = 8;
-            lblMode.BorderRect = new Rectangle(0, 0, 86, 26);
+            lblMode.BorderRect = new Rectangle(0, 0, 85, 25);
             lblMode.BorderStyle = BorderStyle.FixedSingle;
             lblMode.BorderThickness = 1;
             lblMode.BottomoffsetForDrawingRect = 0;
@@ -2716,6 +2723,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.CanBePressed = true;
             lblMode.CanBeSelected = true;
             lblMode.Category = DbFieldCategory.String;
+            lblMode.ColorProfile.BackColor = Color.Empty;
+            lblMode.ColorProfile.BorderColor = Color.Empty;
+            lblMode.ColorProfile.DisabledBackColor = Color.Empty;
+            lblMode.ColorProfile.DisabledForeColor = Color.Empty;
+            lblMode.ColorProfile.ForeColor = Color.Empty;
+            lblMode.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblMode.ComponentName = "BaseControl";
             lblMode.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath5.FillMode = FillMode.Alternate;
@@ -2726,9 +2739,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.DisabledBackColor = Color.LightGray;
             lblMode.DisabledBorderColor = Color.Gray;
             lblMode.DisabledForeColor = Color.Gray;
-            lblMode.DrawingRect = new Rectangle(1, 1, 84, 24);
+            lblMode.DrawingRect = new Rectangle(1, 1, 83, 23);
             lblMode.Easing = EasingType.Linear;
-            lblMode.EnableHighQualityRendering = true;            lblMode.EnableRippleEffect = false;
+            lblMode.EnableHighQualityRendering = true;
+            lblMode.EnableRippleEffect = false;
             lblMode.EnableSplashEffect = false;
             lblMode.ErrorColor = Color.Empty;
             lblMode.ErrorText = "";
@@ -2761,10 +2775,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.HoverBorderColor = Color.Blue;
             lblMode.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblMode.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblMode.IconKey = "";
             lblMode.IconSize = 20;
             lblMode.Id = -1;
             lblMode.ImageAlign = ContentAlignment.MiddleLeft;
-            lblMode.ImagePath = null;
+            lblMode.ImagePath = "";
             lblMode.InactiveBorderColor = Color.Gray;
             graphicsPath6.FillMode = FillMode.Alternate;
             lblMode.InnerShape = graphicsPath6;
@@ -2792,7 +2807,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.IsTransparentBackground = false;
             lblMode.IsValid = true;
             lblMode.IsVisible = true;
-            lblMode.Items = (List<object>)resources.GetObject("lblMode.Items");
             lblMode.LabelBackColor = Color.Empty;
             lblMode.LabelPosition = LabelPosition.Left;
             lblMode.LabelText = "";
@@ -2802,7 +2816,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.LeftoffsetForDrawingRect = 0;
             lblMode.LinkedProperty = null;
             lblMode.Location = new Point(6, 8);
-            lblMode.Margin = new Padding(0);            lblMode.MaxHitListDrawPerFrame = 0;
+            lblMode.Margin = new Padding(0);
+            lblMode.MaxHitListDrawPerFrame = 0;
             lblMode.MaxImageSize = new Size(16, 16);
             lblMode.MinimumSize = new Size(86, 26);
             lblMode.ModernGradientType = ModernGradientType.None;
@@ -2840,6 +2855,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.Size = new Size(86, 26);
             lblMode.SlideFrom = SlideDirection.Left;
             lblMode.StaticNotMoving = false;
+            lblMode.StyleProfile.AutoEllipsis = false;
+            lblMode.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblMode.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblMode.StyleProfile.Multiline = false;
+            lblMode.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblMode.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblMode.StyleProfile.WordWrap = false;
             lblMode.SubHeaderFont = new Font("Segoe UI", 6F);
             lblMode.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblMode.SubHeaderText = "";
@@ -2869,13 +2891,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             sourcePanel.Controls.Add(cmbSourceEntity);
             sourcePanel.Controls.Add(lblSourceEntity);
-            sourcePanel.Controls.Add(cmbSourceDS);
             sourcePanel.Controls.Add(lblSourceDS);
             sourcePanel.Dock = DockStyle.Top;
             sourcePanel.Location = new Point(0, 36);
             sourcePanel.Name = "sourcePanel";
             sourcePanel.Padding = new Padding(4, 4, 4, 0);
-            sourcePanel.Size = new Size(757, 36);
+            sourcePanel.Size = new Size(893, 47);
             sourcePanel.TabIndex = 1;
             // 
             // cmbSourceEntity
@@ -2920,7 +2941,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect2.OffsetY = 2;
             shadowEffect2.Spread = 0;
             cmbSourceEntity.BeepContextMenu.ShadowEffect = shadowEffect2;
-            cmbSourceEntity.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbSourceEntity.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbSourceEntity.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbSourceEntity.BeepContextMenu.Theme = "DefaultType";
             cmbSourceEntity.BeepContextMenu.Visible = false;
@@ -2931,7 +2952,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath7.FillMode = FillMode.Alternate;
             cmbSourceEntity.BorderPath = graphicsPath7;
             cmbSourceEntity.BorderRadius = 4;
-            cmbSourceEntity.BorderRect = new Rectangle(0, 0, 190, 28);
+            cmbSourceEntity.BorderRect = new Rectangle(0, 0, 189, 27);
             cmbSourceEntity.BorderStyle = BorderStyle.FixedSingle;
             cmbSourceEntity.BorderThickness = 1;
             cmbSourceEntity.BottomoffsetForDrawingRect = 0;
@@ -2951,11 +2972,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceEntity.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbSourceEntity.DisabledBorderColor = Color.LightGray;
             cmbSourceEntity.DisabledForeColor = Color.Gray;
-            cmbSourceEntity.DrawingRect = new Rectangle(1, 1, 188, 26);
+            cmbSourceEntity.DrawingRect = new Rectangle(1, 1, 187, 25);
             cmbSourceEntity.DropdownButtonWidth = 34;
             cmbSourceEntity.DropdownIconPath = "dropdown_arrow";
+            cmbSourceEntity.DropdownListBoxType = null;
             cmbSourceEntity.Easing = EasingType.Linear;
-            cmbSourceEntity.EnableHighQualityRendering = true;            cmbSourceEntity.EnableRippleEffect = false;
+            cmbSourceEntity.EnableHighQualityRendering = true;
+            cmbSourceEntity.EnableRippleEffect = false;
             cmbSourceEntity.EnableSplashEffect = false;
             cmbSourceEntity.ErrorColor = Color.Empty;
             cmbSourceEntity.ErrorText = "";
@@ -2986,6 +3009,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceEntity.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbSourceEntity.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbSourceEntity.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbSourceEntity.IconKey = "";
             cmbSourceEntity.IconSize = 20;
             cmbSourceEntity.Id = -1;
             cmbSourceEntity.InactiveBorderColor = Color.Gray;
@@ -3015,7 +3039,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceEntity.IsTransparentBackground = false;
             cmbSourceEntity.IsValid = true;
             cmbSourceEntity.IsVisible = true;
-            cmbSourceEntity.Items = (List<object>)resources.GetObject("cmbSourceEntity.Items");
             cmbSourceEntity.LabelPosition = LabelPosition.Left;
             cmbSourceEntity.LabelText = "";
             cmbSourceEntity.LabelTextOn = false;
@@ -3023,7 +3046,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceEntity.LeadingImagePath = "";
             cmbSourceEntity.LeftoffsetForDrawingRect = 0;
             cmbSourceEntity.LinkedProperty = null;
-            cmbSourceEntity.Location = new Point(630, 5);            cmbSourceEntity.MaxHitListDrawPerFrame = 0;
+            cmbSourceEntity.Location = new Point(466, 7);
+            cmbSourceEntity.MaxHitListDrawPerFrame = 0;
             cmbSourceEntity.MinimumSize = new Size(80, 28);
             cmbSourceEntity.ModernGradientType = ModernGradientType.None;
             cmbSourceEntity.Name = "cmbSourceEntity";
@@ -3088,6 +3112,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblSourceEntity
             // 
+            lblSourceEntity.AccessibleDescription = "Entity:";
+            lblSourceEntity.AccessibleName = "Entity:";
+            lblSourceEntity.AccessibleRole = AccessibleRole.StaticText;
             lblSourceEntity.AnimationDuration = 500;
             lblSourceEntity.AnimationType = DisplayAnimationType.None;
             lblSourceEntity.ApplyThemeOnImage = false;
@@ -3106,7 +3133,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath10.FillMode = FillMode.Alternate;
             lblSourceEntity.BorderPath = graphicsPath10;
             lblSourceEntity.BorderRadius = 8;
-            lblSourceEntity.BorderRect = new Rectangle(0, 0, 86, 26);
+            lblSourceEntity.BorderRect = new Rectangle(0, 0, 85, 25);
             lblSourceEntity.BorderStyle = BorderStyle.FixedSingle;
             lblSourceEntity.BorderThickness = 1;
             lblSourceEntity.BottomoffsetForDrawingRect = 0;
@@ -3116,6 +3143,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.CanBePressed = true;
             lblSourceEntity.CanBeSelected = true;
             lblSourceEntity.Category = DbFieldCategory.String;
+            lblSourceEntity.ColorProfile.BackColor = Color.Empty;
+            lblSourceEntity.ColorProfile.BorderColor = Color.Empty;
+            lblSourceEntity.ColorProfile.DisabledBackColor = Color.Empty;
+            lblSourceEntity.ColorProfile.DisabledForeColor = Color.Empty;
+            lblSourceEntity.ColorProfile.ForeColor = Color.Empty;
+            lblSourceEntity.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblSourceEntity.ComponentName = "BaseControl";
             lblSourceEntity.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath11.FillMode = FillMode.Alternate;
@@ -3126,9 +3159,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.DisabledBackColor = Color.LightGray;
             lblSourceEntity.DisabledBorderColor = Color.Gray;
             lblSourceEntity.DisabledForeColor = Color.Gray;
-            lblSourceEntity.DrawingRect = new Rectangle(1, 1, 84, 24);
+            lblSourceEntity.DrawingRect = new Rectangle(1, 1, 83, 23);
             lblSourceEntity.Easing = EasingType.Linear;
-            lblSourceEntity.EnableHighQualityRendering = true;            lblSourceEntity.EnableRippleEffect = false;
+            lblSourceEntity.EnableHighQualityRendering = true;
+            lblSourceEntity.EnableRippleEffect = false;
             lblSourceEntity.EnableSplashEffect = false;
             lblSourceEntity.ErrorColor = Color.Empty;
             lblSourceEntity.ErrorText = "";
@@ -3161,10 +3195,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.HoverBorderColor = Color.Blue;
             lblSourceEntity.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblSourceEntity.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblSourceEntity.IconKey = "";
             lblSourceEntity.IconSize = 20;
             lblSourceEntity.Id = -1;
             lblSourceEntity.ImageAlign = ContentAlignment.MiddleLeft;
-            lblSourceEntity.ImagePath = null;
+            lblSourceEntity.ImagePath = "";
             lblSourceEntity.InactiveBorderColor = Color.Gray;
             graphicsPath12.FillMode = FillMode.Alternate;
             lblSourceEntity.InnerShape = graphicsPath12;
@@ -3192,7 +3227,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.IsTransparentBackground = false;
             lblSourceEntity.IsValid = true;
             lblSourceEntity.IsVisible = true;
-            lblSourceEntity.Items = (List<object>)resources.GetObject("lblSourceEntity.Items");
             lblSourceEntity.LabelBackColor = Color.Empty;
             lblSourceEntity.LabelPosition = LabelPosition.Left;
             lblSourceEntity.LabelText = "";
@@ -3201,8 +3235,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.LeadingImagePath = "";
             lblSourceEntity.LeftoffsetForDrawingRect = 0;
             lblSourceEntity.LinkedProperty = null;
-            lblSourceEntity.Location = new Point(288, 8);
-            lblSourceEntity.Margin = new Padding(0);            lblSourceEntity.MaxHitListDrawPerFrame = 0;
+            lblSourceEntity.Location = new Point(403, 10);
+            lblSourceEntity.Margin = new Padding(0);
+            lblSourceEntity.MaxHitListDrawPerFrame = 0;
             lblSourceEntity.MaxImageSize = new Size(16, 16);
             lblSourceEntity.MinimumSize = new Size(86, 26);
             lblSourceEntity.ModernGradientType = ModernGradientType.None;
@@ -3240,6 +3275,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.Size = new Size(86, 26);
             lblSourceEntity.SlideFrom = SlideDirection.Left;
             lblSourceEntity.StaticNotMoving = false;
+            lblSourceEntity.StyleProfile.AutoEllipsis = false;
+            lblSourceEntity.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblSourceEntity.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblSourceEntity.StyleProfile.Multiline = false;
+            lblSourceEntity.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblSourceEntity.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblSourceEntity.StyleProfile.WordWrap = false;
             lblSourceEntity.SubHeaderFont = new Font("Segoe UI", 6F);
             lblSourceEntity.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblSourceEntity.SubHeaderText = "";
@@ -3307,7 +3349,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect3.OffsetY = 2;
             shadowEffect3.Spread = 0;
             cmbSourceDS.BeepContextMenu.ShadowEffect = shadowEffect3;
-            cmbSourceDS.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbSourceDS.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbSourceDS.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbSourceDS.BeepContextMenu.Theme = "DefaultType";
             cmbSourceDS.BeepContextMenu.Visible = false;
@@ -3315,10 +3357,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.BorderColor = Color.FromArgb(189, 189, 189);
             cmbSourceDS.BorderDashStyle = DashStyle.Solid;
             cmbSourceDS.BorderPainter = BeepControlStyle.None;
-            graphicsPath13.FillMode = FillMode.Alternate;
-            cmbSourceDS.BorderPath = graphicsPath13;
+            graphicsPath15.FillMode = FillMode.Alternate;
+            cmbSourceDS.BorderPath = graphicsPath15;
             cmbSourceDS.BorderRadius = 4;
-            cmbSourceDS.BorderRect = new Rectangle(0, 0, 190, 28);
+            cmbSourceDS.BorderRect = new Rectangle(0, 0, 189, 27);
             cmbSourceDS.BorderStyle = BorderStyle.FixedSingle;
             cmbSourceDS.BorderThickness = 1;
             cmbSourceDS.BottomoffsetForDrawingRect = 0;
@@ -3330,19 +3372,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.Category = DbFieldCategory.String;
             cmbSourceDS.ComponentName = "BaseControl";
             cmbSourceDS.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath14.FillMode = FillMode.Alternate;
-            cmbSourceDS.ContentShape = graphicsPath14;
+            graphicsPath16.FillMode = FillMode.Alternate;
+            cmbSourceDS.ContentShape = graphicsPath16;
             cmbSourceDS.CustomPadding = new Padding(0);
             cmbSourceDS.DataContext = null;
             cmbSourceDS.DataSourceProperty = null;
             cmbSourceDS.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbSourceDS.DisabledBorderColor = Color.LightGray;
             cmbSourceDS.DisabledForeColor = Color.Gray;
-            cmbSourceDS.DrawingRect = new Rectangle(1, 1, 188, 26);
+            cmbSourceDS.DrawingRect = new Rectangle(1, 1, 187, 25);
             cmbSourceDS.DropdownButtonWidth = 34;
             cmbSourceDS.DropdownIconPath = "dropdown_arrow";
+            cmbSourceDS.DropdownListBoxType = null;
             cmbSourceDS.Easing = EasingType.Linear;
-            cmbSourceDS.EnableHighQualityRendering = true;            cmbSourceDS.EnableRippleEffect = false;
+            cmbSourceDS.EnableHighQualityRendering = true;
+            cmbSourceDS.EnableRippleEffect = false;
             cmbSourceDS.EnableSplashEffect = false;
             cmbSourceDS.ErrorColor = Color.Empty;
             cmbSourceDS.ErrorText = "";
@@ -3373,12 +3417,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbSourceDS.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbSourceDS.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbSourceDS.IconKey = "";
             cmbSourceDS.IconSize = 20;
             cmbSourceDS.Id = -1;
             cmbSourceDS.InactiveBorderColor = Color.Gray;
             cmbSourceDS.InnerPadding = new Padding(10, 6, 8, 6);
-            graphicsPath15.FillMode = FillMode.Alternate;
-            cmbSourceDS.InnerShape = graphicsPath15;
+            graphicsPath17.FillMode = FillMode.Alternate;
+            cmbSourceDS.InnerShape = graphicsPath17;
             cmbSourceDS.IsAcceptButton = false;
             cmbSourceDS.IsBorderAffectedByTheme = true;
             cmbSourceDS.IsCancelButton = false;
@@ -3402,7 +3447,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.IsTransparentBackground = false;
             cmbSourceDS.IsValid = true;
             cmbSourceDS.IsVisible = true;
-            cmbSourceDS.Items = (List<object>)resources.GetObject("cmbSourceDS.Items");
             cmbSourceDS.LabelPosition = LabelPosition.Left;
             cmbSourceDS.LabelText = "";
             cmbSourceDS.LabelTextOn = false;
@@ -3410,7 +3454,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.LeadingImagePath = "";
             cmbSourceDS.LeftoffsetForDrawingRect = 0;
             cmbSourceDS.LinkedProperty = null;
-            cmbSourceDS.Location = new Point(368, 5);            cmbSourceDS.MaxHitListDrawPerFrame = 0;
+            cmbSourceDS.Location = new Point(76, 0);
+            cmbSourceDS.MaxHitListDrawPerFrame = 0;
             cmbSourceDS.MinimumSize = new Size(80, 28);
             cmbSourceDS.ModernGradientType = ModernGradientType.None;
             cmbSourceDS.Name = "cmbSourceDS";
@@ -3451,7 +3496,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.SlideFrom = SlideDirection.Left;
             cmbSourceDS.StaticNotMoving = false;
             cmbSourceDS.TabIndex = 1;
-            cmbSourceDS.Tag = sourcePanel;
+            cmbSourceDS.Tag = lblSourceDS;
             cmbSourceDS.TempBackColor = Color.LightGray;
             cmbSourceDS.TextFont = new Font("Segoe UI", 8F);
             cmbSourceDS.Theme = "DefaultType";
@@ -3475,6 +3520,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblSourceDS
             // 
+            lblSourceDS.AccessibleDescription = "Source:";
+            lblSourceDS.AccessibleName = "Source:";
+            lblSourceDS.AccessibleRole = AccessibleRole.StaticText;
             lblSourceDS.AnimationDuration = 500;
             lblSourceDS.AnimationType = DisplayAnimationType.None;
             lblSourceDS.ApplyThemeOnImage = false;
@@ -3490,10 +3538,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.BorderColor = Color.LightGray;
             lblSourceDS.BorderDashStyle = DashStyle.Solid;
             lblSourceDS.BorderPainter = BeepControlStyle.None;
-            graphicsPath16.FillMode = FillMode.Alternate;
-            lblSourceDS.BorderPath = graphicsPath16;
+            graphicsPath13.FillMode = FillMode.Alternate;
+            lblSourceDS.BorderPath = graphicsPath13;
             lblSourceDS.BorderRadius = 8;
-            lblSourceDS.BorderRect = new Rectangle(0, 0, 86, 26);
+            lblSourceDS.BorderRect = new Rectangle(0, 0, 85, 25);
             lblSourceDS.BorderStyle = BorderStyle.FixedSingle;
             lblSourceDS.BorderThickness = 1;
             lblSourceDS.BottomoffsetForDrawingRect = 0;
@@ -3503,19 +3551,27 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.CanBePressed = true;
             lblSourceDS.CanBeSelected = true;
             lblSourceDS.Category = DbFieldCategory.String;
+            lblSourceDS.ColorProfile.BackColor = Color.Empty;
+            lblSourceDS.ColorProfile.BorderColor = Color.Empty;
+            lblSourceDS.ColorProfile.DisabledBackColor = Color.Empty;
+            lblSourceDS.ColorProfile.DisabledForeColor = Color.Empty;
+            lblSourceDS.ColorProfile.ForeColor = Color.Empty;
+            lblSourceDS.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblSourceDS.ComponentName = "BaseControl";
             lblSourceDS.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath17.FillMode = FillMode.Alternate;
-            lblSourceDS.ContentShape = graphicsPath17;
+            graphicsPath14.FillMode = FillMode.Alternate;
+            lblSourceDS.ContentShape = graphicsPath14;
+            lblSourceDS.Controls.Add(cmbSourceDS);
             lblSourceDS.CustomPadding = new Padding(0);
             lblSourceDS.DataContext = null;
             lblSourceDS.DataSourceProperty = null;
             lblSourceDS.DisabledBackColor = Color.LightGray;
             lblSourceDS.DisabledBorderColor = Color.Gray;
             lblSourceDS.DisabledForeColor = Color.Gray;
-            lblSourceDS.DrawingRect = new Rectangle(1, 1, 84, 24);
+            lblSourceDS.DrawingRect = new Rectangle(1, 1, 83, 23);
             lblSourceDS.Easing = EasingType.Linear;
-            lblSourceDS.EnableHighQualityRendering = true;            lblSourceDS.EnableRippleEffect = false;
+            lblSourceDS.EnableHighQualityRendering = true;
+            lblSourceDS.EnableRippleEffect = false;
             lblSourceDS.EnableSplashEffect = false;
             lblSourceDS.ErrorColor = Color.Empty;
             lblSourceDS.ErrorText = "";
@@ -3548,10 +3604,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.HoverBorderColor = Color.Blue;
             lblSourceDS.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblSourceDS.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblSourceDS.IconKey = "";
             lblSourceDS.IconSize = 20;
             lblSourceDS.Id = -1;
             lblSourceDS.ImageAlign = ContentAlignment.MiddleLeft;
-            lblSourceDS.ImagePath = null;
+            lblSourceDS.ImagePath = "";
             lblSourceDS.InactiveBorderColor = Color.Gray;
             graphicsPath18.FillMode = FillMode.Alternate;
             lblSourceDS.InnerShape = graphicsPath18;
@@ -3579,7 +3636,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.IsTransparentBackground = false;
             lblSourceDS.IsValid = true;
             lblSourceDS.IsVisible = true;
-            lblSourceDS.Items = (List<object>)resources.GetObject("lblSourceDS.Items");
             lblSourceDS.LabelBackColor = Color.Empty;
             lblSourceDS.LabelPosition = LabelPosition.Left;
             lblSourceDS.LabelText = "";
@@ -3589,7 +3645,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.LeftoffsetForDrawingRect = 0;
             lblSourceDS.LinkedProperty = null;
             lblSourceDS.Location = new Point(6, 8);
-            lblSourceDS.Margin = new Padding(0);            lblSourceDS.MaxHitListDrawPerFrame = 0;
+            lblSourceDS.Margin = new Padding(0);
+            lblSourceDS.MaxHitListDrawPerFrame = 0;
             lblSourceDS.MaxImageSize = new Size(16, 16);
             lblSourceDS.MinimumSize = new Size(86, 26);
             lblSourceDS.ModernGradientType = ModernGradientType.None;
@@ -3627,6 +3684,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.Size = new Size(86, 26);
             lblSourceDS.SlideFrom = SlideDirection.Left;
             lblSourceDS.StaticNotMoving = false;
+            lblSourceDS.StyleProfile.AutoEllipsis = false;
+            lblSourceDS.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblSourceDS.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblSourceDS.StyleProfile.Multiline = false;
+            lblSourceDS.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblSourceDS.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblSourceDS.StyleProfile.WordWrap = false;
             lblSourceDS.SubHeaderFont = new Font("Segoe UI", 6F);
             lblSourceDS.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblSourceDS.SubHeaderText = "";
@@ -3659,10 +3723,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             destPanel.Controls.Add(cmbDestDS);
             destPanel.Controls.Add(lblDestDS);
             destPanel.Dock = DockStyle.Top;
-            destPanel.Location = new Point(0, 72);
+            destPanel.Location = new Point(0, 83);
             destPanel.Name = "destPanel";
             destPanel.Padding = new Padding(4, 4, 4, 0);
-            destPanel.Size = new Size(757, 51);
+            destPanel.Size = new Size(893, 51);
             destPanel.TabIndex = 2;
             // 
             // cmbDestEntity
@@ -3707,7 +3771,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect4.OffsetY = 2;
             shadowEffect4.Spread = 0;
             cmbDestEntity.BeepContextMenu.ShadowEffect = shadowEffect4;
-            cmbDestEntity.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbDestEntity.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbDestEntity.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbDestEntity.BeepContextMenu.Theme = "DefaultType";
             cmbDestEntity.BeepContextMenu.Visible = false;
@@ -3718,7 +3782,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath19.FillMode = FillMode.Alternate;
             cmbDestEntity.BorderPath = graphicsPath19;
             cmbDestEntity.BorderRadius = 4;
-            cmbDestEntity.BorderRect = new Rectangle(0, 0, 183, 28);
+            cmbDestEntity.BorderRect = new Rectangle(0, 0, 182, 27);
             cmbDestEntity.BorderStyle = BorderStyle.FixedSingle;
             cmbDestEntity.BorderThickness = 1;
             cmbDestEntity.BottomoffsetForDrawingRect = 0;
@@ -3738,11 +3802,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestEntity.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbDestEntity.DisabledBorderColor = Color.LightGray;
             cmbDestEntity.DisabledForeColor = Color.Gray;
-            cmbDestEntity.DrawingRect = new Rectangle(1, 1, 181, 26);
+            cmbDestEntity.DrawingRect = new Rectangle(1, 1, 180, 25);
             cmbDestEntity.DropdownButtonWidth = 34;
             cmbDestEntity.DropdownIconPath = "dropdown_arrow";
+            cmbDestEntity.DropdownListBoxType = null;
             cmbDestEntity.Easing = EasingType.Linear;
-            cmbDestEntity.EnableHighQualityRendering = true;            cmbDestEntity.EnableRippleEffect = false;
+            cmbDestEntity.EnableHighQualityRendering = true;
+            cmbDestEntity.EnableRippleEffect = false;
             cmbDestEntity.EnableSplashEffect = false;
             cmbDestEntity.ErrorColor = Color.Empty;
             cmbDestEntity.ErrorText = "";
@@ -3773,6 +3839,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestEntity.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbDestEntity.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbDestEntity.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbDestEntity.IconKey = "";
             cmbDestEntity.IconSize = 20;
             cmbDestEntity.Id = -1;
             cmbDestEntity.InactiveBorderColor = Color.Gray;
@@ -3802,7 +3869,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestEntity.IsTransparentBackground = false;
             cmbDestEntity.IsValid = true;
             cmbDestEntity.IsVisible = true;
-            cmbDestEntity.Items = (List<object>)resources.GetObject("cmbDestEntity.Items");
             cmbDestEntity.LabelPosition = LabelPosition.Left;
             cmbDestEntity.LabelText = "";
             cmbDestEntity.LabelTextOn = false;
@@ -3810,7 +3876,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestEntity.LeadingImagePath = "";
             cmbDestEntity.LeftoffsetForDrawingRect = 0;
             cmbDestEntity.LinkedProperty = null;
-            cmbDestEntity.Location = new Point(98, 12);            cmbDestEntity.MaxHitListDrawPerFrame = 0;
+            cmbDestEntity.Location = new Point(82, 10);
+            cmbDestEntity.MaxHitListDrawPerFrame = 0;
             cmbDestEntity.MinimumSize = new Size(80, 28);
             cmbDestEntity.ModernGradientType = ModernGradientType.None;
             cmbDestEntity.Name = "cmbDestEntity";
@@ -3875,6 +3942,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblDestEntity
             // 
+            lblDestEntity.AccessibleDescription = "Entity:";
+            lblDestEntity.AccessibleName = "Entity:";
+            lblDestEntity.AccessibleRole = AccessibleRole.StaticText;
             lblDestEntity.Anchor = AnchorStyles.None;
             lblDestEntity.AnimationDuration = 500;
             lblDestEntity.AnimationType = DisplayAnimationType.None;
@@ -3894,7 +3964,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath22.FillMode = FillMode.Alternate;
             lblDestEntity.BorderPath = graphicsPath22;
             lblDestEntity.BorderRadius = 8;
-            lblDestEntity.BorderRect = new Rectangle(0, 0, 86, 26);
+            lblDestEntity.BorderRect = new Rectangle(0, 0, 85, 25);
             lblDestEntity.BorderStyle = BorderStyle.FixedSingle;
             lblDestEntity.BorderThickness = 1;
             lblDestEntity.BottomoffsetForDrawingRect = 0;
@@ -3904,6 +3974,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.CanBePressed = true;
             lblDestEntity.CanBeSelected = true;
             lblDestEntity.Category = DbFieldCategory.String;
+            lblDestEntity.ColorProfile.BackColor = Color.Empty;
+            lblDestEntity.ColorProfile.BorderColor = Color.Empty;
+            lblDestEntity.ColorProfile.DisabledBackColor = Color.Empty;
+            lblDestEntity.ColorProfile.DisabledForeColor = Color.Empty;
+            lblDestEntity.ColorProfile.ForeColor = Color.Empty;
+            lblDestEntity.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblDestEntity.ComponentName = "BaseControl";
             lblDestEntity.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath23.FillMode = FillMode.Alternate;
@@ -3914,9 +3990,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.DisabledBackColor = Color.LightGray;
             lblDestEntity.DisabledBorderColor = Color.Gray;
             lblDestEntity.DisabledForeColor = Color.Gray;
-            lblDestEntity.DrawingRect = new Rectangle(1, 1, 84, 24);
+            lblDestEntity.DrawingRect = new Rectangle(1, 1, 83, 23);
             lblDestEntity.Easing = EasingType.Linear;
-            lblDestEntity.EnableHighQualityRendering = true;            lblDestEntity.EnableRippleEffect = false;
+            lblDestEntity.EnableHighQualityRendering = true;
+            lblDestEntity.EnableRippleEffect = false;
             lblDestEntity.EnableSplashEffect = false;
             lblDestEntity.ErrorColor = Color.Empty;
             lblDestEntity.ErrorText = "";
@@ -3949,10 +4026,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.HoverBorderColor = Color.Blue;
             lblDestEntity.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblDestEntity.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblDestEntity.IconKey = "";
             lblDestEntity.IconSize = 20;
             lblDestEntity.Id = -1;
             lblDestEntity.ImageAlign = ContentAlignment.MiddleLeft;
-            lblDestEntity.ImagePath = null;
+            lblDestEntity.ImagePath = "";
             lblDestEntity.InactiveBorderColor = Color.Gray;
             graphicsPath24.FillMode = FillMode.Alternate;
             lblDestEntity.InnerShape = graphicsPath24;
@@ -3980,7 +4058,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.IsTransparentBackground = false;
             lblDestEntity.IsValid = true;
             lblDestEntity.IsVisible = true;
-            lblDestEntity.Items = (List<object>)resources.GetObject("lblDestEntity.Items");
             lblDestEntity.LabelBackColor = Color.Empty;
             lblDestEntity.LabelPosition = LabelPosition.Left;
             lblDestEntity.LabelText = "";
@@ -3989,8 +4066,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.LeadingImagePath = "";
             lblDestEntity.LeftoffsetForDrawingRect = 0;
             lblDestEntity.LinkedProperty = null;
-            lblDestEntity.Location = new Point(398, 14);
-            lblDestEntity.Margin = new Padding(0);            lblDestEntity.MaxHitListDrawPerFrame = 0;
+            lblDestEntity.Location = new Point(403, 12);
+            lblDestEntity.Margin = new Padding(0);
+            lblDestEntity.MaxHitListDrawPerFrame = 0;
             lblDestEntity.MaxImageSize = new Size(16, 16);
             lblDestEntity.MinimumSize = new Size(86, 26);
             lblDestEntity.ModernGradientType = ModernGradientType.None;
@@ -4028,6 +4106,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.Size = new Size(86, 26);
             lblDestEntity.SlideFrom = SlideDirection.Left;
             lblDestEntity.StaticNotMoving = false;
+            lblDestEntity.StyleProfile.AutoEllipsis = false;
+            lblDestEntity.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblDestEntity.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblDestEntity.StyleProfile.Multiline = false;
+            lblDestEntity.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblDestEntity.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblDestEntity.StyleProfile.WordWrap = false;
             lblDestEntity.SubHeaderFont = new Font("Segoe UI", 6F);
             lblDestEntity.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblDestEntity.SubHeaderText = "";
@@ -4095,7 +4180,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect5.OffsetY = 2;
             shadowEffect5.Spread = 0;
             cmbDestDS.BeepContextMenu.ShadowEffect = shadowEffect5;
-            cmbDestDS.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbDestDS.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbDestDS.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbDestDS.BeepContextMenu.Theme = "DefaultType";
             cmbDestDS.BeepContextMenu.Visible = false;
@@ -4106,7 +4191,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath25.FillMode = FillMode.Alternate;
             cmbDestDS.BorderPath = graphicsPath25;
             cmbDestDS.BorderRadius = 4;
-            cmbDestDS.BorderRect = new Rectangle(0, 0, 190, 28);
+            cmbDestDS.BorderRect = new Rectangle(0, 0, 189, 27);
             cmbDestDS.BorderStyle = BorderStyle.FixedSingle;
             cmbDestDS.BorderThickness = 1;
             cmbDestDS.BottomoffsetForDrawingRect = 0;
@@ -4126,11 +4211,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbDestDS.DisabledBorderColor = Color.LightGray;
             cmbDestDS.DisabledForeColor = Color.Gray;
-            cmbDestDS.DrawingRect = new Rectangle(1, 1, 188, 26);
+            cmbDestDS.DrawingRect = new Rectangle(1, 1, 187, 25);
             cmbDestDS.DropdownButtonWidth = 34;
             cmbDestDS.DropdownIconPath = "dropdown_arrow";
+            cmbDestDS.DropdownListBoxType = null;
             cmbDestDS.Easing = EasingType.Linear;
-            cmbDestDS.EnableHighQualityRendering = true;            cmbDestDS.EnableRippleEffect = false;
+            cmbDestDS.EnableHighQualityRendering = true;
+            cmbDestDS.EnableRippleEffect = false;
             cmbDestDS.EnableSplashEffect = false;
             cmbDestDS.ErrorColor = Color.Empty;
             cmbDestDS.ErrorText = "";
@@ -4161,6 +4248,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbDestDS.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbDestDS.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbDestDS.IconKey = "";
             cmbDestDS.IconSize = 20;
             cmbDestDS.Id = -1;
             cmbDestDS.InactiveBorderColor = Color.Gray;
@@ -4190,7 +4278,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.IsTransparentBackground = false;
             cmbDestDS.IsValid = true;
             cmbDestDS.IsVisible = true;
-            cmbDestDS.Items = (List<object>)resources.GetObject("cmbDestDS.Items");
             cmbDestDS.LabelPosition = LabelPosition.Left;
             cmbDestDS.LabelText = "";
             cmbDestDS.LabelTextOn = false;
@@ -4198,7 +4285,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.LeadingImagePath = "";
             cmbDestDS.LeftoffsetForDrawingRect = 0;
             cmbDestDS.LinkedProperty = null;
-            cmbDestDS.Location = new Point(507, 12);            cmbDestDS.MaxHitListDrawPerFrame = 0;
+            cmbDestDS.Location = new Point(466, 10);
+            cmbDestDS.MaxHitListDrawPerFrame = 0;
             cmbDestDS.MinimumSize = new Size(80, 28);
             cmbDestDS.ModernGradientType = ModernGradientType.None;
             cmbDestDS.Name = "cmbDestDS";
@@ -4263,6 +4351,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblDestDS
             // 
+            lblDestDS.AccessibleDescription = "Destination:";
+            lblDestDS.AccessibleName = "Destination:";
+            lblDestDS.AccessibleRole = AccessibleRole.StaticText;
             lblDestDS.Anchor = AnchorStyles.None;
             lblDestDS.AnimationDuration = 500;
             lblDestDS.AnimationType = DisplayAnimationType.None;
@@ -4282,7 +4373,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath28.FillMode = FillMode.Alternate;
             lblDestDS.BorderPath = graphicsPath28;
             lblDestDS.BorderRadius = 8;
-            lblDestDS.BorderRect = new Rectangle(0, 0, 86, 26);
+            lblDestDS.BorderRect = new Rectangle(0, 0, 85, 25);
             lblDestDS.BorderStyle = BorderStyle.FixedSingle;
             lblDestDS.BorderThickness = 1;
             lblDestDS.BottomoffsetForDrawingRect = 0;
@@ -4292,6 +4383,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.CanBePressed = true;
             lblDestDS.CanBeSelected = true;
             lblDestDS.Category = DbFieldCategory.String;
+            lblDestDS.ColorProfile.BackColor = Color.Empty;
+            lblDestDS.ColorProfile.BorderColor = Color.Empty;
+            lblDestDS.ColorProfile.DisabledBackColor = Color.Empty;
+            lblDestDS.ColorProfile.DisabledForeColor = Color.Empty;
+            lblDestDS.ColorProfile.ForeColor = Color.Empty;
+            lblDestDS.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblDestDS.ComponentName = "BaseControl";
             lblDestDS.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath29.FillMode = FillMode.Alternate;
@@ -4302,9 +4399,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.DisabledBackColor = Color.LightGray;
             lblDestDS.DisabledBorderColor = Color.Gray;
             lblDestDS.DisabledForeColor = Color.Gray;
-            lblDestDS.DrawingRect = new Rectangle(1, 1, 84, 24);
+            lblDestDS.DrawingRect = new Rectangle(1, 1, 83, 23);
             lblDestDS.Easing = EasingType.Linear;
-            lblDestDS.EnableHighQualityRendering = true;            lblDestDS.EnableRippleEffect = false;
+            lblDestDS.EnableHighQualityRendering = true;
+            lblDestDS.EnableRippleEffect = false;
             lblDestDS.EnableSplashEffect = false;
             lblDestDS.ErrorColor = Color.Empty;
             lblDestDS.ErrorText = "";
@@ -4337,10 +4435,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.HoverBorderColor = Color.Blue;
             lblDestDS.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblDestDS.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblDestDS.IconKey = "";
             lblDestDS.IconSize = 20;
             lblDestDS.Id = -1;
             lblDestDS.ImageAlign = ContentAlignment.MiddleLeft;
-            lblDestDS.ImagePath = null;
+            lblDestDS.ImagePath = "";
             lblDestDS.InactiveBorderColor = Color.Gray;
             graphicsPath30.FillMode = FillMode.Alternate;
             lblDestDS.InnerShape = graphicsPath30;
@@ -4368,7 +4467,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.IsTransparentBackground = false;
             lblDestDS.IsValid = true;
             lblDestDS.IsVisible = true;
-            lblDestDS.Items = (List<object>)resources.GetObject("lblDestDS.Items");
             lblDestDS.LabelBackColor = Color.Empty;
             lblDestDS.LabelPosition = LabelPosition.Left;
             lblDestDS.LabelText = "";
@@ -4377,8 +4475,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.LeadingImagePath = "";
             lblDestDS.LeftoffsetForDrawingRect = 0;
             lblDestDS.LinkedProperty = null;
-            lblDestDS.Location = new Point(9, 14);
-            lblDestDS.Margin = new Padding(0);            lblDestDS.MaxHitListDrawPerFrame = 0;
+            lblDestDS.Location = new Point(8, 12);
+            lblDestDS.Margin = new Padding(0);
+            lblDestDS.MaxHitListDrawPerFrame = 0;
             lblDestDS.MaxImageSize = new Size(16, 16);
             lblDestDS.MinimumSize = new Size(86, 26);
             lblDestDS.ModernGradientType = ModernGradientType.None;
@@ -4416,6 +4515,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.Size = new Size(86, 26);
             lblDestDS.SlideFrom = SlideDirection.Left;
             lblDestDS.StaticNotMoving = false;
+            lblDestDS.StyleProfile.AutoEllipsis = false;
+            lblDestDS.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblDestDS.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblDestDS.StyleProfile.Multiline = false;
+            lblDestDS.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblDestDS.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblDestDS.StyleProfile.WordWrap = false;
             lblDestDS.SubHeaderFont = new Font("Segoe UI", 6F);
             lblDestDS.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblDestDS.SubHeaderText = "";
@@ -4446,10 +4552,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             optionsPanel.Controls.Add(chkAddMissing);
             optionsPanel.Controls.Add(chkCreateIfNotExists);
             optionsPanel.Dock = DockStyle.Top;
-            optionsPanel.Location = new Point(0, 123);
+            optionsPanel.Location = new Point(0, 134);
             optionsPanel.Name = "optionsPanel";
             optionsPanel.Padding = new Padding(4, 4, 4, 0);
-            optionsPanel.Size = new Size(757, 46);
+            optionsPanel.Size = new Size(893, 46);
             optionsPanel.TabIndex = 3;
             // 
             // chkAddMissing
@@ -4471,7 +4577,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath31.FillMode = FillMode.Alternate;
             chkAddMissing.BorderPath = graphicsPath31;
             chkAddMissing.BorderRadius = 8;
-            chkAddMissing.BorderRect = new Rectangle(0, 0, 204, 35);
+            chkAddMissing.BorderRect = new Rectangle(0, 0, 203, 34);
             chkAddMissing.BorderStyle = BorderStyle.FixedSingle;
             chkAddMissing.BorderThickness = 1;
             chkAddMissing.BottomoffsetForDrawingRect = 0;
@@ -4481,7 +4587,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.CanBePressed = true;
             chkAddMissing.CanBeSelected = true;
             chkAddMissing.Category = DbFieldCategory.String;
-            chkAddMissing.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
+            chkAddMissing.CheckBoxSize = 20;
             chkAddMissing.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkAddMissing.ComponentName = "BaseControl";
             chkAddMissing.ContentRect = new Rectangle(0, 0, 0, 0);
@@ -4493,9 +4599,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.DisabledBackColor = Color.FromArgb(200, 200, 200);
             chkAddMissing.DisabledBorderColor = Color.LightGray;
             chkAddMissing.DisabledForeColor = Color.Gray;
-            chkAddMissing.DrawingRect = new Rectangle(1, 1, 202, 33);
+            chkAddMissing.DrawingRect = new Rectangle(1, 1, 201, 32);
             chkAddMissing.Easing = EasingType.Linear;
-            chkAddMissing.EnableHighQualityRendering = true;            chkAddMissing.EnableRippleEffect = false;
+            chkAddMissing.EnableHighQualityRendering = true;
+            chkAddMissing.EnableRippleEffect = false;
             chkAddMissing.EnableSplashEffect = false;
             chkAddMissing.ErrorColor = Color.Empty;
             chkAddMissing.ErrorText = "";
@@ -4528,6 +4635,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.HoverBorderColor = Color.Blue;
             chkAddMissing.HoveredBackcolor = Color.LightBlue;
             chkAddMissing.HoverForeColor = Color.Black;
+            chkAddMissing.IconKey = "";
             chkAddMissing.IconSize = 20;
             chkAddMissing.Id = -1;
             chkAddMissing.ImagePath = null;
@@ -4559,7 +4667,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.IsTransparentBackground = false;
             chkAddMissing.IsValid = true;
             chkAddMissing.IsVisible = true;
-            chkAddMissing.Items = (List<object>)resources.GetObject("chkAddMissing.Items");
             chkAddMissing.LabelPosition = LabelPosition.Left;
             chkAddMissing.LabelText = "";
             chkAddMissing.LabelTextOn = false;
@@ -4567,7 +4674,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.LeadingImagePath = "";
             chkAddMissing.LeftoffsetForDrawingRect = 0;
             chkAddMissing.LinkedProperty = null;
-            chkAddMissing.Location = new Point(224, 5);            chkAddMissing.MaxHitListDrawPerFrame = 0;
+            chkAddMissing.Location = new Point(224, 5);
+            chkAddMissing.MaxHitListDrawPerFrame = 0;
             chkAddMissing.ModernGradientType = ModernGradientType.None;
             chkAddMissing.Name = "chkAddMissing";
             chkAddMissing.OuterShape = null;
@@ -4603,6 +4711,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.SlideFrom = SlideDirection.Left;
             chkAddMissing.Spacing = 5;
             chkAddMissing.StaticNotMoving = false;
+            chkAddMissing.SyncLayoutMetricsWithStyle = false;
             chkAddMissing.TabIndex = 1;
             chkAddMissing.Tag = optionsPanel;
             chkAddMissing.TempBackColor = Color.LightGray;
@@ -4641,7 +4750,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath34.FillMode = FillMode.Alternate;
             chkCreateIfNotExists.BorderPath = graphicsPath34;
             chkCreateIfNotExists.BorderRadius = 8;
-            chkCreateIfNotExists.BorderRect = new Rectangle(0, 0, 210, 35);
+            chkCreateIfNotExists.BorderRect = new Rectangle(0, 0, 209, 34);
             chkCreateIfNotExists.BorderStyle = BorderStyle.FixedSingle;
             chkCreateIfNotExists.BorderThickness = 1;
             chkCreateIfNotExists.BottomoffsetForDrawingRect = 0;
@@ -4651,7 +4760,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.CanBePressed = true;
             chkCreateIfNotExists.CanBeSelected = true;
             chkCreateIfNotExists.Category = DbFieldCategory.String;
-            chkCreateIfNotExists.CheckBoxStyle = Winform.Controls.CheckBoxes.Helpers.CheckBoxStyle.Material3;
+            chkCreateIfNotExists.CheckBoxSize = 20;
             chkCreateIfNotExists.CheckIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.check.svg";
             chkCreateIfNotExists.ComponentName = "BaseControl";
             chkCreateIfNotExists.ContentRect = new Rectangle(0, 0, 0, 0);
@@ -4663,9 +4772,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.DisabledBackColor = Color.FromArgb(200, 200, 200);
             chkCreateIfNotExists.DisabledBorderColor = Color.LightGray;
             chkCreateIfNotExists.DisabledForeColor = Color.Gray;
-            chkCreateIfNotExists.DrawingRect = new Rectangle(1, 1, 208, 33);
+            chkCreateIfNotExists.DrawingRect = new Rectangle(1, 1, 207, 32);
             chkCreateIfNotExists.Easing = EasingType.Linear;
-            chkCreateIfNotExists.EnableHighQualityRendering = true;            chkCreateIfNotExists.EnableRippleEffect = false;
+            chkCreateIfNotExists.EnableHighQualityRendering = true;
+            chkCreateIfNotExists.EnableRippleEffect = false;
             chkCreateIfNotExists.EnableSplashEffect = false;
             chkCreateIfNotExists.ErrorColor = Color.Empty;
             chkCreateIfNotExists.ErrorText = "";
@@ -4698,6 +4808,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.HoverBorderColor = Color.Blue;
             chkCreateIfNotExists.HoveredBackcolor = Color.LightBlue;
             chkCreateIfNotExists.HoverForeColor = Color.Black;
+            chkCreateIfNotExists.IconKey = "";
             chkCreateIfNotExists.IconSize = 20;
             chkCreateIfNotExists.Id = -1;
             chkCreateIfNotExists.ImagePath = null;
@@ -4729,7 +4840,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.IsTransparentBackground = false;
             chkCreateIfNotExists.IsValid = true;
             chkCreateIfNotExists.IsVisible = true;
-            chkCreateIfNotExists.Items = (List<object>)resources.GetObject("chkCreateIfNotExists.Items");
             chkCreateIfNotExists.LabelPosition = LabelPosition.Left;
             chkCreateIfNotExists.LabelText = "";
             chkCreateIfNotExists.LabelTextOn = false;
@@ -4737,7 +4847,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.LeadingImagePath = "";
             chkCreateIfNotExists.LeftoffsetForDrawingRect = 0;
             chkCreateIfNotExists.LinkedProperty = null;
-            chkCreateIfNotExists.Location = new Point(6, 5);            chkCreateIfNotExists.MaxHitListDrawPerFrame = 0;
+            chkCreateIfNotExists.Location = new Point(6, 5);
+            chkCreateIfNotExists.MaxHitListDrawPerFrame = 0;
             chkCreateIfNotExists.ModernGradientType = ModernGradientType.None;
             chkCreateIfNotExists.Name = "chkCreateIfNotExists";
             chkCreateIfNotExists.OuterShape = null;
@@ -4773,6 +4884,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.SlideFrom = SlideDirection.Left;
             chkCreateIfNotExists.Spacing = 5;
             chkCreateIfNotExists.StaticNotMoving = false;
+            chkCreateIfNotExists.SyncLayoutMetricsWithStyle = false;
             chkCreateIfNotExists.TabIndex = 0;
             chkCreateIfNotExists.Tag = optionsPanel;
             chkCreateIfNotExists.TempBackColor = Color.LightGray;
@@ -4798,10 +4910,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             templatePanel.Controls.Add(cmbRecentTemplates);
             templatePanel.Controls.Add(lblRecentTemplates);
             templatePanel.Dock = DockStyle.Top;
-            templatePanel.Location = new Point(0, 169);
+            templatePanel.Location = new Point(0, 180);
             templatePanel.Name = "templatePanel";
             templatePanel.Padding = new Padding(4, 4, 4, 0);
-            templatePanel.Size = new Size(757, 45);
+            templatePanel.Size = new Size(893, 45);
             templatePanel.TabIndex = 4;
             // 
             // btnQuickImport
@@ -4824,7 +4936,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.BorderPainter = BeepControlStyle.None;
             graphicsPath37.FillMode = FillMode.Alternate;
             btnQuickImport.BorderPath = graphicsPath37;
-      
+            btnQuickImport.BorderRadius = 8;
+            btnQuickImport.BorderRect = new Rectangle(0, 0, 119, 26);
+            btnQuickImport.BorderStyle = BorderStyle.FixedSingle;
+            btnQuickImport.BorderThickness = 0;
+            btnQuickImport.BottomoffsetForDrawingRect = 0;
+            btnQuickImport.BoundProperty = null;
             btnQuickImport.ButtonMinSize = new Size(32, 32);
             btnQuickImport.ButtonType = ButtonType.Normal;
             btnQuickImport.CanBeFocused = true;
@@ -4842,9 +4959,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnQuickImport.DisabledBorderColor = Color.Gray;
             btnQuickImport.DisabledForeColor = Color.Gray;
-            btnQuickImport.DrawingRect = new Rectangle(0, 0, 120, 27);
+            btnQuickImport.DrawingRect = new Rectangle(0, 0, 119, 26);
             btnQuickImport.Easing = EasingType.Linear;
-            btnQuickImport.EnableHighQualityRendering = true;            btnQuickImport.EnableRippleEffect = false;
+            btnQuickImport.EnableHighQualityRendering = true;
+            btnQuickImport.EnableRippleEffect = false;
             btnQuickImport.EnableSplashEffect = false;
             btnQuickImport.ErrorColor = Color.Empty;
             btnQuickImport.ErrorText = "";
@@ -4877,13 +4995,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.HoverBorderColor = Color.Blue;
             btnQuickImport.HoveredBackcolor = Color.FromArgb(227, 242, 253);
             btnQuickImport.HoverForeColor = Color.FromArgb(33, 150, 243);
+            btnQuickImport.IconKey = "";
             btnQuickImport.IconSize = 20;
             btnQuickImport.Id = -1;
             btnQuickImport.Image = null;
             btnQuickImport.ImageAlign = ContentAlignment.MiddleLeft;
             btnQuickImport.ImageClicked = null;
             btnQuickImport.ImageEmbededin = ImageEmbededin.Button;
-            btnQuickImport.ImagePath = "";
+            btnQuickImport.ImagePath = SvgsUIcons.DataTable.Import;
             btnQuickImport.InactiveBorderColor = Color.Gray;
             graphicsPath39.FillMode = FillMode.Alternate;
             btnQuickImport.InnerShape = graphicsPath39;
@@ -4915,7 +5034,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.IsTransparentBackground = false;
             btnQuickImport.IsValid = true;
             btnQuickImport.IsVisible = true;
-            btnQuickImport.Items = (List<object>)resources.GetObject("btnQuickImport.Items");
             btnQuickImport.LabelPosition = LabelPosition.Left;
             btnQuickImport.LabelText = "";
             btnQuickImport.LabelTextOn = false;
@@ -4924,7 +5042,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.LeftoffsetForDrawingRect = 0;
             btnQuickImport.LinkedProperty = null;
             btnQuickImport.Location = new Point(326, 5);
-            btnQuickImport.Margin = new Padding(0);            btnQuickImport.MaxHitListDrawPerFrame = 0;
+            btnQuickImport.Margin = new Padding(0);
+            btnQuickImport.MaxHitListDrawPerFrame = 0;
             btnQuickImport.MaxImageSize = new Size(32, 32);
             btnQuickImport.ModernGradientType = ModernGradientType.None;
             btnQuickImport.Name = "btnQuickImport";
@@ -4964,7 +5083,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.Size = new Size(120, 27);
             btnQuickImport.SlideFrom = SlideDirection.Left;
             btnQuickImport.SplashColor = Color.Gray;
-            btnQuickImport.StandardImages = (List<SimpleItem>)resources.GetObject("btnQuickImport.StandardImages");
+            btnQuickImport.StandardImages = null;
             btnQuickImport.StaticNotMoving = false;
             btnQuickImport.TabIndex = 1;
             btnQuickImport.Tag = templatePanel;
@@ -5029,7 +5148,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             shadowEffect6.OffsetY = 2;
             shadowEffect6.Spread = 0;
             cmbRecentTemplates.BeepContextMenu.ShadowEffect = shadowEffect6;
-            cmbRecentTemplates.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 8F);
+            cmbRecentTemplates.BeepContextMenu.ShortcutFont = new Font("Segoe UI", 7F);
             cmbRecentTemplates.BeepContextMenu.TextFont = new Font("Segoe UI", 8F);
             cmbRecentTemplates.BeepContextMenu.Theme = "DefaultType";
             cmbRecentTemplates.BeepContextMenu.Visible = false;
@@ -5040,7 +5159,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath40.FillMode = FillMode.Alternate;
             cmbRecentTemplates.BorderPath = graphicsPath40;
             cmbRecentTemplates.BorderRadius = 4;
-            cmbRecentTemplates.BorderRect = new Rectangle(0, 0, 220, 28);
+            cmbRecentTemplates.BorderRect = new Rectangle(0, 0, 219, 27);
             cmbRecentTemplates.BorderStyle = BorderStyle.FixedSingle;
             cmbRecentTemplates.BorderThickness = 1;
             cmbRecentTemplates.BottomoffsetForDrawingRect = 0;
@@ -5060,11 +5179,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbRecentTemplates.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbRecentTemplates.DisabledBorderColor = Color.LightGray;
             cmbRecentTemplates.DisabledForeColor = Color.Gray;
-            cmbRecentTemplates.DrawingRect = new Rectangle(1, 1, 218, 26);
+            cmbRecentTemplates.DrawingRect = new Rectangle(1, 1, 217, 25);
             cmbRecentTemplates.DropdownButtonWidth = 34;
             cmbRecentTemplates.DropdownIconPath = "dropdown_arrow";
+            cmbRecentTemplates.DropdownListBoxType = null;
             cmbRecentTemplates.Easing = EasingType.Linear;
-            cmbRecentTemplates.EnableHighQualityRendering = true;            cmbRecentTemplates.EnableRippleEffect = false;
+            cmbRecentTemplates.EnableHighQualityRendering = true;
+            cmbRecentTemplates.EnableRippleEffect = false;
             cmbRecentTemplates.EnableSplashEffect = false;
             cmbRecentTemplates.ErrorColor = Color.Empty;
             cmbRecentTemplates.ErrorText = "";
@@ -5095,6 +5216,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbRecentTemplates.HoverBorderColor = Color.FromArgb(33, 150, 243);
             cmbRecentTemplates.HoveredBackcolor = Color.FromArgb(232, 240, 254);
             cmbRecentTemplates.HoverForeColor = Color.FromArgb(33, 33, 33);
+            cmbRecentTemplates.IconKey = "";
             cmbRecentTemplates.IconSize = 20;
             cmbRecentTemplates.Id = -1;
             cmbRecentTemplates.InactiveBorderColor = Color.Gray;
@@ -5124,7 +5246,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbRecentTemplates.IsTransparentBackground = false;
             cmbRecentTemplates.IsValid = true;
             cmbRecentTemplates.IsVisible = true;
-            cmbRecentTemplates.Items = (List<object>)resources.GetObject("cmbRecentTemplates.Items");
             cmbRecentTemplates.LabelPosition = LabelPosition.Left;
             cmbRecentTemplates.LabelText = "";
             cmbRecentTemplates.LabelTextOn = false;
@@ -5132,7 +5253,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbRecentTemplates.LeadingImagePath = "";
             cmbRecentTemplates.LeftoffsetForDrawingRect = 0;
             cmbRecentTemplates.LinkedProperty = null;
-            cmbRecentTemplates.Location = new Point(98, 5);            cmbRecentTemplates.MaxHitListDrawPerFrame = 0;
+            cmbRecentTemplates.Location = new Point(98, 5);
+            cmbRecentTemplates.MaxHitListDrawPerFrame = 0;
             cmbRecentTemplates.MinimumSize = new Size(80, 28);
             cmbRecentTemplates.ModernGradientType = ModernGradientType.None;
             cmbRecentTemplates.Name = "cmbRecentTemplates";
@@ -5197,6 +5319,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // lblRecentTemplates
             // 
+            lblRecentTemplates.AccessibleDescription = "Template:";
+            lblRecentTemplates.AccessibleName = "Template:";
+            lblRecentTemplates.AccessibleRole = AccessibleRole.StaticText;
             lblRecentTemplates.AnimationDuration = 500;
             lblRecentTemplates.AnimationType = DisplayAnimationType.None;
             lblRecentTemplates.ApplyThemeOnImage = false;
@@ -5215,7 +5340,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             graphicsPath43.FillMode = FillMode.Alternate;
             lblRecentTemplates.BorderPath = graphicsPath43;
             lblRecentTemplates.BorderRadius = 8;
-            lblRecentTemplates.BorderRect = new Rectangle(0, 0, 88, 26);
+            lblRecentTemplates.BorderRect = new Rectangle(0, 0, 87, 25);
             lblRecentTemplates.BorderStyle = BorderStyle.FixedSingle;
             lblRecentTemplates.BorderThickness = 1;
             lblRecentTemplates.BottomoffsetForDrawingRect = 0;
@@ -5225,6 +5350,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.CanBePressed = true;
             lblRecentTemplates.CanBeSelected = true;
             lblRecentTemplates.Category = DbFieldCategory.String;
+            lblRecentTemplates.ColorProfile.BackColor = Color.Empty;
+            lblRecentTemplates.ColorProfile.BorderColor = Color.Empty;
+            lblRecentTemplates.ColorProfile.DisabledBackColor = Color.Empty;
+            lblRecentTemplates.ColorProfile.DisabledForeColor = Color.Empty;
+            lblRecentTemplates.ColorProfile.ForeColor = Color.Empty;
+            lblRecentTemplates.ColorProfile.SubHeaderForeColor = Color.Empty;
             lblRecentTemplates.ComponentName = "BaseControl";
             lblRecentTemplates.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath44.FillMode = FillMode.Alternate;
@@ -5235,9 +5366,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.DisabledBackColor = Color.LightGray;
             lblRecentTemplates.DisabledBorderColor = Color.Gray;
             lblRecentTemplates.DisabledForeColor = Color.Gray;
-            lblRecentTemplates.DrawingRect = new Rectangle(1, 1, 86, 24);
+            lblRecentTemplates.DrawingRect = new Rectangle(1, 1, 85, 23);
             lblRecentTemplates.Easing = EasingType.Linear;
-            lblRecentTemplates.EnableHighQualityRendering = true;            lblRecentTemplates.EnableRippleEffect = false;
+            lblRecentTemplates.EnableHighQualityRendering = true;
+            lblRecentTemplates.EnableRippleEffect = false;
             lblRecentTemplates.EnableSplashEffect = false;
             lblRecentTemplates.ErrorColor = Color.Empty;
             lblRecentTemplates.ErrorText = "";
@@ -5270,10 +5402,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.HoverBorderColor = Color.Blue;
             lblRecentTemplates.HoveredBackcolor = Color.FromArgb(230, 240, 255);
             lblRecentTemplates.HoverForeColor = Color.FromArgb(33, 150, 243);
+            lblRecentTemplates.IconKey = "";
             lblRecentTemplates.IconSize = 20;
             lblRecentTemplates.Id = -1;
             lblRecentTemplates.ImageAlign = ContentAlignment.MiddleLeft;
-            lblRecentTemplates.ImagePath = null;
+            lblRecentTemplates.ImagePath = "";
             lblRecentTemplates.InactiveBorderColor = Color.Gray;
             graphicsPath45.FillMode = FillMode.Alternate;
             lblRecentTemplates.InnerShape = graphicsPath45;
@@ -5301,7 +5434,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.IsTransparentBackground = false;
             lblRecentTemplates.IsValid = true;
             lblRecentTemplates.IsVisible = true;
-            lblRecentTemplates.Items = (List<object>)resources.GetObject("lblRecentTemplates.Items");
             lblRecentTemplates.LabelBackColor = Color.Empty;
             lblRecentTemplates.LabelPosition = LabelPosition.Left;
             lblRecentTemplates.LabelText = "";
@@ -5311,7 +5443,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.LeftoffsetForDrawingRect = 0;
             lblRecentTemplates.LinkedProperty = null;
             lblRecentTemplates.Location = new Point(6, 8);
-            lblRecentTemplates.Margin = new Padding(0);            lblRecentTemplates.MaxHitListDrawPerFrame = 0;
+            lblRecentTemplates.Margin = new Padding(0);
+            lblRecentTemplates.MaxHitListDrawPerFrame = 0;
             lblRecentTemplates.MaxImageSize = new Size(16, 16);
             lblRecentTemplates.MinimumSize = new Size(86, 26);
             lblRecentTemplates.ModernGradientType = ModernGradientType.None;
@@ -5349,6 +5482,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.Size = new Size(88, 26);
             lblRecentTemplates.SlideFrom = SlideDirection.Left;
             lblRecentTemplates.StaticNotMoving = false;
+            lblRecentTemplates.StyleProfile.AutoEllipsis = false;
+            lblRecentTemplates.StyleProfile.HeaderSubheaderSpacing = 2;
+            lblRecentTemplates.StyleProfile.ImageAlign = ContentAlignment.MiddleLeft;
+            lblRecentTemplates.StyleProfile.Multiline = false;
+            lblRecentTemplates.StyleProfile.TextAlign = ContentAlignment.MiddleLeft;
+            lblRecentTemplates.StyleProfile.TextImageRelation = TextImageRelation.ImageBeforeText;
+            lblRecentTemplates.StyleProfile.WordWrap = false;
             lblRecentTemplates.SubHeaderFont = new Font("Segoe UI", 6F);
             lblRecentTemplates.SubHeaderForeColor = Color.FromArgb(83, 83, 83);
             lblRecentTemplates.SubHeaderText = "";
@@ -5376,15 +5516,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             // buttonPanel
             // 
+            buttonPanel.Controls.Add(beepImage1);
             buttonPanel.Controls.Add(btnClearLog);
             buttonPanel.Controls.Add(btnSwap);
             buttonPanel.Controls.Add(btnLaunch);
             buttonPanel.Controls.Add(btnViewLastSummary);
             buttonPanel.Dock = DockStyle.Top;
-            buttonPanel.Location = new Point(0, 214);
+            buttonPanel.Location = new Point(0, 225);
             buttonPanel.Name = "buttonPanel";
             buttonPanel.Padding = new Padding(4, 6, 4, 0);
-            buttonPanel.Size = new Size(757, 42);
+            buttonPanel.Size = new Size(893, 42);
             buttonPanel.TabIndex = 4;
             // 
             // btnClearLog
@@ -5405,9 +5546,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.BorderColor = Color.FromArgb(33, 150, 243);
             btnClearLog.BorderDashStyle = DashStyle.Solid;
             btnClearLog.BorderPainter = BeepControlStyle.None;
-            graphicsPath46.FillMode = FillMode.Alternate;
-            btnClearLog.BorderPath = graphicsPath46;
-       
+            graphicsPath49.FillMode = FillMode.Alternate;
+            btnClearLog.BorderPath = graphicsPath49;
+            btnClearLog.BorderRadius = 8;
+            btnClearLog.BorderRect = new Rectangle(0, 0, 99, 29);
+            btnClearLog.BorderStyle = BorderStyle.FixedSingle;
+            btnClearLog.BorderThickness = 0;
+            btnClearLog.BottomoffsetForDrawingRect = 0;
+            btnClearLog.BoundProperty = null;
             btnClearLog.ButtonMinSize = new Size(32, 32);
             btnClearLog.ButtonType = ButtonType.Normal;
             btnClearLog.CanBeFocused = true;
@@ -5417,17 +5563,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.Category = DbFieldCategory.Boolean;
             btnClearLog.ComponentName = "BaseControl";
             btnClearLog.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath47.FillMode = FillMode.Alternate;
-            btnClearLog.ContentShape = graphicsPath47;
+            graphicsPath50.FillMode = FillMode.Alternate;
+            btnClearLog.ContentShape = graphicsPath50;
             btnClearLog.CustomPadding = new Padding(0);
             btnClearLog.DataContext = null;
             btnClearLog.DataSourceProperty = null;
             btnClearLog.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnClearLog.DisabledBorderColor = Color.Gray;
             btnClearLog.DisabledForeColor = Color.Gray;
-            btnClearLog.DrawingRect = new Rectangle(0, 0, 100, 30);
+            btnClearLog.DrawingRect = new Rectangle(0, 0, 99, 29);
             btnClearLog.Easing = EasingType.Linear;
-            btnClearLog.EnableHighQualityRendering = true;            btnClearLog.EnableRippleEffect = false;
+            btnClearLog.EnableHighQualityRendering = true;
+            btnClearLog.EnableRippleEffect = false;
             btnClearLog.EnableSplashEffect = false;
             btnClearLog.ErrorColor = Color.Empty;
             btnClearLog.ErrorText = "";
@@ -5460,16 +5607,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.HoverBorderColor = Color.Blue;
             btnClearLog.HoveredBackcolor = Color.FromArgb(227, 242, 253);
             btnClearLog.HoverForeColor = Color.FromArgb(33, 150, 243);
+            btnClearLog.IconKey = "";
             btnClearLog.IconSize = 20;
             btnClearLog.Id = -1;
             btnClearLog.Image = null;
             btnClearLog.ImageAlign = ContentAlignment.MiddleLeft;
             btnClearLog.ImageClicked = null;
             btnClearLog.ImageEmbededin = ImageEmbededin.Button;
-            btnClearLog.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
+            btnClearLog.ImagePath = SvgsUIcons.Documents.RecycleBin;
             btnClearLog.InactiveBorderColor = Color.Gray;
-            graphicsPath48.FillMode = FillMode.Alternate;
-            btnClearLog.InnerShape = graphicsPath48;
+            graphicsPath51.FillMode = FillMode.Alternate;
+            btnClearLog.InnerShape = graphicsPath51;
             btnClearLog.IsAcceptButton = false;
             btnClearLog.IsBorderAffectedByTheme = true;
             btnClearLog.IsCancelButton = false;
@@ -5498,7 +5646,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.IsTransparentBackground = false;
             btnClearLog.IsValid = true;
             btnClearLog.IsVisible = true;
-            btnClearLog.Items = (List<object>)resources.GetObject("btnClearLog.Items");
             btnClearLog.LabelPosition = LabelPosition.Left;
             btnClearLog.LabelText = "";
             btnClearLog.LabelTextOn = false;
@@ -5507,7 +5654,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.LeftoffsetForDrawingRect = 0;
             btnClearLog.LinkedProperty = null;
             btnClearLog.Location = new Point(328, 6);
-            btnClearLog.Margin = new Padding(0);            btnClearLog.MaxHitListDrawPerFrame = 0;
+            btnClearLog.Margin = new Padding(0);
+            btnClearLog.MaxHitListDrawPerFrame = 0;
             btnClearLog.MaxImageSize = new Size(32, 32);
             btnClearLog.ModernGradientType = ModernGradientType.None;
             btnClearLog.Name = "btnClearLog";
@@ -5547,7 +5695,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.Size = new Size(100, 30);
             btnClearLog.SlideFrom = SlideDirection.Left;
             btnClearLog.SplashColor = Color.Gray;
-            btnClearLog.StandardImages = (List<SimpleItem>)resources.GetObject("btnClearLog.StandardImages");
+            btnClearLog.StandardImages = null;
             btnClearLog.StaticNotMoving = false;
             btnClearLog.TabIndex = 2;
             btnClearLog.Tag = buttonPanel;
@@ -5589,9 +5737,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.BorderColor = Color.FromArgb(33, 150, 243);
             btnSwap.BorderDashStyle = DashStyle.Solid;
             btnSwap.BorderPainter = BeepControlStyle.None;
-            graphicsPath49.FillMode = FillMode.Alternate;
-            btnSwap.BorderPath = graphicsPath49;
-         
+            graphicsPath52.FillMode = FillMode.Alternate;
+            btnSwap.BorderPath = graphicsPath52;
+            btnSwap.BorderRadius = 8;
+            btnSwap.BorderRect = new Rectangle(0, 0, 119, 29);
+            btnSwap.BorderStyle = BorderStyle.FixedSingle;
+            btnSwap.BorderThickness = 0;
+            btnSwap.BottomoffsetForDrawingRect = 0;
+            btnSwap.BoundProperty = null;
             btnSwap.ButtonMinSize = new Size(32, 32);
             btnSwap.ButtonType = ButtonType.Normal;
             btnSwap.CanBeFocused = true;
@@ -5601,17 +5754,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.Category = DbFieldCategory.Boolean;
             btnSwap.ComponentName = "BaseControl";
             btnSwap.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath50.FillMode = FillMode.Alternate;
-            btnSwap.ContentShape = graphicsPath50;
+            graphicsPath53.FillMode = FillMode.Alternate;
+            btnSwap.ContentShape = graphicsPath53;
             btnSwap.CustomPadding = new Padding(0);
             btnSwap.DataContext = null;
             btnSwap.DataSourceProperty = null;
             btnSwap.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnSwap.DisabledBorderColor = Color.Gray;
             btnSwap.DisabledForeColor = Color.Gray;
-            btnSwap.DrawingRect = new Rectangle(0, 0, 120, 30);
+            btnSwap.DrawingRect = new Rectangle(0, 0, 119, 29);
             btnSwap.Easing = EasingType.Linear;
-            btnSwap.EnableHighQualityRendering = true;            btnSwap.EnableRippleEffect = false;
+            btnSwap.EnableHighQualityRendering = true;
+            btnSwap.EnableRippleEffect = false;
             btnSwap.EnableSplashEffect = false;
             btnSwap.ErrorColor = Color.Empty;
             btnSwap.ErrorText = "";
@@ -5644,16 +5798,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.HoverBorderColor = Color.Blue;
             btnSwap.HoveredBackcolor = Color.FromArgb(227, 242, 253);
             btnSwap.HoverForeColor = Color.FromArgb(33, 150, 243);
+            btnSwap.IconKey = "";
             btnSwap.IconSize = 20;
             btnSwap.Id = -1;
             btnSwap.Image = null;
             btnSwap.ImageAlign = ContentAlignment.MiddleLeft;
             btnSwap.ImageClicked = null;
             btnSwap.ImageEmbededin = ImageEmbededin.Button;
-            btnSwap.ImagePath = "";
+            btnSwap.ImagePath = SvgsUIcons.Common.Refresh;
             btnSwap.InactiveBorderColor = Color.Gray;
-            graphicsPath51.FillMode = FillMode.Alternate;
-            btnSwap.InnerShape = graphicsPath51;
+            graphicsPath54.FillMode = FillMode.Alternate;
+            btnSwap.InnerShape = graphicsPath54;
             btnSwap.IsAcceptButton = false;
             btnSwap.IsBorderAffectedByTheme = true;
             btnSwap.IsCancelButton = false;
@@ -5682,7 +5837,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.IsTransparentBackground = false;
             btnSwap.IsValid = true;
             btnSwap.IsVisible = true;
-            btnSwap.Items = (List<object>)resources.GetObject("btnSwap.Items");
             btnSwap.LabelPosition = LabelPosition.Left;
             btnSwap.LabelText = "";
             btnSwap.LabelTextOn = false;
@@ -5691,7 +5845,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.LeftoffsetForDrawingRect = 0;
             btnSwap.LinkedProperty = null;
             btnSwap.Location = new Point(202, 6);
-            btnSwap.Margin = new Padding(0);            btnSwap.MaxHitListDrawPerFrame = 0;
+            btnSwap.Margin = new Padding(0);
+            btnSwap.MaxHitListDrawPerFrame = 0;
             btnSwap.MaxImageSize = new Size(32, 32);
             btnSwap.ModernGradientType = ModernGradientType.None;
             btnSwap.Name = "btnSwap";
@@ -5731,7 +5886,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.Size = new Size(120, 30);
             btnSwap.SlideFrom = SlideDirection.Left;
             btnSwap.SplashColor = Color.Gray;
-            btnSwap.StandardImages = (List<SimpleItem>)resources.GetObject("btnSwap.StandardImages");
+            btnSwap.StandardImages = null;
             btnSwap.StaticNotMoving = false;
             btnSwap.TabIndex = 1;
             btnSwap.Tag = buttonPanel;
@@ -5773,9 +5928,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.BorderColor = Color.FromArgb(33, 150, 243);
             btnLaunch.BorderDashStyle = DashStyle.Solid;
             btnLaunch.BorderPainter = BeepControlStyle.None;
-            graphicsPath52.FillMode = FillMode.Alternate;
-            btnLaunch.BorderPath = graphicsPath52;
-         
+            graphicsPath55.FillMode = FillMode.Alternate;
+            btnLaunch.BorderPath = graphicsPath55;
+            btnLaunch.BorderRadius = 8;
+            btnLaunch.BorderRect = new Rectangle(0, 0, 189, 29);
+            btnLaunch.BorderStyle = BorderStyle.FixedSingle;
+            btnLaunch.BorderThickness = 0;
+            btnLaunch.BottomoffsetForDrawingRect = 0;
+            btnLaunch.BoundProperty = null;
+            btnLaunch.ButtonMinSize = new Size(32, 32);
             btnLaunch.ButtonType = ButtonType.Normal;
             btnLaunch.CanBeFocused = true;
             btnLaunch.CanBeHovered = true;
@@ -5784,17 +5945,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.Category = DbFieldCategory.Boolean;
             btnLaunch.ComponentName = "BaseControl";
             btnLaunch.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath53.FillMode = FillMode.Alternate;
-            btnLaunch.ContentShape = graphicsPath53;
+            graphicsPath56.FillMode = FillMode.Alternate;
+            btnLaunch.ContentShape = graphicsPath56;
             btnLaunch.CustomPadding = new Padding(0);
             btnLaunch.DataContext = null;
             btnLaunch.DataSourceProperty = null;
             btnLaunch.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnLaunch.DisabledBorderColor = Color.Gray;
             btnLaunch.DisabledForeColor = Color.Gray;
-            btnLaunch.DrawingRect = new Rectangle(0, 0, 190, 30);
+            btnLaunch.DrawingRect = new Rectangle(0, 0, 189, 29);
             btnLaunch.Easing = EasingType.Linear;
-            btnLaunch.EnableHighQualityRendering = true;            btnLaunch.EnableRippleEffect = false;
+            btnLaunch.EnableHighQualityRendering = true;
+            btnLaunch.EnableRippleEffect = false;
             btnLaunch.EnableSplashEffect = false;
             btnLaunch.ErrorColor = Color.Empty;
             btnLaunch.ErrorText = "";
@@ -5827,16 +5989,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.HoverBorderColor = Color.Blue;
             btnLaunch.HoveredBackcolor = Color.FromArgb(227, 242, 253);
             btnLaunch.HoverForeColor = Color.FromArgb(33, 150, 243);
+            btnLaunch.IconKey = "";
             btnLaunch.IconSize = 20;
             btnLaunch.Id = -1;
             btnLaunch.Image = null;
             btnLaunch.ImageAlign = ContentAlignment.MiddleLeft;
             btnLaunch.ImageClicked = null;
             btnLaunch.ImageEmbededin = ImageEmbededin.Button;
-            btnLaunch.ImagePath = "";
+            btnLaunch.ImagePath = SvgsUIcons.DataTable.Import;
             btnLaunch.InactiveBorderColor = Color.Gray;
-            graphicsPath54.FillMode = FillMode.Alternate;
-            btnLaunch.InnerShape = graphicsPath54;
+            graphicsPath57.FillMode = FillMode.Alternate;
+            btnLaunch.InnerShape = graphicsPath57;
             btnLaunch.IsAcceptButton = false;
             btnLaunch.IsBorderAffectedByTheme = true;
             btnLaunch.IsCancelButton = false;
@@ -5865,7 +6028,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.IsTransparentBackground = false;
             btnLaunch.IsValid = true;
             btnLaunch.IsVisible = true;
-            btnLaunch.Items = (List<object>)resources.GetObject("btnLaunch.Items");
             btnLaunch.LabelPosition = LabelPosition.Left;
             btnLaunch.LabelText = "";
             btnLaunch.LabelTextOn = false;
@@ -5874,7 +6036,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.LeftoffsetForDrawingRect = 0;
             btnLaunch.LinkedProperty = null;
             btnLaunch.Location = new Point(6, 6);
-            btnLaunch.Margin = new Padding(0);            btnLaunch.MaxHitListDrawPerFrame = 0;
+            btnLaunch.Margin = new Padding(0);
+            btnLaunch.MaxHitListDrawPerFrame = 0;
             btnLaunch.MaxImageSize = new Size(32, 32);
             btnLaunch.ModernGradientType = ModernGradientType.None;
             btnLaunch.Name = "btnLaunch";
@@ -5914,7 +6077,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.Size = new Size(190, 30);
             btnLaunch.SlideFrom = SlideDirection.Left;
             btnLaunch.SplashColor = Color.Gray;
-            btnLaunch.StandardImages = (List<SimpleItem>)resources.GetObject("btnLaunch.StandardImages");
+            btnLaunch.StandardImages = null;
             btnLaunch.StaticNotMoving = false;
             btnLaunch.TabIndex = 0;
             btnLaunch.Tag = buttonPanel;
@@ -5956,9 +6119,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.BorderColor = Color.FromArgb(33, 150, 243);
             btnViewLastSummary.BorderDashStyle = DashStyle.Solid;
             btnViewLastSummary.BorderPainter = BeepControlStyle.None;
-            graphicsPath55.FillMode = FillMode.Alternate;
-            btnViewLastSummary.BorderPath = graphicsPath55;
-           
+            graphicsPath58.FillMode = FillMode.Alternate;
+            btnViewLastSummary.BorderPath = graphicsPath58;
+            btnViewLastSummary.BorderRadius = 8;
+            btnViewLastSummary.BorderRect = new Rectangle(0, 0, 129, 29);
+            btnViewLastSummary.BorderStyle = BorderStyle.FixedSingle;
+            btnViewLastSummary.BorderThickness = 0;
+            btnViewLastSummary.BottomoffsetForDrawingRect = 0;
+            btnViewLastSummary.BoundProperty = null;
             btnViewLastSummary.ButtonMinSize = new Size(32, 32);
             btnViewLastSummary.ButtonType = ButtonType.Normal;
             btnViewLastSummary.CanBeFocused = true;
@@ -5968,18 +6136,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.Category = DbFieldCategory.Boolean;
             btnViewLastSummary.ComponentName = "BaseControl";
             btnViewLastSummary.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath56.FillMode = FillMode.Alternate;
-            btnViewLastSummary.ContentShape = graphicsPath56;
+            graphicsPath59.FillMode = FillMode.Alternate;
+            btnViewLastSummary.ContentShape = graphicsPath59;
             btnViewLastSummary.CustomPadding = new Padding(0);
             btnViewLastSummary.DataContext = null;
             btnViewLastSummary.DataSourceProperty = null;
             btnViewLastSummary.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnViewLastSummary.DisabledBorderColor = Color.Gray;
             btnViewLastSummary.DisabledForeColor = Color.Gray;
-            btnViewLastSummary.DrawingRect = new Rectangle(0, 0, 130, 30);
+            btnViewLastSummary.DrawingRect = new Rectangle(0, 0, 129, 29);
             btnViewLastSummary.Easing = EasingType.Linear;
             btnViewLastSummary.Enabled = false;
-            btnViewLastSummary.EnableHighQualityRendering = true;            btnViewLastSummary.EnableRippleEffect = false;
+            btnViewLastSummary.EnableHighQualityRendering = true;
+            btnViewLastSummary.EnableRippleEffect = false;
             btnViewLastSummary.EnableSplashEffect = false;
             btnViewLastSummary.ErrorColor = Color.Empty;
             btnViewLastSummary.ErrorText = "";
@@ -6012,16 +6181,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.HoverBorderColor = Color.Blue;
             btnViewLastSummary.HoveredBackcolor = Color.FromArgb(227, 242, 253);
             btnViewLastSummary.HoverForeColor = Color.FromArgb(33, 150, 243);
+            btnViewLastSummary.IconKey = "";
             btnViewLastSummary.IconSize = 20;
             btnViewLastSummary.Id = -1;
             btnViewLastSummary.Image = null;
             btnViewLastSummary.ImageAlign = ContentAlignment.MiddleLeft;
             btnViewLastSummary.ImageClicked = null;
             btnViewLastSummary.ImageEmbededin = ImageEmbededin.Button;
-            btnViewLastSummary.ImagePath = "";
+            btnViewLastSummary.ImagePath = SvgsUIcons.ClipboardExtras.Check;
             btnViewLastSummary.InactiveBorderColor = Color.Gray;
-            graphicsPath57.FillMode = FillMode.Alternate;
-            btnViewLastSummary.InnerShape = graphicsPath57;
+            graphicsPath60.FillMode = FillMode.Alternate;
+            btnViewLastSummary.InnerShape = graphicsPath60;
             btnViewLastSummary.IsAcceptButton = false;
             btnViewLastSummary.IsBorderAffectedByTheme = true;
             btnViewLastSummary.IsCancelButton = false;
@@ -6050,7 +6220,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.IsTransparentBackground = false;
             btnViewLastSummary.IsValid = true;
             btnViewLastSummary.IsVisible = true;
-            btnViewLastSummary.Items = (List<object>)resources.GetObject("btnViewLastSummary.Items");
             btnViewLastSummary.LabelPosition = LabelPosition.Left;
             btnViewLastSummary.LabelText = "";
             btnViewLastSummary.LabelTextOn = false;
@@ -6059,7 +6228,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.LeftoffsetForDrawingRect = 0;
             btnViewLastSummary.LinkedProperty = null;
             btnViewLastSummary.Location = new Point(434, 6);
-            btnViewLastSummary.Margin = new Padding(0);            btnViewLastSummary.MaxHitListDrawPerFrame = 0;
+            btnViewLastSummary.Margin = new Padding(0);
+            btnViewLastSummary.MaxHitListDrawPerFrame = 0;
             btnViewLastSummary.MaxImageSize = new Size(32, 32);
             btnViewLastSummary.ModernGradientType = ModernGradientType.None;
             btnViewLastSummary.Name = "btnViewLastSummary";
@@ -6099,7 +6269,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.Size = new Size(130, 30);
             btnViewLastSummary.SlideFrom = SlideDirection.Left;
             btnViewLastSummary.SplashColor = Color.Gray;
-            btnViewLastSummary.StandardImages = (List<SimpleItem>)resources.GetObject("btnViewLastSummary.StandardImages");
+            btnViewLastSummary.StandardImages = null;
             btnViewLastSummary.StaticNotMoving = false;
             btnViewLastSummary.TabIndex = 3;
             btnViewLastSummary.Tag = buttonPanel;
@@ -6127,9 +6297,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             historyPanel.Controls.Add(historyGrid);
             historyPanel.Dock = DockStyle.Top;
-            historyPanel.Location = new Point(0, 256);
+            historyPanel.Location = new Point(0, 267);
             historyPanel.Name = "historyPanel";
-            historyPanel.Size = new Size(757, 110);
+            historyPanel.Size = new Size(893, 110);
             historyPanel.TabIndex = 6;
             // 
             // historyGrid
@@ -6153,10 +6323,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.BorderColor = Color.FromArgb(200, 200, 200);
             historyGrid.BorderDashStyle = DashStyle.Solid;
             historyGrid.BorderPainter = BeepControlStyle.None;
-            graphicsPath58.FillMode = FillMode.Alternate;
-            historyGrid.BorderPath = graphicsPath58;
+            graphicsPath61.FillMode = FillMode.Alternate;
+            historyGrid.BorderPath = graphicsPath61;
             historyGrid.BorderRadius = 8;
-            historyGrid.BorderRect = new Rectangle(0, 0, 757, 110);
+            historyGrid.BorderRect = new Rectangle(0, 0, 892, 109);
             historyGrid.BorderStyle = BorderStyle.FixedSingle;
             historyGrid.BorderThickness = 1;
             historyGrid.BottomoffsetForDrawingRect = 0;
@@ -6330,9 +6500,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.Columns.Add(beepColumnConfig3);
             historyGrid.ComponentName = "BaseControl";
             historyGrid.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath59.FillMode = FillMode.Alternate;
-            historyGrid.ContentShape = graphicsPath59;
-            historyGrid.Controls.Add(beepImage1);
+            graphicsPath62.FillMode = FillMode.Alternate;
+            historyGrid.ContentShape = graphicsPath62;
             historyGrid.CustomPadding = new Padding(0);
             historyGrid.DataContext = null;
             historyGrid.DataSourceProperty = null;
@@ -6340,9 +6509,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.DisabledBorderColor = Color.LightGray;
             historyGrid.DisabledForeColor = Color.Gray;
             historyGrid.Dock = DockStyle.Fill;
-            historyGrid.DrawingRect = new Rectangle(0, 0, 757, 110);
+            historyGrid.DrawingRect = new Rectangle(0, 0, 892, 109);
             historyGrid.Easing = EasingType.Linear;
-            historyGrid.EnableHighQualityRendering = true;            historyGrid.EnableRippleEffect = false;
+            historyGrid.EnableHighQualityRendering = true;
+            historyGrid.EnableRippleEffect = false;
             historyGrid.EnableSplashEffect = false;
             historyGrid.ErrorColor = Color.Empty;
             historyGrid.ErrorText = "";
@@ -6378,6 +6548,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.HoverBorderColor = Color.Blue;
             historyGrid.HoveredBackcolor = Color.LightBlue;
             historyGrid.HoverForeColor = Color.Black;
+            historyGrid.IconKey = "";
             historyGrid.IconSize = 20;
             historyGrid.Id = -1;
             historyGrid.InactiveBorderColor = Color.Gray;
@@ -6407,7 +6578,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.IsTransparentBackground = false;
             historyGrid.IsValid = true;
             historyGrid.IsVisible = true;
-            historyGrid.Items = (List<object>)resources.GetObject("historyGrid.Items");
             historyGrid.LabelPosition = LabelPosition.Left;
             historyGrid.LabelText = "";
             historyGrid.LabelTextOn = false;
@@ -6415,7 +6585,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.LeadingImagePath = "";
             historyGrid.LeftoffsetForDrawingRect = 0;
             historyGrid.LinkedProperty = null;
-            historyGrid.Location = new Point(0, 0);            historyGrid.MaxHitListDrawPerFrame = 0;
+            historyGrid.Location = new Point(0, 0);
+            historyGrid.MaxHitListDrawPerFrame = 0;
             historyGrid.ModernGradientType = ModernGradientType.None;
             historyGrid.Name = "historyGrid";
             historyGrid.NavigationStyle = Winform.Controls.GridX.Painters.navigationStyle.Bootstrap;
@@ -6450,7 +6621,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.ShowRightBorder = false;
             historyGrid.ShowShadow = false;
             historyGrid.ShowTopBorder = false;
-            historyGrid.Size = new Size(757, 110);
+            historyGrid.ShowTopFilterPanel = false;
+            historyGrid.Size = new Size(893, 110);
             historyGrid.SlideFrom = SlideDirection.Left;
             historyGrid.StaticNotMoving = false;
             historyGrid.TabIndex = 0;
@@ -6458,6 +6630,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.TempBackColor = Color.LightGray;
             historyGrid.TextFont = new Font("Segoe UI", 10F);
             historyGrid.Theme = "DefaultType";
+            historyGrid.ToolbarBackColor = Color.FromArgb(240, 240, 240);
+            historyGrid.ToolbarBorderColor = Color.LightGray;
+            historyGrid.ToolbarButtonHoverBackColor = Color.FromArgb(245, 245, 255);
+            historyGrid.ToolbarButtonPressedBackColor = Color.FromArgb(200, 220, 255);
+            historyGrid.ToolbarForeColor = Color.FromArgb(20, 20, 20);
+            historyGrid.ToolbarPlaceholderColor = Color.FromArgb(180, 40, 40, 40);
+            historyGrid.ToolbarSearchBackColor = Color.White;
+            historyGrid.ToolbarSearchFocusBackColor = Color.FromArgb(240, 245, 255);
+            historyGrid.ToolbarSeparatorColor = Color.LightGray;
             historyGrid.TooltipFont = null;
             historyGrid.TooltipMaxSize = null;
             historyGrid.ToolTipText = null;
@@ -6472,6 +6653,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.UseGradientBackground = false;
             historyGrid.UseRichToolTip = true;
             historyGrid.UseThemeFont = true;
+            historyGrid.VirtualDataSource = null;
             // 
             // beepImage1
             // 
@@ -6492,10 +6674,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.BorderColor = Color.FromArgb(33, 150, 243);
             beepImage1.BorderDashStyle = DashStyle.Solid;
             beepImage1.BorderPainter = BeepControlStyle.None;
-            graphicsPath60.FillMode = FillMode.Alternate;
-            beepImage1.BorderPath = graphicsPath60;
+            graphicsPath46.FillMode = FillMode.Alternate;
+            beepImage1.BorderPath = graphicsPath46;
             beepImage1.BorderRadius = 8;
-            beepImage1.BorderRect = new Rectangle(0, 0, 61, 56);
+            beepImage1.BorderRect = new Rectangle(0, 0, 36, 29);
             beepImage1.BorderStyle = BorderStyle.FixedSingle;
             beepImage1.BorderThickness = 1;
             beepImage1.BottomoffsetForDrawingRect = 0;
@@ -6508,8 +6690,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.ClipShape = ImageClipShape.None;
             beepImage1.ComponentName = "BaseControl";
             beepImage1.ContentRect = new Rectangle(0, 0, 0, 0);
-            graphicsPath61.FillMode = FillMode.Alternate;
-            beepImage1.ContentShape = graphicsPath61;
+            graphicsPath47.FillMode = FillMode.Alternate;
+            beepImage1.ContentShape = graphicsPath47;
             beepImage1.CornerRadius = 10F;
             beepImage1.CustomClipPath = null;
             beepImage1.CustomPadding = new Padding(0);
@@ -6518,9 +6700,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepImage1.DisabledBorderColor = Color.LightGray;
             beepImage1.DisabledForeColor = Color.Gray;
-            beepImage1.DrawingRect = new Rectangle(0, 0, 61, 56);
+            beepImage1.DrawingRect = new Rectangle(0, 0, 36, 29);
             beepImage1.Easing = EasingType.Linear;
-            beepImage1.EnableHighQualityRendering = true;            beepImage1.EnableRippleEffect = false;
+            beepImage1.EnableHighQualityRendering = true;
+            beepImage1.EnableRippleEffect = false;
             beepImage1.EnableSplashEffect = false;
             beepImage1.ErrorColor = Color.Empty;
             beepImage1.ErrorText = "";
@@ -6554,14 +6737,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.HoverBorderColor = Color.Blue;
             beepImage1.HoveredBackcolor = Color.LightBlue;
             beepImage1.HoverForeColor = Color.Black;
+            beepImage1.IconKey = "";
             beepImage1.IconSize = 20;
             beepImage1.Id = -1;
             beepImage1.Image = null;
             beepImage1.ImageEmbededin = ImageEmbededin.Button;
             beepImage1.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.Icons.tablerfilled.minus.svg";
             beepImage1.InactiveBorderColor = Color.Gray;
-            graphicsPath62.FillMode = FillMode.Alternate;
-            beepImage1.InnerShape = graphicsPath62;
+            graphicsPath48.FillMode = FillMode.Alternate;
+            beepImage1.InnerShape = graphicsPath48;
             beepImage1.IsAcceptButton = false;
             beepImage1.IsBorderAffectedByTheme = true;
             beepImage1.IsBouncing = false;
@@ -6592,7 +6776,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.IsTransparentBackground = false;
             beepImage1.IsValid = true;
             beepImage1.IsVisible = true;
-            beepImage1.Items = (List<object>)resources.GetObject("beepImage1.Items");
             beepImage1.LabelPosition = LabelPosition.Left;
             beepImage1.LabelText = "";
             beepImage1.LabelTextOn = false;
@@ -6600,8 +6783,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.LeadingImagePath = "";
             beepImage1.LeftoffsetForDrawingRect = 0;
             beepImage1.LinkedProperty = null;
-            beepImage1.Location = new Point(609, 24);
-            beepImage1.ManualRotationAngle = 0F;            beepImage1.MaxHitListDrawPerFrame = 0;
+            beepImage1.Location = new Point(575, 6);
+            beepImage1.ManualRotationAngle = 0F;
+            beepImage1.MaxHitListDrawPerFrame = 0;
             beepImage1.MinimumSize = new Size(16, 16);
             beepImage1.ModernGradientType = ModernGradientType.None;
             beepImage1.Name = "beepImage1";
@@ -6636,13 +6820,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.ShowRightBorder = false;
             beepImage1.ShowShadow = false;
             beepImage1.ShowTopBorder = false;
-            beepImage1.Size = new Size(61, 56);
+            beepImage1.Size = new Size(37, 30);
             beepImage1.SlideFrom = SlideDirection.Left;
             beepImage1.SpinSpeed = 5F;
             beepImage1.StaticNotMoving = false;
             beepImage1.StrokeColor = Color.Black;
             beepImage1.TabIndex = 7;
-            beepImage1.Tag = historyGrid;
+            beepImage1.Tag = buttonPanel;
             beepImage1.TempBackColor = Color.LightGray;
             beepImage1.Text = "beepImage1";
             beepImage1.TextFont = new Font("Segoe UI", 10F);
@@ -6666,17 +6850,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             // 
             txtLog.Dock = DockStyle.Fill;
             txtLog.Font = new Font("Consolas", 9F);
-            txtLog.Location = new Point(0, 366);
+            txtLog.Location = new Point(0, 377);
             txtLog.Name = "txtLog";
             txtLog.ReadOnly = true;
             txtLog.ScrollBars = RichTextBoxScrollBars.Vertical;
-            txtLog.Size = new Size(757, 207);
+            txtLog.Size = new Size(893, 289);
             txtLog.TabIndex = 5;
             txtLog.Text = "";
             // 
             // uc_ImportExportWizardLauncher
             // 
-        
             AutoScaleMode = AutoScaleMode.Inherit;
             Controls.Add(txtLog);
             Controls.Add(historyPanel);
@@ -6687,15 +6870,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             Controls.Add(sourcePanel);
             Controls.Add(directionPanel);
             Name = "uc_ImportExportWizardLauncher";
-            Size = new Size(757, 573);
+            Size = new Size(893, 666);
             directionPanel.ResumeLayout(false);
             sourcePanel.ResumeLayout(false);
+            lblSourceDS.ResumeLayout(false);
             destPanel.ResumeLayout(false);
             optionsPanel.ResumeLayout(false);
             templatePanel.ResumeLayout(false);
             buttonPanel.ResumeLayout(false);
             historyPanel.ResumeLayout(false);
-            historyGrid.ResumeLayout(false);
             ResumeLayout(false);
         }
 

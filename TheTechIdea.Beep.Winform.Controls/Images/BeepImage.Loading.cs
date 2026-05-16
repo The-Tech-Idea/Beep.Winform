@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Images
 
         /// <summary>
         /// Load the image from the provided path (checks if it's a file path or embedded resource).
-        /// Supports both strongly-typed references (Option 1: SvgsUI.Key) and 
+        /// Supports both strongly-typed references (Option 1: SvgsUIcons.Key) and 
         /// direct embedded resource paths (Option 2: "TheTechIdea.Beep.Winform.Controls.GFX.Icons.UI.key.svg")
         /// </summary>
         private bool LoadImage(string path)

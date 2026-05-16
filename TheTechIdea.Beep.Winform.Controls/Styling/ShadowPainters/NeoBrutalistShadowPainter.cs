@@ -32,12 +32,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             RectangleF bounds = path.GetBounds();
             Color shadowColor = StyleShadows.GetShadowColor(style);
 
-            // Disable anti-aliasing for sharp edges
-            var prevMode = g.SmoothingMode;
-            g.SmoothingMode = SmoothingMode.None;
-
+            // Save full graphics state so ExcludeClip and SmoothingMode changes
+            // don't leak into subsequent drawing (background, text, icons, etc.)
+            var savedState = g.Save();
             try
             {
+                // Disable anti-aliasing for sharp Neo-Brutalist hard edges
+                g.SmoothingMode = SmoothingMode.None;
+
+                // Exclude the control's own area so the shadow only appears
+                // in the L-shaped strip that sticks out from behind the control.
+                using (var interior = new Region(path))
+                    g.ExcludeClip(interior);
+
                 using (var brush = new SolidBrush(shadowColor))
                 {
                     // Right edge shadow
@@ -54,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                         bounds.Width,
                         offsetY);
 
-                    // Corner shadow (fills the gap)
+                    // Corner shadow (fills the gap at bottom-right)
                     g.FillRectangle(brush,
                         bounds.Right,
                         bounds.Bottom,
@@ -64,7 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             }
             finally
             {
-                g.SmoothingMode = prevMode;
+                // Restores SmoothingMode AND the clip region in one call
+                g.Restore(savedState);
             }
 
             return path;

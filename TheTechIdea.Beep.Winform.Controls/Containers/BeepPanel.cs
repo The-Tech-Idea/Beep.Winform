@@ -198,7 +198,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _showTitleLine;
             set
             {
+                if (_showTitleLine == value) return;
                 _showTitleLine = value;
+                // Line thickness contributes to headerHeight / ContentBounds top inset.
+                if (IsHandleCreated)
+                {
+                    UpdateDrawingRect();
+                    RefreshPanelLayoutContext(DrawingRect);
+                    PerformLayout();
+                }
                 Invalidate();
             }
         }
@@ -236,7 +244,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _showTitle;
             set
             {
+                if (_showTitle == value) return;
                 _showTitle = value;
+                // Refresh layout context so ContentBounds / _titleBottomY are recalculated
+                // before PerformLayout repositions child controls.
+                if (IsHandleCreated)
+                {
+                    UpdateDrawingRect();
+                    RefreshPanelLayoutContext(DrawingRect);
+                    PerformLayout();
+                }
                 Invalidate();
             }
         }
@@ -1326,12 +1343,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                
+
+                // Always refresh layout so _titleBottomY and ContentBounds are current,
+                // even when ShowTitle is false (otherwise child controls keep the old offset).
+                UpdateDrawingRect();
+                RefreshPanelLayoutContext(DrawingRect);
+
                 // Draw title if shown - this follows the control style
                 if (_showTitle && !string.IsNullOrEmpty(_titleText))
                 {
-                    UpdateDrawingRect();
-                    RefreshPanelLayoutContext(DrawingRect);
                     DrawTitle(g, DrawingRect);
                 }
                 

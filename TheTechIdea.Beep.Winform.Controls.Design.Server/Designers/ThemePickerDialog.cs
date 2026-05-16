@@ -295,6 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         // ── data ──────────────────────────────────────────────────────────────
         public string ThemeName    { get; }
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public bool   IsSelected   { get; set; }
 
         private readonly Color  _primary;

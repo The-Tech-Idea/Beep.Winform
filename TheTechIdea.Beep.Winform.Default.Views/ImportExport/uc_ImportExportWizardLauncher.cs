@@ -334,28 +334,31 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             var exportConfig = new ExportConfiguration
             {
                 SourceDataSourceName = cmbSourceDS.SelectedItem?.Text ?? string.Empty,
-                SourceEntityName = cmbSourceEntity.SelectedItem?.Text ?? string.Empty,
-                DestDataSourceName = cmbDestDS.SelectedItem?.Text ?? string.Empty,
-                DestEntityName = cmbDestEntity.SelectedItem?.Text ?? string.Empty
+                SourceEntityName     = cmbSourceEntity.SelectedItem?.Text ?? string.Empty,
+                DestDataSourceName   = cmbDestDS.SelectedItem?.Text ?? string.Empty,
+                DestEntityName       = cmbDestEntity.SelectedItem?.Text ?? string.Empty
             };
 
-            var colStep = new uc_Export_ColumnSelection(_services, exportConfig);
-            var runStep = new uc_Export_Run(_services, exportConfig);
+            var selectStep = new uc_Export_SelectDSandFile(_services);
+            var colStep    = new uc_Export_ColumnSelection(_services, exportConfig);
+            var runStep    = new uc_Export_Run(_services, exportConfig);
 
             var wizardConfig = new WizardConfig
             {
-                Key = $"ExportWizard_{Guid.NewGuid():N}",
-                Title = "Export Wizard",
-                Description = "Select columns and export data.",
-                Style = WizardStyle.HorizontalStepper,
-                ShowProgressBar = true,
-                ShowStepList = true,
-                AllowBack = true,
-                AllowCancel = true,
+                Key              = $"ExportWizard_{Guid.NewGuid():N}",
+                Title            = "Export Wizard",
+                Description      = "Choose source, select columns, then export data.",
+                Style            = WizardStyle.HorizontalStepper,
+                ShowProgressBar  = true,
+                ShowStepList     = true,
+                AllowBack        = true,
+                AllowCancel      = true,
+                ShowInlineErrors = true,
                 Steps = new List<WizardStep>
                 {
-                    new WizardStep { Key = "columns", Title = "Select Columns", Description = "Choose which columns to export.", Content = colStep },
-                    new WizardStep { Key = "run", Title = "Review & Export", Description = "Review and execute the export.", Content = runStep }
+                    new WizardStep { Key = "select",  Title = "Configure",      Description = "Choose source entity and export destination.", Content = selectStep },
+                    new WizardStep { Key = "columns", Title = "Select Columns", Description = "Choose which columns to export.",               Content = colStep   },
+                    new WizardStep { Key = "run",     Title = "Review & Export",Description = "Review summary and execute the export.",        Content = runStep   }
                 }
             };
 
@@ -363,9 +366,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             {
                 var summary = ctx.GetValue<ExportRunSummary?>(ExportWizardKeys.RunSummary, null);
                 if (summary != null)
-                {
                     AppendLog($"Export complete: {summary.ExportedRows:N0} rows");
-                }
             };
             wizardConfig.OnCancel = _ => AppendLog("Export wizard cancelled.");
 

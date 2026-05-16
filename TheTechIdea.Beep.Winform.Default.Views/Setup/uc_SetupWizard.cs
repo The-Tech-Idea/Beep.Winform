@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
@@ -222,6 +223,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
                 Key = "driver-provision",
                 Title = "Driver Provision",
                 Description = "Discover or install required drivers.",
+                Icon = SvgsUIcons.Logistics.Package,
                 IsOptional = false,
                 Content = _driverStepControl
             };
@@ -239,6 +241,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
                 Key = "connection-config",
                 Title = "Connection Configuration",
                 Description = "Create and verify the target datasource connection.",
+                Icon = SvgsUIcons.Storage.Database,
                 IsOptional = false,
                 Content = _connectionStepControl
             };
@@ -253,6 +256,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
                 Key = "schema-setup",
                 Title = "Schema Setup",
                 Description = "Plan and apply schema migration actions.",
+                Icon = SvgsUIcons.DataTable.Table,
                 IsOptional = false,
                 Content = _schemaStepControl
             };
@@ -267,6 +271,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
                 Key = "seeding",
                 Title = "Seed Initial Data",
                 Description = "Run ordered seeders for baseline data.",
+                Icon = SvgsUIcons.Agriculture.Seedling,
                 IsOptional = true,
                 Content = _seedingStepControl
             };
@@ -283,6 +288,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
                 Key = "review-run",
                 Title = "Review and Run",
                 Description = "Validate your setup selections before execution.",
+                Icon = SvgsUIcons.Common.Play,
                 IsOptional = false,
                 Content = _reviewStepControl,
                 OnEnter = _ => RefreshReviewStep()

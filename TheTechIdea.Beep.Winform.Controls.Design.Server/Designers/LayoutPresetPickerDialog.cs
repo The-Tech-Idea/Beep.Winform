@@ -216,6 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             public LayoutPreset Preset { get; }
             public string       Label  { get; }
+            [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
             public bool IsSelected
             {
                 get => _selected;

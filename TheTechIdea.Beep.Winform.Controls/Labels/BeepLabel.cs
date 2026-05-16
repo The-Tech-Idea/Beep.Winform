@@ -568,6 +568,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         protected override void DrawContent(Graphics g)
         {
+            base.DrawContent(g);
             Paint(g, DrawingRect);
         }
 

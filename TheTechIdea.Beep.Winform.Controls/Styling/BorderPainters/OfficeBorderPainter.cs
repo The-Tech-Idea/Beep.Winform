@@ -58,20 +58,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             float borderWidth = StyleBorders.GetBorderWidth(style); // 1.0f
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Paint Office signature 3px accent bar on left (ribbon Style)
+            // Paint Office signature accent bar on left (ribbon style) as a thick stroke,
+            // inset by half its width so the stroke stays fully inside the control boundary.
             if (showAccentBar)
             {
                 int accentBarWidth = StyleBorders.GetAccentBarWidth(style); // 3px
                 var bounds = path.GetBounds();
+                float halfBar = accentBarWidth / 2f;
 
-                var accentBrush = PaintersFactory.GetSolidBrush(primaryColor);
-                RectangleF accentRect = new RectangleF(
-                    bounds.Left,
-                    bounds.Top,
-                    accentBarWidth,
-                    bounds.Height
-                );
-                g.FillRectangle(accentBrush, accentRect);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var accentPen = new Pen(primaryColor, accentBarWidth))
+                {
+                    accentPen.StartCap = LineCap.Flat;
+                    accentPen.EndCap   = LineCap.Flat;
+                    // Draw a vertical line inset by halfBar from the left edge
+                    g.DrawLine(accentPen,
+                        bounds.Left + halfBar, bounds.Top,
+                        bounds.Left + halfBar, bounds.Bottom);
+                }
             }
 
             // Return the area inside the border

@@ -40,10 +40,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             g.SmoothingMode = SmoothingMode.None;
             g.PixelOffsetMode = PixelOffsetMode.None;
 
-            using (var pen = new Pen(outerColor, outerWidth))
+            // PenAlignment.Inset is unreliable for GraphicsPath in GDI+.
+            // Instead, manually inset the path by half the stroke width and
+            // draw with Center alignment so the full stroke sits inside the boundary.
+            int detectedRadius = (int)GraphicsExtensions.DetectRadiusFromRoundedRectPath(path);
+            float halfStroke = outerWidth / 2f;
+            using (var insetPath = path.CreateInsetPath(halfStroke, detectedRadius))
             {
-                pen.Alignment = PenAlignment.Inset;
-                g.DrawPath(pen, path);
+                var drawTarget = (insetPath != null && insetPath.PointCount > 2) ? insetPath : path;
+                using (var pen = new Pen(outerColor, outerWidth))
+                {
+                    pen.LineJoin = LineJoin.Miter; // Sharp corners for Brutalist style
+                    pen.Alignment = PenAlignment.Center;
+                    g.DrawPath(pen, drawTarget);
+                }
             }
 
             g.SmoothingMode = oldMode;

@@ -71,9 +71,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             WireStatusBar();
             RegisterCustomCommands();
             WireEvents();
-            WireTabStylePicker();
-            WireDocumentSearch();
-            WireAddButton();
+           
             OpenStartupDocuments();
         }
 
@@ -108,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
                 if (!_styleChanging)
                 {
                     _styleChanging = true;
-                    beepComboBox1.Text = host.TabStyle.ToString();
+                   
                     _styleChanging = false;
                 }
             };
@@ -240,76 +238,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         // ── Tab-style picker (beepComboBox1) ──────────────────────────────────
 
-        private void WireTabStylePicker()
-        {
-            var styles = Enum.GetValues<DocumentTabStyle>()
-                             .Select(s => s.ToString())
-                             .ToArray();
+      
 
-            beepComboBox1.Items.Clear();
-            foreach (var s in styles)
-                beepComboBox1.Items.Add(s);
-
-            var host = beepTabbedView1.Host;
-            if (host != null)
-                beepComboBox1.Text = host.TabStyle.ToString();
-
-            beepComboBox1.SelectedIndexChanged += (_, _) =>
-            {
-                if (_styleChanging) return;
-                var h = beepTabbedView1.Host;
-                if (h == null) return;
-                if (Enum.TryParse<DocumentTabStyle>(beepComboBox1.Text, out var style))
-                {
-                    _styleChanging = true;
-                    h.TabStyle     = style;
-                    _styleChanging = false;
-                }
-            };
-        }
-
-        // ── Document search (beepTextBox1) ────────────────────────────────────
-
-        private void WireDocumentSearch()
-        {
-            beepTextBox1.PlaceholderText = "Search documents…";
-
-            beepTextBox1.KeyDown += (_, ke) =>
-            {
-                if (ke.KeyCode != Keys.Enter && ke.KeyCode != Keys.Return) return;
-                ke.Handled = ke.SuppressKeyPress = true;
-
-                var query = beepTextBox1.Text?.Trim();
-                if (string.IsNullOrEmpty(query)) return;
-
-                // Search the local title index (populated by DocumentAdded / DocumentRemoved)
-                var match = _documentTitles.FirstOrDefault(kv =>
-                    kv.Value.Contains(query, StringComparison.OrdinalIgnoreCase));
-
-                if (match.Key != null)
-                    beepDocumentManager1.ActivateDocument(match.Key);
-                else
-                    System.Media.SystemSounds.Beep.Play();
-            };
-        }
+     
 
         // ── Add-Document button (beepButton1) ─────────────────────────────────
 
-        private void WireAddButton()
-        {
-            beepButton1.Text   = "+ Add Document";
-            beepButton1.Click += (_, _) =>
-            {
-                // Cycle through three demo types
-                int type = _docCounter % 3;
-                if (type == 0)
-                    AddSampleDocument($"Document {_docCounter + 1}");
-                else if (type == 1)
-                    AddEditorDocument($"Editor {_docCounter + 1}");
-                else
-                    AddMarkdownDocument($"Note {_docCounter + 1}");
-            };
-        }
+     
 
         // ── Startup documents ─────────────────────────────────────────────────
 

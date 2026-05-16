@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             CalculateLabelProperties(g, owner);
             // Check if Borders need to bedrawn
             bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0));
-            if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None)
+            if (owner.UseFormStylePaint && owner.ControlStyle != BeepControlStyle.None )
             {
               //  Console.WriteLine("Using styled painting for control with style: " + owner.ControlStyle);
                 // === STYLED PAINTING ===

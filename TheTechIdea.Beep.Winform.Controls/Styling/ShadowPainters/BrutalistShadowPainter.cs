@@ -21,27 +21,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             var bounds = path.GetBounds();
 
-            // Turn off anti-aliasing → mandatory for crisp Brutalist hard edges
-            var prevMode = g.SmoothingMode;
-            g.SmoothingMode = SmoothingMode.None;
+            // Shadow offset - the "depth" of the 3D stacked effect
+            int offsetX = StyleShadows.GetShadowOffsetX(style); // Default: 6
+            int offsetY = StyleShadows.GetShadowOffsetY(style); // Default: 6
 
+            if (offsetX < 4) offsetX = 4;
+            if (offsetY < 4) offsetY = 4;
+
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+
+            // Save full graphics state - ExcludeClip must be scoped or it leaks
+            // into every subsequent draw call (background, text, icons, etc.)
+            var savedState = g.Save();
             try
             {
-                // Shadow offset - the "depth" of the 3D stacked effect
-                int offsetX = StyleShadows.GetShadowOffsetX(style); // Default: 6
-                int offsetY = StyleShadows.GetShadowOffsetY(style); // Default: 6
-                
-                // Ensure minimum offset for visible effect
-                if (offsetX < 4) offsetX = 4;
-                if (offsetY < 4) offsetY = 4;
+                // Turn off anti-aliasing for crisp Brutalist hard edges
+                g.SmoothingMode = SmoothingMode.None;
 
-                // Shadow color from StyleShadows (solid black for Brutalist)
-                Color shadowColor = StyleShadows.GetShadowColor(style);
+                // Exclude the control's own area so the shadow only shows
+                // where it sticks out from behind the control (the offset strip).
+                using (var interior = new Region(path))
+                    g.ExcludeClip(interior);
 
                 // Draw single solid shadow rectangle offset behind the control
                 using (var brush = new SolidBrush(shadowColor))
                 {
-                    // The shadow is a simple rectangle, same size as control, offset down-right
                     g.FillRectangle(brush,
                         bounds.X + offsetX,
                         bounds.Y + offsetY,
@@ -51,7 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             }
             finally
             {
-                g.SmoothingMode = prevMode;
+                // Restores SmoothingMode AND the clip region in one call
+                g.Restore(savedState);
             }
 
             return path;

@@ -85,10 +85,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     }
                 }
 
-                // Fill with subtle shadow color
+                // Fill with subtle shadow color, excluding the control's own area
+                // so no shadow tint lands on top of the control surface.
                 using (var brush = new SolidBrush(Color.FromArgb(alpha, baseShadowColor)))
+                using (var interior = new Region(path))
                 {
-                    g.FillPath(brush, shadowPath);
+                    var state2 = g.Save();
+                    try
+                    {
+                        g.ExcludeClip(interior);
+                        g.FillPath(brush, shadowPath);
+                    }
+                    finally
+                    {
+                        g.Restore(state2);
+                    }
                 }
             }
 

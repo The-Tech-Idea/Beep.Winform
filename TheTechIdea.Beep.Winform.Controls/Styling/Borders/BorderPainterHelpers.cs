@@ -58,27 +58,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             // We draw from widest (faintest) to narrowest (brightest accumulation)
             int layers = 8;
             float step = glowWidth / layers;
-            
-            // Base alpha for each layer. 
-            // If we have 8 layers overlapping at the center, total alpha will be high.
-            // We want the edge to be very faint.
-            int baseAlpha = (int)(40 * glowIntensity); 
 
-            for (int i = 0; i < layers; i++)
+            // Base alpha for each layer.
+            int baseAlpha = (int)(40 * glowIntensity);
+
+            // Exclude the control interior so wide pen strokes only bleed outward.
+            var state = g.Save();
+            try
             {
-                // Width decreases from glowWidth to near 0
-                float w = glowWidth - (i * step);
-                if (w <= 0.5f) continue;
+                using (var interior = new Region(path))
+                    g.ExcludeClip(interior);
 
-                int alpha = baseAlpha;
-                
-                using (var p = new Pen(Color.FromArgb(alpha, glowColor), w))
+                for (int i = 0; i < layers; i++)
                 {
-                    p.LineJoin = LineJoin.Round;
-                    p.StartCap = LineCap.Round;
-                    p.EndCap = LineCap.Round;
-                    g.DrawPath(p, path);
+                    // Width decreases from glowWidth to near 0
+                    float w = glowWidth - (i * step);
+                    if (w <= 0.5f) continue;
+
+                    using (var p = new Pen(Color.FromArgb(baseAlpha, glowColor), w))
+                    {
+                        p.LineJoin = LineJoin.Round;
+                        p.StartCap = LineCap.Round;
+                        p.EndCap = LineCap.Round;
+                        g.DrawPath(p, path);
+                    }
                 }
+            }
+            finally
+            {
+                g.Restore(state);
             }
         }
 
@@ -357,19 +365,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         /// </summary>
         private static void PaintGlowFocusRing(Graphics g, GraphicsPath path, Color focusColor, float width)
         {
-            // Draw multiple layers for glow effect
-            int layers = 4;
-            for (int i = layers; i > 0; i--)
+            // Exclude the control interior so growing-width pen layers only bleed outward.
+            var state = g.Save();
+            try
             {
-                float layerWidth = width + (i * 1.5f);
-                int alpha = (int)(255 * (1.0f - (float)(layers - i) / layers));
-                alpha = Math.Max(30, alpha); // Minimum visibility
+                using (var interior = new Region(path))
+                    g.ExcludeClip(interior);
 
-                using (var pen = new Pen(Color.FromArgb(alpha, focusColor), layerWidth))
+                // Draw multiple layers for glow effect
+                int layers = 4;
+                for (int i = layers; i > 0; i--)
                 {
-                    pen.LineJoin = LineJoin.Round;
-                    g.DrawPath(pen, path);
+                    float layerWidth = width + (i * 1.5f);
+                    int alpha = (int)(255 * (1.0f - (float)(layers - i) / layers));
+                    alpha = Math.Max(30, alpha); // Minimum visibility
+
+                    using (var pen = new Pen(Color.FromArgb(alpha, focusColor), layerWidth))
+                    {
+                        pen.LineJoin = LineJoin.Round;
+                        g.DrawPath(pen, path);
+                    }
                 }
+            }
+            finally
+            {
+                g.Restore(state);
             }
         }
 

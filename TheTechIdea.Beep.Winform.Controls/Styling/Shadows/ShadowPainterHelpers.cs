@@ -38,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             RectangleF boundsRect = bounds.GetBounds();
             Rectangle shadowBounds = Rectangle.Round(boundsRect);
-            shadowBounds.Offset(offsetX, offsetY);
-            shadowBounds.Inflate(spread, spread);
+            shadowBounds.Offset(offsetX, offsetY);   // shift the shape
+            shadowBounds.Inflate(spread, spread);    // expand it
 
             using (var shadowPath = new GraphicsPath())
             {
@@ -73,14 +73,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 }
 
                 var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(alpha, shadowColor));
-                g.FillPath(brush, shadowPath);
+                FillShadowExcluding(g, brush, shadowPath, bounds);
             }
 
             return bounds;
         }
 
         /// <summary>
-        /// Paints a hard-edged offset shadow (Brutalist/Retro/Cartoon style)
+        /// Paints a hard-edged offset shadow
         /// Best for: Brutalist design, retro UIs, cartoon styles
         /// </summary>
         /// <param name="g">Graphics context</param>
@@ -101,6 +101,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 
             try
             {
+                using (var exclude = new Region(bounds))
+                    g.ExcludeClip(exclude);
+
                 using (var brush = new SolidBrush(shadowColor))
                 {
                     g.FillRectangle(brush,
@@ -258,6 +261,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         /// <summary>
         /// Darken shadow color for more realistic shadows (not pure black)
         /// </summary>
+        /// <summary>
+        /// Fills <paramref name="shadowPath"/> while excluding the control's own <paramref name="controlBounds"/> area,
+        /// so the shadow colour is never painted on top of the control itself.
+        /// </summary>
+        private static void FillShadowExcluding(Graphics g, Brush brush, GraphicsPath shadowPath, GraphicsPath controlBounds)
+        {
+            var state = g.Save();
+            try
+            {
+                using (var exclude = new Region(controlBounds))
+                    g.ExcludeClip(exclude);
+                g.FillPath(brush, shadowPath);
+            }
+            finally
+            {
+                g.Restore(state);
+            }
+        }
+
         private static Color DarkenShadowColor(Color baseColor)
         {
             // If it's already dark, use as-is; otherwise darken it
@@ -446,16 +468,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                             using (GraphicsPath expandedPath = shadowPath.CreateInsetPath(-spread))
                             {
                                 if (expandedPath != null && expandedPath.PointCount > 0)
-                                {
-                                    var shadowBrush = PaintersFactory.GetSolidBrush(layerShadowColor);
-                                    g.FillPath(shadowBrush, expandedPath);
-                                }
+                                            {
+                                                var shadowBrush = PaintersFactory.GetSolidBrush(layerShadowColor);
+                                                FillShadowExcluding(g, shadowBrush, expandedPath, bounds);
+                                            }
                             }
                         }
                         else
                         {
                             var shadowBrush = PaintersFactory.GetSolidBrush(layerShadowColor);
-                            g.FillPath(shadowBrush, shadowPath);
+                            FillShadowExcluding(g, shadowBrush, shadowPath, bounds);
                         }
                     }
                 }
@@ -513,7 +535,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 lightPath.Transform(lightMatrix);
 
                 var lightBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, lightShadow));
-                g.FillPath(lightBrush, lightPath);
+                FillShadowExcluding(g, lightBrush, lightPath, bounds);
             }
 
             // Dark shadow (bottom-right)
@@ -526,7 +548,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 darkPath.Transform(darkMatrix);
 
                 var darkBrush = PaintersFactory.GetSolidBrush(Color.FromArgb(80, darkShadow));
-                g.FillPath(darkBrush, darkPath);
+                FillShadowExcluding(g, darkBrush, darkPath, bounds);
             }
 
             // Return the area inside the shadow using shape-aware inset
@@ -765,7 +787,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     shadowPath.Transform(matrix);
 
                     var brush = PaintersFactory.GetSolidBrush(stepColor);
-                    g.FillPath(brush, shadowPath);
+                    FillShadowExcluding(g, brush, shadowPath, bounds);
                 }
             }
 
@@ -773,7 +795,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         }
 
         /// <summary>
-        /// Paints perspective shadow (for 3D tilt effect)
+        /// Paints perspective shadow
         /// </summary>
         public static GraphicsPath PaintPerspectiveShadow(Graphics g, GraphicsPath bounds, int radius, PerspectiveDirection direction = PerspectiveDirection.BottomRight, float intensity = 0.5f)
         {
@@ -820,7 +842,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             using (var matrix = new Matrix(boundsRect, destPoints))
             {
                 shadowPath.Transform(matrix);
-                g.FillPath(shadowBrush, shadowPath);
+                FillShadowExcluding(g, shadowBrush, shadowPath, bounds);
             }
 
             return bounds.CreateInsetPath(radius);
@@ -984,7 +1006,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     brush.CenterColor = Color.FromArgb(60, 0, 0, 0);
                     brush.SurroundColors = new[] { Color.Transparent };
 
-                    g.FillPath(brush, shadowPath);
+                    FillShadowExcluding(g, brush, shadowPath, bounds);
                 }
             }
 

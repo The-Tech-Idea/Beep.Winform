@@ -37,6 +37,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         /// Shows the custom <see cref="DocumentDescriptorEditorForm"/> instead of
         /// the standard collection editor grid.
         /// </summary>
+        /// <remarks>
+        /// Phase 04: wraps the OK-button mutation in a single designer
+        /// transaction and explicitly raises
+        /// <see cref="IComponentChangeService.OnComponentChanging"/> /
+        /// <see cref="IComponentChangeService.OnComponentChanged"/> via the
+        /// supplied <see cref="ITypeDescriptorContext"/>. Without this the
+        /// collection mutation went unnoticed by undo so Ctrl+Z silently
+        /// failed for everything edited inside the dialog.
+        /// </remarks>
         public override object? EditValue(
             ITypeDescriptorContext? context,
             IServiceProvider? provider,
@@ -54,10 +63,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             else
                 form.ShowDialog();
 
-            if (form.DialogResult == DialogResult.OK)
-                return PushBack(value, form.Result);
+            if (form.DialogResult != DialogResult.OK)
+                return value;
 
-            return value;
+            return CommitEditedCollection(context, provider, value, form.Result, "Edit Documents");
+        }
+
+        /// <summary>
+        /// Pushes <paramref name="edited"/> back into <paramref name="original"/>
+        /// inside a designer transaction so the multi-row edit is undoable as
+        /// a single Edit-menu entry.
+        /// </summary>
+        internal static object CommitEditedCollection(
+            ITypeDescriptorContext? context,
+            IServiceProvider?       provider,
+            object?                 original,
+            IReadOnlyList<DocumentDescriptor> edited,
+            string                  transactionName)
+        {
+            var designerHost = provider?.GetService(typeof(IDesignerHost)) as IDesignerHost;
+            var changeSvc    = provider?.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+
+            DesignerTransaction? txn = null;
+            try
+            {
+                txn = designerHost?.CreateTransaction(transactionName);
+
+                if (context?.Instance != null && context.PropertyDescriptor != null)
+                {
+                    changeSvc?.OnComponentChanging(context.Instance, context.PropertyDescriptor);
+                }
+                else
+                {
+                    context?.OnComponentChanging();
+                }
+
+                var result = DocumentDescriptorCollectionEditorHelper.PushBack(original, edited);
+
+                if (context?.Instance != null && context.PropertyDescriptor != null)
+                {
+                    changeSvc?.OnComponentChanged(context.Instance, context.PropertyDescriptor, original, result);
+                }
+                else
+                {
+                    context?.OnComponentChanged();
+                }
+
+                txn?.Commit();
+                return result;
+            }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
         }
 
         // ── helpers ──────────────────────────────────────────────────────────
@@ -125,10 +184,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             else
                 form.ShowDialog();
 
-            if (form.DialogResult == DialogResult.OK)
-                return DocumentDescriptorCollectionEditor.PushBackPublic(value, form.Result);
+            if (form.DialogResult != DialogResult.OK)
+                return value;
 
-            return value;
+            // Phase 04 — route through the shared transactional commit so the
+            // entire multi-row edit is one Edit-menu undo entry.
+            return DocumentDescriptorCollectionEditor.CommitEditedCollection(
+                context, provider, value, form.Result, "Edit Design-Time Documents");
         }
     }
 

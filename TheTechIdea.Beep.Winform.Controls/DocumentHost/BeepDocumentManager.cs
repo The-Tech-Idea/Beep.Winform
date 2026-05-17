@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     [ProvideProperty("DocumentIconPath", typeof(Control))]
     [DefaultEvent(nameof(ActiveDocumentChanged))]
     [DefaultProperty(nameof(View))]
-    public sealed class BeepDocumentManager : Component, IExtenderProvider, ISupportInitialize
+    public sealed partial class BeepDocumentManager : Component, IExtenderProvider, ISupportInitialize
     {
         // ── Private state ─────────────────────────────────────────────────────
 
@@ -400,6 +400,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [Category("Document Manager")]
         [Description("Documents opened when the view is first attached. Configure at design time.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Editor(
+            "TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.DesignTimeDocumentsEditor, TheTechIdea.Beep.Winform.Controls.Design.Server",
+            "System.Drawing.Design.UITypeEditor, System.Drawing")]
         public Collection<DocumentDescriptor> DesignTimeDocuments => _designTimeDocuments;
 
         // ══════════════════════════════════════════════════════════════════════
@@ -1301,6 +1304,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 }
 
                 UnhookOwnerForm();
+                DisposeDisplayContainer();
                 DetachView();
                 DetachStatusStrip();
                 _view             = null;

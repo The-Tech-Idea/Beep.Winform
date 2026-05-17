@@ -111,8 +111,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 e.Graphics.FillRectangle(bgBrush, contentClip);
             }
 
-            // Draw each menu item
-            DrawMenuItemsSimple(e.Graphics, beepInsets);
+            // Draw each menu item (skipped when the BeepListBox substrate owns the item area).
+            if (!IsHostedListSubstrateActive)
+            {
+                DrawMenuItemsSimple(e.Graphics, beepInsets);
+            }
 
             // Restore graphics state (clip + transform) before exiting paint
             e.Graphics.Restore(itemState);

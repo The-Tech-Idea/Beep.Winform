@@ -1,3 +1,8 @@
+// Thin wrapper over BeepFontManager. Governance: Menus/.plans/ADR-001-StylingStack.md
+//
+// This file is on the allowed-helpers list because it delegates to the
+// framework font primitives and never invents chrome behaviour of its own.
+// ─────────────────────────────────────────────────────────────────────────────
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;

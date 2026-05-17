@@ -126,42 +126,6 @@
   <metadata name="beepTabbedView1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>377, 17</value>
   </metadata>
-  <data name="beepDocumentHost1.DesignTimeLayoutJson" xml:space="preserve">
-    <value>{
-  "schemaVersion": 4,
-  "activeDocumentId": "doc2",
-  "layoutTree": {
-    "type": "tabGroup",
-    "nodeId": "eda1e60f-df81-44c9-b228-20b2ce30fa01",
-    "groupId": "eda1e60f-df81-44c9-b228-20b2ce30fa01",
-    "selectedDocumentId": "doc2",
-    "ratio": 0.5,
-    "documents": [
-      {
-        "id": "doc1",
-        "title": "Document 1",
-        "isPinned": false,
-        "isModified": false,
-        "customData": {}
-      },
-      {
-        "id": "doc2",
-        "title": "Document 2",
-        "isPinned": false,
-        "isModified": false,
-        "customData": {}
-      }
-    ]
-  },
-  "floatingWindows": [],
-  "autoHideEntries": [],
-  "mruSnapshot": [
-    "doc2",
-    "doc1"
-  ],
-  "dockPanels": []
-}</value>
-  </data>
   <data name="beepDocumentHost1.RadialCenter" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFFTeXN0ZW0uRHJhd2luZywgVmVyc2lvbj00LjAuMC4wLCBDdWx0

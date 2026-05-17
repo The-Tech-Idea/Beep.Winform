@@ -76,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DocumentId { get; }
 
+        [Category("Document")]
         [DefaultValue("Document")]
         [Description("Title shown in the document tab.")]
         public string DocumentTitle
@@ -84,6 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set { _documentTitle = value ?? "Document"; }
         }
 
+        [Category("Document")]
         [DefaultValue(false)]
         [Description("Marks the document as having unsaved changes.")]
         public bool IsModified
@@ -92,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set { _isModified = value; ModifiedChanged?.Invoke(this, EventArgs.Empty); }
         }
 
+        [Category("Document")]
         [DefaultValue(true)]
         [Description("Allows the user to close this document.")]
         public bool CanClose
@@ -100,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set => _canClose = value;
         }
 
+        [Category("Document")]
         [DefaultValue(null)]
         [Description("Path to the icon shown on the document tab.")]
         public string? IconPath
@@ -108,6 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set => _iconPath = value;
         }
 
+        [Category("Document")]
         [DefaultValue(null)]
         [Description("Category label for grouping tabs; shown as a separator in the overflow dropdown.")]
         public string? DocumentCategory
@@ -116,6 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set => _documentCategory = value;
         }
 
+        [Category("Document")]
         [DefaultValue(false)]
         [Description("Show a themed tri-segment status bar at the bottom of the panel.")]
         public bool ShowStatusBar

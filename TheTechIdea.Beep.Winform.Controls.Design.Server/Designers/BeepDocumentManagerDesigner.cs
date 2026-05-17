@@ -8,6 +8,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
@@ -23,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// design-time documents collection, resetting layout, and switching the active
     /// <see cref="IBeepDocumentManagerView"/>.
     /// </summary>
-    public sealed class BeepDocumentManagerDesigner : ComponentDesigner
+    public sealed partial class BeepDocumentManagerDesigner : ComponentDesigner
     {
         private BeepDocumentManager?          _manager;
         private DesignerVerbCollection?       _verbs;
@@ -35,6 +36,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             base.Initialize(component);
             _manager = component as BeepDocumentManager;
+        }
+
+        /// <summary>
+        /// Phase 07 — runs ONCE when the user drops a BeepDocumentManager from
+        /// the toolbox (not on every form-load). Launches the setup wizard so
+        /// the new component is fully wired before the user has to hunt for a
+        /// smart-tag. Designed to mirror commercial MDI platforms where
+        /// dropping a single component opens a guided setup.
+        /// </summary>
+        public override void InitializeNewComponent(System.Collections.IDictionary? defaultValues)
+        {
+            base.InitializeNewComponent(defaultValues);
+            try
+            {
+                // Honor the developer's "Don't show again" preference (HKCU).
+                if (!ShouldAutoOpenWizard()) return;
+
+                // Defer to the next message loop tick so the component is fully
+                // sited by the designer host before the wizard tries to read
+                // services from it.
+                if (Component is BeepDocumentManager mgr && mgr.Site != null)
+                {
+                    var sync = SynchronizationContext.Current;
+                    if (sync != null)
+                    {
+                        sync.Post(_ => SafeShowSetupWizard(), null);
+                    }
+                    else
+                    {
+                        SafeShowSetupWizard();
+                    }
+                }
+            }
+            catch
+            {
+                // Wizard must never break the toolbox drop operation.
+            }
+        }
+
+        private void SafeShowSetupWizard()
+        {
+            try { ShowSetupWizard(); } catch { /* design-time guard */ }
         }
 
         protected override void Dispose(bool disposing)
@@ -54,14 +97,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     _verbs = new DesignerVerbCollection
                     {
-                        new DesignerVerb("Edit Documents\u2026",             OnEditDocuments),
-                        new DesignerVerb("Add Document",                   OnAddDocument),
-                        new DesignerVerb("Clear All Documents",            OnClearDocuments),
-                        new DesignerVerb("Reset Layout",                   OnResetLayout),
-                        new DesignerVerb("Use Tabbed View",                OnUseTabbedView),
-                        new DesignerVerb("Use Native MDI View",            OnUseNativeMdiView),
+                        // Phase 07 — the wizard is the primary entry point.
+                        new DesignerVerb("\u2728 Setup Wizard\u2026",         OnChooseViewMode),
+                        new DesignerVerb("Edit Documents\u2026",                OnEditDocuments),
+                        new DesignerVerb("Add Document",                       OnAddDocument),
+                        new DesignerVerb("Clear All Documents",                OnClearDocuments),
+                        new DesignerVerb("Reset Layout",                       OnResetLayout),
+                        new DesignerVerb("Use Tabbed Documents",                OnUseTabbedView),
+                        new DesignerVerb("Use Browser Tabs",                    OnUseBrowserTabs),
+                        new DesignerVerb("Use Native MDI",                      OnUseNativeMdiView),
                         new DesignerVerb("Customize Keyboard Shortcuts\u2026", OnCustomizeShortcuts),
                         new DesignerVerb("Manage Workspaces\u2026",            OnManageWorkspaces),
+                        new DesignerVerb("Reset Setup Wizard Preference",      OnResetWizardPreference),
                     };
                 }
                 return _verbs;
@@ -71,42 +118,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void OnEditDocuments(object? sender, EventArgs e)
         {
             if (_manager == null) return;
+            HideSmartTag();
             OpenDesignTimeDocumentsEditor();
         }
 
         private void OnAddDocument(object? sender, EventArgs e)
         {
             if (_manager?.View == null) return;
-            using var txn = DesignerHost?.CreateTransaction("Add Document");
-            try
+
+            var title      = $"Document {Environment.TickCount & 0xFFFF}";
+            var descriptor = new DocumentDescriptor
             {
-                _manager.AddDocument($"Document {Environment.TickCount & 0xFFFF}");
-                txn?.Commit();
-            }
-            catch { txn?.Cancel(); }
+                Id             = Guid.NewGuid().ToString("N"),
+                Title          = title,
+                InitialContent = DocumentInitialContent.Empty
+            };
+
+            MutateDesignTimeDocuments("Add Document", docs =>
+            {
+                docs.Add(descriptor);
+                _manager.View?.AddDocument(descriptor);
+            });
         }
 
         private void OnClearDocuments(object? sender, EventArgs e)
         {
             if (_manager == null) return;
+            HideSmartTag();
             var r = MessageBox.Show(
                 "Remove all design-time documents and close all open documents?",
                 "Clear All Documents",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
             if (r != DialogResult.Yes) return;
-            using var txn = DesignerHost?.CreateTransaction("Clear All Documents");
-            try
+
+            MutateDesignTimeDocuments("Clear All Documents", docs =>
             {
-                _manager.DesignTimeDocuments.Clear();
+                docs.Clear();
                 _manager.CloseAllDocuments();
-                txn?.Commit();
-            }
-            catch { txn?.Cancel(); }
+            });
         }
 
         private void OnResetLayout(object? sender, EventArgs e)
         {
+            // ResetLayout only clears the runtime view; DesignTimeDocuments is
+            // untouched, so this is a runtime-only operation that does not
+            // participate in the serializable undo graph. We still create a
+            // transaction so VS can group any cascading change-service
+            // notifications fired by view teardown into a single Edit-menu
+            // entry.
             if (_manager?.View == null) return;
             using var txn = DesignerHost?.CreateTransaction("Reset Layout");
             try
@@ -114,17 +174,63 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 _manager.CloseAllDocuments();
                 txn?.Commit();
             }
-            catch { txn?.Cancel(); }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Wraps a mutation of <see cref="BeepDocumentManager.DesignTimeDocuments"/>
+        /// inside a designer transaction with full
+        /// <see cref="IComponentChangeService"/> notifications so the change
+        /// is visible to the undo stack and downstream serializers.
+        /// </summary>
+        internal void MutateDesignTimeDocuments(string transactionName, Action<Collection<DocumentDescriptor>> mutate)
+        {
+            if (_manager == null) return;
+
+            var prop      = GetPropertyDescriptor(nameof(BeepDocumentManager.DesignTimeDocuments));
+            var changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+
+            DesignerTransaction? txn = null;
+            try
+            {
+                txn = DesignerHost?.CreateTransaction(transactionName);
+                changeSvc?.OnComponentChanging(_manager, prop);
+
+                mutate(_manager.DesignTimeDocuments);
+
+                changeSvc?.OnComponentChanged(_manager, prop, null, null);
+                txn?.Commit();
+            }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
+            finally
+            {
+                RefreshPanel();
+            }
         }
 
         private void OnUseTabbedView(object? sender, EventArgs e)
-            => SetViewType<BeepTabbedView>("Use Tabbed View");
+            => ApplyTabbedViewMode(showInfo: true);
 
         private void OnUseNativeMdiView(object? sender, EventArgs e)
-            => SetViewType<BeepNativeMdiView>("Use Native MDI View");
+            => ApplyNativeMdiViewMode(showInfo: true);
+
+        private void OnUseBrowserTabs(object? sender, EventArgs e)
+            => ApplyBrowserTabsMode(showInfo: true);
+
+        private void OnChooseViewMode(object? sender, EventArgs e)
+            => ShowSetupWizard();
 
         private void OnCustomizeShortcuts(object? sender, EventArgs e)
         {
+            HideSmartTag();
             var registry = _manager?.CommandRegistry;
             if (registry == null)
             {
@@ -140,6 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void OnManageWorkspaces(object? sender, EventArgs e)
         {
+            HideSmartTag();
             var host = (_manager?.View as BeepTabbedView)?.Host;
             if (host == null)
             {
@@ -153,18 +260,71 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             dlg.ShowDialog();
         }
 
-        private void SetViewType<TView>(string txnName)
+        // Kept internal so the new view-mode partial (and BeepDocumentManagerActionList)
+        // can request a view type without re-implementing the transaction wrapper.
+        //
+        // Hot-fix 2026-05-17: made idempotent. The previous implementation
+        // unconditionally called DesignerHost.CreateComponent(TView), which
+        // meant every wizard re-run leaked a fresh component into the tray
+        // (beepTabbedView1, beepTabbedView2, beepTabbedView3, …) instead of
+        // reusing the assigned view. We now:
+        //   1. Return the existing view as-is when it is already the
+        //      requested TView type (no transaction, no leaked components).
+        //   2. When switching view types, destroy the previous view via
+        //      DesignerHost.DestroyComponent so the tray stays clean.
+        //   3. Only create+assign a fresh component when no view of the
+        //      requested type exists.
+        internal TView? CreateAndAssignView<TView>(string txnName)
             where TView : Component, IBeepDocumentManagerView, new()
         {
-            if (_manager == null || DesignerHost == null) return;
+            if (_manager == null || DesignerHost == null) return null;
+
+            // Already correct type → reuse, don't recreate.
+            if (_manager.View is TView existing)
+                return existing;
+
             using var txn = DesignerHost.CreateTransaction(txnName);
             try
             {
+                // Tear down any previous view of a different type so the
+                // component tray doesn't accumulate orphans.
+                if (_manager.View is Component oldView)
+                {
+                    try { DesignerHost.DestroyComponent(oldView); }
+                    catch { /* design-time; non-fatal */ }
+                }
+
                 var view = (TView)DesignerHost.CreateComponent(typeof(TView));
                 GetPropertyDescriptor(nameof(BeepDocumentManager.View))?.SetValue(_manager, view);
                 txn.Commit();
+                return view;
             }
-            catch { txn.Cancel(); }
+            catch
+            {
+                txn.Cancel();
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Actively dismisses the BeepDocumentManager smart-tag action panel.
+        /// Hot-fix 2026-05-17: <see cref="RefreshPanel"/> only re-renders
+        /// content; it does not close the panel. After modal flows
+        /// (wizard, MessageBox, collection editor) we want the panel gone
+        /// so the user sees their just-applied configuration on the
+        /// surface, not an obscuring popup.
+        /// </summary>
+        internal void HideSmartTag()
+        {
+            try
+            {
+                if (Component != null
+                    && GetService(typeof(DesignerActionUIService)) is DesignerActionUIService svc)
+                {
+                    svc.HideUI(Component);
+                }
+            }
+            catch { /* design-time; non-fatal */ }
         }
 
         // ── Document collection editor ────────────────────────────────────────
@@ -323,47 +483,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         // ── Document policy flags (from DefaultPolicy) ────────────────────────
+        //
+        // DefaultPolicy is a reference-type sealed class (BeepDocumentPolicy).
+        // Mutating it in place would be invisible to IComponentChangeService
+        // (the DefaultPolicy property reference itself never changes), so
+        // Ctrl+Z would not reverse the flag flip. Phase 04: clone the policy,
+        // toggle the requested flag on the clone, then publish via the
+        // DefaultPolicy PropertyDescriptor.SetValue which raises Component-
+        // Changing/Changed and registers a proper undo unit.
 
         [Description("Allow documents to be dragged out as floating windows.")]
         public bool AllowFloat
         {
             get => Manager?.DefaultPolicy.AllowFloat ?? true;
-            set
-            {
-                var mgr = Manager;
-                if (mgr == null) return;
-                mgr.DefaultPolicy.AllowFloat = value;
-                mgr.View?.PushPolicy(mgr.DefaultPolicy);
-                RefreshPanel();
-            }
+            set => SetPolicyFlag(nameof(AllowFloat), value, (p, v) => p.AllowFloat = v);
         }
 
         [Description("Allow documents to be pinned to the auto-hide strip.")]
         public bool AllowPin
         {
             get => Manager?.DefaultPolicy.AllowPin ?? true;
-            set
-            {
-                var mgr = Manager;
-                if (mgr == null) return;
-                mgr.DefaultPolicy.AllowPin = value;
-                mgr.View?.PushPolicy(mgr.DefaultPolicy);
-                RefreshPanel();
-            }
+            set => SetPolicyFlag(nameof(AllowPin), value, (p, v) => p.AllowPin = v);
         }
 
         [Description("Allow the document area to be split into side-by-side groups.")]
         public bool AllowSplit
         {
             get => Manager?.DefaultPolicy.AllowSplit ?? true;
-            set
+            set => SetPolicyFlag(nameof(AllowSplit), value, (p, v) => p.AllowSplit = v);
+        }
+
+        /// <summary>
+        /// Clones <see cref="BeepDocumentManager.DefaultPolicy"/>, applies the
+        /// supplied flag mutation on the clone, then writes the clone back
+        /// through the property descriptor so the change participates in the
+        /// designer's undo/redo stack.
+        /// </summary>
+        private void SetPolicyFlag(string flagName, bool value, Action<BeepDocumentPolicy, bool> applyFlag)
+        {
+            var mgr = Manager;
+            if (mgr == null) return;
+
+            var current = mgr.DefaultPolicy ?? new BeepDocumentPolicy();
+            var clone = new BeepDocumentPolicy
             {
-                var mgr = Manager;
-                if (mgr == null) return;
-                mgr.DefaultPolicy.AllowSplit = value;
-                mgr.View?.PushPolicy(mgr.DefaultPolicy);
-                RefreshPanel();
-            }
+                AllowFloat    = current.AllowFloat,
+                AllowPin      = current.AllowPin,
+                AllowSplit    = current.AllowSplit,
+                MaxSplitDepth = current.MaxSplitDepth
+            };
+            applyFlag(clone, value);
+
+            BeepDocumentManagerDesigner.GetPropertyDescriptor(
+                nameof(BeepDocumentManager.DefaultPolicy))?.SetValue(mgr, clone);
+
+            // The setter on BeepDocumentManager.DefaultPolicy already pushes the
+            // new policy to the active view, so no explicit PushPolicy call is
+            // required here (and skipping it avoids a double-push on undo).
+            RefreshPanel();
         }
 
         // ── Persistence ───────────────────────────────────────────────────────
@@ -418,10 +595,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public void CustomizeShortcuts()   => InvokeVerb("Customize Keyboard Shortcuts\u2026");
         public void ManageWorkspaces()      => InvokeVerb("Manage Workspaces\u2026");
         public void ResetLayout()          => InvokeVerb("Reset Layout");
-        public void UseTabbedView()        => InvokeVerb("Use Tabbed View");
-        public void UseNativeMdiView()     => InvokeVerb("Use Native MDI View");
+        public void SetupWizard()          => _designer.ShowSetupWizard();
+        public void UseTabbedDocuments()   => _designer.ApplyTabbedViewMode(showInfo: true);
+        public void UseBrowserTabs()       => _designer.ApplyBrowserTabsMode(showInfo: true);
+        public void UseNativeMdi()         => _designer.ApplyNativeMdiViewMode(showInfo: true);
         public void SaveLayoutNow()        => Manager?.SaveLayout();
         public void LoadLayoutNow()        => Manager?.LoadLayout();
+
+        // Smart-tag status banner (plain English, first item in the panel).
+        [Description("Current configuration of this BeepDocumentManager.")]
+        public string Status => _designer.DescribeViewMode();
 
         private void InvokeVerb(string name)
         {
@@ -435,21 +618,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             var items = new DesignerActionItemCollection();
 
-            // ── View
+            // ── Status banner (Phase 07): always the first item the user sees
+            items.Add(new DesignerActionHeaderItem("Status"));
+            items.Add(new DesignerActionTextItem(
+                _designer.DescribeViewMode(),
+                "Status"));
+
+            // ── View setup
             items.Add(new DesignerActionHeaderItem("View"));
+            items.Add(new DesignerActionMethodItem(
+                this, nameof(SetupWizard), "\u2728 Setup Wizard\u2026",
+                "View",
+                "Open the visual setup wizard: pick a mode, optionally seed sample tabs, auto-wire everything.",
+                includeAsDesignerVerb: true));
             items.Add(new DesignerActionPropertyItem(
                 nameof(View), "View",
                 "View",
                 "The IBeepDocumentManagerView that renders documents (Tabbed / NativeMdi / ...)."));
             items.Add(new DesignerActionMethodItem(
-                this, nameof(UseTabbedView), "Use Tabbed View",
+                this, nameof(UseTabbedDocuments), "Use Tabbed Documents",
                 "View",
-                "Create a BeepTabbedView and assign it to View.",
+                "IDE-style tabs with splits, docking, floating windows.",
                 includeAsDesignerVerb: true));
             items.Add(new DesignerActionMethodItem(
-                this, nameof(UseNativeMdiView), "Use Native MDI View",
+                this, nameof(UseBrowserTabs), "Use Browser Tabs",
                 "View",
-                "Create a BeepNativeMdiView and assign it to View.",
+                "Chrome-style tabs with new-tab button and always-visible close buttons.",
+                includeAsDesignerVerb: true));
+            items.Add(new DesignerActionMethodItem(
+                this, nameof(UseNativeMdi), "Use Native MDI",
+                "View",
+                "Classic WinForms MDI children. Sets the root form's IsMdiContainer = true and wires ParentForm.",
                 includeAsDesignerVerb: true));
 
             // ── Documents

@@ -1,919 +1,367 @@
-# BeepDocumentHost — Commercial-Grade MDI / Tabbed Document Host
+# Beep DocumentHost — Architecture Guide
 
-> **Version** 2.0 · **Updated** 2026-03-01 (Sprint 18)
-> Compared feature-set: DevExpress XtraTab/DocumentManager · Telerik RadDock · Syncfusion TabControlAdv · VS Code workspace model · Chrome tab behavior
+**Question this document answers:** *Why three components — `BeepDocumentHost`, `BeepTabbedView`, `BeepDocumentManager` — and what is the relationship between them?*
 
----
+The short answer: this is the **DevExpress / Telerik / Syncfusion MDI pattern** transplanted into the Beep ecosystem. One non-visual orchestrator drives an interchangeable rendering strategy, which in turn drives an interchangeable visual surface. Each layer has exactly one responsibility, and you can swap any layer without rewriting the others.
 
-## Overview
-
-`BeepDocumentHost` is a **fully-featured tabbed-document / simulated-MDI container** for
-WinForms applications built on the Beep framework. Drop it onto any surface — including
-`BeepiFormPro` — to gain:
-
-| Capability | Description |
-|---|---|
-| **8 tab visual styles** | Chrome, VS Code, Underline, Pill, Flat, Rounded, Trapezoid, Office |
-| **Split-view groups** | Horizontal/vertical split with draggable splitter bar |
-| **Auto-hide strips** | Tool-window-style collapsible panels on any of the 4 sides |
-| **Float & dock-back** | Tear-off document windows with drop-target overlay |
-| **Cross-host drag** | Transfer documents between any two `BeepDocumentHost` instances |
-| **MRU navigation** | Ctrl+Tab switcher, most-recently-used order tracking |
-| **Closed-tab history** | Ctrl+Shift+T reopen (configurable depth) |
-| **Keyboard shortcuts** | Ctrl+W/F4/Tab/PgUp/PgDn/1–9, fully configurable |
-| **Layout persistence** | JSON save/restore with schema versioning |
-| **MVVM & data binding** | `IDocumentViewModel` integration |
-| **Rich tooltips** | Thumbnail + metadata hover panels |
-| **Quick-switch** | Ctrl+Tab popup with live titles and icons |
-| **Badges** | Per-tab notification badges |
-| **Tab colouring** | AccentBar / FullBackground / BottomBorder / None modes |
-| **Designer support** | Smart-tag actions, verbs, property grid integration |
-| **Accessibility** | Custom `AccessibleObject` per tab, keyboard narration |
-
-> **Architecture note**: `BeepDocumentHost` and `BeepDocumentTabStrip` now inherit from
-> `BaseControl` and use the Beep theme/painter pipeline, while preserving the existing
-> `Panel`-based document content model for hosted document surfaces.
-
-## Quick Start (5 minutes)
-
-> The recommended entry point is **`BeepDocumentManager`** — a non-visual component
-> that lives in the form's component tray and orchestrates the visible host.
-> See [`BeepDocumentManager.Readme.md`](BeepDocumentManager.Readme.md) for the full reference
-> and the [10-minute tutorial](Tutorials/01-IdeShell.md) for a complete walkthrough.
-
-### Designer (recommended)
-
-1. Drop a `BeepTabbedView` onto your form.
-2. From the Toolbox, drag a `BeepDocumentManager` onto the form's component tray.
-3. In the Properties grid, set `BeepDocumentManager.View` → your `BeepTabbedView`.
-4. Optionally set `WindowMenuOwner`, `StatusStripOwner`, `AutoSaveLayout`, `SessionFile`.
-5. Use the `"Edit Documents…"` smart-tag action to seed the initial document list.
-
-### Code-only
-
-```csharp
-// 1. Create the manager (no visual size — lives in component tray)
-var manager = new BeepDocumentManager();
-
-// 2. Create and attach the view
-var view = new BeepTabbedView { Dock = DockStyle.Fill };
-Controls.Add(view);
-manager.View = view;
-
-// 3. (Optional) wire menu, status strip, and auto-save
-manager.WindowMenuOwner   = mainMenuStrip;
-manager.StatusStripOwner  = statusStrip1;
-manager.AutoSaveLayout    = true;
-manager.SessionFile       = @"%AppData%\MyApp\layout.json";
-
-// 4. Add documents
-var doc = manager.AddDocument("Welcome", iconPath: null, activate: true);
-doc!.Controls.Add(new Label { Text = "Hello, Beep!", Dock = DockStyle.Fill });
-
-// 5. React to events
-manager.ActiveDocumentChanged += (s, e) => Text = $"{e.DocumentTitle} — MyApp";
-manager.DocumentClosing       += (s, e) =>
-{
-    if (e.Panel.IsModified)
-        e.Cancel = MessageBox.Show("Unsaved changes. Close anyway?",
-            "Confirm", MessageBoxButtons.YesNo) == DialogResult.No;
-};
-```
-
-### Keyboard shortcuts (built-in)
-
-| Chord | Action |
-|-------|--------|
-| `Ctrl+Tab` | MRU quick-switch popup |
-| `Ctrl+W` / `Ctrl+F4` | Close active document |
-| `Ctrl+1–9` | Jump to tab by position |
-| `Ctrl+Shift+T` | Reopen last closed tab |
-| `Ctrl+P` | Command palette |
-| `Ctrl+Shift+P` | Workspace switcher |
+The long answer is below.
 
 ---
 
-## Current Direction
+## 1. The three components at a glance
 
-`BeepDocumentHost` is being positioned as the main MDI and docking surface for the
-Beep WinForms library. The next cycle should prioritize three things over feature
-count:
-
-- designer and runtime stability during add, remove, reparent, split, float, and restore flows
-- a simpler public API for open, activate, move, close, and restore workflows
-- user-friendly shell behavior such as window lists, context menus, predictable defaults, and clear persistence
-
-The design target is commercial-grade behavior comparable to products such as
-DevExpress, Telerik, and Syncfusion, while still feeling native to the Beep
-control model rather than cloning any vendor API.
-
-## Planning
-
-- See `.plans/README.md` for the planning index and product rules.
-- See `.plans/CURRENT-STATE-AUDIT.md` for the full-folder audit summary and readiness assessment.
-- See `.plans/COMMERCIAL-REFERENCE-NOTES.md` for the public reference patterns used as guidance.
-- See `.plans/IMPLEMENTATION-ROADMAP.md` for the phased enhancement and fix plan.
-
-## Current Assessment
-
-After a full review of the `DocumentHost` code surface, the control is already strong in
-tabs, groups, float and dock, auto-hide, keyboard workflows, persistence, and MVVM
-integration. The main remaining gaps for a polished default MDI experience are:
-
-- tab icon rendering completion
-- simpler open and activate APIs for duplicate-safe document workflows
-- public group-targeting APIs that do not bias the primary group
-- explicit dock-state and restore-callback contracts
-- design-time validation and regression coverage
-
----
-
-## Classes
-
-### `BeepDocumentTab` *(data model only — never a WinForms Control)*
-| Property | Description |
-|---|---|
-| `Id` | Unique string that ties the tab to its panel. |
----
-
-## File Map
-
-| File | Purpose |
-|---|---|
-| `BeepDocumentTab.cs` | Enumerations + `BeepDocumentTab` data model |
-| `BeepDocumentPanel.cs` | Content panel for one document |
-| `BeepDocumentTabStrip.cs` | Main constructor + timer + handle init |
-| `BeepDocumentTabStrip.Properties.cs` | All designable properties + public events |
-| `BeepDocumentTabStrip.Painting.cs` | `OnPaint` pipeline + 8 tab style renderers |
-| `BeepDocumentTabStrip.Layout.cs` | Tab geometry, DPI, scroll, pinned-tab boundary |
-| `BeepDocumentTabStrip.Mouse.cs` | Click, hover, drag-reorder, drag-to-float |
-| `BeepDocumentTabStrip.Keyboard.cs` | Ctrl+Tab, Ctrl+W, Ctrl+1–9, focus |
-| `BeepDocumentTabStrip.Overflow.cs` | Overflow ▾ dropdown + popup list |
-| `BeepDocumentTabStrip.ContextMenu.cs` | Right-click context menu |
-| `BeepDocumentTabStrip.Animations.cs` | Active-indicator slide + close-button fade |
-| `BeepDocumentTabStrip.Badges.cs` | Per-tab notification badge rendering |
-| `BeepDocumentTabStrip.Accessibility.cs` | `AccessibleObject` per tab |
-| `BeepDocumentHost.cs` | Core partial: constructor, fields, handle created |
-| `BeepDocumentHost.Properties.cs` | Designable properties + events |
-| `BeepDocumentHost.Documents.cs` | AddDocument, SetActive, Close, Float, DockBack |
-| `BeepDocumentHost.Layout.cs` | RecalculateLayout, splitter bar, group geometry |
-| `BeepDocumentHost.Events.cs` | Tab-strip event handlers + float window class |
-| `BeepDocumentHost.AutoHide.cs` | Auto-hide strips + slide overlay |
-| `BeepDocumentHost.Serialisation.cs` | SaveLayout / RestoreLayout (JSON, SchemaVersion 3 — full layout) |
-| `Layout/ILayoutNode.cs` | Hierarchical layout tree interfaces and visitor pattern |
-| `Layout/SplitLayoutNode.cs` | Binary split node (orientation + ratio + two children) |
-| `Layout/GroupLayoutNode.cs` | Leaf group node (document IDs + selected doc) |
-| `Layout/LayoutMigrationService.cs` | Migrate saved JSON v0→v1→v2→v3; `LayoutRestoreReport` |
-| `BeepDocumentHost.Preview.cs` | Tab thumbnail snapshot / rich tooltip |
-| `BeepDocumentHost.MVVM.cs` | `IDocumentViewModel` binding |
-| `BeepDocumentHost.DataBinding.cs` | WinForms data-source integration |
-| `BeepDocumentGroup.cs` | One tab-strip + content area within a split |
-| `BeepDocumentDockOverlay.cs` | Translucent docking-guide overlay |
-| `BeepDocumentDragData.cs` | Drag state shared between hosts |
-| `BeepDocumentQuickSwitch.cs` | Ctrl+Tab MRU popup |
-| `BeepDocumentRichTooltip.cs` | Themed hover tooltip with thumbnail |
-| `DocumentDescriptor.cs` | DTO for MVVM binding + layout save/restore; `CustomData`, `AccentColor`, `DocumentInitialContent` |
-| `Tokens/DocumentHostTokens.cs` | Central design tokens (geometry, timing, breakpoints) |
-| `IDocumentViewModel.cs` | MVVM interface |
-
----
-
-## Class Reference
-
-### `BeepDocumentTab` — data model (not a Control)
-
-| Property | Type | Description |
-|---|---|---|
-| `Id` | `string` | Stable unique key that ties the tab to its panel. |
-| `Title` | `string` | Text displayed on the tab face. |
-| `IconPath` | `string?` | Path to a 16 px icon (same convention as `BeepButton`). |
-| `IsModified` | `bool` | Shows a dirty `●` indicator; sourced from panel's `IsModified`. |
-| `CanClose` | `bool` | When false the × button is hidden. |
-| `IsPinned` | `bool` | Collapses the tab to icon-only width on the left. |
-| `IsActive` | `bool` | True for the currently visible tab. |
-| `AccentColor` | `Color` | Per-tab accent bar / background tint color. |
-| `BadgeText` | `string?` | Short text drawn in a badge overlay (e.g. `"3"`, `"M"`). |
-| `BadgeColor` | `Color` | Background of the badge bubble. |
-| `TabRect` | `Rectangle` | Hit-test rect (set by layout). |
-| `CloseRect` | `Rectangle` | Hit-test rect for the × button. |
-| `TabColor` | `Color` | Per-document color used by `TabColorMode`. |
-| `DocumentCategory` | `string` | Optional category name (used by overflow dropdown grouping). |
-
----
-
-### `BeepDocumentPanel : Panel`
-
-Content area for a single document.  `AutoScroll = true` by default.
-
-| Property | Type | Default | Description |
+| Component | Kind | Lives in | Responsibility |
 |---|---|---|---|
-| `DocumentId` | `string` | — | Matches its `BeepDocumentTab.Id`. |
-| `DocumentTitle` | `string` | — | Synced to the tab strip automatically. |
-| `IsModified` | `bool` | `false` | Dirty-dot indicator; fires `ModifiedChanged`. |
-| `CanClose` | `bool` | `true` | Propagated to the close button. |
-| `IconPath` | `string?` | `null` | Icon shown in the tab. |
-| `ShowStatusBar` | `bool` | `false` | 3 px themed status bar at the bottom. |
-| `ThemeName` | `string` | inherited | Name of the active Beep theme. |
+| **`BeepDocumentManager`** | Non-visual `Component` | Form's **component tray** | Public API surface for application code. Hosts cross-cutting services (command registry, workspace manager, design-time documents, layout persistence, theme/policy fan-out, `IDisplayContainer` contract). Never paints. Never knows about tabs, splitters, or MDI. |
+| **`IBeepDocumentManagerView`** | Strategy interface | Implemented by view components | The rendering-strategy seam. Two implementations ship today (`BeepTabbedView`, `BeepNativeMdiView`); third-party views can be added without changing the manager. |
+| **`BeepTabbedView`** | Non-visual `Component` | Component tray | Concrete view: delegates every document operation to an associated `BeepDocumentHost`. Lightweight adapter — holds a `Host` reference, wires events, forwards method calls. |
+| **`BeepNativeMdiView`** | Non-visual `Component` | Component tray | Concrete view: uses standard WinForms MDI (`Form.IsMdiContainer = true`, child Forms with `MdiParent` set). No `BeepDocumentHost` involved. |
+| **`BeepDocumentHost`** | Visual `BaseControl` | **On the form** (Dock=Fill) | Actually paints the tabs, splitters, dock rails, floating windows, and content panels. Renders everything you see when you choose tabbed mode. |
 
 ---
 
-### `BeepDocumentTabStrip : Control`
+## 2. The composition diagram
 
-Self-painted, double-buffered tab strip. Supports 8 visual styles, DPI scaling, animated active indicator, scrollable overflow, pinned tabs, badges, and drag operations.
+### Tabbed mode (the default)
 
-#### Properties
+```
+┌─ MainForm ─────────────────────────────────────────────┐
+│ ┌────────────────────────────────────────────────────┐ │
+│ │ BeepMenuBar             (Dock = Top)               │ │
+│ ├────────────────────────────────────────────────────┤ │
+│ │ ┌─ BeepDocumentHost  (Dock = Fill, SendToBack) ──┐ │ │
+│ │ │  ┌─ BeepDocumentTabStrip  (Dock = Top) ─────┐  │ │ │
+│ │ │  │ [ Doc1 ] [ Doc2 ] [ + ]   [Workspaces] │  │ │ │
+│ │ │  └────────────────────────────────────────┘  │ │ │
+│ │ │  ┌─ Content area (BeepDocumentPanel × N) ──┐ │ │ │
+│ │ │  │           (splitter bars + dock rails)  │ │ │ │
+│ │ │  └─────────────────────────────────────────┘ │ │ │
+│ │ └──────────────────────────────────────────────┘ │ │
+│ ├────────────────────────────────────────────────────┤ │
+│ │ Status bar              (Dock = Bottom)            │ │
+│ └────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+   Component tray
+   ├─ beepDocumentManager1   ── .View ───┐
+   ├─ beepTabbedView1        ◄───────────┘
+   │     └─ .Host ──► beepDocumentHost1  (the visual control above)
+   └─ beepCommandRegistry1   (auto-created by the manager)
+```
 
-| Property | Type | Default | Description |
+**Reading the wire-up:**
+
+- `beepDocumentManager1.View` = `beepTabbedView1`
+- `beepTabbedView1.Host` = `beepDocumentHost1`
+- `beepDocumentHost1` is the visible control on the form
+
+This is exactly the **DevExpress XtraDockManager → DockPanel** pattern. The manager is the API; the view is the strategy; the host is the canvas.
+
+### Native MDI mode
+
+```
+┌─ MainForm  (IsMdiContainer = TRUE) ────────────────────┐
+│ ┌────────────────────────────────────────────────────┐ │
+│ │ BeepMenuBar             (Dock = Top)               │ │
+│ ├────────────────────────────────────────────────────┤ │
+│ │                                                    │ │
+│ │  ┌─ MDI Child Form ────┐   ┌─ MDI Child Form ──┐  │ │
+│ │  │ Document 1          │   │ Document 2        │  │ │
+│ │  │                     │   │                   │  │ │
+│ │  └─────────────────────┘   └───────────────────┘  │ │
+│ │                                                    │ │
+│ └────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+   Component tray
+   ├─ beepDocumentManager1   ── .View ───┐
+   └─ beepNativeMdiView1     ◄───────────┘
+         └─ .ParentForm ──► MainForm
+```
+
+There is **no `BeepDocumentHost` in native MDI mode** — the form's MDI client area replaces it. Each `AddDocument(...)` call creates a child `Form` whose `MdiParent` is set.
+
+---
+
+## 3. Why three components and not one giant control?
+
+Combining all three concerns into a single class would lock you into a single rendering strategy and a single API surface. The split is deliberate:
+
+### a) Single Responsibility
+
+- **`BeepDocumentManager`** answers the question *"what is the application doing?"* — adding documents, switching workspaces, saving layout, applying themes. It has no opinion on how documents are drawn.
+- **`IBeepDocumentManagerView`** answers the question *"how should this be drawn?"* — tabs and splitters? Native MDI children? A custom Windows-UI-style view? Each is a complete strategy.
+- **`BeepDocumentHost`** answers the question *"what does a tabbed canvas look like and how does it behave?"* — paint chrome, hit-test tabs, handle drags, manage splits.
+
+### b) Pluggable rendering strategy
+
+Today the project ships two views. Tomorrow you can add a `BeepWindowsUIView` (Windows 11 tab groups), a `BeepStackedView` (single-document-at-a-time), or a custom corporate view, without touching `BeepDocumentManager` or any code that consumes it.
+
+### c) DevExpress / Telerik / Syncfusion parity
+
+Every commercial WinForms MDI suite uses this exact split:
+
+| Vendor | "Manager" (tray) | "View / Strategy" | "Host / Surface" |
 |---|---|---|---|
-| `Tabs` | `IReadOnlyList<BeepDocumentTab>` | — | All registered tabs. |
-| `ActiveTabIndex` | `int` | `-1` | 0-based index of the active tab. |
-| `TabStyle` | `DocumentTabStyle` | `Chrome` | Controls how tabs are rendered. |
-| `TabSizeMode` | `TabSizeMode` | `Equal` | `Equal / FitToContent / Compact / Fixed`. |
-| `FixedTabWidth` | `int` | `120` | Used when `TabSizeMode = Fixed`. |
-| `TabHeight` | `int` | `32` | Height of the strip in logical pixels. |
-| `ShowAddButton` | `bool` | `true` | Renders the `+` button at the right end. |
-| `CloseMode` | `TabCloseMode` | `OnHover` | `Always / OnHover / ActiveOnly / Never`. |
-| `TabPosition` | `TabStripPosition` | `Top` | `Top / Bottom / Left / Right / Hidden`. |
-| `ColorMode` | `TabColorMode` | `None` | `None / AccentBar / FullBackground / BottomBorder`. |
-| `ScrollOffset` | `int` | `0` | Current horizontal scroll position. |
-| `TabTooltipMode` | `TabTooltipMode` | `Simple` | `None / Simple / Rich` (thumbnail). |
-| `AllowDragFloat` | `bool` | `true` | Enables drag-to-float when user drags vertically. |
-| `AllowDragReorder` | `bool` | `true` | Enables horizontal drag-to-reorder. |
-| `KeyboardShortcutsEnabled` | `bool` | `true` | Enables Ctrl+Tab/W/F4/1–9 shortcuts. |
-| `ThemeName` | `string` | inherited | Beep theme applied to all painting. |
+| **Beep** | `BeepDocumentManager` | `IBeepDocumentManagerView` (`BeepTabbedView` / `BeepNativeMdiView`) | `BeepDocumentHost` |
+| **DevExpress** | `XtraDockManager` / `DocumentManager` | `BaseView` (`TabbedView` / `NativeMdiView` / `WindowsUIView`) | Dock panels / Document hosts |
+| **Telerik** | `RadDock` | `DockingStrategy` (auto-hide / tabbed / floating) | `RadPaneGroup` / `RadSplitContainer` |
+| **Syncfusion** | `DockingManager` | view-mode enum | `DockingClientPanel` |
 
-#### Events
+A developer arriving from any of those suites already knows the mental model.
 
-| Event | Args | When |
-|---|---|---|
-| `TabSelected` | `TabEventArgs` | User activates a tab. |
-| `TabCloseRequested` | `TabEventArgs` | × clicked (after `TabClosing` is not cancelled). |
-| `TabClosing` | `TabClosingEventArgs` | Before close — set `Cancel = true` to abort. |
-| `AddButtonClicked` | `EventArgs` | User clicks `+`. |
-| `TabReordered` | `TabReorderArgs` | Drag reorder completes. |
-| `TabFloatRequested` | `TabEventArgs` | Vertical drag-out or context menu Float. |
-| `TabPinToggled` | `TabEventArgs` | Pin/unpin via context menu. |
-| `NewDocumentRequested` | `EventArgs` | Double-click on empty strip area. |
+### d) Designer ergonomics
 
-#### Visual Styles
+Non-visual components live in the **tray**, so the form designer surface stays clean. Properties like `View` show as a dropdown in the property grid; the smart-tag on `BeepDocumentManager` offers a wizard. A monolithic control would clutter the form with every conceivable property at once.
 
-| Style | Appearance | Comparable product |
-|---|---|---|
-| `Chrome` | Rounded top corners, merges with content area bottom | Google Chrome, Edge |
-| `VSCode` | Flat rect + top accent bar (theme `PrimaryColor`) | Visual Studio Code |
-| `Underline` | No background; sliding bottom underline | Material UI, MUI Tabs |
-| `Pill` | Active tab has a filled pill/capsule indicator | iOS segmented, Fluent UI |
-| `Flat` | Flat rectangle, coloured top border only | Windows Explorer |
-| `Rounded` | Heavy pill — full border-radius all sides | Mobile-first / Tailwind |
-| `Trapezoid` | Angled left/right edges | Legacy Chrome, Opera |
-| `Office` | Wide, thin top accent, bold title | Microsoft Office ribbon |
+### e) Code-behind ergonomics
+
+Application code only touches `BeepDocumentManager`:
+
+```csharp
+var panel = beepDocumentManager1.AddDocument("Report.pdf", iconPath: "pdf.svg", activate: true);
+panel?.Controls.Add(myReportViewer);
+
+beepDocumentManager1.SaveLayout();
+beepDocumentManager1.ActiveDocumentChanged += OnActiveDocumentChanged;
+```
+
+You never write `beepTabbedView1.Host.…` or talk to the host directly. Swap to native MDI later and the same code still works.
 
 ---
 
-### `BeepDocumentHost : BaseControl`  ← **the main control**
+## 4. The dependency chain
 
-Orchestrates tab strips, content panels, groups, float windows, and auto-hide strips.
+```
+[Your Code] ──API──► BeepDocumentManager
+                        │
+                        ▼  IBeepDocumentManagerView
+                  ┌──────────────────────────────────┐
+                  │                                  │
+            BeepTabbedView                  BeepNativeMdiView
+                  │                                  │
+                  ▼ Host                             ▼ ParentForm
+          BeepDocumentHost                   WinForms Form
+        (renders tabs+splits)            (IsMdiContainer = true)
+```
 
-#### Core Properties
+**Top to bottom:**
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `ActiveDocumentId` | `string?` | `null` | Id of the currently visible document. |
-| `ActivePanel` | `BeepDocumentPanel?` | `null` | Reference to the active panel. |
-| `DocumentCount` | `int` | — | Count of docked documents. |
-| `TabPosition` | `TabStripPosition` | `Top` | Where the tab strip sits. |
-| `TabStyle` | `DocumentTabStyle` | `Chrome` | Tab visual style. |
-| `CloseMode` | `TabCloseMode` | `OnHover` | Close button visibility. |
-| `ShowAddButton` | `bool` | `true` | Show the `+` button. |
-| `ControlStyle` | `DocumentHostStyle` | `Flat` | Host border: `Flat / Thin / Raised`. |
-| `ThemeName` | `string` | global | Propagated to all child controls. |
-| `TabColorMode` | `TabColorMode` | `None` | Per-tab color blending. |
+1. Your code calls `manager.AddDocument(...)`.
+2. The manager calls `View.AddDocument(...)` on the assigned `IBeepDocumentManagerView`.
+3. The view does whatever its strategy says — `BeepTabbedView` forwards to `_host.AddDocument(...)`; `BeepNativeMdiView` constructs a child `Form` and sets `MdiParent`.
+4. `BeepDocumentHost` (only in the tabbed path) paints the new tab + panel and raises `DocumentAdded`.
 
-#### Split-View Properties
+**Bottom to top (events):**
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `MaxGroups` | `int` | `4` | Maximum number of simultaneous document groups. |
-| `SplitHorizontal` | `bool` | `true` | `true` = side-by-side, `false` = top+bottom. |
-| `SplitRatio` | `float` | `0.5` | Fraction of host dimension for group[0]. |
+1. User clicks a tab close button on `BeepDocumentHost`.
+2. Host raises `DocumentClosing` → forwarded by `BeepTabbedView` → forwarded by `BeepDocumentManager`.
+3. Your event handler runs and may set `e.Cancel = true`.
 
-#### Navigation Properties
-
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `RecentDocuments` | `IReadOnlyList<string>` | — | MRU-ordered document ids. |
-| `MaxRecentHistory` | `int` | `20` | Depth of MRU list. |
-| `MaxClosedHistory` | `int` | `10` | Number of closed docs that can be reopened. |
-| `KeyboardShortcutsEnabled` | `bool` | `true` | Enable/disable all keyboard shortcuts. |
-
-#### Persistence Properties
-
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `AutoSaveLayout` | `bool` | `false` | Save layout automatically to `SessionFile`. |
-| `SessionFile` | `string` | `""` | File path for auto-save. |
-
-### `BeepDocumentManager` tray integration
-
-When `BeepDocumentHost` is driven through `BeepDocumentManager`, the tray
-component can also own shell-level chrome that would otherwise be hand-wired in
-each form.
-
-| Manager Property | Type | Default | Behavior |
-|---|---|---|---|
-| `WindowMenuOwner` | `MenuStrip?` | `null` | Auto-builds the Window menu from open documents. |
-| `StatusStripOwner` | `StatusStrip?` | `null` | Adds document title, dirty indicator, cursor position, and workspace dropdown items. |
-| `AutoPopulateStatusStrip` | `bool` | `true` | Opt-out switch for the default status-strip items. |
-
-The workspace dropdown is active when `View` is a `BeepTabbedView` with a bound
-`Host`. It shows `Save Current As…` plus dynamic entries from
-`BeepDocumentHost.GetAllWorkspaces()` and tracks host workspace events so the
-label stays aligned with `ActiveWorkspaceName`.
-
-Cursor reporting is automatic when the active document content contains a
-`TextBoxBase` / `RichTextBox`. Custom document surfaces can participate by
-implementing `IDocumentStatusInfoProvider` and raising `StatusInfoChanged` when
-their `StatusBarInfo` payload changes.
+This is the [GoF Strategy pattern](https://refactoring.guru/design-patterns/strategy) plus a [Mediator](https://refactoring.guru/design-patterns/mediator).
 
 ---
 
-## Public API Reference
+## 5. Quick start (designer)
 
-### Document Management
+The designer does all this automatically — drop **one** `BeepDocumentManager` and the wizard handles the rest. For completeness, here's what the wizard wires up under the hood:
 
-```csharp
-// Add a document (auto-generated id)
-BeepDocumentPanel panel = host.AddDocument("My Document");
-BeepDocumentPanel panel = host.AddDocument("My Document", iconPath: @"icons\file.png");
+1. Drag `BeepDocumentManager` from the toolbox onto your form.
+2. The **Setup Wizard** auto-opens. Pick **Tabbed Documents** (or Browser Tabs, or Native MDI).
+3. Click **Finish**.
+4. The designer:
+   - creates `beepTabbedView1` in the tray
+   - sets `beepDocumentManager1.View = beepTabbedView1`
+   - creates `beepDocumentHost1` on the root form with `Dock = Fill` (sent to back so docked siblings claim their edges)
+   - sets `beepTabbedView1.Host = beepDocumentHost1`
+   - optionally seeds N sample documents
 
-// Add with explicit id
-BeepDocumentPanel panel = host.AddDocument("doc-001", "My Document");
+Re-running the wizard **reuses** all of these components — it never creates `beepTabbedView2`, `beepDocumentHost2`, etc.
 
-// Open into the active or a specific group using the newer group-aware API
-var created = host.OpenOrActivate(
-    new DocumentDescriptor { Id = "doc-001", Title = "My Document", IconPath = @"icons\file.png" },
-    new DocumentOpenOptions { Target = DocumentOpenTarget.ActiveGroup });
+---
 
-BeepDocumentPanel diagnosticsPanel = host.OpenDocument(
-    new DocumentDescriptor { Id = "diag-001", Title = "Diagnostics" },
-    new DocumentOpenOptions
-    {
-        Target = DocumentOpenTarget.SpecificGroup,
-        TargetGroupId = targetGroupId,
-        Activate = false
-    });
-
-// Activate
-host.SetActiveDocument("doc-001");
-
-// Close (fires DocumentClosing → DocumentClosed)
-host.CloseDocument("doc-001");
-
-// Close all
-host.CloseAllDocuments();
-
-// Float / dock back
-host.FloatDocument("doc-001");
-host.DockBackDocument("doc-001");
-
-// Auto-hide (collapses into a side strip)
-host.AutoHideDocument("doc-001", AutoHideSide.Left);
-host.RestoreAutoHideDocument("doc-001");
-
-// Retrieve
-BeepDocumentPanel? p = host.GetPanel("doc-001");
-bool exists = host.HasDocument("doc-001");
-```
-
-### Split / Group Management
+## 6. Quick start (code-behind)
 
 ```csharp
-// Split the host and move a document to a new group
-host.SplitDocumentHorizontal("doc-001");   // side-by-side
-host.SplitDocumentVertical("doc-001");     // top + bottom
+// Manager owns everything. No need to touch view or host once configured.
+beepDocumentManager1.AddDocument(
+    title:    "Sales Q3",
+    iconPath: "chart.svg",
+    activate: true);
 
-// Move a document between existing groups
-host.MoveDocumentToGroup("doc-001", targetGroupId);
+beepDocumentManager1.ActiveDocumentChanged += (s, e) =>
+    statusLabel.Text = $"Active: {e.DocumentId}";
 
-// Merge all secondary groups back into the primary
-host.MergeAllGroups();
-```
-
-### Navigation
-
-```csharp
-// Jump by MRU position (0 = most recent)
-host.SetActiveDocument(host.RecentDocuments[1]);
-
-// Reopen last closed tab (same as Ctrl+Shift+T)
-host.ReopenLastClosed();
-
-// Get next/previous in order
-host.ActivateNext();
-host.ActivatePrevious();
-```
-
-### Layout Persistence
-
-```csharp
-// Save the current workspace state
-string json = host.SaveLayout();
-File.WriteAllText("session.json", json);
-
-// Restore — fires LayoutRestoring so caller can re-open content
-host.RestoreLayout(json);
-```
-
-### Dock State
-
-```csharp
-DocumentDockState state = host.GetDocumentDockState("doc-001");
-
-host.DocumentDockStateChanged += (s, e) =>
+beepDocumentManager1.DocumentClosing += (s, e) =>
 {
-    Console.WriteLine($"{e.DocumentId}: {e.OldState} -> {e.NewState} (Group={e.GroupId})");
+    if (HasUnsavedChanges(e.DocumentId))
+        e.Cancel = !PromptToSave(e.DocumentId);
 };
+
+beepDocumentManager1.SaveLayout();                      // writes to SessionFile
+beepDocumentManager1.LoadLayout();                      // restores on next launch
 ```
 
-### Tab Metadata
+To switch rendering strategy at runtime:
 
 ```csharp
-// Mark tab as modified (dirty dot)
-host.SetDocumentModified("doc-001", true);
-
-// Change title
-host.SetDocumentTitle("doc-001", "Untitled *");
-
-// Programmatic pin/unpin
-host.PinDocument("doc-001");
-host.UnpinDocument("doc-001");
-
-// Set per-tab color
-host.SetTabColor("doc-001", Color.CornflowerBlue);
-
-// Set badge
-host.SetTabBadge("doc-001", "3", Color.Red);
+var native = beepDocumentManager1.ChangeView<BeepNativeMdiView>();
+native.ParentForm = this;            // 'this' will become an MDI parent
+this.IsMdiContainer = true;
 ```
 
----
-
-## Events Reference
-
-| Event | Args | Description |
-|---|---|---|
-| `ActiveDocumentChanged` | `DocumentEventArgs` | Active document changed. |
-| `NewDocumentRequested` | `EventArgs` | `+` clicked — caller adds a document. |
-| `DocumentClosing` | `TabClosingEventArgs` | Before close — set `Cancel = true` to abort. |
-| `DocumentClosed` | `DocumentEventArgs` | After a document was removed. |
-| `DocumentFloated` | `DocumentEventArgs` | Document moved into a float window. |
-| `DocumentDocked` | `DocumentEventArgs` | Floated document docked back. |
-| `DocumentDockStateChanged` | `DocumentDockStateChangedEventArgs` | Docked, floating, and auto-hide transition notification. |
-| `DocumentPinChanged` | `DocumentEventArgs` | Tab was pinned or unpinned. |
-| `DocumentDetaching` | `DocumentTransferEventArgs` | About to transfer to another host. |
-| `LayoutSerialising` | `DocumentLayoutEventArgs` | Per-doc hook during `SaveLayout`. |
-| `LayoutRestoring` | `DocumentLayoutEventArgs` | Per-doc hook during `RestoreLayout`, with dock-state and restore-descriptor hints. |
+The manager's public API is identical regardless of view; only the visual outcome changes.
 
 ---
 
-## Keyboard Shortcuts
+## 7. Component reference
 
-| Shortcut | Action |
+### `BeepDocumentManager` — the orchestrator
+
+Primary public API surface. Drop one per form. Owns:
+
+- **Document lifecycle** — `AddDocument`, `CloseDocument`, `ActivateDocument`, `CloseAllDocuments`, `GetPanel`.
+- **Layout persistence** — `SaveLayout`, `LoadLayout`, `SessionFile`, `AutoSaveLayout`.
+- **Theme + policy fan-out** — `PushTheme(themeName)`, `DefaultPolicy` (Float / Pin / Split flags pushed into the view).
+- **Workspaces** — named layout snapshots, surfaced through `WorkspaceManager`.
+- **Command registry** — `CommandRegistry` (used by `BeepDocumentHost` for shortcut routing and the keyboard-shortcut editor dialog).
+- **Window menu** — `AttachWindowMenu(menuStrip, "&Window")` populates a "Window" menu with open documents.
+- **`IDisplayContainer` parity** — `SetTabStylePreset(style)`, `ApplyBrowserPreset()`, `ApplyIdePreset()`. Lets the manager be a drop-in replacement for the legacy `BeepDisplayContainer`.
+- **Events** — `DocumentAdded`, `DocumentRemoved`, `ActiveDocumentChanged`, `DocumentClosing`, `LayoutChanged`.
+
+What it does *not* do: paint. It has no `OnPaint`, no `Controls`, no canvas — it's a `System.ComponentModel.Component`.
+
+### `IBeepDocumentManagerView` — the strategy
+
+Tiny interface. 14 methods + 4 events. Defines exactly what the manager needs from a view:
+
+- `Attach(manager)` / `Detach()` — lifecycle hooks.
+- `AddDocument`, `RemoveDocument`, `ActivateDocument`, `GetPanel`, `CloseAllDocuments`, `BeginBatchAddDocuments` / `EndBatchAddDocuments`.
+- `SaveLayout`, `SaveLayoutToFile`, `TryRestoreLayout`.
+- `PushPolicy`, `PushTheme`, `PushPersistence`, `AttachWindowMenu`.
+- Events: `DocumentAdded`, `DocumentRemoved`, `ActiveDocumentChanged`, `DocumentClosing`.
+
+To add a custom view, implement this interface. The manager will route everything through it.
+
+### `BeepTabbedView` — the default view
+
+~217 LOC. Pure adapter — every method forwards to its `Host`. The interesting state is just the `Host` reference and event re-routing. Add this to the tray when you want the tabbed-docking experience.
+
+### `BeepNativeMdiView` — the native-MDI view
+
+~437 LOC. Manages a dictionary of `Form` instances keyed by document id. Each `AddDocument` creates a new `Form`, sets `MdiParent = ParentForm`, fires `DocumentFormCreated` so the caller can add the actual content. No `BeepDocumentHost` is involved — the form's MDI client area replaces it. `LayoutMdi(Cascade / Tile / ArrangeIcons)` is exposed for the Window-menu integration.
+
+### `BeepDocumentHost` — the visual surface
+
+The big one (60+ partials, ~6000 LOC total across them). Only relevant in the tabbed path. Responsible for:
+
+- **Tab strip** (`BeepDocumentTabStrip` + its partials: painting, keyboard, mouse, touch, drag, animations, badges, overflow, context menu, accessibility, high contrast).
+- **Content panels** (`BeepDocumentPanel`).
+- **Splits + dock tree** (`BeepDocumentHost.Layout.cs`, `BeepDocumentGroup`, `BeepDocumentSplitterBar`).
+- **Dock rails + auto-hide** (`BeepDocumentHost.AutoHide.cs`, `BeepDockRail`).
+- **Dock overlay during drag** (`BeepDocumentDockOverlay`).
+- **Floating windows** (`BeepDocumentFloatWindow`).
+- **Layout serialization** (`BeepDocumentHost.Serialisation.cs`).
+- **Templates** (`BeepDocumentHost.Templates.cs` — Visual Studio / two-pane / browser presets).
+- **Keyboard / command service** (`BeepDocumentHost.Keyboard.cs`, `BeepCommandRegistry`).
+- **Data binding + MVVM** (`BeepDocumentHost.DataBinding.cs`, `BeepDocumentHost.MVVM.cs`).
+- **Workspaces** (`BeepDocumentHost.Workspace.cs`).
+- **Preview** (`BeepDocumentHost.Preview.cs`).
+
+End users **never instantiate `BeepDocumentHost` directly in code-behind**. The designer auto-creates it; runtime code talks to `BeepDocumentManager`. Direct host API access is reserved for advanced customization (e.g. registering a template, calling `ApplyVisualStudioLayout()`).
+
+---
+
+## 8. Decision tree — which mode to pick?
+
+```
+Do you need standard WinForms MDI child Forms
+(separate top-level windows nested in the parent form)?
+├── YES → Native MDI mode
+│         └── BeepDocumentManager + BeepNativeMdiView
+│             (Form.IsMdiContainer = true required)
+│
+└── NO  → Tabbed / dockable documents
+          ├── Want IDE-style (splits, floats, pinning, themes)?
+          │      └── BeepDocumentManager + BeepTabbedView + BeepDocumentHost
+          │          (the wizard's default)
+          │
+          └── Want browser-style (Chrome tabs, + button, always-close)?
+                 └── BeepDocumentManager + BeepTabbedView + BeepDocumentHost
+                     with TabStyle=Chrome, ShowAddButton=true, CloseMode=Always
+                     (the wizard's "Browser Tabs" preset)
+```
+
+| Want | Pick |
 |---|---|
-| `Ctrl+Tab` | Open MRU quick-switch popup |
-| `Ctrl+Shift+Tab` | Cycle backward through tabs |
-| `Ctrl+W` / `Ctrl+F4` | Close active document |
-| `Ctrl+Shift+T` | Reopen last closed document |
-| `Ctrl+1` … `Ctrl+9` | Jump to the *n*-th tab |
-| `Ctrl+PgDn` | Activate next tab |
-| `Ctrl+PgUp` | Activate previous tab |
-
-All shortcuts are disabled when `KeyboardShortcutsEnabled = false`.
+| Visual Studio / Office-style document area | Tabbed Documents |
+| Chrome / Edge tabbed browser feel | Browser Tabs |
+| Classic multi-window MDI (separate child windows) | Native MDI |
+| Single document at a time | Either tabbed mode with `MaxOpenDocuments = 1`, or skip the manager entirely |
 
 ---
 
-## Tab ContextMenu (right-click)
+## 9. What lives in this folder
 
-| Item | Action | Disabled when |
-|---|---|---|
-| Close | Close current tab | `CanClose = false` |
-| Close All But This | Close every other docked tab | — |
-| Close All to the Right | Close tabs right of focused | — |
-| Close All | Close every docked tab | — |
-| ─── | separator | — |
-| Pin / Unpin | Toggle `IsPinned` | — |
-| Float | Move to float window | `AllowDragFloat = false` |
-| Copy Path | Copy `DocumentTitle` to clipboard | — |
+This is one of the largest sub-systems in `TheTechIdea.Beep.Winform.Controls`. Files break into themes:
 
-Customise at runtime:
-```csharp
-host.TabContextMenuOpening += (s, e) =>
-{
-    e.Menu.Items.Add(new ToolStripMenuItem("Open in Explorer", null, openHandler));
-};
-```
-
----
-
-## Split Views
-
-Splitting creates a second `BeepDocumentGroup` alongside the primary one, separated by a draggable splitter:
-
-```csharp
-// Tab "readme.txt" will open side-by-side with the other tabs
-host.SplitDocumentHorizontal("readme.txt");
-```
-
-- Dragging the splitter bar adjusts `SplitRatio` in real time.
-- When the secondary group becomes empty, it collapses automatically.
-- The current implementation supports flat (non-nested) group topology; up to `MaxGroups` groups total.
-
----
-
-## Auto-Hide Panels
-
-Documents collapsed to a side strip show a short icon/title button.
-Hovering or clicking that button slides the document panel out as an overlay:
-
-```csharp
-host.AutoHideDocument("solution-explorer", AutoHideSide.Left);
-```
-
-The slide animation runs at ~60 FPS. To restore the document into the tab strip:
-
-```csharp
-host.RestoreAutoHideDocument("solution-explorer");
-```
-
----
-
-## Floating Windows
-
-```csharp
-host.FloatDocument("doc-001");   // creates BeepDocumentFloatWindow
-```
-
-The float window is a `BeepiFormPro`-derived form with the full Beep theme.
-Closing the float window calls the normal `DocumentClosing` / `DocumentClosed`
-pipeline. Docking back is available from the float window's title bar or via code.
-
----
-
-## Cross-Host Drag / Transfer
-
-Two `BeepDocumentHost` instances registered with `BeepDocumentDragManager` can
-exchange documents by dragging a tab from one strip to another:
-
-```csharp
-BeepDocumentDragManager.Register(hostA);
-BeepDocumentDragManager.Register(hostB);
-```
-
-Set `AllowDragBetweenHosts = true` on both hosts (default `true`).
-The `DocumentDetaching` event on the source fires before transfer — set `Cancel = true` to block.
-
----
-
-## Layout Persistence (JSON Schema v2)
-
-`SaveLayout()` serialises the **full** layout state:
-- Hierarchical layout tree (splits with orientation + ratio, tab groups, document order)
-- Pin/modified state, icon paths, document ids per document
-- Active document id per group
-- Float window bounds and `WindowState`
-- Auto-hide side per document
-- MRU snapshot
-- `customData` dictionary per tab (populated via the `LayoutSerialising` event)
-
-During restore, the saved layout tree is reapplied through `LayoutTreeApplier` before
-floating-window and auto-hide state is restored, so multi-group layouts and floated
-documents follow the saved topology instead of reopening only in the primary group.
-
-**v1 payloads are automatically migrated** via `LayoutMigrationService` on restore —
-no manual intervention required.
-
-Restoring returns a `LayoutRestoreReport` with per-document granularity.
-During restore, `DocumentLayoutEventArgs` exposes `DockState`, `GroupId`, `Side`,
-`CustomData`, and `RestoreDescriptor` so the application can recreate content
-without manually calling `AddDocument` inside the restore event.
-
-```csharp
-host.DocumentTemplate = desc =>
-{
-    var editor = new RichTextBox { Dock = DockStyle.Fill };
-    if (desc.Tag is string filePath && File.Exists(filePath))
-        editor.LoadFile(filePath);
-    return editor;
-};
-
-host.RestoreDocumentFactory = e =>
-{
-    var desc = DocumentDescriptor.Create(e.DocumentId, e.Title, e.IconPath);
-    if (e.CustomData.TryGetValue("filePath", out var filePath))
-        desc.Tag = filePath;
-    return desc;
-};
-
-host.LayoutRestoring += (s, e) =>
-{
-    if (e.CustomData.TryGetValue("filePath", out var filePath) && !File.Exists(filePath))
-        e.Cancel = true;
-};
-
-// Detailed restore with diagnostics
-var report = host.TryRestoreLayout(File.ReadAllText("session.json"), out _);
-Console.WriteLine(report);      // "3 restored, 0 skipped, 0 failed (schema v2)"
-
-// Or the simple bool form (backward-compatible)
-bool ok = host.RestoreLayout(File.ReadAllText("session.json"));
-```
-
-**Attaching custom data** during save:
-
-```csharp
-host.LayoutSerialising += (s, e) =>
-{
-    // attaches data that will survive the round-trip
-    e.CustomData["filePath"] = openFileMap[e.DocumentId];
-};
-```
-
----
-
-## MVVM / IDocumentViewModel
-
-Implement `IDocumentViewModel` to bind a view-model class to a document panel:
-
-```csharp
-public class MyViewModel : IDocumentViewModel
-{
-    public string DocumentId { get; } = Guid.NewGuid().ToString();
-    public string Title => "My Document";
-    public string? IconPath => null;
-    public bool IsModified => _isDirty;
-    public bool CanClose => !IsLocked;
-    public Control CreateView() => new MyEditorControl();
-}
-
-host.AddViewModelDocument(new MyViewModel());
-```
-
----
-
-## Designer (Visual Studio) Integration
-
-`BeepDocumentHostDesigner` (in `Design.Server`) provides a full commercial-grade
-design-time experience:
-
-### Verbs (right-click context menu)
-| Verb | Action |
+| Prefix | Theme |
 |---|---|
-| **Add Document** | Adds a placeholder document tab at design time |
-| **Close Active Document** | Removes the currently selected tab |
-| **Split Horizontal ↔** | Moves active document into a new side-by-side pane |
-| **Split Vertical ↕** | Moves active document into a new stacked pane |
-| **Merge All Groups** | Collapses all split groups back to one |
-| **Edit Design-Time Documents…** | Opens the `DocumentDescriptorCollectionEditor` |
-| **Apply Layout Preset…** | Opens the visual `LayoutPresetPickerDialog` |
+| `BeepDocumentManager.*` | Manager partials (`.cs`, `.Presets.cs`, `.DisplayContainer.cs`) |
+| `BeepTabbedView.cs`, `BeepNativeMdiView.cs` | View strategies |
+| `BeepDocumentHost.*` | Visual host partials — Layout / Documents / Events / Keyboard / DataBinding / MVVM / Workspace / Serialisation / Templates / Preview / DockRails / AutoHide |
+| `BeepDocumentTabStrip.*` | Tab strip partials — Properties / Layout / Painting / Mouse / Keyboard / Touch / Animations / Accessibility / HighContrast / Badges / Overflow / ContextMenu |
+| `BeepDocument*.cs` | Internal pieces — `BeepDocumentPanel`, `BeepDocumentTab`, `BeepDocumentGroup`, `BeepDocumentSplitterBar`, `BeepDockRail`, `BeepDockManager`, etc. |
+| `BeepCommand*.cs` | Command registry + palette popup |
+| `BeepWorkspace*.cs` | Workspace switcher / manager |
+| `DocumentDescriptor.cs`, `DocumentOpenOptions.cs`, `DockPanelDescriptor.cs`, `WorkspaceDefinition.cs` | DTOs |
+| `IBeepDocumentManagerView.cs`, `IDocumentHostCommandService.cs`, `IDocumentViewModel.cs`, `IDocumentStatusInfoProvider.cs` | Contracts |
+| `*EventArgs.cs` | Event payload types |
 
-### Smart-Tag (▶ panel)
-All 7 groups are available in the smart-tag panel:
-
-| Group | Properties / Actions |
-|---|---|
-| **Documents** | Add New, Close Active, Close All, Reopen Last, Select Active Surface, Active Document Title, Quick Switch, Float, Pin/Unpin |
-| **Design-Time** | Edit Design-Time Documents… |
-| **Split View** | Layout Assistant…, Split H/V, Merge All Groups, Apply Layout Preset…, MaxGroups, SplitRatio |
-| **Tabs** | TabStyle, TabPosition, CloseMode, ShowAddButton, TabColorMode, KeyboardShortcuts |
-| **Tab Sizing** | TabSizeMode (Auto/Fixed/Fill), FixedTabWidth |
-| **Interaction** | TabTooltipMode, AllowDragFloat |
-| **Style Presets** | Chrome / VS Code / Flat / Office / Pill / Underline (one-click) |
-| **Appearance** | ControlStyle, ThemeName |
-| **Preview** | TabPreviewEnabled |
-| **History** | MaxRecentHistory, MaxClosedHistory |
-| **Cross-Host Drag** | AllowDragBetweenHosts |
-| **Session** | AutoSaveLayout, SessionFile |
-
-### Additional design-time features
-| Feature | Details |
-|---|---|
-| `DoDefaultAction()` | Double-click on the control surface auto-creates a persisted design-time document surface |
-| `OnPaintAdornments()` | When the host has no documents, draws a centred hint overlay |
-| `PreFilterEvents()` | Removes 20+ low-level plumbing events from the Events grid |
-| `PreFilterProperties()` | Hides irrelevant Panel base properties |
-| Snap lines | Content-area edges exposed for sibling alignment |
-| `DesignTimeDocuments` | `Collection<DocumentDescriptor>` serialised into `InitializeComponent` |
-| `DesignTimeLayoutJson` | Hidden serialized layout snapshot maintained by the designer so splits, floating panes, and auto-hide survive reopen |
-| `ApplyDesignTimeDocuments()` | Applied automatically in `OnHandleCreated` |
-| Toolbox routing | Toolbox-dropped controls are parented into the active `BeepDocumentPanel`; an empty host auto-creates the first document surface |
-| Persisted smart-tag actions | Add, close, reopen, rename, pin, split, float, auto-hide, and layout preset actions mutate the design-time model and update the serialized layout snapshot |
-| One-step split authoring | Split actions create a new document surface and place it into the new pane so both sides stay authorable |
-| Designer context menu | Right-click the host, tab strip, or content chrome to access add, rename, float, auto-hide, split, merge, preset, and layout assistant actions |
-| Layout Assistant | Guided dialog for choosing a layout preset and naming the document surfaces it should create before applying the dock pattern |
-| Docking Compass | During drag operations, a 5-zone compass appears with live split preview visualization. Zones are center (tab into group), left/right (vertical split), top/bottom (horizontal split) |
-| Container edit safety | Removing or reparenting authored child controls does not mark the host as designer-detaching; reattaching clears transient design-time teardown flags |
-| Undo/Redo | All verb and smart-tag mutations wrapped in `DesignerTransaction` |
-
-Representative validation note:
-- `TheTechIdea.Beep.Winform.Default.Views/MainFrm_MDI.Designer.cs` persists authored child controls directly into `beepDocumentHost1.Controls`; this container scenario is now covered by focused regression tests in `TheTechIdea.Beep.Winform.Controls.Tests`.
-
-### Layout Preset Picker
-`LayoutPresetPickerDialog` (in `Design.Server/Designers/`) shows 8 visual tiles:
-- **Single** — one tab group fills the area
-- **Side-by-Side** — two groups split left/right (horizontal)
-- **Stacked** — two groups split top/bottom (vertical)
-- **Three-Way** — L-pattern (horizontal + vertical sub-split)
-- **Four-Up** — 2×2 grid
-- **Three-Way Nested** — left group plus nested right top/bottom
-- **Three Column** — three equal columns
-- **Five-Way** — left group plus 2×2 right grid
-
-### Document Collection Editor
-`DesignTimeDocumentsEditor` (in `Design.Server/Editors/`) provides a tailored
-`CollectionEditor` for `DocumentDescriptor` items:
-- Sets `Id` to a GUID and `Title` to `"New Document"` on Add
-- Dialog title: "Edit Design-Time Documents"
-- Accessible via the "Edit Design-Time Documents…" smart-tag action
-- The designer verbs and smart-tag document actions now keep this collection in sync automatically, so the collection editor is optional rather than required for day-to-day authoring
-
-### Layout Assistant
-`DocumentHostLayoutAssistantDialog` (in `Design.Server/Designers/`) provides a guided designer-first workflow for commercial-style setups:
-- choose one of the built-in dock presets with a live preview sketch
-- declare how many document surfaces the layout should create
-- name each surface and optionally seed its placeholder content
-- apply the preset and document definitions in one transaction so the resulting layout persists into `InitializeComponent`
+Detailed phase-by-phase development history lives in `.plans/` at the repository root (`.plans/DocumentHost-MDI-Phase-*`) and in the Beep MASTER tracker.
 
 ---
 
-## Theming
+## 10. Anti-patterns (what to avoid)
 
-All visual elements use the active Beep theme automatically:
-
-| Theme token | Used in |
-|---|---|
-| `PanelBackColor` | Host background, content area, tab strip track |
-| `PrimaryColor` | Active tab accent, VS Code overlay bar, focus rings |
-| `BorderColor` | Strip border, splitter bar |
-| `.ForeColor` | Tab title text |
-| `CardBackColor` | Inactive / hover tab fills |
-
-Set a theme globally:
-```csharp
-BeepThemesManager.SetTheme("BeepDark");
-```
-Or per-host:
-```csharp
-host.ThemeName = "BeepLight";
-```
+- ❌ **Don't instantiate `BeepDocumentHost` from code and parent it to the form manually.** The designer's auto-create flow handles this and produces proper `IComponentChangeService` notifications. Hand-parenting bypasses undo and serialization.
+- ❌ **Don't talk to `BeepDocumentHost` directly from app code.** Talk to `BeepDocumentManager`. The host is the rendering surface; the manager is the API.
+- ❌ **Don't create more than one `BeepDocumentManager` per form.** The manager owns global state (command registry, session file, active document). Multiple managers on one form will fight.
+- ❌ **Don't set `BeepDocumentManager.View` to a view that's already assigned to another manager.** Each view has a single manager parent.
+- ❌ **Don't put `BeepDocumentHost` inside another `Dock=Fill` control without thinking about layout.** Drop it directly on the root form (or a designed container) so the docked menubar / status bar can claim their edges.
 
 ---
 
-## Phase 2 Status
+## 11. Design-time tab selection (Phase 11)
 
-| Item | Sprint | Status |
-|---|---|---|
-| **Serialisation schema v2** — splits, floats, auto-hide, MRU, customData | 11 | ✅ Complete |
-| **`LayoutMigrationService`** — v0/v1 → v2 auto-upgrade | 11 | ✅ Complete |
-| **`TryRestoreLayout`** + `LayoutRestoreReport` diagnostics | 11 | ✅ Complete |
-| **Designer transaction safety** — all verbs + action methods | 11 | ✅ Complete |
-| **`DocumentHostTokens`** — central design token constants | 12 | ✅ Complete |
-| **`ILayoutNode` tree** — `SplitLayoutNode` + `GroupLayoutNode` | 12 | ✅ Complete |
-| **`DocumentDescriptor.CustomData`** — round-trips through JSON | 11 | ✅ Complete |
-| **`DocumentDescriptor.AccentColor`** + `DocumentInitialContent` | 12 | ✅ Complete |
-| **Proxy properties** — `TabSizeMode`, `FixedTabWidth`, `TabTooltipMode`, `AllowDragFloat` | 12 | ✅ Complete |
-| **`DesignTimeDocuments` collection** — seeded at design time, serialised into `InitializeComponent` | 12 | ✅ Complete |
-| **`DocumentDescriptorCollectionEditor`** — custom collection editor with GUID-seeded defaults | 12 | ✅ Complete |
-| **`LayoutPresetPickerDialog`** — 5-tile visual layout preset picker | 12 | ✅ Complete |
-| **Designer: 7 verbs** — Add, Close, Split H/V, Merge, Edit Docs, Layout Preset | 12 | ✅ Complete |
-| **Designer: `DoDefaultAction()`** — double-click adds a document | 12 | ✅ Complete |
-| **Designer: `OnPaintAdornments()`** — empty-state hint overlay | 12 | ✅ Complete |
-| **Designer: `PreFilterEvents()`** — hides 20+ plumbing events | 12 | ✅ Complete |
-| **Smart-tag: 12 groups** — Tab Sizing, Interaction, Design-Time, Layout Preset groups added | 12 | ✅ Complete |
-| **Designer authoring UX** — toolbox drops target active document surfaces, split actions create new panes, and document verbs persist through `DesignTimeDocuments` | 20 | ✅ Complete |
-| **Designer layout persistence** — hidden `DesignTimeLayoutJson` snapshot serializes split/floating/auto-hide state and restores it on designer reopen | 20 | ✅ Complete |
-| **Designer dock context menu + layout assistant** — right-click shell menu and guided layout workflow for commercial-style authoring | 20 | ✅ Complete |
-| **`LayoutTreeBuilder`** — captures live group topology as `ILayoutNode` tree | 12 | ✅ Complete |
-| **`LayoutTreeApplier`** — restores `ILayoutNode` tree onto a live host | 12 | ✅ Complete |
-| **`MergeAllGroups()`** — collapses all split groups back to primary | 12 | ✅ Complete |
-| **Docking guide adorners** — all 5 zones active + translucent preview rect | 12 | ✅ Complete |
-| **Split-dock wiring** — Left/Right/Top/Bottom float-drop creates split panes | 12 | ✅ Complete |
-| **`BeginBatchAddDocuments()`/`EndBatchAddDocuments()`** — single layout pass when adding 100+ docs | 13 | ✅ Complete |
-| **`BeginBatchAdd()`/`EndBatchAdd()`** on tab strip — deferred `CalculateTabLayout` + `Invalidate` | 13 | ✅ Complete |
-| **`_layoutSuspended` guard** in `RecalculateLayout` — no-op during batch add | 13 | ✅ Complete |
-| **Lazy deferred snapshot** — `CaptureSnapshot` scheduled via `BeginInvoke` on tab switch | 13 | ✅ Complete |
-| **`BeepTabAccessible.Name`** — "Tab N of M: Title [Modified] [Pinned]" screen-reader format | 13 | ✅ Complete |
-| **`AccessibilityNotifyClients(Selection)`** — raised when active tab changes | 13 | ✅ Complete |
-| **HC `DrawFocusIndicator`** — 3 px rounded rect in `SystemColors.Highlight` under high contrast | 13 | ✅ Complete |
-| **`BeepDocumentTabStrip.HighContrast.cs`** — `ApplyHighContrastTheme()` + `EffectiveXxx` colour helpers | 13 | ✅ Complete |
-| **Arrow / Home / End key navigation** — Left, Right, Up, Down, Home, End cycle through tabs | 13 | ✅ Complete |
-| **`DocumentTabStyle.Fluent`** — new Fluent UI 2 / Windows 11 tab style (translucent fill + 4 px bottom accent) | 14 | ✅ Complete |
-| **Token-driven accent bar** — `DrawAccentBar` uses `DocTokens.IndicatorThickness` (3 px) | 14 | ✅ Complete |
-| **Inactive tab text alpha** — 70 % opacity via `DocTokens.InactiveTabTextAlpha` in `DrawTabContent` | 14 | ✅ Complete |
-| **Chrome hover** — lighter `PanelBackColor + 8 % White` fill (Figma 2026 spec) | 14 | ✅ Complete |
-| **Pill style MD3** — active = full `PrimaryColor`; text = `OnPrimaryColor`; inactive hover = `PrimaryColor@15%` | 14 | ✅ Complete |
-| **`BeepTabOverflowPopup`** — searchable (fuzzy score), keyboard-nav ↑↓/Enter/Esc, category groups, pinned section | 14 | ✅ Complete |
-| **`BeepDocumentPanel` tri-segment status bar** — left / centre / right text segments, `SetStatusLeft/Centre/Right()`, 22 px, lightness-shifted `PrimaryColor` background | 15 | ✅ Complete |
-| **Group-collapse animation** — 200 ms ease-out cubic splitter animation when secondary group empties; `CollapseEmptyGroupAnimated` + `CollapseEmptyGroupImmediate` in Layout.cs | 15 | ✅ Complete |
-| **Rich tooltip enhancements** — category badge, modified `●` dot, rounded thumbnail corners (`DocTokens.ThumbnailCornerRadius`), footer hint `"Ctrl+W to close · Ctrl+click to pin"`, default delay → `DocTokens.TooltipDelayMs` (800 ms) | 15 | ✅ Complete |
-| **Empty-state illustration** — centred document icon + "No open documents" headline + sub-text painted via `_contentArea.Paint`; `ShowEmptyState` property to suppress | 15 | ✅ Complete |
-| **`IDocumentHostCommandService`** — interface: `NewDocument`, `CloseDocument`, `CloseAllDocuments`, `ActivateDocument`, `FloatDocument`, `DockBackDocument`, `Pin/Unpin`, `SplitH/V`, `SaveLayout`, `RestoreLayoutAsync` | 16 | ✅ Complete |
-| **`DocumentHostCommandService`** — concrete wrapper; `BeepDocumentHost.CommandService` lazy property; `RestoreLayoutAsync` marshals result back to UI thread | 16 | ✅ Complete |
-| **`CloseAllDocuments()`** — closes every open document, returns `true` when ≥1 was closed | 16 | ✅ Complete |
-| **`DocumentsSource` (INCC)** — `IEnumerable` + `INotifyCollectionChanged` source binding with `DocumentIdSelector`, `DocumentTitleSelector`, `DocumentTemplate` selectors (OpenVm / CloseVm on collection events) | 16 | ✅ Complete |
-| **`BeepDocumentHostOptions`** — options class with `DefaultTabStyle`, `MaxGroups`, `KeyboardShortcutsEnabled`, `CloseMode`, `ShowAddButton`, `AutoSaveLayout`, `SessionFile`; `ApplyTo(host)` | 16 | ✅ Complete |
-| **`BeepDocumentHostExtensions.Configure()`** — fluent `host.Configure(o => …)` + `ApplyOptions(options)` + DI wiring guide in XML-doc | 16 | ✅ Complete |
-| **`DocumentDescriptorCollectionEditor` v2** — custom form with DataGridView (Id / Title / IconPath / IsPinned / CanClose / InitialContent / AccentColor), icon picker via `IconPickerDialog`, up/down reorder, live mini tab-strip preview | 17 | ✅ Complete |
-| **`ThemePickerDialog`** — scrollable tile grid with colour swatches, search filter, dark/light badge; integrates with `BeepThemesManager.GetThemes()` + 15-theme fallback | 17 | ✅ Complete |
-| **`ChooseTheme…` smart-tag action** — "Choose Theme…" `DesignerActionMethodItem` in the Appearance group; opens `ThemePickerDialog` and writes the selected name to `ThemeName` | 17 | ✅ Complete |
-| **Docking guide adorner v2** — 5-point compass (Center / Left / Right / Top / Bottom) painted in `OnPaintAdornments` during drag; active zone highlighted in `PrimaryColor`; on-drop calls `SplitDocumentHorizontal/Vertical` inside a designer transaction | 17 | ✅ Complete |
-| **`TabDensityMode` enum** — `Comfortable` (36 px/12 pt), `Compact` (28 px/11 pt), `Dense` (22 px/10 pt) | 18 | ✅ Complete |
-| **`TabDensity` property** — changing density updates `Height` + calls `ApplyDensityFont()`; density-aware `TabHeight` computed from `LogicalDensityHeight` | 18 | ✅ Complete |
-| **`ResponsiveBreakpoints` + `TabResponsiveMode`** — breakpoints at 480 / 240 / 120 px; `Normal` → `Compact` (title-only) → `IconOnly` → `ActiveOnly`; mode stored in `_responsiveMode` updated in `CalculateTabLayout` | 18 | ✅ Complete |
-| **Responsive paint guards** — `ActiveOnly` skips non-active tabs in both paint loops; `Compact` skips icons; `IconOnly`/`ActiveOnly` skip titles (except active tab) via `drawIcon`/`drawTitle` flags in `DrawTabContent` | 18 | ✅ Complete |
-| **`BeepDocumentTabStrip.Touch.cs`** — WM_TOUCH registration via `RegisterTouchWindow`; `WndProc` handler; swipe left/right scrolls strip; long-press (600 ms) opens context menu; pinch cycles `TabSizeMode`; swipe-down fires `TabFloatRequested` | 18 | ✅ Complete |
-| Automated lifecycle + serialisation tests | 16+ | Planned |
-| Visual design system alignment (Figma / Fluent UI 2) | 16+ | Planned |
+Clicking a tab header in the designer behaves exactly like clicking a tab at runtime:
 
-See [`plans/mdi-phase2-enhancement-plan.md`](../plans/mdi-phase2-enhancement-plan.md) for the full sprint plan (Sprints 11–20).
+1. The runtime `BeepDocumentTabStrip` receives the mouse message (the host designer's `GetHitTest` override claims pass-through for any point landing on a tab body, the add/scroll/overflow buttons, or a group header).
+2. The strip raises `TabSelected` → the host raises `ActiveDocumentChanged`.
+3. The host designer subscribes to `ActiveDocumentChanged` and forwards the new active `BeepDocumentPanel` into `ISelectionService.SetSelectedComponents`.
+4. The WinForms property grid swaps to the panel's filtered `BeepDocumentPanelDesigner` properties (`DocumentTitle`, `IconPath`, `CanClose`, `DocumentCategory`, `ShowStatusBar`).
+5. The designer selection rectangle is drawn around the active panel, and any subsequent toolbox drop targets that panel via the existing `OnDragDrop` routing in `BeepDocumentHostDesigner.DragDrop.cs`.
+
+When a form is first opened, the host designer also runs a one-shot `SyncInitialActiveDocumentSelection()` so the property grid lands on the visible document tab instead of the host shell — but only if the user has not already selected something else.
+
+If a hosting environment swallows the click before `GetHitTest` is consulted, two escape hatches are wired:
+
+- **Right-click → "Select Tab Under Cursor"** (added to the host designer verbs).
+- **Smart-tag → Documents → "Select Tab Under Cursor"** (added to `DocumentHostActionList`).
+
+Both delegate to `BeepDocumentHostDesigner.SelectDocumentAt(Cursor.Position)`, which hit-tests every group's `TabStrip.Tabs[i].TabRect` and calls `host.SetActiveDocument(tabId)` directly. From there the same `ActiveDocumentChanged` pipeline promotes the panel into the selection service.
+
+See `.plans/DocumentHost-MDI-Phase-11-DesignTimeTabSelection.md` for the full breakdown, decision rationale, and verification matrix.
 
 ---
 
-## Quick-Start
+## 12. Related reading
 
-```csharp
-// On a BeepiFormPro or any Panel-based form:
-var host = new BeepDocumentHost
-{
-    Dock             = DockStyle.Fill,
-    TabPosition      = TabStripPosition.Top,
-    TabStyle         = DocumentTabStyle.Chrome,
-    CloseMode        = TabCloseMode.OnHover,
-    ShowAddButton    = true,
-    ControlStyle     = DocumentHostStyle.Flat
-};
-this.Controls.Add(host);
-
-// New document via + button
-host.NewDocumentRequested += (s, e) =>
-{
-    var panel = host.AddDocument($"Document {host.DocumentCount + 1}");
-    panel.Controls.Add(new RichTextBox { Dock = DockStyle.Fill });
-};
-
-// Pre-seed a welcome tab
-var welcome = host.AddDocument("Welcome", @"icons\home.png");
-welcome.Controls.Add(new Label
-{
-    Text      = "Welcome to Beep Document Host!",
-    Dock      = DockStyle.Fill,
-    TextAlign = ContentAlignment.MiddleCenter
-});
-
-// Cross-host drag support
-BeepDocumentDragManager.Register(host);
-
-// Layout persistence
-string layout = host.SaveLayout();                              // save
-host.RestoreLayout(File.ReadAllText("session.json"));           // restore
-
-// Split view
-host.SplitDocumentHorizontal("Welcome");
-
-// Auto-hide
-host.AutoHideDocument("Welcome", AutoHideSide.Left);
-```
+- Beep ecosystem rules: `Beep.Winform/.cursor/rules/mycontrolsonly.mdc`
+- Phase plans + master tracker: `Beep.Winform/.plans/MASTER-TODO-TRACKER.md`
+- IDisplayContainer parity: `BeepDocumentManager.DisplayContainer.cs` (drop-in replacement for legacy `BeepDisplayContainer`)
+- Setup wizard: `TheTechIdea.Beep.Winform.Controls.Design.Server/Dialogs/DocumentSetupWizardDialog.cs`
+- Designer hooks: `TheTechIdea.Beep.Winform.Controls.Design.Server/Designers/BeepDocumentManagerDesigner*.cs`
+- Tab-selection plumbing: `TheTechIdea.Beep.Winform.Controls.Design.Server/Designers/BeepDocumentHostDesigner.TabSelection.cs`
 
 ---
 
-## Architecture Decisions
-
-| Decision | Rationale |
-|---|---|
-| Inherits `Panel`, not `BaseControl` | Avoids `ContainerControl` focus/erase conflicts with `BeepiFormPro` |
-| Documents keyed by string `Id` | Stable across serialise/restore and cross-host transfer |
-| Painter-style tab rendering (8 styles) | Allows new styles without touching interaction code |
-| Groups as first-class objects | Clean split-view without nested Control trees |
-| Splitter as a thin Panel, not `SplitContainer` | Full control over position, cursor, and theme colour |
-| JSON via `System.Text.Json` | No extra NuGet dependency; ships with .NET 6+ |
-| Timer-driven indicator animation | Smooth 60-FPS slide without relying on WPF/XAML |
-
-| `Control` base for TabStrip | Avoids `ContainerControl` focus-traversal and `WM_ERASEBKGND` conflicts |
-| `Panel` base for panels/host | Lightweight container; `AutoScroll` and `DoubleBuffered` built-in |
-| `BeepiFormPro` for float window | Full themed title bar and min/max buttons on detached docs |
-| `_currentTheme` field + `BeepThemesManager.ThemeChanged` | Pattern from `TemplateUserControl`; no dependency on BaseControl |
-| One panel per document | Simple show/hide swap; no z-order tricks required |
-
----
-
-## Files
-
-| File | Purpose |
-|---|---|
-| `BeepDocumentTab.cs` | Data model + enums + event args |
-| `BeepDocumentTabStrip.cs` | Self-painted `Control`-derived tab strip |
-| `BeepDocumentPanel.cs` | `Panel`-derived content area per document |
-| `BeepDocumentHost.cs` | Orchestration host + `BeepDocumentFloatWindow` |
-| `Readme.md` | This file |
-
----
-
-*Last updated: 2025 — Beep.Winform DocumentHost v1.0*
+*Last updated: 2026-05-17 — corresponds to DocumentHost MDI program through Phase 11 (design-time tab selection).*

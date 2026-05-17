@@ -193,12 +193,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (newItem == _hoveredItem) return;
 
+            // Phase 04B — Submenu triangle tracker.
+            // If the cursor is "tracking toward" an already-open
+            // child submenu, postpone dismissal of that submenu by
+            // skipping the timer-reset side-effect below. The hovered
+            // item is still updated visually so the highlight follows
+            // the cursor (matches WPF behaviour).
+            bool deferSubmenuDismissal = false;
+            try
+            {
+                var clientPos = PointToClient(Cursor.Position);
+                deferSubmenuDismissal = ShouldDeferSubmenuDismissal(clientPos);
+            }
+            catch { /* defensive */ }
+
             _hoveredItem = newItem;
             _hoveredIndex = newItem != null ? _menuItems.IndexOf(newItem) : -1;
 
             Invalidate(); // Redraw highlight
 
-            // Submenu timer
+            if (deferSubmenuDismissal)
+            {
+                // Leave the dismissal timer in whatever state it was;
+                // the user is heading toward the open submenu.
+                OnItemHovered(newItem);
+                return;
+            }
+
+            // Submenu timer (default path — hover started or trajectory
+            // diverges from the open submenu).
             _submenuTimer.Stop();
             _submenuPendingItem = null;
 
@@ -310,10 +333,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             int contentHeight = internalPadding; // top
             // include search area if enabled
             if (searchAreaHeight > 0) contentHeight += searchAreaHeight + searchSpacing;
-            foreach (var item in _menuItems)
+
+            // Phase 06: when the BeepListBox substrate is active the list controls
+            // item geometry, so size from its preferred row height instead of the
+            // hand-rolled per-item measurement.
+            int summedItemHeight = 0;
+            if (IsHostedListSubstrateActive && _hostedList != null)
             {
-                contentHeight += GetItemHeight(item);
+                int per = Math.Max(1, _hostedList.PreferredItemHeight);
+                summedItemHeight = per * _menuItems.Count;
             }
+            else
+            {
+                foreach (var item in _menuItems)
+                {
+                    summedItemHeight += GetItemHeight(item);
+                }
+            }
+            contentHeight += summedItemHeight;
             contentHeight += internalPadding; // bottom
 
             int totalHeight = contentHeight + (beepInsets * 2);

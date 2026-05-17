@@ -1,3 +1,9 @@
+// Thin wrapper over IBeepTheme. Governance: Menus/.plans/ADR-001-StylingStack.md
+//
+// This file is on the allowed-helpers list because it delegates to
+// IBeepTheme tokens via BeepThemesManager and never invents chrome
+// behaviour of its own.
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;

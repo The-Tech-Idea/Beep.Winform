@@ -29,10 +29,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            GraphicsPath graphicsPath1 = new GraphicsPath();
-            GraphicsPath graphicsPath2 = new GraphicsPath();
             Controls.DocumentHost.DocumentDescriptor documentDescriptor1 = new Controls.DocumentHost.DocumentDescriptor();
             Controls.DocumentHost.DocumentDescriptor documentDescriptor2 = new Controls.DocumentHost.DocumentDescriptor();
+            GraphicsPath graphicsPath1 = new GraphicsPath();
+            GraphicsPath graphicsPath2 = new GraphicsPath();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm_MDI));
             GraphicsPath graphicsPath3 = new GraphicsPath();
             beepDocumentManager1 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepDocumentManager(components);
@@ -47,8 +47,41 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepDocumentManager1
             // 
-            beepDocumentManager1.AutoSaveLayout = true;
-            beepDocumentManager1.SessionFile = "%AppData%\\Beep\\Sessions\\MainFrm_MDI.json";
+            beepDocumentManager1.ContainerType = ContainerTypeEnum.TabbedPanel;
+            documentDescriptor1.AccentColor = Color.Empty;
+            documentDescriptor1.BadgeColor = Color.Empty;
+            documentDescriptor1.BadgeText = null;
+            documentDescriptor1.CanClose = true;
+            documentDescriptor1.Category = null;
+            documentDescriptor1.IconPath = null;
+            documentDescriptor1.Id = "2ffe28fb3afc4b599b014d8a08d7d7e3";
+            documentDescriptor1.InitialContent = Winform.Controls.DocumentHost.DocumentInitialContent.Empty;
+            documentDescriptor1.IsModified = false;
+            documentDescriptor1.IsPinned = false;
+            documentDescriptor1.PersistenceKey = "0b959cf7-7146-4c8b-8370-41f73b0bffae";
+            documentDescriptor1.PreviousGroupId = null;
+            documentDescriptor1.TabColor = Color.Empty;
+            documentDescriptor1.Tag = null;
+            documentDescriptor1.Title = "Document 12277";
+            documentDescriptor1.TooltipText = null;
+            documentDescriptor2.AccentColor = Color.Empty;
+            documentDescriptor2.BadgeColor = Color.Empty;
+            documentDescriptor2.BadgeText = null;
+            documentDescriptor2.CanClose = true;
+            documentDescriptor2.Category = null;
+            documentDescriptor2.IconPath = null;
+            documentDescriptor2.Id = "143ecbe9984e401a95a4144e93277908";
+            documentDescriptor2.InitialContent = Winform.Controls.DocumentHost.DocumentInitialContent.Empty;
+            documentDescriptor2.IsModified = false;
+            documentDescriptor2.IsPinned = false;
+            documentDescriptor2.PersistenceKey = "98ef353a-b28a-4c99-8ee7-f86d3878c80e";
+            documentDescriptor2.PreviousGroupId = null;
+            documentDescriptor2.TabColor = Color.Empty;
+            documentDescriptor2.Tag = null;
+            documentDescriptor2.Title = "Document 13527";
+            documentDescriptor2.TooltipText = null;
+            beepDocumentManager1.DesignTimeDocuments.Add(documentDescriptor1);
+            beepDocumentManager1.DesignTimeDocuments.Add(documentDescriptor2);
             beepDocumentManager1.View = beepTabbedView1;
             // 
             // beepTabbedView1
@@ -57,13 +90,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepDocumentHost1
             // 
-            beepDocumentHost1.AccessibleDescription = "Active document Document 2";
-            beepDocumentHost1.AccessibleName = "Document 2";
+            beepDocumentHost1.AccessibleDescription = "Active document Document 13527";
+            beepDocumentHost1.AccessibleName = "Document 13527";
             beepDocumentHost1.AnimationDuration = 500;
             beepDocumentHost1.AnimationType = DisplayAnimationType.None;
             beepDocumentHost1.ApplyThemeToChilds = true;
             beepDocumentHost1.AutoDrawHitListComponents = true;
-            beepDocumentHost1.AutoSaveLayout = true;
             beepDocumentHost1.BackColor = Color.FromArgb(255, 255, 255);
             beepDocumentHost1.BadgeBackColor = Color.FromArgb(92, 139, 255);
             beepDocumentHost1.BadgeFont = new Font("Segoe UI", 7F, FontStyle.Bold);
@@ -77,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             graphicsPath1.FillMode = FillMode.Alternate;
             beepDocumentHost1.BorderPath = graphicsPath1;
             beepDocumentHost1.BorderRadius = 8;
-            beepDocumentHost1.BorderRect = new Rectangle(1, 1, 545, 463);
+            beepDocumentHost1.BorderRect = new Rectangle(1, 1, 1268, 482);
             beepDocumentHost1.BorderStyle = BorderStyle.FixedSingle;
             beepDocumentHost1.BorderThickness = 2;
             beepDocumentHost1.BottomoffsetForDrawingRect = 0;
@@ -91,53 +123,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.ContentRect = new Rectangle(0, 0, 0, 0);
             graphicsPath2.FillMode = FillMode.Alternate;
             beepDocumentHost1.ContentShape = graphicsPath2;
-            beepDocumentHost1.ControlStyle = Winform.Controls.DocumentHost.DocumentHostStyle.Raised;
             beepDocumentHost1.CustomPadding = new Padding(0);
             beepDocumentHost1.DataContext = null;
             beepDocumentHost1.DataSourceProperty = null;
-            documentDescriptor1.AccentColor = Color.Empty;
-            documentDescriptor1.BadgeColor = Color.Empty;
-            documentDescriptor1.BadgeText = null;
-            documentDescriptor1.CanClose = true;
-            documentDescriptor1.Category = null;
-            documentDescriptor1.IconPath = null;
-            documentDescriptor1.Id = "doc1";
-            documentDescriptor1.InitialContent = Winform.Controls.DocumentHost.DocumentInitialContent.Empty;
-            documentDescriptor1.IsModified = false;
-            documentDescriptor1.IsPinned = false;
-            documentDescriptor1.PersistenceKey = "fc6ce057-a60d-4293-947c-dabb87089d8a";
-            documentDescriptor1.PreviousGroupId = null;
-            documentDescriptor1.TabColor = Color.Empty;
-            documentDescriptor1.Tag = null;
-            documentDescriptor1.Title = "Document 1";
-            documentDescriptor1.TooltipText = null;
-            documentDescriptor2.AccentColor = Color.Empty;
-            documentDescriptor2.BadgeColor = Color.Empty;
-            documentDescriptor2.BadgeText = null;
-            documentDescriptor2.CanClose = true;
-            documentDescriptor2.Category = null;
-            documentDescriptor2.IconPath = null;
-            documentDescriptor2.Id = "doc2";
-            documentDescriptor2.InitialContent = Winform.Controls.DocumentHost.DocumentInitialContent.Empty;
-            documentDescriptor2.IsModified = false;
-            documentDescriptor2.IsPinned = false;
-            documentDescriptor2.PersistenceKey = "4c6288e0-618e-44e4-b81c-1930bfcc9c88";
-            documentDescriptor2.PreviousGroupId = null;
-            documentDescriptor2.TabColor = Color.Empty;
-            documentDescriptor2.Tag = null;
-            documentDescriptor2.Title = "Document 2";
-            documentDescriptor2.TooltipText = null;
-            beepDocumentHost1.DesignTimeDocuments.Add(documentDescriptor1);
-            beepDocumentHost1.DesignTimeDocuments.Add(documentDescriptor2);
-            beepDocumentHost1.DesignTimeLayoutJson = resources.GetString("beepDocumentHost1.DesignTimeLayoutJson");
             beepDocumentHost1.DisabledBackColor = Color.FromArgb(244, 246, 252);
             beepDocumentHost1.DisabledBorderColor = Color.FromArgb(220, 227, 240);
             beepDocumentHost1.DisabledForeColor = Color.FromArgb(222, 223, 229);
+            beepDocumentHost1.Dock = DockStyle.Fill;
             beepDocumentHost1.DocumentContentTemplate = null;
             beepDocumentHost1.DocumentIdSelector = null;
             beepDocumentHost1.DocumentTemplate = null;
             beepDocumentHost1.DocumentTitleSelector = null;
-            beepDocumentHost1.DrawingRect = new Rectangle(4, 4, 539, 457);
+            beepDocumentHost1.DrawingRect = new Rectangle(4, 4, 1262, 476);
             beepDocumentHost1.Easing = EasingType.Linear;
             beepDocumentHost1.EnableHighQualityRendering = true;
             beepDocumentHost1.EnableRippleEffect = false;
@@ -161,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.GradientEndColor = Color.FromArgb(242, 245, 252);
             beepDocumentHost1.GradientStartColor = Color.FromArgb(251, 252, 255);
             beepDocumentHost1.GridMode = false;
-            beepDocumentHost1.GuidID = "b3698f58-e6fa-4b58-a124-ee6816a6db05";
+            beepDocumentHost1.GuidID = "57892bda-da25-43f8-ab1d-f17b7d6e4150";
             beepDocumentHost1.HasError = false;
             beepDocumentHost1.HelperText = "";
             beepDocumentHost1.HelperTextOn = false;
@@ -208,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.LeadingImagePath = "";
             beepDocumentHost1.LeftoffsetForDrawingRect = 0;
             beepDocumentHost1.LinkedProperty = null;
-            beepDocumentHost1.Location = new Point(312, 51);
+            beepDocumentHost1.Location = new Point(4, 48);
             beepDocumentHost1.MaxHitListDrawPerFrame = 0;
             beepDocumentHost1.ModernGradientType = ModernGradientType.None;
             beepDocumentHost1.Name = "beepDocumentHost1";
@@ -231,7 +228,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.SelectedBorderColor = Color.Green;
             beepDocumentHost1.SelectedForeColor = Color.Black;
             beepDocumentHost1.SelectedValue = null;
-            beepDocumentHost1.SessionFile = "C:\\Users\\f_ald\\AppData\\Roaming\\Beep\\Sessions\\MainFrm_MDI.json";
             beepDocumentHost1.ShadowColor = Color.FromArgb(40, 38, 44, 57);
             beepDocumentHost1.ShadowOffset = 3;
             beepDocumentHost1.ShadowOpacity = 0.25F;
@@ -243,18 +239,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDocumentHost1.ShowRightBorder = false;
             beepDocumentHost1.ShowShadow = false;
             beepDocumentHost1.ShowTopBorder = false;
-            beepDocumentHost1.Size = new Size(548, 466);
+            beepDocumentHost1.Size = new Size(1271, 485);
             beepDocumentHost1.SlideFrom = SlideDirection.Left;
             beepDocumentHost1.StaticNotMoving = false;
-            beepDocumentHost1.TabColorMode = Winform.Controls.DocumentHost.TabColorMode.AccentBar;
-            beepDocumentHost1.TabIndex = 4;
-            beepDocumentHost1.TabStyle = Winform.Controls.DocumentHost.DocumentTabStyle.Office;
-            beepDocumentHost1.TabTooltipMode = Winform.Controls.DocumentHost.TabTooltipMode.Rich;
+            beepDocumentHost1.TabIndex = 1;
             beepDocumentHost1.Tag = this;
             beepDocumentHost1.TempBackColor = Color.LightGray;
             beepDocumentHost1.TextFont = new Font("Consolas", 12F);
             beepDocumentHost1.Theme = "ModernTheme";
-            beepDocumentHost1.ThemeName = "DefaultTheme";
+            beepDocumentHost1.ThemeName = "";
             beepDocumentHost1.TooltipFont = null;
             beepDocumentHost1.TooltipMaxSize = null;
             beepDocumentHost1.ToolTipText = null;
@@ -284,6 +277,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         }
 
         #endregion
+
         private Controls.DocumentHost.BeepDocumentManager beepDocumentManager1;
         private Controls.DocumentHost.BeepTabbedView beepTabbedView1;
         private Controls.DocumentHost.BeepDocumentHost beepDocumentHost1;

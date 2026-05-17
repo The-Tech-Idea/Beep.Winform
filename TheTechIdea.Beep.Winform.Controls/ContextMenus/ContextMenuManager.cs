@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -23,6 +26,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private static ClickOutsideFilter _clickOutsideFilter;
         private static bool _isClosingAll = false;
         private static Timer _autoCloseTimer;
+
+        // ─────────────────────────────────────────────────────────────────
+        // Phase 01 — Dismissal/Re-open Hot-Fix
+        //
+        // Raised after a context menu has actually closed. Subscribers
+        // (notably BeepMenuBar) use this to suppress the immediate re-open
+        // echo caused when the same WM_LBUTTONDOWN that dismissed the
+        // popup is subsequently delivered to the owner's OnMouseClick.
+        // See .plans/Menus-Phase-01-DismissalReopenHotFix.md.
+        // ─────────────────────────────────────────────────────────────────
+        public static event EventHandler<MenuDismissedEventArgs> MenuDismissed;
         private const int AUTO_CLOSE_DELAY_MS = 300;
         
         #endregion
@@ -72,6 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             public Timer MousePoller { get; set; }
             public bool WasHovered { get; set; }
             public TaskCompletionSource<bool> CloseTcs { get; set; }
+
+            // Phase 01: guard so MenuDismissed fires exactly once per context.
+            public bool DismissedFired { get; set; }
             
             // Event handlers stored for cleanup
             public EventHandler<MenuItemEventArgs> ItemClickedHandler { get; set; }
@@ -126,27 +143,47 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 {
                     // Check if click is inside any menu
                     var clickedControl = Control.FromHandle(m.HWnd);
-                    
+
                     // If clicked on a BeepContextMenu, don't close
                     if (IsClickOnMenu(clickedControl))
                         return false;
-                    
+
                     // Get screen position
                     Point screenPos = GetScreenPosition(m, clickedControl);
-                    
+
                     // Check if click is inside any active menu bounds
                     if (IsClickInsideAnyMenu(screenPos))
                         return false;
-                    
-                    // Click is outside all menus - close them
+
+                    // Click is outside all menus → close them and let the
+                    // message continue to its original target.
+                    //
+                    // History note (2026-05-17): Phase 05 briefly added a
+                    // "swallow the dismissing click on the owner" branch
+                    // here as defence-in-depth. It was reverted because:
+                    //   * For BeepMenuBar (the only consumer that ever
+                    //     hit the re-open echo), Phase 01's
+                    //     IsInDismissalCoolDown + same-item toggle in
+                    //     BeepMenuBar.Popup.cs already prevent the echo.
+                    //   * The Phase 05 swallow used the owner's WHOLE
+                    //     client rectangle, which for a menubar is the
+                    //     full top strip. Clicking a DIFFERENT top-level
+                    //     item to cross-navigate (open Edit while File
+                    //     was open) was swallowed before OnMouseClick
+                    //     could route it, breaking the standard menubar
+                    //     hover/click-swap UX.
+                    //   * Other BaseControl popup consumers (right-click
+                    //     menus, dropdown buttons) open popups via
+                    //     explicit gestures; clicking the same target
+                    //     again is intended toggle UX, not a bug.
                     CloseAllMenus();
                 }
                 catch
                 {
                     // Silently handle click outside filter errors
                 }
-                
-                return false; // Don't consume the message
+
+                return false; // Default: deliver to the original target.
             }
             
             private bool IsClickOnMenu(Control control)
@@ -241,7 +278,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var context = CreateMenuContext(parentMenuId, multiSelect);
             if (context == null)
                 return null;
-            
+
+            // Phase 01: record owner so MenuDismissed can route to it.
+            context.Owner = owner;
+
             string menuId = context.Id;
             SimpleItem selectedItem = null;
             bool isClosed = false;
@@ -318,15 +358,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             try
             {
-                menu.Show(screenLocation, owner);
+                // Phase 05 — clamp the requested location to the target
+                // monitor's working area so the popup never spills off-screen.
+                var shownAt = ClampToWorkingArea(menu.Size, screenLocation);
+                menu.Show(shownAt, owner);
                 ActivateMenu(menu);
-                
-                while (!isClosed && menu.Visible)
-                {
-                    Application.DoEvents();
-                    System.Threading.Thread.Sleep(1);
-                }
-                
+
+                // Phase 05 — replaced Application.DoEvents()+Thread.Sleep(1)
+                // busy-wait with a real blocking message-pump wait.
+                PumpUntilClosed(menu, () => isClosed);
+
                 return context.SelectedItem;
             }
             catch
@@ -412,7 +453,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var context = CreateMenuContext(null, true);
             if (context == null)
                 return new List<SimpleItem>();
-            
+
+            // Phase 01: record owner so MenuDismissed can route to it.
+            context.Owner = owner;
+
             string menuId = context.Id;
             List<SimpleItem> selectedItems = null;
             bool isClosed = false;
@@ -481,15 +525,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             try
             {
-                menu.Show(screenLocation, owner);
+                // Phase 05 — clamp + non-blocking pump (see Show() above).
+                var shownAt = ClampToWorkingArea(menu.Size, screenLocation);
+                menu.Show(shownAt, owner);
                 ActivateMenu(menu);
-                
-                while (!isClosed && menu.Visible)
-                {
-                    Application.DoEvents();
-                    System.Threading.Thread.Sleep(1);
-                }
-                
+
+                PumpUntilClosed(menu, () => isClosed);
+
                 return selectedItems ?? new List<SimpleItem>();
             }
             catch
@@ -504,7 +546,136 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 CleanupMenuContext(menuId);
             }
         }
-        
+
+        /// <summary>
+        /// Phase 05 — Shows a context menu without blocking the caller and
+        /// returns an <see cref="IDisposable"/> handle. Disposing the
+        /// handle closes the popup if it is still open.
+        ///
+        /// Use this overload when the caller needs to keep processing
+        /// input (e.g., the menubar hover-swap path in Phase 04). The
+        /// classic blocking <see cref="Show(System.Collections.Generic.List{SimpleItem}, Point, Control, FormStyle, bool, string, string)"/>
+        /// overload remains for callers that want a synchronous selected-
+        /// item return value.
+        /// </summary>
+        /// <param name="items">The menu items to display.</param>
+        /// <param name="screenLocation">Requested top-left in screen coordinates (will be clamped to the target monitor's working area).</param>
+        /// <param name="owner">Owner control. Used for owner-targeted click-swallow and for routing <c>MenuDismissed</c>.</param>
+        /// <param name="style">Visual style preset.</param>
+        /// <param name="theme">Optional theme override.</param>
+        /// <param name="onItemSelected">
+        /// Optional callback fired once when the user picks an item.
+        /// Invoked on the UI thread before the popup auto-closes.
+        /// </param>
+        /// <returns>
+        /// A <see cref="ContextMenuHandle"/> that closes the popup on
+        /// <see cref="IDisposable.Dispose"/>. Never <c>null</c>; returns
+        /// <see cref="ContextMenuHandle.Empty"/> on failure.
+        /// </returns>
+        public static IDisposable ShowNonBlocking(
+            List<SimpleItem> items,
+            Point screenLocation,
+            Control owner = null,
+            FormStyle style = FormStyle.Modern,
+            string theme = null,
+            Action<SimpleItem> onItemSelected = null)
+        {
+            if (items == null || items.Count == 0)
+                return ContextMenuHandle.Empty;
+
+            lock (_lock)
+            {
+                if (_isClosingAll)
+                    return ContextMenuHandle.Empty;
+            }
+
+            // Same root-menu policy as Show(): only one top-level popup at a time.
+            CloseRootMenus();
+
+            var context = CreateMenuContext(null, false);
+            if (context == null)
+                return ContextMenuHandle.Empty;
+
+            context.Owner = owner; // For MenuDismissed routing + owner-targeted click swallow.
+
+            string menuId = context.Id;
+            var menu = CreateMenu(style, false, theme);
+            PopulateMenu(menu, items);
+            menu.RecalculateSize();
+
+            lock (_lock)
+            {
+                if (!_activeMenus.ContainsKey(menuId))
+                {
+                    menu.Dispose();
+                    return ContextMenuHandle.Empty;
+                }
+                _activeMenus[menuId].Menu = menu;
+            }
+
+            EventHandler<MenuItemEventArgs> itemClickedHandler = null;
+            EventHandler<MenuItemEventArgs> submenuOpeningHandler = null;
+            FormClosedEventHandler formClosedHandler = null;
+
+            itemClickedHandler = (s, e) =>
+            {
+                context.SelectedItem = e.Item;
+                if (onItemSelected != null && e.Item != null)
+                {
+                    try { onItemSelected(e.Item); }
+                    catch { /* user callback — swallow to keep popup robust */ }
+                }
+            };
+
+            submenuOpeningHandler = (s, e) =>
+            {
+                if (e?.Item == null || !HasChildren(e.Item))
+                    return;
+
+                StopAutoCloseTimer();
+                CloseChildMenus(menuId);
+
+                var menuLocation = menu.PointToScreen(Point.Empty);
+                var itemBounds = menu.LayoutHelper.GetItemRect(e.Item);
+                var subMenuLocation = CalculateSubMenuPosition(menuLocation, itemBounds);
+
+                try
+                {
+                    ShowChildMenu(e.Item.Children.ToList(), subMenuLocation, menu, style, theme, menuId);
+                }
+                catch { /* silently handle sub-menu errors */ }
+            };
+
+            formClosedHandler = (s, e) =>
+            {
+                context.IsClosed = true;
+            };
+
+            menu.ItemClicked    += itemClickedHandler;
+            menu.SubmenuOpening += submenuOpeningHandler;
+            menu.FormClosed     += formClosedHandler;
+
+            context.ItemClickedHandler     = itemClickedHandler;
+            context.SubmenuOpeningHandler  = submenuOpeningHandler;
+            context.FormClosedHandler      = formClosedHandler;
+
+            InstallClickOutsideFilter();
+
+            try
+            {
+                var shownAt = ClampToWorkingArea(menu.Size, screenLocation);
+                menu.Show(shownAt, owner);
+                ActivateMenu(menu);
+            }
+            catch
+            {
+                CleanupMenuContext(menuId);
+                return ContextMenuHandle.Empty;
+            }
+
+            return new ContextMenuHandle(menuId);
+        }
+
         /// <summary>
         /// Closes a specific menu by ID.
         /// </summary>
@@ -571,9 +742,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 StopAutoCloseTimer();
                 
                 List<string> menuIds;
+                List<MenuContext> contextSnapshot;
                 lock (_lock)
                 {
                     menuIds = _activeMenus.Keys.ToList();
+                    // Phase 01: snapshot contexts so we can fire MenuDismissed
+                    // *after* CloseMenu has run (so LastCloseReason is final),
+                    // but *before* the bulk Clear() wipes our reference.
+                    contextSnapshot = _activeMenus.Values.ToList();
                 }
                 
                 foreach (var id in menuIds)
@@ -584,7 +760,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     }
                     catch { }
                 }
-                
+
+                // Phase 01: notify per dismissed root.
+                foreach (var ctx in contextSnapshot)
+                {
+                    RaiseMenuDismissed(ctx);
+                }
+
                 RemoveClickOutsideFilter();
                 
                 lock (_lock)
@@ -915,7 +1097,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             var context = CreateMenuContext(parentMenuId, false);
             if (context == null)
                 return null;
-            
+
+            // Phase 01: child menus inherit the originating owner.
+            context.Owner = owner;
+
             string menuId = context.Id;
             
             try
@@ -941,12 +1126,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 {
                     var _ = menu.Handle;
                 }
-                
-                menu.Location = screenLocation;
+
+                // Phase 05 — clamp child-menu location to its monitor's
+                // working area too, in case CalculateSubMenuPosition's
+                // estimated size disagrees with the actual menu size.
+                menu.Location = ClampToWorkingArea(menu.Size, screenLocation);
                 menu.Show();
                 menu.BringToFront();
                 ActivateMenu(menu);
-                
+
+                // Phase 04B — Submenu triangle tracker integration.
+                // Inform the PARENT BeepContextMenu about the child's
+                // screen bounds so its UpdateHoveredItem can defer
+                // dismissal while the cursor is drifting diagonally
+                // toward this child. The owner of a child menu is the
+                // parent BeepContextMenu form (see all four call sites).
+                if (owner is BeepContextMenu parentMenu && !parentMenu.IsDisposed)
+                {
+                    try { parentMenu.NoteSubmenuOpened(menu.Bounds); }
+                    catch { /* non-fatal */ }
+                }
+
                 return menuId;
             }
             catch
@@ -1024,16 +1224,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         {
             if (string.IsNullOrEmpty(parentMenuId))
                 return;
-            
+
+            BeepContextMenu parentMenuForm = null;
             lock (_lock)
             {
                 if (_activeMenus.TryGetValue(parentMenuId, out var parent))
                 {
+                    parentMenuForm = parent.Menu;
                     foreach (var childId in parent.ChildMenuIds.ToList())
                     {
                         CloseMenu(childId);
                     }
                 }
+            }
+
+            // Phase 04B — Clear the parent's submenu-bounds tracker
+            // outside the lock to avoid re-entry on Note* methods.
+            if (parentMenuForm != null && !parentMenuForm.IsDisposed)
+            {
+                try { parentMenuForm.NoteSubmenuClosed(); }
+                catch { /* non-fatal */ }
             }
         }
         
@@ -1068,6 +1278,89 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
         }
         
+        // ─────────────────────────────────────────────────────────────────
+        // Phase 05 — ContextMenu Lifecycle Hardening
+        //
+        // Native message-pump helpers. The synchronous Show / ShowMultiSelect
+        // paths used to spin with Application.DoEvents() + Thread.Sleep(1),
+        // which pegged a CPU core and re-entered the UI message pump for
+        // every iteration. PumpUntilClosed yields to the OS between
+        // messages via MsgWaitForMultipleObjectsEx, mirroring the loop
+        // Form.ShowDialog uses internally but without the modal disable.
+        // ─────────────────────────────────────────────────────────────────
+
+        private const uint QS_ALLINPUT = 0x04FF;
+        private const uint MWMO_INPUTAVAILABLE = 0x0004;
+        private const uint WAIT_TIMEOUT = 0x00000102;
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        private static extern uint MsgWaitForMultipleObjectsEx(
+            uint nCount,
+            IntPtr pHandles,
+            uint dwMilliseconds,
+            uint dwWakeMask,
+            uint dwFlags);
+
+        /// <summary>
+        /// Yields to the OS until the menu form closes. Replaces the legacy
+        /// busy-wait spin (~1 ms tick) with a real blocking wait that wakes
+        /// when a Windows message is posted to this thread's queue.
+        ///
+        /// The 50 ms safety timeout exists only to guard against missed
+        /// programmatic close-completions in unusual hosts; normal
+        /// dismissal generates WM_CLOSE which wakes the wait instantly.
+        /// </summary>
+        private static void PumpUntilClosed(BeepContextMenu menu, Func<bool> isClosed)
+        {
+            if (menu == null) return;
+
+            while (true)
+            {
+                if (isClosed())                 break;
+                if (menu.IsDisposed)            break;
+                if (!menu.Visible)              break;
+
+                Application.DoEvents();
+
+                if (isClosed())                 break;
+                if (menu.IsDisposed)            break;
+                if (!menu.Visible)              break;
+
+                MsgWaitForMultipleObjectsEx(
+                    0, IntPtr.Zero,
+                    50,                  // dwMilliseconds — short safety timeout
+                    QS_ALLINPUT,
+                    MWMO_INPUTAVAILABLE);
+            }
+        }
+
+        /// <summary>
+        /// Clamps <paramref name="requested"/> so a popup of
+        /// <paramref name="menuSize"/> stays inside the working area of the
+        /// monitor that contains the requested point. Standard fix for
+        /// "popup spills off the right/bottom edge of a secondary monitor".
+        /// </summary>
+        private static Point ClampToWorkingArea(Size menuSize, Point requested)
+        {
+            try
+            {
+                var wa = Screen.FromPoint(requested).WorkingArea;
+                int x = requested.X, y = requested.Y;
+
+                if (menuSize.Width  > 0 && x + menuSize.Width  > wa.Right)  x = wa.Right  - menuSize.Width;
+                if (menuSize.Height > 0 && y + menuSize.Height > wa.Bottom) y = wa.Bottom - menuSize.Height;
+
+                if (x < wa.Left) x = wa.Left;
+                if (y < wa.Top)  y = wa.Top;
+
+                return new Point(x, y);
+            }
+            catch
+            {
+                return requested; // Defensive fallback — never block the show path.
+            }
+        }
+
         private static void CleanupMenuContext(string menuId)
         {
             if (string.IsNullOrEmpty(menuId))
@@ -1094,7 +1387,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     RemoveClickOutsideFilter();
                 }
             }
-            
+
+            // Phase 01: notify subscribers BEFORE disposing so they can read
+            // context.Menu.LastCloseReason while the menu instance is still alive.
+            RaiseMenuDismissed(context);
+
             // Dispose context (cleanup timers, event handlers)
             context?.Dispose();
             
@@ -1109,7 +1406,44 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
             catch { }
         }
-        
+
+        // ─────────────────────────────────────────────────────────────────
+        // Phase 01 — Dismissal/Re-open Hot-Fix
+        //
+        // Centralised, single-fire raiser for the MenuDismissed event.
+        // Guards against re-firing for the same context (CleanupMenuContext
+        // and CloseAllMenus can both touch the same context in rapid
+        // succession during a "close all" cascade).
+        //
+        // Wrapped in try/catch so a buggy subscriber cannot leak into the
+        // cleanup path.
+        // ─────────────────────────────────────────────────────────────────
+        private static void RaiseMenuDismissed(MenuContext context)
+        {
+            if (context == null || context.DismissedFired) return;
+            context.DismissedFired = true;
+
+            var handler = MenuDismissed;
+            if (handler == null) return;
+
+            try
+            {
+                var reason = context.Menu != null && !context.Menu.IsDisposed
+                    ? context.Menu.LastCloseReason
+                    : BeepContextMenuCloseReason.CloseCalled;
+
+                Point screenPt;
+                try { screenPt = Cursor.Position; }
+                catch { screenPt = Point.Empty; }
+
+                handler(null, new MenuDismissedEventArgs(context.Owner, reason, screenPt));
+            }
+            catch
+            {
+                // Never let a subscriber exception leak into the close path.
+            }
+        }
+
         #endregion
     }
 }

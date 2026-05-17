@@ -1,19 +1,41 @@
+// BeepMenuBarDesigner.cs
+// Phase 08 — Designer Integration.
+//
+// Hosts the BeepMenuBar design-time experience. The action list lives in
+// BeepMenuBarActionList.cs (one class per file, per project convention).
+//
+// Phase 08 promotes this designer from "height presets only" (91 LOC) to a
+// commercial-grade smart-tag experience matching the BeepDocumentHost
+// designer pattern:
+//   - Load Sample Items / Clear All Items verbs (wrapped in
+//     DesignerTransaction so VS Undo surfaces descriptive entries)
+//   - Style cycler (Material / Fluent / Office)
+//   - Item-count read-out
+//   - Quick access to appearance + behaviour properties
+//
+// All component mutations go through ExecuteAction (transaction-wrapped)
+// or SetPropertyWithTransaction (per-property), never raw property writes.
+// This guarantees clean Undo/Redo behaviour in the VS Edit menu.
+//
+// See .plans/Menus-Phase-08-DesignerIntegration.md.
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.ComponentModel;
-using System.Windows.Forms.Design;
-using Microsoft.DotNet.DesignTools.Designers;
+using System.ComponentModel.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
-    /// Design-time support for BeepMenuBar control
-    /// Provides smart tags for menu bar configuration and styling
+    /// Design-time support for <see cref="BeepMenuBar"/>. Hooks the
+    /// commercial-grade smart tag action list and provides the
+    /// transaction-wrapped action chokepoints that keep VS Undo /
+    /// Redo entries descriptive.
     /// </summary>
-    public class BeepMenuBarDesigner : BaseBeepControlDesigner
+    public sealed class BeepMenuBarDesigner : BaseBeepControlDesigner
     {
+        /// <summary>The hosted menubar, or <c>null</c> if not yet sited.</summary>
         public BeepMenuBar? MenuBar => Component as BeepMenuBar;
 
         protected override DesignerActionListCollection GetControlSpecificActionLists()
@@ -22,88 +44,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             lists.Add(new BeepMenuBarActionList(this));
             return lists;
         }
-    }
 
-    /// <summary>
-    /// Action list for BeepMenuBar smart tags
-    /// Provides quick configuration presets and common property access
-    /// </summary>
-    public class BeepMenuBarActionList : DesignerActionList
-    {
-        private readonly BeepMenuBarDesigner _designer;
+        // ─────────────────────────────────────────────────────────────────
+        // Transaction-wrapped action chokepoint.
+        //
+        // Every smart-tag mutation that touches the component runs through
+        // ExecuteAction so the VS Edit menu shows a descriptive Undo entry
+        // (e.g. "Undo Load Sample Menu Items"). The IComponentChangeService
+        // events are raised inside the transaction so the designer host
+        // emits a single coherent change for nested mutations.
+        //
+        // Mirrors BeepDocumentHostDesigner.ExecuteAction (Phase 04 of the
+        // DocumentHost MDI program).
+        // ─────────────────────────────────────────────────────────────────
 
-        public BeepMenuBarActionList(BeepMenuBarDesigner designer)
-            : base(designer.Component)
+        internal void ExecuteAction(string description, Action<BeepMenuBar> action)
         {
-            _designer = designer ?? throw new ArgumentNullException(nameof(designer));
-        }
+            if (MenuBar is not BeepMenuBar bar) return;
 
-        protected BeepMenuBar? MenuBar => Component as BeepMenuBar;
+            var host       = GetService(typeof(IDesignerHost))            as IDesignerHost;
+            var changeSvc  = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
 
-        #region Properties (for smart tags)
+            DesignerTransaction? txn = null;
+            try
+            {
+                txn = host?.CreateTransaction(description);
+                changeSvc?.OnComponentChanging(bar, null);
 
-        [Category("Appearance")]
-        [Description("Text font displayed in the menu bar")]
-        public System.Drawing.Font TextFont
-        {
-            get => _designer.GetProperty<System.Drawing.Font>("TextFont");
-            set => _designer.SetProperty("TextFont", value);
-        }
+                action(bar);
 
-        [Category("Layout")]
-        [Description("Height of the menu bar in pixels")]
-        public int Height
-        {
-            get => _designer.GetProperty<int>("Height");
-            set => _designer.SetProperty("Height", value);
-        }
+                changeSvc?.OnComponentChanged(bar, null, null, null);
+                txn?.Commit();
+            }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
 
-        #endregion
-
-        #region Quick Configuration Actions
-
-        /// <summary>
-        /// Set standard menu bar height (44px)
-        /// </summary>
-        public void SetStandardHeight()
-        {
-            Height = 44;
+            RefreshDesignerActionUI();
         }
 
         /// <summary>
-        /// Set compact menu bar height (32px)
+        /// Transaction-wrapped per-property writer. The base class
+        /// <see cref="BaseBeepControlDesigner.SetProperty"/> raises change
+        /// events but does NOT open a transaction — so Undo surfaces an
+        /// anonymous entry rather than the descriptive name. This shim
+        /// adds the transaction layer.
         /// </summary>
-        public void SetCompactHeight()
+        internal void SetPropertyWithTransaction(string propertyName, object? value, string description)
         {
-            Height = 32;
+            if (MenuBar is not BeepMenuBar bar) return;
+
+            var prop = TypeDescriptor.GetProperties(bar)[propertyName];
+            if (prop == null || prop.IsReadOnly) return;
+
+            var host       = GetService(typeof(IDesignerHost))            as IDesignerHost;
+            var changeSvc  = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            var oldValue   = prop.GetValue(bar);
+
+            if (Equals(oldValue, value)) return;
+
+            DesignerTransaction? txn = null;
+            try
+            {
+                txn = host?.CreateTransaction(description);
+                changeSvc?.OnComponentChanging(bar, prop);
+                prop.SetValue(bar, value);
+                changeSvc?.OnComponentChanged(bar, prop, oldValue, value);
+                txn?.Commit();
+            }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
+
+            RefreshDesignerActionUI();
         }
 
-        /// <summary>
-        /// Set comfortable menu bar height (56px)
-        /// </summary>
-        public void SetComfortableHeight()
+        private void RefreshDesignerActionUI()
         {
-            Height = 56;
-        }
-
-        #endregion
-
-        public override DesignerActionItemCollection GetSortedActionItems()
-        {
-            var items = new DesignerActionItemCollection();
-
-            // Height presets
-            items.Add(new DesignerActionHeaderItem("Height Presets"));
-            items.Add(new DesignerActionMethodItem(this, "SetStandardHeight", "Standard (44px)", "Height Presets", true));
-            items.Add(new DesignerActionMethodItem(this, "SetCompactHeight", "Compact (32px)", "Height Presets", true));
-            items.Add(new DesignerActionMethodItem(this, "SetComfortableHeight", "Comfortable (56px)", "Height Presets", true));
-
-            // Appearance properties
-            items.Add(new DesignerActionHeaderItem("Appearance Properties"));
-            items.Add(new DesignerActionPropertyItem("TextFont", "Text Font", "Appearance Properties"));
-            items.Add(new DesignerActionPropertyItem("Height", "Height", "Appearance Properties"));
-
-            return items;
+            if (Component == null) return;
+            (GetService(typeof(DesignerActionUIService)) as DesignerActionUIService)?.Refresh(Component);
         }
     }
 }

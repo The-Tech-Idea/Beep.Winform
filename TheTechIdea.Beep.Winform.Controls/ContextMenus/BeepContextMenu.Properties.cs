@@ -212,6 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     InvalidateLayoutCache();
                     InvalidateSizeCache();
                     RecalculateSize();
+                    SyncHostedListFromMenuState();
                     Invalidate();
                 }
             }
@@ -267,6 +268,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// Gets or sets whether multi-select is enabled
         /// </summary>
         [Category("Beep")]
+        /// <summary>
+        /// Last reason the menu was closed for. Read-only; written by the
+        /// internal close paths. Exposed for <c>ContextMenuManager</c>'s
+        /// <c>MenuDismissed</c> event (Phase 01 — Dismissal/Re-open Hot-Fix).
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public BeepContextMenuCloseReason LastCloseReason => _closeReason;
+
         [Description("Enable multi-select mode (menu stays open after selection)")]
         [Browsable(true)]
         [DefaultValue(false)]
@@ -283,6 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                         // Clear selected items when enabling multi-select
                         _selectedItems.Clear();
                     }
+                    SyncHostedListFromMenuState();
                     Invalidate();
                 }
             }
@@ -315,6 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     InvalidateLayoutCache();
                     InvalidateSizeCache();
                     RecalculateSize();
+                    SyncHostedListFromMenuState();
                     Invalidate();
                 }
             }
@@ -338,6 +350,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     InvalidateLayoutCache();
                     InvalidateSizeCache();
                     RecalculateSize();
+                    SyncHostedListFromMenuState();
                     Invalidate();
                 }
             }

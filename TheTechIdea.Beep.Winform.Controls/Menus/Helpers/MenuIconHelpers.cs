@@ -1,3 +1,9 @@
+// Thin wrapper over SVG icon helpers + a curated menu-icon catalogue.
+// Governance: Menus/.plans/ADR-001-StylingStack.md.
+//
+// This file is on the allowed-helpers list because it delegates to the
+// framework SVG painters and never invents chrome behaviour of its own.
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;

@@ -1729,6 +1729,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         [Category("Document – Persistence")]
         [Description("Documents opened when the host is first created. Configure at design time.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [System.ComponentModel.Editor(
+            "TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.DesignTimeDocumentsEditor, TheTechIdea.Beep.Winform.Controls.Design.Server",
+            "System.Drawing.Design.UITypeEditor, System.Drawing")]
         public System.Collections.ObjectModel.Collection<DocumentDescriptor> DesignTimeDocuments
             => _designTimeDocuments;
 

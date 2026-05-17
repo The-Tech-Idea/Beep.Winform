@@ -216,6 +216,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             //OnItemHovered(null);
             //Invalidate();
             UpdateHoveredItem(null);
+
+            // Phase 04B — Reset the cursor-trajectory so a re-entry
+            // (e.g. user drifts back onto the menu) starts a fresh
+            // tracking measurement instead of inheriting a stale
+            // last-position from the previous session.
+            ResetCursorTrajectory();
         }
         
         private void BeepContextMenu_Deactivate(object sender, EventArgs e)

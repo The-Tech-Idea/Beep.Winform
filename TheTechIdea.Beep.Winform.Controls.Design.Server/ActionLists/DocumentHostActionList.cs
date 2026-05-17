@@ -440,6 +440,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         public void SelectActiveDocumentSurface()
             => _designer.SelectActiveDocumentSurface();
 
+        /// <summary>
+        /// Phase 11 — Activates whichever tab is under the mouse cursor right
+        /// now and promotes its panel to the primary designer selection. Used
+        /// as a defensive entry point when a click on the tab strip is not
+        /// reaching the runtime mouse pipeline through GetHitTest.
+        /// </summary>
+        public void SelectTabUnderCursor()
+            => _designer.SelectDocumentAt(Cursor.Position);
+
         /// <summary>Opens the Quick-Switch document picker popup.</summary>
         public void ShowQuickSwitch()
         {
@@ -541,9 +550,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         // GetSortedActionItems
         // ─────────────────────────────────────────────────────────────────────
 
+        // Phase 07 — wizard + status banner exposed as smart-tag items so the
+        // user always sees the current configuration and has one-click access
+        // to the visual setup.
+        public string Status     => _designer.DescribeHostState();
+        public void SetupWizard() => _designer.ShowQuickSetupWizard();
+
         public override DesignerActionItemCollection GetSortedActionItems()
         {
             var items = new DesignerActionItemCollection();
+
+            // ── Status (Phase 07): always the first item the user sees ──────
+            items.Add(new DesignerActionHeaderItem("Status"));
+            items.Add(new DesignerActionTextItem(
+                _designer.DescribeHostState(),
+                "Status"));
+            items.Add(new DesignerActionMethodItem(this, nameof(SetupWizard),
+                "\u2728 Setup Wizard\u2026", "Status",
+                "Open the visual setup wizard: pick a tab style, optionally seed sample tabs.",
+                includeAsDesignerVerb: true));
 
             // ── Documents ────────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Documents"));
@@ -559,6 +584,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
             items.Add(new DesignerActionMethodItem(this, nameof(ReopenLastClosed),
                 "Reopen Last Closed", "Documents",
                 "Reopens the most recently closed design-time document.", false));
+            items.Add(new DesignerActionMethodItem(this, nameof(SelectTabUnderCursor),
+                "Select Tab Under Cursor", "Documents",
+                "Activate whichever tab the mouse is currently over and select that document panel.",
+                true));
             items.Add(new DesignerActionMethodItem(this, nameof(SelectActiveDocumentSurface),
                 "Select Active Document Surface", "Documents",
                 "Targets the active document panel for toolbox drops and direct authoring.", false));

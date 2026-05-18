@@ -12,9 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Tests
         // ?? LayoutMigrationService — IsCurrentVersion ?????????????????????????
 
         [Fact]
-        public void IsCurrentVersion_ReturnsTrueForSchemaV3()
+        public void IsCurrentVersion_ReturnsTrueForSchemaV4()
         {
-            string json = """{"schemaVersion":3,"groups":[]}""";
+            string json = """{"schemaVersion":4,"groups":[]}""";
             Assert.True(LayoutMigrationService.IsCurrentVersion(json));
         }
 

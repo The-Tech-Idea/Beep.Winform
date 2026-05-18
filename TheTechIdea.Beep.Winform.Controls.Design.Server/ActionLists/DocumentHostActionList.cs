@@ -493,7 +493,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
         // ─────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Opens the DesignTimeDocuments collection editor from the smart-tag.
+        /// Opens the document editor from the smart-tag.
         /// </summary>
         public void EditDesignTimeDocuments()
             => _designer.OpenDesignTimeDocumentsEditor();
@@ -608,10 +608,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists
                 "Rename the currently active design-time document surface."));
 
             // ── Design-Time ──────────────────────────────────────────────────
-            items.Add(new DesignerActionHeaderItem("Design-Time"));
+            items.Add(new DesignerActionHeaderItem("Documents"));
             items.Add(new DesignerActionMethodItem(this, nameof(EditDesignTimeDocuments),
-                "Edit Design-Time Documents\u2026", "Design-Time",
-                "Opens the collection editor to define documents that appear at design and startup.", true));
+                "Edit Documents\u2026", "Documents",
+                "Opens the document editor and creates real document panels on the design surface.", true));
 
             // ── Split View ───────────────────────────────────────────────────
             items.Add(new DesignerActionHeaderItem("Split View"));

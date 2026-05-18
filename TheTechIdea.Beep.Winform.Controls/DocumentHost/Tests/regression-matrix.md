@@ -17,6 +17,11 @@
 | 1.5 | Click × on a modified tab — handler sets `e.Cancel = true` | Tab stays open | |
 | 1.6 | `manager.RemoveDocument(id, force: true)` | Closed without cancel | |
 | 1.7 | `manager.CloseAllDocuments()` | All tabs removed | |
+| 1.8 | Open two documents through `manager.AddDocument(...)`, switch the manager to a fresh view, then attach that view's host/parent | Manager-created documents reopen in the new view with the same titles/metadata, one document remains active, and the old view no longer keeps duplicate copies of those manager-owned documents | |
+| 1.9 | In native MDI mode, call `AddControl(...)`, switch the manager to a different `BeepNativeMdiView`, then call `AddControl(...)` again | The second addin is hosted by the new MDI view instead of the first view instance | |
+| 1.10 | Host a control-backed addin or extender-backed control, switch the manager to a different view, then show the same surface again | The live control is attached to the new view instead of remaining parented to the old panel/MDI host | |
+| 1.11 | Host a form-backed addin, switch between native MDI and tabbed hosting, then show the same addin again | The same addin form is rehosted in the new view without duplicate child-form event behavior | |
+| 1.12 | Open a manager-owned document, place a live control inside that document surface, then switch the manager to a different view | The logical document is recreated in the new view and the same live control is reattached instead of the document reopening empty | |
 
 ---
 

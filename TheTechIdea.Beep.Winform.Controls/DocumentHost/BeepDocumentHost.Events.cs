@@ -65,6 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void OnTabPinToggled(object? sender, TabEventArgs e)
         {
             if (!_panels.TryGetValue(e.Tab.Id, out var panel)) return;
+            panel.IsPinned = e.Tab.IsPinned;
             panel.CanClose = !e.Tab.IsPinned;
             DocumentPinChanged?.Invoke(this,
                 new DocumentEventArgs(e.Tab.Id, panel.DocumentTitle));

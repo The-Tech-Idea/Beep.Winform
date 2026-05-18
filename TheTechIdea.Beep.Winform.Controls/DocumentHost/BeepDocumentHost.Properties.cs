@@ -441,10 +441,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Pushes the <see cref="DesignTimeDocuments"/> collection into the live
         /// document surface so the designer shows the documents at design time.
         /// Called automatically from <c>OnHandleCreated</c>; safe to call again manually.
+        /// <para>
+        /// When <see cref="DocumentPanels"/> already contains panels (restored from
+        /// Designer.cs via <c>InitializeComponent</c>), this method is a no-op to avoid
+        /// the duplicate-panel conflict that occurred in previous versions.
+        /// </para>
         /// </summary>
         public void ApplyDesignTimeDocuments()
         {
             if (_applyingDesignTimeDocuments)
+            {
+                return;
+            }
+
+            // If DocumentPanels were restored by the serializer (InitializeComponent called
+            // DocumentPanels.Add for each panel), skip the descriptor-based creation path
+            // entirely. This prevents the duplicate panel / naming-conflict bug where a
+            // serialised BeepDocumentPanel and a descriptor-driven AddDocument() would both
+            // try to register the same document id.
+            if (_documentPanels != null && _documentPanels.Count > 0)
             {
                 return;
             }
@@ -457,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var descriptors = _designTimeDocuments
                     .Where(desc => !string.IsNullOrWhiteSpace(desc.Id))
                     .GroupBy(desc => desc.Id, StringComparer.Ordinal)
-                    .Select(group => group.First())
+                    .Select(group => group.Last())
                     .ToList();
 
                 var desiredIds = new HashSet<string>(
@@ -506,7 +521,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         internal void OnDesignTimeDocumentsChanged()
         {
-            if (_applyingDesignTimeDocuments)
+            if (_applyingDesignTimeDocuments || _designTimeDocumentUpdateDepth > 0)
             {
                 return;
             }
@@ -529,6 +544,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void BeginDesignTimeDocumentUpdate()
+            => _designTimeDocumentUpdateDepth++;
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void EndDesignTimeDocumentUpdate(bool applyChanges)
+        {
+            if (_designTimeDocumentUpdateDepth > 0)
+            {
+                _designTimeDocumentUpdateDepth--;
+            }
+
+            if (_designTimeDocumentUpdateDepth == 0 && applyChanges)
+            {
+                OnDesignTimeDocumentsChanged();
+            }
+        }
+
         private void RegisterExistingDesignPanels()
         {
             foreach (System.Windows.Forms.Control ctrl in _contentArea.Controls.OfType<BeepDocumentPanel>().ToList())
@@ -547,8 +582,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
                 _tabStrip.AddTab(panel.DocumentId, panel.DocumentTitle, panel.IconPath, activate: false);
 
-                panel.ModifiedChanged += (s, _) =>
-                    _tabStrip.SetTabModified(panel.DocumentId, panel.IsModified);
+                WireDocumentPanelEvents(panel);
 
                 WireMiniToolbarToPanel(panel, panel.DocumentId);
             }
@@ -1671,6 +1705,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             PopulateWindowMenu(existing);
         }
 
+        /// <summary>
+        /// Removes this host's Window-menu population hook from the matching menu item.
+        /// </summary>
+        public void DetachWindowMenu(System.Windows.Forms.MenuStrip menuStrip,
+                                     string windowMenuItemText = "Window")
+        {
+            if (menuStrip == null) throw new System.ArgumentNullException(nameof(menuStrip));
+
+            foreach (System.Windows.Forms.ToolStripItem item in menuStrip.Items)
+            {
+                if (item is System.Windows.Forms.ToolStripMenuItem menuItem
+                    && string.Equals(menuItem.Text, windowMenuItemText, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    menuItem.DropDownOpening -= OnWindowMenuOpening;
+                    break;
+                }
+            }
+        }
+
         private void OnWindowMenuOpening(object? sender,
                                           System.EventArgs e)
         {
@@ -1864,26 +1917,62 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // ─────────────────────────────────────────────────────────────────────
         // Design-Time Documents collection
         // Seeded at design time; applied to the host in OnHandleCreated.
-        // Serialised into InitializeComponent by the designer.
+        // Kept as a runtime/metadata collection but no longer serialised into
+        // InitializeComponent — BeepDocumentPanelCollection (DocumentPanels) is the
+        // serialisation vehicle that makes panel declarations appear in Designer.cs.
         // ─────────────────────────────────────────────────────────────────────
 
         private readonly DesignTimeDocumentCollection _designTimeDocuments;
 
         /// <summary>
-        /// Documents to open automatically when the host is first created.
-        /// Configure at design time in the Properties grid or via the
-        /// "Edit Design-Time Documents…" smart-tag action.
+        /// Internal metadata mirror for document panels created at design time.
+        /// The designer-facing objects are the real <see cref="BeepDocumentPanel"/>
+        /// instances in <see cref="DocumentPanels"/>.
         /// At runtime, if <see cref="AutoSaveLayout"/> is true and a session
         /// file exists, the restored layout takes precedence over this collection.
         /// </summary>
         [Category("Document – Persistence")]
-        [Description("Documents opened when the host is first created. Configure at design time.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Description("Internal document metadata. Designer documents are serialized through DocumentPanels.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [System.ComponentModel.Editor(
             "TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.DesignTimeDocumentsEditor, TheTechIdea.Beep.Winform.Controls.Design.Server",
             "System.Drawing.Design.UITypeEditor, System.Drawing")]
         public System.Collections.ObjectModel.Collection<DocumentDescriptor> DesignTimeDocuments
             => _designTimeDocuments;
+
+        // ── DocumentPanels – designer serialisation vehicle ──────────────────
+        // The WinForms CodeDom serializer will emit:
+        //
+        //   this.documentPanel1 = new BeepDocumentPanel();
+        //   this.documentPanel1.DocumentId    = "doc-1";
+        //   this.documentPanel1.DocumentTitle = "Document 1";
+        //   this.beepDocumentHost1.DocumentPanels.Add(this.documentPanel1);
+        //
+        // On form re-open the Add() call goes through
+        // BeepDocumentPanelCollection.InsertItem() → RegisterDocumentPanel()
+        // so each panel is fully wired into the tab strip without the
+        // duplicate-panel conflict that DesignTimeDocuments serialisation caused.
+
+        private BeepDocumentPanelCollection? _documentPanels;
+
+        /// <summary>
+        /// Live collection of <see cref="BeepDocumentPanel"/> instances owned by
+        /// this host. Adding a panel here is equivalent to calling
+        /// <see cref="RegisterDocumentPanel"/>; removing it closes the document.
+        /// <para>
+        /// The designer serialises this collection into <c>InitializeComponent</c>
+        /// so panels appear as first-class controls in <c>Designer.cs</c>.
+        /// </para>
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public BeepDocumentPanelCollection DocumentPanels
+            => _documentPanels ??= new BeepDocumentPanelCollection(this);
+
+        public bool ShouldSerializeDocumentPanels()
+            => _documentPanels != null && _documentPanels.Count > 0;
 
         /// <summary>
         /// Serialized design-time layout snapshot maintained by the DocumentHost designer.

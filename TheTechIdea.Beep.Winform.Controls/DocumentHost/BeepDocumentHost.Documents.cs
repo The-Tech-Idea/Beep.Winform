@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             return moved;
         }
 
-        private bool ContainsOpenDocument(string documentId)
+        internal bool ContainsOpenDocument(string documentId)
             => _panels.ContainsKey(documentId) || _floatWindows.ContainsKey(documentId);
 
         /// <summary>
@@ -251,8 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (activate || _panels.Count == 1)
                 SetActiveDocument(documentId);
 
-            panel.ModifiedChanged += (s, _) =>
-                _tabStrip.SetTabModified(documentId, panel.IsModified);
+            WireDocumentPanelEvents(panel);
 
             // Auto-show the mini toolbar when the mouse enters the document panel
             WireMiniToolbarToPanel(panel, documentId);
@@ -262,6 +261,145 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 RecalculateLayout();
 
             return panel;
+        }
+
+        private bool _syncingDocumentPanelMetadata;
+
+        private void WireDocumentPanelEvents(BeepDocumentPanel panel)
+        {
+            panel.ModifiedChanged -= OnDocumentPanelModifiedChanged;
+            panel.ModifiedChanged += OnDocumentPanelModifiedChanged;
+            panel.DocumentMetadataChanged -= OnDocumentPanelMetadataChanged;
+            panel.DocumentMetadataChanged += OnDocumentPanelMetadataChanged;
+
+            _syncingDocumentPanelMetadata = true;
+            try
+            {
+                if (TryGetDocumentTab(panel.DocumentId, out _, out var tab)
+                    && tab.IsPinned != panel.IsPinned)
+                {
+                    PinDocument(panel.DocumentId, panel.IsPinned);
+                }
+
+                SyncDocumentPanelMetadataToTabs(panel);
+            }
+            finally
+            {
+                _syncingDocumentPanelMetadata = false;
+            }
+
+            SyncDesignTimeDescriptorFromPanel(panel);
+        }
+
+        private void UnwireDocumentPanelEvents(BeepDocumentPanel panel)
+        {
+            panel.ModifiedChanged -= OnDocumentPanelModifiedChanged;
+            panel.DocumentMetadataChanged -= OnDocumentPanelMetadataChanged;
+        }
+
+        private void OnDocumentPanelModifiedChanged(object? sender, EventArgs e)
+        {
+            if (sender is BeepDocumentPanel panel)
+            {
+                SyncDocumentPanelMetadataToTabs(panel);
+            }
+        }
+
+        private void OnDocumentPanelMetadataChanged(object? sender, EventArgs e)
+        {
+            if (sender is not BeepDocumentPanel panel || _syncingDocumentPanelMetadata)
+            {
+                return;
+            }
+
+            _syncingDocumentPanelMetadata = true;
+            try
+            {
+                if (TryGetDocumentTab(panel.DocumentId, out _, out var tab)
+                    && tab.IsPinned != panel.IsPinned)
+                {
+                    PinDocument(panel.DocumentId, panel.IsPinned);
+                }
+
+                SyncDocumentPanelMetadataToTabs(panel);
+                SyncDesignTimeDescriptorFromPanel(panel);
+            }
+            finally
+            {
+                _syncingDocumentPanelMetadata = false;
+            }
+        }
+
+        private void SyncDocumentPanelMetadataToTabs(BeepDocumentPanel panel)
+        {
+            foreach (var group in _groups)
+            {
+                BeepDocumentTab? tab = group.TabStrip.FindTabById(panel.DocumentId);
+                if (tab == null)
+                {
+                    continue;
+                }
+
+                tab.Title = panel.DocumentTitle;
+                tab.IconPath = panel.IconPath;
+                tab.CanClose = panel.CanClose;
+                tab.IsModified = panel.IsModified;
+                tab.DocumentCategory = panel.DocumentCategory;
+                tab.TooltipText = panel.TooltipText;
+                tab.BadgeText = panel.BadgeText;
+                tab.BadgeColor = panel.BadgeColor;
+                tab.TabColor = panel.TabColor;
+                tab.AccentColor = panel.AccentColor;
+                tab.IsPinned = panel.IsPinned;
+                group.TabStrip.Invalidate();
+            }
+        }
+
+        private void SyncDesignTimeDescriptorFromPanel(BeepDocumentPanel panel)
+        {
+            if (!IsDesignTimeHost || string.IsNullOrWhiteSpace(panel.DocumentId))
+            {
+                return;
+            }
+
+            BeginDesignTimeDocumentUpdate();
+            try
+            {
+                var matchingDescriptors = _designTimeDocuments
+                    .Where(d => string.Equals(d.Id, panel.DocumentId, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                DocumentDescriptor? descriptor = matchingDescriptors.LastOrDefault();
+
+                if (descriptor == null)
+                {
+                    descriptor = new DocumentDescriptor { Id = panel.DocumentId };
+                    _designTimeDocuments.Add(descriptor);
+                }
+                else if (matchingDescriptors.Count > 1)
+                {
+                    foreach (DocumentDescriptor duplicate in matchingDescriptors.Take(matchingDescriptors.Count - 1))
+                    {
+                        _designTimeDocuments.Remove(duplicate);
+                    }
+                }
+
+                descriptor.Title = panel.DocumentTitle;
+                descriptor.IconPath = panel.IconPath;
+                descriptor.IsModified = panel.IsModified;
+                descriptor.IsPinned = panel.IsPinned;
+                descriptor.CanClose = panel.CanClose;
+                descriptor.Category = panel.DocumentCategory;
+                descriptor.TooltipText = panel.TooltipText;
+                descriptor.BadgeText = panel.BadgeText;
+                descriptor.BadgeColor = panel.BadgeColor;
+                descriptor.TabColor = panel.TabColor;
+                descriptor.AccentColor = panel.AccentColor;
+            }
+            finally
+            {
+                EndDesignTimeDocumentUpdate(applyChanges: false);
+            }
         }
 
         /// <summary>
@@ -291,8 +429,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (activate || _panels.Count == 1)
                 SetActiveDocument(panel.DocumentId);
 
-            panel.ModifiedChanged += (s, _) =>
-                _tabStrip.SetTabModified(panel.DocumentId, panel.IsModified);
+            WireDocumentPanelEvents(panel);
 
             WireMiniToolbarToPanel(panel, panel.DocumentId);
 
@@ -474,6 +611,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 }
 
                 _panels.Remove(documentId);
+                _documentPanels?.RemoveFromHost(documentId);
+                UnwireDocumentPanelEvents(panel);
                 panel.Parent?.Controls.Remove(panel);
                 panel.Dispose();
 
@@ -1178,6 +1317,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (tabIdx >= 0) sourceGroup.TabStrip.RemoveTabAt(tabIdx);
                 sourceGroup.ContentArea.Controls.Remove(panel);
                 sourceHost._panels.Remove(documentId);
+                sourceHost.UnwireDocumentPanelEvents(panel);
                 if (sourceHost._activeDocumentId == documentId)
                 {
                     sourceHost._activeDocumentId = null;
@@ -1194,6 +1334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _docGroupMap[documentId] = _primaryGroup.GroupId;
                 _primaryGroup.DocumentIds.Add(documentId);
                 _tabStrip.AddTab(documentId, title, iconPath, activate: false);
+                WireDocumentPanelEvents(panel);
                 SetActiveDocument(documentId);
             });
 
@@ -1312,8 +1453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             targetGroup.DocumentIds.Add(documentId);
             _docGroupMap[documentId] = targetGroupId;
 
-            panel.ModifiedChanged += (s, _) =>
-                targetGroup.TabStrip.SetTabModified(documentId, panel.IsModified);
+            WireDocumentPanelEvents(panel);
 
             if (recalcLayout)
                 RecalculateLayout();

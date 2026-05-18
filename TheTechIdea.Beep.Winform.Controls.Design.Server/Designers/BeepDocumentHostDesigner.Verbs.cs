@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         {
                             MergeAllDesignTimeGroups();
                         }),
-                        new DesignerVerb("Edit Design-Time Documents\u2026", (s, e) =>
+                        new DesignerVerb("Edit Documents\u2026", (s, e) =>
                         {
                             if (Component is BeepDocumentHost host)
                                 EditDesignTimeDocuments(host);
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         new DesignerVerb("Clear All Documents", (s, e) =>
                         {
                             var r = MessageBox.Show(
-                                "Remove all design-time documents from the host?",
+                                "Remove all document panels from the host?",
                                 "Clear All Documents",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Warning);

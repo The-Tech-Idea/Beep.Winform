@@ -227,6 +227,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (_manager == null || DesignerHost == null) return;
 
             _pinnedHostForSetup = result.SelectedHostComponent as BeepDocumentHost;
+            bool needsDeferredHostSync = result.Mode != DocumentSetupMode.NativeMdi;
+            if (needsDeferredHostSync)
+            {
+                _suppressImmediateHostSync = true;
+            }
 
             using var txn = DesignerHost.CreateTransaction("Beep Document Area Setup");
             try
@@ -263,7 +268,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
             finally
             {
+                _suppressImmediateHostSync = false;
                 _pinnedHostForSetup = null;
+            }
+
+            if (needsDeferredHostSync)
+            {
+                ScheduleManagerDocumentsHostSync();
             }
 
             RefreshPanel();
@@ -279,6 +290,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (_manager?.View == null) return;
             if (count <= 0) return;
 
+            int startIndex = _manager.DesignTimeDocuments.Count + 1;
+            int addedViaHostDesigner = 0;
+            for (int i = 0; i < count; i++)
+            {
+                if (!TryAddDocumentViaHostDesigner($"Document {startIndex + i}", activate: i == count - 1, selectSurface: i == count - 1))
+                {
+                    break;
+                }
+
+                addedViaHostDesigner++;
+            }
+
+            if (addedViaHostDesigner == count)
+            {
+                return;
+            }
+
             // Phase 04: seeded sample documents must round-trip through
             // serialization, so they are appended to DesignTimeDocuments
             // (with change-service notification) and re-applied to the view.
@@ -287,16 +315,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // transaction created by ApplySetupResult.
             MutateDesignTimeDocuments("Seed Sample Documents", docs =>
             {
-                int startIndex = docs.Count + 1;
-                for (int i = 0; i < count; i++)
+                for (int i = addedViaHostDesigner; i < count; i++)
                 {
-                    var descriptor = new DocumentDescriptor
-                    {
-                        Id             = Guid.NewGuid().ToString("N"),
-                        Title          = "Document " + (startIndex + i),
-                        InitialContent = DocumentInitialContent.Empty
-                    };
-                    docs.Add(descriptor);
+                    docs.Add(DesignTimeDocumentCoordinator.CreateDetachedDescriptor(
+                        Guid.NewGuid().ToString("N"),
+                        "Document " + (startIndex + i)));
                 }
             });
         }
@@ -581,10 +604,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             catch { txn.Cancel(); }
         }
 
-        private static void SetViewProperty(object view, string propertyName, object? value)
+        private void SetViewProperty(object view, string propertyName, object? value)
         {
             PropertyDescriptor? prop = TypeDescriptor.GetProperties(view)[propertyName];
-            prop?.SetValue(view, value);
+            if (prop == null || prop.IsReadOnly) return;
+
+            object? oldValue = prop.GetValue(view);
+            if (Equals(oldValue, value)) return;
+
+            var changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            changeSvc?.OnComponentChanging(view, prop);
+            prop.SetValue(view, value);
+            changeSvc?.OnComponentChanged(view, prop, oldValue, value);
         }
 
         private void SetIsMdiContainer(Form form, bool value)

@@ -52,9 +52,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                                                           IReadOnlyList<DocumentLayoutAssistantItem> documents)
         {
             int requiredCount = Math.Max(1, documents.Count);
+            var coordinator = new DesignTimeDocumentCoordinator(this, host, docs);
             while (docs.Count < requiredCount)
             {
-                docs.Add(CreateNextDesignTimeDocumentDescriptor(host, docs));
+                if (coordinator.AddNewDocument(activate: false, selectSurface: false) == null)
+                {
+                    break;
+                }
+            }
+
+            requiredCount = Math.Min(requiredCount, docs.Count);
+            if (requiredCount == 0)
+            {
+                return;
             }
 
             for (int index = 0; index < requiredCount; index++)
@@ -68,9 +78,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             for (int index = docs.Count - 1; index >= requiredCount; index--)
             {
                 DocumentDescriptor descriptor = docs[index];
-                _designTimeClosedDocuments.Push(CloneDescriptor(descriptor));
-                CloseDesignTimeDocument(host, descriptor.Id);
-                docs.RemoveAt(index);
+                if (coordinator.RemoveDocument(descriptor.Id, selectSurface: false, out DocumentDescriptor? snapshot)
+                    && snapshot != null)
+                {
+                    _designTimeClosedDocuments.Push(snapshot);
+                }
             }
         }
 
@@ -84,48 +96,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             switch (preset)
             {
                 case LayoutPreset.Single:
-                    EnsureDesignDocumentCount(host, docs, 1);
+                    if (!EnsureDesignDocumentCount(host, docs, 1)) return;
                     host.MergeAllGroups();
                     break;
 
                 case LayoutPreset.SideBySide:
-                    EnsureDesignDocumentCount(host, docs, 2);
+                    if (!EnsureDesignDocumentCount(host, docs, 2)) return;
                     host.TemplateLibrary.ApplyTemplate("side-by-side", host);
                     break;
 
                 case LayoutPreset.Stacked:
-                    EnsureDesignDocumentCount(host, docs, 2);
+                    if (!EnsureDesignDocumentCount(host, docs, 2)) return;
                     host.TemplateLibrary.ApplyTemplate("stacked", host);
                     break;
 
                 case LayoutPreset.ThreeWay:
-                    EnsureDesignDocumentCount(host, docs, 3);
+                    if (!EnsureDesignDocumentCount(host, docs, 3)) return;
                     host.TemplateLibrary.ApplyTemplate("three-way", host);
                     break;
 
                 case LayoutPreset.FourUp:
-                    EnsureDesignDocumentCount(host, docs, 4);
+                    if (!EnsureDesignDocumentCount(host, docs, 4)) return;
                     host.TemplateLibrary.ApplyTemplate("four-up", host);
                     break;
 
                 case LayoutPreset.ThreeWayNested:
-                    EnsureDesignDocumentCount(host, docs, 2);
+                    if (!EnsureDesignDocumentCount(host, docs, 2)) return;
                     host.TemplateLibrary.ApplyTemplate("side-by-side", host);
-                    EnsureDesignDocumentCount(host, docs, 3);
-                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: false, selectSurface: false);
+                    if (!EnsureDesignDocumentCount(host, docs, 3)) return;
+                    if (CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: false, selectSurface: false) == null) return;
                     break;
 
                 case LayoutPreset.ThreeColumn:
-                    EnsureDesignDocumentCount(host, docs, 3);
+                    if (!EnsureDesignDocumentCount(host, docs, 3)) return;
                     host.TemplateLibrary.ApplyTemplate("side-by-side", host);
-                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false);
+                    if (CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false) == null) return;
                     break;
 
                 case LayoutPreset.FiveWay:
-                    EnsureDesignDocumentCount(host, docs, 4);
+                    if (!EnsureDesignDocumentCount(host, docs, 4)) return;
                     host.TemplateLibrary.ApplyTemplate("four-up", host);
-                    EnsureDesignDocumentCount(host, docs, 5);
-                    CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false);
+                    if (!EnsureDesignDocumentCount(host, docs, 5)) return;
+                    if (CreateSplitDesignTimeDocumentInternal(host, docs, horizontal: true, selectSurface: false) == null) return;
                     break;
             }
 

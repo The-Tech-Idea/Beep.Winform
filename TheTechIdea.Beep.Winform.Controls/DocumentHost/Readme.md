@@ -12,7 +12,7 @@ The long answer is below.
 
 | Component | Kind | Lives in | Responsibility |
 |---|---|---|---|
-| **`BeepDocumentManager`** | Non-visual `Component` | Form's **component tray** | Public API surface for application code. Hosts cross-cutting services (command registry, workspace manager, design-time documents, layout persistence, theme/policy fan-out, `IDisplayContainer` contract). Never paints. Never knows about tabs, splitters, or MDI. |
+| **`BeepDocumentManager`** | Non-visual `Component` | Form's **component tray** | Public API surface for application code. Hosts cross-cutting services (command registry, workspace manager, document-panel metadata, layout persistence, theme/policy fan-out, `IDisplayContainer` contract). Never paints. Never knows about tabs, splitters, or MDI. |
 | **`IBeepDocumentManagerView`** | Strategy interface | Implemented by view components | The rendering-strategy seam. Two implementations ship today (`BeepTabbedView`, `BeepNativeMdiView`); third-party views can be added without changing the manager. |
 | **`BeepTabbedView`** | Non-visual `Component` | Component tray | Concrete view: delegates every document operation to an associated `BeepDocumentHost`. Lightweight adapter — holds a `Host` reference, wires events, forwards method calls. |
 | **`BeepNativeMdiView`** | Non-visual `Component` | Component tray | Concrete view: uses standard WinForms MDI (`Form.IsMdiContainer = true`, child Forms with `MdiParent` set). No `BeepDocumentHost` involved. |
@@ -365,3 +365,147 @@ See `.plans/DocumentHost-MDI-Phase-11-DesignTimeTabSelection.md` for the full br
 ---
 
 *Last updated: 2026-05-17 — corresponds to DocumentHost MDI program through Phase 11 (design-time tab selection).*
+
+---
+
+## 13. Design-time panel serialization — `DocumentPanels` collection (Phase 12)
+
+### Problem (pre-Phase 12)
+
+Before Phase 12 the designer serialized `BeepDocumentPanel` instances into Designer.cs via two separate channels that were out of sync:
+
+1. `designerHost.CreateComponent(typeof(BeepDocumentPanel), "doc1")` sited the panel in the **root** designer container → `this.doc1 = new BeepDocumentPanel();` was emitted.
+2. But `DocumentId` was `[DesignerSerializationVisibility(Hidden)]` → the property was **not** written to Designer.cs → on re-open, `doc1` was constructed with a new random GUID.
+3. `ApplyDesignTimeDocuments()` found no panel for the original ID → created a second panel → `SiteAllDesignPanels()` tried to use "doc1" (taken by the orphan from step 1) → collision → suffix proliferation.
+
+### Solution
+
+Phase 12 fixes this with three coordinated changes:
+
+#### A. `DocumentId` is now serializable
+
+`BeepDocumentPanel.DocumentId` attribute changed from `Hidden` to `Visible`, plus `ShouldSerializeDocumentId()` so a stable GUID is always written. The stable GUID survives form re-open.
+
+```csharp
+[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+public string DocumentId { get; set; }
+private bool ShouldSerializeDocumentId() => !string.IsNullOrEmpty(_documentId);
+```
+
+#### B. `DocumentPanels` collection on `BeepDocumentHost`
+
+A new property wired for CodeDom serialization produces a two-liner per panel in Designer.cs:
+
+```csharp
+// Generated in InitializeComponent:
+this.doc1 = new BeepDocumentPanel();
+this.doc1.DocumentId    = "stable-guid-here";
+this.doc1.DocumentTitle = "Document 1";
+this.beepDocumentHost1.DocumentPanels.Add(this.doc1);
+```
+
+`DocumentPanels.Add()` → `BeepDocumentPanelCollection.InsertItem()` → calls `RegisterDocumentPanel()` internally, so re-opening the form fully restores the panel layout without any separate `ApplyDesignTimeDocuments()` run.
+
+```csharp
+[Browsable(false)]
+[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+public BeepDocumentPanelCollection DocumentPanels { get; }
+```
+
+#### C. `ApplyDesignTimeDocuments()` guard
+
+`DesignTimeDocuments` is now `[DesignerSerializationVisibility(Hidden)]` (no longer serialized). If `DocumentPanels.Count > 0` (panels were already restored from `InitializeComponent`), `ApplyDesignTimeDocuments()` returns immediately — no duplicate panels, no naming conflicts.
+
+#### D. Designer creates panels via `DocumentPanels.Add()`
+
+`BeepDocumentHostDesigner.CreateRegisteredDesignPanel()` now:
+1. Checks if the panel is already in `DocumentPanels` → if so, just activates it.
+2. If the panel exists via the runtime path (unsited, not in `DocumentPanels`), closes it first.
+3. Creates the panel via `designerHost.CreateComponent()` (proper undo/redo integration).
+4. Adds it to `DocumentPanels` (triggers siting and registration).
+
+#### E. Manager designer delegates to host designer
+
+`BeepDocumentManagerDesigner.MutateDesignTimeDocuments()` now passes `applyChanges: false` to `EndDesignTimeDocumentUpdate` (skips the runtime panel creation path), then calls `SyncManagerDocumentsViaHostDesigner()` which finds the `BeepDocumentHostDesigner` for the associated host and calls `SyncFromManagerDocuments()` on it — creating proper designer components through the same `ExecuteDesignTimeDocumentsAction` transaction.
+
+#### F. One coordinator owns designer add/remove
+
+`DesignTimeDocumentCoordinator` is now the single design-time path for real tabbed document creation and removal. Host-designer verbs, manager-driven add, seeded sample documents, layout-assistant document growth/shrink, split creation, reopen, and manager-to-host sync all route through that one coordinator so the `DocumentDescriptor` and the real `BeepDocumentPanel` are created, updated, and removed together.
+
+When a `BeepDocumentManager` is bound to the same host, host-side design-time actions now mirror the host's `DesignTimeDocuments` collection back into the manager inside the same designer operation. That closes the remaining gap where host verbs or host-side collection edits could create correct `Designer.cs` panels but leave the tray component's metadata stale.
+
+The shared coordinator now also refuses to add a new host-side descriptor unless the real `BeepDocumentPanel` was actually created. That closes the last descriptor-only failure path during designer component creation and keeps host metadata aligned with `Designer.cs`.
+
+The custom collection editor now clones and pushes back the full `DocumentDescriptor` payload (`PersistenceKey`, `PreviousGroupId`, badges, tab colors, category, tag, and `CustomData`) so editing a document list no longer strips metadata that the designer did not visibly edit.
+
+Collection-editor commits now sync host/manager designer state in place instead of opening a second follow-up transaction just to recreate panels and layout state. That keeps the document-list edit and its resulting panel/layout synchronization inside the same edit operation.
+
+Layout presets and layout-assistant expansion now stop if the coordinator cannot provision the required document panels. They no longer continue into template application with a partially created document set.
+
+For the tabbed designer path the rule is now simple:
+1. Create or update the descriptor.
+2. Create or update the real `BeepDocumentPanel` component.
+3. Register it through `DocumentPanels.Add(...)` so Designer.cs serializes the panel.
+4. Mirror metadata back to the manager only after the host-side component exists.
+
+### Resulting Designer.cs structure
+
+```csharp
+// this.beepDocumentHost1 components block:
+this.doc1 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepDocumentPanel();
+this.doc2 = new TheTechIdea.Beep.Winform.Controls.DocumentHost.BeepDocumentPanel();
+
+// InitializeComponent:
+this.doc1.DocumentId    = "a1b2c3d4-e5f6-...";  // stable, round-trip safe
+this.doc1.DocumentTitle = "Document 1";
+this.doc1.CanClose      = true;
+
+this.doc2.DocumentId    = "f6e5d4c3-b2a1-...";
+this.doc2.DocumentTitle = "Document 2";
+this.doc2.CanClose      = true;
+
+this.beepDocumentHost1.DocumentPanels.Add(this.doc1);
+this.beepDocumentHost1.DocumentPanels.Add(this.doc2);
+```
+
+### Files changed in Phase 12
+
+| File | Change |
+|------|--------|
+| `BeepDocumentPanel.cs` | `DocumentId` → `Visible`, `ShouldSerializeDocumentId()` added |
+| `BeepDocumentHost.PanelCollection.cs` | **New** — `BeepDocumentPanelCollection : Collection<BeepDocumentPanel>` |
+| `BeepDocumentHost.Documents.cs` | `ContainsOpenDocument` → `internal` |
+| `BeepDocumentHost.Properties.cs` | `DesignTimeDocuments` → `Hidden`; `DocumentPanels` property added; `ApplyDesignTimeDocuments()` guard added |
+| `BeepDocumentHostDesigner.cs` | `DocumentPanelsPropertyName` constant + `GetDocumentPanelsProperty()` helper |
+| `BeepDocumentHostDesigner.DesignTimeDocuments.cs` | `ExecuteDesignTimeDocumentsAction` notifies `DocumentPanels`; `CreateRegisteredDesignPanel` handles runtime-path panels; add/remove/reopen/split/sync now route through the shared coordinator; host-side edits mirror back to bound managers |
+| `BeepDocumentHostDesigner.PanelSiting.cs` | `SiteAllDesignPanels` → `internal` |
+| `BeepDocumentManagerDesigner.cs` | `MutateDesignTimeDocuments` passes `applyChanges: false`; manager add now uses the host designer coordinator before mirroring metadata |
+| `BeepDocumentManagerDesigner.ViewMode.cs` | Seeded sample documents now prefer the same host-designer coordinator path |
+| `DesignTimeDocumentCoordinator.cs` | **New** — single design-time coordinator for adding, removing, reopening, and syncing descriptor/panel pairs |
+| `DocumentDescriptorCollectionEditor.cs` | Working-copy clone now preserves the full descriptor payload during collection-editor round-trips; sync now stays inside the active edit transaction |
+
+## 14. Runtime manager/view parity pass
+
+The runtime document path is now aligned across `BeepDocumentManager`, `BeepTabbedView`, and `BeepNativeMdiView`.
+
+- `IBeepDocumentManagerView.RemoveDocument(...)` now carries the manager's `force` flag all the way down to the concrete view instead of dropping it at the facade boundary.
+- `IBeepDocumentManagerView` now also exposes `DocumentCount` and an explicit Window-menu detach step, so `BeepDocumentManager` no longer has to special-case the tabbed host just to count documents or clean up old menu wiring.
+- `IBeepDocumentManagerView` now also exposes its active document, so manager-owned UI can resolve the current document title without assuming the active view uses `BeepDocumentPanel` instances.
+- `BeepTabbedView.PushPersistence(...)` now always pushes the current session path into the host, including clearing it back to an empty string, so switching persistence settings does not leave a stale `SessionFile` behind.
+- `BeepNativeMdiView` now keeps a tracked `DocumentDescriptor` per MDI child window, uses that state for `DocumentAdded`, `DocumentRemoved`, `ActiveDocumentChanged`, and raises `DocumentClosing` for real user-initiated window closes.
+- Programmatic manager closes in native MDI now match the tabbed host more closely: `RemoveDocument(id)` respects `CanClose`, `RemoveDocument(id, force: true)` bypasses it, and `CloseAllDocuments()` closes only documents that are currently allowed to close.
+- Manager-owned native-MDI hosting no longer bypasses the view when the addin is itself a `Form`. `BeepDocumentManager.DisplayContainer` now registers that child window through `BeepNativeMdiView`, so document ids, close/remove events, layout persistence, and the Window menu stay in sync.
+- Auto-added extended controls now have a native-MDI path as well, and the manager skips controls that are already hosted so repeated view reconfiguration does not open duplicate documents.
+- `IDisplayContainer.RemoveControl(...)` is now driven by the actual document-removal result. A cancelled close no longer disposes the addin or raises `AddinRemoved`, and addins are disposed from the document-removed bridge no matter whether the close came from container code, the tab strip, or an MDI child window.
+- Failed addin-hosting attempts now clean up the temporary tab or MDI child they created, so a rejected embed does not leave an orphan document behind.
+- Window-menu ownership is now symmetric as well: tabbed and native-MDI views both detach old menu wiring before the manager reuses the same `MenuStrip`, which prevents stale tabbed-host handlers and duplicate `Window` menus during owner or view changes.
+- `IDisplayContainer.AddControl(...)` now rejects duplicate `TitleText` keys up front. The manager uses title as the addin lookup key, so this prevents overwriting the tracked entry and leaving older hosted documents unreachable in either tabbed or native-MDI mode.
+- Manager-side document event forwarding now refreshes the status strip on add, remove, and activation changes, and native MDI falls back to the active document title instead of showing `No document` whenever there is no host panel.
+- Runtime documents opened through `BeepDocumentManager.AddDocument(...)` are now tracked by a manager-owned descriptor list and replayed when a new view attaches, so basic manager-created documents survive view swaps instead of disappearing with the old view instance. During the transfer, the manager detaches those same logical documents from the old view first, so the new host does not reopen them on top of stale duplicates or route the move through user-close semantics.
+- `IDisplayContainer` / addin-hosted documents are intentionally excluded from that replay list. Their content still flows through the dedicated panel/MDI hosting pipeline so view switching does not duplicate embedded controls or MDI child forms.
+- The native-MDI addin-hosting hook now follows the active `BeepNativeMdiView` instance instead of latching onto the first one forever, so `AddControl(...)` continues to host addins in the current MDI view after manager view changes.
+- Rehostable hosted content now migrates with the manager as well: extender-backed controls and addins backed by detachable `Control` surfaces are removed from the old view before the swap and reattached to the new one, so switching views no longer strands the live control on the previous host.
+- Manager-owned document cleanup during a transfer is treated as an internal move rather than a user close/reopen cycle, so the manager suppresses forwarded close/remove notifications while it tears down the old view and prepares the new one.
+- Live child controls hosted directly inside manager-owned documents now migrate too. When the old view is being detached, the manager lifts those controls out of the old tab panel or MDI child and reattaches them after descriptor replay in the new view, so the document does not come back empty.
+- Form-backed addins now normalize their `TopLevel` / `FormBorderStyle` state when the manager changes hosts, so the same addin form can move between native MDI and embedded panel hosting without being stranded on the old view instance.
+- `BeepNativeMdiView` now keeps removable form/window-menu handlers for tracked child forms, which is what makes external MDI forms reusable across view switches instead of accumulating duplicate close/activate/text-change subscriptions.

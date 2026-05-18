@@ -51,9 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             ExecuteDesignTimeDocumentsAction("Add Document", (h, docs) =>
             {
-                AddDesignTimeDocumentInternal(h, docs, activate: true, selectSurface: true);
+                new DesignTimeDocumentCoordinator(this, h, docs)
+                    .AddNewDocument(activate: true, selectSurface: true);
             });
         }
+
+        internal void ExecuteSharedDocumentAction(string transactionName, Action<BeepDocumentHost, Collection<DocumentDescriptor>> action)
+            => ExecuteDesignTimeDocumentsActionCore(transactionName, action, createTransaction: true);
 
         public void CloseActiveDesignTimeDocument()
         {
@@ -65,20 +69,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             string activeDocumentId = host.ActiveDocumentId!;
             ExecuteDesignTimeDocumentsAction($"Close Document '{activeDocumentId}'", (h, docs) =>
             {
-                DocumentDescriptor snapshot = CaptureDocumentDescriptor(h, docs, activeDocumentId);
-                if (!CloseDesignTimeDocument(h, activeDocumentId))
+                var coordinator = new DesignTimeDocumentCoordinator(this, h, docs);
+                if (!coordinator.RemoveDocument(activeDocumentId, selectSurface: true, out DocumentDescriptor? snapshot)
+                    || snapshot == null)
                 {
                     return;
                 }
-
-                DocumentDescriptor? existing = FindDesignTimeDocument(docs, activeDocumentId);
-                if (existing != null)
-                {
-                    docs.Remove(existing);
-                }
-
                 _designTimeClosedDocuments.Push(snapshot);
-                SyncDesignerSelection((object?)h.ActivePanel ?? h);
             });
         }
 
@@ -91,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             ExecuteDesignTimeDocumentsAction("Close All Documents", (h, docs) =>
             {
+                var coordinator = new DesignTimeDocumentCoordinator(this, h, docs);
                 foreach (DocumentDescriptor descriptor in docs.ToList())
                 {
                     if (string.IsNullOrWhiteSpace(descriptor.Id))
@@ -98,15 +96,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                         continue;
                     }
 
-                    DocumentDescriptor snapshot = CloneDescriptor(descriptor);
-                    if (CloseDesignTimeDocument(h, descriptor.Id))
+                    if (coordinator.RemoveDocument(descriptor.Id, selectSurface: false, out DocumentDescriptor? snapshot)
+                        && snapshot != null)
                     {
                         _designTimeClosedDocuments.Push(snapshot);
-                        docs.Remove(descriptor);
                     }
                 }
 
-                SyncDesignerSelection(h);
+                InternalSyncDesignerSelection(h);
             });
         }
 
@@ -120,13 +117,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             ExecuteDesignTimeDocumentsAction("Reopen Last Closed Document", (h, docs) =>
             {
                 DocumentDescriptor descriptor = CloneDescriptor(_designTimeClosedDocuments.Pop());
-                if (FindDesignTimeDocument(docs, descriptor.Id) == null)
-                {
-                    docs.Add(descriptor);
-                }
-
-                BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(h, descriptor, activate: true);
-                SyncDesignerSelection((object?)panel ?? h);
+                new DesignTimeDocumentCoordinator(this, h, docs)
+                    .AddOrUpdateDocument(descriptor, activate: true, selectSurface: true);
             });
         }
 
@@ -379,23 +371,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// gets serialized into InitializeComponent.
         /// </summary>
         private void ExecuteDesignTimeDocumentsAction(string description, Action<BeepDocumentHost, Collection<DocumentDescriptor>> action)
+            => ExecuteDesignTimeDocumentsActionCore(description, action, createTransaction: true);
+
+        internal void ExecuteDesignTimeDocumentsActionInPlace(string description, Action<BeepDocumentHost, Collection<DocumentDescriptor>> action)
+            => ExecuteDesignTimeDocumentsActionCore(description, action, createTransaction: false);
+
+        private void ExecuteDesignTimeDocumentsActionCore(string description, Action<BeepDocumentHost, Collection<DocumentDescriptor>> action, bool createTransaction)
         {
             if (Component is not BeepDocumentHost host)
             {
                 return;
             }
 
-            IDesignerHost?           designerHost   = GetDesignerHost();
-            IComponentChangeService? changeService  = GetChangeService();
-            PropertyDescriptor?      property       = GetDesignTimeDocumentsProperty();
-            PropertyDescriptor?      layoutProperty = GetDesignTimeLayoutProperty();
-            string                   previousLayout = host.DesignTimeLayoutJson;
+            IDesignerHost?           designerHost     = GetDesignerHost();
+            IComponentChangeService? changeService    = GetChangeService();
+            PropertyDescriptor?      property         = GetDesignTimeDocumentsProperty();
+            PropertyDescriptor?      layoutProperty   = GetDesignTimeLayoutProperty();
+            PropertyDescriptor?      panelsProperty   = GetDocumentPanelsProperty();
+            string                   previousLayout   = host.DesignTimeLayoutJson;
+            List<BeepDocumentManager> syncedManagers = new();
 
             DesignerTransaction? transaction = null;
             try
             {
-                transaction = designerHost?.CreateTransaction(description);
+                if (createTransaction)
+                {
+                    transaction = designerHost?.CreateTransaction(description);
+                }
+
                 changeService?.OnComponentChanging(host, property);
+                changeService?.OnComponentChanging(host, panelsProperty);
                 if (layoutProperty != null)
                     changeService?.OnComponentChanging(host, layoutProperty);
 
@@ -403,8 +408,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
                 string currentLayout = CaptureDesignTimeLayout(host, host.DesignTimeDocuments);
                 host.DesignTimeLayoutJson = currentLayout;
+                syncedManagers = SyncBoundManagersDesignTimeDocuments(host, changeService);
 
                 changeService?.OnComponentChanged(host, property, null, host.DesignTimeDocuments);
+                changeService?.OnComponentChanged(host, panelsProperty, null, host.DocumentPanels);
                 if (layoutProperty != null)
                     changeService?.OnComponentChanged(host, layoutProperty, previousLayout, host.DesignTimeLayoutJson);
                 transaction?.Commit();
@@ -417,41 +424,169 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             WireDesignContextMenuSurfaces(host);
 
-            // Phase 02: re-site any newly created panels so they appear as nested designer
-            // components (selectable in the Properties window, undoable, named in the
-            // component tray) immediately after every add/split/move/close action.
+            // Re-site any newly created panels so they appear as designer components
+            // (selectable in the Properties window, undoable, named in the component tray)
+            // immediately after every add/split/move/close action.
             SiteAllDesignPanels();
 
+            DesignerActionUIService? actionUiService = GetDesignerActionUiService();
+            foreach (BeepDocumentManager manager in syncedManagers)
+            {
+                actionUiService?.Refresh(manager);
+            }
+
             RefreshDesignerActionUI();
+        }
+
+        private List<BeepDocumentManager> SyncBoundManagersDesignTimeDocuments(
+            BeepDocumentHost host,
+            IComponentChangeService? changeService)
+        {
+            var syncedManagers = new List<BeepDocumentManager>();
+
+            foreach (BeepDocumentManager manager in GetBoundManagers(host))
+            {
+                if (AreEquivalentDocumentCollections(host.DesignTimeDocuments, manager.DesignTimeDocuments))
+                {
+                    continue;
+                }
+
+                PropertyDescriptor? managerProperty = TypeDescriptor.GetProperties(manager)[nameof(BeepDocumentManager.DesignTimeDocuments)];
+                changeService?.OnComponentChanging(manager, managerProperty);
+
+                manager.BeginDesignTimeDocumentUpdate();
+                try
+                {
+                    manager.DesignTimeDocuments.Clear();
+                    foreach (DocumentDescriptor descriptor in host.DesignTimeDocuments)
+                    {
+                        manager.DesignTimeDocuments.Add(InternalCloneDescriptor(descriptor));
+                    }
+
+                    manager.EndDesignTimeDocumentUpdate(applyChanges: false);
+                }
+                catch
+                {
+                    try { manager.EndDesignTimeDocumentUpdate(applyChanges: false); }
+                    catch { /* design-time guard */ }
+                    throw;
+                }
+
+                changeService?.OnComponentChanged(manager, managerProperty, null, manager.DesignTimeDocuments);
+                syncedManagers.Add(manager);
+            }
+
+            return syncedManagers;
+        }
+
+        private IEnumerable<BeepDocumentManager> GetBoundManagers(BeepDocumentHost host)
+        {
+            IContainer? container = host.Site?.Container;
+            if (container == null)
+            {
+                yield break;
+            }
+
+            foreach (IComponent component in container.Components)
+            {
+                if (component is BeepDocumentManager manager
+                    && ReferenceEquals((manager.View as BeepTabbedView)?.Host, host))
+                {
+                    yield return manager;
+                }
+            }
+        }
+
+        private static bool AreEquivalentDocumentCollections(
+            ICollection<DocumentDescriptor> left,
+            ICollection<DocumentDescriptor> right)
+        {
+            if (left.Count != right.Count)
+            {
+                return false;
+            }
+
+            using IEnumerator<DocumentDescriptor> leftEnumerator = left.GetEnumerator();
+            using IEnumerator<DocumentDescriptor> rightEnumerator = right.GetEnumerator();
+
+            while (leftEnumerator.MoveNext() && rightEnumerator.MoveNext())
+            {
+                if (!AreEquivalentDocumentDescriptor(leftEnumerator.Current, rightEnumerator.Current))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool AreEquivalentDocumentDescriptor(DocumentDescriptor left, DocumentDescriptor right)
+        {
+            if (!string.Equals(left.Id, right.Id, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(left.PersistenceKey, right.PersistenceKey, StringComparison.Ordinal)
+                || !string.Equals(left.PreviousGroupId, right.PreviousGroupId, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(left.Title, right.Title, StringComparison.Ordinal)
+                || !string.Equals(left.IconPath, right.IconPath, StringComparison.Ordinal)
+                || left.IsModified != right.IsModified
+                || left.IsPinned != right.IsPinned
+                || left.CanClose != right.CanClose
+                || left.Category != right.Category
+                || !string.Equals(left.TooltipText, right.TooltipText, StringComparison.Ordinal)
+                || !Equals(left.Tag, right.Tag)
+                || !string.Equals(left.BadgeText, right.BadgeText, StringComparison.Ordinal)
+                || left.BadgeColor != right.BadgeColor
+                || left.TabColor != right.TabColor
+                || left.AccentColor != right.AccentColor
+                || left.InitialContent != right.InitialContent
+                || left.CustomData.Count != right.CustomData.Count)
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<string, string> pair in left.CustomData)
+            {
+                if (!right.CustomData.TryGetValue(pair.Key, out string? otherValue)
+                    || !string.Equals(pair.Value, otherValue, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         // ── Document/descriptor sync helpers ─────────────────────────────────
 
         private void SyncHostWithDesignTimeDocuments(BeepDocumentHost host, Collection<DocumentDescriptor> docs)
         {
-            var desiredDescriptors = docs
-                .Where(descriptor => !string.IsNullOrWhiteSpace(descriptor.Id))
-                .ToList();
-            var desiredIds = new HashSet<string>(desiredDescriptors.Select(descriptor => descriptor.Id), StringComparer.OrdinalIgnoreCase);
+            new DesignTimeDocumentCoordinator(this, host, docs)
+                .SyncDocuments(docs.Where(descriptor => !string.IsNullOrWhiteSpace(descriptor.Id)).ToList());
+        }
 
-            foreach (string openDocumentId in GetOpenDocumentIds(host))
+        internal void SyncCurrentDesignTimeDocuments()
+        {
+            if (Component is not BeepDocumentHost host)
             {
-                if (!desiredIds.Contains(openDocumentId))
-                {
-                    CloseDesignTimeDocument(host, openDocumentId);
-                }
+                return;
             }
 
-            foreach (DocumentDescriptor descriptor in desiredDescriptors)
+            ExecuteDesignTimeDocumentsAction("Sync Design-Time Documents", (h, docs) =>
             {
-                EnsureDesignTimeDocumentOpen(host, descriptor, activate: false);
-                ApplyDescriptorToOpenDocument(host, descriptor);
+                SyncHostWithDesignTimeDocuments(h, docs);
+            });
+        }
+
+        internal void SyncCurrentDesignTimeDocumentsInPlace()
+        {
+            if (Component is not BeepDocumentHost host)
+            {
+                return;
             }
 
-            if (string.IsNullOrWhiteSpace(host.ActiveDocumentId) && desiredDescriptors.Count > 0)
+            ExecuteDesignTimeDocumentsActionInPlace("Sync Design-Time Documents", (h, docs) =>
             {
-                host.SetActiveDocument(desiredDescriptors[0].Id);
-            }
+                SyncHostWithDesignTimeDocuments(h, docs);
+            });
         }
 
         private void ApplyDescriptorToOpenDocument(BeepDocumentHost host, DocumentDescriptor descriptor)
@@ -609,8 +744,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return AddDesignTimeDocumentInternal(host, docs, activate: true, selectSurface: selectSurface);
             }
 
-            host.ApplyDesignTimeDocuments();
-
             DocumentDescriptor? descriptor = docs.FirstOrDefault(doc => !string.IsNullOrWhiteSpace(doc.Id));
             if (descriptor == null)
             {
@@ -626,26 +759,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return panel;
         }
 
-        private void EnsureDesignDocumentCount(BeepDocumentHost host, Collection<DocumentDescriptor> docs, int count)
+        private bool EnsureDesignDocumentCount(BeepDocumentHost host, Collection<DocumentDescriptor> docs, int count)
         {
             while (docs.Count(doc => !string.IsNullOrWhiteSpace(doc.Id)) < count)
             {
-                AddDesignTimeDocumentInternal(host, docs, activate: false, selectSurface: false);
+                if (new DesignTimeDocumentCoordinator(this, host, docs)
+                    .AddNewDocument(activate: false, selectSurface: false) == null)
+                {
+                    return false;
+                }
             }
+
+            return docs.Count(doc => !string.IsNullOrWhiteSpace(doc.Id)) >= count;
         }
 
         private BeepDocumentPanel? AddDesignTimeDocumentInternal(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool activate, bool selectSurface)
         {
-            DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
-            BeepDocumentPanel? panel = CreateRegisteredDesignPanel(host, descriptor, activate);
-            docs.Add(descriptor);
-
-            if (selectSurface)
-            {
-                SyncDesignerSelection((object?)panel ?? host);
-            }
-
-            return panel;
+            DocumentDescriptor? descriptor = new DesignTimeDocumentCoordinator(this, host, docs)
+                .AddNewDocument(activate, selectSurface);
+            return descriptor == null ? null : host.GetPanel(descriptor.Id);
         }
 
         private BeepDocumentPanel? CreateSplitDesignTimeDocumentInternal(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool horizontal, bool selectSurface)
@@ -656,9 +788,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return null;
             }
 
-            DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
-            BeepDocumentPanel? panel = CreateRegisteredDesignPanel(host, descriptor, activate: true);
-            docs.Add(descriptor);
+            var coordinator = new DesignTimeDocumentCoordinator(this, host, docs);
+            DocumentDescriptor? descriptor = coordinator.AddNewDocument(activate: true, selectSurface: false);
+            if (descriptor == null)
+            {
+                return null;
+            }
+
+            BeepDocumentPanel? panel = host.GetPanel(descriptor.Id);
             if (panel == null)
             {
                 return null;
@@ -687,27 +824,95 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (host.GetPanel(descriptor.Id) is BeepDocumentPanel existing)
             {
-                if (activate)
+                // If the panel is already in DocumentPanels it was created via the
+                // designer component path and is properly serialised — just activate.
+                if (host.DocumentPanels.Contains(existing))
                 {
-                    host.SetActiveDocument(descriptor.Id);
+                    if (activate)
+                        host.SetActiveDocument(descriptor.Id);
+                    return existing;
                 }
 
-                return existing;
+                // Panel was created by the runtime AddDocument path (unsited, not in
+                // DocumentPanels). Close it so we can recreate it as a proper designer
+                // component that ends up in Designer.cs.
+                host.CloseDocument(descriptor.Id);
             }
 
             BeepDocumentPanel? panel = CreateDesignerComponentPanel(descriptor);
             if (panel != null)
             {
-                panel.DocumentId = descriptor.Id;
-                panel.DocumentTitle = descriptor.Title;
-                panel.IconPath = descriptor.IconPath;
-                panel.CanClose = descriptor.CanClose;
-                panel.IsModified = descriptor.IsModified;
-                host.RegisterDocumentPanel(panel, activate);
+                panel.DocumentId      = descriptor.Id;
+                panel.DocumentTitle   = descriptor.Title;
+                panel.IconPath        = descriptor.IconPath;
+                panel.CanClose        = descriptor.CanClose;
+                panel.IsModified      = descriptor.IsModified;
+                panel.IsPinned        = descriptor.IsPinned;
+                panel.DocumentCategory = descriptor.Category;
+                panel.TooltipText     = descriptor.TooltipText;
+                panel.BadgeText       = descriptor.BadgeText;
+                panel.BadgeColor      = descriptor.BadgeColor;
+                panel.TabColor        = descriptor.TabColor;
+                panel.AccentColor     = descriptor.AccentColor;
+
+                // DocumentPanels.Add() calls RegisterDocumentPanel() internally
+                // (BeepDocumentPanelCollection.InsertItem checks ContainsOpenDocument
+                // before calling RegisterDocumentPanel so there is no double-registration).
+                // Using DocumentPanels ensures the WinForms CodeDom serializer emits:
+                //   this.doc1 = new BeepDocumentPanel();
+                //   this.beepDocumentHost1.DocumentPanels.Add(this.doc1);
+                // so panels appear in Designer.cs and survive form re-open without conflict.
+                host.DocumentPanels.Add(panel);
+
+                if (activate)
+                    host.SetActiveDocument(panel.DocumentId);
+
                 return panel;
             }
 
-            return host.AddDocument(descriptor.Id, descriptor.Title, descriptor.IconPath, activate);
+            return null;
+        }
+
+        /// <summary>
+        /// Syncs the <paramref name="managerDocuments"/> collection (owned by
+        /// <see cref="BeepDocumentManager"/>) to the host's
+        /// <see cref="BeepDocumentHost.DocumentPanels"/>, creating or replacing
+        /// any panels that were provisioned via the runtime <c>AddDocument</c> path
+        /// with proper designer components so they appear in Designer.cs.
+        /// Called by <see cref="BeepDocumentManagerDesigner"/> after every
+        /// <c>MutateDesignTimeDocuments</c> call.
+        /// </summary>
+        internal void SyncFromManagerDocuments(
+            BeepDocumentHost host,
+            IReadOnlyList<DocumentDescriptor> managerDocuments)
+            => SyncFromManagerDocumentsCore(host, managerDocuments, createTransaction: true);
+
+        internal void SyncFromManagerDocumentsInPlace(
+            BeepDocumentHost host,
+            IReadOnlyList<DocumentDescriptor> managerDocuments)
+            => SyncFromManagerDocumentsCore(host, managerDocuments, createTransaction: false);
+
+        private void SyncFromManagerDocumentsCore(
+            BeepDocumentHost host,
+            IReadOnlyList<DocumentDescriptor> managerDocuments,
+            bool createTransaction)
+        {
+            if (Component != host) return;
+
+            Action<BeepDocumentHost, Collection<DocumentDescriptor>> syncAction = (h, docs) =>
+            {
+                new DesignTimeDocumentCoordinator(this, h, docs)
+                    .SyncDocuments(managerDocuments);
+            };
+
+            if (createTransaction)
+            {
+                ExecuteDesignTimeDocumentsAction("Sync Documents from Manager", syncAction);
+            }
+            else
+            {
+                ExecuteDesignTimeDocumentsActionInPlace("Sync Documents from Manager", syncAction);
+            }
         }
 
         private BeepDocumentPanel? CreateDesignerComponentPanel(DocumentDescriptor descriptor)
@@ -739,22 +944,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return null;
         }
 
-        private BeepDocumentPanel? EnsureDesignTimeDocumentOpen(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)
+        internal BeepDocumentPanel? InternalEnsureDesignTimeDocumentOpen(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)
         {
-            if (host.GetPanel(descriptor.Id) == null)
+            BeepDocumentPanel? panel = host.GetPanel(descriptor.Id);
+            if (panel == null)
             {
-                host.ApplyDesignTimeDocuments();
+                panel = CreateRegisteredDesignPanel(host, descriptor, activate: false);
             }
 
-            if (activate)
+            if (panel != null)
             {
-                host.SetActiveDocument(descriptor.Id);
+                ApplyDescriptorToOpenDocument(host, descriptor);
+
+                if (activate)
+                {
+                    host.SetActiveDocument(descriptor.Id);
+                }
             }
 
-            return host.GetPanel(descriptor.Id);
+            return panel;
         }
 
-        private DocumentDescriptor CreateNextDesignTimeDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs)
+        private BeepDocumentPanel? EnsureDesignTimeDocumentOpen(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)
+            => InternalEnsureDesignTimeDocumentOpen(host, descriptor, activate);
+
+        internal DocumentDescriptor InternalCreateNextDesignTimeDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs)
         {
             var usedIds = new HashSet<string>(
                 docs.Where(doc => !string.IsNullOrWhiteSpace(doc.Id)).Select(doc => doc.Id),
@@ -769,16 +983,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
             while (usedIds.Contains(id) || host.GetPanel(id) != null);
 
-            return new DocumentDescriptor
-            {
-                Id = id,
-                Title = $"Document {index - 1}",
-                InitialContent = DocumentInitialContent.Empty
-            };
+            return DesignTimeDocumentCoordinator.CreateDetachedDescriptor(id, $"Document {index - 1}");
         }
 
-        private static DocumentDescriptor? FindDesignTimeDocument(IEnumerable<DocumentDescriptor> docs, string documentId)
+        private DocumentDescriptor CreateNextDesignTimeDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs)
+            => InternalCreateNextDesignTimeDocumentDescriptor(host, docs);
+
+        internal DocumentDescriptor? InternalFindDesignTimeDocument(IEnumerable<DocumentDescriptor> docs, string documentId)
             => docs.FirstOrDefault(doc => string.Equals(doc.Id, documentId, StringComparison.OrdinalIgnoreCase));
+
+        private DocumentDescriptor? FindDesignTimeDocument(IEnumerable<DocumentDescriptor> docs, string documentId)
+            => InternalFindDesignTimeDocument(docs, documentId);
 
         private DocumentDescriptor AddDescriptorSnapshotToDesignTimeDocuments(BeepDocumentHost host, Collection<DocumentDescriptor> docs, string documentId)
         {
@@ -787,12 +1002,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return descriptor;
         }
 
-        private DocumentDescriptor CaptureDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs, string documentId)
+        internal DocumentDescriptor InternalCaptureDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs, string documentId)
         {
-            DocumentDescriptor? existing = FindDesignTimeDocument(docs, documentId);
+            DocumentDescriptor? existing = InternalFindDesignTimeDocument(docs, documentId);
             if (existing != null)
             {
-                return CloneDescriptor(existing);
+                return InternalCloneDescriptor(existing);
             }
 
             BeepDocumentPanel? panel = host.GetPanel(documentId);
@@ -802,16 +1017,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 Title = panel?.DocumentTitle ?? documentId,
                 IconPath = panel?.IconPath,
                 IsModified = panel?.IsModified ?? false,
+                IsPinned = panel?.IsPinned ?? false,
                 CanClose = panel?.CanClose ?? true,
+                Category = panel?.DocumentCategory,
+                TooltipText = panel?.TooltipText,
+                BadgeText = panel?.BadgeText,
+                BadgeColor = panel?.BadgeColor ?? System.Drawing.Color.Empty,
+                TabColor = panel?.TabColor ?? System.Drawing.Color.Empty,
+                AccentColor = panel?.AccentColor ?? System.Drawing.Color.Empty,
                 InitialContent = DocumentInitialContent.Empty
             };
         }
 
-        private static DocumentDescriptor CloneDescriptor(DocumentDescriptor source)
+        private DocumentDescriptor CaptureDocumentDescriptor(BeepDocumentHost host, IEnumerable<DocumentDescriptor> docs, string documentId)
+            => InternalCaptureDocumentDescriptor(host, docs, documentId);
+
+        internal DocumentDescriptor InternalCloneDescriptor(DocumentDescriptor source)
         {
             var clone = new DocumentDescriptor
             {
                 Id = source.Id,
+                PersistenceKey = source.PersistenceKey,
+                PreviousGroupId = source.PreviousGroupId,
                 Title = source.Title,
                 IconPath = source.IconPath,
                 IsModified = source.IsModified,
@@ -834,5 +1061,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             return clone;
         }
+
+        private DocumentDescriptor CloneDescriptor(DocumentDescriptor source)
+            => InternalCloneDescriptor(source);
+
+        internal void InternalCopyDescriptorState(DocumentDescriptor source, DocumentDescriptor target)
+        {
+            target.PersistenceKey = source.PersistenceKey;
+            target.PreviousGroupId = source.PreviousGroupId;
+            target.Title = source.Title;
+            target.IconPath = source.IconPath;
+            target.IsModified = source.IsModified;
+            target.IsPinned = source.IsPinned;
+            target.CanClose = source.CanClose;
+            target.Category = source.Category;
+            target.TooltipText = source.TooltipText;
+            target.Tag = source.Tag;
+            target.BadgeText = source.BadgeText;
+            target.BadgeColor = source.BadgeColor;
+            target.TabColor = source.TabColor;
+            target.AccentColor = source.AccentColor;
+            target.InitialContent = source.InitialContent;
+
+            target.CustomData.Clear();
+            foreach (KeyValuePair<string, string> pair in source.CustomData)
+            {
+                target.CustomData[pair.Key] = pair.Value;
+            }
+        }
+
+        private void CopyDescriptorState(DocumentDescriptor source, DocumentDescriptor target)
+            => InternalCopyDescriptorState(source, target);
+
+        internal bool InternalCloseDesignTimeDocument(BeepDocumentHost host, string documentId)
+            => CloseDesignTimeDocument(host, documentId);
     }
 }

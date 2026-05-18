@@ -22,6 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool _canClose = true;
         private string? _iconPath;
         private string? _documentCategory;
+        private bool _isPinned;
+        private string? _tooltipText;
+        private string? _badgeText;
+        private Color _badgeColor = Color.Empty;
+        private Color _tabColor = Color.Empty;
+        private Color _accentColor = Color.Empty;
         private bool _showStatusBar;
         private string _statusLeft = string.Empty;
         private string _statusCentre = string.Empty;
@@ -30,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool _isContentLoaded;
 
         public event EventHandler? ModifiedChanged;
+        public event EventHandler? DocumentMetadataChanged;
 
         // ─────────────────────────────────────────────────────────────────────
         // 5.2 — Lazy content loading
@@ -76,13 +83,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         private string _documentId = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Stable identifier for this document panel.
+        /// Serialized to Designer.cs so panels survive form re-open without conflict.
+        /// </summary>
         [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string DocumentId
         {
             get => _documentId;
-            set => _documentId = value ?? Guid.NewGuid().ToString();
+            set => _documentId = string.IsNullOrEmpty(value) ? Guid.NewGuid().ToString() : value;
         }
+
+        /// <summary>Ensures DocumentId is always written to Designer.cs.</summary>
+        public bool ShouldSerializeDocumentId() => !string.IsNullOrEmpty(_documentId);
 
         [Category("Document")]
         [DefaultValue("Document")]
@@ -90,7 +105,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public string DocumentTitle
         {
             get => _documentTitle;
-            set { _documentTitle = value ?? "Document"; }
+            set
+            {
+                string normalized = value ?? "Document";
+                if (_documentTitle == normalized) return;
+                _documentTitle = normalized;
+                OnDocumentMetadataChanged();
+            }
         }
 
         [Category("Document")]
@@ -99,7 +120,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public bool IsModified
         {
             get => _isModified;
-            set { _isModified = value; ModifiedChanged?.Invoke(this, EventArgs.Empty); }
+            set
+            {
+                if (_isModified == value) return;
+                _isModified = value;
+                ModifiedChanged?.Invoke(this, EventArgs.Empty);
+                OnDocumentMetadataChanged();
+            }
         }
 
         [Category("Document")]
@@ -108,7 +135,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public bool CanClose
         {
             get => _canClose;
-            set => _canClose = value;
+            set
+            {
+                if (_canClose == value) return;
+                _canClose = value;
+                OnDocumentMetadataChanged();
+            }
         }
 
         [Category("Document")]
@@ -117,7 +149,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public string? IconPath
         {
             get => _iconPath;
-            set => _iconPath = value;
+            set
+            {
+                if (_iconPath == value) return;
+                _iconPath = value;
+                OnDocumentMetadataChanged();
+            }
         }
 
         [Category("Document")]
@@ -126,8 +163,103 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public string? DocumentCategory
         {
             get => _documentCategory;
-            set => _documentCategory = value;
+            set
+            {
+                if (_documentCategory == value) return;
+                _documentCategory = value;
+                OnDocumentMetadataChanged();
+            }
         }
+
+        [Category("Document")]
+        [DefaultValue(false)]
+        [Description("Pins the document tab.")]
+        public bool IsPinned
+        {
+            get => _isPinned;
+            set
+            {
+                if (_isPinned == value) return;
+                _isPinned = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        [Category("Document")]
+        [DefaultValue(null)]
+        [Description("Tooltip text shown when hovering over the tab.")]
+        public string? TooltipText
+        {
+            get => _tooltipText;
+            set
+            {
+                if (_tooltipText == value) return;
+                _tooltipText = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        [Category("Document")]
+        [DefaultValue(null)]
+        [Description("Short badge text shown on the document tab.")]
+        public string? BadgeText
+        {
+            get => _badgeText;
+            set
+            {
+                if (_badgeText == value) return;
+                _badgeText = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        [Category("Document")]
+        [Description("Badge background color. Empty uses the active theme color.")]
+        public Color BadgeColor
+        {
+            get => _badgeColor;
+            set
+            {
+                if (_badgeColor == value) return;
+                _badgeColor = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        public bool ShouldSerializeBadgeColor() => _badgeColor != Color.Empty;
+        public void ResetBadgeColor() => BadgeColor = Color.Empty;
+
+        [Category("Document")]
+        [Description("Per-document tab tint color. Empty means no override.")]
+        public Color TabColor
+        {
+            get => _tabColor;
+            set
+            {
+                if (_tabColor == value) return;
+                _tabColor = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        public bool ShouldSerializeTabColor() => _tabColor != Color.Empty;
+        public void ResetTabColor() => TabColor = Color.Empty;
+
+        [Category("Document")]
+        [Description("Accent color shown on the active tab. Empty uses the active theme color.")]
+        public Color AccentColor
+        {
+            get => _accentColor;
+            set
+            {
+                if (_accentColor == value) return;
+                _accentColor = value;
+                OnDocumentMetadataChanged();
+            }
+        }
+
+        public bool ShouldSerializeAccentColor() => _accentColor != Color.Empty;
+        public void ResetAccentColor() => AccentColor = Color.Empty;
 
         [Category("Document")]
         [DefaultValue(false)]
@@ -157,6 +289,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 : $"{gitBranch}  {text ?? string.Empty}";
             if (_showStatusBar) Invalidate();
         }
+
+        private void OnDocumentMetadataChanged()
+            => DocumentMetadataChanged?.Invoke(this, EventArgs.Empty);
 
         public BeepDocumentPanel() : this(Guid.NewGuid().ToString(), "Document") { }
 

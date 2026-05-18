@@ -7,7 +7,7 @@
 // why clicking a tab header at design time did nothing in the Properties window —
 // ISelectionService.SetSelectedComponents silently no-ops for un-sited components.
 //
-// This partial adds the missing piece: after every design-time documents action, the
+// This partial adds the missing piece: after every document panel action, the
 // designer walks the host's groups and registers every panel with the host's
 // INestedContainer. Sited panels:
 //   - get their own BeepDocumentPanelDesigner instance (selection adorners, snap lines,
@@ -57,8 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// <summary>
         /// Site every <see cref="BeepDocumentPanel"/> that the host currently knows
         /// about as a nested designer component. Safe to call repeatedly.
+        /// Internal so <see cref="BeepDocumentManagerDesigner"/> can trigger siting
+        /// after it mutates documents through the manager's design-time collection.
         /// </summary>
-        private void SiteAllDesignPanels()
+        internal void SiteAllDesignPanels()
         {
             if (_wiredHost == null) return;
             if (!IsDesignTimeHost(_wiredHost)) return;

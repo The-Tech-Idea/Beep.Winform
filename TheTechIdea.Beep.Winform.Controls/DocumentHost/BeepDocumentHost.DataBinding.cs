@@ -171,12 +171,28 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_panels.TryGetValue(desc.Id, out var panel)) return;
 
-            panel.DocumentTitle = desc.Title;
-            panel.IconPath = desc.IconPath;
-            panel.IsModified = desc.IsModified;
+            bool wasSyncingPanelMetadata = _syncingDocumentPanelMetadata;
+            _syncingDocumentPanelMetadata = true;
+            try
+            {
+                panel.DocumentTitle = desc.Title;
+                panel.IconPath = desc.IconPath;
+                panel.IsModified = desc.IsModified;
+                panel.IsPinned = desc.IsPinned;
+                panel.DocumentCategory = desc.Category;
+                panel.TooltipText = desc.TooltipText;
+                panel.BadgeText = desc.BadgeText;
+                panel.BadgeColor = desc.BadgeColor;
+                panel.TabColor = desc.TabColor;
+                panel.AccentColor = desc.AccentColor;
 
-            PinDocument(desc.Id, desc.IsPinned);
-            panel.CanClose = desc.CanClose;
+                PinDocument(desc.Id, desc.IsPinned);
+                panel.CanClose = desc.CanClose;
+            }
+            finally
+            {
+                _syncingDocumentPanelMetadata = wasSyncingPanelMetadata;
+            }
 
             if (TryGetDocumentTab(desc.Id, out var tabStrip, out var tab))
             {
@@ -185,6 +201,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 tab.CanClose = desc.CanClose;
                 tab.TooltipText = desc.TooltipText;
                 tab.TabColor = desc.TabColor;
+                tab.AccentColor = desc.AccentColor;
+                tab.DocumentCategory = desc.Category;
                 tabStrip.Invalidate();
             }
 

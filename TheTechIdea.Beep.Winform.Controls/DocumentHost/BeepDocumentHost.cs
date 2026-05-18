@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
     [ToolboxItem(true)]
     [DefaultEvent(nameof(ActiveDocumentChanged))]
-    [DefaultProperty(nameof(DesignTimeDocuments))]
+    [DefaultProperty(nameof(DocumentPanels))]
     [Description("Commercial-style tabbed document host with design-time document surfaces, split groups, floating documents, and layout persistence.")]
     [Designer(
         "TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepDocumentHostDesigner, " +
@@ -62,6 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool _isDesignerDetaching;
         private bool _disposed;
         private bool _applyingDesignTimeDocuments;
+        private int _designTimeDocumentUpdateDepth;
         private readonly HashSet<string> _dockBackClosingIds = new(StringComparer.Ordinal);
 
         private bool IsDesignTimeHost

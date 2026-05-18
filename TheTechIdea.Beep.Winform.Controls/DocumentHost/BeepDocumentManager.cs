@@ -307,6 +307,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             get => _windowMenuOwner;
             set
             {
+                if (ReferenceEquals(_windowMenuOwner, value))
+                    return;
+
+                if (!_inInit)
+                    _view?.DetachWindowMenu();
+
                 _windowMenuOwner = value;
                 if (!_inInit && _view != null && value != null)
                     _view.AttachWindowMenu(value, _windowMenuText);
@@ -409,14 +415,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <summary>
         /// Documents to open automatically when the view is first attached.
-        /// Configure at design time in the Properties grid or via the
-        /// "Edit Documents\u2026" smart-tag action.
+        /// Maintained as manager metadata for designer actions and runtime
+        /// replay. The professional design-time surface is the active view's
+        /// real document controls (for tabbed views: BeepDocumentPanel
+        /// instances in BeepDocumentHost.DocumentPanels), so this collection is
+        /// intentionally not serialized into Designer.cs.
         /// At runtime, if <see cref="AutoSaveLayout"/> is true and a session file
         /// exists, the restored layout takes precedence over this collection.
         /// </summary>
         [Category("Document Manager")]
-        [Description("Documents opened when the view is first attached. Configure at design time.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Description("Internal document metadata used by designer actions. Designer documents are serialized as BeepDocumentPanel controls.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Editor(
             "TheTechIdea.Beep.Winform.Controls.Design.Server.Editors.DesignTimeDocumentsEditor, TheTechIdea.Beep.Winform.Controls.Design.Server",
             "System.Drawing.Design.UITypeEditor, System.Drawing")]
@@ -508,13 +519,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Adds a new document to the active <see cref="View"/>.</summary>
         public BeepDocumentPanel? AddDocument(
             string title, string? iconPath = null, bool activate = true)
-            => _view?.AddDocument(title, iconPath ?? string.Empty, activate);
+            => AddDocumentCore(title, iconPath, activate, trackForViewSwitch: true);
 
         /// <summary>Closes the document identified by <paramref name="id"/>.</summary>
         public bool RemoveDocument(string id, bool force = false)
         {
             if (_view == null || string.IsNullOrEmpty(id)) return false;
-            return _view.RemoveDocument(id);
+            return _view.RemoveDocument(id, force);
         }
 
         /// <summary>Brings the document with <paramref name="id"/> to the foreground.</summary>
@@ -625,7 +636,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Returns 0 when no view is attached.
         /// </summary>
         [Browsable(false)]
-        public int DocumentCount => (_view as BeepTabbedView)?.Host?.DocumentCount ?? 0;
+        public int DocumentCount => _view?.DocumentCount ?? 0;
 
         /// <summary>
         /// Registers a named command with an optional keyboard shortcut in the
@@ -690,6 +701,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             try { oldHost?.ConfigureCloudSync(null); } catch { }
             if (oldHost != null && IsDesignTimeComponent)
                 RemoveDesignTimeDocumentsFromHost(oldHost);
+            else
+                PrepareViewForManagerTransition(view);
             UnwireWorkspaceHost();
             UnhookOwnerForm();
         }
@@ -712,8 +725,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _view.PushPolicy(_defaultPolicy);
             ApplyCloudSyncSettings();
             ApplyWindowMenu();
+            ApplyRuntimeDocuments();
+            RehostHostedContentForCurrentView();
             AutoAddExtendedControls();
             ApplyDesignTimeDocuments();
+            RehostTransferredDocumentContentForCurrentView();
             RefreshStatusStripState();
             HookOwnerForm();
         }
@@ -722,6 +738,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (_view == null) return;
             try { GetTabbedHost()?.ConfigureCloudSync(null); } catch { }
+            try { PrepareViewForManagerTransition(_view); } catch { }
+            try { DetachMdiFormCreatedHook(); } catch { }
+            try { _view.DetachWindowMenu(); } catch { }
             try { _view.DocumentAdded         -= View_DocumentAdded;         } catch { }
             try { _view.DocumentRemoved       -= View_DocumentRemoved;       } catch { }
             try { _view.ActiveDocumentChanged -= View_ActiveDocumentChanged; } catch { }
@@ -736,6 +755,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (_view == null || _windowMenuOwner == null)
                 return;
 
+            _view.DetachWindowMenu();
             RenameWindowMenuItem(_windowMenuOwner, previousText, _windowMenuText);
             _view.AttachWindowMenu(_windowMenuOwner, _windowMenuText);
         }
@@ -786,36 +806,120 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         private void View_DocumentAdded(object? s, DocumentAddedEventArgs e)
-            => DocumentAdded?.Invoke(this, e);
+        {
+            if (_viewDocumentTransferDepth > 0)
+                return;
+
+            TrackManagedRuntimeDocumentAdded(e);
+            RefreshStatusStripState();
+            DocumentAdded?.Invoke(this, e);
+        }
 
         private void View_DocumentRemoved(object? s, DocumentEventArgs e)
-            => DocumentRemoved?.Invoke(this, e);
+        {
+            if (_viewDocumentTransferDepth > 0)
+                return;
+
+            TrackManagedRuntimeDocumentRemoved(e.DocumentId);
+            RefreshStatusStripState();
+            DocumentRemoved?.Invoke(this, e);
+        }
 
         private void View_ActiveDocumentChanged(object? s, DocumentEventArgs e)
-            => ActiveDocumentChanged?.Invoke(this, e);
+        {
+            if (_viewDocumentTransferDepth > 0)
+                return;
+
+            TrackManagedRuntimeDocumentActivation(e.DocumentId);
+            RefreshStatusStripState();
+            ActiveDocumentChanged?.Invoke(this, e);
+        }
 
         private void View_DocumentClosing(object? s, TabClosingEventArgs e)
-            => DocumentClosing?.Invoke(this, e);
+        {
+            if (_viewDocumentTransferDepth > 0)
+                return;
+
+            DocumentClosing?.Invoke(this, e);
+        }
 
         private void AutoAddExtendedControls()
         {
             if (_view == null) return;
             foreach (var ctrl in _extendedControls)
             {
+                if (ctrl == null || ctrl.IsDisposed) continue;
                 if (!_attachedInfo.TryGetValue(ctrl, out var info)) continue;
                 if (string.IsNullOrEmpty(info.Title)) continue;
 
                 try
                 {
+                    if (IsExtendedControlHostedInCurrentView(ctrl, info))
+                        continue;
+
+                    if (_view is BeepNativeMdiView mdi)
+                    {
+                        HostExtendedControlInNativeMdi(mdi, ctrl, info.Title, info.IconPath);
+                        continue;
+                    }
+
                     var panel = _view.AddDocument(info.Title, info.IconPath ?? string.Empty, false);
                     if (panel != null && !panel.Controls.Contains(ctrl))
                     {
                         ctrl.Dock = DockStyle.Fill;
                         panel.Controls.Add(ctrl);
+                        info.HostedDocumentId = panel.DocumentId;
                     }
                 }
                 catch { /* non-fatal at design-time */ }
             }
+        }
+
+        private static bool IsExtendedControlHostedInNativeMdi(BeepNativeMdiView mdi, Control control)
+        {
+            if (mdi.ParentForm == null || control.IsDisposed)
+                return false;
+
+            var hostForm = control.FindForm();
+            return hostForm != null
+                   && !hostForm.IsDisposed
+                   && !ReferenceEquals(hostForm, mdi.ParentForm)
+                   && ReferenceEquals(hostForm.MdiParent, mdi.ParentForm);
+        }
+
+        private void HostExtendedControlInNativeMdi(
+            BeepNativeMdiView mdi,
+            Control control,
+            string title,
+            string? iconPath)
+        {
+            if (mdi.ParentForm == null || control is Form) return;
+
+            Form? capturedForm = null;
+            string? capturedId = null;
+            EventHandler<MdiDocumentEventArgs> captureForm = (s, e) => capturedForm = e.Form;
+            EventHandler<MdiDocumentEventArgs> captureId = (s, e) => capturedId = e.Id;
+
+            try
+            {
+                mdi.DocumentFormCreated += captureForm;
+                mdi.DocumentFormCreated += captureId;
+                mdi.AddDocument(title, iconPath ?? string.Empty, false);
+            }
+            finally
+            {
+                mdi.DocumentFormCreated -= captureForm;
+                mdi.DocumentFormCreated -= captureId;
+            }
+
+            if (capturedForm == null || capturedForm.Controls.Contains(control)) return;
+
+            control.Dock = DockStyle.Fill;
+            control.Visible = true;
+            capturedForm.Controls.Add(control);
+
+            if (!string.IsNullOrEmpty(capturedId) && _attachedInfo.TryGetValue(control, out var info))
+                info.HostedDocumentId = capturedId;
         }
 
         private void ApplyDesignTimeDocuments()
@@ -828,11 +932,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 var descriptors = _designTimeDocuments
                     .Where(desc => !string.IsNullOrWhiteSpace(desc.Id))
                     .GroupBy(desc => desc.Id, StringComparer.Ordinal)
-                    .Select(group => group.First())
+                    .Select(group => group.Last())
                     .ToList();
 
                 if (_view is BeepTabbedView tabbed && tabbed.Host is BeepDocumentHost host)
                 {
+                    if (IsDesignTimeComponent && descriptors.Count == 0 && host.DocumentPanels.Count > 0)
+                    {
+                        return;
+                    }
+
                     if (IsDesignTimeComponent)
                     {
                         var desiredIds = descriptors
@@ -1022,7 +1131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void StatusStrip_ActiveDocumentChanged(object? sender, DocumentEventArgs e)
         {
             var panel = string.IsNullOrEmpty(e.DocumentId) ? null : GetPanel(e.DocumentId);
-            UpdateTrackedPanel(panel);
+            UpdateTrackedPanel(panel, e.Title);
         }
 
         private void StatusStrip_ModifiedChanged(object? sender, EventArgs e)
@@ -1148,11 +1257,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             RefreshWorkspaceHostBinding();
             var host = GetTabbedHost();
-            UpdateTrackedPanel(host?.ActivePanel);
+            UpdateTrackedPanel(host?.ActivePanel, _view?.ActiveDocument?.Title);
             UpdateWorkspaceLabel();
         }
 
-        private void UpdateTrackedPanel(BeepDocumentPanel? panel)
+        private void UpdateTrackedPanel(BeepDocumentPanel? panel, string? fallbackTitle = null)
         {
             UnwireTrackedPanel();
 
@@ -1161,7 +1270,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             if (panel == null)
             {
-                _statusDocTitle.Text = "No document";
+                _statusDocTitle.Text = string.IsNullOrWhiteSpace(fallbackTitle)
+                    ? "No document"
+                    : fallbackTitle;
                 UpdateModifiedLabel(false);
                 UpdateCursorLabel(null);
                 return;
@@ -1504,6 +1615,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             public string? Title    { get; set; }
             public string? IconPath { get; set; }
+            public string? HostedDocumentId { get; set; }
         }
     }
 }

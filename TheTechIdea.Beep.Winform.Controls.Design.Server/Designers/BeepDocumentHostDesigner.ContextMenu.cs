@@ -191,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             menu.Items.Add(CreateDesignMenuItem("Add Document", AddDesignTimeDocument));
             menu.Items.Add(CreateDesignMenuItem("Layout Assistant\u2026", ShowLayoutAssistant));
-            menu.Items.Add(CreateDesignMenuItem("Edit Design-Time Documents\u2026", () =>
+            menu.Items.Add(CreateDesignMenuItem("Edit Documents\u2026", () =>
             {
                 if (Component is BeepDocumentHost currentHost)
                 {

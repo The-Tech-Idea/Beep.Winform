@@ -33,6 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     {
         private const string DesignTimeDocumentsPropertyName = nameof(BeepDocumentHost.DesignTimeDocuments);
         private const string DesignTimeLayoutJsonPropertyName = nameof(BeepDocumentHost.DesignTimeLayoutJson);
+        private const string DocumentPanelsPropertyName = nameof(BeepDocumentHost.DocumentPanels);
 
         // ── Internal tab-strip / content-area panel names must not be moved ──
         private static readonly HashSet<string> _lockedChildTypes
@@ -457,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         // ── Design-time helpers called by verbs ───────────────────────────────
 
-        /// <summary>Opens the DesignTimeDocuments collection editor.</summary>
+        /// <summary>Opens the document editor and syncs edits into real document panels.</summary>
         private void EditDesignTimeDocuments(BeepDocumentHost host)
         {
             var prop = TypeDescriptor.GetProperties(host)["DesignTimeDocuments"];
@@ -475,11 +476,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                           as System.Windows.Forms.Design.IWindowsFormsEditorService;
 
             editor.EditValue(ctx, ctx, current);
-
-            ExecuteDesignTimeDocumentsAction("Edit Design-Time Documents", (h, docs) =>
-            {
-                SyncHostWithDesignTimeDocuments(h, docs);
-            });
         }
 
         /// <summary>Shows a dialog to edit per-group tab positions for nested splits.</summary>
@@ -679,6 +675,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private PropertyDescriptor? GetDesignTimeLayoutProperty()
             => Component == null ? null : TypeDescriptor.GetProperties(Component)[DesignTimeLayoutJsonPropertyName];
 
+        private PropertyDescriptor? GetDocumentPanelsProperty()
+            => Component == null ? null : TypeDescriptor.GetProperties(Component)[DocumentPanelsPropertyName];
+
         private void RefreshDesignerActionUI()
         {
             if (Component == null)
@@ -689,7 +688,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             GetDesignerActionUiService()?.Refresh(Component);
         }
 
-        private void SyncDesignerSelection(object? selectionTarget)
+        internal void InternalSyncDesignerSelection(object? selectionTarget)
         {
             if (selectionTarget == null)
             {
@@ -699,6 +698,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             GetSelectionService()?.SetSelectedComponents(new object[] { selectionTarget }, SelectionTypes.Replace);
             RefreshDesignerActionUI();
         }
+
+        private void SyncDesignerSelection(object? selectionTarget)
+            => InternalSyncDesignerSelection(selectionTarget);
 
         /// <summary>
         /// Phase 11 — Forwards the host's ActiveDocumentChanged event into the

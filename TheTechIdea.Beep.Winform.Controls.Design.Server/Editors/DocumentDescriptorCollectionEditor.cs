@@ -13,6 +13,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost;
+using TheTechIdea.Beep.Winform.Controls.Design.Server.Designers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
 {
@@ -85,6 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             var changeSvc    = provider?.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
 
             DesignerTransaction? txn = null;
+            bool beganUpdate = false;
             try
             {
                 txn = designerHost?.CreateTransaction(transactionName);
@@ -98,6 +100,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
                     context?.OnComponentChanging();
                 }
 
+                beganUpdate = BeginDesignTimeUpdate(context?.Instance);
+
                 var result = DocumentDescriptorCollectionEditorHelper.PushBack(original, edited);
 
                 if (context?.Instance != null && context.PropertyDescriptor != null)
@@ -110,12 +114,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
                 }
 
                 txn?.Commit();
+                txn = null;
+
+                bool synced = TrySyncDesignTimeDocuments(context?.Instance, designerHost);
+                if (beganUpdate)
+                {
+                    EndDesignTimeUpdate(context?.Instance, applyChanges: !synced);
+                }
+
                 return result;
             }
             catch
             {
+                if (beganUpdate)
+                {
+                    try { EndDesignTimeUpdate(context?.Instance, applyChanges: false); }
+                    catch { /* non-fatal */ }
+                }
+
                 txn?.Cancel();
                 throw;
+            }
+        }
+
+        private static bool BeginDesignTimeUpdate(object? instance)
+        {
+            switch (instance)
+            {
+                case BeepDocumentManager manager:
+                    manager.BeginDesignTimeDocumentUpdate();
+                    return true;
+                case BeepDocumentHost host:
+                    host.BeginDesignTimeDocumentUpdate();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private static void EndDesignTimeUpdate(object? instance, bool applyChanges)
+        {
+            switch (instance)
+            {
+                case BeepDocumentManager manager:
+                    manager.EndDesignTimeDocumentUpdate(applyChanges);
+                    break;
+                case BeepDocumentHost host:
+                    host.EndDesignTimeDocumentUpdate(applyChanges);
+                    break;
+            }
+        }
+
+        private static bool TrySyncDesignTimeDocuments(object? instance, IDesignerHost? designerHost)
+        {
+            if (instance is not IComponent component || designerHost == null)
+            {
+                return false;
+            }
+
+            switch (designerHost.GetDesigner(component))
+            {
+                case BeepDocumentManagerDesigner managerDesigner:
+                    managerDesigner.SyncCurrentDesignTimeDocumentsInPlace();
+                    return true;
+                case BeepDocumentHostDesigner hostDesigner:
+                    hostDesigner.SyncCurrentDesignTimeDocumentsInPlace();
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -136,18 +202,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         private static object PushBack(object? original, IReadOnlyList<DocumentDescriptor> edited)
             => DocumentDescriptorCollectionEditorHelper.PushBack(original, edited);
 
-        internal static DocumentDescriptor Clone(DocumentDescriptor src) => new DocumentDescriptor
+        internal static DocumentDescriptor Clone(DocumentDescriptor src)
         {
-            Id             = src.Id,
-            Title          = src.Title,
-            IconPath       = src.IconPath,
-            IsPinned       = src.IsPinned,
-            CanClose       = src.CanClose,
-            AccentColor    = src.AccentColor,
-            InitialContent = src.InitialContent,
-            TooltipText    = src.TooltipText,
-            IsModified     = src.IsModified,
-        };
+            var clone = new DocumentDescriptor
+            {
+                Id              = src.Id,
+                PersistenceKey  = src.PersistenceKey,
+                PreviousGroupId = src.PreviousGroupId,
+                Title           = src.Title,
+                IconPath        = src.IconPath,
+                IsPinned        = src.IsPinned,
+                CanClose        = src.CanClose,
+                Category        = src.Category,
+                TooltipText     = src.TooltipText,
+                Tag             = src.Tag,
+                BadgeText       = src.BadgeText,
+                BadgeColor      = src.BadgeColor,
+                TabColor        = src.TabColor,
+                AccentColor     = src.AccentColor,
+                InitialContent  = src.InitialContent,
+                IsModified      = src.IsModified,
+            };
+
+            foreach (KeyValuePair<string, string> pair in src.CustomData)
+            {
+                clone.CustomData[pair.Key] = pair.Value;
+            }
+
+            return clone;
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -190,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
             // Phase 04 — route through the shared transactional commit so the
             // entire multi-row edit is one Edit-menu undo entry.
             return DocumentDescriptorCollectionEditor.CommitEditedCollection(
-                context, provider, value, form.Result, "Edit Design-Time Documents");
+                context, provider, value, form.Result, "Edit Documents");
         }
     }
 
@@ -241,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Editors
         {
             _items = items.ToList();
 
-            Text            = "Edit Design-Time Documents";
+            Text            = "Edit Documents";
             Size            = new Size(860, 600);
             MinimumSize     = new Size(680, 480);
             StartPosition   = FormStartPosition.CenterParent;

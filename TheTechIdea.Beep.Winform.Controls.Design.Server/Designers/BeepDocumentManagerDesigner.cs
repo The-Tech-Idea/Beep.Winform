@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     /// <summary>
     /// VS designer for <see cref="BeepDocumentManager"/> — lives in the component tray.
     /// Provides smart-tag action list and verbs for adding documents, editing the
-    /// design-time documents collection, resetting layout, and switching the active
+    /// document panel collection, resetting layout, and switching the active
     /// <see cref="IBeepDocumentManagerView"/>.
     /// </summary>
     public sealed partial class BeepDocumentManagerDesigner : ComponentDesigner
@@ -29,6 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private BeepDocumentManager?          _manager;
         private DesignerVerbCollection?       _verbs;
         private DesignerActionListCollection? _actionLists;
+        private bool                          _suppressImmediateHostSync;
+        private bool                          _managerHostSyncScheduled;
 
         // ── Initialize / Dispose ──────────────────────────────────────────────
 
@@ -127,17 +129,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (_manager?.View == null) return;
             HideSmartTag();
 
-            var title      = $"Document {Environment.TickCount & 0xFFFF}";
-            var descriptor = new DocumentDescriptor
+            if (TryAddDocumentViaHostDesigner())
             {
-                Id             = Guid.NewGuid().ToString("N"),
-                Title          = title,
-                InitialContent = DocumentInitialContent.Empty
-            };
+                return;
+            }
 
             MutateDesignTimeDocuments("Add Document", docs =>
             {
-                docs.Add(descriptor);
+                docs.Add(DesignTimeDocumentCoordinator.CreateDetachedDescriptor(
+                    Guid.NewGuid().ToString("N"),
+                    $"Document {Environment.TickCount & 0xFFFF}"));
             });
         }
 
@@ -146,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (_manager == null) return;
             HideSmartTag();
             var r = MessageBox.Show(
-                "Remove all design-time documents and close all open documents?",
+                "Remove all document panels and close all open documents?",
                 "Clear All Documents",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
@@ -202,7 +203,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
                 _manager.BeginDesignTimeDocumentUpdate();
                 mutate(_manager.DesignTimeDocuments);
-                _manager.EndDesignTimeDocumentUpdate(applyChanges: true);
+                // Pass applyChanges:false — the host designer will create proper
+                // designer component panels below via SyncFromManagerDocuments.
+                // The runtime AddDocument path would create unsited panels that
+                // do not appear in Designer.cs and cause re-open naming conflicts.
+                _manager.EndDesignTimeDocumentUpdate(applyChanges: false);
 
                 changeSvc?.OnComponentChanged(_manager, prop, null, null);
                 txn?.Commit();
@@ -217,6 +222,99 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             finally
             {
                 RefreshPanel();
+            }
+
+            // Delegate panel creation to the host designer so panels are created via
+            // designerHost.CreateComponent() and appear in Designer.cs as real components
+            // (and in DocumentPanels so the WinForms serializer emits Add() calls).
+            if (!_suppressImmediateHostSync)
+            {
+                SyncManagerDocumentsViaHostDesigner();
+            }
+        }
+
+        /// <summary>
+        /// Finds the <see cref="BeepDocumentHostDesigner"/> for the view's host and
+        /// asks it to sync the manager's document list to the host's
+        /// <see cref="BeepDocumentHost.DocumentPanels"/> using proper designer
+        /// component creation. Falls back to the runtime path when no host designer
+        /// is available (e.g. when the view is not yet a BeepTabbedView).
+        /// </summary>
+        private void SyncManagerDocumentsViaHostDesigner()
+            => SyncManagerDocumentsViaHostDesigner(createTransaction: true);
+
+        private void SyncManagerDocumentsViaHostDesigner(bool createTransaction)
+        {
+            if (_manager == null) return;
+
+            var host = (_manager.View as BeepTabbedView)?.Host;
+            if (host == null)
+            {
+                // No tabbed host — runtime refresh is the only option
+                _manager.RefreshDesignTimeDocuments();
+                return;
+            }
+
+            if (DesignerHost?.GetDesigner(host) is BeepDocumentHostDesigner hostDesigner)
+            {
+                if (createTransaction)
+                {
+                    hostDesigner.SyncFromManagerDocuments(host, _manager.DesignTimeDocuments);
+                }
+                else
+                {
+                    hostDesigner.SyncFromManagerDocumentsInPlace(host, _manager.DesignTimeDocuments);
+                }
+            }
+            else
+            {
+                if (!_managerHostSyncScheduled)
+                {
+                    ScheduleManagerDocumentsHostSync();
+                }
+            }
+        }
+
+        private bool TryAddDocumentViaHostDesigner(string? title = null, bool activate = true, bool selectSurface = true)
+        {
+            if (_manager == null)
+            {
+                return false;
+            }
+
+            var host = (_manager.View as BeepTabbedView)?.Host;
+            if (host == null || DesignerHost?.GetDesigner(host) is not BeepDocumentHostDesigner hostDesigner)
+            {
+                return false;
+            }
+
+            DocumentDescriptor? created = null;
+            hostDesigner.ExecuteSharedDocumentAction("Add Document", (h, docs) =>
+            {
+                created = new DesignTimeDocumentCoordinator(hostDesigner, h, docs)
+                    .AddNewDocument(activate, selectSurface, title);
+            });
+
+            if (created == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void ScheduleManagerDocumentsHostSync()
+        {
+            var sync = SynchronizationContext.Current;
+            if (sync != null)
+            {
+                _managerHostSyncScheduled = true;
+                sync.Post(_ =>
+                {
+                    _managerHostSyncScheduled = false;
+                    try { SyncManagerDocumentsViaHostDesigner(); }
+                    catch { /* design-time; non-fatal */ }
+                }, null);
             }
         }
 
@@ -299,7 +397,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 }
 
                 var view = (TView)DesignerHost.CreateComponent(typeof(TView));
-                GetPropertyDescriptor(nameof(BeepDocumentManager.View))?.SetValue(_manager, view);
+                PropertyDescriptor? viewProperty = GetPropertyDescriptor(nameof(BeepDocumentManager.View));
+                if (viewProperty != null)
+                {
+                    var changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+                    object? oldValue = viewProperty.GetValue(_manager);
+                    changeSvc?.OnComponentChanging(_manager, viewProperty);
+                    viewProperty.SetValue(_manager, view);
+                    changeSvc?.OnComponentChanged(_manager, viewProperty, oldValue, view);
+                }
                 txn.Commit();
                 return view;
             }
@@ -351,18 +457,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             var current = prop.GetValue(_manager);
             editor.EditValue(ctx, ctx, current);
 
-            // Re-apply seeded documents to the view (editor modifies the collection in-place).
-            ApplyDesignTimeDocumentsToView();
-
             if (GetService(typeof(DesignerActionUIService)) is DesignerActionUIService svc)
                 svc.Refresh(_manager);
         }
 
         private void ApplyDesignTimeDocumentsToView()
         {
-            try { _manager?.RefreshDesignTimeDocuments(); }
-            catch { /* non-fatal at design time */ }
+            // Prefer the host designer path so newly added/edited documents are
+            // created as proper designer components and appear in Designer.cs.
+            SyncManagerDocumentsViaHostDesigner();
         }
+
+        internal void SyncCurrentDesignTimeDocuments()
+            => ApplyDesignTimeDocumentsToView();
+
+        internal void SyncCurrentDesignTimeDocumentsInPlace()
+            => SyncManagerDocumentsViaHostDesigner(createTransaction: false);
 
         // ── Smart-tag action list ─────────────────────────────────────────────
 
@@ -688,7 +798,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(
                 this, nameof(EditDocuments), "Edit Documents\u2026",
                 "Documents",
-                "Open the design-time document collection editor.",
+                "Open the document editor and create real document panels on the design surface.",
                 includeAsDesignerVerb: true));
             items.Add(new DesignerActionMethodItem(
                 this, nameof(AddDocument), "Add Document",
@@ -698,7 +808,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(
                 this, nameof(ClearDocuments), "Clear All Documents",
                 "Documents",
-                "Remove all design-time documents and close any open documents.",
+                "Remove all document panels from the active view.",
                 includeAsDesignerVerb: true));
 
             // ── Commands

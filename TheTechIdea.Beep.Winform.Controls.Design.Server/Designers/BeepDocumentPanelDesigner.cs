@@ -42,10 +42,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private static readonly HashSet<string> _visibleProperties
             = new HashSet<string>(StringComparer.Ordinal)
         {
+            nameof(Control.Name),
             nameof(BeepDocumentPanel.DocumentTitle),
             nameof(BeepDocumentPanel.IconPath),
             nameof(BeepDocumentPanel.CanClose),
             nameof(BeepDocumentPanel.DocumentCategory),
+            nameof(BeepDocumentPanel.IsPinned),
+            nameof(BeepDocumentPanel.TooltipText),
+            nameof(BeepDocumentPanel.BadgeText),
+            nameof(BeepDocumentPanel.BadgeColor),
+            nameof(BeepDocumentPanel.TabColor),
+            nameof(BeepDocumentPanel.AccentColor),
             nameof(BeepDocumentPanel.ShowStatusBar),
         };
 

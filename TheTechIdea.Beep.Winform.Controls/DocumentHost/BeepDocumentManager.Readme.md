@@ -47,7 +47,7 @@ cloud sync, and shortcut customiser.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `WindowMenuOwner` | `MenuStrip?` | `null` | MenuStrip that receives the auto-maintained `Window` sub-menu. |
+| `WindowMenuOwner` | `MenuStrip?` | `null` | MenuStrip that receives the auto-maintained `Window` sub-menu. Changing the owner detaches the old view's menu wiring before attaching the new one. |
 | `WindowMenuText` | `string` | `"&Window"` | Text of the Window menu item. |
 | `StatusStripOwner` | `StatusStrip?` | `null` | StatusStrip that receives breadcrumb and dirty-indicator items. |
 | `AutoPopulateStatusStrip` | `bool` | `true` | When `true`, populates `StatusStripOwner` with document title, modified flag, cursor position, and workspace selector. |
@@ -106,7 +106,27 @@ cloud sync, and shortcut customiser.
 | `CloseAllDocuments` | `() → bool` | Closes every open document. |
 | `BeginBatchAddDocuments` | `()` | Suspends repaints for bulk adds. |
 | `EndBatchAddDocuments` | `()` | Flushes after a bulk add. |
-| `DocumentCount` | `int` (property) | Number of open documents. |
+| `DocumentCount` | `int` (property) | Number of open documents in the active view (tabbed host or native MDI). |
+
+Runtime documents opened through `AddDocument(...)` are now owned by the manager and replayed when a new view attaches, preserving the same descriptor metadata across tabbed/native-MDI view changes. The manager detaches those same documents from the old view during the transfer, so a swap does not leave duplicate manager-owned documents behind or route the move through normal close semantics.
+
+Existing hosted controls now follow the manager too: extender-backed controls and rehostable `IDisplayContainer` addins are detached from the old view and attached to the new one during a view change, instead of staying parented to stale panels or MDI child hosts.
+
+Those internal transfer removals are not forwarded through the public close/remove event bridge, so a view switch does not look like a user-initiated document close sequence.
+
+Live child controls inside manager-owned documents now move with the document as well. The manager captures those controls from the old tab panel or MDI child before teardown and reattaches them after the destination view recreates the logical document shell.
+
+Form-backed addins now transition between host styles as well. The manager restores `TopLevel` / `FormBorderStyle` for MDI hosting and normalizes those values for embedded panel hosting, so the same addin form can be moved between the two modes.
+
+When `StatusStripOwner` is active, the manager now resolves the current document title from the active view itself, so native MDI updates the status line correctly even though it hosts child `Form` instances instead of `BeepDocumentPanel` controls.
+
+`IDisplayContainer.AddControl(...)` uses `TitleText` as a unique key. Duplicate titles are rejected so an existing tracked addin/document pair cannot be overwritten by a second entry with the same title.
+
+`IDisplayContainer` addins are not part of the manager's runtime replay set. They continue to use their specialized hosting pipeline so a view switch does not blindly duplicate embedded controls or external forms.
+
+When the active view is native MDI, the manager now retargets its internal `DocumentFormCreated` hook as views change, so later `AddControl(...)` calls keep attaching addins to the current MDI view instance.
+
+`BeepNativeMdiView` now also detaches reusable handlers from external forms before a transfer, so a migrated MDI form does not accumulate duplicate close/activate/text-change subscriptions.
 
 ### Layout persistence
 
@@ -165,11 +185,17 @@ manager.SessionFile           = @"%AppData%\MyApp\layout.json";
 manager.ThemeName             = "Dark";
 manager.DefaultPolicy.AllowFloat = true;
 
-// Seed documents
-manager.DesignTimeDocuments.Add(new DocumentDescriptor
+// Seed tabbed design-time documents as real panels
+host = new BeepDocumentHost { Dock = DockStyle.Fill };
+tabbedView.Host = host;
+Controls.Add(host);
+
+welcomePanel = new BeepDocumentPanel
 {
-    Title = "Welcome",  TypeKey = "welcome"
-});
+    DocumentId = "welcome",
+    DocumentTitle = "Welcome"
+};
+host.DocumentPanels.Add(welcomePanel);
 
 // Event wiring
 manager.DocumentClosing       += OnDocumentClosing;

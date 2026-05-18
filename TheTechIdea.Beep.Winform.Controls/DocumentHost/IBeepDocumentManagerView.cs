@@ -59,8 +59,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         BeepDocumentPanel? AddDocument(string title, string iconPath, bool activate);
 
         /// <summary>Closes the document with the given <paramref name="id"/>.</summary>
+        /// <param name="force">
+        /// <see langword="true"/> to bypass per-document close restrictions when the
+        /// concrete view supports it.
+        /// </param>
         /// <returns><see langword="true"/> if the document was found and closed.</returns>
-        bool RemoveDocument(string id);
+        bool RemoveDocument(string id, bool force = false);
+
+        /// <summary>
+        /// Detaches a document as part of an internal manager view transfer without
+        /// treating the operation as a user-initiated close.
+        /// </summary>
+        /// <returns><see langword="true"/> if the document was found and detached.</returns>
+        bool DetachDocumentForTransfer(string id);
 
         /// <summary>Brings the document with the given <paramref name="id"/> to the foreground.</summary>
         void ActivateDocument(string id);
@@ -74,8 +85,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <summary>Ends the batch and performs a single layout pass.</summary>
         void EndBatchAddDocuments();
 
-        /// <summary>Closes all open documents.</summary>
-        /// <returns><see langword="true"/> if all documents were closed.</returns>
+        /// <summary>Number of open documents currently tracked by this view.</summary>
+        int DocumentCount { get; }
+
+        /// <summary>The currently active document, or <see langword="null"/> when none is active.</summary>
+        DocumentEventArgs? ActiveDocument { get; }
+
+        /// <summary>Closes all open documents that are allowed to close.</summary>
+        /// <returns><see langword="true"/> if at least one document was closed.</returns>
         bool CloseAllDocuments();
 
         /// <summary>
@@ -120,6 +137,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// appear in the menu and can be activated from it.
         /// </summary>
         void AttachWindowMenu(MenuStrip menu, string menuText);
+
+        /// <summary>Removes any Window-menu wiring previously attached by this view.</summary>
+        void DetachWindowMenu();
 
         // ── Events ────────────────────────────────────────────────────────────
 

@@ -66,6 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             public Form?                   MdiChild    { get; init; }
             /// <summary>Set when the addin lives inside a BeepDocumentPanel.</summary>
             public BeepDocumentPanel?      DocumentPanel { get; init; }
+            /// <summary>Original border style for form-backed addins so host transitions can restore it.</summary>
+            public FormBorderStyle         OriginalFormBorderStyle { get; init; } = FormBorderStyle.Sizable;
         }
 
         // Title → AddinEntry. Title is the IDisplayContainer key contract.
@@ -77,8 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // lets the handler attach the addin's content to the right form.
         [ThreadStatic] private static IDM_Addin? _pendingMdiAddin;
 
-        // Single Native-MDI subscription, attached the first time we need it.
-        private bool _mdiFormCreatedHooked;
+        // Tracks the currently hooked native-MDI view for addin hosting.
+        private BeepNativeMdiView? _hookedMdiView;
 
         // Bridge subscription for view → IDisplayContainer events.
         private bool _displayContainerEventsBridged;
@@ -151,18 +153,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (control == null || string.IsNullOrWhiteSpace(TitleText)) return false;
             if (_view == null) return false;
 
-            // Single-instance addin enforcement (matches BeepDisplayContainer semantics).
-            var addinAttr = control.GetType()
-                .GetCustomAttributes(typeof(AddinAttribute), true)
-                .FirstOrDefault() as AddinAttribute;
-            if (addinAttr != null &&
-                addinAttr.ScopeCreateType == AddinScopeCreateType.Single &&
-                _addinEntries.ContainsKey(TitleText))
+            // Title is the IDisplayContainer lookup key. Allowing duplicates would
+            // overwrite the tracked entry and leave the older hosted document unreachable.
+            if (_addinEntries.ContainsKey(TitleText))
+                return false;
+
+            try { control.Initialize(); }
+            catch
             {
+                try { control.Dispose(); } catch { }
                 return false;
             }
-
-            try { control.Initialize(); } catch { return false; }
 
             EnsureDisplayContainerEventsBridged();
 
@@ -172,7 +173,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _                       => HostAddinInPanel(TitleText, control)
             };
 
-            if (entry == null) return false;
+            if (entry == null)
+            {
+                try { control.Dispose(); } catch { }
+                return false;
+            }
 
             _addinEntries[TitleText] = entry;
 
@@ -193,32 +198,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (!_addinEntries.TryGetValue(TitleText, out var entry)) return false;
             if (entry.Addin != control) return false;
 
-            // Close the corresponding document — the view raises
-            // DocumentRemoved which our bridge translates into AddinRemoved.
+            bool closeAccepted = false;
             try
             {
-                if (entry.MdiChild != null && !entry.MdiChild.IsDisposed)
-                    entry.MdiChild.Close();
-                else
-                    RemoveDocument(entry.DocumentId);
+                closeAccepted = RemoveDocument(entry.DocumentId);
             }
             catch { /* non-fatal */ }
 
-            try { control.Dispose(); } catch { /* addin handles internally */ }
-
-            // The bridge above may have already removed the entry. If not (e.g.
-            // remove was rejected by the view), clean up here so the dictionary
-            // never lingers with a stale title.
-            _addinEntries.Remove(TitleText);
-
-            AddinRemoved?.Invoke(this, new ContainerEvents
+            if (closeAccepted)
             {
-                TitleText     = TitleText,
-                Control       = control,
-                ContainerType = _idcContainerType,
-                Guidid        = control?.GuidID
-            });
+                if (!_addinEntries.ContainsKey(TitleText))
+                    return true;
 
+                if (!IsEntryStillHosted(entry))
+                {
+                    FinalizeAddinRemoval(TitleText, entry, removeDictionaryEntry: true);
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (TryRemoveDetachedExternalAddin(entry))
+            {
+                FinalizeAddinRemoval(TitleText, entry, removeDictionaryEntry: true);
+                return true;
+            }
+
+            if (IsEntryStillHosted(entry))
+                return false;
+
+            FinalizeAddinRemoval(TitleText, entry, removeDictionaryEntry: true);
             return true;
         }
 
@@ -240,6 +250,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (!_addinEntries.TryGetValue(TitleText, out var entry)) return false;
             if (entry.Addin != control) return false;
+
+            if (!IsAddinHostedInCurrentView(entry))
+            {
+                var rehosted = TryRehostExistingAddin(entry);
+                if (rehosted == null)
+                    return false;
+
+                _addinEntries[TitleText] = rehosted;
+                entry = rehosted;
+            }
 
             var args = new PassedArgs
             {
@@ -364,9 +384,56 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Hosting helpers — Tabbed/Browser modes
         // ─────────────────────────────────────────────────────────────────
 
-        private AddinEntry? HostAddinInPanel(string title, IDM_Addin control)
+        private static FormBorderStyle ResolveOriginalFormBorderStyle(AddinEntry? existingEntry, Form form)
+            => existingEntry?.OriginalFormBorderStyle ?? form.FormBorderStyle;
+
+        private static bool PrepareFormForPanelHost(Form form)
         {
-            var panel = AddDocument(title, iconPath: null, activate: true);
+            try
+            {
+                if (form.Visible)
+                    form.Hide();
+
+                form.Parent?.Controls.Remove(form);
+
+#pragma warning disable CS8625
+                if (form.MdiParent != null)
+                    form.MdiParent = null;
+#pragma warning restore CS8625
+
+                form.TopLevel = false;
+                form.FormBorderStyle = FormBorderStyle.None;
+                form.Dock = DockStyle.Fill;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool PrepareFormForMdiHost(Form form, FormBorderStyle originalBorderStyle)
+        {
+            try
+            {
+                if (form.Visible)
+                    form.Hide();
+
+                form.Parent?.Controls.Remove(form);
+                form.Dock = DockStyle.None;
+                form.TopLevel = true;
+                form.FormBorderStyle = originalBorderStyle;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private AddinEntry? HostAddinInPanel(string title, IDM_Addin control, AddinEntry? existingEntry = null)
+        {
+            var panel = AddDocumentCore(title, iconPath: null, activate: true, trackForViewSwitch: false);
             if (panel == null) return null;
 
             // BeepDocumentPanel.DocumentId is non-null; fall back to the title
@@ -378,34 +445,52 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 // Embed a Form addin inside the document panel.
                 try
                 {
-                    formAddin.TopLevel        = false;
-                    formAddin.FormBorderStyle = FormBorderStyle.None;
-                    formAddin.Dock            = DockStyle.Fill;
+                    if (!PrepareFormForPanelHost(formAddin))
+                    {
+                        TryCloseOrphanDocument(docId);
+                        return null;
+                    }
+
                     formAddin.Visible         = true;
                     panel.Controls.Add(formAddin);
                 }
                 catch
                 {
+                    TryCloseOrphanDocument(docId);
                     return null;
                 }
             }
             else if (control is Control winControl)
             {
-                winControl.Dock    = DockStyle.Fill;
-                winControl.Visible = true;
-                panel.Controls.Add(winControl);
+                try
+                {
+                    winControl.Dock    = DockStyle.Fill;
+                    winControl.Visible = true;
+                    panel.Controls.Add(winControl);
+                }
+                catch
+                {
+                    TryCloseOrphanDocument(docId);
+                    return null;
+                }
             }
             else
             {
                 // No visible surface — addin runs headless inside the tab.
             }
 
+            if (control is Control hostedControl && _attachedInfo.TryGetValue(hostedControl, out var info))
+                info.HostedDocumentId = docId;
+
             return new AddinEntry
             {
                 Title         = title,
                 Addin         = control,
                 DocumentId    = docId,
-                DocumentPanel = panel
+                DocumentPanel = panel,
+                OriginalFormBorderStyle = control is Form hostedForm
+                    ? ResolveOriginalFormBorderStyle(existingEntry, hostedForm)
+                    : FormBorderStyle.Sizable
             };
         }
 
@@ -413,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Hosting helpers — Native MDI mode
         // ─────────────────────────────────────────────────────────────────
 
-        private AddinEntry? HostAddinInMdi(string title, IDM_Addin control, BeepNativeMdiView mdi)
+        private AddinEntry? HostAddinInMdi(string title, IDM_Addin control, BeepNativeMdiView mdi, AddinEntry? existingEntry = null)
         {
             if (mdi.ParentForm == null) return null;
             EnsureMdiFormCreatedHook(mdi);
@@ -421,10 +506,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             string? capturedId = null;
             Form?    capturedForm = null;
 
-            EventHandler<DocumentAddedEventArgs> captureAdded = (s, e) =>
+            EventHandler<MdiDocumentEventArgs> captureFormCreated = (s, e) =>
             {
-                capturedId   = e?.Descriptor?.Id;
-                capturedForm = (s as BeepNativeMdiView)?.ParentForm?.ActiveMdiChild;
+                capturedId   = e?.Id;
+                capturedForm = e?.Form;
             };
 
             // For Form addins we don't want the view to create its own host
@@ -435,20 +520,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 try
                 {
+                    var originalFormBorderStyle = ResolveOriginalFormBorderStyle(existingEntry, addinForm);
+                    if (!PrepareFormForMdiHost(addinForm, originalFormBorderStyle))
+                        return null;
+
                     string id = Guid.NewGuid().ToString("N");
-                    addinForm.MdiParent     = mdi.ParentForm;
-                    addinForm.Text          = string.IsNullOrEmpty(title)
-                                                ? (addinForm.Text ?? "Document")
-                                                : title;
-                    addinForm.Show();
-                    addinForm.Activate();
+                    var descriptor = DocumentDescriptor.Create(
+                        id,
+                        string.IsNullOrEmpty(title) ? (addinForm.Text ?? "Document") : title);
+
+                    if (!mdi.RegisterExternalDocumentForm(addinForm, descriptor, true))
+                        return null;
 
                     return new AddinEntry
                     {
                         Title      = title,
                         Addin      = control,
                         DocumentId = id,
-                        MdiChild   = addinForm
+                        MdiChild   = addinForm,
+                        OriginalFormBorderStyle = originalFormBorderStyle
                     };
                 }
                 catch
@@ -462,31 +552,50 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             _pendingMdiAddin = control;
             try
             {
-                mdi.DocumentAdded += captureAdded;
-                AddDocument(title);
+                mdi.DocumentFormCreated += captureFormCreated;
+                AddDocumentCore(title, iconPath: null, activate: true, trackForViewSwitch: false);
             }
             finally
             {
-                mdi.DocumentAdded -= captureAdded;
+                mdi.DocumentFormCreated -= captureFormCreated;
                 _pendingMdiAddin   = null;
             }
 
             if (capturedId == null || capturedForm == null) return null;
+
+            if (control is Control hostedControl && !capturedForm.Controls.Contains(hostedControl))
+            {
+                TryCloseOrphanDocument(capturedId);
+                return null;
+            }
 
             return new AddinEntry
             {
                 Title      = title,
                 Addin      = control,
                 DocumentId = capturedId,
-                MdiChild   = capturedForm
+                MdiChild   = capturedForm,
+                OriginalFormBorderStyle = existingEntry?.OriginalFormBorderStyle ?? FormBorderStyle.Sizable
             };
         }
 
         private void EnsureMdiFormCreatedHook(BeepNativeMdiView mdi)
         {
-            if (_mdiFormCreatedHooked) return;
+            if (ReferenceEquals(_hookedMdiView, mdi))
+                return;
+
+            DetachMdiFormCreatedHook();
             mdi.DocumentFormCreated += OnNativeMdiFormCreated;
-            _mdiFormCreatedHooked = true;
+            _hookedMdiView = mdi;
+        }
+
+        private void DetachMdiFormCreatedHook()
+        {
+            if (_hookedMdiView == null)
+                return;
+
+            try { _hookedMdiView.DocumentFormCreated -= OnNativeMdiFormCreated; } catch { }
+            _hookedMdiView = null;
         }
 
         private void OnNativeMdiFormCreated(object? sender, MdiDocumentEventArgs e)
@@ -508,6 +617,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     e.Form.ClientSize = new Size(
                         Math.Max(e.Form.ClientSize.Width,  winControl.PreferredSize.Width  + 32),
                         Math.Max(e.Form.ClientSize.Height, winControl.PreferredSize.Height + 32));
+
+                    if (_attachedInfo.TryGetValue(winControl, out var info))
+                        info.HostedDocumentId = e.Id;
                 }
             }
             catch { /* addin handles errors internally */ }
@@ -531,18 +643,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (e == null || string.IsNullOrEmpty(e.DocumentId)) return;
 
+            if (_suppressedHostedAddinRemovals.Remove(e.DocumentId))
+                return;
+
             var match = _addinEntries.FirstOrDefault(kv => kv.Value.DocumentId == e.DocumentId);
             if (match.Key == null) return;
 
             _addinEntries.Remove(match.Key);
-
-            AddinRemoved?.Invoke(this, new ContainerEvents
-            {
-                TitleText     = match.Key,
-                Control       = match.Value.Addin,
-                ContainerType = _idcContainerType,
-                Guidid        = match.Value.Addin?.GuidID
-            });
+            FinalizeAddinRemoval(match.Key, match.Value, removeDictionaryEntry: false);
         }
 
         private void OnDisplayContainerActiveDocumentChanged(object? sender, DocumentEventArgs e)
@@ -561,6 +669,45 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             });
         }
 
+        private bool IsEntryStillHosted(AddinEntry entry)
+        {
+            if (entry.MdiChild != null)
+                return !entry.MdiChild.IsDisposed;
+
+            if (entry.DocumentPanel != null)
+                return !entry.DocumentPanel.IsDisposed && GetPanel(entry.DocumentId) != null;
+
+            return !string.IsNullOrEmpty(entry.DocumentId) && GetPanel(entry.DocumentId) != null;
+        }
+
+        private void TryCloseOrphanDocument(string? documentId)
+        {
+            if (string.IsNullOrEmpty(documentId))
+                return;
+
+            try { RemoveDocument(documentId, force: true); } catch { }
+        }
+
+        private void FinalizeAddinRemoval(string title, AddinEntry entry, bool removeDictionaryEntry)
+        {
+            if (removeDictionaryEntry
+                && _addinEntries.TryGetValue(title, out var current)
+                && ReferenceEquals(current.Addin, entry.Addin))
+            {
+                _addinEntries.Remove(title);
+            }
+
+            try { entry.Addin?.Dispose(); } catch { }
+
+            AddinRemoved?.Invoke(this, new ContainerEvents
+            {
+                TitleText     = title,
+                Control       = entry.Addin,
+                ContainerType = _idcContainerType,
+                Guidid        = entry.Addin?.GuidID
+            });
+        }
+
         // ─────────────────────────────────────────────────────────────────
         // Cleanup — runs from Component.Dispose path
         // ─────────────────────────────────────────────────────────────────
@@ -575,11 +722,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     ActiveDocumentChanged -= OnDisplayContainerActiveDocumentChanged;
                     _displayContainerEventsBridged = false;
                 }
-                if (_mdiFormCreatedHooked && _view is BeepNativeMdiView mdi)
-                {
-                    mdi.DocumentFormCreated -= OnNativeMdiFormCreated;
-                    _mdiFormCreatedHooked   = false;
-                }
+                DetachMdiFormCreatedHook();
                 foreach (var entry in _addinEntries.Values.ToList())
                 {
                     try { entry.Addin?.Dispose(); } catch { }

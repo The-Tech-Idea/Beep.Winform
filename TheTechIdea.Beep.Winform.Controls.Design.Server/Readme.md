@@ -89,7 +89,7 @@ Extends `ParentControlDesigner`. Provides:
 - `PreFilterProperties` / `PreFilterEvents` — hides irrelevant base properties/events
 - `DoDefaultAction` — double-click creates a persisted design-time document surface
 - `GetParentForComponent` — routes toolbox drops into the active `BeepDocumentPanel`, creating the first document surface automatically when needed
-- Design-time document mutations now flow through `DesignTimeDocuments`, so add / close / reopen / split / rename / pin actions persist into `InitializeComponent`
+- Document panel mutations now create or update real `BeepDocumentPanel` components in `DocumentPanels`; hidden `DesignTimeDocuments` metadata is kept in sync for editor/runtime compatibility
 - Layout mutations now also flow through a hidden serialized `DesignTimeLayoutJson` property so split groups, floating documents, and auto-hide state survive designer reopen
 - Right-clicking host chrome or a tab strip now opens a dock-style context menu with add, rename, float, auto-hide, split, merge, preset, and layout-assistant actions
 
@@ -131,7 +131,7 @@ Toolbox drags are excluded from the compass so ordinary control authoring drops 
 - **Session** — AutoSaveLayout, SessionFile
 
 Document-surface actions now prioritize authoring ergonomics rather than raw runtime calls:
-- Add / Close / Reopen mutate `DesignTimeDocuments` and the live host together
+- Add / Close / Reopen mutate `DocumentPanels` and the live host together, then sync hidden descriptor metadata
 - Split H/V creates a new document surface and docks it in the new pane immediately
 - The active document title can be edited directly from the smart-tag without opening the collection editor
 - Layout Assistant combines document creation and dock preset selection in one design-time flow
@@ -139,7 +139,7 @@ Document-surface actions now prioritize authoring ergonomics rather than raw run
 ---
 
 ### `DocumentDescriptorCollectionEditor` (Editors/) — Sprint 17.2
-Full custom `CollectionEditor` for `DesignTimeDocuments`.
+Full custom document editor. It edits descriptor-style metadata, then commits the result as real `BeepDocumentPanel` components in `DocumentPanels`.
 
 **`DocumentDescriptorEditorForm`** — custom `Form` with:
 - `DataGridView`: Id / Title / IconPath / IsPinned / CanClose / InitialContent / AccentColor

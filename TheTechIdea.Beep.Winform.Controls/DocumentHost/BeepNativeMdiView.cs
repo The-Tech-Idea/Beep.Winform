@@ -90,15 +90,34 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool                           _autoSave;
         private string                         _sessionFile   = string.Empty;
         private int                            _untitledCount = 0;
+        private string?                        _activeDocumentId;
 
         // tracks MDI child forms by document ID
         private readonly Dictionary<string, Form> _forms =
             new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DocumentDescriptor> _descriptors =
+            new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _suppressedClosingIds =
+            new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _forceClosingIds =
+            new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<Form, TrackedFormHandlers> _trackedFormHandlers =
+            new();
+        private readonly Dictionary<Form, EventHandler> _windowMenuTextChangedHandlers =
+            new();
 
         // menu items added to the Window menu (removed on detach)
         private MenuStrip?  _windowMenu;
         private string      _windowMenuText = "&Window";
         private ToolStripMenuItem? _windowMenuItem;
+
+        private sealed class TrackedFormHandlers
+        {
+            public FormClosingEventHandler FormClosingHandler { get; init; } = default!;
+            public FormClosedEventHandler FormClosedHandler { get; init; } = default!;
+            public EventHandler ActivatedHandler { get; init; } = default!;
+            public EventHandler TextChangedHandler { get; init; } = default!;
+        }
 
         // ── Constructors ──────────────────────────────────────────────────────
 
@@ -169,10 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public BeepDocumentPanel? AddDocument(DocumentDescriptor desc)
         {
             if (desc == null) return null;
-            return AddDocumentCore(desc.Id,
-                                   desc.Title ?? string.Empty,
-                                   desc.IconPath ?? string.Empty,
-                                   true);
+            return AddDocumentCore(CloneDescriptor(desc), true);
         }
 
         /// <inheritdoc/>
@@ -182,77 +198,157 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Always returns <see langword="null"/> — content is managed by the child Form.
         /// </remarks>
         public BeepDocumentPanel? AddDocument(string title, string iconPath, bool activate)
-            => AddDocumentCore(GenerateDocumentId(title), title, iconPath, activate);
+            => AddDocumentCore(
+                DocumentDescriptor.Create(GenerateDocumentId(title), title, iconPath),
+                activate);
 
-        private BeepDocumentPanel? AddDocumentCore(string id, string title, string iconPath, bool activate)
+        internal bool RegisterExternalDocumentForm(
+            Form form,
+            DocumentDescriptor descriptor,
+            bool activate)
+        {
+            if (_parentForm == null || form == null || descriptor == null)
+                return false;
+
+            NormalizeDescriptor(descriptor, form.Text);
+
+            if (_forms.TryGetValue(descriptor.Id, out var existing))
+            {
+                if (!ReferenceEquals(existing, form))
+                    return false;
+
+                UpdateTrackedDocument(form, descriptor);
+                if (activate)
+                    form.Activate();
+                return true;
+            }
+
+            if (!ReferenceEquals(form.MdiParent, _parentForm))
+                form.MdiParent = _parentForm;
+
+            UpdateTrackedDocument(form, descriptor);
+            TrackDocumentForm(form, descriptor.Id);
+
+            if (!form.Visible)
+                form.Show();
+            if (activate)
+                form.Activate();
+
+            DocumentAdded?.Invoke(this,
+                new DocumentAddedEventArgs(CloneDescriptor(_descriptors[descriptor.Id]), null));
+            AddWindowMenuItem(descriptor.Id, form);
+            return true;
+        }
+
+        internal bool DetachDocumentForm(string id, Form form)
+        {
+            if (string.IsNullOrEmpty(id) || form == null)
+                return false;
+
+            if (!_forms.TryGetValue(id, out var tracked) || !ReferenceEquals(tracked, form))
+                return false;
+
+            try { form.Hide(); } catch { }
+            UntrackDocumentForm(id, form);
+            return true;
+        }
+
+        internal bool TryGetDocumentForm(string id, out Form? form)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                form = null;
+                return false;
+            }
+
+            if (_forms.TryGetValue(id, out var tracked) && tracked != null && !tracked.IsDisposed)
+            {
+                form = tracked;
+                return true;
+            }
+
+            form = null;
+            return false;
+        }
+
+        private BeepDocumentPanel? AddDocumentCore(DocumentDescriptor descriptor, bool activate)
         {
             if (_parentForm == null) return null;
-            if (string.IsNullOrWhiteSpace(id))
-                id = GenerateDocumentId(title);
+            NormalizeDescriptor(descriptor, null);
 
-            if (_forms.TryGetValue(id, out var existing))
+            if (_forms.TryGetValue(descriptor.Id, out var existing))
             {
-                existing.Text = string.IsNullOrEmpty(title) ? existing.Text : title;
-                if (activate) existing.Activate();
+                UpdateTrackedDocument(existing, descriptor);
+                if (activate)
+                    existing.Activate();
                 return null;
             }
 
             var child = new Form
             {
-                Text       = string.IsNullOrEmpty(title) ? GenerateUntitledTitle() : title,
-                MdiParent  = _parentForm,
                 WindowState = FormWindowState.Normal,
                 StartPosition = FormStartPosition.WindowsDefaultBounds
             };
 
-            // Apply icon from path if supplied (best-effort — file might not exist)
-            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
-            {
-                try { child.Icon = new System.Drawing.Icon(iconPath); }
-                catch { /* non-fatal */ }
-            }
-
-            _forms[id] = child;
-
-            child.FormClosed += (s, e) =>
-            {
-                _forms.Remove(id);
-                RemoveWindowMenuItem(id, (Form?)s);
-                DocumentRemoved?.Invoke(this,
-                    new DocumentEventArgs(id, child.Text));
-            };
-
-            child.Activated += (s, e) =>
-            {
-                ActiveDocumentChanged?.Invoke(this,
-                    new DocumentEventArgs(id, child.Text));
-            };
-
-            child.Show();
-            if (activate) child.Activate();
+            UpdateTrackedDocument(child, descriptor);
+            TrackDocumentForm(child, descriptor.Id);
 
             // Notify subscribers so they can add content controls
-            DocumentFormCreated?.Invoke(this, new MdiDocumentEventArgs(child, id, child.Text));
+            DocumentFormCreated?.Invoke(this,
+                new MdiDocumentEventArgs(child, descriptor.Id, child.Text));
+
+            child.Show();
+            if (activate)
+                child.Activate();
 
             // Raise DocumentAdded (Panel is null — MDI uses Forms, not BeepDocumentPanels)
             DocumentAdded?.Invoke(this,
-                new DocumentAddedEventArgs(new DocumentDescriptor { Id = id, Title = child.Text }, null));
+                new DocumentAddedEventArgs(CloneDescriptor(_descriptors[descriptor.Id]), null));
 
             // Refresh window menu
-            AddWindowMenuItem(id, child);
+            AddWindowMenuItem(descriptor.Id, child);
 
             return null; // MDI mode: content lives in the child Form, not a panel
         }
 
         /// <inheritdoc/>
-        public bool RemoveDocument(string id)
+        public bool RemoveDocument(string id, bool force = false)
         {
-            if (_forms.TryGetValue(id, out var form))
+            if (string.IsNullOrEmpty(id) || !_forms.TryGetValue(id, out var form))
+                return false;
+
+            if (!force && !CanCloseDocument(id))
+                return false;
+
+            _suppressedClosingIds.Add(id);
+            if (force)
+                _forceClosingIds.Add(id);
+
+            try
             {
                 form.Close();
-                return true;
             }
-            return false;
+            finally
+            {
+                if (_forms.ContainsKey(id))
+                {
+                    _suppressedClosingIds.Remove(id);
+                    _forceClosingIds.Remove(id);
+                }
+            }
+
+            return !_forms.ContainsKey(id);
+        }
+
+        /// <inheritdoc/>
+        public bool DetachDocumentForTransfer(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !_forms.TryGetValue(id, out var form))
+                return false;
+
+            try { form.Hide(); } catch { }
+            UntrackDocumentForm(id, form);
+            return true;
         }
 
         /// <inheritdoc/>
@@ -269,13 +365,47 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public void EndBatchAddDocuments()   { /* No-op in MDI mode */ }
 
         /// <inheritdoc/>
+        public int DocumentCount => _forms.Count;
+
+        /// <inheritdoc/>
+        public DocumentEventArgs? ActiveDocument
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_activeDocumentId))
+                    return null;
+
+                if (_descriptors.TryGetValue(_activeDocumentId, out var descriptor))
+                    return new DocumentEventArgs(_activeDocumentId, descriptor.Title);
+
+                if (_forms.TryGetValue(_activeDocumentId, out var form))
+                    return new DocumentEventArgs(_activeDocumentId, form.Text);
+
+                return null;
+            }
+        }
+
+        /// <inheritdoc/>
         public bool CloseAllDocuments()
         {
-            // snapshot to avoid modifying collection during iteration
-            var snapshot = new List<Form>(_forms.Values);
-            foreach (var form in snapshot)
-                try { form.Close(); } catch { }
-            return true;
+            var ids = new List<string>();
+            foreach (var id in _forms.Keys)
+            {
+                if (CanCloseDocument(id))
+                    ids.Add(id);
+            }
+
+            if (ids.Count == 0)
+                return false;
+
+            var closedAny = false;
+            foreach (var id in ids)
+            {
+                if (RemoveDocument(id))
+                    closedAny = true;
+            }
+
+            return closedAny;
         }
 
         /// <inheritdoc/>
@@ -385,9 +515,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             _windowMenu     = menu;
             _windowMenuText = string.IsNullOrEmpty(menuText) ? "&Window" : menuText;
-            _windowMenuItem = new ToolStripMenuItem(_windowMenuText);
 
-            menu.Items.Add(_windowMenuItem);
+            foreach (ToolStripItem item in menu.Items)
+            {
+                if (item is ToolStripMenuItem menuItem
+                    && string.Equals(menuItem.Text, _windowMenuText, StringComparison.OrdinalIgnoreCase))
+                {
+                    _windowMenuItem = menuItem;
+                    break;
+                }
+            }
+
+            if (_windowMenuItem == null)
+            {
+                _windowMenuItem = new ToolStripMenuItem(_windowMenuText);
+                menu.Items.Add(_windowMenuItem);
+            }
+
+            _windowMenuItem.DropDownItems.Clear();
 
             // Cascade / Tile / Arrange layout commands
             _windowMenuItem.DropDownItems.Add("Cascade",        null, (s, e) => Cascade());
@@ -441,6 +586,215 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private string GenerateUntitledTitle() => $"Document {++_untitledCount}";
 
+        private bool CanCloseDocument(string id)
+        {
+            if (_forceClosingIds.Contains(id))
+                return true;
+
+            return !_descriptors.TryGetValue(id, out var descriptor) || descriptor.CanClose;
+        }
+
+        private void NormalizeDescriptor(DocumentDescriptor descriptor, string? fallbackTitle)
+        {
+            if (string.IsNullOrWhiteSpace(descriptor.Id))
+                descriptor.Id = GenerateDocumentId(descriptor.Title ?? fallbackTitle ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(descriptor.Title))
+                descriptor.Title = !string.IsNullOrWhiteSpace(fallbackTitle)
+                    ? fallbackTitle
+                    : GenerateUntitledTitle();
+
+            if (string.IsNullOrWhiteSpace(descriptor.PersistenceKey))
+                descriptor.PersistenceKey = Guid.NewGuid().ToString();
+        }
+
+        private void UpdateTrackedDocument(Form form, DocumentDescriptor descriptor)
+        {
+            NormalizeDescriptor(descriptor, form.Text);
+
+            _descriptors[descriptor.Id] = CloneDescriptor(descriptor);
+            ApplyDescriptorToForm(form, _descriptors[descriptor.Id]);
+            _descriptors[descriptor.Id].Title = form.Text;
+        }
+
+        private void ApplyDescriptorToForm(Form form, DocumentDescriptor descriptor)
+        {
+            if (_parentForm != null && !ReferenceEquals(form.MdiParent, _parentForm))
+                form.MdiParent = _parentForm;
+
+            if (!string.IsNullOrWhiteSpace(descriptor.Title))
+                form.Text = descriptor.Title;
+
+            if (!string.IsNullOrEmpty(descriptor.IconPath) && File.Exists(descriptor.IconPath))
+            {
+                try { form.Icon = new System.Drawing.Icon(descriptor.IconPath); }
+                catch { /* non-fatal */ }
+            }
+        }
+
+        private void TrackDocumentForm(Form form, string id)
+        {
+            _forms[id] = form;
+
+            DetachTrackedFormHandlers(form);
+
+            var handlers = new TrackedFormHandlers
+            {
+                FormClosingHandler = (s, e) => OnDocumentFormClosing(id, e, (Form?)s ?? form),
+                FormClosedHandler = (s, e) => OnDocumentFormClosed(id, (Form?)s ?? form),
+                ActivatedHandler = (s, e) =>
+                {
+                    var title = _descriptors.TryGetValue(id, out var descriptor)
+                        ? descriptor.Title
+                        : form.Text;
+                    _activeDocumentId = id;
+                    ActiveDocumentChanged?.Invoke(this, new DocumentEventArgs(id, title));
+                },
+                TextChangedHandler = (s, e) =>
+                {
+                    if (_descriptors.TryGetValue(id, out var descriptor))
+                        descriptor.Title = form.Text;
+
+                    if (string.Equals(_activeDocumentId, id, StringComparison.OrdinalIgnoreCase))
+                        ActiveDocumentChanged?.Invoke(this, new DocumentEventArgs(id, form.Text));
+                }
+            };
+
+            _trackedFormHandlers[form] = handlers;
+            form.FormClosing += handlers.FormClosingHandler;
+            form.FormClosed += handlers.FormClosedHandler;
+            form.Activated += handlers.ActivatedHandler;
+            form.TextChanged += handlers.TextChangedHandler;
+        }
+
+        private void DetachTrackedFormHandlers(Form form)
+        {
+            if (!_trackedFormHandlers.TryGetValue(form, out var handlers))
+                return;
+
+            try { form.FormClosing -= handlers.FormClosingHandler; } catch { }
+            try { form.FormClosed -= handlers.FormClosedHandler; } catch { }
+            try { form.Activated -= handlers.ActivatedHandler; } catch { }
+            try { form.TextChanged -= handlers.TextChangedHandler; } catch { }
+            _trackedFormHandlers.Remove(form);
+        }
+
+        private void UntrackDocumentForm(string id, Form form)
+        {
+            _forms.Remove(id);
+            _descriptors.Remove(id);
+            _suppressedClosingIds.Remove(id);
+            _forceClosingIds.Remove(id);
+            DetachTrackedFormHandlers(form);
+
+            if (string.Equals(_activeDocumentId, id, StringComparison.OrdinalIgnoreCase))
+            {
+                _activeDocumentId = null;
+                UpdateActiveDocumentFromParentForm();
+            }
+
+            RemoveWindowMenuItem(id, form);
+        }
+
+        private void OnDocumentFormClosing(string id, FormClosingEventArgs e, Form form)
+        {
+            if (e.Cancel)
+                return;
+
+            var force = _forceClosingIds.Contains(id);
+            if (!_suppressedClosingIds.Contains(id))
+            {
+                var closingArgs = CreateClosingEventArgs(id, form);
+                DocumentClosing?.Invoke(this, closingArgs);
+                if (closingArgs.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            if (!force && !CanCloseDocument(id))
+                e.Cancel = true;
+        }
+
+        private void OnDocumentFormClosed(string id, Form form)
+        {
+            var title = _descriptors.TryGetValue(id, out var descriptor)
+                ? descriptor.Title
+                : form.Text;
+
+            UntrackDocumentForm(id, form);
+            DocumentRemoved?.Invoke(this, new DocumentEventArgs(id, title));
+        }
+
+        private void UpdateActiveDocumentFromParentForm()
+        {
+            var activeChild = _parentForm?.ActiveMdiChild;
+            if (activeChild == null)
+                return;
+
+            foreach (var pair in _forms)
+            {
+                if (ReferenceEquals(pair.Value, activeChild))
+                {
+                    _activeDocumentId = pair.Key;
+                    return;
+                }
+            }
+        }
+
+        private TabClosingEventArgs CreateClosingEventArgs(string id, Form form)
+        {
+            var descriptor = _descriptors.TryGetValue(id, out var tracked)
+                ? CloneDescriptor(tracked)
+                : DocumentDescriptor.Create(id, form.Text);
+
+            var tab = new BeepDocumentTab(id, descriptor.Title)
+            {
+                IconPath = descriptor.IconPath,
+                IsModified = descriptor.IsModified,
+                CanClose = descriptor.CanClose,
+                IsPinned = descriptor.IsPinned,
+                AccentColor = descriptor.AccentColor,
+                TooltipText = descriptor.TooltipText,
+                Tag = descriptor.Tag,
+                BadgeText = descriptor.BadgeText,
+                BadgeColor = descriptor.BadgeColor,
+                TabColor = descriptor.TabColor,
+                DocumentCategory = descriptor.Category
+            };
+
+            return new TabClosingEventArgs(-1, tab);
+        }
+
+        private static DocumentDescriptor CloneDescriptor(DocumentDescriptor source)
+        {
+            var clone = new DocumentDescriptor
+            {
+                Id = source.Id,
+                PersistenceKey = source.PersistenceKey,
+                PreviousGroupId = source.PreviousGroupId,
+                Title = source.Title,
+                IconPath = source.IconPath,
+                IsModified = source.IsModified,
+                IsPinned = source.IsPinned,
+                CanClose = source.CanClose,
+                Category = source.Category,
+                TooltipText = source.TooltipText,
+                Tag = source.Tag,
+                BadgeText = source.BadgeText,
+                BadgeColor = source.BadgeColor,
+                TabColor = source.TabColor,
+                AccentColor = source.AccentColor,
+                InitialContent = source.InitialContent
+            };
+
+            foreach (var pair in source.CustomData)
+                clone.CustomData[pair.Key] = pair.Value;
+
+            return clone;
+        }
+
         private void AddWindowMenuItem(string id, Form form)
         {
             if (_windowMenuItem == null) return;
@@ -450,17 +804,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void AddWindowMenuItemCore(string id, Form form)
         {
             if (_windowMenuItem == null) return;
+            RemoveWindowMenuItem(id, form);
             var item = new ToolStripMenuItem(form.Text) { Tag = id };
             item.Click += (s, e) => ActivateDocument(id);
-            form.TextChanged += (s, e) =>
+            EventHandler textChangedHandler = (s, e) =>
             {
                 if (s is Form f) item.Text = f.Text;
             };
+            _windowMenuTextChangedHandlers[form] = textChangedHandler;
+            form.TextChanged += textChangedHandler;
             _windowMenuItem.DropDownItems.Add(item);
         }
 
         private void RemoveWindowMenuItem(string id, Form? form)
         {
+            if (form != null && _windowMenuTextChangedHandlers.TryGetValue(form, out var textChangedHandler))
+            {
+                try { form.TextChanged -= textChangedHandler; } catch { }
+                _windowMenuTextChangedHandlers.Remove(form);
+            }
+
             if (_windowMenuItem == null) return;
             for (int i = _windowMenuItem.DropDownItems.Count - 1; i >= 0; i--)
             {
@@ -474,11 +837,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
-        private void DetachWindowMenu()
+        public void DetachWindowMenu()
         {
+            foreach (var pair in _windowMenuTextChangedHandlers.ToList())
+            {
+                try { pair.Key.TextChanged -= pair.Value; } catch { }
+            }
+            _windowMenuTextChangedHandlers.Clear();
+
             if (_windowMenu == null || _windowMenuItem == null) return;
-            try { _windowMenu.Items.Remove(_windowMenuItem); } catch { }
-            _windowMenuItem.Dispose();
+
+            try { _windowMenuItem.DropDownItems.Clear(); } catch { }
             _windowMenuItem = null;
             _windowMenu     = null;
         }
@@ -510,10 +879,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 _disposed = true;
                 DetachWindowMenu();
                 // Close open child forms
-                var snapshot = new List<Form>(_forms.Values);
-                foreach (var f in snapshot)
-                    try { f.Close(); } catch { }
+                var snapshot = new List<string>(_forms.Keys);
+                foreach (var id in snapshot)
+                    try { RemoveDocument(id, true); } catch { }
                 _forms.Clear();
+                _descriptors.Clear();
+                _suppressedClosingIds.Clear();
+                _forceClosingIds.Clear();
                 _parentForm = null;
                 _manager    = null;
             }

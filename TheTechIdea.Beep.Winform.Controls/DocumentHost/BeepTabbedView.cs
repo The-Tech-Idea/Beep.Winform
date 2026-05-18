@@ -38,6 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private BeepDocumentHost?     _host;
         private BeepDocumentManager?  _manager;
         private bool                  _disposed;
+        private MenuStrip?            _windowMenuOwner;
+        private string                _windowMenuText = "&Window";
 
         // ── Constructors ──────────────────────────────────────────────────────
 
@@ -65,12 +67,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             {
                 if (_host == value) return;
                 var manager = _manager;
+                DetachWindowMenu();
                 UnwireHost();
                 manager?.OnAttachedViewHostChanging(this);
                 _host = value;
                 if (manager != null)
                 {
                     WireHost();
+                    ReattachWindowMenu();
                     manager.OnAttachedViewHostChanged(this);
                 }
             }
@@ -90,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// <inheritdoc/>
         public void Detach()
         {
+            DetachWindowMenu();
             UnwireHost();
             _manager = null;
         }
@@ -124,8 +129,37 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         /// <inheritdoc/>
-        public bool RemoveDocument(string id)
-            => _host?.CloseDocument(id) ?? false;
+        public bool RemoveDocument(string id, bool force = false)
+        {
+            if (_host == null || string.IsNullOrEmpty(id)) return false;
+            if (!force)
+                return _host.CloseDocument(id);
+
+            var panel = _host.GetPanel(id);
+            if (panel == null)
+                return false;
+
+            var previousCanClose = panel.CanClose;
+            try
+            {
+                panel.CanClose = true;
+                return _host.CloseDocument(id);
+            }
+            finally
+            {
+                if (_host.GetPanel(id) != null)
+                    panel.CanClose = previousCanClose;
+            }
+        }
+
+        /// <inheritdoc/>
+        public bool DetachDocumentForTransfer(string id)
+        {
+            if (_host == null || string.IsNullOrEmpty(id))
+                return false;
+
+            return RemoveDocument(id, force: true);
+        }
 
         /// <inheritdoc/>
         public void ActivateDocument(string id)
@@ -139,6 +173,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         /// <inheritdoc/>
         public void EndBatchAddDocuments() => _host?.EndBatchAddDocuments();
+
+        /// <inheritdoc/>
+        public int DocumentCount => _host?.DocumentCount ?? 0;
+
+        /// <inheritdoc/>
+        public DocumentEventArgs? ActiveDocument
+        {
+            get
+            {
+                if (_host?.ActiveDocumentId is not string documentId || string.IsNullOrEmpty(documentId))
+                    return null;
+
+                var panel = _host.ActivePanel;
+                var title = panel != null && !string.IsNullOrEmpty(panel.DocumentTitle)
+                    ? panel.DocumentTitle
+                    : documentId;
+
+                return new DocumentEventArgs(documentId, title);
+            }
+        }
 
         /// <inheritdoc/>
         public bool CloseAllDocuments() => _host?.CloseAllDocuments() ?? false;
@@ -197,15 +251,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         {
             if (_host == null) return;
             _host.AutoSaveLayout = autoSave;
-            if (!string.IsNullOrEmpty(sessionFile))
-                _host.SessionFile = sessionFile;
+            _host.SessionFile = sessionFile ?? string.Empty;
         }
 
         /// <inheritdoc/>
         public void AttachWindowMenu(MenuStrip menu, string menuText)
         {
             if (_host == null || menu == null) return;
+            _windowMenuOwner = menu;
+            _windowMenuText  = string.IsNullOrEmpty(menuText) ? "&Window" : menuText;
             _host.AttachWindowMenu(menu, menuText);
+        }
+
+        /// <inheritdoc/>
+        public void DetachWindowMenu()
+        {
+            if (_host == null || _windowMenuOwner == null) return;
+
+            _host.DetachWindowMenu(_windowMenuOwner, _windowMenuText);
+            _windowMenuOwner = null;
         }
 
         // ══════════════════════════════════════════════════════════════════════
@@ -258,6 +322,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private void OnHostDocumentClosing(object? s, TabClosingEventArgs e)
             => DocumentClosing?.Invoke(this, e);
 
+        private void ReattachWindowMenu()
+        {
+            if (_host == null || _windowMenuOwner == null) return;
+            _host.AttachWindowMenu(_windowMenuOwner, _windowMenuText);
+        }
+
         // ══════════════════════════════════════════════════════════════════════
         // Dispose
         // ══════════════════════════════════════════════════════════════════════
@@ -268,6 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             if (disposing && !_disposed)
             {
                 _disposed = true;
+                DetachWindowMenu();
                 UnwireHost();
                 _host    = null;
                 _manager = null;

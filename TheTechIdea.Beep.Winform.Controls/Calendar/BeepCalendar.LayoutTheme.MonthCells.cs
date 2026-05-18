@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -38,14 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             int col = offset % 7;
             int row = offset / 7;
-            int cellWidth = grid.Width / 7;
-            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
+            var monthBody = new Rectangle(grid.X, grid.Y + dayHeaderHeight, grid.Width, Math.Max(0, grid.Height - dayHeaderHeight));
+            var rowRect = CalendarLayoutGeometry.GetRowRect(monthBody, row, 6);
 
-            return new Rectangle(
-                grid.X + (col * cellWidth),
-                grid.Y + dayHeaderHeight + (row * cellHeight),
-                cellWidth,
-                cellHeight);
+            return CalendarLayoutGeometry.GetColumnRect(rowRect, col, 7);
         }
     }
 }

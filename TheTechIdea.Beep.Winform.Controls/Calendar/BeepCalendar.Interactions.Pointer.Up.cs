@@ -50,6 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _state.InteractionMode = CalendarInteractionMode.None;
             _state.InteractionTargetKind = CalendarInteractionTargetKind.None;
             _state.InteractionEventId = null;
+            UpdateHoverState(e.Location);
         }
     }
 }

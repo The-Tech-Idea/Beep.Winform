@@ -19,16 +19,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             if (hit.TargetKind == CalendarInteractionTargetKind.EventBlock)
             {
-                return hit.ResizeEdge == CalendarEventResizeEdge.Start
-                    ? CalendarInteractionMode.ResizeStart
-                    : hit.ResizeEdge == CalendarEventResizeEdge.End
-                        ? CalendarInteractionMode.ResizeEnd
-                        : CalendarInteractionMode.MoveEvent;
+                if (_state.ViewMode == CalendarViewMode.Day ||
+                    _state.ViewMode == CalendarViewMode.Week ||
+                    _state.ViewMode == CalendarViewMode.WorkWeek)
+                {
+                    return hit.ResizeEdge == CalendarEventResizeEdge.Start
+                        ? CalendarInteractionMode.ResizeStart
+                        : hit.ResizeEdge == CalendarEventResizeEdge.End
+                            ? CalendarInteractionMode.ResizeEnd
+                            : CalendarInteractionMode.MoveEvent;
+                }
+
+                if (_state.ViewMode == CalendarViewMode.Timeline)
+                {
+                    return CalendarInteractionMode.MoveEvent;
+                }
+
+                return CalendarInteractionMode.SelectEvent;
             }
 
             if (hit.TargetKind == CalendarInteractionTargetKind.DateCell)
             {
-                return CalendarInteractionMode.RangeSelect;
+                return _state.ViewMode == CalendarViewMode.Day ||
+                       _state.ViewMode == CalendarViewMode.Week ||
+                       _state.ViewMode == CalendarViewMode.WorkWeek
+                    ? CalendarInteractionMode.RangeSelect
+                    : CalendarInteractionMode.CreateEvent;
             }
 
             if (hit.TargetKind == CalendarInteractionTargetKind.EmptySurface)

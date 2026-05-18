@@ -11,7 +11,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         public void Draw(Graphics g, CalendarRenderContext ctx)
         {
             var grid = ctx.Rects.CalendarGridRect;
-            int laneHeaderWidth = CommonDrawing.ScaleMetric(140, ctx.DensityScale);
+            int laneHeaderWidth = Math.Min(
+                CommonDrawing.ScaleMetric(140, ctx.DensityScale),
+                Math.Max(CommonDrawing.ScaleMetric(80, ctx.DensityScale), grid.Width / 3));
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
             int laneHeight = CommonDrawing.ScaleMetric(72, ctx.DensityScale);
             int laneSpacing = CommonDrawing.ScaleMetric(8, ctx.DensityScale);
@@ -20,18 +22,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var startOfWeek = GetStartOfWeek(ctx.State.VisibleRangeStart ?? ctx.State.CurrentDate.Date);
             var resources = BuildResourceLanes(ctx).ToList();
             int contentWidth = Math.Max(1, grid.Width - laneHeaderWidth);
-            int dayWidth = Math.Max(1, contentWidth / dayCount);
+            var contentArea = new Rectangle(grid.X + laneHeaderWidth, grid.Y, contentWidth, grid.Height);
             GetVisibleLaneRange(grid, dayHeaderHeight, laneHeight, laneSpacing, resources.Count, out int firstVisibleLane, out int lastVisibleLane);
             var eventsByLane = BuildLaneEventLookup(ctx, resources, startOfWeek, startOfWeek.AddDays(dayCount - 1));
 
-            DrawDayAxis(g, ctx, grid, startOfWeek, laneHeaderWidth, dayWidth, dayHeaderHeight);
+            DrawDayAxis(g, ctx, contentArea, startOfWeek, dayCount, dayHeaderHeight);
             DrawResourceAxis(g, ctx, grid, resources, laneHeaderWidth, laneHeight, laneSpacing, dayHeaderHeight, firstVisibleLane, lastVisibleLane);
 
             for (int laneIndex = firstVisibleLane; laneIndex <= lastVisibleLane; laneIndex++)
             {
                 var lane = resources[laneIndex];
                 int laneTop = grid.Y + dayHeaderHeight + laneIndex * (laneHeight + laneSpacing) + laneSpacing;
-                var laneRect = new Rectangle(grid.X + laneHeaderWidth, laneTop, contentWidth, laneHeight);
+                var laneRect = new Rectangle(contentArea.X, laneTop, contentArea.Width, laneHeight);
                 DrawLaneBackground(g, ctx, laneRect, lane, laneIndex);
 
                 if (!eventsByLane.TryGetValue(lane.Id ?? string.Empty, out var laneEvents))
@@ -41,18 +43,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
                 foreach (var evt in laneEvents)
                 {
-                    int dayOffset = (evt.StartTime.Date - startOfWeek).Days;
-                    if (dayOffset < 0 || dayOffset >= dayCount)
+                    int dayOffset = Math.Max(0, (evt.StartTime.Date - startOfWeek).Days);
+                    int endOffset = Math.Min(dayCount - 1, (evt.EndTime.Date - startOfWeek).Days);
+                    if (endOffset < 0 || dayOffset >= dayCount)
                     {
                         continue;
                     }
 
-                    int spanDays = Math.Max(1, (int)Math.Ceiling((evt.EndTime.Date - evt.StartTime.Date).TotalDays) + 1);
-                    int x = grid.X + laneHeaderWidth + dayOffset * dayWidth + CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX, ctx.DensityScale);
-                    int w = Math.Max(24, spanDays * dayWidth - CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX * 2, ctx.DensityScale));
+                    var firstDayRect = CalendarLayoutGeometry.GetColumnRect(contentArea, dayOffset, dayCount);
+                    var lastDayRect = CalendarLayoutGeometry.GetColumnRect(contentArea, Math.Max(dayOffset, endOffset), dayCount);
+                    int insetX = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX, ctx.DensityScale);
+                    int x = firstDayRect.X + insetX;
+                    int w = Math.Max(24, lastDayRect.Right - firstDayRect.X - (insetX * 2));
                     var eventRect = new Rectangle(x, laneTop + CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetY, ctx.DensityScale), w, laneHeight - CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetY * 2, ctx.DensityScale));
                     bool isSelected = ctx.State.SelectedEvent?.Id == evt.Id;
-                    CommonDrawing.DrawEventCard(g, ctx, evt, eventRect, isSelected, includeDescription: true);
+                    bool isHovered = ctx.HoveredEventId == evt.Id;
+                    CommonDrawing.DrawEventCard(g, ctx, evt, eventRect, isSelected, isHovered, includeDescription: true);
                 }
             }
         }
@@ -60,7 +66,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         public void HandleClick(Point location, CalendarRenderContext ctx)
         {
             var grid = ctx.Rects.CalendarGridRect;
-            int laneHeaderWidth = CommonDrawing.ScaleMetric(140, ctx.DensityScale);
+            int laneHeaderWidth = Math.Min(
+                CommonDrawing.ScaleMetric(140, ctx.DensityScale),
+                Math.Max(CommonDrawing.ScaleMetric(80, ctx.DensityScale), grid.Width / 3));
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
             int laneHeight = CommonDrawing.ScaleMetric(72, ctx.DensityScale);
             int laneSpacing = CommonDrawing.ScaleMetric(8, ctx.DensityScale);
@@ -69,13 +77,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var resources = BuildResourceLanes(ctx).ToList();
             var startOfWeek = GetStartOfWeek(ctx.State.VisibleRangeStart ?? ctx.State.CurrentDate.Date);
             int contentWidth = Math.Max(1, grid.Width - laneHeaderWidth);
-            int dayWidth = Math.Max(1, contentWidth / dayCount);
+            var contentArea = new Rectangle(grid.X + laneHeaderWidth, grid.Y, contentWidth, grid.Height);
             GetVisibleLaneRange(grid, dayHeaderHeight, laneHeight, laneSpacing, resources.Count, out int firstVisibleLane, out int lastVisibleLane);
             var eventsByLane = BuildLaneEventLookup(ctx, resources, startOfWeek, startOfWeek.AddDays(dayCount - 1));
 
             if (location.Y <= grid.Y + dayHeaderHeight)
             {
-                int day = Math.Max(0, Math.Min(dayCount - 1, (location.X - grid.X - laneHeaderWidth) / dayWidth));
+                int day = CalendarLayoutGeometry.GetColumnIndex(contentArea, location.X, dayCount);
+                if (day < 0)
+                {
+                    return;
+                }
+
                 ctx.State.SelectedDate = startOfWeek.AddDays(day).Date;
                 ctx.State.CurrentDate = ctx.State.SelectedDate;
                 return;
@@ -85,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             {
                 var lane = resources[laneIndex];
                 int laneTop = grid.Y + dayHeaderHeight + laneIndex * (laneHeight + laneSpacing) + laneSpacing;
-                var laneRect = new Rectangle(grid.X + laneHeaderWidth, laneTop, contentWidth, laneHeight);
+                var laneRect = new Rectangle(contentArea.X, laneTop, contentArea.Width, laneHeight);
                 if (!laneRect.Contains(location))
                 {
                     continue;
@@ -98,15 +111,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
                 foreach (var evt in laneEvents)
                 {
-                    int dayOffset = (evt.StartTime.Date - startOfWeek).Days;
-                    if (dayOffset < 0 || dayOffset >= dayCount)
+                    int dayOffset = Math.Max(0, (evt.StartTime.Date - startOfWeek).Days);
+                    int endOffset = Math.Min(dayCount - 1, (evt.EndTime.Date - startOfWeek).Days);
+                    if (endOffset < 0 || dayOffset >= dayCount)
                     {
                         continue;
                     }
 
-                    int spanDays = Math.Max(1, (int)Math.Ceiling((evt.EndTime.Date - evt.StartTime.Date).TotalDays) + 1);
-                    int x = grid.X + laneHeaderWidth + dayOffset * dayWidth + CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX, ctx.DensityScale);
-                    int w = Math.Max(24, spanDays * dayWidth - CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX * 2, ctx.DensityScale));
+                    var firstDayRect = CalendarLayoutGeometry.GetColumnRect(contentArea, dayOffset, dayCount);
+                    var lastDayRect = CalendarLayoutGeometry.GetColumnRect(contentArea, Math.Max(dayOffset, endOffset), dayCount);
+                    int insetX = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX, ctx.DensityScale);
+                    int x = firstDayRect.X + insetX;
+                    int w = Math.Max(24, lastDayRect.Right - firstDayRect.X - (insetX * 2));
                     var eventRect = new Rectangle(x, laneTop + CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetY, ctx.DensityScale), w, laneHeight - CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetY * 2, ctx.DensityScale));
                     if (eventRect.Contains(location))
                     {
@@ -117,7 +133,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                     }
                 }
 
-                ctx.State.SelectedDate = startOfWeek.AddDays(Math.Max(0, Math.Min(dayCount - 1, (location.X - grid.X - laneHeaderWidth) / dayWidth))).Date;
+                int selectedDay = CalendarLayoutGeometry.GetColumnIndex(contentArea, location.X, dayCount);
+                if (selectedDay < 0)
+                {
+                    return;
+                }
+
+                ctx.State.SelectedDate = startOfWeek.AddDays(selectedDay).Date;
                 ctx.State.CurrentDate = ctx.State.SelectedDate;
                 return;
             }
@@ -210,16 +232,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             lastVisibleLane = Math.Min(laneCount - 1, Math.Max(firstVisibleLane, (visibleBottom - lanesTop) / laneStride));
         }
 
-        private static void DrawDayAxis(Graphics g, CalendarRenderContext ctx, Rectangle grid, DateTime startOfWeek, int laneHeaderWidth, int dayWidth, int dayHeaderHeight)
+        private static void DrawDayAxis(Graphics g, CalendarRenderContext ctx, Rectangle contentArea, DateTime startOfWeek, int dayCount, int dayHeaderHeight)
         {
             var headerBackColor = ctx.Theme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250);
             var headerForeColor = ctx.Theme?.CalendarForeColor ?? Color.Black;
             var todayColor = ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244);
 
-            for (int day = 0; day < 7; day++)
+            for (int day = 0; day < dayCount; day++)
             {
                 var dayDate = startOfWeek.AddDays(day);
-                var headerRect = new Rectangle(grid.X + laneHeaderWidth + day * dayWidth, grid.Y, dayWidth, dayHeaderHeight);
+                var headerRect = CalendarLayoutGeometry.GetColumnRect(
+                    new Rectangle(contentArea.X, contentArea.Y, contentArea.Width, dayHeaderHeight),
+                    day,
+                    dayCount);
                 bool isToday = dayDate.Date == DateTime.Today;
                 using (var brush = new SolidBrush(isToday ? todayColor : headerBackColor))
                     g.FillRectangle(brush, headerRect);

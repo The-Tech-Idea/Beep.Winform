@@ -296,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.StylePainters
 
         public void PaintListViewEvent(Graphics g, Rectangle bounds, CalendarEvent evt, bool isSelected, bool isHovered, CalendarPainterContext ctx)
         {
-            CommonDrawing.DrawEventCard(g, ctx, evt, bounds, isSelected, includeDescription: true, includeActions: true);
+            CommonDrawing.DrawEventCard(g, ctx, evt, bounds, isSelected, isHovered, includeDescription: true, includeActions: true);
         }
 
         #endregion

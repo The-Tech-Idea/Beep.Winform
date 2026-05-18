@@ -71,6 +71,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         // Exposed paddings for title & grid
         [Browsable(true)] [Category("Layout")] public int HeaderLeftPadding { get; set; } = 160; // min
         [Browsable(true)] [Category("Layout")] public int HeaderRightPadding { get; set; } = CalendarLayoutMetrics.HeaderRightPadding;
-        [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = CalendarLayoutMetrics.TimeColumnWidth / 5;
+        [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = 0;
     }
 }

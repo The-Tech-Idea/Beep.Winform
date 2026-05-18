@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 var rect = new Rectangle(
                     grid.X + padding,
                     yPos,
-                    grid.Width - (padding * 2),
+                    Math.Max(1, grid.Width - (padding * 2)),
                     rowHeight);
                 bool isSelected = ctx.State.SelectedEvent?.Id == evt.Id;
                 DrawListEvent(g, ctx, evt, rect, isSelected);
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 var rect = new Rectangle(
                     grid.X + padding,
                     yPos,
-                    grid.Width - (padding * 2),
+                    Math.Max(1, grid.Width - (padding * 2)),
                     rowHeight);
                 if (rect.Contains(location))
                 {
@@ -59,7 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
         private void DrawListEvent(Graphics g, CalendarRenderContext ctx, CalendarEvent evt, Rectangle rect, bool isSelected)
         {
-            CommonDrawing.DrawEventCard(g, ctx, evt, rect, isSelected, includeDescription: true, includeActions: true);
+            bool isHovered = ctx.HoveredEventId == evt.Id;
+            CommonDrawing.DrawEventCard(g, ctx, evt, rect, isSelected, isHovered, includeDescription: true, includeActions: true);
         }
     }
 }

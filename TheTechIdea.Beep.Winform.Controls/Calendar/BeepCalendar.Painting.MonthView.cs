@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -17,10 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             int eventSpacing = ScaleMetric(2);
             int eventStartOffset = ScaleMetric(30);
 
-            int cellWidth = grid.Width / 7;
-            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
+            var headerBand = new Rectangle(grid.X, grid.Y, grid.Width, Math.Min(dayHeaderHeight, grid.Height));
+            var monthBody = new Rectangle(grid.X, headerBand.Bottom, grid.Width, Math.Max(0, grid.Bottom - headerBand.Bottom));
 
-            DrawMonthHeaders(g, grid, cellWidth, dayHeaderHeight, ctx);
+            DrawMonthHeaders(g, headerBand, ctx);
 
             // Day cells
             var eventsByDate = new Dictionary<DateTime, List<CalendarEvent>>();
@@ -29,12 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 for (int day = 0; day < 7; day++)
                 {
                     var cellDate = firstDayOfCalendar.AddDays(week * 7 + day);
-                    var cellRect = new Rectangle(
-                        grid.X + day * cellWidth,
-                        grid.Y + dayHeaderHeight + week * cellHeight,
-                        cellWidth,
-                        cellHeight
-                    );
+                    var rowRect = CalendarLayoutGeometry.GetRowRect(monthBody, week, 6);
+                    var cellRect = CalendarLayoutGeometry.GetColumnRect(rowRect, day, 7);
 
                     var dateKey = cellDate.Date;
                     if (!eventsByDate.TryGetValue(dateKey, out var dayEvents))

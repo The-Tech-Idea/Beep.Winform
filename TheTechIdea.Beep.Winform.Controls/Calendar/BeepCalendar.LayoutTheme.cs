@@ -11,10 +11,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             return _densityMode == CalendarDensityMode.Compact ? 0.85f : 1.0f;
         }
 
-        private int ScaleMetric(int baseValue)
+        private float GetMetricScale()
         {
             float dpiScale = BeepThemesManager.DpiScaleX > 0f ? BeepThemesManager.DpiScaleX : 1f;
-            return Math.Max(1, (int)Math.Round(baseValue * GetDensityScale() * dpiScale));
+            return GetDensityScale() * dpiScale;
+        }
+
+        private int ScaleMetric(int baseValue)
+        {
+            return Math.Max(1, (int)Math.Round(baseValue * GetMetricScale()));
         }
 
         private void MoveFocusedDate(int deltaDays)

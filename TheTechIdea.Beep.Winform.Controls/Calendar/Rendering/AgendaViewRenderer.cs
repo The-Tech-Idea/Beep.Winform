@@ -25,15 +25,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int yPos = grid.Y + padding;
             foreach (var group in groups)
             {
-                var headerRect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), headerHeight);
+                var headerRect = new Rectangle(grid.X + padding, yPos, Math.Max(1, grid.Width - (padding * 2)), headerHeight);
                 DrawDayHeader(g, ctx, group.Key, headerRect);
                 yPos += headerHeight + rowSpacing;
 
                 foreach (var evt in group)
                 {
-                    var rect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), rowHeight);
+                    var rect = new Rectangle(grid.X + padding, yPos, Math.Max(1, grid.Width - (padding * 2)), rowHeight);
                     bool isSelected = ctx.State.SelectedEvent?.Id == evt.Id;
-                    CommonDrawing.DrawEventCard(g, ctx, evt, rect, isSelected, includeDescription: true, includeActions: true);
+                    bool isHovered = ctx.HoveredEventId == evt.Id;
+                    CommonDrawing.DrawEventCard(g, ctx, evt, rect, isSelected, isHovered, includeDescription: true, includeActions: true);
                     yPos += rowHeight + rowSpacing;
                     if (yPos > grid.Bottom)
                     {
@@ -66,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int yPos = grid.Y + padding;
             foreach (var group in groups)
             {
-                var headerRect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), headerHeight);
+                var headerRect = new Rectangle(grid.X + padding, yPos, Math.Max(1, grid.Width - (padding * 2)), headerHeight);
                 if (headerRect.Contains(location))
                 {
                     ctx.State.SelectedDate = group.Key;
@@ -77,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 yPos += headerHeight + rowSpacing;
                 foreach (var evt in group)
                 {
-                    var rect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), rowHeight);
+                    var rect = new Rectangle(grid.X + padding, yPos, Math.Max(1, grid.Width - (padding * 2)), rowHeight);
                     if (rect.Contains(location))
                     {
                         ctx.State.SelectedEvent = evt;

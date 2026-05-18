@@ -32,10 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             int navRightAnchor = new[]
             {
-                _nextButton?.Right ?? headerRect.X,
-                _todayButton?.Right ?? headerRect.X,
-                _undoButton?.Right ?? headerRect.X,
-                _redoButton?.Right ?? headerRect.X
+                _nextButton?.Visible == true ? _nextButton.Right : headerRect.X,
+                _todayButton?.Visible == true ? _todayButton.Right : headerRect.X,
+                _undoButton?.Visible == true ? _undoButton.Right : headerRect.X,
+                _redoButton?.Visible == true ? _redoButton.Right : headerRect.X
             }.Max();
             int leftFromNav = navRightAnchor + CalendarLayoutMetrics.HeaderTextSpacingFromNav;
             int leftFromPadding = headerRect.X + Math.Max(0, HeaderLeftPadding);

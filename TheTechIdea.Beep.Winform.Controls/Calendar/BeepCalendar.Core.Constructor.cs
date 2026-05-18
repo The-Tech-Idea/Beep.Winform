@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             ShowAllBorders = true;
             TabStop = true;
-            GridLeftGutter = CalendarLayoutMetrics.TimeColumnWidth / 5;
+            GridLeftGutter = 0;
 
             try
             {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             foreach (var evt in monthEvents)
             {
-                var eventRect = new Rectangle(grid.X + padding, yPos, grid.Width - (padding * 2), rowHeight);
+                var eventRect = new Rectangle(grid.X + padding, yPos, Math.Max(1, grid.Width - (padding * 2)), rowHeight);
                 if (eventRect.Contains(location))
                 {
                     var resizeEdge = ResolveResizeEdge(location, eventRect);

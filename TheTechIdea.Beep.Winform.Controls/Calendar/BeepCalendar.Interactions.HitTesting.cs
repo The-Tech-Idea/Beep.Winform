@@ -15,8 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     return ResolveWeekInteraction(location);
                 case CalendarViewMode.Day:
                     return ResolveDayInteraction(location);
-                case CalendarViewMode.List:
                 case CalendarViewMode.Agenda:
+                    return ResolveAgendaInteraction(location);
+                case CalendarViewMode.Timeline:
+                    return ResolveTimelineInteraction(location);
+                case CalendarViewMode.List:
                     return ResolveListInteraction(location);
                 default:
                     return new CalendarInteractionHitTestResult

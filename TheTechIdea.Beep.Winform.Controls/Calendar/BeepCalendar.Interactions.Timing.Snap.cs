@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -7,15 +8,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     {
         private TimeSpan CalculateTimedDelta(Point delta)
         {
+            if (_state.ViewMode == CalendarViewMode.Timeline)
+            {
+                var timelineGrid = _rects.CalendarGridRect;
+                int laneHeaderWidth = Math.Min(ScaleMetric(140), Math.Max(ScaleMetric(80), timelineGrid.Width / 3));
+                int contentWidth = Math.Max(1, timelineGrid.Width - laneHeaderWidth);
+                double dayWidth = contentWidth / 7d;
+                int dayDelta = (int)Math.Round(delta.X / dayWidth, MidpointRounding.AwayFromZero);
+                return TimeSpan.FromDays(dayDelta);
+            }
+
             var grid = _rects.CalendarGridRect;
             int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
-            int slotHeight = Math.Max(1, ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight));
-            if (grid.Height <= 0)
+            int timeColumnWidth = ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth);
+            var timedArea = CalendarLayoutGeometry.GetTimedArea(grid, timeColumnWidth, dayHeaderHeight);
+            if (timedArea.Height <= 0)
             {
                 return TimeSpan.Zero;
             }
 
-            double minutesPerPixel = 60d / slotHeight;
+            double minutesPerPixel = CalendarLayoutGeometry.MinutesPerDay / (double)timedArea.Height;
             int minuteDelta = SnapMinutes((int)Math.Round(delta.Y * minutesPerPixel, MidpointRounding.AwayFromZero));
             return TimeSpan.FromMinutes(minuteDelta);
         }
@@ -44,6 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             switch (_state.ViewMode)
             {
                 case CalendarViewMode.Week:
+                case CalendarViewMode.WorkWeek:
                     return GetTimedViewDateFromLocation(location)?.AddHours(0) ?? baseDate.AddHours(9);
                 case CalendarViewMode.Day:
                     return GetTimedViewDateFromLocation(location)?.AddHours(0) ?? baseDate.AddHours(9);

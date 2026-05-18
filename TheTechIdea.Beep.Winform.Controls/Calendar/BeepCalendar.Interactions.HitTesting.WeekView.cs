@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -10,8 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             var grid = _rects.CalendarGridRect;
             int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
             int timeColumnWidth = ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth);
-            int cellWidth = Math.Max(1, (grid.Width - timeColumnWidth) / 7);
-            int slotHeight = Math.Max(ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight), (grid.Height - dayHeaderHeight) / 24);
+            int dayCount = _state.ViewMode == CalendarViewMode.WorkWeek ? 5 : 7;
+            var timedArea = CalendarLayoutGeometry.GetTimedArea(grid, timeColumnWidth, dayHeaderHeight);
             if (location.X < grid.X + timeColumnWidth || location.Y < grid.Y + dayHeaderHeight)
             {
                 return new CalendarInteractionHitTestResult
@@ -23,9 +24,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 };
             }
 
-            int col = (location.X - grid.X - timeColumnWidth) / cellWidth;
-            int hour = (location.Y - grid.Y - dayHeaderHeight) / slotHeight;
-            if (col < 0 || col >= 7 || hour < 0 || hour >= 24)
+            int col = CalendarLayoutGeometry.GetColumnIndex(timedArea, location.X, dayCount);
+            if (col < 0 || col >= dayCount)
             {
                 return new CalendarInteractionHitTestResult
                 {
@@ -37,17 +37,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
 
             var startOfWeek = _state.CurrentDate.Date.AddDays(-(int)_state.CurrentDate.DayOfWeek);
+            if (_state.ViewMode == CalendarViewMode.WorkWeek)
+            {
+                int dayOfWeek = (int)_state.CurrentDate.DayOfWeek;
+                int mondayOffset = dayOfWeek == 0 ? 6 : dayOfWeek - 1;
+                startOfWeek = _state.CurrentDate.Date.AddDays(-mondayOffset);
+            }
+
             var dayDate = startOfWeek.AddDays(col).Date;
             var events = _eventService?.GetEventsForDate(dayDate) ?? new List<CalendarEvent>();
-            var targetEvent = ResolveEventInTimedView(location, events, grid, dayHeaderHeight, timeColumnWidth, cellWidth, slotHeight, dayDate);
+            var dayColumn = CalendarLayoutGeometry.GetColumnRect(timedArea, col, dayCount);
+            var eventHit = ResolveTimedEventHit(location, events, dayColumn, dayDate);
+            var targetEvent = eventHit.Event;
 
             return new CalendarInteractionHitTestResult
             {
                 TargetKind = targetEvent != null ? CalendarInteractionTargetKind.EventBlock : CalendarInteractionTargetKind.DateCell,
-                RequestedMode = targetEvent != null ? CalendarInteractionMode.SelectEvent : CalendarInteractionMode.CreateEvent,
+                RequestedMode = targetEvent != null
+                    ? eventHit.ResizeEdge == CalendarEventResizeEdge.Start
+                        ? CalendarInteractionMode.ResizeStart
+                        : eventHit.ResizeEdge == CalendarEventResizeEdge.End
+                            ? CalendarInteractionMode.ResizeEnd
+                            : CalendarInteractionMode.SelectEvent
+                    : CalendarInteractionMode.CreateEvent,
+                ResizeEdge = eventHit.ResizeEdge,
                 Location = location,
                 Date = dayDate,
-                Event = targetEvent
+                Event = targetEvent,
+                Bounds = eventHit.Bounds
             };
         }
     }

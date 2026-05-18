@@ -15,15 +15,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var firstDayOfMonth = new DateTime(ctx.State.CurrentDate.Year, ctx.State.CurrentDate.Month, 1);
             var firstDayOfCalendar = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
-
-            int cellWidth = grid.Width / 7;
-            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
+            var headerBand = new Rectangle(grid.X, grid.Y, grid.Width, Math.Min(dayHeaderHeight, grid.Height));
+            var monthBody = new Rectangle(grid.X, headerBand.Bottom, grid.Width, Math.Max(0, grid.Bottom - headerBand.Bottom));
 
             // Day headers
             string[] dayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
             for (int i = 0; i < 7; i++)
             {
-                var headerRect = new Rectangle(grid.X + i * cellWidth, grid.Y, cellWidth, dayHeaderHeight);
+                var headerRect = CalendarLayoutGeometry.GetColumnRect(headerBand, i, 7);
                 using (var brush = new SolidBrush(ctx.Theme?.CalendarBackColor ?? ctx.Owner.BackColor))
                     g.FillRectangle(brush, headerRect);
                 using (var brush = new SolidBrush(ctx.Theme?.CalendarDaysHeaderForColor ?? ctx.Owner.ForeColor))
@@ -36,7 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 for (int day = 0; day < 7; day++)
                 {
                     var cellDate = firstDayOfCalendar.AddDays(week * 7 + day);
-                    var cellRect = new Rectangle(grid.X + day * cellWidth, grid.Y + dayHeaderHeight + week * cellHeight, cellWidth, cellHeight);
+                    var rowRect = CalendarLayoutGeometry.GetRowRect(monthBody, week, 6);
+                    var cellRect = CalendarLayoutGeometry.GetColumnRect(rowRect, day, 7);
                     DrawMonthCell(g, ctx, cellDate, cellRect);
                 }
             }
@@ -48,11 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
             if (location.X < grid.X || location.Y < grid.Y + dayHeaderHeight) return;
 
-            int cellWidth = grid.Width / 7;
-            int cellHeight = (grid.Height - dayHeaderHeight) / 6;
+            var monthBody = new Rectangle(grid.X, grid.Y + dayHeaderHeight, grid.Width, Math.Max(0, grid.Height - dayHeaderHeight));
 
-            int col = (location.X - grid.X) / cellWidth;
-            int row = (location.Y - grid.Y - dayHeaderHeight) / cellHeight;
+            int col = CalendarLayoutGeometry.GetColumnIndex(monthBody, location.X, 7);
+            int row = CalendarLayoutGeometry.GetRowIndex(monthBody, location.Y, 6);
             if (col < 0 || col >= 7 || row < 0 || row >= 6) return;
 
             var firstDayOfMonth = new DateTime(ctx.State.CurrentDate.Year, ctx.State.CurrentDate.Month, 1);
@@ -65,10 +64,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var dayEvents = ctx.EventService.GetEventsForDate(clickedDate);
             if (dayEvents.Any())
             {
+                var rowRect = CalendarLayoutGeometry.GetRowRect(monthBody, row, 6);
+                var cellRect = CalendarLayoutGeometry.GetColumnRect(rowRect, col, 7);
                 int eventY = CommonDrawing.ScaleMetric(25, ctx.DensityScale);
-                int eventHeight = Math.Min(CalendarLayoutMetrics.MinEventHitHeight, Math.Max(16, cellHeight / 4));
+                int eventHeight = Math.Min(CalendarLayoutMetrics.MinEventHitHeight, Math.Max(16, cellRect.Height / 4));
                 int eventSpacing = CommonDrawing.ScaleMetric(2, ctx.DensityScale);
-                int relativeY = location.Y - (grid.Y + dayHeaderHeight + row * cellHeight);
+                int relativeY = location.Y - cellRect.Y;
                 foreach (var evt in dayEvents.Take(3))
                 {
                     if (relativeY >= eventY && relativeY <= eventY + eventHeight)
@@ -133,12 +134,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             {
                 var rect = new Rectangle(cellRect.X + 2, eventY, cellRect.Width - 4, eventHeight);
                 var color = CommonDrawing.GetCategoryColor(ctx, evt);
+                bool isHovered = ctx.HoveredEventId == evt.Id;
                 using (var brush = new SolidBrush(color))
                 using (var path = CommonDrawing.RoundedRect(rect, 3))
                     g.FillPath(brush, path);
 
+                if (isHovered)
+                {
+                    using (var pen = new Pen(CommonDrawing.GetContrastingTextColor(color), 1.5f))
+                    using (var path = CommonDrawing.RoundedRect(rect, 3))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+
                 // Use luminance-aware text color for event labels
-                Color eventText = GetContrastingTextColor(color);
+                Color eventText = CommonDrawing.GetContrastingTextColor(color);
                 using (var brush = new SolidBrush(eventText))
                     g.DrawString(evt.Title, ctx.EventFont, brush, rect, new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
                 eventY += eventHeight + eventSpacing;
@@ -151,10 +162,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             }
         }
 
-        private static Color GetContrastingTextColor(Color background)
-        {
-            double luminance = (0.299 * background.R + 0.587 * background.G + 0.114 * background.B) / 255.0;
-            return luminance > 0.5 ? Color.FromArgb(220, 220, 220) : Color.White;
-        }
     }
 }

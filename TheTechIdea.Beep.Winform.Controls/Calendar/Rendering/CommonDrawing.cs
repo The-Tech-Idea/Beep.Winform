@@ -54,8 +54,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
         public static GraphicsPath RoundedRect(Rectangle rect, int radius)
         {
+            radius = Math.Max(0, Math.Min(radius, Math.Min(rect.Width, rect.Height) / 2));
             int d = radius * 2;
             GraphicsPath path = new GraphicsPath();
+            if (radius == 0 || rect.Width <= 1 || rect.Height <= 1)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
             path.AddArc(rect.X, rect.Y, d, d, 180, 90);
             path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
             path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
@@ -82,6 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             CalendarEvent evt,
             Rectangle rect,
             bool isSelected = false,
+            bool isHovered = false,
             bool includeDescription = false,
             bool includeActions = false)
         {
@@ -91,8 +99,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var foreColor = ctx.Theme?.CalendarForeColor ?? Color.Black;
             var subtleTextColor = ctx.Theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(120, foreColor);
 
-            var effectiveBackColor = isSelected ? Blend(cardBackColor, categoryColor, 0.20f) : cardBackColor;
-            var effectiveBorderColor = isSelected ? categoryColor : cardBorderColor;
+            var effectiveBackColor = isSelected
+                ? Blend(cardBackColor, categoryColor, 0.20f)
+                : isHovered
+                    ? Blend(cardBackColor, categoryColor, 0.10f)
+                    : cardBackColor;
+            var effectiveBorderColor = isSelected || isHovered ? categoryColor : cardBorderColor;
             var effectiveRect = new Rectangle(rect.X, rect.Y, rect.Width, Math.Max(CalendarLayoutMetrics.MinEventHitHeight, rect.Height));
 
             using (var path = RoundedRect(effectiveRect, CalendarLayoutMetrics.EventCornerRadius))
@@ -101,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 g.FillPath(backBrush, path);
             }
 
-            using (var borderPen = new Pen(effectiveBorderColor, isSelected ? 2f : 1f))
+            using (var borderPen = new Pen(effectiveBorderColor, isSelected ? 2f : isHovered ? 1.5f : 1f))
             using (var path = RoundedRect(effectiveRect, CalendarLayoutMetrics.EventCornerRadius))
             {
                 g.DrawPath(borderPen, path);
@@ -172,6 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             CalendarEvent evt,
             Rectangle rect,
             bool isSelected = false,
+            bool isHovered = false,
             bool includeDescription = false,
             bool includeActions = false)
         {
@@ -181,8 +194,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var foreColor = ctx.ForegroundColor;
             var subtleTextColor = Color.FromArgb(120, foreColor);
 
-            var effectiveBackColor = isSelected ? Blend(cardBackColor, categoryColor, 0.20f) : cardBackColor;
-            var effectiveBorderColor = isSelected ? categoryColor : cardBorderColor;
+            var effectiveBackColor = isSelected
+                ? Blend(cardBackColor, categoryColor, 0.20f)
+                : isHovered
+                    ? Blend(cardBackColor, categoryColor, 0.10f)
+                    : cardBackColor;
+            var effectiveBorderColor = isSelected || isHovered ? categoryColor : cardBorderColor;
             var effectiveRect = new Rectangle(rect.X, rect.Y, rect.Width, Math.Max(CalendarLayoutMetrics.MinEventHitHeight, rect.Height));
 
             using (var path = RoundedRect(effectiveRect, CalendarLayoutMetrics.EventCornerRadius))
@@ -191,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 g.FillPath(backBrush, path);
             }
 
-            using (var borderPen = new Pen(effectiveBorderColor, isSelected ? 2f : 1f))
+            using (var borderPen = new Pen(effectiveBorderColor, isSelected ? 2f : isHovered ? 1.5f : 1f))
             using (var path = RoundedRect(effectiveRect, CalendarLayoutMetrics.EventCornerRadius))
             {
                 g.DrawPath(borderPen, path);
@@ -286,12 +303,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             }
 
             int cellSize = Math.Min(22, Math.Max(14, (bounds.Width - 16) / 7));
+            int calendarX = bounds.X + Math.Max(8, (bounds.Width - (cellSize * 7)) / 2);
             int startY = bounds.Y + 46;
             string[] days = { "S", "M", "T", "W", "T", "F", "S" };
 
             for (int i = 0; i < 7; i++)
             {
-                var dayRect = new Rectangle(bounds.X + 8 + i * cellSize, startY, cellSize, 14);
+                var dayRect = new Rectangle(calendarX + i * cellSize, startY, cellSize, 14);
                 using (var dayBrush = new SolidBrush(ctx.Theme?.CalendarDaysHeaderForColor ?? Color.Gray))
                 {
                     g.DrawString(days[i], ctx.EventFont, dayBrush, dayRect, new StringFormat
@@ -312,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 for (int day = 0; day < 7; day++)
                 {
                     var cellDate = firstCalendarDay.AddDays(week * 7 + day);
-                    var cellRect = new Rectangle(bounds.X + 8 + day * cellSize, startY + 16 + week * cellSize, cellSize, cellSize);
+                    var cellRect = new Rectangle(calendarX + day * cellSize, startY + 16 + week * cellSize, cellSize, cellSize);
                     bool isSelected = cellDate.Date == selectedDate.Date;
                     bool isToday = cellDate.Date == DateTime.Today;
                     bool isCurrentMonth = cellDate.Month == displayMonth.Month;
@@ -380,12 +398,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             }
 
             int cellSize = Math.Min(22, Math.Max(14, (bounds.Width - 16) / 7));
+            int calendarX = bounds.X + Math.Max(8, (bounds.Width - (cellSize * 7)) / 2);
             int startY = bounds.Y + 46;
             string[] days = { "S", "M", "T", "W", "T", "F", "S" };
 
             for (int i = 0; i < 7; i++)
             {
-                var dayRect = new Rectangle(bounds.X + 8 + i * cellSize, startY, cellSize, 14);
+                var dayRect = new Rectangle(calendarX + i * cellSize, startY, cellSize, 14);
                 using (var dayBrush = new SolidBrush(Color.FromArgb(150, ctx.ForegroundColor)))
                 {
                     g.DrawString(days[i], ctx.EventFont, dayBrush, dayRect, new StringFormat
@@ -405,7 +424,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                 for (int day = 0; day < 7; day++)
                 {
                     var cellDate = firstCalendarDay.AddDays(week * 7 + day);
-                    var cellRect = new Rectangle(bounds.X + 8 + day * cellSize, startY + 16 + week * cellSize, cellSize, cellSize);
+                    var cellRect = new Rectangle(calendarX + day * cellSize, startY + 16 + week * cellSize, cellSize, cellSize);
                     bool isSelected = cellDate.Date == selectedDate.Date;
                     bool isToday = cellDate.Date == DateTime.Today;
                     bool isCurrentMonth = cellDate.Month == displayMonth.Month;
@@ -627,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
         public static Color GetContrastingTextColor(Color background)
         {
             double luminance = (0.299 * background.R + 0.587 * background.G + 0.114 * background.B) / 255.0;
-            return luminance > 0.5 ? Color.FromArgb(220, 220, 220) : Color.White;
+            return luminance > 0.58 ? Color.FromArgb(32, 33, 36) : Color.White;
         }
 
         private static Color Blend(Color a, Color b, float amount)

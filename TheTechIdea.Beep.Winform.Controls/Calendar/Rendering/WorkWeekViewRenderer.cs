@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             var startOfWorkWeek = GetStartOfWorkWeek(ctx.State.CurrentDate);
             int timeColumnWidth = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth, ctx.DensityScale);
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
-            int cellWidth = Math.Max(1, (grid.Width - timeColumnWidth) / 5);
+            var headerBand = new Rectangle(grid.X + timeColumnWidth, grid.Y, Math.Max(0, grid.Width - timeColumnWidth), Math.Min(dayHeaderHeight, grid.Height));
             var headerBackColor = ctx.Theme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250);
             var headerForeColor = ctx.Theme?.CalendarForeColor ?? Color.Black;
             var primaryColor = ctx.Theme?.PrimaryColor ?? Color.FromArgb(66, 133, 244);
@@ -22,11 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             for (int day = 0; day < 5; day++)
             {
                 var dayDate = startOfWorkWeek.AddDays(day);
-                var headerRect = new Rectangle(
-                    grid.X + timeColumnWidth + day * cellWidth,
-                    grid.Y,
-                    cellWidth,
-                    dayHeaderHeight);
+                var headerRect = CalendarLayoutGeometry.GetColumnRect(headerBand, day, 5);
                 bool isToday = dayDate.Date == DateTime.Today;
                 using (var brush = new SolidBrush(isToday ? primaryColor : headerBackColor))
                     g.FillRectangle(brush, headerRect);
@@ -34,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
                     g.DrawString($"{dayDate:ddd}\n{dayDate:dd}", ctx.DayFont, brush, headerRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
 
-            DrawTimeSlots(g, ctx, startOfWorkWeek, cellWidth);
+            DrawTimeSlots(g, ctx, startOfWorkWeek);
         }
 
         public void HandleClick(Point location, CalendarRenderContext ctx)
@@ -44,18 +40,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
             if (location.X <= grid.X + timeColumnWidth || location.Y <= grid.Y + dayHeaderHeight) return;
 
-            int slotHeight = Math.Max(
-                CommonDrawing.ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight, ctx.DensityScale),
-                (grid.Height - dayHeaderHeight) / 24);
-            int hour = (location.Y - grid.Y - dayHeaderHeight) / slotHeight;
-
             var startOfWorkWeek = GetStartOfWorkWeek(ctx.State.CurrentDate);
-            int cellWidth = Math.Max(1, (grid.Width - timeColumnWidth) / 5);
-            int day = Math.Max(0, Math.Min(4, (location.X - grid.X - timeColumnWidth) / cellWidth));
-            ctx.State.SelectedDate = startOfWorkWeek.AddDays(day).AddHours(hour);
+            var timedArea = CalendarLayoutGeometry.GetTimedArea(grid, timeColumnWidth, dayHeaderHeight);
+            int day = CalendarLayoutGeometry.GetColumnIndex(timedArea, location.X, 5);
+            int minutes = CalendarLayoutGeometry.GetMinuteFromY(timedArea, location.Y);
+            if (day < 0)
+            {
+                return;
+            }
+
+            ctx.State.SelectedDate = startOfWorkWeek.AddDays(day).AddMinutes(minutes);
         }
 
-        private void DrawTimeSlots(Graphics g, CalendarRenderContext ctx, DateTime startOfWorkWeek, int cellWidth)
+        private void DrawTimeSlots(Graphics g, CalendarRenderContext ctx, DateTime startOfWorkWeek)
         {
             var grid = ctx.Rects.CalendarGridRect;
             int timeSlotCount = 24;
@@ -63,9 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int dayHeaderHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight, ctx.DensityScale);
             int eventInsetX = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetX, ctx.DensityScale);
             int eventInsetY = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.EventInsetY, ctx.DensityScale);
-            int slotHeight = Math.Max(
-                CommonDrawing.ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight, ctx.DensityScale),
-                (grid.Height - dayHeaderHeight) / timeSlotCount);
+            int minEventHeight = CommonDrawing.ScaleMetric(CalendarLayoutMetrics.MinEventHitHeight, ctx.DensityScale);
+            var timedArea = CalendarLayoutGeometry.GetTimedArea(grid, timeColumnWidth, dayHeaderHeight);
             var timeLabelColor = ctx.Theme?.CalendarDaysHeaderForColor ?? Color.Gray;
             var gridLineColor = ctx.Theme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224);
             var dayEvents = Enumerable.Range(0, 5)
@@ -74,29 +70,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
 
             for (int hour = 0; hour < timeSlotCount; hour++)
             {
-                int yPos = grid.Y + dayHeaderHeight + hour * slotHeight;
-                var timeRect = new Rectangle(grid.X, yPos, timeColumnWidth, slotHeight);
+                var rowRect = CalendarLayoutGeometry.GetRowRect(timedArea, hour, timeSlotCount);
+                var timeRect = new Rectangle(grid.X, rowRect.Y, timeColumnWidth, rowRect.Height);
                 using (var brush = new SolidBrush(timeLabelColor))
                     g.DrawString($"{hour:00}:00", ctx.TimeFont, brush, timeRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
 
                 using (var pen = new Pen(gridLineColor))
-                    g.DrawLine(pen, grid.X + timeColumnWidth, yPos, grid.Right, yPos);
+                    g.DrawLine(pen, grid.X + timeColumnWidth, rowRect.Y, grid.Right, rowRect.Y);
 
                 for (int day = 0; day < 5; day++)
                 {
-                    var dayDate = startOfWorkWeek.AddDays(day).Date;
-                    foreach (var evt in dayEvents[dayDate].Where(e => e.StartTime.Hour == hour))
-                    {
-                        var eventRect = new Rectangle(
-                            grid.X + timeColumnWidth + day * cellWidth + eventInsetX,
-                            yPos + eventInsetY,
-                            Math.Max(20, cellWidth - (eventInsetX * 2)),
-                            Math.Max(
-                                CalendarLayoutMetrics.MinEventHitHeight,
-                                (int)(evt.Duration.TotalHours * slotHeight) - (eventInsetY * 2)));
-                        bool isSelected = ctx.State.SelectedEvent?.Id == evt.Id;
-                        CommonDrawing.DrawEventCard(g, ctx, evt, eventRect, isSelected);
-                    }
+                    var columnRect = CalendarLayoutGeometry.GetColumnRect(timedArea, day, 5);
+                    using (var pen = new Pen(gridLineColor))
+                        g.DrawLine(pen, columnRect.Left, timedArea.Top, columnRect.Left, timedArea.Bottom);
+                }
+            }
+
+            using (var pen = new Pen(gridLineColor))
+                g.DrawLine(pen, grid.X + timeColumnWidth, timedArea.Bottom - 1, grid.Right, timedArea.Bottom - 1);
+
+            for (int day = 0; day < 5; day++)
+            {
+                var dayDate = startOfWorkWeek.AddDays(day).Date;
+                var dayColumn = CalendarLayoutGeometry.GetColumnRect(timedArea, day, 5);
+                foreach (var evt in dayEvents[dayDate].OrderBy(e => e.StartTime))
+                {
+                    var eventRect = CalendarLayoutGeometry.GetTimedEventRect(dayColumn, evt, dayDate, eventInsetX, eventInsetY, minEventHeight);
+                    bool isSelected = ctx.State.SelectedEvent?.Id == evt.Id;
+                    bool isHovered = ctx.HoveredEventId == evt.Id;
+                    CommonDrawing.DrawEventCard(g, ctx, evt, eventRect, isSelected, isHovered);
                 }
             }
         }

@@ -637,9 +637,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private BeepDocumentPanel? AddDesignTimeDocumentInternal(BeepDocumentHost host, Collection<DocumentDescriptor> docs, bool activate, bool selectSurface)
         {
             DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
+            BeepDocumentPanel? panel = CreateRegisteredDesignPanel(host, descriptor, activate);
             docs.Add(descriptor);
 
-            BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(host, descriptor, activate);
             if (selectSurface)
             {
                 SyncDesignerSelection((object?)panel ?? host);
@@ -657,9 +657,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             DocumentDescriptor descriptor = CreateNextDesignTimeDocumentDescriptor(host, docs);
+            BeepDocumentPanel? panel = CreateRegisteredDesignPanel(host, descriptor, activate: true);
             docs.Add(descriptor);
-
-            BeepDocumentPanel? panel = EnsureDesignTimeDocumentOpen(host, descriptor, activate: true);
             if (panel == null)
             {
                 return null;
@@ -682,6 +681,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             return panel;
+        }
+
+        private BeepDocumentPanel? CreateRegisteredDesignPanel(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)
+        {
+            if (host.GetPanel(descriptor.Id) is BeepDocumentPanel existing)
+            {
+                if (activate)
+                {
+                    host.SetActiveDocument(descriptor.Id);
+                }
+
+                return existing;
+            }
+
+            BeepDocumentPanel? panel = CreateDesignerComponentPanel(descriptor);
+            if (panel != null)
+            {
+                panel.DocumentId = descriptor.Id;
+                panel.DocumentTitle = descriptor.Title;
+                panel.IconPath = descriptor.IconPath;
+                panel.CanClose = descriptor.CanClose;
+                panel.IsModified = descriptor.IsModified;
+                host.RegisterDocumentPanel(panel, activate);
+                return panel;
+            }
+
+            return host.AddDocument(descriptor.Id, descriptor.Title, descriptor.IconPath, activate);
+        }
+
+        private BeepDocumentPanel? CreateDesignerComponentPanel(DocumentDescriptor descriptor)
+        {
+            IDesignerHost? designerHost = GetDesignerHost();
+            if (designerHost == null)
+            {
+                return null;
+            }
+
+            string baseName = BuildPanelComponentName(descriptor.Id);
+            for (int suffix = 0; suffix < 32; suffix++)
+            {
+                string name = suffix == 0 ? baseName : baseName + "_" + (suffix + 1);
+                try
+                {
+                    return designerHost.CreateComponent(typeof(BeepDocumentPanel), name) as BeepDocumentPanel;
+                }
+                catch (ArgumentException)
+                {
+                    continue;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            return null;
         }
 
         private BeepDocumentPanel? EnsureDesignTimeDocumentOpen(BeepDocumentHost host, DocumentDescriptor descriptor, bool activate)

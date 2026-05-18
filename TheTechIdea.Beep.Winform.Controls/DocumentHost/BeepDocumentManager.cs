@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -118,6 +119,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Phase 06 D1 — form-level shortcut forwarding
         private Form?                     _parentForm;
         private bool                      _hostHandleHooked;
+        private bool                      _applyingDesignTimeDocuments;
+        private int                       _designTimeDocumentUpdateDepth;
 
         // Attached-property data (IExtenderProvider) — ConditionalWeakTable so
         // entries are collected when the extended Control is GC'd.
@@ -125,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly HashSet<Control>                                _extendedControls = new();
 
         // Design-time document seed collection.
-        private readonly Collection<DocumentDescriptor> _designTimeDocuments = new();
+        private readonly DesignTimeDocumentCollection _designTimeDocuments;
 
         // User-registered document-type factories (Phase 07).
         private readonly Dictionary<string, Func<DocumentDescriptor, Control>> _templates =
@@ -133,10 +136,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         // ── Constructors ──────────────────────────────────────────────────────
 
-        public BeepDocumentManager() { }
+        public BeepDocumentManager()
+        {
+            _designTimeDocuments = new DesignTimeDocumentCollection(OnDesignTimeDocumentsChanged);
+        }
 
         /// <summary>Designer-friendly overload that adds this component to a container.</summary>
-        public BeepDocumentManager(IContainer container) { container?.Add(this); }
+        public BeepDocumentManager(IContainer container) : this() { container?.Add(this); }
 
         // ══════════════════════════════════════════════════════════════════════
         // IExtenderProvider
@@ -314,7 +320,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public string WindowMenuText
         {
             get => _windowMenuText;
-            set => _windowMenuText = string.IsNullOrEmpty(value) ? "&Window" : value;
+            set
+            {
+                string nextText = string.IsNullOrEmpty(value) ? "&Window" : value;
+                if (string.Equals(_windowMenuText, nextText, StringComparison.Ordinal))
+                    return;
+
+                string previousText = _windowMenuText;
+                _windowMenuText = nextText;
+
+                if (!_inInit)
+                    ApplyWindowMenu(previousText);
+            }
         }
 
         /// <summary>
@@ -661,26 +678,43 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             // Notify the view it now belongs to this manager
             _view.Attach(this);
 
-            // Push scalar settings
-            if (!string.IsNullOrEmpty(_themeName))   _view.PushTheme(_themeName);
+            ApplyCurrentViewConfiguration();
+        }
+
+        internal void OnAttachedViewHostChanging(IBeepDocumentManagerView view)
+        {
+            if (!ReferenceEquals(_view, view))
+                return;
+
+            var oldHost = GetTabbedHost();
+            try { oldHost?.ConfigureCloudSync(null); } catch { }
+            if (oldHost != null && IsDesignTimeComponent)
+                RemoveDesignTimeDocumentsFromHost(oldHost);
+            UnwireWorkspaceHost();
+            UnhookOwnerForm();
+        }
+
+        internal void OnAttachedViewHostChanged(IBeepDocumentManagerView view)
+        {
+            if (!ReferenceEquals(_view, view) || _view == null || _inInit)
+                return;
+
+            ApplyCurrentViewConfiguration();
+        }
+
+        private void ApplyCurrentViewConfiguration()
+        {
+            if (_view == null) return;
+
+            if (!string.IsNullOrEmpty(_themeName))
+                _view.PushTheme(_themeName);
             _view.PushPersistence(_autoSaveLayout, ExpandSessionPath(_sessionFile));
             _view.PushPolicy(_defaultPolicy);
             ApplyCloudSyncSettings();
-
-            // Wire the Window menu
-            if (_windowMenuOwner != null)
-                _view.AttachWindowMenu(_windowMenuOwner, _windowMenuText);
-
-            // Auto-add controls that were extended in InitializeComponent
+            ApplyWindowMenu();
             AutoAddExtendedControls();
-
-            // Open any design-time-seeded documents
             ApplyDesignTimeDocuments();
-
-            // Keep status-strip host bindings aligned when the view changes.
             RefreshStatusStripState();
-
-            // Phase 06 D1 — wire form-level shortcut forwarding
             HookOwnerForm();
         }
 
@@ -695,6 +729,60 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             try { _view.Detach(); } catch { }
             UnwireWorkspaceHost();
             UnhookOwnerForm();
+        }
+
+        private void ApplyWindowMenu(string? previousText = null)
+        {
+            if (_view == null || _windowMenuOwner == null)
+                return;
+
+            RenameWindowMenuItem(_windowMenuOwner, previousText, _windowMenuText);
+            _view.AttachWindowMenu(_windowMenuOwner, _windowMenuText);
+        }
+
+        private static void RenameWindowMenuItem(
+            MenuStrip menuStrip,
+            string? previousText,
+            string currentText)
+        {
+            if (menuStrip == null ||
+                string.IsNullOrEmpty(previousText) ||
+                string.Equals(previousText, currentText, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            ToolStripMenuItem? previousItem = null;
+            ToolStripMenuItem? currentItem = null;
+            foreach (ToolStripItem item in menuStrip.Items)
+            {
+                if (item is not ToolStripMenuItem menuItem)
+                    continue;
+
+                if (previousItem == null &&
+                    string.Equals(menuItem.Text, previousText, StringComparison.OrdinalIgnoreCase))
+                    previousItem = menuItem;
+
+                if (currentItem == null &&
+                    string.Equals(menuItem.Text, currentText, StringComparison.OrdinalIgnoreCase))
+                    currentItem = menuItem;
+            }
+
+            if (previousItem != null && currentItem == null)
+                previousItem.Text = currentText;
+        }
+
+        private void RemoveDesignTimeDocumentsFromHost(BeepDocumentHost host)
+        {
+            var ids = _designTimeDocuments
+                .Where(desc => !string.IsNullOrWhiteSpace(desc.Id))
+                .Select(desc => desc.Id)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            foreach (var id in ids)
+            {
+                try { host.CloseDocument(id); }
+                catch { /* best-effort design-time cleanup */ }
+            }
         }
 
         private void View_DocumentAdded(object? s, DocumentAddedEventArgs e)
@@ -732,17 +820,112 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void ApplyDesignTimeDocuments()
         {
-            if (_view == null || _designTimeDocuments.Count == 0) return;
-            _view.BeginBatchAddDocuments();
+            if (_view == null || _applyingDesignTimeDocuments) return;
+
+            _applyingDesignTimeDocuments = true;
             try
             {
-                foreach (var desc in _designTimeDocuments)
-                    _view.AddDocument(desc);
+                var descriptors = _designTimeDocuments
+                    .Where(desc => !string.IsNullOrWhiteSpace(desc.Id))
+                    .GroupBy(desc => desc.Id, StringComparer.Ordinal)
+                    .Select(group => group.First())
+                    .ToList();
+
+                if (_view is BeepTabbedView tabbed && tabbed.Host is BeepDocumentHost host)
+                {
+                    if (IsDesignTimeComponent)
+                    {
+                        var desiredIds = descriptors
+                            .Select(desc => desc.Id)
+                            .ToHashSet(StringComparer.Ordinal);
+
+                        foreach (var documentId in host.Groups
+                                     .SelectMany(group => group.DocumentIds)
+                                     .Distinct(StringComparer.Ordinal)
+                                     .ToList())
+                        {
+                            if (!desiredIds.Contains(documentId))
+                                host.CloseDocument(documentId);
+                        }
+                    }
+                }
+                else if (IsDesignTimeComponent)
+                {
+                    _view.CloseAllDocuments();
+                }
+
+                if (descriptors.Count == 0) return;
+
+                _view.BeginBatchAddDocuments();
+                try
+                {
+                    foreach (var desc in descriptors)
+                        _view.AddDocument(desc);
+                }
+                finally
+                {
+                    _view.EndBatchAddDocuments();
+                }
             }
             finally
             {
-                _view.EndBatchAddDocuments();
+                _applyingDesignTimeDocuments = false;
             }
+        }
+
+        internal void OnDesignTimeDocumentsChanged()
+        {
+            if (_applyingDesignTimeDocuments || _view == null || _designTimeDocumentUpdateDepth > 0)
+                return;
+
+            if (!IsDesignTimeComponent)
+                return;
+
+            try
+            {
+                ApplyDesignTimeDocuments();
+            }
+            catch
+            {
+                if (!IsDesignTimeComponent)
+                    throw;
+            }
+        }
+
+        private bool IsDesignTimeComponent =>
+            Site?.DesignMode == true || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void RefreshDesignTimeDocuments()
+        {
+            if (_view == null) return;
+
+            try
+            {
+                ApplyDesignTimeDocuments();
+            }
+            catch
+            {
+                if (!IsDesignTimeComponent)
+                    throw;
+            }
+        }
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void BeginDesignTimeDocumentUpdate()
+            => _designTimeDocumentUpdateDepth++;
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void EndDesignTimeDocumentUpdate(bool applyChanges)
+        {
+            if (_designTimeDocumentUpdateDepth > 0)
+                _designTimeDocumentUpdateDepth--;
+
+            if (_designTimeDocumentUpdateDepth == 0 && applyChanges)
+                OnDesignTimeDocumentsChanged();
         }
 
         private static string ExpandSessionPath(string path)

@@ -38,10 +38,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         // ── Host child-tracking for menu surface wiring ──────────────────────
 
         private void Host_ControlAdded(object? sender, ControlEventArgs e)
-            => HookDesignContextMenuSurface(e.Control);
+        {
+            HookDesignContextMenuSurface(e.Control);
+
+            // Site any BeepDocumentPanel that is added at design time (e.g. by
+            // BeepDocumentManager via the view) so it becomes selectable.
+            if (e.Control is BeepDocumentPanel panel && _wiredHost != null)
+            {
+                IContainer? container = GetNestedContainer() ?? GetDesignerHost()?.Container;
+                if (container != null)
+                {
+                    SiteDesignPanel(container, panel, panel.DocumentId);
+                }
+            }
+        }
 
         private void Host_ControlRemoved(object? sender, ControlEventArgs e)
-            => UnhookDesignContextMenuSurface(e.Control);
+        {
+            UnhookDesignContextMenuSurface(e.Control);
+
+            // Unsite the panel when it is removed from the host so the designer
+            // container does not hold a stale reference.
+            if (e.Control is BeepDocumentPanel panel)
+            {
+                _sitedPanels.Remove(panel);
+                try
+                {
+                    if (panel.Site?.Container is IContainer container)
+                        container.Remove(panel);
+                }
+                catch { /* designer may already be tearing down */ }
+            }
+        }
 
         private void WireDesignContextMenuSurfaces(BeepDocumentHost host)
         {

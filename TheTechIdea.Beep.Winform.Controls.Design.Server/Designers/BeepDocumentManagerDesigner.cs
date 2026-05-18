@@ -125,6 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void OnAddDocument(object? sender, EventArgs e)
         {
             if (_manager?.View == null) return;
+            HideSmartTag();
 
             var title      = $"Document {Environment.TickCount & 0xFFFF}";
             var descriptor = new DocumentDescriptor
@@ -137,7 +138,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             MutateDesignTimeDocuments("Add Document", docs =>
             {
                 docs.Add(descriptor);
-                _manager.View?.AddDocument(descriptor);
             });
         }
 
@@ -155,12 +155,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             MutateDesignTimeDocuments("Clear All Documents", docs =>
             {
                 docs.Clear();
-                _manager.CloseAllDocuments();
             });
         }
 
         private void OnResetLayout(object? sender, EventArgs e)
         {
+            HideSmartTag();
             // ResetLayout only clears the runtime view; DesignTimeDocuments is
             // untouched, so this is a runtime-only operation that does not
             // participate in the serializable undo graph. We still create a
@@ -200,13 +200,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 txn = DesignerHost?.CreateTransaction(transactionName);
                 changeSvc?.OnComponentChanging(_manager, prop);
 
+                _manager.BeginDesignTimeDocumentUpdate();
                 mutate(_manager.DesignTimeDocuments);
+                _manager.EndDesignTimeDocumentUpdate(applyChanges: true);
 
                 changeSvc?.OnComponentChanged(_manager, prop, null, null);
                 txn?.Commit();
             }
             catch
             {
+                try { _manager.EndDesignTimeDocumentUpdate(applyChanges: false); }
+                catch { /* design-time; non-fatal */ }
                 txn?.Cancel();
                 throw;
             }
@@ -332,6 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         internal void OpenDesignTimeDocumentsEditor()
         {
             if (_manager == null) return;
+            HideSmartTag();
 
             var prop = TypeDescriptor.GetProperties(_manager)[nameof(BeepDocumentManager.DesignTimeDocuments)];
             if (prop == null) return;
@@ -346,13 +351,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             var current = prop.GetValue(_manager);
             editor.EditValue(ctx, ctx, current);
 
-            // Re-apply seeded documents to the view (editor modifies the collection in-place)
-            try
-            {
-                _manager.CloseAllDocuments();
-                ApplyDesignTimeDocumentsToView();
-            }
-            catch { /* non-fatal */ }
+            // Re-apply seeded documents to the view (editor modifies the collection in-place).
+            ApplyDesignTimeDocumentsToView();
 
             if (GetService(typeof(DesignerActionUIService)) is DesignerActionUIService svc)
                 svc.Refresh(_manager);
@@ -360,19 +360,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void ApplyDesignTimeDocumentsToView()
         {
-            if (_manager?.View == null) return;
-            var docs = _manager.DesignTimeDocuments;
-            if (docs.Count == 0) return;
-            _manager.View.BeginBatchAddDocuments();
-            try
-            {
-                foreach (var desc in docs)
-                    _manager.View.AddDocument(desc);
-            }
-            finally
-            {
-                _manager.View.EndBatchAddDocuments();
-            }
+            try { _manager?.RefreshDesignTimeDocuments(); }
+            catch { /* non-fatal at design time */ }
         }
 
         // ── Smart-tag action list ─────────────────────────────────────────────
@@ -400,6 +389,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         internal static PropertyDescriptor? GetHostPropertyDescriptor(
             BeepDocumentHost host, string name) =>
             TypeDescriptor.GetProperties(host)[name];
+
+        internal void SetDesignerProperty(object component, string propertyName, object? value, string? transactionName = null)
+        {
+            if (component == null) return;
+
+            PropertyDescriptor? prop = TypeDescriptor.GetProperties(component)[propertyName];
+            if (prop == null || prop.IsReadOnly) return;
+
+            object? oldValue = prop.GetValue(component);
+            if (Equals(oldValue, value)) return;
+
+            IComponentChangeService? changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+            DesignerTransaction? txn = null;
+            try
+            {
+                txn = DesignerHost?.CreateTransaction(transactionName ?? $"Set {propertyName}");
+                changeSvc?.OnComponentChanging(component, prop);
+                prop.SetValue(component, value);
+                changeSvc?.OnComponentChanged(component, prop, oldValue, value);
+                txn?.Commit();
+            }
+            catch
+            {
+                txn?.Cancel();
+                throw;
+            }
+            finally
+            {
+                RefreshPanel();
+            }
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -432,9 +452,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var mgr = Manager;
                 if (mgr == null) return;
-                BeepDocumentManagerDesigner.GetPropertyDescriptor(
-                    nameof(BeepDocumentManager.View))?.SetValue(mgr, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    mgr,
+                    nameof(BeepDocumentManager.View),
+                    value,
+                    "Set Document View");
             }
         }
 
@@ -448,9 +470,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var host = TabbedHost;
                 if (host == null) return;
-                BeepDocumentManagerDesigner.GetHostPropertyDescriptor(
-                    host, nameof(BeepDocumentHost.TabStyle))?.SetValue(host, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    host,
+                    nameof(BeepDocumentHost.TabStyle),
+                    value,
+                    "Set Tab Style");
             }
         }
 
@@ -462,9 +486,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var host = TabbedHost;
                 if (host == null) return;
-                BeepDocumentManagerDesigner.GetHostPropertyDescriptor(
-                    host, nameof(BeepDocumentHost.TabPosition))?.SetValue(host, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    host,
+                    nameof(BeepDocumentHost.TabPosition),
+                    value,
+                    "Set Tab Position");
             }
         }
 
@@ -476,9 +502,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var host = TabbedHost;
                 if (host == null) return;
-                BeepDocumentManagerDesigner.GetHostPropertyDescriptor(
-                    host, nameof(BeepDocumentHost.CloseMode))?.SetValue(host, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    host,
+                    nameof(BeepDocumentHost.CloseMode),
+                    value,
+                    "Set Close Button Mode");
             }
         }
 
@@ -534,13 +562,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             };
             applyFlag(clone, value);
 
-            BeepDocumentManagerDesigner.GetPropertyDescriptor(
-                nameof(BeepDocumentManager.DefaultPolicy))?.SetValue(mgr, clone);
-
-            // The setter on BeepDocumentManager.DefaultPolicy already pushes the
-            // new policy to the active view, so no explicit PushPolicy call is
-            // required here (and skipping it avoids a double-push on undo).
-            RefreshPanel();
+            _designer.SetDesignerProperty(
+                mgr,
+                nameof(BeepDocumentManager.DefaultPolicy),
+                clone,
+                $"Set {flagName}");
         }
 
         // ── Persistence ───────────────────────────────────────────────────────
@@ -553,9 +579,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var mgr = Manager;
                 if (mgr == null) return;
-                BeepDocumentManagerDesigner.GetPropertyDescriptor(
-                    nameof(BeepDocumentManager.AutoSaveLayout))?.SetValue(mgr, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    mgr,
+                    nameof(BeepDocumentManager.AutoSaveLayout),
+                    value,
+                    "Set Auto-Save Layout");
             }
         }
 
@@ -567,9 +595,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var mgr = Manager;
                 if (mgr == null) return;
-                BeepDocumentManagerDesigner.GetPropertyDescriptor(
-                    nameof(BeepDocumentManager.SessionFile))?.SetValue(mgr, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    mgr,
+                    nameof(BeepDocumentManager.SessionFile),
+                    value,
+                    "Set Session File");
             }
         }
 
@@ -581,9 +611,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             {
                 var mgr = Manager;
                 if (mgr == null) return;
-                BeepDocumentManagerDesigner.GetPropertyDescriptor(
-                    nameof(BeepDocumentManager.WindowMenuText))?.SetValue(mgr, value);
-                RefreshPanel();
+                _designer.SetDesignerProperty(
+                    mgr,
+                    nameof(BeepDocumentManager.WindowMenuText),
+                    value,
+                    "Set Window Menu Text");
             }
         }
 
@@ -599,8 +631,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         public void UseTabbedDocuments()   => _designer.ApplyTabbedViewMode(showInfo: true);
         public void UseBrowserTabs()       => _designer.ApplyBrowserTabsMode(showInfo: true);
         public void UseNativeMdi()         => _designer.ApplyNativeMdiViewMode(showInfo: true);
-        public void SaveLayoutNow()        => Manager?.SaveLayout();
-        public void LoadLayoutNow()        => Manager?.LoadLayout();
+        public void SaveLayoutNow()        { _designer.HideSmartTag(); Manager?.SaveLayout(); }
+        public void LoadLayoutNow()        { _designer.HideSmartTag(); Manager?.LoadLayout(); }
 
         // Smart-tag status banner (plain English, first item in the panel).
         [Description("Current configuration of this BeepDocumentManager.")]

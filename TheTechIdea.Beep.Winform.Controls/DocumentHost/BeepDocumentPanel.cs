@@ -11,6 +11,9 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
     [ToolboxItem(false)]
+    [Designer(
+        "TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepDocumentPanelDesigner, " +
+        "TheTechIdea.Beep.Winform.Controls.Design.Server")]
     [Description("Content panel hosting a single document within BeepDocumentHost.")]
     public class BeepDocumentPanel : BaseControl
     {
@@ -72,9 +75,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var c in toDispose) c.Dispose();
         }
 
+        private string _documentId = Guid.NewGuid().ToString();
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public string DocumentId { get; }
+        public string DocumentId
+        {
+            get => _documentId;
+            set => _documentId = value ?? Guid.NewGuid().ToString();
+        }
 
         [Category("Document")]
         [DefaultValue("Document")]
@@ -154,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         public BeepDocumentPanel(string documentId, string title)
         {
-            DocumentId = documentId ?? Guid.NewGuid().ToString();
+            DocumentId = documentId;
             _documentTitle = title ?? "Document";
 
             AutoScroll = true;

@@ -3,6 +3,7 @@
 // All state fields live in BeepDocumentHost.cs (core partial).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.DocumentHost.Tokens;
 
@@ -433,11 +434,161 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         // ─────────────────────────────────────────────────────────────────────
+        // 7.8 — Design-time document activation
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Pushes the <see cref="DesignTimeDocuments"/> collection into the live
+        /// document surface so the designer shows the documents at design time.
+        /// Called automatically from <c>OnHandleCreated</c>; safe to call again manually.
+        /// </summary>
+        public void ApplyDesignTimeDocuments()
+        {
+            if (_applyingDesignTimeDocuments)
+            {
+                return;
+            }
+
+            _applyingDesignTimeDocuments = true;
+            try
+            {
+                RegisterExistingDesignPanels();
+
+                var descriptors = _designTimeDocuments
+                    .Where(desc => !string.IsNullOrWhiteSpace(desc.Id))
+                    .GroupBy(desc => desc.Id, StringComparer.Ordinal)
+                    .Select(group => group.First())
+                    .ToList();
+
+                var desiredIds = new HashSet<string>(
+                    descriptors.Select(desc => desc.Id),
+                    StringComparer.Ordinal);
+
+                if (IsDesignTimeHost)
+                {
+                    foreach (var documentId in _panels.Keys.ToList())
+                    {
+                        if (!desiredIds.Contains(documentId))
+                        {
+                            CloseDocument(documentId);
+                        }
+                    }
+                }
+
+                BeepDocumentPanel? firstPanel = null;
+                foreach (var descriptor in descriptors)
+                {
+                    var panel = GetPanel(descriptor.Id);
+                    if (panel == null)
+                    {
+                        panel = AddDocument(descriptor.Id, descriptor.Title, descriptor.IconPath, activate: false);
+                    }
+
+                    ApplyDescriptorState(descriptor);
+                    EnsureDesignTimePlaceholderContent(panel, descriptor);
+                    firstPanel ??= panel;
+                }
+
+                if (_activeDocumentId == null && firstPanel != null)
+                {
+                    SetActiveDocument(firstPanel.DocumentId);
+                }
+                else if (_activeDocumentId != null && !_panels.ContainsKey(_activeDocumentId) && firstPanel != null)
+                {
+                    SetActiveDocument(firstPanel.DocumentId);
+                }
+            }
+            finally
+            {
+                _applyingDesignTimeDocuments = false;
+            }
+        }
+
+        internal void OnDesignTimeDocumentsChanged()
+        {
+            if (_applyingDesignTimeDocuments)
+            {
+                return;
+            }
+
+            if (!IsDesignTimeHost && !IsHandleCreated)
+            {
+                return;
+            }
+
+            try
+            {
+                ApplyDesignTimeDocuments();
+            }
+            catch
+            {
+                if (!IsDesignTimeHost)
+                {
+                    throw;
+                }
+            }
+        }
+
+        private void RegisterExistingDesignPanels()
+        {
+            foreach (System.Windows.Forms.Control ctrl in _contentArea.Controls.OfType<BeepDocumentPanel>().ToList())
+            {
+                if (ctrl is not BeepDocumentPanel panel || _panels.ContainsKey(panel.DocumentId))
+                {
+                    continue;
+                }
+
+                _panels[panel.DocumentId] = panel;
+                _docGroupMap[panel.DocumentId] = _primaryGroup.GroupId;
+                if (!_primaryGroup.DocumentIds.Contains(panel.DocumentId))
+                {
+                    _primaryGroup.DocumentIds.Add(panel.DocumentId);
+                }
+
+                _tabStrip.AddTab(panel.DocumentId, panel.DocumentTitle, panel.IconPath, activate: false);
+
+                panel.ModifiedChanged += (s, _) =>
+                    _tabStrip.SetTabModified(panel.DocumentId, panel.IsModified);
+
+                WireMiniToolbarToPanel(panel, panel.DocumentId);
+            }
+        }
+
+        private static void EnsureDesignTimePlaceholderContent(BeepDocumentPanel panel, DocumentDescriptor descriptor)
+        {
+            if (panel.Controls.Count > 0)
+            {
+                return;
+            }
+
+            switch (descriptor.InitialContent)
+            {
+                case DocumentInitialContent.Label:
+                    panel.Controls.Add(new System.Windows.Forms.Label
+                    {
+                        Text      = descriptor.Title,
+                        Dock      = System.Windows.Forms.DockStyle.Fill,
+                        TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                        Font      = new System.Drawing.Font("Segoe UI", 11f)
+                    });
+                    break;
+
+                case DocumentInitialContent.RichTextBox:
+                    panel.Controls.Add(new System.Windows.Forms.RichTextBox
+                    {
+                        Dock = System.Windows.Forms.DockStyle.Fill,
+                        BorderStyle = System.Windows.Forms.BorderStyle.None
+                    });
+                    break;
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
         // 7.3 — Cloud sync settings
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Configuration for cloud sync.  Assign and then call
+        /// Configuration for cloud sync. Assign and then call
         /// <see cref="ConfigureCloudSync"/> to activate.
         /// Defaults to <c>null</c> (sync disabled).
         /// </summary>
@@ -1716,8 +1867,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         // Serialised into InitializeComponent by the designer.
         // ─────────────────────────────────────────────────────────────────────
 
-        private readonly System.Collections.ObjectModel.Collection<DocumentDescriptor>
-            _designTimeDocuments = new System.Collections.ObjectModel.Collection<DocumentDescriptor>();
+        private readonly DesignTimeDocumentCollection _designTimeDocuments;
 
         /// <summary>
         /// Documents to open automatically when the host is first created.
@@ -1756,45 +1906,5 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public void ResetDesignTimeLayoutJson()
             => _designTimeLayoutJson = string.Empty;
 
-        /// <summary>
-        /// Applies any entries in <see cref="DesignTimeDocuments"/> that are not already open.
-        /// Called automatically from <c>OnHandleCreated</c>; safe to call again manually.
-        /// </summary>
-        public void ApplyDesignTimeDocuments()
-        {
-            foreach (var desc in _designTimeDocuments)
-            {
-                if (string.IsNullOrEmpty(desc.Id) || _panels.ContainsKey(desc.Id)) continue;
-
-                var panel = AddDocument(desc.Id, desc.Title, desc.IconPath, activate: false);
-
-                if (desc.IsPinned)    PinDocument(desc.Id, true);
-                if (desc.IsModified)  panel.IsModified = true;
-                if (desc.CanClose == false) panel.CanClose = false;
-
-                // Seed placeholder content based on InitialContent
-                switch (desc.InitialContent)
-                {
-                    case DocumentInitialContent.Label:
-                        var lbl = new System.Windows.Forms.Label
-                        {
-                            Text      = desc.Title,
-                            Dock      = System.Windows.Forms.DockStyle.Fill,
-                            TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
-                            Font      = new System.Drawing.Font("Segoe UI", 11f)
-                        };
-                        panel.Controls.Add(lbl);
-                        break;
-                    case DocumentInitialContent.RichTextBox:
-                        panel.Controls.Add(new System.Windows.Forms.RichTextBox
-                            { Dock = System.Windows.Forms.DockStyle.Fill, BorderStyle = System.Windows.Forms.BorderStyle.None });
-                        break;
-                }
-            }
-
-            // Activate the first document if nothing is active yet
-            if (_activeDocumentId == null && _panels.Count > 0)
-                SetActiveDocument(_panels.Keys.First());
-        }
     }
 }

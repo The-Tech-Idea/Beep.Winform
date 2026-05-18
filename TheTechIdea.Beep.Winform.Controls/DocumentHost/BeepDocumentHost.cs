@@ -17,6 +17,13 @@ using TheTechIdea.Beep.Winform.Controls.Themes;
 
 namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 {
+    [ToolboxItem(true)]
+    [DefaultEvent(nameof(ActiveDocumentChanged))]
+    [DefaultProperty(nameof(DesignTimeDocuments))]
+    [Description("Commercial-style tabbed document host with design-time document surfaces, split groups, floating documents, and layout persistence.")]
+    [Designer(
+        "TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepDocumentHostDesigner, " +
+        "TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public partial class BeepDocumentHost : BaseControl
     {
         private readonly BeepDocumentTabStrip _tabStrip;
@@ -54,6 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private bool _isDisposingHost;
         private bool _isDesignerDetaching;
         private bool _disposed;
+        private bool _applyingDesignTimeDocuments;
         private readonly HashSet<string> _dockBackClosingIds = new(StringComparer.Ordinal);
 
         private bool IsDesignTimeHost
@@ -81,6 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public BeepDocumentHost()
         {
             DoubleBuffered = true;
+            _designTimeDocuments = new DesignTimeDocumentCollection(this);
 
             _tabStrip = new BeepDocumentTabStrip
             {

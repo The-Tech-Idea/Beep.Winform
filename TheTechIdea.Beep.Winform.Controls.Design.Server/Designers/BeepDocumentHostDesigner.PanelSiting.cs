@@ -63,8 +63,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (_wiredHost == null) return;
             if (!IsDesignTimeHost(_wiredHost)) return;
 
-            INestedContainer? nested = GetNestedContainer();
-            if (nested == null) return;
+            // Prefer INestedContainer (panels appear under host in component tree).
+            // Fall back to root IContainer so panels are still sited and selectable.
+            IContainer? container = GetNestedContainer() ?? GetDesignerHost()?.Container;
+            if (container == null) return;
 
             foreach (var group in _wiredHost.Groups)
             {
@@ -72,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     BeepDocumentPanel? panel = _wiredHost.GetPanel(documentId);
                     if (panel == null) continue;
-                    SiteDesignPanel(nested, panel, documentId);
+                    SiteDesignPanel(container, panel, documentId);
                 }
             }
         }
@@ -102,9 +104,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     try
                     {
-                        if (panel.Site?.Container is INestedContainer nested)
+                        if (panel.Site?.Container is IContainer container)
                         {
-                            nested.Remove(panel);
+                            container.Remove(panel);
                         }
                     }
                     catch { /* designer may already be tearing down */ }
@@ -117,11 +119,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         // ── Internals ─────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Resolves the host's <see cref="INestedContainer"/>. The container is the
-        /// standard WinForms mechanism for exposing sub-components (used by
-        /// SplitContainer.Panel1/Panel2, ToolStripDropDown items, etc.). We require
-        /// it for panel siting; if the design tools surface does not provide one
-        /// the fix is a graceful no-op (selection still works for the host itself).
+        /// Resolves the host's <see cref="INestedContainer"/> if available.
+        /// The container is the standard WinForms mechanism for exposing sub-components
+        /// (used by SplitContainer.Panel1/Panel2, ToolStripDropDown items, etc.).
+        /// When unavailable, <see cref="SiteAllDesignPanels"/> falls back to the
+        /// root <see cref="IContainer"/> so panels are still sited and selectable.
         /// </summary>
         private INestedContainer? GetNestedContainer()
         {
@@ -129,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return _wiredHost.Site.GetService(typeof(INestedContainer)) as INestedContainer;
         }
 
-        private void SiteDesignPanel(INestedContainer nested, BeepDocumentPanel panel, string documentId)
+        private void SiteDesignPanel(IContainer container, BeepDocumentPanel panel, string documentId)
         {
             if (panel == null) return;
             if (panel.Site != null)
@@ -142,14 +144,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             string name = baseName;
             int suffix = 1;
 
-            // INestedContainer.Add throws ArgumentException on duplicate names. Loop
+            // IContainer.Add throws ArgumentException on duplicate names. Loop
             // until we find a free slot — designer container is per-host so the
             // base name should be unique on the first try.
             while (true)
             {
                 try
                 {
-                    nested.Add(panel, name);
+                    container.Add(panel, name);
                     _sitedPanels.Add(panel);
                     panel.SetDocumentTitleSafe(); // keep header text in sync after siting
                     return;

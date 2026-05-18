@@ -234,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var panel = new BeepDocumentPanel(documentId, title)
             {
                 Bounds    = _contentArea.ClientRectangle,
-                Theme = ThemeName,
+                Theme     = ThemeName,
                 IconPath  = iconPath,
                 Visible   = false
             };
@@ -262,6 +262,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 RecalculateLayout();
 
             return panel;
+        }
+
+        /// <summary>
+        /// Registers an existing <see cref="BeepDocumentPanel"/> with this host.
+        /// Used by the designer after creating a panel via <see cref="IDesignerHost.CreateComponent"/>.
+        /// </summary>
+        public void RegisterDocumentPanel(BeepDocumentPanel panel, bool activate = true)
+        {
+            if (panel == null)
+                throw new ArgumentNullException(nameof(panel));
+            if (ContainsOpenDocument(panel.DocumentId))
+                throw new InvalidOperationException($"Document '{panel.DocumentId}' already exists.");
+
+            panel.Bounds  = _contentArea.ClientRectangle;
+            panel.Theme   = ThemeName;
+            panel.Visible = false;
+
+            if (panel.Parent != _contentArea)
+                _contentArea.Controls.Add(panel);
+
+            _panels[panel.DocumentId] = panel;
+            _docGroupMap[panel.DocumentId] = _primaryGroup.GroupId;
+            _primaryGroup.DocumentIds.Add(panel.DocumentId);
+
+            _tabStrip.AddTab(panel.DocumentId, panel.DocumentTitle, panel.IconPath, activate: false);
+
+            if (activate || _panels.Count == 1)
+                SetActiveDocument(panel.DocumentId);
+
+            panel.ModifiedChanged += (s, _) =>
+                _tabStrip.SetTabModified(panel.DocumentId, panel.IsModified);
+
+            WireMiniToolbarToPanel(panel, panel.DocumentId);
+
+            if (!_batchAdding)
+                RecalculateLayout();
         }
 
         /// <summary>

@@ -11,6 +11,119 @@ namespace TheTechIdea.Beep.Winform.Controls.Tests
     public class DocumentHostDesignerAndRestoreRegressionTests
     {
         [Fact]
+        public void BeepDocumentHost_AdvertisesDesignServerDesigner()
+        {
+            var designers = TypeDescriptor.GetAttributes(typeof(BeepDocumentHost))
+                .OfType<DesignerAttribute>();
+
+            Assert.Contains(designers, attribute =>
+                attribute.DesignerTypeName.Contains("BeepDocumentHostDesigner", StringComparison.Ordinal)
+                && attribute.DesignerTypeName.Contains("TheTechIdea.Beep.Winform.Controls.Design.Server", StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void ApplyDesignTimeDocuments_UpdatesExistingPanelsFromDescriptors()
+        {
+            using var host = new BeepDocumentHost();
+            host.Site = new DesignModeSite();
+
+            var descriptor = new DocumentDescriptor { Id = "doc1", Title = "Document 1" };
+            host.DesignTimeDocuments.Add(descriptor);
+            host.ApplyDesignTimeDocuments();
+
+            descriptor.Title = "Renamed Document";
+            descriptor.CanClose = false;
+            host.ApplyDesignTimeDocuments();
+
+            var panel = host.GetPanel("doc1");
+            Assert.NotNull(panel);
+            Assert.Equal("Renamed Document", panel!.DocumentTitle);
+            Assert.False(panel.CanClose);
+        }
+
+        [Fact]
+        public void ApplyDesignTimeDocuments_RemovesPanelsMissingFromDesignTimeCollection()
+        {
+            using var host = new BeepDocumentHost();
+            host.Site = new DesignModeSite();
+
+            var keep = new DocumentDescriptor { Id = "doc1", Title = "Keep" };
+            var remove = new DocumentDescriptor { Id = "doc2", Title = "Remove" };
+            host.DesignTimeDocuments.Add(keep);
+            host.DesignTimeDocuments.Add(remove);
+            host.ApplyDesignTimeDocuments();
+
+            host.DesignTimeDocuments.Remove(remove);
+            host.ApplyDesignTimeDocuments();
+
+            Assert.NotNull(host.GetPanel("doc1"));
+            Assert.Null(host.GetPanel("doc2"));
+            Assert.Equal(1, host.DocumentCount);
+        }
+
+        [Fact]
+        public void DesignTimeDocuments_MutationsApplyImmediatelyInDesignMode()
+        {
+            using var host = new BeepDocumentHost();
+            host.Site = new DesignModeSite();
+
+            var descriptor = new DocumentDescriptor { Id = "doc1", Title = "Document 1" };
+            host.DesignTimeDocuments.Add(descriptor);
+
+            Assert.NotNull(host.GetPanel("doc1"));
+
+            descriptor.Title = "Renamed Document";
+
+            Assert.Equal("Renamed Document", host.GetPanel("doc1")!.DocumentTitle);
+        }
+
+        [Fact]
+        public void DesignTimeDocuments_ReusesRegisteredDesignPanel()
+        {
+            using var host = new BeepDocumentHost();
+            host.Site = new DesignModeSite();
+
+            var panel = new BeepDocumentPanel("doc1", "Designer Panel");
+            host.RegisterDocumentPanel(panel, activate: false);
+
+            host.DesignTimeDocuments.Add(new DocumentDescriptor
+            {
+                Id = "doc1",
+                Title = "Descriptor Title",
+                CanClose = false
+            });
+
+            Assert.Same(panel, host.GetPanel("doc1"));
+            Assert.Equal(1, host.DocumentCount);
+            Assert.Equal("Descriptor Title", panel.DocumentTitle);
+            Assert.False(panel.CanClose);
+        }
+
+        [Fact]
+        public void DesignTimeDocuments_InitialContentChangesApplyImmediatelyInDesignMode()
+        {
+            using var host = new BeepDocumentHost();
+            host.Site = new DesignModeSite();
+
+            var descriptor = new DocumentDescriptor
+            {
+                Id = "doc1",
+                Title = "Document 1",
+                InitialContent = DocumentInitialContent.Empty
+            };
+            host.DesignTimeDocuments.Add(descriptor);
+
+            Assert.Empty(host.GetPanel("doc1")!.Controls);
+
+            descriptor.InitialContent = DocumentInitialContent.Label;
+
+            var panel = host.GetPanel("doc1");
+            Assert.NotNull(panel);
+            Assert.Single(panel!.Controls);
+            Assert.IsType<Label>(panel.Controls[0]);
+        }
+
+        [Fact]
         public void DesignerMode_RemovingAuthoredChild_DoesNotMarkHostAsDetaching()
         {
             using var host = new BeepDocumentHost();

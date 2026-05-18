@@ -64,10 +64,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set
             {
                 if (_host == value) return;
+                var manager = _manager;
                 UnwireHost();
+                manager?.OnAttachedViewHostChanging(this);
                 _host = value;
-                if (_manager != null)
+                if (manager != null)
+                {
                     WireHost();
+                    manager.OnAttachedViewHostChanged(this);
+                }
             }
         }
 
@@ -97,12 +102,26 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public BeepDocumentPanel? AddDocument(DocumentDescriptor desc)
         {
             if (desc == null) return null;
-            return AddDocument(desc.Title ?? string.Empty, desc.IconPath ?? string.Empty, true);
+            if (_host == null) return null;
+
+            _host.OpenOrActivate(desc, new DocumentOpenOptions { Activate = true });
+            return _host.GetPanel(desc.Id);
         }
 
         /// <inheritdoc/>
         public BeepDocumentPanel? AddDocument(string title, string iconPath, bool activate)
-            => _host?.AddDocument(title, iconPath, activate);
+        {
+            if (_host == null) return null;
+
+            var descriptor = DocumentDescriptor.Create(
+                Guid.NewGuid().ToString(),
+                title,
+                iconPath);
+            _host.OpenDocument(
+                descriptor,
+                new DocumentOpenOptions { Activate = activate });
+            return _host.GetPanel(descriptor.Id);
+        }
 
         /// <inheritdoc/>
         public bool RemoveDocument(string id)

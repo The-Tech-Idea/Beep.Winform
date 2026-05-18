@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         // ── Prevent children from being moved / resized by the designer ───────
 
         public override SelectionRules SelectionRules
-            => SelectionRules.None;                          // no resize handles
+            => SelectionRules.Visible | SelectionRules.Locked; // selectable but locked (no resize/move)
 
         /// <inheritdoc/>
         public override bool CanBeParentedTo(IDesigner parentDesigner)

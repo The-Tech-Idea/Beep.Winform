@@ -287,25 +287,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // transaction created by ApplySetupResult.
             MutateDesignTimeDocuments("Seed Sample Documents", docs =>
             {
-                _manager.View?.BeginBatchAddDocuments();
-                try
+                int startIndex = docs.Count + 1;
+                for (int i = 0; i < count; i++)
                 {
-                    int startIndex = docs.Count + 1;
-                    for (int i = 0; i < count; i++)
+                    var descriptor = new DocumentDescriptor
                     {
-                        var descriptor = new DocumentDescriptor
-                        {
-                            Id             = Guid.NewGuid().ToString("N"),
-                            Title          = "Document " + (startIndex + i),
-                            InitialContent = DocumentInitialContent.Empty
-                        };
-                        docs.Add(descriptor);
-                        _manager.View?.AddDocument(descriptor);
-                    }
-                }
-                finally
-                {
-                    _manager.View?.EndBatchAddDocuments();
+                        Id             = Guid.NewGuid().ToString("N"),
+                        Title          = "Document " + (startIndex + i),
+                        InitialContent = DocumentInitialContent.Empty
+                    };
+                    docs.Add(descriptor);
                 }
             });
         }

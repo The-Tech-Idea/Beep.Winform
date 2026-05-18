@@ -169,9 +169,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public BeepDocumentPanel? AddDocument(DocumentDescriptor desc)
         {
             if (desc == null) return null;
-            return AddDocument(desc.Title ?? string.Empty,
-                               desc.IconPath ?? string.Empty,
-                               true);
+            return AddDocumentCore(desc.Id,
+                                   desc.Title ?? string.Empty,
+                                   desc.IconPath ?? string.Empty,
+                                   true);
         }
 
         /// <inheritdoc/>
@@ -181,10 +182,21 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// Always returns <see langword="null"/> — content is managed by the child Form.
         /// </remarks>
         public BeepDocumentPanel? AddDocument(string title, string iconPath, bool activate)
+            => AddDocumentCore(GenerateDocumentId(title), title, iconPath, activate);
+
+        private BeepDocumentPanel? AddDocumentCore(string id, string title, string iconPath, bool activate)
         {
             if (_parentForm == null) return null;
+            if (string.IsNullOrWhiteSpace(id))
+                id = GenerateDocumentId(title);
 
-            var id    = GenerateDocumentId(title);
+            if (_forms.TryGetValue(id, out var existing))
+            {
+                existing.Text = string.IsNullOrEmpty(title) ? existing.Text : title;
+                if (activate) existing.Activate();
+                return null;
+            }
+
             var child = new Form
             {
                 Text       = string.IsNullOrEmpty(title) ? GenerateUntitledTitle() : title,

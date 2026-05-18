@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     /// <see cref="BeepDocumentHost"/>.  Implements <see cref="INotifyPropertyChanged"/>
     /// so tab titles, icons and dirty state update automatically.
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public sealed class DocumentDescriptor : INotifyPropertyChanged
     {
         // ── Identity ─────────────────────────────────────────────────────────
@@ -156,11 +157,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set { _accentColor = value; OnPropertyChanged(nameof(AccentColor)); }
         }
 
+        private DocumentInitialContent _initialContent = DocumentInitialContent.Empty;
         /// <summary>
         /// Optional design-time placeholder content type.  Only used when
         /// the document is created from a <c>DesignTimeDocuments</c> seed collection.
         /// </summary>
-        public DocumentInitialContent InitialContent { get; set; } = DocumentInitialContent.Empty;
+        public DocumentInitialContent InitialContent
+        {
+            get => _initialContent;
+            set { _initialContent = value; OnPropertyChanged(nameof(InitialContent)); }
+        }
 
         /// <summary>
         /// Typed key/value metadata attached to this descriptor.  Serialised into

@@ -39,15 +39,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private EntityEditorMode _mode = EntityEditorMode.CreateNew;
         private bool _isApplyingSchema;
         private string _lastSummary = "Idle";
-        private BeepLabel? _titleLabel;
-        private BeepLabel? _stateLabel;
 
         public uc_EntityEditor(IServiceProvider services): base(services)
         {
             InitializeComponent();
           
             Details.AddinName = "Entity Editor";
-            EnsureVisualScaffolding();
             Resize -= Uc_EntityEditor_Resize;
             Resize += Uc_EntityEditor_Resize;
 
@@ -147,8 +144,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         private void ApplyLayoutDefaults()
         {
-            EnsureVisualScaffolding();
-
             DatasourcebeepComboBox.PlaceholderText = "Select datasource";
             DatasourcebeepComboBox.LabelText = "Datasource";
             DatasourcebeepComboBox.LabelTextOn = true;
@@ -525,12 +520,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.Enabled = canEvolve;
             RefreshApplyButtonIcon();
 
-            if (_stateLabel != null)
-            {
-                _stateLabel.Text = canEvolve
-                    ? $"Mode: Update existing schema | {_lastSummary}"
-                    : $"Mode: Update unavailable for datasource type '{viewModel.SourceConnection.DatasourceType}'";
-            }
+            _stateLabel.Text = canEvolve
+                ? $"Mode: Update existing schema | {_lastSummary}"
+                : $"Mode: Update unavailable for datasource type '{viewModel.SourceConnection.DatasourceType}'";
         }
 
         private EntityStructure BuildDraftStructure(string entityName)
@@ -838,41 +830,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             _lastSummary = message ?? string.Empty;
             beepService?.DMEEditor?.AddLogMessage("EntityEditor", _lastSummary, DateTime.Now, 0, viewModel?.EntityName, flag);
-            if (_stateLabel != null)
-            {
-                _stateLabel.Text = $"Status: {_lastSummary}";
-            }
-        }
-
-        private void EnsureVisualScaffolding()
-        {
-            if (_titleLabel == null)
-            {
-                _titleLabel = new BeepLabel
-                {
-                    Name = "EntityEditorTitlebeepLabel",
-                    Text = "Entity Editor",
-                    IsChild = true,
-                    UseThemeColors = true,
-                    UseThemeFont = true
-                };
-                Controls.Add(_titleLabel);
-                _titleLabel.BringToFront();
-            }
-
-            if (_stateLabel == null)
-            {
-                _stateLabel = new BeepLabel
-                {
-                    Name = "EntityEditorStatebeepLabel",
-                    Text = "Select datasource to begin.",
-                    IsChild = true,
-                    UseThemeColors = true,
-                    UseThemeFont = true
-                };
-                Controls.Add(_stateLabel);
-                _stateLabel.BringToFront();
-            }
+            _stateLabel.Text = $"Status: {_lastSummary}";
         }
 
         private void Uc_EntityEditor_Resize(object? sender, EventArgs e)
@@ -896,11 +854,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             const int gridTop = 132;
             const int gridBottomGap = 16;
 
-            if (_titleLabel != null)
-            {
-                _titleLabel.Location = new System.Drawing.Point(outerMargin, 12);
-                _titleLabel.Size = new System.Drawing.Size(Math.Max(220, Width / 3), 24);
-            }
+            _titleLabel.Location = new System.Drawing.Point(outerMargin, 12);
+            _titleLabel.Size = new System.Drawing.Size(Math.Max(220, Width / 3), 24);
 
             var contentWidth = Math.Max(0, Width - (outerMargin * 2));
             var totalGap = sectionGap * 2;
@@ -917,11 +872,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.Size = new System.Drawing.Size(applyWidth, 36);
             ApplybeepButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 
-            if (_stateLabel != null)
-            {
-                _stateLabel.Location = new System.Drawing.Point(outerMargin, 96);
-                _stateLabel.Size = new System.Drawing.Size(Math.Max(120, Width - (outerMargin * 2)), 24);
-            }
+            _stateLabel.Location = new System.Drawing.Point(outerMargin, 96);
+            _stateLabel.Size = new System.Drawing.Size(Math.Max(120, Width - (outerMargin * 2)), 24);
 
             EntityFieldsbeepGridPro.Location = new System.Drawing.Point(outerMargin, gridTop);
             EntityFieldsbeepGridPro.Size = new System.Drawing.Size(
@@ -938,11 +890,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.Enabled = hasDatasource;
             EntityFieldsbeepGridPro.Enabled = hasDatasource && hasEntityName;
             ApplybeepButton.Enabled = ApplybeepButton.Enabled && hasDatasource;
-
-            if (_stateLabel == null)
-            {
-                return;
-            }
 
             if (!hasDatasource)
             {

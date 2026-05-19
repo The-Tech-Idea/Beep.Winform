@@ -19,159 +19,40 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.NuggetsManage
 {
     [AddinAttribute(Caption = "Nuggets Manager", Name = "uc_NuggetsManage", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
-    public class uc_NuggetsManage : UserControl
+    public partial class uc_NuggetsManage : UserControl
     {
         private readonly IServiceProvider? _services;
         private readonly IBeepService? _beepService;
         private readonly IDMEEditor? _editor;
-        private readonly BeepTextBox _scanPathTextBox;
-        private readonly BeepListBox _nuggetList;
-        private readonly BeepTextBox _detailsTextBox;
-        private readonly BeepTextBox _operationLogTextBox;
-        private readonly BeepLabel _statusLabel;
-        private readonly BeepButton _scanButton;
-        private readonly BeepButton _browseScanPathButton;
-        private readonly BeepButton _installButton;
-        private readonly BeepButton _loadButton;
-        private readonly BeepButton _unloadButton;
-        private readonly BeepButton _refreshButton;
-        private readonly BeepButton _copyLogsButton;
-        private readonly BeepButton _clearLogsButton;
-        private readonly BeepCheckBoxBool _enableAtStartupCheckBox;
 
         private readonly List<NuggetItemState> _states = new();
         private readonly BindingList<SimpleItem> _listItems = new();
         private NuggetsManageService _service;
         private bool _isUpdatingSelectionUi;
 
-        public uc_NuggetsManage(IServiceProvider services) : base()
+        public uc_NuggetsManage() : base()
+        {
+            InitializeComponent();
+        }
+
+        public uc_NuggetsManage(IServiceProvider services) : this()
         {
             _services = services;
             _beepService = services.GetService(typeof(IBeepService)) as IBeepService;
             _editor = _beepService?.DMEEditor;
 
-            _statusLabel = new BeepLabel
-            {
-                Dock = DockStyle.Top,
-                Height = 28,
-                Text = "Nuggets manager ready.",
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            };
+            _nuggetList.ListItems = _listItems;
 
-            _enableAtStartupCheckBox = new BeepCheckBoxBool
-            {
-                Dock = DockStyle.Top,
-                Height = 28,
-                Text = "Enable at startup",
-                CurrentValue = false
-            };
             _enableAtStartupCheckBox.StateChanged += EnableAtStartupCheckBox_StateChanged;
-
-            _scanPathTextBox = new BeepTextBox
-            {
-                Dock = DockStyle.Fill,
-                PlaceholderText = "Optional scan root path..."
-            };
-
-            _browseScanPathButton = new BeepButton
-            {
-                Dock = DockStyle.Right,
-                Width = 36,
-                Text = "..."
-            };
             _browseScanPathButton.Click += BrowseScanPathButton_Click;
-
-            _scanButton = new BeepButton
-            {
-                Dock = DockStyle.Right,
-                Width = 90,
-                Text = "Scan"
-            };
             _scanButton.Click += ScanButton_Click;
-
-            var scanBar = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 36,
-                Padding = new Padding(0, 4, 0, 4)
-            };
-            scanBar.Controls.Add(_scanPathTextBox);
-            scanBar.Controls.Add(_scanButton);
-            scanBar.Controls.Add(_browseScanPathButton);
-
-            _installButton = new BeepButton { Text = "Install", Dock = DockStyle.Left, Width = 100 };
-            _loadButton = new BeepButton { Text = "Load", Dock = DockStyle.Left, Width = 100 };
-            _unloadButton = new BeepButton { Text = "Unload", Dock = DockStyle.Left, Width = 100 };
-            _refreshButton = new BeepButton { Text = "Refresh", Dock = DockStyle.Left, Width = 100 };
-            _copyLogsButton = new BeepButton { Text = "Copy Logs", Dock = DockStyle.Right, Width = 100 };
-            _clearLogsButton = new BeepButton { Text = "Clear Logs", Dock = DockStyle.Right, Width = 100 };
-
             _installButton.Click += InstallButton_Click;
             _loadButton.Click += LoadButton_Click;
             _unloadButton.Click += UnloadButton_Click;
             _refreshButton.Click += RefreshButton_Click;
             _copyLogsButton.Click += CopyLogsButton_Click;
             _clearLogsButton.Click += ClearLogsButton_Click;
-
-            var commandBar = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 36,
-                Padding = new Padding(0, 4, 0, 4)
-            };
-            commandBar.Controls.Add(_clearLogsButton);
-            commandBar.Controls.Add(_copyLogsButton);
-            commandBar.Controls.Add(_refreshButton);
-            commandBar.Controls.Add(_unloadButton);
-            commandBar.Controls.Add(_loadButton);
-            commandBar.Controls.Add(_installButton);
-
-            _nuggetList = new BeepListBox
-            {
-                Dock = DockStyle.Fill,
-                ListItems = _listItems
-            };
             _nuggetList.SelectedItemChanged += NuggetList_SelectedItemChanged;
-
-            _detailsTextBox = new BeepTextBox
-            {
-                Dock = DockStyle.Fill,
-                Multiline = true,
-                ReadOnly = true,
-                ScrollBars = ScrollBars.Vertical
-            };
-
-            _operationLogTextBox = new BeepTextBox
-            {
-                Dock = DockStyle.Fill,
-                Multiline = true,
-                ReadOnly = true,
-                ScrollBars = ScrollBars.Vertical
-            };
-
-            var rightSplit = new SplitContainer
-            {
-                Dock = DockStyle.Fill,
-                Orientation = Orientation.Horizontal,
-                SplitterDistance = 170
-            };
-            rightSplit.Panel1.Controls.Add(_detailsTextBox);
-            rightSplit.Panel1.Controls.Add(_enableAtStartupCheckBox);
-            rightSplit.Panel2.Controls.Add(_operationLogTextBox);
-
-            var mainSplit = new SplitContainer
-            {
-                Dock = DockStyle.Fill,
-                Orientation = Orientation.Vertical,
-                SplitterDistance = 320
-            };
-            mainSplit.Panel1.Controls.Add(_nuggetList);
-            mainSplit.Panel2.Controls.Add(rightSplit);
-
-            Controls.Add(mainSplit);
-            Controls.Add(commandBar);
-            Controls.Add(scanBar);
-            Controls.Add(_statusLabel);
         }
 
         public void InitializeManager()

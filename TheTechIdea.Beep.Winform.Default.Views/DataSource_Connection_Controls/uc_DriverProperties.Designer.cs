@@ -22,6 +22,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.Driver_DriverNamebeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.Driver_DriverVersionbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             this.Driver_ParametersbeepTextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            this._compatibilityBeepLabel = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            this._fallbackReasonBeepLabel = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
             this.Driver_propertiesPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -34,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.Driver_propertiesPanel.Controls.Add(this.Driver_DriverNamebeepTextBox);
             this.Driver_propertiesPanel.Controls.Add(this.Driver_DriverVersionbeepTextBox);
             this.Driver_propertiesPanel.Controls.Add(this.Driver_ParametersbeepTextBox);
+            this.Driver_propertiesPanel.Controls.Add(this._compatibilityBeepLabel);
+            this.Driver_propertiesPanel.Controls.Add(this._fallbackReasonBeepLabel);
             // 
             // Driver_DriverNamebeepTextBox
             // 
@@ -63,6 +67,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             this.Driver_ParametersbeepTextBox.Multiline = true;
             this.Driver_ParametersbeepTextBox.IsChild = true;
             // 
+            // _compatibilityBeepLabel
+            // 
+            this._compatibilityBeepLabel.Name = "Driver_CompatibilitybeepLabel";
+            this._compatibilityBeepLabel.Text = "Compatibility: Pending";
+            this._compatibilityBeepLabel.IsChild = true;
+            this._compatibilityBeepLabel.Location = new System.Drawing.Point(20, 176);
+            this._compatibilityBeepLabel.Size = new System.Drawing.Size(490, 28);
+            // 
+            // _fallbackReasonBeepLabel
+            // 
+            this._fallbackReasonBeepLabel.Name = "Driver_FallbackbeepLabel";
+            this._fallbackReasonBeepLabel.Text = "";
+            this._fallbackReasonBeepLabel.IsChild = true;
+            this._fallbackReasonBeepLabel.Location = new System.Drawing.Point(20, 206);
+            this._fallbackReasonBeepLabel.Size = new System.Drawing.Size(490, 40);
+            // 
             // uc_DriverProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -82,5 +102,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox Driver_DriverNamebeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox Driver_DriverVersionbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox Driver_ParametersbeepTextBox;
+        private TheTechIdea.Beep.Winform.Controls.BeepLabel _compatibilityBeepLabel;
+        private TheTechIdea.Beep.Winform.Controls.BeepLabel _fallbackReasonBeepLabel;
     }
 }

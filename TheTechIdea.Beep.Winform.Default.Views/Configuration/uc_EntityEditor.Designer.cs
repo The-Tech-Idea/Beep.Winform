@@ -5257,6 +5257,33 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             Name = "uc_EntityEditor";
             Padding = new Padding(5);
             Size = new Size(940, 752);
+            this._titleLabel = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            this._stateLabel = new TheTechIdea.Beep.Winform.Controls.BeepLabel();
+            // 
+            // _titleLabel
+            // 
+            this._titleLabel.Name = "EntityEditorTitlebeepLabel";
+            this._titleLabel.Text = "Entity Editor";
+            this._titleLabel.IsChild = true;
+            this._titleLabel.UseThemeColors = true;
+            this._titleLabel.UseThemeFont = true;
+            this._titleLabel.Location = new System.Drawing.Point(0, 0);
+            this._titleLabel.Size = new System.Drawing.Size(200, 30);
+            // 
+            // _stateLabel
+            // 
+            this._stateLabel.Name = "EntityEditorStatebeepLabel";
+            this._stateLabel.Text = "Select datasource to begin.";
+            this._stateLabel.IsChild = true;
+            this._stateLabel.UseThemeColors = true;
+            this._stateLabel.UseThemeFont = true;
+            this._stateLabel.Location = new System.Drawing.Point(0, 35);
+            this._stateLabel.Size = new System.Drawing.Size(400, 30);
+            // 
+            // uc_EntityEditor
+            // 
+            this.Controls.Add(this._titleLabel);
+            this.Controls.Add(this._stateLabel);
             ((System.ComponentModel.ISupportInitialize)fieldsBindingSource).EndInit();
             ((System.ComponentModel.ISupportInitialize)entityManagerViewModelBindingSource).EndInit();
             ResumeLayout(false);
@@ -5269,5 +5296,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepButton ApplybeepButton;
         private BindingSource fieldsBindingSource;
         private BindingSource entityManagerViewModelBindingSource;
+        private BeepLabel _titleLabel;
+        private BeepLabel _stateLabel;
     }
 }

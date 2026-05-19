@@ -28,8 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepPanel : BaseControl
     {
         private string _titleText = "Panel Title";
-        private bool _showTitle = true;
-        private bool _showTitleLine = true;
+        private bool _showTitle = false;
+        private bool _showTitleLine = false;
         private bool _titleLineFullWidth = true;
         private Color _titleLineColor = Color.Gray;
         private int _titleLineThickness = 2;

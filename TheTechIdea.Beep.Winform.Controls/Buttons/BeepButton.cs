@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment imageAlign = ContentAlignment.MiddleLeft;
         private ContentAlignment textAlign = ContentAlignment.MiddleCenter;
         private bool _isSelected = false;
-        private Size _maxImageSize = new Size(32, 32); // Default max image size
+        private Size _maxImageSize = new Size(16, 16); // Default max image size
       //  private FlatStyle _flatStyle = FlatStyle.Standard;
         private bool _flatAppearanceEnabled = true;
 
@@ -365,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _buttonminsize = value;
-                UpdateMinSizeForMode();
+             
                 Invalidate();
             }
         }
@@ -487,7 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _hideText = value;
-                UpdateMinSizeForMode();
+               
                 Invalidate();
             }
         }
@@ -1530,20 +1530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Badge"
         #region "Draw Image and text"
-        private void UpdateMinSizeForMode()
-        {
-            if (PainterKind != BaseControlPainterKind.Material)
-            {
-                // Image-only? keep the floor at ButtonMinSize; otherwise no clamp.
-                bool imageOnly = (string.IsNullOrEmpty(Text) || HideText) && !string.IsNullOrEmpty(_imagePath);
-                MinimumSize = imageOnly ? ButtonMinSize : Size.Empty;
-            }
-            if (IsImageOnly)
-                MinimumSize = _buttonminsize;     // allow small image-only buttons
-            else
-                MinimumSize = Size.Empty;         // let Material/Base logic handle text buttons
-        }
-
+       
         public override void Draw(Graphics g, Rectangle rectangle)
         {
             contentRect = rectangle;

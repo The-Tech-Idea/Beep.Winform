@@ -238,6 +238,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ucWebApiProperties = new uc_WebApiProperties();
             tabPageOAuth = new BeepTabPage();
             ucOAuthProperties = new uc_webapiAuthenticationProperties();
+            _connectionStringPreviewLabel = new BeepLabel();
+            _connectionStringPreviewBeepTextBox = new BeepTextBox();
+            _requirementsBeepLabel = new BeepLabel();
+            _statusBeepLabel = new BeepLabel();
+            _openAfterSaveBeepCheckBox = new BeepCheckBoxBool();
+            TestConnectionButton = new BeepButton();
             beepPanel1.SuspendLayout();
             beepTabs1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -452,6 +458,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             tabPage1.Controls.Add(DriverbeepComboBox);
             tabPage1.Controls.Add(ConnectionStringbeepTextBox);
             tabPage1.Controls.Add(DriverVersionbeepComboBox);
+            tabPage1.Controls.Add(_connectionStringPreviewLabel);
+            tabPage1.Controls.Add(_connectionStringPreviewBeepTextBox);
+            tabPage1.Controls.Add(_requirementsBeepLabel);
+            tabPage1.Controls.Add(_statusBeepLabel);
+            tabPage1.Controls.Add(_openAfterSaveBeepCheckBox);
+            tabPage1.Controls.Add(TestConnectionButton);
             tabPage1.ForeColor = Color.DimGray;
             tabPage1.Location = new Point(0, 30);
             tabPage1.Name = "tabPage1";
@@ -459,6 +471,65 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             tabPage1.Size = new Size(636, 693);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Connection";
+            // 
+            // _connectionStringPreviewLabel
+            // 
+            _connectionStringPreviewLabel.Name = "ConnectionPreviewLabel";
+            _connectionStringPreviewLabel.Text = "Secure Preview";
+            _connectionStringPreviewLabel.IsChild = true;
+            _connectionStringPreviewLabel.Location = new Point(20, 290);
+            _connectionStringPreviewLabel.Size = new Size(180, 28);
+            // 
+            // _connectionStringPreviewBeepTextBox
+            // 
+            _connectionStringPreviewBeepTextBox.Name = "ConnectionPreviewbeepTextBox";
+            _connectionStringPreviewBeepTextBox.LabelText = "Secure Preview (masked)";
+            _connectionStringPreviewBeepTextBox.LabelTextOn = true;
+            _connectionStringPreviewBeepTextBox.IsChild = true;
+            _connectionStringPreviewBeepTextBox.ReadOnly = true;
+            _connectionStringPreviewBeepTextBox.Multiline = true;
+            _connectionStringPreviewBeepTextBox.Location = new Point(20, 322);
+            _connectionStringPreviewBeepTextBox.Size = new Size(520, 90);
+            // 
+            // _requirementsBeepLabel
+            // 
+            _requirementsBeepLabel.Name = "RequirementsbeepLabel";
+            _requirementsBeepLabel.IsChild = true;
+            _requirementsBeepLabel.Location = new Point(20, 418);
+            _requirementsBeepLabel.Size = new Size(520, 42);
+            _requirementsBeepLabel.Text = "";
+            // 
+            // _statusBeepLabel
+            // 
+            _statusBeepLabel.Name = "StatusbeepLabel";
+            _statusBeepLabel.IsChild = true;
+            _statusBeepLabel.Location = new Point(20, 466);
+            _statusBeepLabel.Size = new Size(520, 40);
+            _statusBeepLabel.Text = "Status: Ready";
+            // 
+            // _openAfterSaveBeepCheckBox
+            // 
+            _openAfterSaveBeepCheckBox.Name = "OpenAfterSavebeepCheckBox";
+            _openAfterSaveBeepCheckBox.IsChild = true;
+            _openAfterSaveBeepCheckBox.LabelText = "Open datasource after save";
+            _openAfterSaveBeepCheckBox.LabelTextOn = true;
+            _openAfterSaveBeepCheckBox.Location = new Point(20, 516);
+            _openAfterSaveBeepCheckBox.Size = new Size(250, 32);
+            _openAfterSaveBeepCheckBox.CurrentValue = false;
+            // 
+            // TestConnectionButton
+            // 
+            TestConnectionButton.Name = "TestConnectionButton";
+            TestConnectionButton.Text = "Test Connection";
+            TestConnectionButton.Size = new Size(130, 60);
+            TestConnectionButton.Location = new Point(260, 567);
+            TestConnectionButton.BorderThickness = 1;
+            TestConnectionButton.BorderRadius = 8;
+            TestConnectionButton.UseFormStylePaint = true;
+            TestConnectionButton.TextFont = new Font("Segoe UI", 15F);
+            TestConnectionButton.TextAlign = ContentAlignment.MiddleCenter;
+            TestConnectionButton.IsChild = true;
+            TestConnectionButton.IsColorFromTheme = true;
             // 
             // tabPageGeneral
             // 
@@ -3909,5 +3980,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected uc_WebApiProperties ucWebApiProperties;
         protected BeepTabPage tabPageOAuth;
         protected uc_webapiAuthenticationProperties ucOAuthProperties;
+        protected TheTechIdea.Beep.Winform.Controls.BeepLabel _connectionStringPreviewLabel;
+        protected TheTechIdea.Beep.Winform.Controls.BeepTextBox _connectionStringPreviewBeepTextBox;
+        protected TheTechIdea.Beep.Winform.Controls.BeepLabel _requirementsBeepLabel;
+        protected TheTechIdea.Beep.Winform.Controls.BeepLabel _statusBeepLabel;
+        protected TheTechIdea.Beep.Winform.Controls.CheckBoxes.BeepCheckBoxBool _openAfterSaveBeepCheckBox;
+        protected TheTechIdea.Beep.Winform.Controls.BeepButton TestConnectionButton;
     }
 }

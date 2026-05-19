@@ -25,13 +25,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 StringComparer.OrdinalIgnoreCase);
 
         private bool _updatingExtrasText;
-        private BeepLabel _compatibilityBeepLabel;
-        private BeepLabel _fallbackReasonBeepLabel;
 
         public uc_DriverProperties()
         {
             InitializeComponent();
-            InitializeDriverUxAssist();
         }
 
         public override void SetupBindings(ConnectionProperties conn)
@@ -167,30 +164,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             _fallbackReasonBeepLabel.Text = string.IsNullOrWhiteSpace(fallbackReason)
                 ? "Driver recommendation source: package+version -> package -> datasource type -> extension."
                 : fallbackReason;
-        }
-
-        private void InitializeDriverUxAssist()
-        {
-            _compatibilityBeepLabel = new BeepLabel
-            {
-                Name = "Driver_CompatibilitybeepLabel",
-                Text = "Compatibility: Pending",
-                IsChild = true,
-                Location = new System.Drawing.Point(20, 176),
-                Size = new System.Drawing.Size(490, 28)
-            };
-
-            _fallbackReasonBeepLabel = new BeepLabel
-            {
-                Name = "Driver_FallbackbeepLabel",
-                Text = string.Empty,
-                IsChild = true,
-                Location = new System.Drawing.Point(20, 206),
-                Size = new System.Drawing.Size(490, 40)
-            };
-
-            Driver_propertiesPanel.Controls.Add(_compatibilityBeepLabel);
-            Driver_propertiesPanel.Controls.Add(_fallbackReasonBeepLabel);
         }
 
         private void RefreshDriverCompatibilityBadge(bool? isCompatible)

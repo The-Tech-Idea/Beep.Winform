@@ -105,13 +105,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         private IBeepService beepService;
         private bool _lastConnectionTestSucceeded;
         private bool _requireSuccessfulTestBeforeSave;
-        private readonly Dictionary<BeepTabPage, string> _tabBaseText = new();
-        private BeepLabel _statusBeepLabel;
-        private BeepLabel _connectionStringPreviewLabel;
-        private BeepTextBox _connectionStringPreviewBeepTextBox;
-        private BeepLabel _requirementsBeepLabel;
-        private BeepCheckBoxBool _openAfterSaveBeepCheckBox;
-        private bool _enhancedUxInitialized;
+         private readonly Dictionary<BeepTabPage, string> _tabBaseText = new();
+         private bool _enhancedUxInitialized;
         private IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private bool _themeEventsRegistered;
         private string _themeName = BeepThemesManager.CurrentThemeName;
@@ -280,8 +275,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         List<SimpleItem> drivers = new List<SimpleItem>();
         List<ConnectionDriversConfig> connectionDriversConfigs = new List<ConnectionDriversConfig>();
         
-        // Test Connection button
-        protected BeepButton TestConnectionButton;
+        // Test Connection button - declared in Designer.cs
         #endregion
 
         public uc_DataConnectionBase()
@@ -394,62 +388,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
 
             _enhancedUxInitialized = true;
-
-            _connectionStringPreviewLabel = new BeepLabel
-            {
-                Name = "ConnectionPreviewLabel",
-                Text = "Secure Preview",
-                IsChild = true,
-                Location = new Point(20, 290),
-                Size = new Size(180, 28)
-            };
-
-            _connectionStringPreviewBeepTextBox = new BeepTextBox
-            {
-                Name = "ConnectionPreviewbeepTextBox",
-                LabelText = "Secure Preview (masked)",
-                LabelTextOn = true,
-                IsChild = true,
-                ReadOnly = true,
-                Multiline = true,
-                Location = new Point(20, 322),
-                Size = new Size(520, 90)
-            };
-
-            _requirementsBeepLabel = new BeepLabel
-            {
-                Name = "RequirementsbeepLabel",
-                IsChild = true,
-                Location = new Point(20, 418),
-                Size = new Size(520, 42),
-                Text = string.Empty
-            };
-
-            _statusBeepLabel = new BeepLabel
-            {
-                Name = "StatusbeepLabel",
-                IsChild = true,
-                Location = new Point(20, 466),
-                Size = new Size(520, 40),
-                Text = "Status: Ready"
-            };
-
-            _openAfterSaveBeepCheckBox = new BeepCheckBoxBool
-            {
-                Name = "OpenAfterSavebeepCheckBox",
-                IsChild = true,
-                LabelText = "Open datasource after save",
-                LabelTextOn = true,
-                Location = new Point(20, 516),
-                Size = new Size(250, 32),
-                CurrentValue = false
-            };
-
-            tabPage1.Controls.Add(_connectionStringPreviewLabel);
-            tabPage1.Controls.Add(_connectionStringPreviewBeepTextBox);
-            tabPage1.Controls.Add(_requirementsBeepLabel);
-            tabPage1.Controls.Add(_statusBeepLabel);
-            tabPage1.Controls.Add(_openAfterSaveBeepCheckBox);
 
             ConnectionNamebeepTextBox.TextChanged -= InputControl_ValueChanged;
             ConnectionNamebeepTextBox.TextChanged += InputControl_ValueChanged;
@@ -986,37 +924,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         /// </summary>
         private void CreateTestConnectionButton()
         {
-            // Remove existing button if present
+            // Ensure button is in tabPage1 and wired
             if (TestConnectionButton != null)
             {
-                if (tabPage1.Controls.Contains(TestConnectionButton))
+                TestConnectionButton.Click -= TestConnectionButton_Click;
+                TestConnectionButton.Click += TestConnectionButton_Click;
+                if (!tabPage1.Controls.Contains(TestConnectionButton))
                 {
-                    tabPage1.Controls.Remove(TestConnectionButton);
+                    tabPage1.Controls.Add(TestConnectionButton);
                 }
-                TestConnectionButton.Dispose();
+                TestConnectionButton.BringToFront();
+                ApplyCurrentThemeAndStyleSafe();
             }
-            
-            // Create new Test Connection button
-            TestConnectionButton = new BeepButton
-            {
-                Name = "TestConnectionButton",
-                Text = "Test Connection",
-                Size = new Size(130, 60),
-                Location = new Point(260, 567), // Position between Cancel and Save buttons
-                BorderThickness = 1,
-                BorderRadius = 8,
-                UseFormStylePaint = true,
-                TextFont = new System.Drawing.Font("Segoe UI", 15F),
-                TextAlign = ContentAlignment.MiddleCenter,
-                IsChild = true,
-                IsColorFromTheme = true,
-                Theme = Theme
-            };
-            
-            TestConnectionButton.Click += TestConnectionButton_Click;
-            tabPage1.Controls.Add(TestConnectionButton);
-            TestConnectionButton.BringToFront();
-            ApplyCurrentThemeAndStyleSafe();
         }
         
         #endregion

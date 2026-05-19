@@ -490,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             foreach (IComponent component in container.Components)
             {
                 if (component is BeepDocumentManager manager
-                    && ReferenceEquals((manager.View as BeepTabbedView)?.Host, host))
+                    && ReferenceEquals(manager.Host, host))
                 {
                     yield return manager;
                 }
@@ -855,14 +855,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 panel.TabColor        = descriptor.TabColor;
                 panel.AccentColor     = descriptor.AccentColor;
 
-                // DocumentPanels.Add() calls RegisterDocumentPanel() internally
-                // (BeepDocumentPanelCollection.InsertItem checks ContainsOpenDocument
-                // before calling RegisterDocumentPanel so there is no double-registration).
-                // Using DocumentPanels ensures the WinForms CodeDom serializer emits:
-                //   this.doc1 = new BeepDocumentPanel();
-                //   this.beepDocumentHost1.DocumentPanels.Add(this.doc1);
-                // so panels appear in Designer.cs and survive form re-open without conflict.
-                host.DocumentPanels.Add(panel);
+                // Add panel directly to host.Controls so it serializes to designer.cs
+                // as a first-class child control that developers can interact with.
+                // The host's ControlAdded event handles registration and siting.
+                if (!host.Controls.Contains(panel))
+                    host.Controls.Add(panel);
 
                 if (activate)
                     host.SetActiveDocument(panel.DocumentId);

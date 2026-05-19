@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.DocumentHost;
+
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views

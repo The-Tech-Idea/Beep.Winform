@@ -144,6 +144,22 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override bool IsContainerControl => true;
         protected override bool AllowBaseControlClear => true;
 
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+
+            // Auto-register BeepDocumentPanel controls added directly to Controls
+            // (e.g., by the designer during deserialization or by user code)
+            if (e.Control is BeepDocumentPanel panel && !_panels.ContainsKey(panel.DocumentId))
+            {
+                try
+                {
+                    RegisterDocumentPanel(panel, activate: false);
+                }
+                catch { /* non-fatal at design time */ }
+            }
+        }
+
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -236,6 +252,31 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         protected override void OnControlRemoved(ControlEventArgs e)
         {
             base.OnControlRemoved(e);
+
+            // Clean up when a BeepDocumentPanel is removed from Controls
+            if (e.Control is BeepDocumentPanel panel && _panels.ContainsKey(panel.DocumentId))
+            {
+                try
+                {
+                    _panels.Remove(panel.DocumentId);
+                    _docGroupMap.Remove(panel.DocumentId);
+                    foreach (var grp in _groups)
+                        grp.DocumentIds.Remove(panel.DocumentId);
+                    
+                    // Remove from tab strip
+                    int tabIdx = _tabStrip.Tabs.ToList().FindIndex(t => t.Id == panel.DocumentId);
+                    if (tabIdx >= 0) _tabStrip.RemoveTabAt(tabIdx);
+                    
+                    // Update active document if needed
+                    if (_activeDocumentId == panel.DocumentId)
+                    {
+                        _activeDocumentId = null;
+                        if (_panels.Count > 0)
+                            SetActiveDocument(_panels.Keys.Last());
+                    }
+                }
+                catch { /* non-fatal at design time */ }
+            }
 
             if (!IsDesignTimeHost)
             {

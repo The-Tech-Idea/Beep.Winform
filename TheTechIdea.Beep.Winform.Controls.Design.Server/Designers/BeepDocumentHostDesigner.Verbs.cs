@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             foreach (IComponent comp in container.Components)
             {
                 if (comp is BeepDocumentManager mgr &&
-                    (mgr.View as BeepTabbedView)?.Host == host)
+                    mgr.Host == host)
                     return true;
             }
             return false;

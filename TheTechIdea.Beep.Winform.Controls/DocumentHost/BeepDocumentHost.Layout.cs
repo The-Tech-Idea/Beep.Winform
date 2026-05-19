@@ -399,7 +399,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (grp.ContentArea == null || !grp.ContentArea.IsHandleCreated) continue;
                 foreach (var id in grp.DocumentIds)
                     if (_panels.TryGetValue(id, out var p) && p.Visible)
-                        p.Bounds = grp.ContentArea.ClientRectangle;
+                    {
+                        // Convert content area client rectangle to host coordinates
+                        // since panels are now direct children of the host
+                        var caBounds = grp.ContentArea.Bounds;
+                        p.Bounds = new Rectangle(
+                            caBounds.X + grp.ContentArea.ClientRectangle.X,
+                            caBounds.Y + grp.ContentArea.ClientRectangle.Y,
+                            grp.ContentArea.ClientRectangle.Width,
+                            grp.ContentArea.ClientRectangle.Height);
+                    }
             }
         }
 

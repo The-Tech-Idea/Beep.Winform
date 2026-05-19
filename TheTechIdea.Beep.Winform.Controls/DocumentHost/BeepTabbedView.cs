@@ -66,17 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             set
             {
                 if (_host == value) return;
-                var manager = _manager;
                 DetachWindowMenu();
                 UnwireHost();
-                manager?.OnAttachedViewHostChanging(this);
                 _host = value;
-                if (manager != null)
-                {
-                    WireHost();
-                    ReattachWindowMenu();
-                    manager.OnAttachedViewHostChanged(this);
-                }
+                WireHost();
+                ReattachWindowMenu();
             }
         }
 

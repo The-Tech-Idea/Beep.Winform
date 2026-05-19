@@ -7,17 +7,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
     {
         private int _viewDocumentTransferDepth;
 
-        private void PrepareViewForManagerTransition(IBeepDocumentManagerView view)
+        private void PrepareViewForManagerTransition(BeepDocumentHost? host)
         {
-            if (view == null || IsDesignTimeComponent)
+            if (host == null || IsDesignTimeComponent)
                 return;
 
             _viewDocumentTransferDepth++;
             try
             {
-                PrepareHostedContentForViewSwitch(view);
-                CaptureManagerOwnedDocumentContentForTransfer(view);
-                RemoveManagerOwnedDocumentsFromView(view);
+                PrepareHostedContentForViewSwitch(host);
+                CaptureManagerOwnedDocumentContentForTransfer(host);
+                RemoveManagerOwnedDocumentsFromHost(host);
             }
             finally
             {
@@ -25,11 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             }
         }
 
-        private void RemoveManagerOwnedDocumentsFromView(IBeepDocumentManagerView view)
+        private void RemoveManagerOwnedDocumentsFromHost(BeepDocumentHost host)
         {
             foreach (var documentId in EnumerateManagerOwnedDocumentIds())
             {
-                try { view.DetachDocumentForTransfer(documentId); } catch { }
+                try { host.CloseDocument(documentId); } catch { }
             }
         }
 

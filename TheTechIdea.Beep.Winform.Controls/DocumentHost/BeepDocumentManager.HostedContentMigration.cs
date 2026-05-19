@@ -11,24 +11,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly HashSet<string> _suppressedHostedAddinRemovals =
             new(StringComparer.OrdinalIgnoreCase);
 
-        private void PrepareHostedContentForViewSwitch(IBeepDocumentManagerView view)
+        private void PrepareHostedContentForViewSwitch(BeepDocumentHost host)
         {
-            if (view == null || IsDesignTimeComponent)
+            if (host == null || IsDesignTimeComponent)
                 return;
 
-            PrepareAddinsForViewSwitch(view);
-            PrepareExtendedControlsForViewSwitch(view);
+            PrepareAddinsForViewSwitch(host);
+            PrepareExtendedControlsForViewSwitch(host);
         }
 
         private void RehostHostedContentForCurrentView()
         {
-            if (_view == null || IsDesignTimeComponent)
+            if (_host == null || IsDesignTimeComponent)
                 return;
 
             RehostAddinsForCurrentView();
         }
 
-        private void PrepareAddinsForViewSwitch(IBeepDocumentManagerView view)
+        private void PrepareAddinsForViewSwitch(BeepDocumentHost host)
         {
             if (_addinEntries.Count == 0)
                 return;
@@ -36,21 +36,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             foreach (var pair in _addinEntries.ToList())
             {
                 var entry = pair.Value;
-                if (!IsAddinHostedInView(entry, view))
+                if (!IsAddinHostedInView(entry, host))
                     continue;
-
-                if (TryDetachExternalMdiAddin(view, entry, out var detachedEntry))
-                {
-                    _addinEntries[pair.Key] = detachedEntry;
-                    continue;
-                }
 
                 if (!CanRehostAddin(entry))
                     continue;
 
                 DetachHostedAddinSurface(entry);
                 SuppressHostedAddinRemoval(entry.DocumentId);
-                TryCloseHostedDocument(view, entry.DocumentId);
+                TryCloseHostedDocument(host, entry.DocumentId);
                 _addinEntries[pair.Key] = CreateDetachedAddinEntry(entry);
             }
         }
@@ -75,20 +69,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         }
 
         private bool IsAddinHostedInCurrentView(AddinEntry entry)
-            => _view != null && IsAddinHostedInView(entry, _view);
+            => _host != null && IsAddinHostedInView(entry, _host);
 
-        private bool IsAddinHostedInView(AddinEntry entry, IBeepDocumentManagerView view)
+        private bool IsAddinHostedInView(AddinEntry entry, BeepDocumentHost host)
         {
             if (string.IsNullOrEmpty(entry.DocumentId))
                 return false;
 
             if (entry.DocumentPanel != null && !entry.DocumentPanel.IsDisposed)
-                return ReferenceEquals(view.GetPanel(entry.DocumentId), entry.DocumentPanel);
+                return ReferenceEquals(host.GetPanel(entry.DocumentId), entry.DocumentPanel);
 
-            if (entry.MdiChild != null && !entry.MdiChild.IsDisposed && view is BeepNativeMdiView mdi)
-                return ReferenceEquals(entry.MdiChild.MdiParent, mdi.ParentForm);
-
-            return view.GetPanel(entry.DocumentId) != null;
+            return host.GetPanel(entry.DocumentId) != null;
         }
 
         private static bool CanRehostAddin(AddinEntry entry)
@@ -131,36 +122,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private AddinEntry? TryRehostExistingAddin(AddinEntry entry)
         {
-            if (_view == null || entry.Addin == null)
+            if (_host == null || entry.Addin == null)
                 return null;
-
-            if (_view is BeepNativeMdiView mdi)
-                return HostAddinInMdi(entry.Title, entry.Addin, mdi, entry);
 
             return HostAddinInPanel(entry.Title, entry.Addin, entry);
         }
 
-        private bool TryDetachExternalMdiAddin(
-            IBeepDocumentManagerView view,
-            AddinEntry entry,
-            out AddinEntry detachedEntry)
-        {
-            detachedEntry = entry;
-
-            if (view is not BeepNativeMdiView mdi || string.IsNullOrEmpty(entry.DocumentId))
-                return false;
-
-            if (entry.Addin is not Form addinForm || addinForm.IsDisposed || !ReferenceEquals(entry.MdiChild, addinForm))
-                return false;
-
-            if (!mdi.DetachDocumentForm(entry.DocumentId, addinForm))
-                return false;
-
-            detachedEntry = CreateDetachedAddinEntry(entry);
-            return true;
-        }
-
-        private void PrepareExtendedControlsForViewSwitch(IBeepDocumentManagerView view)
+        private void PrepareExtendedControlsForViewSwitch(BeepDocumentHost host)
         {
             foreach (var control in _extendedControls)
             {
@@ -174,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                     continue;
 
                 DetachExtendedControlSurface(control);
-                TryCloseHostedDocument(view, info.HostedDocumentId);
+                TryCloseHostedDocument(host, info.HostedDocumentId);
                 info.HostedDocumentId = null;
             }
         }
@@ -188,27 +156,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             catch { }
         }
 
-        private static void TryCloseHostedDocument(IBeepDocumentManagerView view, string? documentId)
+        private static void TryCloseHostedDocument(BeepDocumentHost host, string? documentId)
         {
-            if (view == null || string.IsNullOrEmpty(documentId))
+            if (host == null || string.IsNullOrEmpty(documentId))
                 return;
 
-            try { view.DetachDocumentForTransfer(documentId); } catch { }
+            try { host.CloseDocument(documentId); } catch { }
         }
 
         private bool IsExtendedControlHostedInCurrentView(Control control, AttachedDocInfo info)
         {
-            if (_view == null || string.IsNullOrEmpty(info.HostedDocumentId) || control.IsDisposed)
+            if (_host == null || string.IsNullOrEmpty(info.HostedDocumentId) || control.IsDisposed)
                 return false;
-
-            if (_view is BeepNativeMdiView mdi)
-                return IsExtendedControlHostedInNativeMdi(mdi, control);
 
             if (control.Parent is not BeepDocumentPanel panel || panel.IsDisposed)
                 return false;
 
             return string.Equals(panel.DocumentId, info.HostedDocumentId, StringComparison.OrdinalIgnoreCase)
-                   && ReferenceEquals(_view.GetPanel(info.HostedDocumentId), panel);
+                   && ReferenceEquals(_host.GetPanel(info.HostedDocumentId), panel);
         }
 
         private bool TryRemoveDetachedExternalAddin(AddinEntry entry)

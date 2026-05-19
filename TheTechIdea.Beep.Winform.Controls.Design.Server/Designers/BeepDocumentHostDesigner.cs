@@ -127,6 +127,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 // into ISelectionService → property grid swaps automatically.
                 _activeDocumentChangedHandler = OnHostActiveDocumentChanged;
                 host.ActiveDocumentChanged += _activeDocumentChangedHandler;
+
+                // Auto-create a default document panel at design time so the host
+                // is never empty and developers can immediately drop controls onto it.
+                // Uses IDesignerHost.CreateComponent so the panel serializes to designer.cs.
+                if (host.Controls.OfType<BeepDocumentPanel>().Count() == 0 && GetDesignerHost() is IDesignerHost designerHost)
+                {
+                    try
+                    {
+                        var panelChangeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+                        var panel = (BeepDocumentPanel)designerHost.CreateComponent(typeof(BeepDocumentPanel), "documentPanel1");
+                        panel.DocumentId = "doc1";
+                        panel.DocumentTitle = "Document 1";
+                        
+                        var controlsProp = TypeDescriptor.GetProperties(host)[nameof(Control.Controls)];
+                        panelChangeSvc?.OnComponentChanging(host, controlsProp);
+                        host.Controls.Add(panel);
+                        panelChangeSvc?.OnComponentChanged(host, controlsProp, null, panel);
+                    }
+                    catch { /* design-time guard */ }
+                }
             }
 
             // Sprint 17.1: register the docking-guide compass adorner

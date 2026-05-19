@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 Visible   = false
             };
 
-            _contentArea.Controls.Add(panel);
+            this.Controls.Add(panel);
             _panels[documentId] = panel;
 
             // Register to primary group
@@ -417,8 +417,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             panel.Theme   = ThemeName;
             panel.Visible = false;
 
-            if (panel.Parent != _contentArea)
-                _contentArea.Controls.Add(panel);
+            if (panel.Parent != this)
+                this.Controls.Add(panel);
 
             _panels[panel.DocumentId] = panel;
             _docGroupMap[panel.DocumentId] = _primaryGroup.GroupId;
@@ -1329,7 +1329,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             var targetCoordinator = new DocumentHostTreeMutationCoordinator(this);
             targetCoordinator.Execute(DocumentHostOperationNames.AttachExternalDocument, () =>
             {
-                panel.Parent = _contentArea;
+                this.Controls.Add(panel);
                 _panels[documentId] = panel;
                 _docGroupMap[documentId] = _primaryGroup.GroupId;
                 _primaryGroup.DocumentIds.Add(documentId);

@@ -52,34 +52,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             base.InitializeNewComponent(defaultValues);
             try
             {
-                // Honor the developer's "Don't show again" preference (HKCU).
-                if (!ShouldAutoOpenWizard()) return;
-
-                // Defer to the next message loop tick so the component is fully
-                // sited by the designer host before the wizard tries to read
-                // services from it.
+                // Auto-create BeepDocumentHost via IDesignerHost so it serializes to designer.cs
                 if (Component is BeepDocumentManager mgr && mgr.Site != null)
                 {
                     var sync = SynchronizationContext.Current;
                     if (sync != null)
-                    {
-                        sync.Post(_ => SafeShowSetupWizard(), null);
-                    }
+                        sync.Post(_ => SafeAutoCreateHost(), null);
                     else
-                    {
-                        SafeShowSetupWizard();
-                    }
+                        SafeAutoCreateHost();
                 }
             }
             catch
             {
-                // Wizard must never break the toolbox drop operation.
+                // Auto-creation must never break the toolbox drop operation.
             }
         }
 
-        private void SafeShowSetupWizard()
+        private void SafeAutoCreateHost()
         {
-            try { ShowSetupWizard(); } catch { /* design-time guard */ }
+            try { AutoCreateHost(); } catch { /* design-time guard */ }
+        }
+
+        /// <summary>
+        /// Auto-creates a BeepDocumentHost on the root form and assigns it to the manager.
+        /// Uses IDesignerHost.CreateComponent so the host is serialized to designer.cs.
+        /// </summary>
+        private void AutoCreateHost()
+        {
+            if (_manager == null || DesignerHost == null) return;
+            if (_manager.Host != null) return; // Already has a host
+
+            // Only auto-create when the root component is a Form
+            if (DesignerHost.RootComponent is not Form rootForm) return;
+
+            using var txn = DesignerHost.CreateTransaction("Create BeepDocumentHost");
+            try
+            {
+                // CRITICAL: Use designer host to create component so it tracks and serializes it
+                var host = (BeepDocumentHost)DesignerHost.CreateComponent(typeof(BeepDocumentHost));
+                
+                var changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
+                var controlsProp = TypeDescriptor.GetProperties(rootForm)["Controls"];
+                
+                // Add host to form's controls
+                changeSvc?.OnComponentChanging(rootForm, controlsProp);
+                rootForm.Controls.Add(host);
+                changeSvc?.OnComponentChanged(rootForm, controlsProp, null, null);
+                
+                // Dock = Fill via property descriptor so change service notifies serializers
+                var dockProp = TypeDescriptor.GetProperties(host)[nameof(Control.Dock)];
+                if (dockProp != null)
+                {
+                    var oldDock = dockProp.GetValue(host);
+                    changeSvc?.OnComponentChanging(host, dockProp);
+                    dockProp.SetValue(host, DockStyle.Fill);
+                    changeSvc?.OnComponentChanged(host, dockProp, oldDock, DockStyle.Fill);
+                }
+                
+                // Send to back so it doesn't obscure docked siblings
+                try { host.SendToBack(); } catch { }
+                
+                // Assign to manager via property descriptor so it serializes
+                var hostProp = TypeDescriptor.GetProperties(_manager)[nameof(BeepDocumentManager.Host)];
+                if (hostProp != null)
+                {
+                    var oldHost = hostProp.GetValue(_manager);
+                    changeSvc?.OnComponentChanging(_manager, hostProp);
+                    hostProp.SetValue(_manager, host);
+                    changeSvc?.OnComponentChanged(_manager, hostProp, oldHost, host);
+                }
+                
+                txn.Commit();
+            }
+            catch
+            {
+                txn.Cancel();
+                throw;
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -126,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void OnAddDocument(object? sender, EventArgs e)
         {
-            if (_manager?.View == null) return;
+            if (_manager?.Host == null) return;
             HideSmartTag();
 
             if (TryAddDocumentViaHostDesigner())
@@ -162,13 +211,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void OnResetLayout(object? sender, EventArgs e)
         {
             HideSmartTag();
-            // ResetLayout only clears the runtime view; DesignTimeDocuments is
+            // ResetLayout only clears the runtime host; DesignTimeDocuments is
             // untouched, so this is a runtime-only operation that does not
             // participate in the serializable undo graph. We still create a
             // transaction so VS can group any cascading change-service
-            // notifications fired by view teardown into a single Edit-menu
+            // notifications fired by host teardown into a single Edit-menu
             // entry.
-            if (_manager?.View == null) return;
+            if (_manager?.Host == null) return;
             using var txn = DesignerHost?.CreateTransaction("Reset Layout");
             try
             {
@@ -234,11 +283,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         }
 
         /// <summary>
-        /// Finds the <see cref="BeepDocumentHostDesigner"/> for the view's host and
+        /// Finds the <see cref="BeepDocumentHostDesigner"/> for the manager's host and
         /// asks it to sync the manager's document list to the host's
         /// <see cref="BeepDocumentHost.DocumentPanels"/> using proper designer
         /// component creation. Falls back to the runtime path when no host designer
-        /// is available (e.g. when the view is not yet a BeepTabbedView).
+        /// is available.
         /// </summary>
         private void SyncManagerDocumentsViaHostDesigner()
             => SyncManagerDocumentsViaHostDesigner(createTransaction: true);
@@ -247,10 +296,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (_manager == null) return;
 
-            var host = (_manager.View as BeepTabbedView)?.Host;
+            var host = _manager.Host;
             if (host == null)
             {
-                // No tabbed host — runtime refresh is the only option
+                // No host — runtime refresh is the only option
                 _manager.RefreshDesignTimeDocuments();
                 return;
             }
@@ -282,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return false;
             }
 
-            var host = (_manager.View as BeepTabbedView)?.Host;
+            var host = _manager.Host;
             if (host == null || DesignerHost?.GetDesigner(host) is not BeepDocumentHostDesigner hostDesigner)
             {
                 return false;
@@ -337,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (registry == null)
             {
                 MessageBox.Show(
-                    "Keyboard shortcuts are only available when the view is BeepTabbedView.",
+                    "Keyboard shortcuts are only available when a host is assigned.",
                     "Customize Keyboard Shortcuts",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -349,11 +398,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         private void OnManageWorkspaces(object? sender, EventArgs e)
         {
             HideSmartTag();
-            var host = (_manager?.View as BeepTabbedView)?.Host;
+            var host = _manager?.Host;
             if (host == null)
             {
                 MessageBox.Show(
-                    "Manage Workspaces requires a BeepTabbedView with a Host assigned.",
+                    "Manage Workspaces requires a BeepDocumentHost to be assigned.",
                     "Manage Workspaces",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -362,52 +411,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             dlg.ShowDialog();
         }
 
-        // Kept internal so the new view-mode partial (and BeepDocumentManagerActionList)
-        // can request a view type without re-implementing the transaction wrapper.
-        //
-        // Hot-fix 2026-05-17: made idempotent. The previous implementation
-        // unconditionally called DesignerHost.CreateComponent(TView), which
-        // meant every wizard re-run leaked a fresh component into the tray
-        // (beepTabbedView1, beepTabbedView2, beepTabbedView3, …) instead of
-        // reusing the assigned view. We now:
-        //   1. Return the existing view as-is when it is already the
-        //      requested TView type (no transaction, no leaked components).
-        //   2. When switching view types, destroy the previous view via
-        //      DesignerHost.DestroyComponent so the tray stays clean.
-        //   3. Only create+assign a fresh component when no view of the
-        //      requested type exists.
-        internal TView? CreateAndAssignView<TView>(string txnName)
-            where TView : Component, IBeepDocumentManagerView, new()
+        /// <summary>
+        /// Creates and assigns a BeepDocumentHost to the manager using IDesignerHost.CreateComponent
+        /// so it serializes to the form's designer.cs.
+        /// </summary>
+        internal BeepDocumentHost? CreateAndAssignHost(string txnName)
         {
             if (_manager == null || DesignerHost == null) return null;
 
-            // Already correct type → reuse, don't recreate.
-            if (_manager.View is TView existing)
-                return existing;
+            // Already has a host → reuse, don't recreate.
+            if (_manager.Host != null)
+                return _manager.Host;
 
             using var txn = DesignerHost.CreateTransaction(txnName);
             try
             {
-                // Tear down any previous view of a different type so the
-                // component tray doesn't accumulate orphans.
-                if (_manager.View is Component oldView)
-                {
-                    try { DesignerHost.DestroyComponent(oldView); }
-                    catch { /* design-time; non-fatal */ }
-                }
-
-                var view = (TView)DesignerHost.CreateComponent(typeof(TView));
-                PropertyDescriptor? viewProperty = GetPropertyDescriptor(nameof(BeepDocumentManager.View));
-                if (viewProperty != null)
+                var host = (BeepDocumentHost)DesignerHost.CreateComponent(typeof(BeepDocumentHost));
+                PropertyDescriptor? hostProperty = GetPropertyDescriptor(nameof(BeepDocumentManager.Host));
+                if (hostProperty != null)
                 {
                     var changeSvc = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
-                    object? oldValue = viewProperty.GetValue(_manager);
-                    changeSvc?.OnComponentChanging(_manager, viewProperty);
-                    viewProperty.SetValue(_manager, view);
-                    changeSvc?.OnComponentChanged(_manager, viewProperty, oldValue, view);
+                    object? oldValue = hostProperty.GetValue(_manager);
+                    changeSvc?.OnComponentChanging(_manager, hostProperty);
+                    hostProperty.SetValue(_manager, host);
+                    changeSvc?.OnComponentChanged(_manager, hostProperty, oldValue, host);
                 }
                 txn.Commit();
-                return view;
+                return host;
             }
             catch
             {
@@ -549,30 +579,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private BeepDocumentManager? Manager  => _designer.Component as BeepDocumentManager;
 
-        // Proxy into the tabbed-view host for tab appearance props.
-        private BeepDocumentHost? TabbedHost  => (Manager?.View as BeepTabbedView)?.Host;
+        // Direct reference to the host for tab appearance props.
+        private BeepDocumentHost? TabbedHost  => Manager?.Host;
 
-        // ── View ──────────────────────────────────────────────────────────────
+        // ── Host ──────────────────────────────────────────────────────────────
 
-        [Description("The view component (BeepTabbedView, BeepNativeMdiView, ...) that renders documents.")]
-        public IBeepDocumentManagerView? View
+        [Description("The BeepDocumentHost control that renders documents.")]
+        public BeepDocumentHost? Host
         {
-            get => Manager?.View;
+            get => Manager?.Host;
             set
             {
                 var mgr = Manager;
                 if (mgr == null) return;
                 _designer.SetDesignerProperty(
                     mgr,
-                    nameof(BeepDocumentManager.View),
+                    nameof(BeepDocumentManager.Host),
                     value,
-                    "Set Document View");
+                    "Set Document Host");
             }
         }
 
-        // ── Tab appearance (only meaningful when View is BeepTabbedView) ──────
+        // ── Tab appearance (only meaningful when Host is assigned) ──────
 
-        [Description("Tab style used by BeepTabbedView (Chrome / Pills / Underline / Cards / Material).")]
+        [Description("Tab style used by BeepDocumentHost (Chrome / Pills / Underline / Cards / Material).")]
         public DocumentTabStyle TabStyle
         {
             get => TabbedHost?.TabStyle ?? DocumentTabStyle.Chrome;

@@ -10,9 +10,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         private readonly Dictionary<string, List<Control>> _transferredDocumentContent =
             new(StringComparer.OrdinalIgnoreCase);
 
-        private void CaptureManagerOwnedDocumentContentForTransfer(IBeepDocumentManagerView view)
+        private void CaptureManagerOwnedDocumentContentForTransfer(BeepDocumentHost host)
         {
-            if (view == null || IsDesignTimeComponent)
+            if (host == null || IsDesignTimeComponent)
                 return;
 
             foreach (var documentId in EnumerateManagerOwnedDocumentIds())
@@ -20,13 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                 if (string.IsNullOrWhiteSpace(documentId))
                     continue;
 
-                if (view is BeepNativeMdiView mdi && mdi.TryGetDocumentForm(documentId, out var documentForm))
-                {
-                    CaptureDocumentContent(documentId, documentForm);
-                    continue;
-                }
-
-                var panel = view.GetPanel(documentId);
+                var panel = host.GetPanel(documentId);
                 if (panel == null || panel.IsDisposed)
                     continue;
 
@@ -59,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void RehostTransferredDocumentContentForCurrentView()
         {
-            if (_view == null || IsDesignTimeComponent || _transferredDocumentContent.Count == 0)
+            if (_host == null || IsDesignTimeComponent || _transferredDocumentContent.Count == 0)
                 return;
 
             foreach (var pair in _transferredDocumentContent.ToList())
@@ -71,14 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private bool TryRehostTransferredDocumentContent(string documentId, List<Control> controls)
         {
-            if (_view == null || string.IsNullOrWhiteSpace(documentId) || controls == null || controls.Count == 0)
+            if (_host == null || string.IsNullOrWhiteSpace(documentId) || controls == null || controls.Count == 0)
                 return false;
 
-            Control? target = null;
-            if (_view is BeepNativeMdiView mdi && mdi.TryGetDocumentForm(documentId, out var documentForm))
-                target = documentForm;
-            else
-                target = _view.GetPanel(documentId);
+            Control? target = _host.GetPanel(documentId);
 
             if (target == null || target.IsDisposed)
                 return false;

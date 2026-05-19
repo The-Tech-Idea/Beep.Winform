@@ -1,30 +1,21 @@
 // BeepDocumentManager.DisplayContainer.cs
-// Phase 08 — IDisplayContainer integration for the MDI / document host stack.
+// Phase 08 — IDisplayContainer integration for the document host stack.
 //
 // Why this exists:
-//   The Beep ecosystem already has IDisplayContainer (in TheTechIdea.Beep.Vis.Modules),
-//   implemented today by BeepDisplayContainer. Application code passes an
-//   IDisplayContainer around to host addins (IDM_Addin) — adding/removing,
-//   activating, popping up. Until now the only concrete implementation was
-//   BeepDisplayContainer, which is a panel-based tab host.
-//
+//   The Beep ecosystem already has IDisplayContainer (in TheTechIdea.Beep.Vis.Modules).
 //   This partial makes BeepDocumentManager itself an IDisplayContainer, so the
-//   developer can choose any document-presentation mode the manager supports
-//   — Tabbed Documents, Browser Tabs, or *Native MDI* — and still receive an
-//   IDisplayContainer instance to pass around. In other words:
+//   developer can host addins (IDM_Addin) directly through the manager's
+//   BeepDocumentHost. In other words:
 //
 //        IDisplayContainer container = beepDocumentManager;   // ← drop-in
 //        container.AddControl("Orders", new OrdersAddin(), ContainerTypeEnum.TabbedPanel);
 //
 //   The manager routes each AddControl/RemoveControl/ShowControl through the
-//   active IBeepDocumentManagerView:
-//       • BeepTabbedView     → existing BeepDocumentPanel pipeline
-//       • BeepNativeMdiView  → DocumentFormCreated event → addin hosted as
-//                              the MDI child Form's content
+//   assigned BeepDocumentHost.
 //
 // Lifecycle invariants:
 //   • Addin Initialize() runs before content is added.
-//   • Addin Dispose()    runs after the panel/MDI form is removed.
+//   • Addin Dispose()    runs after the panel is removed.
 //   • Each addin gets exactly one document id, tracked in _addinEntries.
 //   • Events are bridged from the manager's own DocumentAdded/Removed/
 //     ActiveDocumentChanged so IDisplayContainer subscribers get the
@@ -128,19 +119,11 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void ApplyContainerTypeHint()
         {
-            switch (_view)
+            if (_host != null)
             {
-                case BeepTabbedView tabbed when tabbed.Host != null:
-                    tabbed.Host.TabPosition = _idcContainerType == ContainerTypeEnum.SinglePanel
-                        ? TabStripPosition.Hidden
-                        : TabStripPosition.Top;
-                    break;
-
-                case BeepNativeMdiView mdi when mdi.ParentForm?.ActiveMdiChild != null
-                                            && _idcContainerType == ContainerTypeEnum.SinglePanel:
-                    try { mdi.ParentForm.ActiveMdiChild.WindowState = FormWindowState.Maximized; }
-                    catch { /* non-fatal */ }
-                    break;
+                _host.TabPosition = _idcContainerType == ContainerTypeEnum.SinglePanel
+                    ? TabStripPosition.Hidden
+                    : TabStripPosition.Top;
             }
         }
 
@@ -151,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public bool AddControl(string TitleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {
             if (control == null || string.IsNullOrWhiteSpace(TitleText)) return false;
-            if (_view == null) return false;
+            if (_host == null) return false;
 
             // Title is the IDisplayContainer lookup key. Allowing duplicates would
             // overwrite the tracked entry and leave the older hosted document unreachable.
@@ -167,11 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             EnsureDisplayContainerEventsBridged();
 
-            AddinEntry? entry = _view switch
-            {
-                BeepNativeMdiView mdi   => HostAddinInMdi(TitleText, control, mdi),
-                _                       => HostAddinInPanel(TitleText, control)
-            };
+            AddinEntry? entry = HostAddinInPanel(TitleText, control);
 
             if (entry == null)
             {
@@ -364,8 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                         try { popupForm.Controls.Remove(control); } catch { }
                     };
 
-                    Form? owner = (_view as BeepNativeMdiView)?.ParentForm
-                                  ?? Form.ActiveForm;
+                    Form? owner = Form.ActiveForm;
                     popupForm.Show(owner);
 
                     await Task.CompletedTask;

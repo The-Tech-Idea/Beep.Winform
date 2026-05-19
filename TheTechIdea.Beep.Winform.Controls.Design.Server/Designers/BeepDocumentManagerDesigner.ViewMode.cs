@@ -45,82 +45,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (_manager == null || DesignerHost == null) return;
 
-            BeepTabbedView? view = CreateAndAssignView<BeepTabbedView>(
-                browserStyle ? "Use Browser Tabs" : "Use Tabbed Documents");
-            if (view == null) return;
-
-            // Hot-fix 2026-05-17: auto-create + dock the BeepDocumentHost
-            // when none exists. Dropping a single BeepDocumentManager should
-            // give a working MDI surface — making the user hunt for a
-            // separate host control to drop was broken UX.
+            // Auto-create or reuse existing BeepDocumentHost
             BeepDocumentHost? host = EnsureBeepDocumentHostExists(out string hostStatus, out bool hostAutoCreated);
+            if (host == null) return;
 
-            if (host != null)
+            if (browserStyle)
             {
-                AssignHostToTabbedView(view, host, browserStyle
-                    ? "Wire BeepTabbedView.Host (browser tabs)"
-                    : "Wire BeepTabbedView.Host");
-
-                if (browserStyle)
-                {
-                    ApplyBrowserStyleToHost(host);
-                }
+                ApplyBrowserStyleToHost(host);
             }
 
             if (showInfo)
             {
-                string msg;
-                if (host != null)
-                {
-                    string hostName  = host.Site?.Name ?? "BeepDocumentHost";
-                    string createdNote = hostAutoCreated
-                        ? $"Auto-created '{hostName}' on the root form (Dock = Fill).\n\n"
-                        : $"BeepTabbedView wired to existing '{hostName}'.\n\n";
-                    msg = (browserStyle
-                            ? "Browser Tabs mode applied. "
-                            : "Tabbed Documents mode applied. ") +
-                          createdNote +
-                          (browserStyle
-                            ? "Chrome tab style, new-tab button visible, close button always on."
-                            : "Tabs, splits, floating windows, pinned tabs, and themes are available.");
-                }
-                else
-                {
-                    msg = "View created, but no host could be auto-created.\n\nStatus: " + hostStatus +
-                          "\n\nThis happens when the root component is not a Form (e.g. a UserControl). " +
-                          "Drop a BeepDocumentHost manually and set View.Host to it.";
-                }
+                string hostName = host.Site?.Name ?? "BeepDocumentHost";
+                string createdNote = hostAutoCreated
+                    ? $"Auto-created '{hostName}' on the root form (Dock = Fill).\n\n"
+                    : $"Using existing '{hostName}'.\n\n";
+                string msg = (browserStyle
+                        ? "Browser Tabs mode applied. "
+                        : "Tabbed Documents mode applied. ") +
+                      createdNote +
+                      (browserStyle
+                        ? "Chrome tab style, new-tab button visible, close button always on."
+                        : "Tabs, splits, floating windows, pinned tabs, and themes are available.");
+
                 HideSmartTag(); // Dismiss panel before opening modal.
                 MessageBox.Show(msg,
                     browserStyle ? "Use Browser Tabs" : "Use Tabbed Documents",
                     MessageBoxButtons.OK,
-                    host != null ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+                    MessageBoxIcon.Information);
             }
 
             RefreshPanel();
         }
 
         // ══════════════════════════════════════════════════════════════════
-        // Mode C — Native MDI
+        // Mode C — Native MDI (deprecated, kept for compatibility)
         // ══════════════════════════════════════════════════════════════════
 
         internal void ApplyNativeMdiViewMode(bool showInfo)
         {
             if (_manager == null || DesignerHost == null) return;
 
-            BeepNativeMdiView? view = CreateAndAssignView<BeepNativeMdiView>("Use Native MDI View");
-            if (view == null) return;
-
             Form? rootForm = DesignerHost.RootComponent as Form;
             bool wired = false;
 
             if (rootForm != null)
             {
-                using var txn = DesignerHost.CreateTransaction("Wire BeepNativeMdiView.ParentForm");
+                using var txn = DesignerHost.CreateTransaction("Set MDI Container");
                 try
                 {
                     SetIsMdiContainer(rootForm, true);
-                    SetViewProperty(view, nameof(BeepNativeMdiView.ParentForm), rootForm);
                     txn.Commit();
                     wired = true;
                 }
@@ -130,12 +104,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (showInfo)
             {
                 string msg = wired
-                    ? "Native MDI mode applied. BeepNativeMdiView wired to form '" +
-                      (rootForm!.Site?.Name ?? rootForm.Name ?? "Form1") + "'.\n\n" +
-                      "Form.IsMdiContainer = true. Each AddDocument call creates a native MDI child window.\n\n" +
+                    ? "Native MDI mode applied. Form '" +
+                      (rootForm!.Site?.Name ?? rootForm.Name ?? "Form1") + "' set as MDI container.\n\n" +
+                      "Each AddDocument call creates a native MDI child window.\n\n" +
                       "Note: tabs, docking, splits, and floating windows are NOT available in this mode."
-                    : "BeepNativeMdiView created, but the root component is not a Form. " +
-                      "Set ParentForm manually and ensure that form's IsMdiContainer = true.";
+                    : "Root component is not a Form. " +
+                      "Set IsMdiContainer = true manually.";
 
                 HideSmartTag(); // Dismiss panel before opening modal.
                 MessageBox.Show(msg, "Use Native MDI View", MessageBoxButtons.OK,
@@ -159,19 +133,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // very view it just configured.
             HideSmartTag();
 
-            DocumentSetupMode initial = _manager.View switch
+            DocumentSetupMode initial = _manager.Host switch
             {
-                BeepTabbedView t when IsBrowserStyledHost(t.Host) => DocumentSetupMode.BrowserTabs,
-                BeepTabbedView                                    => DocumentSetupMode.TabbedDocuments,
-                BeepNativeMdiView                                 => DocumentSetupMode.NativeMdi,
-                _                                                 => DocumentSetupMode.TabbedDocuments
+                BeepDocumentHost h when IsBrowserStyledHost(h) => DocumentSetupMode.BrowserTabs,
+                BeepDocumentHost                                => DocumentSetupMode.TabbedDocuments,
+                _                                               => DocumentSetupMode.TabbedDocuments
             };
 
             // Reflect the *current* state to the wizard:
             //   – existing-doc count so the wizard can skip sample seeding,
             //   – the list of BeepDocumentHost candidates so the user can pick.
             int existingDocs = 0;
-            var current = (_manager.View as BeepTabbedView)?.Host;
+            var current = _manager.Host;
             if (current != null)
                 existingDocs = current.Groups?.Sum(g => g.DocumentIds?.Count ?? 0) ?? 0;
 
@@ -287,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         internal void SeedSampleDocuments(int count)
         {
-            if (_manager?.View == null) return;
+            if (_manager?.Host == null) return;
             if (count <= 0) return;
 
             int startIndex = _manager.DesignTimeDocuments.Count + 1;
@@ -330,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // BeepDocumentHost.Templates.cs. Map wizard ids to the closest
             // runtime templates that are available today. Phase 05 will grow
             // this table.
-            var host = (_manager?.View as BeepTabbedView)?.Host;
+            var host = _manager?.Host;
             if (host == null) return;
 
             switch (templateId)
@@ -387,52 +360,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (_manager == null) return "(unbound)";
 
-            switch (_manager.View)
+            var host = _manager.Host;
+            if (host == null)
+                return "Not configured — click 'Setup Wizard…' to start.";
+
+            int docs = host.Groups?.Sum(g => g.DocumentIds?.Count ?? 0) ?? 0;
+            string position = host.TabPosition.ToString();
+            bool browser = IsBrowserStyledHost(host);
+            string label = browser ? "Browser Tabs" : "Tabbed Documents";
+
+            // Empty host → tell the user exactly which two things they can do.
+            if (docs == 0)
             {
-                case BeepTabbedView tabbed:
-                {
-                    var host = tabbed.Host;
-                    if (host == null)
-                        return "Tabbed View · Host not assigned — drop a BeepDocumentHost or re-run the Setup Wizard.";
-
-                    int docs = host.Groups?.Sum(g => g.DocumentIds?.Count ?? 0) ?? 0;
-                    string position = host.TabPosition.ToString();
-                    bool browser = IsBrowserStyledHost(host);
-                    string label = browser ? "Browser Tabs" : "Tabbed Documents";
-
-                    // Empty host → tell the user exactly which two things they can do.
-                    if (docs == 0)
-                    {
-                        return $"{label} · 0 docs — drop a control on the host (creates a tab) " +
-                               "or click 'Add Document'.";
-                    }
-
-                    string flags =
-                        (browser ? "+ button" : (host.AllowSplit ? "Splits allowed" : "No splits"));
-                    return $"{label} · {docs} doc{(docs == 1 ? "" : "s")} · {position} tabs · {flags}";
-                }
-                case BeepNativeMdiView mdi:
-                {
-                    var pf = mdi.ParentForm;
-                    string formName = pf?.Site?.Name ?? pf?.Name ?? "(no form)";
-                    bool isContainer = pf?.IsMdiContainer ?? false;
-
-                    if (pf == null)
-                        return "Native MDI · ParentForm not assigned — set View.ParentForm to the root Form or re-run the Setup Wizard.";
-
-                    if (!isContainer)
-                        return $"Native MDI · ParentForm = {formName} · IsMdiContainer = false — set it to true or re-run the Setup Wizard.";
-
-                    // Configured correctly — explain how to add children since they
-                    // are designed in their own Form, not inside this MDI parent.
-                    return $"Native MDI · ParentForm = {formName} · IsMdiContainer = true · " +
-                           "add child Forms at runtime via (IDisplayContainer)manager.AddControl(title, addinForm, …).";
-                }
-                case null:
-                    return "Not configured — click 'Setup Wizard…' to start.";
-                default:
-                    return _manager.View.GetType().Name + " (custom view)";
+                return $"{label} · 0 docs — drop a control on the host (creates a tab) " +
+                       "or click 'Add Document'.";
             }
+
+            string flags =
+                (browser ? "+ button" : (host.AllowSplit ? "Splits allowed" : "No splits"));
+            return $"{label} · {docs} doc{(docs == 1 ? "" : "s")} · {position} tabs · {flags}";
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -511,8 +457,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         /// <summary>
         /// Hot-fix 2026-05-17 — single-component-drop UX.
         ///
-        /// Returns the BeepDocumentHost the new BeepTabbedView should bind
-        /// to. If one already exists on the surface it is reused; otherwise
+        /// Returns the BeepDocumentHost the manager should bind to.
+        /// If one already exists on the surface it is reused; otherwise
         /// the designer creates one, drops it on the root Form, docks it
         /// Fill, and sends it to back so docked siblings (BeepMenuBar at
         /// top, status bars at bottom) keep their edges.
@@ -590,18 +536,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 status = "Failed to auto-create BeepDocumentHost (design-time error).";
                 return null;
             }
-        }
-
-        private void AssignHostToTabbedView(BeepTabbedView view, BeepDocumentHost host, string txnName)
-        {
-            if (DesignerHost == null) return;
-            using var txn = DesignerHost.CreateTransaction(txnName);
-            try
-            {
-                SetViewProperty(view, nameof(BeepTabbedView.Host), host);
-                txn.Commit();
-            }
-            catch { txn.Cancel(); }
         }
 
         private void SetViewProperty(object view, string propertyName, object? value)

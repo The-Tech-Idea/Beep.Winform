@@ -566,7 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void RegisterExistingDesignPanels()
         {
-            foreach (System.Windows.Forms.Control ctrl in _contentArea.Controls.OfType<BeepDocumentPanel>().ToList())
+            foreach (System.Windows.Forms.Control ctrl in this.Controls.OfType<BeepDocumentPanel>().ToList())
             {
                 if (ctrl is not BeepDocumentPanel panel || _panels.ContainsKey(panel.DocumentId))
                 {
@@ -1942,18 +1942,17 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         public System.Collections.ObjectModel.Collection<DocumentDescriptor> DesignTimeDocuments
             => _designTimeDocuments;
 
-        // ── DocumentPanels – designer serialisation vehicle ──────────────────
+        // ── DocumentPanels – runtime collection only ───────────────────────────
+        // Panels are serialized through the standard Controls collection.
         // The WinForms CodeDom serializer will emit:
         //
         //   this.documentPanel1 = new BeepDocumentPanel();
         //   this.documentPanel1.DocumentId    = "doc-1";
         //   this.documentPanel1.DocumentTitle = "Document 1";
-        //   this.beepDocumentHost1.DocumentPanels.Add(this.documentPanel1);
+        //   this.beepDocumentHost1.Controls.Add(this.documentPanel1);
         //
-        // On form re-open the Add() call goes through
-        // BeepDocumentPanelCollection.InsertItem() → RegisterDocumentPanel()
-        // so each panel is fully wired into the tab strip without the
-        // duplicate-panel conflict that DesignTimeDocuments serialisation caused.
+        // On form re-open, RegisterExistingDesignPanels() scans Controls
+        // and registers each BeepDocumentPanel with the host automatically.
 
         private BeepDocumentPanelCollection? _documentPanels;
 
@@ -1962,17 +1961,16 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
         /// this host. Adding a panel here is equivalent to calling
         /// <see cref="RegisterDocumentPanel"/>; removing it closes the document.
         /// <para>
-        /// The designer serialises this collection into <c>InitializeComponent</c>
-        /// so panels appear as first-class controls in <c>Designer.cs</c>.
+        /// Not serialized — panels are persisted through the Controls collection
+        /// so they appear as first-class child controls in Designer.cs.
         /// </para>
         /// </summary>
         [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BeepDocumentPanelCollection DocumentPanels
             => _documentPanels ??= new BeepDocumentPanelCollection(this);
 
-        public bool ShouldSerializeDocumentPanels()
-            => _documentPanels != null && _documentPanels.Count > 0;
+        public bool ShouldSerializeDocumentPanels() => false;
 
         /// <summary>
         /// Serialized design-time layout snapshot maintained by the DocumentHost designer.

@@ -50,6 +50,19 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<None Include="DocumentHost\.plans\COMMERCIAL-REFERENCE-NOTES.md" />
+		<None Include="DocumentHost\.plans\CURRENT-STATE-AUDIT.md" />
+		<None Include="DocumentHost\.plans\IMPLEMENTATION-ROADMAP.md" />
+		<None Include="DocumentHost\.plans\MASTER-TODO-TRACKER.md" />
+		<None Include="DocumentHost\.plans\PHASE-01-stabilise-designer.md" />
+		<None Include="DocumentHost\.plans\PHASE-02-document-manager-component.md" />
+		<None Include="DocumentHost\.plans\PHASE-03-view-modes.md" />
+		<None Include="DocumentHost\.plans\PHASE-04-documents-collection.md" />
+		<None Include="DocumentHost\.plans\PHASE-05-dock-panels.md" />
+		<None Include="DocumentHost\.plans\PHASE-06-commands-and-menu.md" />
+		<None Include="DocumentHost\.plans\PHASE-07-persistence-pack.md" />
+		<None Include="DocumentHost\.plans\PHASE-08-samples-docs.md" />
+		<None Include="DocumentHost\.plans\README.md" />
 		<None Include="NUGET-README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -4706,6 +4719,7 @@
     <Folder Include="SideBar\Painters\" />
     <Folder Include="SimpleGrid\Helpers\" />
     <Folder Include="SimpleGrid\Painters\" />
+    <Folder Include="Tabs\Adapters\" />
     <Folder Include="ToolTips\Helpers\" />
     <Folder Include="Trees\plans\" />
     <Folder Include="Widgets\Helpers\Painters\Finance\" />

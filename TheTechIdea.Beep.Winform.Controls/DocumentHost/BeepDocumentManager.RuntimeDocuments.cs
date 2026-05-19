@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
             bool activate,
             bool trackForViewSwitch)
         {
-            if (_view == null)
+            if (_host == null)
                 return null;
 
             PendingRuntimeDocumentAdd? pending = null;
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
             try
             {
-                return _view.AddDocument(title, iconPath ?? string.Empty, activate);
+                return _host.AddDocument(title, iconPath ?? string.Empty, activate);
             }
             finally
             {
@@ -44,13 +44,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
 
         private void ApplyRuntimeDocuments()
         {
-            if (_view == null || IsDesignTimeComponent || _runtimeDocuments.Count == 0)
+            if (_host == null || IsDesignTimeComponent || _runtimeDocuments.Count == 0)
                 return;
 
             _runtimeDocumentReplayDepth++;
             try
             {
-                _view.BeginBatchAddDocuments();
+                _host.BeginBatchAddDocuments();
                 try
                 {
                     DocumentDescriptor? preferredActive = null;
@@ -63,15 +63,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DocumentHost
                             continue;
                         }
 
-                        _view.AddDocument(CloneRuntimeDescriptor(descriptor));
+                        _host.OpenDocument(CloneRuntimeDescriptor(descriptor));
                     }
 
                     if (preferredActive != null)
-                        _view.AddDocument(CloneRuntimeDescriptor(preferredActive));
+                        _host.OpenDocument(CloneRuntimeDescriptor(preferredActive));
                 }
                 finally
                 {
-                    _view.EndBatchAddDocuments();
+                    _host.EndBatchAddDocuments();
                 }
             }
             finally

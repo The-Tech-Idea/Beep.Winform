@@ -6563,7 +6563,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepSimpleGrid1.FloatingLabel = true;
+            beepSimpleGrid1.FloatingLabel = string.Empty;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
             beepSimpleGrid1.FocusForeColor = Color.FromArgb(40, 40, 40);
@@ -6728,7 +6728,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox2.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepTextBox2.FieldID = null;
             beepTextBox2.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepTextBox2.FloatingLabel = true;
+            beepTextBox2.FloatingLabel = string.Empty;
             beepTextBox2.FocusBackColor = Color.LightYellow;
             beepTextBox2.FocusBorderColor = Color.FromArgb(136, 192, 208);
             beepTextBox2.FocusForeColor = Color.Black;
@@ -6909,7 +6909,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepLabel1.FloatingLabel = true;
+            beepLabel1.FloatingLabel = string.Empty;
             beepLabel1.FocusBackColor = Color.LightYellow;
             beepLabel1.FocusBorderColor = Color.RoyalBlue;
             beepLabel1.FocusForeColor = Color.Black;
@@ -7079,7 +7079,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDropDownCheckBoxSelect1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDropDownCheckBoxSelect1.FieldID = null;
             beepDropDownCheckBoxSelect1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepDropDownCheckBoxSelect1.FloatingLabel = true;
+            beepDropDownCheckBoxSelect1.FloatingLabel = string.Empty;
             beepDropDownCheckBoxSelect1.FocusBackColor = Color.LightYellow;
             beepDropDownCheckBoxSelect1.FocusBorderColor = Color.RoyalBlue;
             beepDropDownCheckBoxSelect1.FocusForeColor = Color.Black;
@@ -7234,7 +7234,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
             beepButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton1.FloatingLabel = true;
+            beepButton1.FloatingLabel = string.Empty;
             beepButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.White;

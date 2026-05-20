@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             _beepListBox.FieldID = null;
             _beepListBox.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            _beepListBox.FloatingLabel = true;
+            _beepListBox.FloatingLabel = string.Empty;
             _beepListBox.FocusBackColor = Color.DodgerBlue;
             _beepListBox.FocusBorderColor = Color.Gray;
             _beepListBox.FocusForeColor = Color.White;

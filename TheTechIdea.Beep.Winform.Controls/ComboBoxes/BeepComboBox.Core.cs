@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _innerPaddingSetExplicitly = false;
         private bool _layoutDefaultsInitialized = false;
         private const int DefaultDropdownButtonWidthLogical = 32;
-        private static readonly Padding DefaultInnerPaddingLogical = new Padding(8, 4, 8, 4);
+        private static readonly Padding DefaultInnerPaddingLogical = new Padding(1, 1, 1, 1);
 
         // Chip animations: track progress for chips when adding/removing
         private readonly System.Collections.Generic.Dictionary<SimpleItem, float> _chipProgress = new System.Collections.Generic.Dictionary<SimpleItem, float>();

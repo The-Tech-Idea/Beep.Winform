@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSideMenu1.FieldID = null;
             beepSideMenu1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepSideMenu1.FloatingLabel = true;
+            beepSideMenu1.FloatingLabel = string.Empty;
             beepSideMenu1.FocusBackColor = Color.White;
             beepSideMenu1.FocusBorderColor = Color.RoyalBlue;
             beepSideMenu1.FocusForeColor = Color.Black;
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDisplayContainer1.FieldID = null;
             beepDisplayContainer1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepDisplayContainer1.FloatingLabel = true;
+            beepDisplayContainer1.FloatingLabel = string.Empty;
             beepDisplayContainer1.FocusBackColor = Color.White;
             beepDisplayContainer1.FocusBorderColor = Color.RoyalBlue;
             beepDisplayContainer1.FocusForeColor = Color.Black;

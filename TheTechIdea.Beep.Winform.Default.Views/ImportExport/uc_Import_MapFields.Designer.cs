@@ -291,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSelectAll.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnSelectAll.FieldID = null;
             btnSelectAll.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnSelectAll.FloatingLabel = true;
+            btnSelectAll.FloatingLabel = string.Empty;
             btnSelectAll.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnSelectAll.FocusBorderColor = Color.RoyalBlue;
             btnSelectAll.FocusForeColor = Color.White;
@@ -482,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSelectNone.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnSelectNone.FieldID = null;
             btnSelectNone.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnSelectNone.FloatingLabel = true;
+            btnSelectNone.FloatingLabel = string.Empty;
             btnSelectNone.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnSelectNone.FocusBorderColor = Color.RoyalBlue;
             btnSelectNone.FocusForeColor = Color.White;
@@ -673,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnAutoMatch.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnAutoMatch.FieldID = null;
             btnAutoMatch.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnAutoMatch.FloatingLabel = true;
+            btnAutoMatch.FloatingLabel = string.Empty;
             btnAutoMatch.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnAutoMatch.FocusBorderColor = Color.RoyalBlue;
             btnAutoMatch.FocusForeColor = Color.White;
@@ -878,7 +878,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnTemplateDelete.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnTemplateDelete.FieldID = null;
             btnTemplateDelete.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnTemplateDelete.FloatingLabel = true;
+            btnTemplateDelete.FloatingLabel = string.Empty;
             btnTemplateDelete.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnTemplateDelete.FocusBorderColor = Color.RoyalBlue;
             btnTemplateDelete.FocusForeColor = Color.White;
@@ -1068,7 +1068,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnTemplateSave.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnTemplateSave.FieldID = null;
             btnTemplateSave.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnTemplateSave.FloatingLabel = true;
+            btnTemplateSave.FloatingLabel = string.Empty;
             btnTemplateSave.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnTemplateSave.FocusBorderColor = Color.RoyalBlue;
             btnTemplateSave.FocusForeColor = Color.White;
@@ -3453,7 +3453,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbTemplateLoad.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbTemplateLoad.FieldID = null;
             cmbTemplateLoad.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbTemplateLoad.FloatingLabel = true;
+            cmbTemplateLoad.FloatingLabel = string.Empty;
             cmbTemplateLoad.FocusBackColor = Color.LightYellow;
             cmbTemplateLoad.FocusBorderColor = Color.RoyalBlue;
             cmbTemplateLoad.FocusForeColor = Color.Black;
@@ -3647,7 +3647,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMappingStatus.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblMappingStatus.FieldID = null;
             lblMappingStatus.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblMappingStatus.FloatingLabel = true;
+            lblMappingStatus.FloatingLabel = string.Empty;
             lblMappingStatus.FocusBackColor = Color.LightYellow;
             lblMappingStatus.FocusBorderColor = Color.RoyalBlue;
             lblMappingStatus.FocusForeColor = Color.Black;

@@ -731,13 +731,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         private float _glassmorphismOpacity = 0.1f;
 
+
+      private  bool   _showFloatingLabel = false;
         [Browsable(true)]
-        public bool FloatingLabel
+
+        public bool FloatingLabelOn
+        {
+            get => _showFloatingLabel;
+            set { if (_showFloatingLabel == value) return; _showFloatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
+        }
+
+        [Browsable(true)]
+        public string FloatingLabel
         {
             get => _floatingLabel;
             set { if (_floatingLabel == value) return; _floatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
         }
-        private bool _floatingLabel = true;
+        private string _floatingLabel = string.Empty;
 
         private bool _showLabelText = false;
         public bool LabelTextOn
@@ -745,7 +755,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _showLabelText;
             set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
         }
-
+        private string _labelText = string.Empty;
 
         [Browsable(true)]
         public string LabelText
@@ -753,7 +763,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _labelText;
             set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
         }
-        private string _labelText = string.Empty;
+
 
         [Browsable(true)]
         [Category("Appearance")]

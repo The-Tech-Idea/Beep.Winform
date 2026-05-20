@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepLabel1.FloatingLabel = true;
+            beepLabel1.FloatingLabel = string.Empty;
             beepLabel1.FocusBackColor = Color.White;
             beepLabel1.FocusBorderColor = Color.RoyalBlue;
             beepLabel1.FocusForeColor = Color.Black;
@@ -251,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLogin1.FieldID = null;
             beepLogin1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepLogin1.FloatingLabel = true;
+            beepLogin1.FloatingLabel = string.Empty;
             beepLogin1.FocusBackColor = Color.White;
             beepLogin1.FocusBorderColor = Color.RoyalBlue;
             beepLogin1.FocusForeColor = Color.Black;
@@ -387,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CancelbeepButton.FieldID = null;
             CancelbeepButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            CancelbeepButton.FloatingLabel = true;
+            CancelbeepButton.FloatingLabel = string.Empty;
             CancelbeepButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             CancelbeepButton.FocusBorderColor = Color.RoyalBlue;
             CancelbeepButton.FocusForeColor = Color.White;

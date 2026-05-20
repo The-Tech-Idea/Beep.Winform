@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _rootPanel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _rootPanel.FieldID = null;
             _rootPanel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _rootPanel.FloatingLabel = true;
+            _rootPanel.FloatingLabel = string.Empty;
             _rootPanel.FocusBackColor = Color.LightYellow;
             _rootPanel.FocusBorderColor = Color.RoyalBlue;
             _rootPanel.FocusForeColor = Color.Black;
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _contentPanel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _contentPanel.FieldID = null;
             _contentPanel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _contentPanel.FloatingLabel = true;
+            _contentPanel.FloatingLabel = string.Empty;
             _contentPanel.FocusBackColor = Color.LightYellow;
             _contentPanel.FocusBorderColor = Color.RoyalBlue;
             _contentPanel.FocusForeColor = Color.Black;
@@ -491,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _btnRunSetup.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _btnRunSetup.FieldID = null;
             _btnRunSetup.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _btnRunSetup.FloatingLabel = true;
+            _btnRunSetup.FloatingLabel = string.Empty;
             _btnRunSetup.FocusBackColor = Color.FromArgb(21, 101, 192);
             _btnRunSetup.FocusBorderColor = Color.RoyalBlue;
             _btnRunSetup.FocusForeColor = Color.White;
@@ -688,7 +688,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblProgressStatus.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblProgressStatus.FieldID = null;
             _lblProgressStatus.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblProgressStatus.FloatingLabel = true;
+            _lblProgressStatus.FloatingLabel = string.Empty;
             _lblProgressStatus.FocusBackColor = Color.LightYellow;
             _lblProgressStatus.FocusBorderColor = Color.RoyalBlue;
             _lblProgressStatus.FocusForeColor = Color.Black;
@@ -889,7 +889,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _progressBar.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _progressBar.FieldID = null;
             _progressBar.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _progressBar.FloatingLabel = true;
+            _progressBar.FloatingLabel = string.Empty;
             _progressBar.FocusBackColor = Color.LightYellow;
             _progressBar.FocusBorderColor = Color.RoyalBlue;
             _progressBar.FocusForeColor = Color.Black;
@@ -1078,7 +1078,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblLastRunSummary.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblLastRunSummary.FieldID = null;
             _lblLastRunSummary.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblLastRunSummary.FloatingLabel = true;
+            _lblLastRunSummary.FloatingLabel = string.Empty;
             _lblLastRunSummary.FocusBackColor = Color.LightYellow;
             _lblLastRunSummary.FocusBorderColor = Color.RoyalBlue;
             _lblLastRunSummary.FocusForeColor = Color.Black;
@@ -1276,7 +1276,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblExecutionPath.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblExecutionPath.FieldID = null;
             _lblExecutionPath.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblExecutionPath.FloatingLabel = true;
+            _lblExecutionPath.FloatingLabel = string.Empty;
             _lblExecutionPath.FocusBackColor = Color.LightYellow;
             _lblExecutionPath.FocusBorderColor = Color.RoyalBlue;
             _lblExecutionPath.FocusForeColor = Color.Black;
@@ -1474,7 +1474,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblSummary.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblSummary.FieldID = null;
             _lblSummary.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblSummary.FloatingLabel = true;
+            _lblSummary.FloatingLabel = string.Empty;
             _lblSummary.FocusBackColor = Color.LightYellow;
             _lblSummary.FocusBorderColor = Color.RoyalBlue;
             _lblSummary.FocusForeColor = Color.Black;
@@ -1671,7 +1671,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _headerPanel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _headerPanel.FieldID = null;
             _headerPanel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _headerPanel.FloatingLabel = true;
+            _headerPanel.FloatingLabel = string.Empty;
             _headerPanel.FocusBackColor = Color.LightYellow;
             _headerPanel.FocusBorderColor = Color.RoyalBlue;
             _headerPanel.FocusForeColor = Color.Black;
@@ -1853,7 +1853,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblDescription.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblDescription.FieldID = null;
             _lblDescription.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblDescription.FloatingLabel = true;
+            _lblDescription.FloatingLabel = string.Empty;
             _lblDescription.FocusBackColor = Color.LightYellow;
             _lblDescription.FocusBorderColor = Color.RoyalBlue;
             _lblDescription.FocusForeColor = Color.Black;
@@ -2051,7 +2051,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Setup
             _lblTitle.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _lblTitle.FieldID = null;
             _lblTitle.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            _lblTitle.FloatingLabel = true;
+            _lblTitle.FloatingLabel = string.Empty;
             _lblTitle.FocusBackColor = Color.LightYellow;
             _lblTitle.FocusBorderColor = Color.RoyalBlue;
             _lblTitle.FocusForeColor = Color.Black;

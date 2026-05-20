@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             cmbFilterCol1.FieldID = null;
             cmbFilterCol1.FilledBackgroundColor = Color.White;
-            cmbFilterCol1.FloatingLabel = true;
+            cmbFilterCol1.FloatingLabel = string.Empty;
             cmbFilterCol1.FocusBackColor = Color.LightYellow;
             cmbFilterCol1.FocusBorderColor = Color.RoyalBlue;
             cmbFilterCol1.FocusForeColor = Color.Black;
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
 
             cmbFilterVal1.FieldID = null;
             cmbFilterVal1.FilledBackgroundColor = Color.White;
-            cmbFilterVal1.FloatingLabel = true;
+            cmbFilterVal1.FloatingLabel = string.Empty;
             cmbFilterVal1.FocusBackColor = Color.LightYellow;
             cmbFilterVal1.FocusBorderColor = Color.RoyalBlue;
             cmbFilterVal1.FocusForeColor = Color.Black;
@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
           
             cmbFilterCol2.FieldID = null;
             cmbFilterCol2.FilledBackgroundColor = Color.White;
-            cmbFilterCol2.FloatingLabel = true;
+            cmbFilterCol2.FloatingLabel = string.Empty;
             cmbFilterCol2.FocusBackColor = Color.LightYellow;
             cmbFilterCol2.FocusBorderColor = Color.RoyalBlue;
             cmbFilterCol2.FocusForeColor = Color.Black;
@@ -673,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             cmbFilterVal2.FieldID = null;
             cmbFilterVal2.FilledBackgroundColor = Color.White;
-            cmbFilterVal2.FloatingLabel = true;
+            cmbFilterVal2.FloatingLabel = string.Empty;
             cmbFilterVal2.FocusBackColor = Color.LightYellow;
             cmbFilterVal2.FocusBorderColor = Color.RoyalBlue;
             cmbFilterVal2.FocusForeColor = Color.Black;
@@ -841,7 +841,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
        
             cmbGroupBy.FieldID = null;
             cmbGroupBy.FilledBackgroundColor = Color.White;
-            cmbGroupBy.FloatingLabel = true;
+            cmbGroupBy.FloatingLabel = string.Empty;
             cmbGroupBy.FocusBackColor = Color.LightYellow;
             cmbGroupBy.FocusBorderColor = Color.RoyalBlue;
             cmbGroupBy.FocusForeColor = Color.Black;
@@ -1009,7 +1009,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
          
             cmbOrderBy.FieldID = null;
             cmbOrderBy.FilledBackgroundColor = Color.White;
-            cmbOrderBy.FloatingLabel = true;
+            cmbOrderBy.FloatingLabel = string.Empty;
             cmbOrderBy.FocusBackColor = Color.LightYellow;
             cmbOrderBy.FocusBorderColor = Color.RoyalBlue;
             cmbOrderBy.FocusForeColor = Color.Black;
@@ -1174,7 +1174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
           
             rbOrder.FieldID = null;
             rbOrder.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            rbOrder.FloatingLabel = true;
+            rbOrder.FloatingLabel = string.Empty;
             rbOrder.FocusBackColor = Color.White;
             rbOrder.FocusBorderColor = Color.RoyalBlue;
             rbOrder.FocusForeColor = Color.Black;
@@ -1309,7 +1309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
           
             chkShowHeaders.FieldID = null;
             chkShowHeaders.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
-            chkShowHeaders.FloatingLabel = true;
+            chkShowHeaders.FloatingLabel = string.Empty;
             chkShowHeaders.FocusBackColor = Color.LightYellow;
             chkShowHeaders.FocusBorderColor = Color.RoyalBlue;
             chkShowHeaders.FocusForeColor = Color.Black;
@@ -1509,7 +1509,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
        
             btnExport.FieldID = null;
             btnExport.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            btnExport.FloatingLabel = true;
+            btnExport.FloatingLabel = string.Empty;
             btnExport.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnExport.FocusBorderColor = Color.RoyalBlue;
             btnExport.FocusForeColor = Color.White;
@@ -1689,7 +1689,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
       
             btnApply.FieldID = null;
             btnApply.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            btnApply.FloatingLabel = true;
+            btnApply.FloatingLabel = string.Empty;
             btnApply.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnApply.FocusBorderColor = Color.RoyalBlue;
             btnApply.FocusForeColor = Color.White;
@@ -1864,7 +1864,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
           
             btnReset.FieldID = null;
             btnReset.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            btnReset.FloatingLabel = true;
+            btnReset.FloatingLabel = string.Empty;
             btnReset.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnReset.FocusBorderColor = Color.RoyalBlue;
             btnReset.FocusForeColor = Color.White;
@@ -2039,7 +2039,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
           
             btnClose.FieldID = null;
             btnClose.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            btnClose.FloatingLabel = true;
+            btnClose.FloatingLabel = string.Empty;
             btnClose.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnClose.FocusBorderColor = Color.RoyalBlue;
             btnClose.FocusForeColor = Color.White;

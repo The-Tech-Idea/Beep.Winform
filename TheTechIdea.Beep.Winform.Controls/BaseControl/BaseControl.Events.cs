@@ -643,7 +643,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Nothing to draw
             bool hasLabel = !string.IsNullOrEmpty(LabelText);
             bool hasSupporting = !string.IsNullOrEmpty(ErrorText) || !string.IsNullOrEmpty(HelperText);
-            if (!hasLabel && !hasSupporting) return;
+            if (!hasLabel && !hasSupporting && !_showLabelText) return;
 
             // Use painter border rect when available
             Rectangle border = _painter.BorderRect;
@@ -660,8 +660,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 TextRenderer.DrawText(g, LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            // Helper / Error
-         
+            //// Helper / Error
+            //if(hasSupporting )
+            //{
+            //    string supportingText = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
+            //    Color supportingColor = !string.IsNullOrEmpty(ErrorText) ? ErrorColor : ErrorColor;
+            //    float supportingSize = Math.Max(7f, TextFont.Size - 2f);
+            //    using var sf = BeepFontManager.GetFont(TextFont.FontFamily.Name, supportingSize, FontStyle.Regular);
+            //    int supportingHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+            //    var supportingRect = new Rectangle(border.Left + 6, border.Bottom + 2, Math.Max(10, border.Width - 12), supportingHeight);
+            //    TextRenderer.DrawText(g, supportingText, sf, supportingRect, supportingColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            //}
         }
 
         #endregion

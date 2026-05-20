@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ExternalDrawingLayer = DrawingLayer.AfterAll;
             Title.FieldID = null;
             Title.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            Title.FloatingLabel = true;
+            Title.FloatingLabel = string.Empty;
             Title.FocusBackColor = Color.LightYellow;
             Title.FocusBorderColor = Color.RoyalBlue;
             Title.FocusForeColor = Color.Black;
@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.FieldID = null;
             _spinnerImage.FillColor = Color.Black;
             _spinnerImage.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            _spinnerImage.FloatingLabel = true;
+            _spinnerImage.FloatingLabel = string.Empty;
             _spinnerImage.FocusBackColor = Color.FromArgb(255, 255, 255);
             _spinnerImage.FocusBorderColor = Color.Gray;
             _spinnerImage.FocusForeColor = Color.FromArgb(255, 255, 255);
@@ -512,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepLabel1.FloatingLabel = true;
+            beepLabel1.FloatingLabel = string.Empty;
             beepLabel1.FocusBackColor = Color.LightYellow;
             beepLabel1.FocusBorderColor = Color.RoyalBlue;
             beepLabel1.FocusForeColor = Color.Black;
@@ -711,7 +711,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ExternalDrawingLayer = DrawingLayer.AfterAll;
             messege.FieldID = null;
             messege.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            messege.FloatingLabel = true;
+            messege.FloatingLabel = string.Empty;
             messege.FocusBackColor = Color.LightYellow;
             messege.FocusBorderColor = Color.FromArgb(0, 255, 0);
             messege.FocusForeColor = Color.Black;
@@ -918,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.FieldID = null;
             beepImage1.FillColor = Color.Black;
             beepImage1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepImage1.FloatingLabel = true;
+            beepImage1.FloatingLabel = string.Empty;
             beepImage1.FocusBackColor = Color.LightYellow;
             beepImage1.FocusBorderColor = Color.RoyalBlue;
             beepImage1.FocusForeColor = Color.Black;

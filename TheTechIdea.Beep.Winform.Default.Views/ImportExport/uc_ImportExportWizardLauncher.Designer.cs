@@ -2565,7 +2565,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDirection.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbDirection.FieldID = null;
             cmbDirection.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbDirection.FloatingLabel = true;
+            cmbDirection.FloatingLabel = string.Empty;
             cmbDirection.FocusBackColor = Color.LightYellow;
             cmbDirection.FocusBorderColor = Color.RoyalBlue;
             cmbDirection.FocusForeColor = Color.Black;
@@ -2749,7 +2749,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblMode.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblMode.FieldID = null;
             lblMode.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblMode.FloatingLabel = true;
+            lblMode.FloatingLabel = string.Empty;
             lblMode.FocusBackColor = Color.LightYellow;
             lblMode.FocusBorderColor = Color.RoyalBlue;
             lblMode.FocusForeColor = Color.Black;
@@ -2985,7 +2985,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceEntity.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbSourceEntity.FieldID = null;
             cmbSourceEntity.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbSourceEntity.FloatingLabel = true;
+            cmbSourceEntity.FloatingLabel = string.Empty;
             cmbSourceEntity.FocusBackColor = Color.LightYellow;
             cmbSourceEntity.FocusBorderColor = Color.RoyalBlue;
             cmbSourceEntity.FocusForeColor = Color.Black;
@@ -3169,7 +3169,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceEntity.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblSourceEntity.FieldID = null;
             lblSourceEntity.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblSourceEntity.FloatingLabel = true;
+            lblSourceEntity.FloatingLabel = string.Empty;
             lblSourceEntity.FocusBackColor = Color.LightYellow;
             lblSourceEntity.FocusBorderColor = Color.RoyalBlue;
             lblSourceEntity.FocusForeColor = Color.Black;
@@ -3393,7 +3393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbSourceDS.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbSourceDS.FieldID = null;
             cmbSourceDS.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbSourceDS.FloatingLabel = true;
+            cmbSourceDS.FloatingLabel = string.Empty;
             cmbSourceDS.FocusBackColor = Color.LightYellow;
             cmbSourceDS.FocusBorderColor = Color.RoyalBlue;
             cmbSourceDS.FocusForeColor = Color.Black;
@@ -3578,7 +3578,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSourceDS.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblSourceDS.FieldID = null;
             lblSourceDS.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblSourceDS.FloatingLabel = true;
+            lblSourceDS.FloatingLabel = string.Empty;
             lblSourceDS.FocusBackColor = Color.LightYellow;
             lblSourceDS.FocusBorderColor = Color.RoyalBlue;
             lblSourceDS.FocusForeColor = Color.Black;
@@ -3815,7 +3815,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestEntity.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbDestEntity.FieldID = null;
             cmbDestEntity.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbDestEntity.FloatingLabel = true;
+            cmbDestEntity.FloatingLabel = string.Empty;
             cmbDestEntity.FocusBackColor = Color.LightYellow;
             cmbDestEntity.FocusBorderColor = Color.RoyalBlue;
             cmbDestEntity.FocusForeColor = Color.Black;
@@ -4000,7 +4000,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestEntity.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblDestEntity.FieldID = null;
             lblDestEntity.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblDestEntity.FloatingLabel = true;
+            lblDestEntity.FloatingLabel = string.Empty;
             lblDestEntity.FocusBackColor = Color.LightYellow;
             lblDestEntity.FocusBorderColor = Color.RoyalBlue;
             lblDestEntity.FocusForeColor = Color.Black;
@@ -4224,7 +4224,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbDestDS.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbDestDS.FieldID = null;
             cmbDestDS.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbDestDS.FloatingLabel = true;
+            cmbDestDS.FloatingLabel = string.Empty;
             cmbDestDS.FocusBackColor = Color.LightYellow;
             cmbDestDS.FocusBorderColor = Color.RoyalBlue;
             cmbDestDS.FocusForeColor = Color.Black;
@@ -4409,7 +4409,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDestDS.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblDestDS.FieldID = null;
             lblDestDS.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblDestDS.FloatingLabel = true;
+            lblDestDS.FloatingLabel = string.Empty;
             lblDestDS.FocusBackColor = Color.LightYellow;
             lblDestDS.FocusBorderColor = Color.RoyalBlue;
             lblDestDS.FocusForeColor = Color.Black;
@@ -4609,7 +4609,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkAddMissing.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkAddMissing.FieldID = null;
             chkAddMissing.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkAddMissing.FloatingLabel = true;
+            chkAddMissing.FloatingLabel = string.Empty;
             chkAddMissing.FocusBackColor = Color.LightYellow;
             chkAddMissing.FocusBorderColor = Color.RoyalBlue;
             chkAddMissing.FocusForeColor = Color.Black;
@@ -4782,7 +4782,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkCreateIfNotExists.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkCreateIfNotExists.FieldID = null;
             chkCreateIfNotExists.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkCreateIfNotExists.FloatingLabel = true;
+            chkCreateIfNotExists.FloatingLabel = string.Empty;
             chkCreateIfNotExists.FocusBackColor = Color.LightYellow;
             chkCreateIfNotExists.FocusBorderColor = Color.RoyalBlue;
             chkCreateIfNotExists.FocusForeColor = Color.Black;
@@ -4969,7 +4969,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnQuickImport.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnQuickImport.FieldID = null;
             btnQuickImport.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnQuickImport.FloatingLabel = true;
+            btnQuickImport.FloatingLabel = string.Empty;
             btnQuickImport.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnQuickImport.FocusBorderColor = Color.RoyalBlue;
             btnQuickImport.FocusForeColor = Color.White;
@@ -5192,7 +5192,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             cmbRecentTemplates.ExternalDrawingLayer = DrawingLayer.AfterAll;
             cmbRecentTemplates.FieldID = null;
             cmbRecentTemplates.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            cmbRecentTemplates.FloatingLabel = true;
+            cmbRecentTemplates.FloatingLabel = string.Empty;
             cmbRecentTemplates.FocusBackColor = Color.LightYellow;
             cmbRecentTemplates.FocusBorderColor = Color.RoyalBlue;
             cmbRecentTemplates.FocusForeColor = Color.Black;
@@ -5376,7 +5376,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblRecentTemplates.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblRecentTemplates.FieldID = null;
             lblRecentTemplates.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblRecentTemplates.FloatingLabel = true;
+            lblRecentTemplates.FloatingLabel = string.Empty;
             lblRecentTemplates.FocusBackColor = Color.LightYellow;
             lblRecentTemplates.FocusBorderColor = Color.RoyalBlue;
             lblRecentTemplates.FocusForeColor = Color.Black;
@@ -5581,7 +5581,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearLog.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnClearLog.FieldID = null;
             btnClearLog.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnClearLog.FloatingLabel = true;
+            btnClearLog.FloatingLabel = string.Empty;
             btnClearLog.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnClearLog.FocusBorderColor = Color.RoyalBlue;
             btnClearLog.FocusForeColor = Color.White;
@@ -5772,7 +5772,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSwap.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnSwap.FieldID = null;
             btnSwap.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnSwap.FloatingLabel = true;
+            btnSwap.FloatingLabel = string.Empty;
             btnSwap.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnSwap.FocusBorderColor = Color.RoyalBlue;
             btnSwap.FocusForeColor = Color.White;
@@ -5963,7 +5963,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnLaunch.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnLaunch.FieldID = null;
             btnLaunch.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnLaunch.FloatingLabel = true;
+            btnLaunch.FloatingLabel = string.Empty;
             btnLaunch.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnLaunch.FocusBorderColor = Color.RoyalBlue;
             btnLaunch.FocusForeColor = Color.White;
@@ -6155,7 +6155,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnViewLastSummary.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnViewLastSummary.FieldID = null;
             btnViewLastSummary.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnViewLastSummary.FloatingLabel = true;
+            btnViewLastSummary.FloatingLabel = string.Empty;
             btnViewLastSummary.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnViewLastSummary.FocusBorderColor = Color.RoyalBlue;
             btnViewLastSummary.FocusForeColor = Color.White;
@@ -6519,7 +6519,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             historyGrid.ExternalDrawingLayer = DrawingLayer.AfterAll;
             historyGrid.FieldID = null;
             historyGrid.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            historyGrid.FloatingLabel = true;
+            historyGrid.FloatingLabel = string.Empty;
             historyGrid.FocusBackColor = Color.LightYellow;
             historyGrid.FocusBorderColor = Color.RoyalBlue;
             historyGrid.FocusedCellBorderColor = Color.Empty;
@@ -6711,7 +6711,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepImage1.FieldID = null;
             beepImage1.FillColor = Color.Black;
             beepImage1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepImage1.FloatingLabel = true;
+            beepImage1.FloatingLabel = string.Empty;
             beepImage1.FocusBackColor = Color.LightYellow;
             beepImage1.FocusBorderColor = Color.RoyalBlue;
             beepImage1.FocusForeColor = Color.Black;

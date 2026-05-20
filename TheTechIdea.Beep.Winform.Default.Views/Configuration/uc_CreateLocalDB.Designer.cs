@@ -284,7 +284,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CancelbeepButton.FieldID = null;
             CancelbeepButton.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            CancelbeepButton.FloatingLabel = true;
+            CancelbeepButton.FloatingLabel = string.Empty;
             CancelbeepButton.FocusBackColor = Color.FromArgb(244, 164, 96);
             CancelbeepButton.FocusBorderColor = Color.RoyalBlue;
             CancelbeepButton.FocusForeColor = Color.FromArgb(60, 30, 10);
@@ -469,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             SavebeepButton.FieldID = null;
             SavebeepButton.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            SavebeepButton.FloatingLabel = true;
+            SavebeepButton.FloatingLabel = string.Empty;
             SavebeepButton.FocusBackColor = Color.FromArgb(244, 164, 96);
             SavebeepButton.FocusBorderColor = Color.RoyalBlue;
             SavebeepButton.FocusForeColor = Color.FromArgb(60, 30, 10);
@@ -2803,7 +2803,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             SystemFolderbeepComboBox.FieldID = null;
             SystemFolderbeepComboBox.FilledBackgroundColor = Color.White;
-            SystemFolderbeepComboBox.FloatingLabel = true;
+            SystemFolderbeepComboBox.FloatingLabel = string.Empty;
             SystemFolderbeepComboBox.FocusBackColor = Color.White;
             SystemFolderbeepComboBox.FocusBorderColor = Color.Gray;
             SystemFolderbeepComboBox.FocusForeColor = Color.Black;
@@ -2981,7 +2981,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             databaseTextBox.FieldID = null;
             databaseTextBox.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
-            databaseTextBox.FloatingLabel = true;
+            databaseTextBox.FloatingLabel = string.Empty;
             databaseTextBox.FocusBackColor = Color.White;
             databaseTextBox.FocusBorderColor = Color.FromArgb(210, 105, 30);
             databaseTextBox.FocusForeColor = Color.Black;
@@ -3186,7 +3186,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             PasswordbeepTextBox.FieldID = null;
             PasswordbeepTextBox.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
-            PasswordbeepTextBox.FloatingLabel = true;
+            PasswordbeepTextBox.FloatingLabel = string.Empty;
             PasswordbeepTextBox.FocusBackColor = Color.White;
             PasswordbeepTextBox.FocusBorderColor = Color.FromArgb(210, 105, 30);
             PasswordbeepTextBox.FocusForeColor = Color.Black;
@@ -3391,7 +3391,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             OtherFolderbeepTextBox.FieldID = null;
             OtherFolderbeepTextBox.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
-            OtherFolderbeepTextBox.FloatingLabel = true;
+            OtherFolderbeepTextBox.FloatingLabel = string.Empty;
             OtherFolderbeepTextBox.FocusBackColor = Color.White;
             OtherFolderbeepTextBox.FocusBorderColor = Color.FromArgb(210, 105, 30);
             OtherFolderbeepTextBox.FocusForeColor = Color.Black;
@@ -3625,7 +3625,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             LocalDbTypebeepComboBox.FieldID = null;
             LocalDbTypebeepComboBox.FilledBackgroundColor = Color.White;
-            LocalDbTypebeepComboBox.FloatingLabel = true;
+            LocalDbTypebeepComboBox.FloatingLabel = string.Empty;
             LocalDbTypebeepComboBox.FocusBackColor = Color.White;
             LocalDbTypebeepComboBox.FocusBorderColor = Color.Gray;
             LocalDbTypebeepComboBox.FocusForeColor = Color.Black;
@@ -3793,7 +3793,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
             beepButton1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepButton1.FloatingLabel = true;
+            beepButton1.FloatingLabel = string.Empty;
             beepButton1.FocusBackColor = Color.FromArgb(244, 164, 96);
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.FromArgb(60, 30, 10);

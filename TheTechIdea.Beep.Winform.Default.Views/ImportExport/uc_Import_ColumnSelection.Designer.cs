@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblPreviewStatus.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblPreviewStatus.FieldID = null;
             lblPreviewStatus.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblPreviewStatus.FloatingLabel = true;
+            lblPreviewStatus.FloatingLabel = string.Empty;
             lblPreviewStatus.FocusBackColor = Color.LightYellow;
             lblPreviewStatus.FocusBorderColor = Color.RoyalBlue;
             lblPreviewStatus.FocusForeColor = Color.Black;
@@ -393,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblPreviewStatus2.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblPreviewStatus2.FieldID = null;
             lblPreviewStatus2.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblPreviewStatus2.FloatingLabel = true;
+            lblPreviewStatus2.FloatingLabel = string.Empty;
             lblPreviewStatus2.FocusBackColor = Color.LightYellow;
             lblPreviewStatus2.FocusBorderColor = Color.RoyalBlue;
             lblPreviewStatus2.FocusForeColor = Color.Black;
@@ -583,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnRefreshPreview.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnRefreshPreview.FieldID = null;
             btnRefreshPreview.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnRefreshPreview.FloatingLabel = true;
+            btnRefreshPreview.FloatingLabel = string.Empty;
             btnRefreshPreview.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnRefreshPreview.FocusBorderColor = Color.RoyalBlue;
             btnRefreshPreview.FocusForeColor = Color.White;
@@ -773,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSelectNone.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnSelectNone.FieldID = null;
             btnSelectNone.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnSelectNone.FloatingLabel = true;
+            btnSelectNone.FloatingLabel = string.Empty;
             btnSelectNone.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnSelectNone.FocusBorderColor = Color.RoyalBlue;
             btnSelectNone.FocusForeColor = Color.White;
@@ -963,7 +963,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnSelectAll.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnSelectAll.FieldID = null;
             btnSelectAll.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnSelectAll.FloatingLabel = true;
+            btnSelectAll.FloatingLabel = string.Empty;
             btnSelectAll.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnSelectAll.FocusBorderColor = Color.RoyalBlue;
             btnSelectAll.FocusForeColor = Color.White;

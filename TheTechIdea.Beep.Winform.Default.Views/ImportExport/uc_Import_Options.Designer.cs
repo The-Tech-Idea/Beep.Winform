@@ -200,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblPreflightHdr.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblPreflightHdr.FieldID = null;
             lblPreflightHdr.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblPreflightHdr.FloatingLabel = true;
+            lblPreflightHdr.FloatingLabel = string.Empty;
             lblPreflightHdr.FocusBackColor = Color.LightYellow;
             lblPreflightHdr.FocusBorderColor = Color.RoyalBlue;
             lblPreflightHdr.FocusForeColor = Color.Black;
@@ -404,7 +404,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnClearQualityRules.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnClearQualityRules.FieldID = null;
             btnClearQualityRules.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnClearQualityRules.FloatingLabel = true;
+            btnClearQualityRules.FloatingLabel = string.Empty;
             btnClearQualityRules.FocusBackColor = Color.LightYellow;
             btnClearQualityRules.FocusBorderColor = Color.RoyalBlue;
             btnClearQualityRules.FocusForeColor = Color.Black;
@@ -592,7 +592,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnRemoveQualityRule.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnRemoveQualityRule.FieldID = null;
             btnRemoveQualityRule.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnRemoveQualityRule.FloatingLabel = true;
+            btnRemoveQualityRule.FloatingLabel = string.Empty;
             btnRemoveQualityRule.FocusBackColor = Color.LightYellow;
             btnRemoveQualityRule.FocusBorderColor = Color.RoyalBlue;
             btnRemoveQualityRule.FocusForeColor = Color.Black;
@@ -780,7 +780,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnAddQualityRule.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnAddQualityRule.FieldID = null;
             btnAddQualityRule.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnAddQualityRule.FloatingLabel = true;
+            btnAddQualityRule.FloatingLabel = string.Empty;
             btnAddQualityRule.FocusBackColor = Color.LightYellow;
             btnAddQualityRule.FocusBorderColor = Color.RoyalBlue;
             btnAddQualityRule.FocusForeColor = Color.Black;
@@ -1197,7 +1197,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             qualityRulesGrid.ExternalDrawingLayer = DrawingLayer.AfterAll;
             qualityRulesGrid.FieldID = null;
             qualityRulesGrid.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            qualityRulesGrid.FloatingLabel = true;
+            qualityRulesGrid.FloatingLabel = string.Empty;
             qualityRulesGrid.FocusBackColor = Color.LightYellow;
             qualityRulesGrid.FocusBorderColor = Color.RoyalBlue;
             qualityRulesGrid.FocusedCellBorderColor = Color.Empty;
@@ -1389,7 +1389,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblQualityRules.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblQualityRules.FieldID = null;
             lblQualityRules.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblQualityRules.FloatingLabel = true;
+            lblQualityRules.FloatingLabel = string.Empty;
             lblQualityRules.FocusBackColor = Color.LightYellow;
             lblQualityRules.FocusBorderColor = Color.RoyalBlue;
             lblQualityRules.FocusForeColor = Color.Black;
@@ -1600,7 +1600,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblPreflightStatus.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblPreflightStatus.FieldID = null;
             lblPreflightStatus.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblPreflightStatus.FloatingLabel = true;
+            lblPreflightStatus.FloatingLabel = string.Empty;
             lblPreflightStatus.FocusBackColor = Color.LightYellow;
             lblPreflightStatus.FocusBorderColor = Color.RoyalBlue;
             lblPreflightStatus.FocusForeColor = Color.Black;
@@ -1788,7 +1788,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkSyncDraft.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkSyncDraft.FieldID = null;
             chkSyncDraft.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkSyncDraft.FloatingLabel = true;
+            chkSyncDraft.FloatingLabel = string.Empty;
             chkSyncDraft.FocusBackColor = Color.LightYellow;
             chkSyncDraft.FocusBorderColor = Color.RoyalBlue;
             chkSyncDraft.FocusForeColor = Color.Black;
@@ -1959,7 +1959,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkPreflight.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkPreflight.FieldID = null;
             chkPreflight.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkPreflight.FloatingLabel = true;
+            chkPreflight.FloatingLabel = string.Empty;
             chkPreflight.FocusBackColor = Color.LightYellow;
             chkPreflight.FocusBorderColor = Color.RoyalBlue;
             chkPreflight.FocusForeColor = Color.Black;
@@ -2131,7 +2131,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkSkipBlanks.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkSkipBlanks.FieldID = null;
             chkSkipBlanks.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkSkipBlanks.FloatingLabel = true;
+            chkSkipBlanks.FloatingLabel = string.Empty;
             chkSkipBlanks.FocusBackColor = Color.LightYellow;
             chkSkipBlanks.FocusBorderColor = Color.RoyalBlue;
             chkSkipBlanks.FocusForeColor = Color.Black;
@@ -2304,7 +2304,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkRunValidation.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkRunValidation.FieldID = null;
             chkRunValidation.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkRunValidation.FloatingLabel = true;
+            chkRunValidation.FloatingLabel = string.Empty;
             chkRunValidation.FocusBackColor = Color.LightYellow;
             chkRunValidation.FocusBorderColor = Color.RoyalBlue;
             chkRunValidation.FocusForeColor = Color.Black;
@@ -2506,7 +2506,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblDryRunRows.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblDryRunRows.FieldID = null;
             lblDryRunRows.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblDryRunRows.FloatingLabel = true;
+            lblDryRunRows.FloatingLabel = string.Empty;
             lblDryRunRows.FocusBackColor = Color.LightYellow;
             lblDryRunRows.FocusBorderColor = Color.RoyalBlue;
             lblDryRunRows.FocusForeColor = Color.Black;
@@ -2696,7 +2696,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             chkDryRun.ExternalDrawingLayer = DrawingLayer.AfterAll;
             chkDryRun.FieldID = null;
             chkDryRun.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            chkDryRun.FloatingLabel = true;
+            chkDryRun.FloatingLabel = string.Empty;
             chkDryRun.FocusBackColor = Color.LightYellow;
             chkDryRun.FocusBorderColor = Color.RoyalBlue;
             chkDryRun.FocusForeColor = Color.Black;
@@ -2898,7 +2898,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblBatchSize.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblBatchSize.FieldID = null;
             lblBatchSize.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblBatchSize.FloatingLabel = true;
+            lblBatchSize.FloatingLabel = string.Empty;
             lblBatchSize.FocusBackColor = Color.LightYellow;
             lblBatchSize.FocusBorderColor = Color.RoyalBlue;
             lblBatchSize.FocusForeColor = Color.Black;

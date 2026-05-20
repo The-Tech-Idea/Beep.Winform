@@ -301,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepPanel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepPanel1.FieldID = null;
             beepPanel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepPanel1.FloatingLabel = true;
+            beepPanel1.FloatingLabel = string.Empty;
             beepPanel1.FocusBackColor = Color.LightYellow;
             beepPanel1.FocusBorderColor = Color.RoyalBlue;
             beepPanel1.FocusForeColor = Color.Black;
@@ -481,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
             beepButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton1.FloatingLabel = true;
+            beepButton1.FloatingLabel = string.Empty;
             beepButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.White;
@@ -2868,7 +2868,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepComboBox1.FieldID = null;
             beepComboBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepComboBox1.FloatingLabel = true;
+            beepComboBox1.FloatingLabel = string.Empty;
             beepComboBox1.FocusBackColor = Color.LightYellow;
             beepComboBox1.FocusBorderColor = Color.RoyalBlue;
             beepComboBox1.FocusForeColor = Color.Black;
@@ -3052,7 +3052,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDatePicker1.FieldID = null;
             beepDatePicker1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepDatePicker1.FloatingLabel = true;
+            beepDatePicker1.FloatingLabel = string.Empty;
             beepDatePicker1.FocusBackColor = Color.LightYellow;
             beepDatePicker1.FocusBorderColor = Color.RoyalBlue;
             beepDatePicker1.FocusForeColor = Color.Black;
@@ -3240,7 +3240,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepLabel1.FloatingLabel = true;
+            beepLabel1.FloatingLabel = string.Empty;
             beepLabel1.FocusBackColor = Color.LightYellow;
             beepLabel1.FocusBorderColor = Color.RoyalBlue;
             beepLabel1.FocusForeColor = Color.Black;
@@ -3436,7 +3436,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepTextBox1.FieldID = null;
             beepTextBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepTextBox1.FloatingLabel = true;
+            beepTextBox1.FloatingLabel = string.Empty;
             beepTextBox1.FocusBackColor = Color.LightYellow;
             beepTextBox1.FocusBorderColor = Color.FromArgb(0, 120, 215);
             beepTextBox1.FocusForeColor = Color.Black;
@@ -3634,7 +3634,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepChevronButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepChevronButton1.FieldID = null;
             beepChevronButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepChevronButton1.FloatingLabel = true;
+            beepChevronButton1.FloatingLabel = string.Empty;
             beepChevronButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepChevronButton1.FocusBorderColor = Color.RoyalBlue;
             beepChevronButton1.FocusForeColor = Color.White;
@@ -3805,7 +3805,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCircularButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepCircularButton1.FieldID = null;
             beepCircularButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepCircularButton1.FloatingLabel = true;
+            beepCircularButton1.FloatingLabel = string.Empty;
             beepCircularButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepCircularButton1.FocusBorderColor = Color.RoyalBlue;
             beepCircularButton1.FocusForeColor = Color.White;
@@ -3980,7 +3980,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAdvancedButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepAdvancedButton1.FieldID = null;
             beepAdvancedButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepAdvancedButton1.FloatingLabel = true;
+            beepAdvancedButton1.FloatingLabel = string.Empty;
             beepAdvancedButton1.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepAdvancedButton1.FocusBorderColor = Color.RoyalBlue;
             beepAdvancedButton1.FocusForeColor = Color.White;
@@ -4148,7 +4148,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepShape1.FieldID = null;
             beepShape1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepShape1.FillStyle = ShapeFillStyle.Solid;
-            beepShape1.FloatingLabel = true;
+            beepShape1.FloatingLabel = string.Empty;
             beepShape1.FocusBackColor = Color.White;
             beepShape1.FocusBorderColor = Color.RoyalBlue;
             beepShape1.FocusForeColor = Color.Black;
@@ -4318,7 +4318,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             bottomBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             bottomBar1.FieldID = null;
             bottomBar1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            bottomBar1.FloatingLabel = true;
+            bottomBar1.FloatingLabel = string.Empty;
             bottomBar1.FocusBackColor = Color.LightYellow;
             bottomBar1.FocusBorderColor = Color.RoyalBlue;
             bottomBar1.FocusForeColor = Color.Black;

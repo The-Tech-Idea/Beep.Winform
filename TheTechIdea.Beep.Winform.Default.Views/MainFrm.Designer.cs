@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.FieldID = null;
             beepAppTree1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepAppTree1.Filterstring = null;
-            beepAppTree1.FloatingLabel = true;
+            beepAppTree1.FloatingLabel = string.Empty;
             beepAppTree1.FocusBackColor = Color.LightYellow;
             beepAppTree1.FocusBorderColor = Color.RoyalBlue;
             beepAppTree1.FocusForeColor = Color.Black;
@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepMenuAppBar1.FieldID = null;
             beepMenuAppBar1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepMenuAppBar1.FloatingLabel = true;
+            beepMenuAppBar1.FloatingLabel = string.Empty;
             beepMenuAppBar1.FocusBackColor = Color.LightYellow;
             beepMenuAppBar1.FocusBorderColor = Color.RoyalBlue;
             beepMenuAppBar1.FocusForeColor = Color.Black;
@@ -468,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDisplayContainer1.FieldID = null;
             beepDisplayContainer1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepDisplayContainer1.FloatingLabel = true;
+            beepDisplayContainer1.FloatingLabel = string.Empty;
             beepDisplayContainer1.FocusBackColor = Color.LightYellow;
             beepDisplayContainer1.FocusBorderColor = Color.RoyalBlue;
             beepDisplayContainer1.FocusForeColor = Color.Black;

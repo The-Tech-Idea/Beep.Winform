@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             const int imageSpacing = 4; // Space between image and text
 
             // Draw label above the control
-            if (owner.LabelTextOn && !string.IsNullOrEmpty(owner.LabelText))
+            if (owner.FloatingLabelOn && !string.IsNullOrEmpty(owner._floatingLabel))
             {
                 float labelSize = Math.Max(7f, owner.Font.Size - 2f);
                 using var labelFont = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);

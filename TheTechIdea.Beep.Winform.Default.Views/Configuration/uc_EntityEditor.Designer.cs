@@ -2530,7 +2530,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             DatasourcebeepComboBox.FieldID = null;
             DatasourcebeepComboBox.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            DatasourcebeepComboBox.FloatingLabel = true;
+            DatasourcebeepComboBox.FloatingLabel = string.Empty;
             DatasourcebeepComboBox.FocusBackColor = Color.LightYellow;
             DatasourcebeepComboBox.FocusBorderColor = Color.RoyalBlue;
             DatasourcebeepComboBox.FocusForeColor = Color.Black;
@@ -2744,7 +2744,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             EntitiesbeepComboBox.FieldID = null;
             EntitiesbeepComboBox.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            EntitiesbeepComboBox.FloatingLabel = true;
+            EntitiesbeepComboBox.FloatingLabel = string.Empty;
             EntitiesbeepComboBox.FocusBackColor = Color.LightYellow;
             EntitiesbeepComboBox.FocusBorderColor = Color.RoyalBlue;
             EntitiesbeepComboBox.FocusForeColor = Color.Black;
@@ -4927,7 +4927,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntityFieldsbeepGridPro.ExternalDrawingLayer = DrawingLayer.AfterAll;
             EntityFieldsbeepGridPro.FieldID = null;
             EntityFieldsbeepGridPro.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            EntityFieldsbeepGridPro.FloatingLabel = true;
+            EntityFieldsbeepGridPro.FloatingLabel = string.Empty;
             EntityFieldsbeepGridPro.FocusBackColor = Color.LightYellow;
             EntityFieldsbeepGridPro.FocusBorderColor = Color.RoyalBlue;
             EntityFieldsbeepGridPro.FocusedCellBorderColor = Color.Empty;
@@ -5107,7 +5107,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             ApplybeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             ApplybeepButton.FieldID = null;
             ApplybeepButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            ApplybeepButton.FloatingLabel = true;
+            ApplybeepButton.FloatingLabel = string.Empty;
             ApplybeepButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             ApplybeepButton.FocusBorderColor = Color.RoyalBlue;
             ApplybeepButton.FocusForeColor = Color.White;

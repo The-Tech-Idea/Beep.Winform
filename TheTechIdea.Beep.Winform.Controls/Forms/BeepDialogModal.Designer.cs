@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             panel1.FieldID = null;
             panel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            panel1.FloatingLabel = true;
+            panel1.FloatingLabel = string.Empty;
             panel1.FocusBackColor = Color.White;
             panel1.FocusBorderColor = Color.Gray;
             panel1.FocusForeColor = Color.Black;
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.FieldID = null;
             DialogImage.FillColor = Color.Black;
             DialogImage.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            DialogImage.FloatingLabel = true;
+            DialogImage.FloatingLabel = string.Empty;
             DialogImage.FocusBackColor = Color.White;
             DialogImage.FocusBorderColor = Color.Gray;
             DialogImage.FocusForeColor = Color.Black;
@@ -368,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
             CloseButton.FieldID = null;
             CloseButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            CloseButton.FloatingLabel = true;
+            CloseButton.FloatingLabel = string.Empty;
             CloseButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             CloseButton.FocusBorderColor = Color.Gray;
             CloseButton.FocusForeColor = Color.White;
@@ -513,7 +513,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
             TitleLabel.FieldID = null;
             TitleLabel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            TitleLabel.FloatingLabel = true;
+            TitleLabel.FloatingLabel = string.Empty;
             TitleLabel.FocusBackColor = Color.Gray;
             TitleLabel.FocusBorderColor = Color.Gray;
             TitleLabel.FocusForeColor = Color.Black;
@@ -656,7 +656,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             panel3.FieldID = null;
             panel3.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            panel3.FloatingLabel = true;
+            panel3.FloatingLabel = string.Empty;
             panel3.FocusBackColor = Color.White;
             panel3.FocusBorderColor = Color.Gray;
             panel3.FocusForeColor = Color.Black;
@@ -787,7 +787,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
             MiddleButton.FieldID = null;
             MiddleButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            MiddleButton.FloatingLabel = true;
+            MiddleButton.FloatingLabel = string.Empty;
             MiddleButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             MiddleButton.FocusBorderColor = Color.Gray;
             MiddleButton.FocusForeColor = Color.White;
@@ -932,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
             RightButton.FieldID = null;
             RightButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            RightButton.FloatingLabel = true;
+            RightButton.FloatingLabel = string.Empty;
             RightButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             RightButton.FocusBorderColor = Color.Gray;
             RightButton.FocusForeColor = Color.White;
@@ -1077,7 +1077,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             LeftButton.FieldID = null;
             LeftButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            LeftButton.FloatingLabel = true;
+            LeftButton.FloatingLabel = string.Empty;
             LeftButton.FocusBackColor = Color.FromArgb(25, 118, 210);
             LeftButton.FocusBorderColor = Color.Gray;
             LeftButton.FocusForeColor = Color.White;
@@ -1228,7 +1228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
           
             CaptionTextBox.FieldID = null;
             CaptionTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            CaptionTextBox.FloatingLabel = true;
+            CaptionTextBox.FloatingLabel = string.Empty;
             CaptionTextBox.FocusBackColor = Color.White;
             CaptionTextBox.FocusBorderColor = Color.Gray;
             CaptionTextBox.FocusForeColor = Color.Black;
@@ -1371,7 +1371,7 @@ namespace TheTechIdea.Beep.Winform.Controls
       
             SelectFromListComboBox.FieldID = null;
             SelectFromListComboBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            SelectFromListComboBox.FloatingLabel = true;
+            SelectFromListComboBox.FloatingLabel = string.Empty;
             SelectFromListComboBox.FocusBackColor = Color.White;
             SelectFromListComboBox.FocusBorderColor = Color.Gray;
             SelectFromListComboBox.FocusForeColor = Color.Black;
@@ -1505,7 +1505,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
             InputTextBox.FieldID = null;
             InputTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            InputTextBox.FloatingLabel = true;
+            InputTextBox.FloatingLabel = string.Empty;
             InputTextBox.FocusBackColor = Color.White;
             InputTextBox.FocusBorderColor = Color.Gray;
             InputTextBox.FocusForeColor = Color.Black;

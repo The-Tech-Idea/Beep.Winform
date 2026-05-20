@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepButton_Run.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton_Run.FieldID = null;
             beepButton_Run.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton_Run.FloatingLabel = true;
+            beepButton_Run.FloatingLabel = string.Empty;
             beepButton_Run.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton_Run.FocusBorderColor = Color.RoyalBlue;
             beepButton_Run.FocusForeColor = Color.White;
@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepButton_Pause.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton_Pause.FieldID = null;
             beepButton_Pause.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton_Pause.FloatingLabel = true;
+            beepButton_Pause.FloatingLabel = string.Empty;
             beepButton_Pause.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton_Pause.FocusBorderColor = Color.RoyalBlue;
             beepButton_Pause.FocusForeColor = Color.White;
@@ -521,7 +521,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepButton_Resume.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton_Resume.FieldID = null;
             beepButton_Resume.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton_Resume.FloatingLabel = true;
+            beepButton_Resume.FloatingLabel = string.Empty;
             beepButton_Resume.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton_Resume.FocusBorderColor = Color.RoyalBlue;
             beepButton_Resume.FocusForeColor = Color.White;
@@ -711,7 +711,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepButton_Cancel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton_Cancel.FieldID = null;
             beepButton_Cancel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepButton_Cancel.FloatingLabel = true;
+            beepButton_Cancel.FloatingLabel = string.Empty;
             beepButton_Cancel.FocusBackColor = Color.FromArgb(25, 118, 210);
             beepButton_Cancel.FocusBorderColor = Color.RoyalBlue;
             beepButton_Cancel.FocusForeColor = Color.White;
@@ -928,7 +928,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepCheckBoxLastRun.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepCheckBoxLastRun.FieldID = null;
             beepCheckBoxLastRun.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepCheckBoxLastRun.FloatingLabel = true;
+            beepCheckBoxLastRun.FloatingLabel = string.Empty;
             beepCheckBoxLastRun.FocusBackColor = Color.LightYellow;
             beepCheckBoxLastRun.FocusBorderColor = Color.RoyalBlue;
             beepCheckBoxLastRun.FocusForeColor = Color.Black;
@@ -1201,7 +1201,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnToggleSummary.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnToggleSummary.FieldID = null;
             btnToggleSummary.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnToggleSummary.FloatingLabel = true;
+            btnToggleSummary.FloatingLabel = string.Empty;
             btnToggleSummary.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnToggleSummary.FocusBorderColor = Color.RoyalBlue;
             btnToggleSummary.FocusForeColor = Color.White;
@@ -1397,7 +1397,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             lblSummaryCard.ExternalDrawingLayer = DrawingLayer.AfterAll;
             lblSummaryCard.FieldID = null;
             lblSummaryCard.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            lblSummaryCard.FloatingLabel = true;
+            lblSummaryCard.FloatingLabel = string.Empty;
             lblSummaryCard.FocusBackColor = Color.LightYellow;
             lblSummaryCard.FocusBorderColor = Color.RoyalBlue;
             lblSummaryCard.FocusForeColor = Color.Black;
@@ -1653,7 +1653,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             btnExportErrors.ExternalDrawingLayer = DrawingLayer.AfterAll;
             btnExportErrors.FieldID = null;
             btnExportErrors.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            btnExportErrors.FloatingLabel = true;
+            btnExportErrors.FloatingLabel = string.Empty;
             btnExportErrors.FocusBackColor = Color.FromArgb(25, 118, 210);
             btnExportErrors.FocusBorderColor = Color.RoyalBlue;
             btnExportErrors.FocusForeColor = Color.White;

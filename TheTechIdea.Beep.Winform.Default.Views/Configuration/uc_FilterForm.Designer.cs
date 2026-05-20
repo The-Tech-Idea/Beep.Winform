@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepLabel1.FloatingLabel = true;
+            beepLabel1.FloatingLabel = string.Empty;
             beepLabel1.FocusBackColor = Color.White;
             beepLabel1.FocusBorderColor = Color.Gray;
             beepLabel1.FocusForeColor = Color.Black;
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepTextBox1.FieldID = null;
             beepTextBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepTextBox1.FloatingLabel = true;
+            beepTextBox1.FloatingLabel = string.Empty;
             beepTextBox1.FocusBackColor = Color.White;
             beepTextBox1.FocusBorderColor = Color.FromArgb(0, 120, 215);
             beepTextBox1.FocusForeColor = Color.Black;
@@ -610,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepSimpleGrid1.FloatingLabel = true;
+            beepSimpleGrid1.FloatingLabel = string.Empty;
             beepSimpleGrid1.FocusBackColor = Color.White;
             beepSimpleGrid1.FocusBorderColor = Color.Gray;
             beepSimpleGrid1.FocusForeColor = Color.FromArgb(40, 40, 40);

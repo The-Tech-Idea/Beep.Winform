@@ -5,8 +5,9 @@ using System.Data;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
- 
- 
+using TheTechIdea.Beep.Winform.Controls.Base;
+
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -15,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [Description("A flexible binding navigator control for data navigation and CRUD operations using BindingSource.")]
     [DisplayName("Beep Binding Navigator")]
-    public partial class BeepBindingNavigator : BeepControl
+    public partial class BeepBindingNavigator : BaseControl
     {
         #region Fields
         private object _dataSource;

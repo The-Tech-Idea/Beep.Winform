@@ -38,7 +38,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepFormuiManager1.ApplyThemeOnImage = false;
             beepFormuiManager1.Backdrop = null;
             beepFormuiManager1.BeepAppBar = null;
-            beepFormuiManager1.BeepFunctionsPanel = null;
             beepFormuiManager1.BeepiForm = null;
             beepFormuiManager1.BeepMenuBar = null;
             beepFormuiManager1.BeepSideMenu = null;
@@ -69,12 +68,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Name = "TemplateForm";
             Padding = new Padding(3);
             Text = "TemplateForm";
-       
             ResumeLayout(false);
         }
 
         #endregion
 
-        public Controls.Managers.BeepFormUIManager beepFormuiManager1;
+        private Controls.Managers.BeepFormUIManager beepFormuiManager1;
     }
 }

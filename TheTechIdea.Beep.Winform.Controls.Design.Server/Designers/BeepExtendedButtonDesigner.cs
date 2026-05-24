@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
-using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.CombinedControls;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers

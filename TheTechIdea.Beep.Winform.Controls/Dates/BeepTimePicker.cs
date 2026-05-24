@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
  
  
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Time Picker")]
     [Category("Beep Controls")]
     [Description("Modern time picker control with multiple formats, validation, and business features")]
-    public class BeepTimePicker : BeepControl
+    public class BeepTimePicker : BaseControl
     {
         #region Fields
         private TextBox _textBox;

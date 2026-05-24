@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Toggle;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
@@ -28,11 +27,12 @@ using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables;
 using TheTechIdea.Beep.Winform.Controls.Widgets;
-using TheTechIdea.Beep.Winform.Controls.DocumentHost;
+
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.FlyoutMenus;
 using TheTechIdea.Beep.Winform.Controls.ProjectCards;
 using TheTechIdea.Beep.Winform.Controls.Notifications;
+using TheTechIdea.Beep.Winform.Controls.CombinedControls;
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     internal static class DesignRegistration
@@ -131,12 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Widget Controls
             RegisterControl(typeof(BeepMetricWidget), typeof(BeepMetricWidgetDesigner));
 
-            // Document Host
-            RegisterControl(typeof(BeepDocumentHost),  typeof(BeepDocumentHostDesigner));
-            // Panel designer: clicking a tab header selects the panel and shows
-            // only the meaningful per-document properties (Title, Icon, CanClose …)
-            RegisterControl(typeof(BeepDocumentPanel), typeof(BeepDocumentPanelDesigner));
-
+         
             RegisterControl(typeof(BeepChartWidget), typeof(BeepChartWidgetDesigner));
             RegisterControl(typeof(BeepListWidget), typeof(BeepListWidgetDesigner));
             RegisterControl(typeof(BeepDashboardWidget), typeof(BeepDashboardWidgetDesigner));
@@ -152,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             // Image path editors
             AddImagePathEditor(typeof(BaseControl));
-            AddImagePathEditor(typeof(BeepControl));
+
             AddImagePathEditor(typeof(BeepImage));
         }
 

@@ -1,3 +1,5 @@
+using TheTechIdea.Beep.Winform.Controls.Shapes;
+
 namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class Form1
@@ -4138,7 +4140,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepShape1.DisabledBackColor = Color.White;
             beepShape1.DisabledBorderColor = Color.Empty;
             beepShape1.DisabledForeColor = Color.Black;
-            beepShape1.DisableDpiAndScaling = true;
+           
             beepShape1.DrawingRect = new Rectangle(0, 0, 113, 108);
             beepShape1.Easing = EasingType.Linear;
             beepShape1.EnableHighQualityRendering = true;
@@ -4148,7 +4150,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepShape1.FieldID = null;
             beepShape1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepShape1.FillStyle = ShapeFillStyle.Solid;
-            beepShape1.FloatingLabel = string.Empty;
+          
             beepShape1.FocusBackColor = Color.White;
             beepShape1.FocusBorderColor = Color.RoyalBlue;
             beepShape1.FocusForeColor = Color.Black;
@@ -4199,7 +4201,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepShape1.LineStyle = DashStyle.Solid;
             beepShape1.LinkedProperty = null;
             beepShape1.Location = new Point(156, 16);
-            beepShape1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+          
             beepShape1.MaxHitListDrawPerFrame = 0;
             beepShape1.ModernGradientType = ModernGradientType.None;
             beepShape1.Name = "beepShape1";
@@ -4246,16 +4248,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepShape1.Theme = null;
             beepShape1.ToolTipText = "";
             beepShape1.TopoffsetForDrawingRect = 0;
-            beepShape1.UIAnimation = ReactUIAnimation.None;
-            beepShape1.UIColor = ReactUIColor.Primary;
-            beepShape1.UICustomElevation = 0;
-            beepShape1.UIDensity = ReactUIDensity.Standard;
-            beepShape1.UIDisabled = false;
-            beepShape1.UIElevation = ReactUIElevation.None;
-            beepShape1.UIFullWidth = false;
-            beepShape1.UIShape = ReactUIShape.Rounded;
-            beepShape1.UISize = ReactUISize.Medium;
-            beepShape1.UIVariant = ReactUIVariant.Default;
+           
             beepShape1.UseExternalBufferedGraphics = false;
             beepShape1.UseGlassmorphism = false;
             beepShape1.UseGradientBackground = false;

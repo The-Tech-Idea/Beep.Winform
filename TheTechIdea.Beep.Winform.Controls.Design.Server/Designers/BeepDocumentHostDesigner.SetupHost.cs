@@ -5,8 +5,7 @@
 // This partial adds:
 //   • InitializeNewComponent — launches a quick setup on first drop so the
 //     control is ready-to-use without hunting through smart-tags.
-//   • ShowQuickSetupWizard   — opens DocumentSetupWizardDialog (Native MDI
-//     tile is suppressed because the host is a control, not a Form). Applies
+//   • ShowQuickSetupWizard   — opens DocumentSetupWizardDialog and applies
 //     the result (tab style + seed sample documents + optional template) in
 //     a single designer transaction.
 //   • DescribeHostState      — plain-English status banner used by the smart-
@@ -95,17 +94,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
         {
             if (DesignerHost == null) return;
 
-            // The host is a Control, not a Form. Native MDI requires a Form.
-            // If the user chose Native MDI, fall back to standard tabs and
-            // tell them how to enable MDI properly.
             if (result.Mode == DocumentSetupMode.NativeMdi)
             {
-                MessageBox.Show(
-                    "Native MDI is a Form-level mode. Drop a BeepDocumentManager onto " +
-                    "the form and run its setup wizard to enable Native MDI.",
-                    "Native MDI requires BeepDocumentManager",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                result.Mode = DocumentSetupMode.TabbedDocuments;
             }
 
             using var txn = DesignerHost.CreateTransaction("Beep Document Host Setup");

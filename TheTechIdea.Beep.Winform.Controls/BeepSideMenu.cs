@@ -4,6 +4,7 @@ using System.Drawing.Design;
 using TheTechIdea.Beep.Vis.Modules;
 
 using TheTechIdea.Beep.Winform.Controls.AppBars;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Forms;
@@ -21,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [Description("A side menu control that can be collapsed or expanded.")]
     [DisplayName("Beep Side Menu")]
-    public partial class BeepSideMenu : BeepControl
+    public partial class BeepSideMenu : BaseControl
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EndMenuCollapseExpand;
@@ -288,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = DpiScalingHelper.ScalePadding(new Padding(5), this);
 
             _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
-            _isControlinvalidated = true;
+           
 
             animationTimer = new Timer { Interval = 16 }; // ~60 FPS
             animationTimer.Tick += AnimationTimer_Tick;

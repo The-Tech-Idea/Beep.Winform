@@ -164,8 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         /// <summary>
         /// Returns <see langword="true"/> when a <see cref="BeepDocumentManager"/>
-        /// on the same design surface has its
-        /// <see cref="BeepTabbedView.Host"/> set to this
+        /// on the same design surface has its Host property set to this
         /// <see cref="BeepDocumentHost"/>.
         /// </summary>
         private bool HasBoundManager()

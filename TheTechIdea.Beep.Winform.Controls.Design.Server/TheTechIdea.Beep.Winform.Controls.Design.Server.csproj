@@ -68,6 +68,25 @@
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="ActionLists\DocumentHostActionList.cs" />
+    <Compile Remove="Designers\BeepDocumentHostDesigner.*.cs" />
+    <Compile Remove="Designers\BeepDocumentManagerDesigner.*.cs" />
+    <Compile Remove="Designers\DesignTimeDocumentCoordinator.cs" />
+    <Compile Remove="Designers\DesignTimeDocumentsEditorContext.cs" />
+    <Compile Remove="Designers\DocumentHostDesignerMenuTheming.cs" />
+    <Compile Remove="Designers\DocumentHostLayoutAssistantDialog.cs" />
+    <Compile Remove="Designers\DocumentHostTextPromptDialog.cs" />
+    <Compile Remove="Designers\LayoutPresetPickerDialog.cs" />
+    <Compile Remove="Dialogs\DocumentHostShortcutEditorDialog.cs" />
+    <Compile Remove="Dialogs\DocumentSetupWizardDialog.cs" />
+    <Compile Remove="Dialogs\GroupTabPositionDialog.cs" />
+    <Compile Remove="Dialogs\LayoutTreeDialog.cs" />
+    <Compile Remove="Dialogs\WorkspaceManagerDialog.cs" />
+    <Compile Remove="Editors\DocumentDescriptorCollectionEditor.cs" />
+    <Compile Remove="Editors\DocumentHostLayoutEditor.cs" />
+    <Compile Remove="MDI\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Beep.Winform\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
   </ItemGroup>

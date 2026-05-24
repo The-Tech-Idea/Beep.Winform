@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Models;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs.Tokens;
+using TheTechIdea.Beep.Winform.Controls.Scolling;
 
 namespace TheTechIdea.Beep.Winform.Controls;
     /// <summary>

@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Scolling;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

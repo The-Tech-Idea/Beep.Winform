@@ -1,11 +1,10 @@
 // DocumentSetupWizardDialog.cs
 // Phase 07 — commercial-grade design-time setup experience.
 //
-// One dialog, one click, fully-wired document area. Modeled on commercial MDI
-// platform setup wizards (DevExpress XtraTabbedMdiManager, Telerik
-// RadDocking) where dropping a single component opens a guided setup with
-// visual mode tiles, optional starter templates, a live preview, and a
-// single "Apply" that auto-creates and wires every companion component.
+// One dialog, one click, fully-wired document area. Dropping a single
+// component opens a guided setup with visual mode tiles, optional starter
+// templates, a live preview, and a single "Apply" that wires the
+// BeepDocumentHost design surface.
 //
 // Used by:
 //   • BeepDocumentManagerDesigner.InitializeNewComponent (first drop)
@@ -24,11 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs
     /// <summary>Top-level document presentation modes the wizard exposes.</summary>
     public enum DocumentSetupMode
     {
-        /// <summary>BeepTabbedView + BeepDocumentHost — IDE / editor style with tabs, splits, docking.</summary>
+        /// <summary>BeepDocumentHost — IDE / editor style with tabs, splits, docking.</summary>
         TabbedDocuments,
-        /// <summary>BeepTabbedView + BeepDocumentHost configured Chrome-style with new-tab button.</summary>
+        /// <summary>BeepDocumentHost configured Chrome-style with new-tab button.</summary>
         BrowserTabs,
-        /// <summary>BeepNativeMdiView — classic WinForms MDI children, no tabs/splits/docking.</summary>
+        /// <summary>Legacy value retained for old serialized designer state; not shown in the wizard.</summary>
         NativeMdi
     }
 
@@ -179,18 +178,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs
                 isRecommended: false,
                 iconPainter: PaintBrowserIcon));
 
-            _tiles.Add(CreateTile(
-                DocumentSetupMode.NativeMdi,
-                "Native MDI",
-                "Classic WinForms MDI children. No tabs,\nsplits, or docking. For legacy MDI apps.",
-                isRecommended: false,
-                iconPainter: PaintMdiIcon));
-
             // place tiles in a horizontal flow with even spacing
             int tileWidth  = 240;
             int tileHeight = 170;
             int gap        = 16;
-            int totalW     = tileWidth * 3 + gap * 2;
+            int totalW     = tileWidth * _tiles.Count + gap * Math.Max(0, _tiles.Count - 1);
             int startX     = (tilesContainer.ClientSize.Width - totalW) / 2;
             for (int i = 0; i < _tiles.Count; i++)
             {
@@ -202,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs
             }
             tilesContainer.Resize += (s, e) =>
             {
-                int sx = Math.Max(20, (tilesContainer.ClientSize.Width - (tileWidth * 3 + gap * 2)) / 2);
+                int sx = Math.Max(20, (tilesContainer.ClientSize.Width - (tileWidth * _tiles.Count + gap * Math.Max(0, _tiles.Count - 1))) / 2);
                 for (int i = 0; i < _tiles.Count; i++)
                 {
                     _tiles[i].Location = new Point(sx + i * (tileWidth + gap), 12);
@@ -557,14 +549,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs
             // announcement is self-contained without focus context.
             _statusLabel.Text = tile.Mode switch
             {
-                DocumentSetupMode.TabbedDocuments => "Tabbed Documents selected. Creates BeepTabbedView + BeepDocumentHost on the form.",
-                DocumentSetupMode.BrowserTabs     => "Browser Tabs selected. Creates BeepTabbedView + BeepDocumentHost (Chrome style, +button, always-close).",
-                DocumentSetupMode.NativeMdi       => "Native MDI selected. Creates BeepNativeMdiView and sets Form.IsMdiContainer = true.",
+                DocumentSetupMode.TabbedDocuments => "Tabbed Documents selected. Uses one BeepDocumentHost surface on the form.",
+                DocumentSetupMode.BrowserTabs     => "Browser Tabs selected. Uses one BeepDocumentHost surface with Chrome style, +button, and always-close.",
+                DocumentSetupMode.NativeMdi       => "Tabbed Documents selected. Native MDI is not exposed at design time.",
                 _ => string.Empty
             };
             _statusLabel.RaiseAnnouncement();
 
-            // Sample-document option doesn't fit Native MDI as cleanly
+            // NativeMdi is a legacy value only; when encountered, keep the
+            // design-time surface on BeepDocumentHost.
             _addSamplesCheck.Enabled = tile.Mode != DocumentSetupMode.NativeMdi;
             if (!_addSamplesCheck.Enabled) _addSamplesCheck.Checked = false;
         }

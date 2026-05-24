@@ -49,12 +49,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1 = new TheTechIdea.Beep.Winform.Controls.MenuBar.BeepMenuAppBar();
             beepDisplayContainer1 = new BeepDisplayContainer2();
             SuspendLayout();
-            // 
-            // beepFormuiManager1
-            // 
-            beepFormuiManager1.ShowBorder = false;
-            beepFormuiManager1.Theme = "DefaultTheme";
-            beepFormuiManager1.Title = "Beep";
+          
             // 
             // beepAppTree1
             // 

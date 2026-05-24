@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private BeepWebHeaderAppBar _beepAppBar;
         private BeepDisplayContainer _displayContainer;
         private BeepMenuBar _beepMenuBar;
-        private BeepFunctionsPanel _functionsPanel;
+      
 
         private readonly HashSet<Control> _wiredContainers = new();
         private bool _themeSubscribed;
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 else if (_beepAppBar == null && c is BeepWebHeaderAppBar ab) _beepAppBar = ab;
                 else if (_displayContainer == null && c is BeepDisplayContainer dc) _displayContainer = dc;
                 else if (_beepMenuBar == null && c is BeepMenuBar mb) _beepMenuBar = mb;
-                else if (_functionsPanel == null && c is BeepFunctionsPanel fp) _functionsPanel = fp;
+             
             }
 
             // Push title/logo immediately
@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (_beepAppBar == null && e.Control is BeepWebHeaderAppBar ab) { _beepAppBar = ab; _beepAppBar.Text = Title; _beepAppBar.LogoImagePath = LogoImage; }
             if (_displayContainer == null && e.Control is BeepDisplayContainer dc) _displayContainer = dc;
             if (_beepMenuBar == null && e.Control is BeepMenuBar mb) _beepMenuBar = mb;
-            if (_functionsPanel == null && e.Control is BeepFunctionsPanel fp) _functionsPanel = fp;
+          
         }
 
         private void WireSideMenuCollapse()
@@ -355,10 +355,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     _beepSideMenu.LogoImage = LogoImage;
                     WireSideMenuCollapse();
                 }
-                else if (control is BeepFunctionsPanel fnPanel)
-                {
-                    _functionsPanel = fnPanel;
-                }
                 else if (control is BeepiFormPro beepi)
                 {
                     BeepiForm = beepi;
@@ -475,12 +471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
         }
 
-        [Browsable(true), Category("Components")]
-        public BeepFunctionsPanel BeepFunctionsPanel
-        {
-            get => _functionsPanel;
-            set => _functionsPanel = value;
-        }
+     
 
         // ---------------------------- Convenience API
         public void AttachControlAddedHandlers() { if (_form != null) AttachContainer(_form); }

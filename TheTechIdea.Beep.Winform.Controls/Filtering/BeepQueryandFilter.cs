@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -9,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Data")]
     [Description("A control that allows users to query and filter data.")]
     [DisplayName("Beep Query and Filter")]
-    public class BeepQueryandFilter : BeepControl
+    public class BeepQueryandFilter : BaseControl
     {
         private TableLayoutPanel tableLayoutPanel;
         private List<AppFilter> Filters = new List<AppFilter>();

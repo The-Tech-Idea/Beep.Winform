@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Services;
+using TheTechIdea.Beep.Shared;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 

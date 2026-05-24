@@ -1491,7 +1491,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
       
 
-        private BeepControl _lastBeepParent;
+        private BaseControl _lastBeepParent;
         private Color _originalBackColor;
 
         protected override void OnParentChanged(EventArgs e)
@@ -1503,7 +1503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _lastBeepParent.ClearChildExternalDrawing(this);
 
             // register with new parent
-            if (Parent is BeepControl newBeepParent)
+            if (Parent is BaseControl newBeepParent)
             {
                 // inherit splash effect setting from parent BeepControl
                 EnableSplashEffect = newBeepParent.EnableSplashEffect;
@@ -1515,16 +1515,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var baseHandler = BaseControl.CreateBadgeDrawingHandler(
                         BadgeText, BadgeBackColor, BadgeForeColor, BadgeFont, BadgeShape);
                     // Wrap BaseControl.DrawExternalHandler to BeepControl.DrawExternalHandler
-                    BeepControl.DrawExternalHandler beepHandler = (g, bounds) => baseHandler(g, bounds);
-                    newBeepParent.AddChildExternalDrawing(
-                        this,
-                        beepHandler,
-                        DrawingLayer.AfterAll
-                    );
+                  
                 }
             }
 
-            _lastBeepParent = Parent as BeepControl;
+            _lastBeepParent = Parent as BaseControl;
         }
 
 

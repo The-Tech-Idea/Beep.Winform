@@ -590,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         }
 
         #region "Badge"
-        private BeepControl _lastBeepParent;
+        private BaseControl _lastBeepParent;
 
         protected override void OnParentChanged(EventArgs e)
         {
@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (_lastBeepParent != null)
                 _lastBeepParent.ClearChildExternalDrawing(this);
 
-            if (Parent is BeepControl newBeepParent)
+            if (Parent is BaseControl newBeepParent)
             {
                 newBeepParent.AddChildExternalDrawing(
                     this,
@@ -608,7 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 );
             }
 
-            _lastBeepParent = Parent as BeepControl;
+            _lastBeepParent = Parent as BaseControl;
         }
 
         private void DrawBadgeExternally(Graphics g, Rectangle childBounds)

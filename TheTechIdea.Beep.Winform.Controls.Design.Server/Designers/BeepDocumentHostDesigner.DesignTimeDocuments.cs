@@ -833,9 +833,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     return existing;
                 }
 
-                // Panel was created by the runtime AddDocument path (unsited, not in
-                // DocumentPanels). Close it so we can recreate it as a proper designer
-                // component that ends up in Designer.cs.
+                // Panel was created by the runtime AddDocument path (unsited).
+                // Close it so we can recreate it as a proper designer component
+                // that ends up in Designer.cs under the host's Controls collection.
                 host.CloseDocument(descriptor.Id);
             }
 

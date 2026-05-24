@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
  
 
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Task List Item")]
     [Description("A themed task list item with project, title, time, attachments, and checkbox.")]
-    public class BeepTaskListItemControl : BeepControl
+    public class BeepTaskListItemControl : BaseControl
     {
         private BeepLabel lblProject;
         private BeepLabel lblTaskTitle;
@@ -113,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure controls are themed
             foreach (Control control in Controls)
             {
-                if (control is BeepControl beepControl)
+                if (control is BaseControl beepControl)
                 {
                     beepControl.Theme = Theme;
                 }

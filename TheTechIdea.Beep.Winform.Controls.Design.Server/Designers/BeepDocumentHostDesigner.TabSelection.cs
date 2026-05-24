@@ -8,27 +8,15 @@
 // route subsequent toolbox drops to a specific document panel — defeating
 // the whole purpose of designing a multi-document MDI surface visually.
 //
-// Two pieces of plumbing live in this file:
+// This file keeps the shared document-selection path used by the host
+// designer's tab-strip mouse routing and by the "Select Tab Under Cursor"
+// verb. It hit-tests against every group's TabStrip in screen coordinates
+// and routes SetActiveDocument manually when needed.
 //
-//   • GetHitTest(Point) — overrides the parent designer hit-test to claim
-//     pass-through ("let the runtime control receive this click") for any
-//     screen coordinate that lands on a tab body, the add button, the
-//     scroll buttons, the overflow button, or the group-header strip. All
-//     other hits stay with the designer so dragging the host itself still
-//     selects and moves it normally.
-//
-//   • EnsureActiveDocumentSelected() — a defensive fallback used by the
-//     verb "Select Tab Under Cursor" and by the tab-strip mouse pre-filter
-//     installed in Initialize(). If the WinForms designer host still
-//     intercepts the click (some MDI Tools surfaces do), we hit-test the
-//     cursor against every group's TabStrip in screen coordinates and
-//     route SetActiveDocument(tabId) manually. The ActiveDocumentChanged
-//     handler installed in BeepDocumentHostDesigner.cs (Phase 11 wire-up)
-//     then promotes the corresponding BeepDocumentPanel to the primary
-//     selection so the property grid swaps automatically.
-//
-// Together these two paths give the developer a click-to-select-tab UX
-// identical to DevExpress XtraTabbedView and Telerik RadDocking.
+// Header clicks are handled by the runtime BeepDocumentTabStrip. The host
+// designer only uses GetHitTest to let those internal implementation controls
+// receive mouse input, following the same "host owns panes" shape used by
+// DockPanelSuite.
 // ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.ComponentModel.Design;
@@ -43,19 +31,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
     {
         // ── Designer hit-test ────────────────────────────────────────────────
 
-        /// <summary>
-        /// Phase 11 — claims pass-through for clicks that land on a tab body
-        /// (or its associated buttons) so the runtime <see cref="BeepDocumentTabStrip"/>
-        /// receives the message and raises <c>TabSelected</c>. The host's
-        /// <c>OnTabSelected</c> then activates the matching document panel and
-        /// fires <c>ActiveDocumentChanged</c>, which the designer forwards into
-        /// the ISelectionService selection (see <c>OnHostActiveDocumentChanged</c>).
-        /// </summary>
-        /// <param name="point">
-        /// Mouse position in <b>screen</b> coordinates, as documented for
-        /// <see cref="ControlDesigner.GetHitTest(Point)"/>. Returning <c>true</c>
-        /// means "this point belongs to the runtime control, not to me".
-        /// </param>
         protected override bool GetHitTest(Point point)
         {
             if (Component is not BeepDocumentHost host)
@@ -91,7 +66,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return false;
             }
 
-            if (!TryHitTestTabStrip(host, screenPoint, out string? tabId, out _))
+            return TryActivateDocumentTabAt(host, screenPoint);
+        }
+
+        internal bool SelectDocumentTabFromStrip(BeepDocumentTabStrip strip, Point stripClientPoint)
+        {
+            if (strip == null || Component is not BeepDocumentHost host)
+            {
+                return false;
+            }
+
+            try
+            {
+                strip.CalculateTabLayout();
+            }
+            catch
+            {
+                // Stale design-time layout should not block tab selection.
+            }
+
+            if (!TryResolveTabIdFromStripPoint(strip, stripClientPoint, out string? tabId)
+                || string.IsNullOrWhiteSpace(tabId))
+            {
+                return false;
+            }
+
+            return SelectDocumentTabById(host, strip, tabId);
+        }
+
+        private bool TryActivateDocumentTabAt(BeepDocumentHost host, Point screenPoint)
+        {
+            if (!TryHitTestTabStrip(host, screenPoint, out string? tabId, out BeepDocumentGroup? group))
             {
                 return false;
             }
@@ -103,12 +108,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             try
             {
-                return host.SetActiveDocument(tabId!);
+                return SelectDocumentTabById(host, group?.TabStrip, tabId!);
             }
             catch
             {
                 return false;
             }
+        }
+
+        private bool SelectDocumentTabById(BeepDocumentHost host, BeepDocumentTabStrip? strip, string tabId)
+        {
+            bool activated = host.SetActiveDocument(tabId);
+            strip?.ActivateTabById(tabId);
+
+            BeepDocumentPanel? panel = host.GetPanel(tabId);
+            Control selectionOwner = strip != null ? strip : host;
+            SyncDesignerSelectionSticky(selectionOwner, ResolveDocumentSelection(host, panel ?? host.ActivePanel));
+            return activated || panel != null;
         }
 
         /// <summary>
@@ -130,10 +146,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 return;
             }
 
-            object selection = host.ActivePanel is { } activePanel && activePanel.Site != null
-                ? (object)activePanel
-                : host;
-            SyncDesignerSelection(selection);
+            if (TryHitTestDocumentPanel(host, screenPoint, out BeepDocumentPanel? panel) && panel != null)
+            {
+                try
+                {
+                    IContainer? container = GetNestedContainer() ?? GetDesignerHost()?.Container;
+                    if (container != null)
+                    {
+                        SiteDesignPanel(container, panel, panel.DocumentId);
+                    }
+                }
+                catch
+                {
+                    // Non-fatal design-time siting path.
+                }
+
+                SyncDesignerSelectionSticky(host, ResolveDocumentSelection(host, panel));
+                return;
+            }
+
+            SyncDesignerSelectionSticky(host, ResolveDocumentSelection(host, host.ActivePanel));
         }
 
         // ── Internal hit-test pipeline ───────────────────────────────────────
@@ -165,17 +197,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     continue;
                 }
 
-                if (!strip.IsHandleCreated)
-                {
-                    continue;
-                }
-
-                Point local;
                 try
                 {
-                    local = strip.PointToClient(screenPoint);
+                    strip.CalculateTabLayout();
                 }
                 catch
+                {
+                    // Stale design-time layout should not block tab selection.
+                }
+
+                if (!TryMapScreenToStripLocal(host, strip, screenPoint, out Point local))
                 {
                     continue;
                 }
@@ -185,19 +216,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                     continue;
                 }
 
-                // Any click on the tab strip area should be allowed through —
-                // the strip itself routes the message to tab vs. button vs.
-                // overflow / scroll using its existing OnMouseDown pipeline.
-                // We still try to resolve the tab id so designer verbs can
-                // act on a specific tab without re-running hit-test code.
-                foreach (BeepDocumentTab tab in strip.Tabs)
+                if (TryResolveTabIdFromStripPoint(strip, local, out string? resolvedTabId))
                 {
-                    if (tab != null && tab.TabRect.Contains(local))
-                    {
-                        tabId = tab.Id;
-                        group = grp;
-                        return true;
-                    }
+                    tabId = resolvedTabId;
+                    group = grp;
+                    return true;
                 }
 
                 // No specific tab hit, but the click is on the tab-strip
@@ -209,6 +232,216 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             return false;
+        }
+
+        internal static bool TryResolveTabIdFromStripPoint(BeepDocumentTabStrip strip, Point local, out string? tabId)
+        {
+            tabId = null;
+
+            try
+            {
+                var hit = strip.HitTestTab(local);
+                if (hit.Hit
+                    && hit.TabIndex >= 0
+                    && hit.TabIndex < strip.Tabs.Count
+                    && !hit.IsCloseButton
+                    && !hit.IsAddButton
+                    && !hit.IsScrollLeft
+                    && !hit.IsScrollRight
+                    && !hit.IsOverflowButton)
+                {
+                    tabId = strip.Tabs[hit.TabIndex].Id;
+                    return !string.IsNullOrWhiteSpace(tabId);
+                }
+            }
+            catch
+            {
+                // Fall through to geometry-based check.
+            }
+
+            foreach (BeepDocumentTab tab in strip.Tabs)
+            {
+                if (tab == null || !tab.TabRect.Contains(local))
+                {
+                    continue;
+                }
+
+                if (!tab.CloseRect.IsEmpty && tab.CloseRect.Contains(local))
+                {
+                    continue;
+                }
+
+                tabId = tab.Id;
+                return !string.IsNullOrWhiteSpace(tabId);
+            }
+
+            return false;
+        }
+
+        private static bool TryMapScreenToStripLocal(BeepDocumentHost host, BeepDocumentTabStrip strip, Point screenPoint, out Point local)
+        {
+            local = Point.Empty;
+
+            try
+            {
+                if (strip.IsHandleCreated)
+                {
+                    local = strip.PointToClient(screenPoint);
+                    return true;
+                }
+
+                if (!host.IsHandleCreated)
+                {
+                    return false;
+                }
+
+                Point hostLocal = host.PointToClient(screenPoint);
+                Point offset = GetOffsetFromHost(strip, host);
+                local = new Point(hostLocal.X - offset.X, hostLocal.Y - offset.Y);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static Point GetOffsetFromHost(Control control, Control host)
+        {
+            int x = 0;
+            int y = 0;
+
+            Control? current = control;
+            while (current != null && current != host)
+            {
+                x += current.Left;
+                y += current.Top;
+                current = current.Parent;
+            }
+
+            return new Point(x, y);
+        }
+
+        private static bool TryHitTestDocumentPanel(BeepDocumentHost host, Point screenPoint, out BeepDocumentPanel? hitPanel)
+        {
+            hitPanel = null;
+
+            foreach (BeepDocumentGroup group in host.Groups)
+            {
+                foreach (string documentId in group.DocumentIds)
+                {
+                    BeepDocumentPanel? panel = host.GetPanel(documentId);
+                    if (panel == null || !panel.Visible)
+                    {
+                        continue;
+                    }
+
+                    Point panelPoint;
+                    try
+                    {
+                        panelPoint = panel.PointToClient(screenPoint);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    if (!panel.ClientRectangle.Contains(panelPoint))
+                    {
+                        continue;
+                    }
+
+                    if (ContainsChildControlAt(panel, screenPoint))
+                    {
+                        continue;
+                    }
+
+                    hitPanel = panel;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool ContainsChildControlAt(Control parent, Point screenPoint)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                if (!child.Visible)
+                {
+                    continue;
+                }
+
+                Point childPoint;
+                try
+                {
+                    childPoint = child.PointToClient(screenPoint);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (!child.ClientRectangle.Contains(childPoint))
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private object ResolveDocumentSelection(BeepDocumentHost host, BeepDocumentPanel? panel)
+        {
+            if (panel == null)
+            {
+                return host;
+            }
+
+            try
+            {
+                IContainer? container = GetNestedContainer() ?? GetDesignerHost()?.Container;
+                if (container != null)
+                {
+                    SiteDesignPanel(container, panel, panel.DocumentId);
+                }
+            }
+            catch
+            {
+                // Non-fatal design-time siting path.
+            }
+
+            return panel.Site != null ? (object)panel : host;
+        }
+
+        private void SyncDesignerSelectionSticky(Control owner, object selectionTarget)
+        {
+            SyncDesignerSelection(selectionTarget);
+
+            try
+            {
+                if (owner.IsHandleCreated)
+                {
+                    owner.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            SyncDesignerSelection(selectionTarget);
+                        }
+                        catch
+                        {
+                            // Designer host may be tearing down.
+                        }
+                    }));
+                }
+            }
+            catch
+            {
+                // Ignore transient designer host disposal/race conditions.
+            }
         }
     }
 }

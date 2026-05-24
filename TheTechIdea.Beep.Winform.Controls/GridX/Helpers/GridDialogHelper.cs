@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -22,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly BeepGridPro _grid;
         private Form _editorDialog;
         private Form _filterDialog;
-        private BeepControl _currentEditor;
+        private BaseControl _currentEditor;
         private IBeepUIComponent _currenteditorUIcomponent;
         private int _lastSearchRow = -1;
         private int _lastSearchCol = -1;
@@ -75,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Create editor control
             _currenteditorUIcomponent = CreateEditorForColumn(column);
-            _currentEditor = _currenteditorUIcomponent as BeepControl;
+            _currentEditor = _currenteditorUIcomponent as BaseControl;
             if (_currentEditor == null)
                 return;
 

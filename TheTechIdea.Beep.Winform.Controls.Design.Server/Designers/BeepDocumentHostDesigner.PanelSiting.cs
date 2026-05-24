@@ -139,6 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (panel.Site != null)
             {
                 _sitedPanels.Add(panel);
+                EnablePanelDesignMode(panel);
                 return;
             }
 
@@ -155,6 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 {
                     container.Add(panel, name);
                     _sitedPanels.Add(panel);
+                    EnablePanelDesignMode(panel);
                     panel.SetDocumentTitleSafe(); // keep header text in sync after siting
                     return;
                 }
@@ -194,6 +196,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             if (host.Site?.DesignMode == true) return true;
             return LicenseManager.UsageMode == LicenseUsageMode.Designtime;
         }
+
+        private void EnablePanelDesignMode(BeepDocumentPanel panel)
+        {
+            if (panel == null)
+            {
+                return;
+            }
+
+            string designName = !string.IsNullOrWhiteSpace(panel.Name)
+                ? panel.Name
+                : BuildPanelComponentName(panel.DocumentId);
+
+            try
+            {
+                EnableDesignMode(panel, designName);
+            }
+            catch
+            {
+                // Already enabled or unavailable in this design host.
+            }
+        }
+
     }
 
     // ── BeepDocumentPanel siting helper ──────────────────────────────────────

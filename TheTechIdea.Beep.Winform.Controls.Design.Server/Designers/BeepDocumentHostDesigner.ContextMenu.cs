@@ -15,9 +15,9 @@
 // tab strips, direct children) so we never compete with the standard
 // Properties grid context-menu of unrelated controls.
 //
-// Left-click on a tab strip hit-tests the tab and routes ISelectionService
-// to the corresponding BeepDocumentPanel — same UX as DevExpress
-// XtraTabbedView's design-time tab selection.
+// Left-click on a tab strip routes through the host designer to activate
+// the corresponding document panel. The strip remains an internal child,
+// following the DockPanelSuite-style "host owns chrome" design.
 //
 // Right-click builds a contextual menu via BuildDesignContextMenu and
 // themes it with ApplyThemeToDesignMenu against the host's current
@@ -49,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 if (container != null)
                 {
                     SiteDesignPanel(container, panel, panel.DocumentId);
+                    EnablePanelDesignMode(panel);
                 }
             }
         }
@@ -88,10 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             control.MouseUp += DesignContextSurface_MouseUp;
-
-            // Left-click on a tab header → select that document's panel in the Properties window.
-            if (control is BeepDocumentTabStrip)
-                control.MouseDown += DesignTabStrip_MouseDown;
+            control.MouseDown += DesignContextSurface_MouseDown;
         }
 
         private void UnhookDesignContextMenuSurface(Control control)
@@ -102,9 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             }
 
             control.MouseUp -= DesignContextSurface_MouseUp;
-
-            if (control is BeepDocumentTabStrip)
-                control.MouseDown -= DesignTabStrip_MouseDown;
+            control.MouseDown -= DesignContextSurface_MouseDown;
         }
 
         private static bool IsDesignContextMenuSurface(Control control)
@@ -112,33 +108,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         // ── Mouse handlers ──────────────────────────────────────────────────
 
-        /// <summary>
-        /// Left-click on a tab header selects the corresponding <see cref="BeepDocumentPanel"/>
-        /// in the Visual Studio Properties window — identical to DevExpress XtraTabbedView behaviour.
-        /// </summary>
-        private void DesignTabStrip_MouseDown(object? sender, MouseEventArgs e)
+        private void DesignContextSurface_MouseDown(object? sender, MouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Left
-                || sender is not BeepDocumentTabStrip strip
-                || Component is not BeepDocumentHost host)
+            if (e.Button != MouseButtons.Left || sender is not BeepDocumentTabStrip strip)
+            {
                 return;
+            }
 
-            var hit = strip.HitTestTab(e.Location);
-            if (!hit.Hit || hit.TabIndex < 0 || hit.TabIndex >= strip.Tabs.Count)
-                return;
-
-            if (hit.IsCloseButton || hit.IsAddButton || hit.IsScrollLeft || hit.IsScrollRight || hit.IsOverflowButton)
-                return;
-
-            string tabId = strip.Tabs[hit.TabIndex].Id;
-            if (string.IsNullOrWhiteSpace(tabId)) return;
-
-            var panel = host.GetPanel(tabId);
-            if (panel == null) return;
-
-            GetSelectionService()?.SetSelectedComponents(
-                new object[] { panel },
-                SelectionTypes.Replace);
+            SelectDocumentTabFromStrip(strip, e.Location);
         }
 
         private void DesignContextSurface_MouseUp(object? sender, MouseEventArgs e)

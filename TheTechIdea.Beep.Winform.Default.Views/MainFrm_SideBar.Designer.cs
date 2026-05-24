@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.DisabledBackColor = Color.White;
             beepSideMenu1.DisabledBorderColor = Color.Empty;
             beepSideMenu1.DisabledForeColor = Color.Black;
-            beepSideMenu1.DisableDpiAndScaling = true;
+          
             beepSideMenu1.Dock = DockStyle.Left;
             beepSideMenu1.DrawingRect = new Rectangle(5, 5, 149, 568);
             beepSideMenu1.Easing = EasingType.Linear;
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSideMenu1.FieldID = null;
             beepSideMenu1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
-            beepSideMenu1.FloatingLabel = string.Empty;
+
             beepSideMenu1.FocusBackColor = Color.White;
             beepSideMenu1.FocusBorderColor = Color.RoyalBlue;
             beepSideMenu1.FocusForeColor = Color.Black;
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.Location = new Point(4, 48);
             beepSideMenu1.LogoImage = "";
             beepSideMenu1.LogoSize = new Size(100, 100);
-            beepSideMenu1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+         
             beepSideMenu1.MaxHitListDrawPerFrame = 0;
             beepSideMenu1.ModernGradientType = ModernGradientType.None;
             beepSideMenu1.Name = "beepSideMenu1";
@@ -187,16 +187,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.TitleSize = new Size(139, 35);
             beepSideMenu1.ToolTipText = "";
             beepSideMenu1.TopoffsetForDrawingRect = 0;
-            beepSideMenu1.UIAnimation = ReactUIAnimation.None;
-            beepSideMenu1.UIColor = ReactUIColor.Primary;
-            beepSideMenu1.UICustomElevation = 0;
-            beepSideMenu1.UIDensity = ReactUIDensity.Standard;
-            beepSideMenu1.UIDisabled = false;
-            beepSideMenu1.UIElevation = ReactUIElevation.None;
-            beepSideMenu1.UIFullWidth = false;
-            beepSideMenu1.UIShape = ReactUIShape.Rounded;
-            beepSideMenu1.UISize = ReactUISize.Medium;
-            beepSideMenu1.UIVariant = ReactUIVariant.Default;
+           
             beepSideMenu1.UseExternalBufferedGraphics = false;
             beepSideMenu1.UseGlassmorphism = false;
             beepSideMenu1.UseGradientBackground = false;

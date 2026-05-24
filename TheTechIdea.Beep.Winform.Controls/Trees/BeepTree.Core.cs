@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using System.Drawing.Design;
+using TheTechIdea.Beep.Winform.Controls.Scolling;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

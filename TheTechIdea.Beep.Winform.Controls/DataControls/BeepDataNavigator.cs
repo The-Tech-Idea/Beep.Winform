@@ -598,9 +598,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             foreach (Control ctrl in Controls)
             {
-                if (ctrl is BeepControl)
+                if (ctrl is BaseControl)
                 {
-                    ((BeepControl)ctrl).Theme = Theme;
+                    ((BaseControl)ctrl).Theme = Theme;
                 }
             }
             txtPosition.Theme = Theme;

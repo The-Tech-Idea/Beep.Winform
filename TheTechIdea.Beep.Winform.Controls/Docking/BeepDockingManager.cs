@@ -583,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             InitializeSubsystems();
-            _layoutController.ContainerBounds = hostForm.ClientRectangle;
+            _layoutController.ContainerBounds = hostForm.DisplayRectangle;
             RegisterDesignerCreatedPanels(hostForm);
             RecalculateLayout();
 
@@ -1024,23 +1024,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
-            var client = _hostForm.ClientRectangle;
+            var client = _hostForm.DisplayRectangle;
 
-            // Determine bounds based on dock position — same logic as DockPanelSuite splitter math
             Rectangle bounds;
             switch (panel.DockPosition)
             {
                 case DockPosition.Left:
-                    bounds = new Rectangle(0, 0, panel.PreferredWidth, client.Height);
+                    bounds = new Rectangle(client.Left, client.Top, panel.PreferredWidth, client.Height);
                     break;
                 case DockPosition.Right:
-                    bounds = new Rectangle(client.Width - panel.PreferredWidth, 0, panel.PreferredWidth, client.Height);
+                    bounds = new Rectangle(client.Right - panel.PreferredWidth, client.Top, panel.PreferredWidth, client.Height);
                     break;
                 case DockPosition.Top:
-                    bounds = new Rectangle(0, 0, client.Width, panel.PreferredHeight);
+                    bounds = new Rectangle(client.Left, client.Top, client.Width, panel.PreferredHeight);
                     break;
                 case DockPosition.Bottom:
-                    bounds = new Rectangle(0, client.Height - panel.PreferredHeight, client.Width, panel.PreferredHeight);
+                    bounds = new Rectangle(client.Left, client.Bottom - panel.PreferredHeight, client.Width, panel.PreferredHeight);
                     break;
                 case DockPosition.Fill:
                     bounds = client;
@@ -1059,16 +1058,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (_hostForm == null || group == null || group.Panels.Count == 0)
                 return;
 
-            var client = _hostForm.ClientRectangle;
+            var client = _hostForm.DisplayRectangle;
             int width = group.Panels.Max(p => p.PreferredWidth);
             int height = group.Panels.Max(p => p.PreferredHeight);
 
             Rectangle bounds = group.Position switch
             {
-                DockPosition.Left => new Rectangle(0, 0, width, client.Height),
-                DockPosition.Right => new Rectangle(client.Width - width, 0, width, client.Height),
-                DockPosition.Top => new Rectangle(0, 0, client.Width, height),
-                DockPosition.Bottom => new Rectangle(0, client.Height - height, client.Width, height),
+                DockPosition.Left => new Rectangle(client.Left, client.Top, width, client.Height),
+                DockPosition.Right => new Rectangle(client.Right - width, client.Top, width, client.Height),
+                DockPosition.Top => new Rectangle(client.Left, client.Top, client.Width, height),
+                DockPosition.Bottom => new Rectangle(client.Left, client.Bottom - height, client.Width, height),
                 DockPosition.Fill => client,
                 _ => new Rectangle(100, 100, width, height)
             };

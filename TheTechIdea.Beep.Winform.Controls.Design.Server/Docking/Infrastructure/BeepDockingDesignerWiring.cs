@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
             }
 
             Point hostPoint = hostForm.PointToClient(screenPoint);
-            MovePanel(panel, ResolveDockPositionFromPoint(hostPoint, hostForm.ClientRectangle), services);
+            MovePanel(panel, ResolveDockPositionFromPoint(hostPoint, hostForm.DisplayRectangle), services);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
             Form hostForm = GetHostForm(manager, services);
             if (manager == null || hostForm == null) return;
 
-            Rectangle remaining = hostForm.ClientRectangle;
+            Rectangle remaining = hostForm.DisplayRectangle;
             if (remaining.Width <= 0 || remaining.Height <= 0)
                 remaining = new Rectangle(0, 0, 800, 450);
 

@@ -128,7 +128,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
                 return;
 
             if (!IsSizeChange(e))
+            {
+                HandleDockspaceMove(e);
                 return;
+            }
 
             try
             {
@@ -143,6 +146,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             {
                 _resizingFromDesigner = false;
             }
+        }
+
+        private void HandleDockspaceMove(ComponentChangedEventArgs e)
+        {
+            if (Dockspace.Manager == null || !(e.NewValue is Rectangle newBounds))
+                return;
+
+            Form hostForm = (_designerHost?.RootComponent as Form) ?? Dockspace.FindForm();
+            if (hostForm == null)
+                return;
+
+            Point center = new Point(
+                newBounds.Left + newBounds.Width / 2,
+                newBounds.Top + newBounds.Height / 2);
+
+            DockPosition resolved = BeepDockingDesignerWiring.ResolveDockPositionFromPoint(
+                center, hostForm.DisplayRectangle);
+
+            if (resolved != Dockspace.DockPosition)
+                BeepDockingDesignerWiring.SetProperty(
+                    Dockspace, nameof(BeepDockspace.DockPosition), resolved, AsServiceProvider);
+
+            BeepDockingDesignerWiring.RefreshHostLayout(Dockspace.Manager, AsServiceProvider);
         }
 
         private static bool IsSizeChange(ComponentChangedEventArgs e)

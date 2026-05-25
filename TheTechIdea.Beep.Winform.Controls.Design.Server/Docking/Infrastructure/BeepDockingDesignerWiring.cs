@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
             }
         }
 
-        private static DockPosition ResolveDockPositionFromPoint(Point point, Rectangle bounds)
+        internal static DockPosition ResolveDockPositionFromPoint(Point point, Rectangle bounds)
         {
             if (bounds.Width <= 0 || bounds.Height <= 0)
                 return DockPosition.Fill;

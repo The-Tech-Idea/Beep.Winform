@@ -53,7 +53,8 @@
             dockPanel1.Location = new Point(0, 26);
             dockPanel1.Manager = beepDockingManager1;
             dockPanel1.Name = "dockPanel1";
-            dockPanel1.Size = new Size(250, 410);
+            dockPanel1.PreferredWidth = 310;
+            dockPanel1.Size = new Size(310, 410);
             dockPanel1.TabIndex = 0;
             dockPanel1.Title = "dockPanel1";
             // 
@@ -68,7 +69,7 @@
             beepDockspace1.Manager = beepDockingManager1;
             beepDockspace1.MinimumSize = new Size(150, 150);
             beepDockspace1.Name = "beepDockspace1";
-            beepDockspace1.Size = new Size(250, 436);
+            beepDockspace1.Size = new Size(310, 436);
             beepDockspace1.TabIndex = 1;
             // 
             // dockPanel2
@@ -80,7 +81,8 @@
             dockPanel2.Location = new Point(0, 26);
             dockPanel2.Manager = beepDockingManager1;
             dockPanel2.Name = "dockPanel2";
-            dockPanel2.Size = new Size(250, 410);
+            dockPanel2.PreferredWidth = 310;
+            dockPanel2.Size = new Size(310, 410);
             dockPanel2.TabIndex = 1;
             dockPanel2.Title = "dockPanel2";
             // 

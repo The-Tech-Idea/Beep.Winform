@@ -74,6 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private Dictionary<string, DockPanel> _closedPanels = new Dictionary<string, DockPanel>();
         // One AutoHideStrip per edge — created in ManageControl, keyed by DockPosition.
         private Dictionary<DockPosition, AutoHideStrip> _autoHideStrips = new Dictionary<DockPosition, AutoHideStrip>();
+        // Dockspace controls this manager has subscribed to for Krypton-style page events.
+        private HashSet<BeepDockspace> _dockspaceEventSinks = new HashSet<BeepDockspace>();
         // Shared guide overlay for drag-to-dock — created lazily on first FloatPanel() call.
         private DockingGuideOverlay _guideOverlay;
         // Per-panel splitters — keyed by panel key.  Created in AddPanel(), disposed in RemovePanel().
@@ -1671,12 +1673,78 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             OnThemeChanged();
         }
 
+        internal void AttachDockspace(BeepDockspace dockspace)
+        {
+            if (dockspace == null || !_dockspaceEventSinks.Add(dockspace))
+                return;
+
+            dockspace.PageCloseClicked += OnDockspacePageCloseClicked;
+            dockspace.PageAutoHiddenClicked += OnDockspacePageAutoHiddenClicked;
+            dockspace.PageDropDownClicked += OnDockspacePageDropDownClicked;
+            dockspace.PagesDoubleClicked += OnDockspacePagesDoubleClicked;
+        }
+
+        internal void DetachDockspace(BeepDockspace dockspace)
+        {
+            if (dockspace == null || !_dockspaceEventSinks.Remove(dockspace))
+                return;
+
+            dockspace.PageCloseClicked -= OnDockspacePageCloseClicked;
+            dockspace.PageAutoHiddenClicked -= OnDockspacePageAutoHiddenClicked;
+            dockspace.PageDropDownClicked -= OnDockspacePageDropDownClicked;
+            dockspace.PagesDoubleClicked -= OnDockspacePagesDoubleClicked;
+        }
+
         internal void ApplyThemeToDockspace(BeepDockspace dockspace)
         {
             if (dockspace == null)
                 return;
 
             dockspace.ApplyDockingTheme(_themeColors);
+        }
+
+        private void OnDockspacePageCloseClicked(object sender, DockspacePageEventArgs e)
+        {
+            if (IsDesignHosted || string.IsNullOrWhiteSpace(e.UniqueName) || GetPanel(e.UniqueName) == null)
+                return;
+
+            CloseRequest(new[] { e.UniqueName });
+        }
+
+        private void OnDockspacePageAutoHiddenClicked(object sender, DockspacePageEventArgs e)
+        {
+            if (IsDesignHosted || string.IsNullOrWhiteSpace(e.UniqueName) || GetPanel(e.UniqueName) == null)
+                return;
+
+            MakeAutoHiddenRequest(e.UniqueName);
+        }
+
+        private void OnDockspacePageDropDownClicked(object sender, DockspaceDropDownEventArgs e)
+        {
+            if (IsDesignHosted || e?.Panel == null)
+                return;
+
+            var args = new PanelContextMenuEventArgs(e.Panel, e.ScreenPosition);
+            OnShowPanelContextMenu(args);
+
+            if (args.ContextMenu == null)
+                return;
+
+            e.Cancel = true;
+            args.ContextMenu.Show(e.Panel, e.Panel.PointToClient(e.ScreenPosition));
+        }
+
+        private void OnDockspacePagesDoubleClicked(object sender, DockspacePagesEventArgs e)
+        {
+            if (IsDesignHosted || e?.UniqueNames == null)
+                return;
+
+            foreach (string uniqueName in e.UniqueNames)
+            {
+                DockPanel panel = GetPanel(uniqueName);
+                if (panel?.CanFloat == true)
+                    MakeFloatingRequest(uniqueName);
+            }
         }
 
         internal void ApplyThemeToPanel(DockPanel panel)
@@ -2069,6 +2137,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 MdiNativeApi.DestroyWindow(_mdiClientHwnd);
                 _mdiClientHwnd = IntPtr.Zero;
             }
+
+            foreach (BeepDockspace dockspace in _dockspaceEventSinks.ToArray())
+                DetachDockspace(dockspace);
+            _dockspaceEventSinks.Clear();
 
             _panelsByKey.Clear();
             _panelsByHwnd.Clear();

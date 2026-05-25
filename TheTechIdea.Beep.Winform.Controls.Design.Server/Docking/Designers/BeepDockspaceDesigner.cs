@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
-using System.Windows.Forms.Design.Behavior;
 using Microsoft.DotNet.DesignTools.Designers;
 using TheTechIdea.Beep.Winform.Controls.Docking;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
@@ -17,30 +16,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
     /// Designer for the dockspace surface. Header clicks are routed to the
     /// control so tabs can activate pages at design time.
     /// </summary>
-    internal sealed class BeepDockspaceDesigner : ParentControlDesigner
+    internal sealed class BeepDockspaceDesigner : ParentControlDesigner, IMessageFilter
     {
         private const int WM_LBUTTONDOWN = 0x0201;
         private const int WM_LBUTTONUP = 0x0202;
+        private const int WM_LBUTTONDBLCLK = 0x0203;
+        private const int WM_RBUTTONDOWN = 0x0204;
         private const int WM_MOUSEMOVE = 0x0200;
 
         private BeepDockspace Dockspace => (BeepDockspace)Component;
         private IDesignerHost _designerHost;
         private IComponentChangeService _changeService;
-        private BehaviorService _behaviorService;
-        private Adorner _headerAdorner;
-        private DockspaceHeaderGlyph _headerGlyph;
+        private ISelectionService _selectionService;
         private DockPanel _dragPanel;
         private Point _dragStartScreen;
+        private Point _dragStartClient;
         private bool _draggingTab;
         private bool _resizingFromDesigner;
+        private bool _selectingPanelFromTab;
 
         public override SelectionRules SelectionRules =>
             SelectionRules.Visible | SelectionRules.Moveable | SelectionRules.AllSizeable;
 
         protected override bool GetHitTest(Point point)
         {
+            if (Dockspace == null)
+                return false;
+
+            if (IsHeaderPoint(point))
+                return true;
+
             Point client = Dockspace.PointToClient(point);
-            return client.Y >= 0 && client.Y <= BeepDockspace.HeaderHeight;
+            return IsHeaderPoint(client);
         }
 
         public override void Initialize(IComponent component)
@@ -51,35 +58,67 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             if (_changeService != null)
                 _changeService.ComponentChanged += OnComponentChanged;
 
-            _behaviorService = GetService(typeof(BehaviorService)) as BehaviorService;
-            if (_behaviorService != null)
-            {
-                _headerAdorner = new Adorner();
-                _headerGlyph = new DockspaceHeaderGlyph(this, _behaviorService);
-                _headerAdorner.Glyphs.Add(_headerGlyph);
-                _behaviorService.Adorners.Add(_headerAdorner);
-            }
+            _selectionService = GetService(typeof(ISelectionService)) as ISelectionService;
+            if (_selectionService != null)
+                _selectionService.SelectionChanged += OnSelectionChanged;
+
+            Dockspace.PanelSelectionRequested += OnPanelSelectionRequested;
+            Dockspace.MouseDown += OnDockspaceMouseDown;
+            Application.AddMessageFilter(this);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                Dockspace.PanelSelectionRequested -= OnPanelSelectionRequested;
+                Dockspace.MouseDown -= OnDockspaceMouseDown;
+                Application.RemoveMessageFilter(this);
+
                 if (_changeService != null)
                     _changeService.ComponentChanged -= OnComponentChanged;
 
-                if (_behaviorService != null && _headerAdorner != null)
-                    _behaviorService.Adorners.Remove(_headerAdorner);
+                if (_selectionService != null)
+                    _selectionService.SelectionChanged -= OnSelectionChanged;
 
-                _headerAdorner = null;
-                _headerGlyph = null;
-                _behaviorService = null;
                 _changeService = null;
+                _selectionService = null;
                 _designerHost = null;
                 _dragPanel = null;
             }
 
             base.Dispose(disposing);
+        }
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (Dockspace == null || Dockspace.IsDisposed || !Dockspace.IsHandleCreated)
+                return false;
+
+            Point screenPoint = ScreenPointFromMessage(m);
+
+            if (m.Msg == WM_MOUSEMOVE && _dragPanel != null)
+                return HandleDesignerHeaderMouseMove(screenPoint);
+
+            if (m.Msg == WM_LBUTTONUP && _dragPanel != null)
+                return HandleDesignerHeaderMouseUp(screenPoint);
+
+            if (m.Msg != WM_LBUTTONDOWN &&
+                m.Msg != WM_RBUTTONDOWN &&
+                m.Msg != WM_LBUTTONDBLCLK)
+            {
+                return false;
+            }
+
+            Point clientPoint = Dockspace.PointToClient(screenPoint);
+            if (!IsHeaderPoint(clientPoint))
+                return false;
+
+            if (m.Msg == WM_LBUTTONDBLCLK)
+                return Dockspace.HandleHeaderDoubleClick(clientPoint, MouseButtons.Left);
+
+            MouseButtons button = m.Msg == WM_RBUTTONDOWN ? MouseButtons.Right : MouseButtons.Left;
+            return HandleDesignerHeaderMouseDown(clientPoint, button);
         }
 
         protected override void WndProc(ref Message m)
@@ -88,19 +127,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             {
                 if (m.Msg == WM_LBUTTONDOWN)
                 {
-                    Point clientPoint = ClientPointFromMessage(m);
-                    if (HandleDesignerHeaderMouseDown(clientPoint))
+                    Point clientPoint = ClientPointFromMousePosition(m);
+                    if (HandleDesignerHeaderMouseDown(clientPoint, MouseButtons.Left))
+                        return;
+                }
+
+                if (m.Msg == WM_RBUTTONDOWN)
+                {
+                    Point clientPoint = ClientPointFromMousePosition(m);
+                    if (HandleDesignerHeaderMouseDown(clientPoint, MouseButtons.Right))
+                        return;
+                }
+
+                if (m.Msg == WM_LBUTTONDBLCLK)
+                {
+                    Point clientPoint = ClientPointFromMousePosition(m);
+                    if (Dockspace.HandleHeaderDoubleClick(clientPoint, MouseButtons.Left))
                         return;
                 }
 
                 if (m.Msg == WM_MOUSEMOVE && _dragPanel != null)
                 {
                     HandleDesignerHeaderMouseMove(Control.MousePosition);
+                    return;
                 }
 
                 if (m.Msg == WM_LBUTTONUP && _dragPanel != null)
                 {
                     HandleDesignerHeaderMouseUp(Control.MousePosition);
+                    return;
                 }
             }
 
@@ -153,6 +208,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             return new Point(x, y);
         }
 
+        private static Point ScreenPointFromMessage(Message m)
+        {
+            Point clientPoint = ClientPointFromMessage(m);
+            Control target = Control.FromHandle(m.HWnd);
+            return target?.PointToScreen(clientPoint) ?? Control.MousePosition;
+        }
+
+        private bool IsHeaderPoint(Point clientPoint) =>
+            clientPoint.X >= 0 &&
+            clientPoint.X < Dockspace.Width &&
+            clientPoint.Y >= 0 &&
+            clientPoint.Y <= BeepDockspace.HeaderHeight;
+
+        private Point ClientPointFromMousePosition(Message m)
+        {
+            Point clientPoint = Dockspace.PointToClient(ScreenPointFromMessage(m));
+            return Dockspace.ClientRectangle.Contains(clientPoint)
+                ? clientPoint
+                : ClientPointFromMessage(m);
+        }
+
+        private void OnPanelSelectionRequested(object sender, DockPanel panel)
+        {
+            SelectPanelInDesigner(panel);
+        }
+
+        private void OnSelectionChanged(object sender, EventArgs e)
+        {
+            if (_selectingPanelFromTab ||
+                !ReferenceEquals(_selectionService?.PrimarySelection, Dockspace))
+            {
+                return;
+            }
+
+            Point clientPoint = Dockspace.PointToClient(Control.MousePosition);
+            DockPanel tabPanel = Dockspace.HitTestTabAt(clientPoint);
+            if (tabPanel != null)
+                ActivateAndSelectTab(tabPanel, false);
+        }
+
+        private void OnDockspaceMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left ||
+                e.Location.Y < 0 ||
+                e.Location.Y > BeepDockspace.HeaderHeight)
+            {
+                return;
+            }
+
+            DockPanel tabPanel = Dockspace.HitTestTabAt(e.Location);
+            if (tabPanel == null)
+                return;
+
+            ActivateAndSelectTab(tabPanel, true);
+        }
+
         private void SelectPanelInDesigner(DockPanel panel)
         {
             if (panel == null)
@@ -162,24 +273,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             selection?.SetSelectedComponents(new object[] { panel }, SelectionTypes.Replace);
         }
 
-        private bool HandleDesignerHeaderMouseDown(Point clientPoint)
+        private bool HandleDesignerHeaderMouseDown(Point clientPoint, MouseButtons button)
         {
             if (Dockspace == null || clientPoint.Y < 0 || clientPoint.Y > BeepDockspace.HeaderHeight)
+                return false;
+
+            if (button == MouseButtons.Right)
+                return Dockspace.HandleHeaderMouseDown(clientPoint, MouseButtons.Right);
+
+            if (button != MouseButtons.Left)
                 return false;
 
             _dragPanel = Dockspace.HitTestTabAt(clientPoint);
             if (_dragPanel != null)
             {
-                _dragStartScreen = Control.MousePosition;
-                _draggingTab = false;
-
-                Dockspace.ActivatePanel(_dragPanel);
-                SelectPanelInDesigner(_dragPanel);
-                _behaviorService?.Invalidate();
+                ActivateAndSelectTab(_dragPanel, true, clientPoint);
                 return true;
             }
 
             return Dockspace.HandleHeaderMouseDown(clientPoint, MouseButtons.Left);
+        }
+
+        private void ActivateAndSelectTab(DockPanel panel, bool startDrag) =>
+            ActivateAndSelectTab(panel, startDrag, Dockspace.PointToClient(Control.MousePosition));
+
+        private void ActivateAndSelectTab(DockPanel panel, bool startDrag, Point dragStartClient)
+        {
+            if (panel == null)
+                return;
+
+            if (startDrag)
+            {
+                _dragPanel = panel;
+                _dragStartClient = dragStartClient;
+                _dragStartScreen = Dockspace.PointToScreen(dragStartClient);
+                _draggingTab = false;
+                Dockspace.Capture = true;
+            }
+
+            try
+            {
+                _selectingPanelFromTab = true;
+                Dockspace.ActivatePanel(panel);
+                SelectPanelInDesigner(panel);
+            }
+            finally
+            {
+                _selectingPanelFromTab = false;
+            }
         }
 
         private bool HandleDesignerHeaderMouseMove(Point screenPoint)
@@ -206,7 +347,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             try
             {
                 if (_draggingTab)
-                    BeepDockingDesignerWiring.DropPanelAt(_dragPanel, screenPoint, AsServiceProvider);
+                {
+                    DockspacePageDragCancelEventArgs args =
+                        Dockspace.RaiseBeforePageDrag(_dragPanel, screenPoint, _dragStartClient, Dockspace);
+
+                    if (!args.Cancel)
+                        BeepDockingDesignerWiring.DropPanelAt(_dragPanel, screenPoint, AsServiceProvider);
+                }
             }
             catch (Exception ex)
             {
@@ -214,10 +361,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             }
             finally
             {
+                Dockspace.Capture = false;
                 Dockspace.Cursor = Cursors.Default;
                 _dragPanel = null;
                 _draggingTab = false;
-                _behaviorService?.Invalidate();
             }
 
             return true;
@@ -226,68 +373,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
         private IServiceProvider AsServiceProvider => new DockspaceServiceProviderAdapter(base.GetService);
 
         private bool IsDesignerLoading => _designerHost?.Loading == true;
-
-        private sealed class DockspaceHeaderGlyph : Glyph
-        {
-            private readonly BeepDockspaceDesigner _designer;
-            private readonly BehaviorService _behaviorService;
-
-            public DockspaceHeaderGlyph(BeepDockspaceDesigner designer, BehaviorService behaviorService)
-                : base(new DockspaceHeaderBehavior(designer))
-            {
-                _designer = designer;
-                _behaviorService = behaviorService;
-            }
-
-            public override Rectangle Bounds
-            {
-                get
-                {
-                    if (_designer.Dockspace == null || _behaviorService == null)
-                        return Rectangle.Empty;
-
-                    Rectangle controlBounds = _behaviorService.ControlRectInAdornerWindow(_designer.Dockspace);
-                    return new Rectangle(controlBounds.Left, controlBounds.Top, controlBounds.Width, BeepDockspace.HeaderHeight);
-                }
-            }
-
-            public Point ToDockspaceClient(Point adornerPoint)
-            {
-                Rectangle bounds = Bounds;
-                return new Point(adornerPoint.X - bounds.Left, adornerPoint.Y - bounds.Top);
-            }
-
-            public override Cursor GetHitTest(Point p) =>
-                Bounds.Contains(p) ? Cursors.Hand : null;
-
-            public override void Paint(PaintEventArgs pe)
-            {
-            }
-        }
-
-        private sealed class DockspaceHeaderBehavior : Behavior
-        {
-            private readonly BeepDockspaceDesigner _designer;
-
-            public DockspaceHeaderBehavior(BeepDockspaceDesigner designer)
-            {
-                _designer = designer;
-            }
-
-            public override bool OnMouseDown(Glyph g, MouseButtons button, Point mouseLoc)
-            {
-                if (button != MouseButtons.Left || g is not DockspaceHeaderGlyph glyph)
-                    return false;
-
-                return _designer.HandleDesignerHeaderMouseDown(glyph.ToDockspaceClient(mouseLoc));
-            }
-
-            public override bool OnMouseMove(Glyph g, MouseButtons button, Point mouseLoc) =>
-                _designer.HandleDesignerHeaderMouseMove(Control.MousePosition);
-
-            public override bool OnMouseUp(Glyph g, MouseButtons button) =>
-                _designer.HandleDesignerHeaderMouseUp(Control.MousePosition);
-        }
 
         private sealed class DockspaceServiceProviderAdapter : IServiceProvider
         {

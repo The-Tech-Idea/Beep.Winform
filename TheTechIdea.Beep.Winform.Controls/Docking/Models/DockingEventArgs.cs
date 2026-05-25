@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -216,6 +217,108 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 
         /// <summary>Gets or sets the rectangle that limits the resize operation.</summary>
         public Rectangle ResizeRect { get; set; }
+    }
+
+    // ── Dockspace page events ────────────────────────────────────────────────────
+    // Mirrors KryptonSpace UniqueNameEventArgs, UniqueNamesEventArgs,
+    // CancelDropDownEventArgs, and PageDragCancelEventArgs for the Beep dockspace
+    // control layer.
+
+    /// <summary>
+    /// Provides data for a single dockspace page action.
+    /// Mirrors Krypton's <c>UniqueNameEventArgs</c>.
+    /// </summary>
+    public class DockspacePageEventArgs : EventArgs
+    {
+        public DockspacePageEventArgs(string uniqueName, DockPanel? panel = null)
+        {
+            UniqueName = uniqueName ?? string.Empty;
+            Panel = panel;
+        }
+
+        /// <summary>Gets the unique key of the page.</summary>
+        public string UniqueName { get; }
+
+        /// <summary>Gets the panel associated with the page, when available.</summary>
+        public DockPanel? Panel { get; }
+    }
+
+    /// <summary>
+    /// Provides data for actions that apply to a set of dockspace pages.
+    /// Mirrors Krypton's <c>UniqueNamesEventArgs</c>.
+    /// </summary>
+    public class DockspacePagesEventArgs : EventArgs
+    {
+        public DockspacePagesEventArgs(IReadOnlyList<string> uniqueNames, IReadOnlyList<DockPanel> panels)
+        {
+            UniqueNames = uniqueNames ?? Array.Empty<string>();
+            Panels = panels ?? Array.Empty<DockPanel>();
+        }
+
+        /// <summary>Gets the unique keys of the pages.</summary>
+        public IReadOnlyList<string> UniqueNames { get; }
+
+        /// <summary>Gets the panels associated with the pages.</summary>
+        public IReadOnlyList<DockPanel> Panels { get; }
+    }
+
+    /// <summary>
+    /// Provides data for a dockspace page drop-down request.
+    /// Mirrors Krypton's <c>CancelDropDownEventArgs</c>.
+    /// </summary>
+    public class DockspaceDropDownEventArgs : CancelEventArgs
+    {
+        public DockspaceDropDownEventArgs(ContextMenuStrip contextMenu, DockPanel panel, Point screenPosition)
+        {
+            ContextMenu = contextMenu;
+            Panel = panel;
+            ScreenPosition = screenPosition;
+        }
+
+        /// <summary>Gets the menu to populate or show.</summary>
+        public ContextMenuStrip ContextMenu { get; }
+
+        /// <summary>Gets the panel for which the menu was requested.</summary>
+        public DockPanel Panel { get; }
+
+        /// <summary>Gets the screen position for the drop-down menu.</summary>
+        public Point ScreenPosition { get; }
+    }
+
+    /// <summary>
+    /// Provides data before a dockspace tab drag is handled by docking.
+    /// Mirrors Krypton's <c>PageDragCancelEventArgs</c>.
+    /// </summary>
+    public class DockspacePageDragCancelEventArgs : CancelEventArgs
+    {
+        public DockspacePageDragCancelEventArgs(
+            DockPanel panel,
+            Point screenPoint,
+            Point elementOffset,
+            Control control,
+            IReadOnlyList<DockPanel> panels)
+        {
+            Panel = panel;
+            ScreenPoint = screenPoint;
+            ElementOffset = elementOffset;
+            Control = control;
+            Panels = panels ?? Array.Empty<DockPanel>();
+        }
+
+        /// <summary>Gets the panel that started the drag.</summary>
+        public DockPanel Panel { get; }
+
+        /// <summary>Gets the current screen point for the drag.</summary>
+        public Point ScreenPoint { get; }
+
+        /// <summary>Gets the offset inside the dragged tab/header element.</summary>
+        public Point ElementOffset { get; }
+
+        /// <summary>Gets the control that owns the drag gesture.</summary>
+        public Control Control { get; }
+
+        /// <summary>Gets the page set associated with this drag.</summary>
+        public IReadOnlyList<DockPanel> Panels { get; }
     }
 
     // ── DoDragDropEnd / DoDragDropQuit use plain EventArgs — no class needed ────

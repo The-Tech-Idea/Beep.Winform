@@ -1,24 +1,4 @@
-# Beep Docking Engine - Documentation Index
-
-## Current Handoff Status
-
-The docking implementation is not complete. The most important unresolved work is the `BeepDockspace` design-time experience.
-
-Current user-reported blockers:
-
-- Dockspace header/tabs are still not reliably clickable in the Visual Studio designer.
-- Clicking a dockspace tab/header must activate and select the corresponding `DockPanel`.
-- Design-time dragging from dockspace tabs/headers must support move/stack/drop.
-- `BeepDockspace.DockPosition` is not working correctly and needs layout/design-time review.
-- `DockPanel` must not draw docked headers. Docked headers belong to `BeepDockspace`.
-
-Read these first:
-
-1. [Agents_Instructions.txt](Agents_Instructions.txt)
-2. [README.md](README.md)
-3. [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
-
-The older phase documents below are historical. Treat any "complete" status there as stale until verified against the current blocker list.
+# Beep Docking Engine — Complete Documentation Index
 
 ## 📚 Documentation Structure
 

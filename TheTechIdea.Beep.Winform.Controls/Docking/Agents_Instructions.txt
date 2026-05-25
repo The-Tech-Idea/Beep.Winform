@@ -1,93 +1,40 @@
-Beep Docking Agent Instructions
-================================
+﻿use and learn from code in 
+C:\Users\f_ald\source\repos\The-Tech-Idea\Standard-Toolkit-master\Standard-Toolkit-master\Source\Krypton Components\Krypton.Docking
+C:\Users\f_ald\source\repos\The-Tech-Idea\dockpanelsuite-master\dockpanelsuite-master\WinFormsUI
 
-Current state: DO NOT assume BeepDockspace design-time interaction is fixed.
+Build my Docking engine based on code in these projects, but make it more efficient and user-friendly. Focus on creating a seamless user experience with smooth animations and intuitive controls. Ensure that the docking engine is flexible and can accommodate various types of content, such as documents, tool windows, and panels. Implement features like auto-hide, tabbed docking, and customizable layouts to enhance usability. Additionally, optimize the performance of the docking engine to handle complex layouts without lag or delays.
+To build an efficient and user-friendly docking engine based on the code from the Krypton Docking and DockPanelSuite projects, you can follow these steps:
+1. **Analyze Existing Code**: Start by thoroughly analyzing the code from both projects to understand their architecture, features, and limitations. Identify the key components and functionalities that you want to incorporate into your docking engine.
 
-The user-reported blockers are:
-1. BeepDockspace header/tabs are still not reliably clickable/selectable at design time.
-2. Clicking a dockspace tab/header should select and activate the corresponding DockPanel.
-3. Dragging from a dockspace tab/header at design time should move/stack/drop panels like a normal docking system.
-4. BeepDockspace.DockPosition is not behaving correctly in layout/design-time scenarios.
-5. DockPanel must NOT draw or own docked headers. The dockspace owns the header/tabs.
+2. **Design the Architecture**: Plan the architecture of your docking engine, ensuring that it is modular and scalable. Define the core components such as the docking manager, dockable windows, and layout management system.
+3. **Implement Core Features**: Begin by implementing the core features of your docking engine, such as docking and undocking windows, tabbed docking, and auto-hide functionality. Use smooth animations to enhance the user experience.
+4. **Customizable Layouts**: Implement a layout management system that allows users to save and load custom layouts. This will enable users to personalize their workspace according to their preferences.
+5. **Performance Optimization**: Optimize the performance of your docking engine by minimizing unnecessary redraws and using efficient data structures. Ensure that the engine can handle complex layouts without lag or delays.
+6. **User Interface Enhancements**: Focus on creating an intuitive user interface with clear visual cues for docking and undocking actions. Implement features like drag-and-drop support and context menus for easy access to docking options.
+7. ** Docs Current Folder**: Create comprehensive documentation for your docking engine, including usage instructions, API references, and examples. This will help users understand how to utilize the features of your docking engine effectively.
+8. **Feature Plans Folder: Develop a roadmap for future features and improvements based on user feedback and emerging trends in UI design. This will help you prioritize development efforts and ensure that your docking engine remains relevant and competitive in the market.
+9. **Pending Tasks Folder: Keep track of pending tasks and bugs in a dedicated folder. This will help you stay organized and ensure that all issues are addressed in a timely manner.
+10.**Todo-Master-Trcker.md : Use a master tracker to manage your development tasks, including feature implementation, bug fixes, and documentation updates. This will help you stay on top of your development process and ensure that all tasks are completed efficiently.
+By following these steps, you can build a docking engine that is efficient, user-friendly, and capable of handling complex layouts with ease. Remember to continuously gather user feedback and iterate on your design to ensure that your docking engine meets the needs of its users effectively.
+11 . **plan in phases**  Document per phase.
 
-Reference implementations to inspect first:
-- Krypton:
-  C:\Users\f_ald\source\repos\The-Tech-Idea\Standard-Toolkit-master\Standard-Toolkit-master\Source\Krypton Components\Krypton.Docking
-- DockPanelSuite:
-  C:\Users\f_ald\source\repos\The-Tech-Idea\dockpanelsuite-master\dockpanelsuite-master\WinFormsUI
+Designer and Action list features are should be create in 
+C:\Users\f_ald\source\repos\The-Tech-Idea\Beep.Winform\TheTechIdea.Beep.Winform.Controls.Design.Server\
 
-Important Krypton files and patterns:
-- Control Docking\KryptonDockspace.cs
-  KryptonDockspace is only a thin subclass of KryptonSpace.
-- Control Docking\KryptonSpace.cs
-  Study ExistingCellInitialize/NewCellInitialize. Krypton hooks cell events:
-  SelectedPageChanged, PrimaryHeaderLeftClicked, PrimaryHeaderRightClicked,
-  PrimaryHeaderDoubleClicked, TabDoubleClicked, TabVisibleCountChanged, Pages.Inserting.
-- Elements Impl\KryptonDockingDockspace.cs
-  Study OnDockspaceBeforePageDrag, OnDockspacePagesDoubleClicked,
-  OnDockspaceDropDownClicked. Krypton maps dockspace/cell events into docking-manager requests.
+under folder Docking
+1. **Designer Features**: Implement a visual designer that allows users to create and customize their docking layouts using a drag-and-drop interface. This designer should provide options for adding, removing, and rearranging dockable windows, as well as configuring properties such as size, position, and docking behavior.
+2. **Action List Features**: Create an action list that provides users with quick access to common docking actions, such as docking, undocking, auto-hiding, and tabbing. This action list should be context-sensitive, displaying relevant options based on the current state of the docking layout and the selected dockable window.
+3. **Integration with Docking Engine**: Ensure that the designer and action list are seamlessly integrated with the docking engine, allowing users to easily apply their customizations and actions to the docking layout. This integration should also support real-time updates, so that changes made in the designer or action list are immediately reflected in the docking layout.
+4. **User Experience Enhancements**: Focus on creating a user-friendly experience in both the designer and action list. This includes providing clear visual cues, intuitive controls, and responsive feedback to user actions. Consider implementing features such as tooltips, context menus, and keyboard shortcuts to enhance usability.
+5. **Documentation and Examples**: Provide comprehensive documentation and examples for both the designer and action list features. This should include step-by-step guides, API references, and sample code to help users understand how to utilize these features effectively in their applications.
+By implementing these features in the designer and action list, you can enhance the overall user experience of your docking engine and provide users with powerful tools to customize their docking layouts with ease.
 
-Architecture rule for Beep:
-- BeepDockspace must be the owner of the docked header/tab strip.
-- DockPanel is a page/content control only when docked in BeepDockspace.
-- Do not put docked header drawing or docked header hit-testing back into DockPanel.
-- Do not rely on DockPanelDesigner to receive dockspace-header clicks. DockPanel is laid out below the header, so that route is wrong.
-- If a separate helper control is used for header hit testing, it must be owned internally by BeepDockspace and must forward all behavior to BeepDockspace. It must not become a separate serialized public header control unless the design-time architecture is deliberately changed.
-
-Current relevant Beep files:
-- Runtime/control project:
-  TheTechIdea.Beep.Winform.Controls\Docking\BeepDockspace.cs
-  TheTechIdea.Beep.Winform.Controls\Docking\BeepDockingManager.cs
-  TheTechIdea.Beep.Winform.Controls\Docking\Models\DockPanel.cs
-  TheTechIdea.Beep.Winform.Controls\Docking\Models\DockingEnums.cs
-  TheTechIdea.Beep.Winform.Controls\Docking\Models\DockingEventArgs.cs
-  TheTechIdea.Beep.Winform.Controls\Docking\Helpers\DockingCaptionPainter.cs
-- Designer-server project:
-  TheTechIdea.Beep.Winform.Controls.Design.Server\Docking\Designers\BeepDockspaceDesigner.cs
-  TheTechIdea.Beep.Winform.Controls.Design.Server\Docking\Designers\DockPanelDesigner.cs
-  TheTechIdea.Beep.Winform.Controls.Design.Server\Docking\Infrastructure\BeepDockingDesignerWiring.cs
-  TheTechIdea.Beep.Winform.Controls.Design.Server\Docking\Infrastructure\BeepDockingTypeRoutingProvider.cs
-
-Design-time component creation rules:
-- When a design-time component/control must be serialized by Visual Studio, create it through IDesignerHost.CreateComponent.
-- Do not create serialized child controls only in constructors.
-- Use IComponentChangeService around Controls collection and property changes so designer.cs updates and undo/redo work.
-- BeepDockingDesignerWiring is the main place to inspect for CreateComponent, Controls.Add, MovePanel, StackPanel, DropPanelAt, and ResizeDockspace behavior.
-
-Known bad assumptions from prior work:
-- It is wrong to assume a DockPanel designer can handle clicks on the dockspace header. Panels are below the header.
-- It is not enough for BeepDockspace to paint tabs. The header area must also receive design-time mouse input.
-- It is not enough for runtime OnMouseDown to work. Visual Studio designer can intercept mouse input before the control sees it.
-- It is not enough to add IMessageFilter without proving it receives the correct HWND/lParam coordinates in the out-of-process WinForms designer.
-- A private header hit-surface control inside BeepDockspace may help, but its design-time visibility and message routing must be verified in Visual Studio.
-
-Required behavior to implement/verify:
-1. With a form open in the WinForms designer, click each visible dockspace tab/header.
-2. The corresponding DockPanel becomes the active visible panel.
-3. The corresponding DockPanel is selected in the designer selection service.
-4. Dragging a tab/header starts a design-time dock operation and can stack/move/drop the panel.
-5. Dockspace resize works from the designer.
-6. Dockspace.DockPosition changes layout and serialization correctly.
-7. Runtime tab click/close/pin/dropdown/double-click still works.
-8. DockPanel remains content-only for docked panels.
-
-DockPosition work required:
-- Inspect BeepDockingDesignerWiring.GetOrCreateDockspace, AddDockspaceToHostForm, ResizeDockspace, MovePanel, StackPanel, DropPanelAt.
-- Verify DockPosition property changes call layout refresh and update dockspace bounds.
-- Verify dockspace controls are actually docked/anchored/positioned according to DockPosition, not just storing the enum.
-- Verify left/right/top/bottom/fill do not overlap each other or hide headers.
-
-Icon/theming rule:
-- Docking header icons should be painted through DockingCaptionPainter, which uses StyledImagePainter and SvgsUIcons.
-- Icon color must be readable against the current header/tab background.
-- Do not replace SVG/path-based painting with hardcoded bitmap dependencies.
-
-Build commands:
-- dotnet build "TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" --no-restore -v:q /clp:ErrorsOnly
-- dotnet build "TheTechIdea.Beep.Winform.Controls.Design.Server\TheTechIdea.Beep.Winform.Controls.Design.Server.csproj" --no-restore -v:q /clp:ErrorsOnly
-
-Before claiming success:
-- Rebuild both projects.
-- Reopen the test form in Visual Studio designer after rebuild; designer caching can keep old behavior.
-- Manually verify header click, header drag, DockPosition, and resize in the designer.
-- If not manually verified, say so clearly.
+Design and Code Structure:
+1. **Modular Design**: Organize your code into modular components, such as a docking manager, dockable window classes, layout management system, and user interface components. This will help maintain a clean and organized codebase, making it easier to manage and extend in the future.
+2. **Event-Driven Architecture**: Implement an event-driven architecture to handle user interactions and changes in the docking layout. This will allow for better separation of concerns and make it easier to manage state changes and updates in the UI.
+Always Create a folder structure that reflects the different components and features of your docking engine. For example, you could have separate folders for core functionality, user interface components, layout management, and utilities. This will help keep your code organized and make it easier to navigate.
+Always use meaningful naming conventions for your classes, methods, and variables to improve code readability and maintainability. This will help other developers (or yourself in the future) understand the purpose and functionality of each component at a glance.
+Create A Code Dictionary that maps out the relationships between different classes and components in your docking engine. This will help you visualize the overall structure of your code and identify any potential areas for improvement or refactoring.
+3. **Use of Interfaces and Inheritance**: Define interfaces for key components such as dockable windows and layout managers, and use inheritance to create specific implementations. This will promote code reusability and flexibility, allowing you to easily add new features or modify existing ones without affecting the overall structure of the code.
+4. **Performance Optimization**: Focus on optimizing the performance of your docking engine by minimizing unnecessary redraws, using efficient data structures, and implementing lazy loading for dockable windows. This will help ensure that your docking engine can handle complex layouts without lag or delays.
+5. **Testing and Debugging**: Implement comprehensive testing and debugging strategies to ensure the reliability and stability of your docking engine. This includes unit tests for individual components, integration tests for the overall functionality, and user acceptance testing to gather feedback from real users.

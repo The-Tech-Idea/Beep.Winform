@@ -112,25 +112,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     }
 
     /// <summary>
-    /// Defines how a <see cref="TheTechIdea.Beep.Winform.Controls.Docking.BeepDockspace"/>
-    /// draws its owned header/tab strip.
-    /// </summary>
-    public enum DockspaceHeaderStyle
-    {
-        /// <summary>Flat rectangular tabs, close to the default Visual Studio tool window strip.</summary>
-        Flat = 0,
-
-        /// <summary>Document-style tabs with a stronger active page surface.</summary>
-        Document = 1,
-
-        /// <summary>Lightweight tabs with an active underline indicator.</summary>
-        Underline = 2,
-
-        /// <summary>Separated button-like tabs with small spacing between pages.</summary>
-        Buttons = 3
-    }
-
-    /// <summary>
     /// Specifies the current docking location of a panel.
     /// Mirrors Krypton's <c>DockingLocation</c> enum.
     /// </summary>

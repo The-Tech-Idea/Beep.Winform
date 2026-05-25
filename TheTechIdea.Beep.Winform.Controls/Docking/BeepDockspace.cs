@@ -32,29 +32,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private Rectangle _closeBtnRect;
         private Rectangle _dropDownBtnRect;
         private Rectangle _pinBtnRect;
-        private readonly DockspaceHeaderHitSurface _headerSurface;
         private BeepDockingManager _manager;
         private DockPosition _dockPosition = DockPosition.Left;
-        private DockspaceHeaderStyle _headerStyle = DockspaceHeaderStyle.Document;
         private string _activePanelKey = string.Empty;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
-        private int _lastVisiblePageCount = -1;
 
         public BeepDockspace()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.Selectable, true);
+                     ControlStyles.ResizeRedraw, true);
 
             BorderStyle = BorderStyle.None;
             MinimumSize = new Size(150, 150);
-            TabStop = true;
-
-            _headerSurface = new DockspaceHeaderHitSurface(this);
-            Controls.Add(_headerSurface);
-            _headerSurface.BringToFront();
         }
 
         [Category("Docking")]
@@ -70,9 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (ReferenceEquals(_manager, value))
                     return;
 
-                _manager?.DetachDockspace(this);
                 _manager = value;
-                _manager?.AttachDockspace(this);
                 _manager?.ApplyThemeToDockspace(this);
                 SyncPanelDockingProperties();
                 Invalidate();
@@ -97,23 +86,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         [Category("Docking")]
-        [Description("Visual style used by the dockspace-owned header and tabs.")]
-        [DefaultValue(DockspaceHeaderStyle.Document)]
-        public DockspaceHeaderStyle HeaderStyle
-        {
-            get => _headerStyle;
-            set
-            {
-                if (_headerStyle == value)
-                    return;
-
-                _headerStyle = value;
-                UpdateTabBounds(GetPanels());
-                Invalidate();
-            }
-        }
-
-        [Category("Docking")]
         [Description("Key of the active panel page in this dockspace.")]
         [DefaultValue("")]
         public string ActivePanelKey
@@ -125,7 +97,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (_activePanelKey == safeValue)
                     return;
 
-                SetActivePanelKey(safeValue);
+                _activePanelKey = safeValue;
+                LayoutPanels();
+                Invalidate();
             }
         }
 
@@ -136,55 +110,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public DockPanel ActivePanel => ResolveActivePanel();
-
-        /// <summary>
-        /// Raised when the dockspace selects a page and the design surface should select
-        /// the matching DockPanel component. This mirrors Krypton's dockspace event model,
-        /// where the dockspace owns page selection and higher layers react to it.
-        /// </summary>
-        public event EventHandler<DockPanel> PanelSelectionRequested;
-
-        /// <summary>
-        /// Raised when the active page changes in this dockspace cell.
-        /// Mirrors Krypton's workspace cell selected-page change path.
-        /// </summary>
-        public event EventHandler<DockspacePageEventArgs> SelectedPageChanged;
-
-        /// <summary>
-        /// Raised when the dockspace visible tab count changes.
-        /// Mirrors Krypton's TabVisibleCountChanged path.
-        /// </summary>
-        public event EventHandler TabVisibleCountChanged;
-
-        /// <summary>
-        /// Raised when the dockspace close button is clicked for the selected page.
-        /// Mirrors Krypton's PageCloseClicked event.
-        /// </summary>
-        public event EventHandler<DockspacePageEventArgs> PageCloseClicked;
-
-        /// <summary>
-        /// Raised when the dockspace auto-hide/pin button is clicked for the selected page.
-        /// Mirrors Krypton's PageAutoHiddenClicked event.
-        /// </summary>
-        public event EventHandler<DockspacePageEventArgs> PageAutoHiddenClicked;
-
-        /// <summary>
-        /// Raised when the dockspace drop-down button or context menu is requested.
-        /// Mirrors Krypton's PageDropDownClicked event.
-        /// </summary>
-        public event EventHandler<DockspaceDropDownEventArgs> PageDropDownClicked;
-
-        /// <summary>
-        /// Raised when a page tab or header is double-clicked.
-        /// Mirrors Krypton's PagesDoubleClicked event.
-        /// </summary>
-        public event EventHandler<DockspacePagesEventArgs> PagesDoubleClicked;
-
-        /// <summary>
-        /// Raised before a page tab drag is handled by the docking layer.
-        /// Mirrors Krypton's BeforePageDrag event.
-        /// </summary>
-        public event EventHandler<DockspacePageDragCancelEventArgs> BeforePageDrag;
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -269,17 +194,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (clientPoint.Y < 0 || clientPoint.Y > HeaderHeight)
                 return false;
 
-            if (button == MouseButtons.Right)
-            {
-                DockPanel contextPanel = HitTestTab(clientPoint) ?? ActivePanel;
-                if (contextPanel == null)
-                    return false;
-
-                ActivatePanel(contextPanel, true);
-                ShowActivePageMenu(contextPanel, clientPoint);
-                return true;
-            }
-
             if (button != MouseButtons.Left)
                 return false;
 
@@ -290,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
                 if (active.CanClose && _closeBtnRect.Contains(clientPoint))
                 {
-                    OnPageCloseClicked(new DockspacePageEventArgs(active.Key, active));
+                    _manager?.ClosePanel(active.Key);
                     return true;
                 }
 
@@ -302,7 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
                 if (active.CanAutoHide && _pinBtnRect.Contains(clientPoint))
                 {
-                    OnPageAutoHiddenClicked(new DockspacePageEventArgs(active.Key, active));
+                    _manager?.AutoHidePanel(active.Key);
                     return true;
                 }
             }
@@ -310,100 +224,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             return SelectTabAt(clientPoint);
         }
 
-        public bool HandleHeaderDoubleClick(Point clientPoint, MouseButtons button)
-        {
-            if (button != MouseButtons.Left || clientPoint.Y < 0 || clientPoint.Y > HeaderHeight)
-                return false;
-
-            DockPanel tabPanel = HitTestTab(clientPoint);
-            IReadOnlyList<DockPanel> pages = tabPanel != null
-                ? new[] { tabPanel }
-                : GetPanels();
-
-            if (pages.Count == 0)
-                return false;
-
-            var names = pages
-                .Where(panel => !string.IsNullOrWhiteSpace(panel.Key))
-                .Select(panel => panel.Key)
-                .ToArray();
-
-            OnPagesDoubleClicked(new DockspacePagesEventArgs(names, pages));
-
-            return true;
-        }
-
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public DockspacePageDragCancelEventArgs RaiseBeforePageDrag(
-            DockPanel panel,
-            Point screenPoint,
-            Point elementOffset,
-            Control control)
-        {
-            DockPanel[] pages = panel == null
-                ? Array.Empty<DockPanel>()
-                : new[] { panel };
-
-            var args = new DockspacePageDragCancelEventArgs(panel, screenPoint, elementOffset, control ?? this, pages);
-            OnBeforePageDrag(args);
-            return args;
-        }
-
         private void ActivatePanel(DockPanel panel, bool selectInDesigner)
         {
             if (panel == null || !Controls.Contains(panel))
                 return;
 
-            DockPanel previous = ResolveActivePanel();
-
             if (!string.IsNullOrWhiteSpace(panel.Key))
-                SetActivePanelKey(panel.Key);
+                ActivePanelKey = panel.Key;
 
             LayoutPanels();
             panel.BringToFront();
             Invalidate();
 
-            if (!ReferenceEquals(previous, panel) && string.IsNullOrWhiteSpace(panel.Key))
-                OnSelectedPageChanged(new DockspacePageEventArgs(string.Empty, panel));
-
             if (IsDesigning)
             {
                 if (selectInDesigner)
-                {
-                    OnPanelSelectionRequested(panel);
                     SelectPanelInDesigner(panel);
-                }
             }
             else
             {
                 _manager?.ActivatePanel(panel.Key);
             }
         }
-
-        protected virtual void OnPanelSelectionRequested(DockPanel panel) =>
-            PanelSelectionRequested?.Invoke(this, panel);
-
-        protected virtual void OnSelectedPageChanged(DockspacePageEventArgs e) =>
-            SelectedPageChanged?.Invoke(this, e);
-
-        protected virtual void OnTabVisibleCountChanged(EventArgs e) =>
-            TabVisibleCountChanged?.Invoke(this, e);
-
-        protected virtual void OnPageCloseClicked(DockspacePageEventArgs e) =>
-            PageCloseClicked?.Invoke(this, e);
-
-        protected virtual void OnPageAutoHiddenClicked(DockspacePageEventArgs e) =>
-            PageAutoHiddenClicked?.Invoke(this, e);
-
-        protected virtual void OnPageDropDownClicked(DockspaceDropDownEventArgs e) =>
-            PageDropDownClicked?.Invoke(this, e);
-
-        protected virtual void OnPagesDoubleClicked(DockspacePagesEventArgs e) =>
-            PagesDoubleClicked?.Invoke(this, e);
-
-        protected virtual void OnBeforePageDrag(DockspacePageDragCancelEventArgs e) =>
-            BeforePageDrag?.Invoke(this, e);
 
         private void SelectPanelInDesigner(DockPanel panel)
         {
@@ -418,7 +260,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             SyncPanelDockingProperties();
             LayoutPanels();
-            NotifyVisiblePageCountChanged();
             Invalidate();
         }
 
@@ -439,7 +280,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             LayoutPanels();
-            NotifyVisiblePageCountChanged();
             Invalidate();
         }
 
@@ -454,7 +294,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             LayoutPanels();
-            NotifyVisiblePageCountChanged();
             Invalidate();
         }
 
@@ -467,13 +306,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            PaintHeader(e.Graphics);
+            DrawHeader(e.Graphics);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            Focus();
             HandleHeaderMouseDown(e.Location, e.Button);
         }
 
@@ -481,30 +319,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             base.OnMouseMove(e);
 
-            Cursor = e.Y <= HeaderHeight ? GetHeaderCursor(e.Location) : Cursors.Default;
-        }
-
-        internal Cursor GetHeaderCursor(Point location) =>
-            GetHeaderCursorCore(location);
-
-        private Cursor GetHeaderCursorCore(Point location)
-        {
-            UpdateTabBounds(GetPanels());
-            return HitTestTab(location) != null ||
-                   _closeBtnRect.Contains(location) ||
-                   _dropDownBtnRect.Contains(location) ||
-                   _pinBtnRect.Contains(location)
+            Cursor = e.Y <= HeaderHeight &&
+                     (HitTestTab(e.Location) != null ||
+                      _closeBtnRect.Contains(e.Location) ||
+                      _dropDownBtnRect.Contains(e.Location) ||
+                      _pinBtnRect.Contains(e.Location))
                 ? Cursors.Hand
                 : Cursors.Default;
         }
 
-        internal void PaintHeader(Graphics g)
+        private void DrawHeader(Graphics g)
         {
-            int headerWidth = Width;
-            var headerRect = new Rectangle(0, 0, Math.Max(0, headerWidth), HeaderHeight);
-            if (headerRect.Width <= 0)
-                return;
-
+            var headerRect = new Rectangle(0, 0, Width, HeaderHeight);
             var panels = GetPanels();
             DockPanel active = ResolveActivePanel();
 
@@ -512,8 +338,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             Color inactiveTabColor = _themeColors.InactiveTabBackColor;
             Color activeTabColor = _themeColors.ActiveTabBackColor;
             Color borderColor = _themeColors.TabBorderColor;
-
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             using (var brush = new SolidBrush(stripBackColor))
                 g.FillRectangle(brush, headerRect);
@@ -550,7 +374,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                         : _themeColors.InactiveTabForeColor;
                     bool showTabIcon = DockingCaptionPainter.HasTabIcon(panel.IconPath);
 
-                    DrawTabSurface(g, tabRect, tabBack, stripBackColor, borderColor, isActive);
+                    using (var brush = new SolidBrush(tabBack))
+                        g.FillRectangle(brush, tabRect);
+
+                    using (var pen = new Pen(borderColor))
+                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
 
                     if (showTabIcon)
                         DockingCaptionPainter.PaintTabIcon(g, tabRect, panel.IconPath, tabFore);
@@ -583,66 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             DrawCaptionButton(g, _closeBtnRect, buttonTint, CaptionButtonType.Close);
 
             using (var pen = new Pen(borderColor))
-                g.DrawLine(pen, 0, HeaderHeight - 1, headerRect.Width - 1, HeaderHeight - 1);
-        }
-
-        private void DrawTabSurface(
-            Graphics g,
-            Rectangle tabRect,
-            Color tabBack,
-            Color stripBack,
-            Color borderColor,
-            bool isActive)
-        {
-            Rectangle r = tabRect;
-
-            if (_headerStyle == DockspaceHeaderStyle.Buttons)
-                r = Rectangle.Inflate(tabRect, -2, -3);
-            else if (_headerStyle == DockspaceHeaderStyle.Document && isActive)
-                r = new Rectangle(tabRect.X, tabRect.Y + 1, tabRect.Width, tabRect.Height);
-
-            switch (_headerStyle)
-            {
-                case DockspaceHeaderStyle.Flat:
-                    using (var brush = new SolidBrush(tabBack))
-                        g.FillRectangle(brush, r);
-                    using (var pen = new Pen(borderColor))
-                        g.DrawRectangle(pen, r.X, r.Y, Math.Max(0, r.Width - 1), Math.Max(0, r.Height - 1));
-                    break;
-
-                case DockspaceHeaderStyle.Underline:
-                    using (var brush = new SolidBrush(isActive ? Blend(tabBack, stripBack, 0.18f) : stripBack))
-                        g.FillRectangle(brush, r);
-                    if (isActive)
-                    {
-                        using var underline = new SolidBrush(tabBack);
-                        g.FillRectangle(underline, r.Left + 4, HeaderHeight - 4, Math.Max(0, r.Width - 8), 3);
-                    }
-                    using (var pen = new Pen(borderColor))
-                        g.DrawLine(pen, r.Right - 1, 5, r.Right - 1, HeaderHeight - 6);
-                    break;
-
-                case DockspaceHeaderStyle.Buttons:
-                    using (var brush = new SolidBrush(tabBack))
-                        g.FillRectangle(brush, r);
-                    using (var pen = new Pen(borderColor))
-                        g.DrawRectangle(pen, r.X, r.Y, Math.Max(0, r.Width - 1), Math.Max(0, r.Height - 1));
-                    break;
-
-                case DockspaceHeaderStyle.Document:
-                default:
-                    using (var brush = new SolidBrush(tabBack))
-                        g.FillRectangle(brush, r);
-                    using (var pen = new Pen(borderColor))
-                    {
-                        g.DrawLine(pen, r.Left, r.Top, r.Right - 1, r.Top);
-                        g.DrawLine(pen, r.Left, r.Top, r.Left, r.Bottom - 1);
-                        g.DrawLine(pen, r.Right - 1, r.Top, r.Right - 1, r.Bottom - 1);
-                        if (!isActive)
-                            g.DrawLine(pen, r.Left, r.Bottom - 1, r.Right - 1, r.Bottom - 1);
-                    }
-                    break;
-            }
+                g.DrawLine(pen, 0, HeaderHeight - 1, Width - 1, HeaderHeight - 1);
         }
 
         private void DrawCaptionButton(Graphics g, Rectangle r, Color color, CaptionButtonType type)
@@ -680,8 +449,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private void UpdateButtonRects(DockPanel active)
         {
             int y = (HeaderHeight - CaptionButtonSize) / 2;
-            int width = Width;
-            int x = width - 4;
+            int x = Width - 4;
 
             _closeBtnRect = Rectangle.Empty;
             _dropDownBtnRect = Rectangle.Empty;
@@ -708,12 +476,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         private int FirstButtonLeft()
         {
-            int width = Width;
-            int left = width;
+            int left = Width;
             if (!_closeBtnRect.IsEmpty) left = Math.Min(left, _closeBtnRect.Left);
             if (!_dropDownBtnRect.IsEmpty) left = Math.Min(left, _dropDownBtnRect.Left);
             if (!_pinBtnRect.IsEmpty) left = Math.Min(left, _pinBtnRect.Left);
-            return left == width ? width : Math.Max(0, left - CaptionButtonSpacing);
+            return left == Width ? Width : Math.Max(0, left - CaptionButtonSpacing);
         }
 
         private void ShowActivePageMenu(DockPanel active, Point location)
@@ -726,22 +493,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (active.CanFloat)
             {
                 var floating = new ToolStripMenuItem("Floating");
-                floating.Click += (s, e) =>
-                {
-                    if (!IsDesigning && !string.IsNullOrWhiteSpace(active.Key))
-                        _manager?.MakeFloatingRequest(active.Key);
-                };
+                floating.Click += (s, e) => _manager?.FloatPanel(active.Key);
                 menu.Items.Add(floating);
             }
 
             if (active.CanAutoHide)
             {
                 var autoHide = new ToolStripMenuItem("Auto Hide");
-                autoHide.Click += (s, e) =>
-                {
-                    if (!IsDesigning && !string.IsNullOrWhiteSpace(active.Key))
-                        _manager?.MakeAutoHiddenRequest(active.Key);
-                };
+                autoHide.Click += (s, e) => _manager?.AutoHidePanel(active.Key);
                 menu.Items.Add(autoHide);
             }
 
@@ -751,28 +510,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     menu.Items.Add(new ToolStripSeparator());
 
                 var close = new ToolStripMenuItem("Close");
-                close.Click += (s, e) =>
-                {
-                    if (!IsDesigning && _manager != null && !string.IsNullOrWhiteSpace(active.Key))
-                        _manager.CloseRequest(new[] { active.Key });
-                };
+                close.Click += (s, e) => _manager?.ClosePanel(active.Key);
                 menu.Items.Add(close);
             }
 
-            Point screenPosition = PointToScreen(location);
-            var args = new DockspaceDropDownEventArgs(menu, active, screenPosition);
-            OnPageDropDownClicked(args);
-
-            if (args.Cancel || menu.Items.Count == 0)
-                menu.Dispose();
-            else
+            if (menu.Items.Count > 0)
                 menu.Show(this, location);
+            else
+                menu.Dispose();
         }
 
         private DockPanel HitTestTab(Point location)
         {
             var panels = GetPanels();
-            UpdateTabBounds(panels);
+            if (panels.Count > 0 && panels.All(panel => panel.TabBounds.IsEmpty))
+                UpdateTabBounds(panels);
 
             foreach (DockPanel panel in panels)
             {
@@ -781,18 +533,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             return null;
-        }
-
-        private static Color Blend(Color first, Color second, float amount)
-        {
-            amount = Math.Max(0f, Math.Min(1f, amount));
-            float inverse = 1f - amount;
-
-            return Color.FromArgb(
-                first.A,
-                (int)(first.R * inverse + second.R * amount),
-                (int)(first.G * inverse + second.G * amount),
-                (int)(first.B * inverse + second.B * amount));
         }
 
         private void UpdateTabBounds(IReadOnlyList<DockPanel> panels)
@@ -865,40 +605,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             active?.BringToFront();
-            LayoutHeaderSurface();
-            _headerSurface?.BringToFront();
-        }
-
-        private void LayoutHeaderSurface()
-        {
-            if (_headerSurface == null || _headerSurface.IsDisposed)
-                return;
-
-            _headerSurface.Bounds = new Rectangle(0, 0, Math.Max(0, Width), HeaderHeight);
-            _headerSurface.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        }
-
-        private void SetActivePanelKey(string safeValue)
-        {
-            DockPanel previous = ResolveActivePanel();
-
-            _activePanelKey = safeValue ?? string.Empty;
-            LayoutPanels();
-            Invalidate();
-
-            DockPanel current = ResolveActivePanel();
-            if (!ReferenceEquals(previous, current))
-                OnSelectedPageChanged(new DockspacePageEventArgs(current?.Key ?? string.Empty, current));
-        }
-
-        private void NotifyVisiblePageCountChanged()
-        {
-            int count = GetPanels().Count;
-            if (_lastVisiblePageCount == count)
-                return;
-
-            _lastVisiblePageCount = count;
-            OnTabVisibleCountChanged(EventArgs.Empty);
         }
 
         private void SyncPanelDockingProperties()
@@ -920,48 +626,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             Close,
             DropDown,
             Pin
-        }
-
-        private sealed class DockspaceHeaderHitSurface : Control
-        {
-            private readonly BeepDockspace _owner;
-
-            public DockspaceHeaderHitSurface(BeepDockspace owner)
-            {
-                _owner = owner;
-                SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                         ControlStyles.AllPaintingInWmPaint |
-                         ControlStyles.UserPaint |
-                         ControlStyles.ResizeRedraw |
-                         ControlStyles.Selectable, false);
-                TabStop = false;
-                Cursor = Cursors.Hand;
-            }
-
-            protected override void OnPaint(PaintEventArgs e)
-            {
-                base.OnPaint(e);
-                _owner.PaintHeader(e.Graphics);
-            }
-
-            protected override void OnMouseDown(MouseEventArgs e)
-            {
-                base.OnMouseDown(e);
-                _owner.Focus();
-                _owner.HandleHeaderMouseDown(e.Location, e.Button);
-            }
-
-            protected override void OnMouseDoubleClick(MouseEventArgs e)
-            {
-                base.OnMouseDoubleClick(e);
-                _owner.HandleHeaderDoubleClick(e.Location, e.Button);
-            }
-
-            protected override void OnMouseMove(MouseEventArgs e)
-            {
-                base.OnMouseMove(e);
-                Cursor = _owner.GetHeaderCursor(e.Location);
-            }
         }
 
         private static bool IsWinFormsDesignerProcess()

@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Docking;
+using TheTechIdea.Beep.Winform.Controls.Docking.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 {
@@ -25,6 +27,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     [DefaultProperty(nameof(Title))]
     public class DockPanel : Panel
     {
+        // ── dockspace header / tab strip ───────────────────────────────────
+        private const int CaptionHeight = 24;
+        private const int TabMaxWidth = 160;
+        private const int CaptionButtonSize = 18;
+        private const int CaptionButtonSpacing = 4;
+        private const int MinTabWidth = 72;
+
         private BeepDockingManager _manager;
         private string _key = string.Empty;
         private string _title = "Tool Window";
@@ -38,6 +47,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         private bool _canAutoHide = true;
         private DockAreas _allowedAreas = DockAreas.All;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
+
+        // button hit rects — recalculated in OnResize / OnPaint
+        private Rectangle _closeBtnRect;
+        private Rectangle _floatBtnRect;
+        private Rectangle _autoHideBtnRect;
 
         /// <summary>
         /// Unique identifier for this panel (must be unique within the host).
@@ -93,12 +107,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             IsWinFormsDesignerProcess();
 
         /// <summary>
-        /// Gets the rectangle available for hosted content.
-        /// Header/tab chrome is owned by <see cref="BeepDockspace"/>, not DockPanel.
+        /// Gets the rectangle available for hosted content (below the caption strip).
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Rectangle ContentBounds => new Rectangle(0, 0, Width, Height);
+        public Rectangle ContentBounds => IsHostedInDockspace
+            ? new Rectangle(0, 0, Width, Height)
+            : new Rectangle(0, CaptionHeight, Width, Math.Max(0, Height - CaptionHeight));
 
         /// <summary>Display title shown in the caption strip.</summary>
         [Category("Docking")]
@@ -352,7 +367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                      ControlStyles.ResizeRedraw, true);
 
             BorderStyle = BorderStyle.None;
-            Padding = Padding.Empty;
+            Padding = new Padding(0, CaptionHeight, 0, 0);
         }
 
         internal void ApplyDockingTheme(DockingThemeColors colors)
@@ -368,11 +383,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            if (IsHostedInDockspace)
+                return;
+
+            DrawCaption(e.Graphics);
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            UpdateButtonRects();
 
             if (_content != null)
                 _content.Bounds = ContentBounds;
@@ -381,9 +401,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
-            Padding = Padding.Empty;
+            Padding = IsHostedInDockspace ? Padding.Empty : new Padding(0, CaptionHeight, 0, 0);
             TryRegisterWithManager();
         }
+
+        private bool IsHostedInDockspace => Parent is BeepDockspace;
 
         private void TryRegisterWithManager()
         {
@@ -391,6 +413,374 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 return;
 
             _manager.RegisterExistingPanel(this);
+        }
+
+        private void UpdateButtonRects()
+        {
+            int y = (CaptionHeight - CaptionButtonSize) / 2;
+            int x = Width - 4;
+
+            _closeBtnRect = Rectangle.Empty;
+            _floatBtnRect = Rectangle.Empty;
+            _autoHideBtnRect = Rectangle.Empty;
+
+            if (_canClose)
+            {
+                x -= CaptionButtonSize + CaptionButtonSpacing;
+                _closeBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
+            }
+
+            if (_canFloat)
+            {
+                x -= CaptionButtonSize + CaptionButtonSpacing;
+                _floatBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
+            }
+
+            if (_canAutoHide)
+            {
+                x -= CaptionButtonSize + CaptionButtonSpacing;
+                _autoHideBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
+            }
+        }
+
+        private void DrawCaption(Graphics g)
+        {
+            if (!IsCaptionHost())
+                return;
+
+            UpdateButtonRects();
+
+            var captionRect = new Rectangle(0, 0, Width, CaptionHeight);
+            var panels = GetHeaderPanels();
+            var activePanel = GetActiveHeaderPanel(panels);
+            Color stripBackColor = _themeColors.HeaderBackColor;
+            Color inactiveTabColor = _themeColors.InactiveTabBackColor;
+            Color activeTabColor = _themeColors.ActiveTabBackColor;
+            Color borderColor = _themeColors.TabBorderColor;
+
+            using (var brush = new SolidBrush(stripBackColor))
+                g.FillRectangle(brush, captionRect);
+
+            int buttonLeft = FirstButtonLeft();
+            int tabsWidth = Math.Max(0, buttonLeft - 2);
+            int tabWidth = panels.Count == 0
+                ? tabsWidth
+                : Math.Max(MinTabWidth, Math.Min(TabMaxWidth, tabsWidth / panels.Count));
+            int x = 0;
+
+            foreach (var panel in panels)
+                panel.TabBounds = Rectangle.Empty;
+
+            using (var font = new Font("Segoe UI", 9f, FontStyle.Regular))
+            {
+                foreach (var panel in panels)
+                {
+                    if (x >= tabsWidth)
+                        break;
+
+                    bool tabActive = ReferenceEquals(activePanel, panel);
+                    var tabRect = new Rectangle(x, 0, Math.Min(tabWidth, tabsWidth - x), CaptionHeight);
+                    panel.TabBounds = tabRect;
+
+                    Color tabBack = tabActive ? activeTabColor : inactiveTabColor;
+                    Color tabFore = tabActive
+                        ? _themeColors.ActiveTabForeColor
+                        : _themeColors.InactiveTabForeColor;
+                    bool showTabIcon = DockingCaptionPainter.HasTabIcon(panel.IconPath);
+
+                    using (var brush = new SolidBrush(tabBack))
+                        g.FillRectangle(brush, tabRect);
+
+                    using (var pen = new Pen(borderColor))
+                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
+
+                    if (showTabIcon)
+                        DockingCaptionPainter.PaintTabIcon(g, tabRect, panel.IconPath, tabFore);
+
+                    int textLeft = tabRect.Left + DockingCaptionPainter.GetTabContentLeft(showTabIcon);
+                    var textRect = new Rectangle(
+                        textLeft,
+                        tabRect.Top,
+                        Math.Max(0, tabRect.Right - textLeft - DockingCaptionPainter.TabTextPadding),
+                        tabRect.Height);
+
+                    using (var brush = new SolidBrush(tabFore))
+                    using (var sf = new StringFormat
+                    {
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter,
+                        FormatFlags = StringFormatFlags.NoWrap
+                    })
+                    {
+                        g.DrawString(panel.Title ?? "Panel", font, brush, textRect, sf);
+                    }
+
+                    if (panel.IsDirty)
+                    {
+                        var dot = new Rectangle(tabRect.Right - 8, tabRect.Top + 6, 5, 5);
+                        using var dirtyBrush = new SolidBrush(activeTabColor);
+                        g.FillEllipse(dirtyBrush, dot);
+                    }
+
+                    x += tabRect.Width;
+                }
+            }
+
+            Color buttonTint = _themeColors.HeaderButtonForeColor;
+            DrawCaptionButton(g, _closeBtnRect, buttonTint, CaptionButtonType.Close);
+            DrawCaptionButton(g, _floatBtnRect, buttonTint, CaptionButtonType.Float);
+            DrawCaptionButton(g, _autoHideBtnRect, buttonTint, CaptionButtonType.AutoHide);
+
+            // bottom border
+            using (var pen = new Pen(borderColor))
+                g.DrawLine(pen, 0, CaptionHeight - 1, Width - 1, CaptionHeight - 1);
+        }
+
+        private IReadOnlyList<DockPanel> GetHeaderPanels()
+        {
+            var visualStack = GetVisualHeaderPanels();
+
+            if (IsDesigning && visualStack.Count > 0)
+                return visualStack;
+
+            if (Group?.Panels != null && Group.Panels.Count > 1)
+                return Group.Panels;
+
+            if (visualStack.Count > 1)
+                return visualStack;
+
+            if (Group?.Panels != null && Group.Panels.Count > 0)
+                return Group.Panels;
+
+            if (visualStack.Count > 0)
+                return visualStack;
+
+            return new[] { this };
+        }
+
+        private IReadOnlyList<DockPanel> GetVisualHeaderPanels()
+        {
+            if (_manager == null || Parent == null)
+                return Array.Empty<DockPanel>();
+
+            return Parent.Controls
+                .OfType<DockPanel>()
+                .Where(panel => !panel.IsDisposed &&
+                                ReferenceEquals(panel.Manager, _manager) &&
+                                panel.DockPosition == _dockPosition &&
+                                IsSameVisualStack(panel))
+                .OrderBy(panel => panel.TabIndex)
+                .ThenBy(panel => Parent.Controls.IndexOf(panel))
+                .ToList();
+        }
+
+        private bool IsSameVisualStack(DockPanel panel)
+        {
+            if (ReferenceEquals(panel, this))
+                return true;
+
+            if (Bounds.Width <= 0 || Bounds.Height <= 0 ||
+                panel.Bounds.Width <= 0 || panel.Bounds.Height <= 0)
+            {
+                return true;
+            }
+
+            return Math.Abs(panel.Bounds.Left - Bounds.Left) <= 2 &&
+                   Math.Abs(panel.Bounds.Top - Bounds.Top) <= 2 &&
+                   Math.Abs(panel.Bounds.Width - Bounds.Width) <= 2 &&
+                   Math.Abs(panel.Bounds.Height - Bounds.Height) <= 2;
+        }
+
+        private DockPanel GetActiveHeaderPanel(IReadOnlyList<DockPanel> panels)
+        {
+            if (Group?.ActivePanel != null && panels.Contains(Group.ActivePanel))
+                return Group.ActivePanel;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Krypton shows one tab strip per dock cell; only the active stacked panel paints chrome.
+        /// </summary>
+        private bool IsCaptionHost()
+        {
+            if (Group?.Panels == null || Group.Panels.Count <= 1)
+                return true;
+
+            if (Group.ActivePanel != null)
+                return ReferenceEquals(Group.ActivePanel, this);
+
+            return ReferenceEquals(Group.Panels[0], this);
+        }
+
+        private int FirstButtonLeft()
+        {
+            int left = Width;
+            if (!_closeBtnRect.IsEmpty) left = Math.Min(left, _closeBtnRect.Left);
+            if (!_floatBtnRect.IsEmpty) left = Math.Min(left, _floatBtnRect.Left);
+            if (!_autoHideBtnRect.IsEmpty) left = Math.Min(left, _autoHideBtnRect.Left);
+            return left == Width ? Width : Math.Max(0, left - CaptionButtonSpacing);
+        }
+
+        private static Color GetReadableTextColor(Color background) =>
+            DockingThemeColors.GetReadableTextColor(background);
+
+        private enum CaptionButtonType { Close, Float, AutoHide }
+
+        private void DrawCaptionButton(Graphics g, Rectangle r, Color color, CaptionButtonType type)
+        {
+            if (r.IsEmpty)
+                return;
+
+            string icon = type switch
+            {
+                CaptionButtonType.Close => DockingCaptionPainter.CaptionIcons.Close,
+                CaptionButtonType.Float => DockingCaptionPainter.CaptionIcons.Float,
+                CaptionButtonType.AutoHide => DockingCaptionPainter.CaptionIcons.Pin,
+                _ => string.Empty
+            };
+
+            if (!string.IsNullOrEmpty(icon))
+            {
+                DockingCaptionPainter.PaintIcon(g, r, icon, color);
+            }
+
+            switch (type)
+            {
+                case CaptionButtonType.Close:
+                    DockingCaptionPainter.PaintCloseFallback(g, r, color);
+                    break;
+                case CaptionButtonType.Float:
+                    DockingCaptionPainter.PaintFloatFallback(g, r, color);
+                    break;
+                case CaptionButtonType.AutoHide:
+                    DockingCaptionPainter.PaintPinFallback(g, r, color);
+                    break;
+            }
+        }
+
+        // ── mouse — caption button hit-testing ───────────────────────────────
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (IsHostedInDockspace)
+                return;
+
+            if (e.Y > CaptionHeight || !IsCaptionHost())
+                return;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                if (_canClose && _closeBtnRect.Contains(e.Location))
+                {
+                    _manager?.ClosePanel(_key);
+                    return;
+                }
+
+                if (_canFloat && _floatBtnRect.Contains(e.Location))
+                {
+                    _manager?.FloatPanel(_key);
+                    return;
+                }
+
+                if (_canAutoHide && _autoHideBtnRect.Contains(e.Location))
+                {
+                    _manager?.AutoHidePanel(_key);
+                    return;
+                }
+
+                var tabPanel = HitTestHeaderTab(e.Location);
+                if (tabPanel != null)
+                {
+                    _manager?.ActivatePanel(tabPanel.Key);
+                    return;
+                }
+
+                // click anywhere else on caption — activate this panel
+                _manager?.ActivatePanel(_key);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                ShowCaptionContextMenu(e.Location);
+            }
+        }
+
+        /// <summary>
+        /// Shows the caption right-click context menu.
+        /// Menu items match the panel's allowed operations, following DockPanelSuite
+        /// DockPaneStripBase context-menu pattern.
+        /// </summary>
+        private void ShowCaptionContextMenu(Point location)
+        {
+            var menu = new ContextMenuStrip();
+
+            if (_canFloat)
+            {
+                var itemFloat = new ToolStripMenuItem("Floating");
+                itemFloat.Click += (s, e) => _manager?.FloatPanel(_key);
+                menu.Items.Add(itemFloat);
+            }
+
+            if (_canAutoHide)
+            {
+                string label = _state == DockPanelState.AutoHidden ? "Dock" : "Auto Hide";
+                var itemAutoHide = new ToolStripMenuItem(label);
+                itemAutoHide.Click += (s, e) =>
+                {
+                    if (_state == DockPanelState.AutoHidden)
+                        _manager?.DockFloatingPanel(_key, _dockPosition);
+                    else
+                        _manager?.AutoHidePanel(_key);
+                };
+                menu.Items.Add(itemAutoHide);
+            }
+
+            if (_canClose)
+            {
+                if (menu.Items.Count > 0)
+                    menu.Items.Add(new ToolStripSeparator());
+                var itemClose = new ToolStripMenuItem("Close");
+                itemClose.Click += (s, e) => _manager?.ClosePanel(_key);
+                menu.Items.Add(itemClose);
+            }
+
+            if (menu.Items.Count > 0)
+                menu.Show(this, location);
+            else
+                menu.Dispose();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (IsHostedInDockspace)
+                return;
+
+            if (e.Y <= CaptionHeight)
+                Cursor = HitTestHeaderTab(e.Location) != null ||
+                         _closeBtnRect.Contains(e.Location) ||
+                         _floatBtnRect.Contains(e.Location) ||
+                         _autoHideBtnRect.Contains(e.Location)
+                    ? Cursors.Hand
+                    : Cursors.Default;
+        }
+
+        private DockPanel HitTestHeaderTab(Point location)
+        {
+            if (location.Y > CaptionHeight)
+                return null;
+
+            var panels = GetHeaderPanels();
+            foreach (var panel in panels)
+            {
+                if (!panel.TabBounds.IsEmpty && panel.TabBounds.Contains(location))
+                    return panel;
+            }
+
+            return null;
         }
 
         // ── diagnostics / overrides ──────────────────────────────────────────

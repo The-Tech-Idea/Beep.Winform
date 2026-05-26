@@ -98,6 +98,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
             }
         }
 
+        public static void FloatPanel(DockPanel panel, IServiceProvider services)
+        {
+            if (panel == null || panel.Manager == null || !panel.CanFloat) return;
+
+            IDesignerHost host = services?.GetService(typeof(IDesignerHost)) as IDesignerHost;
+            if (host == null) return;
+
+            using (DesignerTransaction tx = host.CreateTransaction("Float Dock Panel"))
+            {
+                panel.Manager.FloatPanel(panel.Key);
+                RefreshHostLayout(panel.Manager, services);
+                SelectComponent(panel, services);
+                tx.Commit();
+            }
+        }
+
         public static void StackPanel(DockPanel panel, DockPanel target, IServiceProvider services)
         {
             IDesignerHost host = services?.GetService(typeof(IDesignerHost)) as IDesignerHost;

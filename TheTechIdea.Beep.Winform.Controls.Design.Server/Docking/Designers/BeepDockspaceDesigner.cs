@@ -25,18 +25,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
         private BeepDockspace Dockspace => (BeepDockspace)Component;
         private IDesignerHost _designerHost;
         private IComponentChangeService _changeService;
+        private ISelectionService _selectionService;
         private DockPanel _dragPanel;
         private Point _dragStartScreen;
         private bool _draggingTab;
         private bool _resizingFromDesigner;
+        private bool _selectedByDesigner;
 
         public override SelectionRules SelectionRules =>
-            SelectionRules.Visible | SelectionRules.Moveable | SelectionRules.AllSizeable;
+            SelectionRules.Visible | SelectionRules.AllSizeable;
 
         protected override bool GetHitTest(Point point)
         {
             Point client = Dockspace.PointToClient(point);
-            return client.Y >= 0 && client.Y <= BeepDockspace.HeaderHeight;
+            bool inHeader = client.Y >= 0 && client.Y <= BeepDockspace.HeaderHeight;
+            return _selectedByDesigner && inHeader;
         }
 
         public override void Initialize(IComponent component)
@@ -46,6 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             _changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
             if (_changeService != null)
                 _changeService.ComponentChanged += OnComponentChanged;
+
+            _selectionService = GetService(typeof(ISelectionService)) as ISelectionService;
+            if (_selectionService != null)
+                _selectionService.SelectionChanged += OnSelectionChanged;
         }
 
         protected override void Dispose(bool disposing)
@@ -54,13 +61,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             {
                 if (_changeService != null)
                     _changeService.ComponentChanged -= OnComponentChanged;
+                if (_selectionService != null)
+                    _selectionService.SelectionChanged -= OnSelectionChanged;
 
                 _changeService = null;
+                _selectionService = null;
                 _designerHost = null;
                 _dragPanel = null;
             }
 
             base.Dispose(disposing);
+        }
+
+        private void OnSelectionChanged(object sender, EventArgs e)
+        {
+            _selectedByDesigner = ReferenceEquals(_selectionService?.PrimarySelection, Dockspace);
         }
 
         protected override void WndProc(ref Message m)
@@ -72,6 +87,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
                     Point clientPoint = ClientPointFromMessage(m);
                     if (clientPoint.Y >= 0 && clientPoint.Y <= BeepDockspace.HeaderHeight)
                     {
+                        if (!_selectedByDesigner)
+                        {
+                            _selectionService?.SetSelectedComponents(new object[] { Dockspace }, SelectionTypes.Replace);
+                            return;
+                        }
+
                         _dragPanel = Dockspace.HitTestTabAt(clientPoint);
                         if (_dragPanel != null)
                         {

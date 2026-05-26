@@ -31,6 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
         private IComponentChangeService _changeService;
         private ISelectionService _selectionService;
         private bool _snappingFromDesignerMove;
+        private bool _selectedByDesigner;
 
         private DockPanel Panel => _panel ?? (_panel = (DockPanel)Component);
 
@@ -129,7 +130,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
 
         protected override bool GetHitTest(Point point)
         {
-            return false;
+            return _selectedByDesigner;
+        }
+
+        private const int WM_LBUTTONDOWN = 0x0201;
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_LBUTTONDOWN && !_selectedByDesigner)
+                _selectionService?.SetSelectedComponents(new object[] { Panel }, SelectionTypes.Replace);
+
+            base.WndProc(ref m);
         }
 
         // ── Internal helpers used by DockPanelActionList ─────────────────────────
@@ -198,7 +209,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
 
         private void OnDesignerSelectionChanged(object sender, EventArgs e)
         {
-            if (ReferenceEquals(_selectionService?.PrimarySelection, Panel))
+            _selectedByDesigner = ReferenceEquals(_selectionService?.PrimarySelection, Panel);
+            if (_selectedByDesigner)
                 BeepDockingDesignerWiring.ActivateDesignPanel(Panel);
         }
 
@@ -218,6 +230,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
                     return;
                 }
 
+                if (ShouldFloatPanel())
+                {
+                    BeepDockingDesignerWiring.FloatPanel(Panel, AsServiceProvider);
+                    return;
+                }
+
                 BeepDockingDesignerWiring.MovePanel(Panel, ResolveNearestDockPosition(), AsServiceProvider);
             }
             catch (Exception ex)
@@ -228,6 +246,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
             {
                 _snappingFromDesignerMove = false;
             }
+        }
+
+        private bool ShouldFloatPanel()
+        {
+            Form hostForm = Panel.FindForm();
+            if (hostForm == null)
+                return false;
+
+            Rectangle clientArea = hostForm.ClientRectangle;
+            Point center = new Point(Panel.Left + Panel.Width / 2, Panel.Top + Panel.Height / 2);
+
+            int margin = 40;
+            return center.X < clientArea.Left - margin ||
+                   center.X > clientArea.Right + margin ||
+                   center.Y < clientArea.Top - margin ||
+                   center.Y > clientArea.Bottom + margin;
         }
 
         private void ResizeDockedPanelFromDesigner()

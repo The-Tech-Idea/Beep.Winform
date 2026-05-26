@@ -18,6 +18,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
     /// </summary>
     internal static class BeepDockingDesignerWiring
     {
+        private static int _refreshDepth = 0;
+
         /// <summary>
         /// Creates a new DockPanel component, assigns a unique key and manager,
         /// and registers it with the designer host so it appears in .designer.cs.
@@ -256,6 +258,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
             PropertyDescriptor property = TypeDescriptor.GetProperties(target)[name];
             if (property == null || property.IsReadOnly) return;
 
+            object currentValue = property.GetValue(target);
+            if (Equals(currentValue, value)) return;
+
             IComponentChangeService changes = services?.GetService(typeof(IComponentChangeService)) as IComponentChangeService;
             changes?.OnComponentChanging(target, property);
             property.SetValue(target, value);
@@ -264,48 +269,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure
 
         public static void RefreshHostLayout(BeepDockingManager manager, IServiceProvider services)
         {
-            Form hostForm = GetHostForm(manager, services);
-            if (manager == null || hostForm == null) return;
+            if (_refreshDepth > 0) return;
 
-            Rectangle remaining = hostForm.DisplayRectangle;
-            if (remaining.Width <= 0 || remaining.Height <= 0)
-                remaining = new Rectangle(0, 0, 800, 450);
-
-            var panels = GetPanelsFor(manager, services);
-
-            var left = panels.Where(p => p.DockPosition == DockPosition.Left).OrderBy(p => p.TabIndex).ToList();
-            if (left.Count > 0)
+            try
             {
-                int width = ClampExtent(left.Max(p => p.PreferredWidth), remaining.Width, 80);
-                SetStackBounds(manager, DockPosition.Left, left, new Rectangle(remaining.Left, remaining.Top, width, remaining.Height), services);
-                remaining = new Rectangle(remaining.Left + width, remaining.Top, Math.Max(0, remaining.Width - width), remaining.Height);
-            }
+                _refreshDepth++;
 
-            var right = panels.Where(p => p.DockPosition == DockPosition.Right).OrderBy(p => p.TabIndex).ToList();
-            if (right.Count > 0)
+                Form hostForm = GetHostForm(manager, services);
+                if (manager == null || hostForm == null) return;
+
+                Rectangle remaining = hostForm.DisplayRectangle;
+                if (remaining.Width <= 0 || remaining.Height <= 0)
+                    remaining = new Rectangle(0, 0, 800, 450);
+
+                var panels = GetPanelsFor(manager, services);
+
+                var left = panels.Where(p => p.DockPosition == DockPosition.Left).OrderBy(p => p.TabIndex).ToList();
+                if (left.Count > 0)
+                {
+                    int width = ClampExtent(left.Max(p => p.PreferredWidth), remaining.Width, 80);
+                    SetStackBounds(manager, DockPosition.Left, left, new Rectangle(remaining.Left, remaining.Top, width, remaining.Height), services);
+                    remaining = new Rectangle(remaining.Left + width, remaining.Top, Math.Max(0, remaining.Width - width), remaining.Height);
+                }
+
+                var right = panels.Where(p => p.DockPosition == DockPosition.Right).OrderBy(p => p.TabIndex).ToList();
+                if (right.Count > 0)
+                {
+                    int width = ClampExtent(right.Max(p => p.PreferredWidth), remaining.Width, 80);
+                    SetStackBounds(manager, DockPosition.Right, right, new Rectangle(remaining.Right - width, remaining.Top, width, remaining.Height), services);
+                    remaining = new Rectangle(remaining.Left, remaining.Top, Math.Max(0, remaining.Width - width), remaining.Height);
+                }
+
+                var top = panels.Where(p => p.DockPosition == DockPosition.Top).OrderBy(p => p.TabIndex).ToList();
+                if (top.Count > 0)
+                {
+                    int height = ClampExtent(top.Max(p => p.PreferredHeight), remaining.Height, 60);
+                    SetStackBounds(manager, DockPosition.Top, top, new Rectangle(remaining.Left, remaining.Top, remaining.Width, height), services);
+                    remaining = new Rectangle(remaining.Left, remaining.Top + height, remaining.Width, Math.Max(0, remaining.Height - height));
+                }
+
+                var bottom = panels.Where(p => p.DockPosition == DockPosition.Bottom).OrderBy(p => p.TabIndex).ToList();
+                if (bottom.Count > 0)
+                {
+                    int height = ClampExtent(bottom.Max(p => p.PreferredHeight), remaining.Height, 60);
+                    SetStackBounds(manager, DockPosition.Bottom, bottom, new Rectangle(remaining.Left, remaining.Bottom - height, remaining.Width, height), services);
+                    remaining = new Rectangle(remaining.Left, remaining.Top, remaining.Width, Math.Max(0, remaining.Height - height));
+                }
+
+                SetStackBounds(manager, DockPosition.Fill, panels.Where(p => p.DockPosition == DockPosition.Fill).OrderBy(p => p.TabIndex).ToList(), remaining, services);
+            }
+            finally
             {
-                int width = ClampExtent(right.Max(p => p.PreferredWidth), remaining.Width, 80);
-                SetStackBounds(manager, DockPosition.Right, right, new Rectangle(remaining.Right - width, remaining.Top, width, remaining.Height), services);
-                remaining = new Rectangle(remaining.Left, remaining.Top, Math.Max(0, remaining.Width - width), remaining.Height);
+                _refreshDepth--;
             }
-
-            var top = panels.Where(p => p.DockPosition == DockPosition.Top).OrderBy(p => p.TabIndex).ToList();
-            if (top.Count > 0)
-            {
-                int height = ClampExtent(top.Max(p => p.PreferredHeight), remaining.Height, 60);
-                SetStackBounds(manager, DockPosition.Top, top, new Rectangle(remaining.Left, remaining.Top, remaining.Width, height), services);
-                remaining = new Rectangle(remaining.Left, remaining.Top + height, remaining.Width, Math.Max(0, remaining.Height - height));
-            }
-
-            var bottom = panels.Where(p => p.DockPosition == DockPosition.Bottom).OrderBy(p => p.TabIndex).ToList();
-            if (bottom.Count > 0)
-            {
-                int height = ClampExtent(bottom.Max(p => p.PreferredHeight), remaining.Height, 60);
-                SetStackBounds(manager, DockPosition.Bottom, bottom, new Rectangle(remaining.Left, remaining.Bottom - height, remaining.Width, height), services);
-                remaining = new Rectangle(remaining.Left, remaining.Top, remaining.Width, Math.Max(0, remaining.Height - height));
-            }
-
-            SetStackBounds(manager, DockPosition.Fill, panels.Where(p => p.DockPosition == DockPosition.Fill).OrderBy(p => p.TabIndex).ToList(), remaining, services);
         }
 
         private static int ClampExtent(int requested, int available, int minimum)

@@ -667,13 +667,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                   //  ShowMenu?.Invoke(this, args);
                    // SelectedNode = item;
            
-                    var a = SimpleItemFactory.GlobalMenuItemsProvider(item);
-                    if (a == null) return;
-                    CurrentMenutems = new BindingList<SimpleItem>(a);
-                    if (CurrentMenutems!=null && CurrentMenutems.Count > 0)
-                    {
-                        TogglePopup();
-                    }
+                  //  var a = SimpleItemFactory.GlobalMenuItemsProvider(item);
+                    //if (a == null) return;
+                    //CurrentMenutems = new BindingList<SimpleItem>(a);
+                    //if (CurrentMenutems!=null && CurrentMenutems.Count > 0)
+                    //{
+                    //    TogglePopup();
+                    //}
                    
                 }
                 return;

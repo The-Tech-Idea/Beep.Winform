@@ -1065,7 +1065,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             if (tab.Children != null && tab.Children.Count > 0)
                 ShowTabMenu(tabIndex);
             else if (!string.IsNullOrEmpty(tab.MethodName))
-                RunMethodFromGlobalFunctions(tab, tab.Text);
+                ; //RunMethodFromGlobalFunctions(tab, tab.Text);
         }
 
         private void HandleActionButtonClick(int btnIndex)
@@ -1080,7 +1080,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             {
                 ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(btn));
                 if (!string.IsNullOrEmpty(btn.MethodName))
-                    RunMethodFromGlobalFunctions(btn, btn.Text);
+                   ; //RunMethodFromGlobalFunctions(btn, btn.Text);
             }
         }
 
@@ -1112,7 +1112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 {
                     ActionButtonClicked?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
                     if (!string.IsNullOrEmpty(selectedItem.MethodName))
-                        RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
+                       ; //RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
                 }
             }
         }
@@ -1144,8 +1144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 if (selectedItem != null)
                 {
                     SelectedTab = selectedItem;
-                    if (!string.IsNullOrEmpty(selectedItem.MethodName))
-                        RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
+                    //if (!string.IsNullOrEmpty(selectedItem.MethodName))
+                        //RunMethodFromGlobalFunctions(selectedItem, selectedItem.Text);
                 }
             }
         }
@@ -1191,21 +1191,21 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             };
         }
 
-        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string methodName)
-        {
-            var errorsInfo = new ErrorsInfo();
-            try
-            {
-                SimpleItemFactory.RunFunctionWithTreeHandler(item, methodName);
-            }
-            catch (Exception ex)
-            {
-                errorsInfo.Flag = Errors.Failed;
-                errorsInfo.Message = ex.Message;
-                errorsInfo.Ex = ex;
-            }
-            return errorsInfo;
-        }
+        //public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string methodName)
+        //{
+        //    var errorsInfo = new ErrorsInfo();
+        //    try
+        //    {
+        //        SimpleItemFactory.RunFunctionWithTreeHandler(item, methodName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        errorsInfo.Flag = Errors.Failed;
+        //        errorsInfo.Message = ex.Message;
+        //        errorsInfo.Ex = ex;
+        //    }
+        //    return errorsInfo;
+        //}
 
         #endregion
 

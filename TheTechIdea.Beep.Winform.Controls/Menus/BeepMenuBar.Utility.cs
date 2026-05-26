@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                SimpleItemFactory.RunFunctionWithTreeHandler(item, MethodName);
+                //SimpleItemFactory.RunFunctionWithTreeHandler(item, MethodName);
             }
             catch (Exception ex)
             {

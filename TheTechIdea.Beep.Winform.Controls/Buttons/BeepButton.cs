@@ -612,7 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                SimpleItemFactory.RunMethodFromObjectHandler(item, MethodName);
+              //  SimpleItemFactory.RunMethodFromObjectHandler(item, MethodName);
 
             }
             catch (Exception ex)
@@ -631,14 +631,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ClosePopup();
             }
-            else
-            {
-                if(SelectedItem?.MethodName != null)
-                {
-                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
-                }
+            //else
+            //{
+            //    if(SelectedItem?.MethodName != null)
+            //    {
+            //        RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
+            //    }
                
-            }
+            //}
              
 
         }

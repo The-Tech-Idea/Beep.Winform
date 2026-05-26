@@ -74,13 +74,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var args = new BeepMouseEventArgs("RightClick", item);
                     NodeRightClicked?.Invoke(this, args);
 
-                    var provider = SimpleItemFactory.GlobalMenuItemsProvider;
-                    var menuItems = provider != null ? provider(item) : null;
-                    if (menuItems != null && menuItems.Count > 0)
-                    {
-                        CurrentMenutems = new BindingList<SimpleItem>(menuItems);
-                        TogglePopup();
-                    }
+                    //var provider = SimpleItemFactory.GlobalMenuItemsProvider;
+                    //var menuItems = provider != null ? provider(item) : null;
+                    //if (menuItems != null && menuItems.Count > 0)
+                    //{
+                    //    CurrentMenutems = new BindingList<SimpleItem>(menuItems);
+                    //    TogglePopup();
+                    //}
                 }
                 return;
             }

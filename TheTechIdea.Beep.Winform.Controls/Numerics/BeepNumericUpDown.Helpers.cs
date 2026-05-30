@@ -27,10 +27,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             else
             {
                 Value = newValue;
-                if (_value >= _maximumValue)
-                {
-                    MaximumReached?.Invoke(this, EventArgs.Empty);
-                }
             }
 
             UpButtonClicked?.Invoke(this, EventArgs.Empty);
@@ -52,10 +48,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             else
             {
                 Value = newValue;
-                if (_value <= _minimumValue)
-                {
-                    MinimumReached?.Invoke(this, EventArgs.Empty);
-                }
             }
 
             DownButtonClicked?.Invoke(this, EventArgs.Empty);
@@ -185,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     BorderStyle = BorderStyle.None,
                     BackColor = _currentTheme?.TextBoxBackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window),
                     ForeColor = _currentTheme?.TextBoxForeColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window),
-                    Font = Font
+                    Font = Numerics.Helpers.NumericFontHelpers.GetNumericFont(ControlStyle),
                 };
 
                 _textBox.KeyDown += TextBox_KeyDown;
@@ -194,6 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             }
 
             // Position the textbox
+            _textBox.BackColor = _currentTheme?.TextBoxBackColor ?? TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.Window);
             int padding = 4;
             int buttonWidth = _showSpinButtons ? GetButtonWidthForSize(_buttonSize) : 0;
             int textBoxLeft = _showSpinButtons ? padding + buttonWidth : padding;
@@ -223,12 +216,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
             if (acceptValue && _textBox != null)
             {
-                if (decimal.TryParse(_textBox.Text.Replace("%", "").Replace("$", "").Trim(), out decimal newValue))
+                string cleanInput = _textBox.Text;
+                if (!string.IsNullOrEmpty(_prefix))
+                    cleanInput = cleanInput.Replace(_prefix, "");
+                if (!string.IsNullOrEmpty(_suffix))
+                    cleanInput = cleanInput.Replace(_suffix, "");
+                if (!string.IsNullOrEmpty(_unit))
+                    cleanInput = cleanInput.Replace(_unit, "");
+                cleanInput = cleanInput.Replace("%", "").Replace("$", "").Trim();
+
+                if (decimal.TryParse(cleanInput, out decimal newValue))
                 {
                     Value = newValue;
                 }
                 else
                 {
+                    if (_highlightInvalidInput && _textBox != null)
+                        _textBox.BackColor = _invalidInputColor;
+                    InvalidInput?.Invoke(this, new InvalidInputEventArgs
+                    {
+                        Input = _textBox.Text,
+                        Reason = "Input could not be parsed as a number"
+                    });
                     ValueValidationFailed?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -290,6 +299,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
             if (!string.IsNullOrEmpty(_maskConfig.Unit))
                 Unit = _maskConfig.Unit;
+
+            if (_maskConfig.MaxLength > 0 && _textBox != null)
+                _textBox.MaxLength = _maskConfig.MaxLength;
 
             // Trigger validation and formatting
             UpdateDisplayText();
@@ -528,7 +540,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             if (!ValidateStep(value, out errorMessage))
                 return false;
 
-            // Fire validation event
+            // Fire standard validation event
+            var basicArgs = new ValueValidatingEventArgs(_value, value);
+            ValueValidating?.Invoke(this, basicArgs);
+
+            if (basicArgs.Cancel)
+            {
+                errorMessage = "Validation cancelled";
+                return false;
+            }
+
+            // Fire extended validation event
             var validatingArgs = new NumericValueValidatingEventArgs
             {
                 OldValue = _value,

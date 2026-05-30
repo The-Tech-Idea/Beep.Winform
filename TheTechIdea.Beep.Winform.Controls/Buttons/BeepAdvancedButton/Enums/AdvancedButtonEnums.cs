@@ -57,7 +57,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums
         LowerThird,
 
         /// <summary>Comic/sticker style label family (speech bubbles, bursts, ribbons)</summary>
-        StickerLabel
+        StickerLabel,
+
+        // Image 1 - Column 1 Styles
+        /// <summary>Thick colored outline with white fill (Image 1)</summary>
+        OutlinePill,
+        /// <summary>White pill with colored edge strip (Image 1)</summary>
+        AccentEdge,
+        /// <summary>Speech bubble with colored tail (Image 1)</summary>
+        SpeechBubble,
+        /// <summary>Large gradient with overlapping white sub-button (Image 1)</summary>
+        GradientSubButton,
+        /// <summary>Small gradient pill with icon (Image 1)</summary>
+        MiniGradientPill,
+
+        // Image 1 - Column 2 Styles
+        /// <summary>Gradient speech bubble with white accent line (Image 1)</summary>
+        GradientSpeechBubble,
+        /// <summary>Half gradient half white split (Image 1)</summary>
+        SplitGradient,
+
+        // Image 1 - Column 3 Styles
+        /// <summary>Colored block with white icon circle on right (Image 1)</summary>
+        IconCircleRight,
+        /// <summary>Icon on left with text on right and arrow tail (Image 1)</summary>
+        SplitIconLeft
     }
 
     /// <summary>

@@ -43,10 +43,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             using (var controlPath = GetControlPath())
             {
                 // Paint background (includes shadow) using BeepStyling
-                BeepStyling.PaintStyleBackground(g, controlPath, Style);
+                BeepStyling.PaintStyleBackground(g, controlPath, ControlStyle);
 
                 // Paint border using BeepStyling
-                BeepStyling.PaintStyleBorder(g, controlPath, IsFocused, Style);
+                BeepStyling.PaintStyleBorder(g, controlPath, IsFocused, ControlStyle);
 
                 // Now let the painter handle layout and content
                 if (_currentPainter != null)
@@ -65,13 +65,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                         _currentPainter.PaintValueText(g, context, layout.TextRect, formattedText);
                     }
 
-                    // Paint button icons/symbols
+                    // Paint button icons/symbols or custom elements (currency, phone)
                     if (layout.ShowButtons && _showSpinButtons)
                     {
-                        // Paint button backgrounds using BeepStyling
                         PaintButtonBackgrounds(g, layout.UpButtonRect, layout.DownButtonRect);
-
-                        // Paint button icons
+                        _currentPainter.PaintButtonIcons(g, context, layout.UpButtonRect, layout.DownButtonRect);
+                    }
+                    else if (layout.CustomArea1 != Rectangle.Empty || layout.CustomArea2 != Rectangle.Empty)
+                    {
                         _currentPainter.PaintButtonIcons(g, context, layout.UpButtonRect, layout.DownButtonRect);
                     }
                 }

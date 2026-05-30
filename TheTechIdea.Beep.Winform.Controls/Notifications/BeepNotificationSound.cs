@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.Media;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -67,9 +69,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                         break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently fail if sound cannot be played
+                Debug.WriteLine($"[BeepNotificationSound] PlaySound failed: {ex.Message}");
             }
         }
 
@@ -90,11 +92,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _customPlayer?.Dispose();
 
                 _customPlayer = new SoundPlayer(wavFilePath);
-                _customPlayer.Play();
+                Task.Run(() =>
+                {
+                    try { _customPlayer.Play(); }
+                    catch (Exception ex) { Debug.WriteLine($"[BeepNotificationSound] Background play failed: {ex.Message}"); }
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently fail if sound cannot be played
+                Debug.WriteLine($"[BeepNotificationSound] PlayCustomSound failed: {ex.Message}");
             }
         }
 
@@ -107,9 +113,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 _customPlayer?.Stop();
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently fail
+                Debug.WriteLine($"[BeepNotificationSound] Stop failed: {ex.Message}");
             }
         }
 
@@ -123,9 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _customPlayer?.Dispose();
                 _customPlayer = null;
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently fail
+                Debug.WriteLine($"[BeepNotificationSound] Dispose failed: {ex.Message}");
             }
         }
     }

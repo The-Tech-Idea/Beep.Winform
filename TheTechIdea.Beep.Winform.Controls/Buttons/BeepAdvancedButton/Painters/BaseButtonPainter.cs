@@ -94,6 +94,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             }
         }
 
+        /// <summary>
+        /// Fills the button shape using context.Shape (Pill, Circle, RoundedRectangle, etc.)
+        /// </summary>
+        protected void FillShapePath(Graphics g, Brush brush, Rectangle bounds, AdvancedButtonPaintContext context)
+        {
+            using (GraphicsPath path = TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers.ButtonShapeHelper.CreateShapePath(context.Shape, bounds, context.BorderRadius))
+            {
+                g.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws the button shape outline using context.Shape
+        /// </summary>
+        protected void DrawShapePath(Graphics g, Pen pen, Rectangle bounds, AdvancedButtonPaintContext context)
+        {
+            using (GraphicsPath path = TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers.ButtonShapeHelper.CreateShapePath(context.Shape, bounds, context.BorderRadius))
+            {
+                g.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Gets a GraphicsPath for the button shape using context.Shape
+        /// </summary>
+        protected GraphicsPath GetShapePath(Rectangle bounds, AdvancedButtonPaintContext context)
+        {
+            return TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers.ButtonShapeHelper.CreateShapePath(context.Shape, bounds, context.BorderRadius);
+        }
+
         protected void DrawRippleEffect(Graphics g, AdvancedButtonPaintContext context)
         {
             if (!context.RippleActive) return;
@@ -112,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             GraphicsState state = g.Save();
             try
             {
-                using GraphicsPath clipPath = GetRoundedRectanglePath(context.Bounds, context.BorderRadius);
+                using GraphicsPath clipPath = GetShapePath(context.Bounds, context);
                 g.SetClip(clipPath, CombineMode.Intersect);
 
                 using Brush rippleBrush = new SolidBrush(Color.FromArgb(alpha, rippleColor));
@@ -167,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         protected static Font GetDerivedTextFont(Font? baseFont, float sizeScale = 1f, FontStyle? styleOverride = null, float sizeDelta = 0f)
         {
             // Use BeepFontManager.DefaultFont as the safe fallback
-            var defaultFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.ButtonFont);
+            using var defaultFont = BeepFontManager.ToFont(BeepThemesManager.CurrentTheme.ButtonFont);
 
             // Safely extract properties from baseFont, fallback to defaults
             string fontFamily;

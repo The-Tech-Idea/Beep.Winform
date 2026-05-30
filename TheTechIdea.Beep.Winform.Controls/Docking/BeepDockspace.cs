@@ -5,8 +5,12 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Docking.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
+using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
+using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking
 {
@@ -24,15 +28,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public const int HeaderHeight = 26;
 
         private const int TabMaxWidth = 160;
-        private const int TabTextPadding = 6;
         private const int CaptionButtonSize = 18;
         private const int CaptionButtonSpacing = 4;
 
-        private readonly Dictionary<string, Rectangle> _tabBounds = new(StringComparer.Ordinal);
-        private Rectangle _closeBtnRect;
-        private Rectangle _dropDownBtnRect;
-        private Rectangle _pinBtnRect;
+        private readonly CaptionLayoutManager _captionLayout = new CaptionLayoutManager
+        {
+            ButtonSize = CaptionButtonSize,
+            ButtonSpacing = CaptionButtonSpacing,
+            MinTabWidth = 1,
+            MaxTabWidth = TabMaxWidth
+        };
         private BeepDockingManager _manager;
+
+        /// <summary>Control style driving header background/border rendering. Set by the manager.</summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
         private DockPosition _dockPosition = DockPosition.Left;
         private string _activePanelKey = string.Empty;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
@@ -200,24 +211,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             DockPanel active = ActivePanel;
             if (active != null)
             {
-                UpdateButtonRects(active);
+                RecomputeCaptionLayout();
 
-                if (active.CanClose && _closeBtnRect.Contains(clientPoint))
+                switch (_captionLayout.HitTestButton(clientPoint))
                 {
-                    _manager?.ClosePanel(active.Key);
-                    return true;
-                }
-
-                if (_dropDownBtnRect.Contains(clientPoint))
-                {
-                    ShowActivePageMenu(active, clientPoint);
-                    return true;
-                }
-
-                if (active.CanAutoHide && _pinBtnRect.Contains(clientPoint))
-                {
-                    _manager?.AutoHidePanel(active.Key);
-                    return true;
+                    case CaptionButtonKind.Close when active.CanClose:
+                        _manager?.ClosePanel(active.Key);
+                        return true;
+                    case CaptionButtonKind.DropDown:
+                        ShowActivePageMenu(active, clientPoint);
+                        return true;
+                    case CaptionButtonKind.Pin when active.CanAutoHide:
+                        _manager?.MakeAutoHiddenRequest(active.Key);
+                        return true;
                 }
             }
 
@@ -319,168 +325,75 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             base.OnMouseMove(e);
 
+            if (e.Y <= HeaderHeight)
+                RecomputeCaptionLayout();
+
             Cursor = e.Y <= HeaderHeight &&
-                     (HitTestTab(e.Location) != null ||
-                      _closeBtnRect.Contains(e.Location) ||
-                      _dropDownBtnRect.Contains(e.Location) ||
-                      _pinBtnRect.Contains(e.Location))
+                     (_captionLayout.HitTestTab(e.Location) != null ||
+                      _captionLayout.HitTestButton(e.Location) != null)
                 ? Cursors.Hand
                 : Cursors.Default;
         }
 
-        private void DrawHeader(Graphics g)
+        /// <summary>Builds the ordered caption button set (right-to-left placement) for the active page.</summary>
+        private List<CaptionButtonKind> BuildCaptionButtons(DockPanel active)
         {
-            var headerRect = new Rectangle(0, 0, Width, HeaderHeight);
+            var buttons = new List<CaptionButtonKind>(3);
+            if (active?.CanClose == true) buttons.Add(CaptionButtonKind.Close);
+            if (active?.CanAutoHide == true) buttons.Add(CaptionButtonKind.Pin);
+            if (active != null) buttons.Add(CaptionButtonKind.DropDown);
+            return buttons;
+        }
+
+        /// <summary>
+        /// Recomputes header geometry into the shared caption layout manager and mirrors tab
+        /// rects back onto each page's <see cref="DockPanel.TabBounds"/> for compatibility.
+        /// </summary>
+        private List<CaptionButtonKind> RecomputeCaptionLayout()
+        {
             var panels = GetPanels();
             DockPanel active = ResolveActivePanel();
+            var buttons = BuildCaptionButtons(active);
 
-            Color stripBackColor = _themeColors.HeaderBackColor;
-            Color inactiveTabColor = _themeColors.InactiveTabBackColor;
-            Color activeTabColor = _themeColors.ActiveTabBackColor;
-            Color borderColor = _themeColors.TabBorderColor;
+            var tabs = new List<CaptionTabModel>(panels.Count);
+            foreach (DockPanel panel in panels)
+            {
+                tabs.Add(new CaptionTabModel
+                {
+                    Key = panel.Key,
+                    Title = panel.Title,
+                    IconPath = panel.IconPath,
+                    IsDirty = panel.IsDirty,
+                    IsActive = ReferenceEquals(panel, active),
+                    Tag = panel
+                });
+            }
 
-            using (var brush = new SolidBrush(stripBackColor))
-                g.FillRectangle(brush, headerRect);
+            _captionLayout.Compute(Width, HeaderHeight, tabs, buttons);
 
-            UpdateButtonRects(active);
-
-            int buttonLeft = FirstButtonLeft();
-            int tabsWidth = Math.Max(0, buttonLeft - 2);
-            int tabWidth = panels.Count == 0
-                ? tabsWidth
-                : Math.Max(1, Math.Min(TabMaxWidth, tabsWidth / panels.Count));
-            int x = 0;
-
-            _tabBounds.Clear();
             foreach (DockPanel panel in panels)
                 panel.TabBounds = Rectangle.Empty;
-
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Regular))
+            foreach (var kv in _captionLayout.TabRects)
             {
-                foreach (DockPanel panel in panels)
-                {
-                    if (x >= tabsWidth)
-                        break;
-
-                    var tabRect = new Rectangle(x, 0, Math.Min(tabWidth, tabsWidth - x), HeaderHeight);
-                    panel.TabBounds = tabRect;
-                    if (!string.IsNullOrWhiteSpace(panel.Key))
-                        _tabBounds[panel.Key] = tabRect;
-
-                    bool isActive = ReferenceEquals(panel, active);
-                    Color tabBack = isActive ? activeTabColor : inactiveTabColor;
-                    Color tabFore = isActive
-                        ? _themeColors.ActiveTabForeColor
-                        : _themeColors.InactiveTabForeColor;
-                    bool showTabIcon = DockingCaptionPainter.HasTabIcon(panel.IconPath);
-
-                    using (var brush = new SolidBrush(tabBack))
-                        g.FillRectangle(brush, tabRect);
-
-                    using (var pen = new Pen(borderColor))
-                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
-
-                    if (showTabIcon)
-                        DockingCaptionPainter.PaintTabIcon(g, tabRect, panel.IconPath, tabFore);
-
-                    int textLeft = tabRect.Left + DockingCaptionPainter.GetTabContentLeft(showTabIcon);
-                    var textRect = new Rectangle(
-                        textLeft,
-                        tabRect.Top,
-                        Math.Max(0, tabRect.Right - textLeft - TabTextPadding),
-                        tabRect.Height);
-
-                    using (var brush = new SolidBrush(tabFore))
-                    using (var sf = new StringFormat
-                    {
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    })
-                    {
-                        g.DrawString(panel.Title ?? "Panel", font, brush, textRect, sf);
-                    }
-
-                    x += tabRect.Width;
-                }
+                if (kv.Key.Tag is DockPanel dp)
+                    dp.TabBounds = kv.Value;
             }
 
-            Color buttonTint = _themeColors.HeaderButtonForeColor;
-            DrawCaptionButton(g, _dropDownBtnRect, buttonTint, CaptionButtonType.DropDown);
-            DrawCaptionButton(g, _pinBtnRect, buttonTint, CaptionButtonType.Pin);
-            DrawCaptionButton(g, _closeBtnRect, buttonTint, CaptionButtonType.Close);
-
-            using (var pen = new Pen(borderColor))
-                g.DrawLine(pen, 0, HeaderHeight - 1, Width - 1, HeaderHeight - 1);
+            return buttons;
         }
 
-        private void DrawCaptionButton(Graphics g, Rectangle r, Color color, CaptionButtonType type)
+        private void DrawHeader(Graphics g)
         {
-            if (r.IsEmpty)
-                return;
+            var buttons = RecomputeCaptionLayout();
 
-            string icon = type switch
+            var ctx = new DockingPainterContext
             {
-                CaptionButtonType.Close => DockingCaptionPainter.CaptionIcons.Close,
-                CaptionButtonType.DropDown => DockingCaptionPainter.CaptionIcons.DropDown,
-                CaptionButtonType.Pin => DockingCaptionPainter.CaptionIcons.Pin,
-                _ => string.Empty
+                Colors = _themeColors,
+                Style = ControlStyle,
+                Bounds = new Rectangle(0, 0, Width, HeaderHeight)
             };
 
-            if (!string.IsNullOrEmpty(icon))
-            {
-                DockingCaptionPainter.PaintIcon(g, r, icon, color);
-            }
-
-            switch (type)
-            {
-                case CaptionButtonType.Close:
-                    DockingCaptionPainter.PaintCloseFallback(g, r, color);
-                    break;
-                case CaptionButtonType.DropDown:
-                    DockingCaptionPainter.PaintDropDownFallback(g, r, color);
-                    break;
-                case CaptionButtonType.Pin:
-                    DockingCaptionPainter.PaintPinFallback(g, r, color);
-                    break;
-            }
-        }
-
-        private void UpdateButtonRects(DockPanel active)
-        {
-            int y = (HeaderHeight - CaptionButtonSize) / 2;
-            int x = Width - 4;
-
-            _closeBtnRect = Rectangle.Empty;
-            _dropDownBtnRect = Rectangle.Empty;
-            _pinBtnRect = Rectangle.Empty;
-
-            if (active?.CanClose == true)
-            {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _closeBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
-            }
-
-            if (active?.CanAutoHide == true)
-            {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _pinBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
-            }
-
-            if (active != null)
-            {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _dropDownBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
-            }
-        }
-
-        private int FirstButtonLeft()
-        {
-            int left = Width;
-            if (!_closeBtnRect.IsEmpty) left = Math.Min(left, _closeBtnRect.Left);
-            if (!_dropDownBtnRect.IsEmpty) left = Math.Min(left, _dropDownBtnRect.Left);
-            if (!_pinBtnRect.IsEmpty) left = Math.Min(left, _pinBtnRect.Left);
-            return left == Width ? Width : Math.Max(0, left - CaptionButtonSpacing);
+            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
         }
 
         private void ShowActivePageMenu(DockPanel active, Point location)
@@ -500,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (active.CanAutoHide)
             {
                 var autoHide = new ToolStripMenuItem("Auto Hide");
-                autoHide.Click += (s, e) => _manager?.AutoHidePanel(active.Key);
+                autoHide.Click += (s, e) => _manager?.MakeAutoHiddenRequest(active.Key);
                 menu.Items.Add(autoHide);
             }
 
@@ -522,44 +435,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         private DockPanel HitTestTab(Point location)
         {
-            var panels = GetPanels();
-            if (panels.Count > 0 && panels.All(panel => panel.TabBounds.IsEmpty))
-                UpdateTabBounds(panels);
-
-            foreach (DockPanel panel in panels)
-            {
-                if (!panel.TabBounds.IsEmpty && panel.TabBounds.Contains(location))
-                    return panel;
-            }
-
-            return null;
-        }
-
-        private void UpdateTabBounds(IReadOnlyList<DockPanel> panels)
-        {
-            UpdateButtonRects(ResolveActivePanel());
-
-            int buttonLeft = FirstButtonLeft();
-            int tabsWidth = Math.Max(0, buttonLeft - 2);
-            int tabWidth = panels.Count == 0
-                ? tabsWidth
-                : Math.Max(1, Math.Min(TabMaxWidth, tabsWidth / panels.Count));
-            int x = 0;
-
-            _tabBounds.Clear();
-            foreach (DockPanel panel in panels)
-            {
-                panel.TabBounds = Rectangle.Empty;
-                if (x >= tabsWidth)
-                    continue;
-
-                Rectangle tabRect = new Rectangle(x, 0, Math.Min(tabWidth, tabsWidth - x), HeaderHeight);
-                panel.TabBounds = tabRect;
-                if (!string.IsNullOrWhiteSpace(panel.Key))
-                    _tabBounds[panel.Key] = tabRect;
-
-                x += tabRect.Width;
-            }
+            RecomputeCaptionLayout();
+            var tab = _captionLayout.HitTestTab(location);
+            return tab?.Tag as DockPanel;
         }
 
         private DockPanel ResolveActivePanel()
@@ -616,16 +494,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
                 panel.DockPosition = _dockPosition;
             }
-        }
-
-        private static Color GetReadableTextColor(Color background) =>
-            DockingThemeColors.GetReadableTextColor(background);
-
-        private enum CaptionButtonType
-        {
-            Close,
-            DropDown,
-            Pin
         }
 
         private static bool IsWinFormsDesignerProcess()

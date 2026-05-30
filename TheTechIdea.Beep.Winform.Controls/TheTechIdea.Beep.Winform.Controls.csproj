@@ -20,7 +20,7 @@
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
 	  <GenerateResourceWarnOnBinaryFormatterUse>false</GenerateResourceWarnOnBinaryFormatterUse>
-    <Version>1.0.206</Version>
+    <Version>1.0.207</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
 	  
@@ -58,13 +58,7 @@
 		<None Include="Buttons\BeepAdvancedButton\.plans\onpaint-override-refactor.md" />
 	</ItemGroup>
 
-  
-  <ItemGroup>
-    <Compile Remove="BeepButtonPopList.cs" />
-    <Compile Remove="BeepGlobalThemeManager.cs" />
-    <Compile Remove="BeepTabs_old.cs" />
-    <Compile Remove="Managers\BeepDataBlockManager.cs" />
-  </ItemGroup>
+
 
 
   <!-- Embed all font files from Fonts folder -->
@@ -4681,9 +4675,8 @@
     <Folder Include="DialogsManagers\Forms\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
-    <Folder Include="Docking\Feature Plans\" />
-    <Folder Include="Docking\Docs Current\" />
-    <Folder Include="Docking\Pending\" />
+    <Folder Include="Docking\Examples\" />
+    <Folder Include="Docking\Plans\" />
     <Folder Include="Examples\" />
     <Folder Include="Forms\Enums\" />
     <Folder Include="Forms\PopUpForm\" />
@@ -4698,6 +4691,7 @@
     <Folder Include="Menus\ModelsandEnums\" />
     <Folder Include="NavBars\Helpers\" />
     <Folder Include="NavBars\Painters\" />
+    <Folder Include="Dockings\" />
     <Folder Include="Numerics\Helpers\" />
     <Folder Include="Numerics\Painters\" />
     <Folder Include="Properties\DataSources\" />

@@ -5,7 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
     /// <summary>
-    /// Painter for solid filled buttons
+    /// Modern solid pill button with shadow, slight gradient, and centered content.
+    /// Matches the solid filled button style from reference images.
     /// </summary>
     public class SolidButtonPainter : BaseButtonPainter
     {
@@ -16,51 +17,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
-            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
-            Rectangle buttonBounds = context.Bounds;
+            Rectangle bounds = context.Bounds;
 
-            // Draw shadow
+            // Shadow
             if (context.ShowShadow && context.State != Enums.AdvancedButtonState.Disabled)
             {
-                DrawShadow(g, buttonBounds, context.BorderRadius, context.ShadowBlur, context.ShadowColor);
+                int shadowBlur = context.State == Enums.AdvancedButtonState.Hover ? 8 : 4;
+                DrawShadow(g, bounds, context.BorderRadius, shadowBlur, Color.FromArgb(40, 0, 0, 0));
             }
 
-            // Draw background
+            // Background with subtle gradient
             Color bgColor = GetBackgroundColor(context);
-            using (Brush bgBrush = new SolidBrush(bgColor))
+            Color bgLight = Blend(bgColor, Color.White, 0.15f);
+            
+            using (var path = GetShapePath(bounds, context))
+            using (var gradientBrush = new LinearGradientBrush(bounds, bgLight, bgColor, LinearGradientMode.Vertical))
             {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
+                g.FillPath(gradientBrush, path);
             }
 
-            // Draw ripple effect
+            // Top highlight for 3D effect
+            using (var path = GetShapePath(bounds, context))
+            using (var highlightPen = new Pen(Color.FromArgb(40, Color.White), 1f))
+            {
+                g.DrawPath(highlightPen, path);
+            }
+
             DrawRippleEffect(g, context);
 
-            // Calculate content layout
-            CalculateLayout(context, metrics, out Rectangle iconBounds, out Rectangle textBounds);
-
-            // Draw loading spinner or icon and text
+            // Centered content
             if (context.IsLoading)
             {
-                DrawLoadingSpinner(g, context, buttonBounds, GetForegroundColor(context));
+                DrawLoadingSpinner(g, context, bounds, GetForegroundColor(context));
             }
             else
             {
-                // Draw icon
-                if (HasPrimaryIcon(context))
-                {
-                    DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-                }
-
-                // Draw text
-                Color textColor = GetForegroundColor(context);
-                DrawText(g, context, textBounds, textColor);
+                DrawCenteredContent(g, context, metrics);
             }
 
             DrawFocusRingPrimitive(g, context);
         }
 
-        private void CalculateLayout(AdvancedButtonPaintContext context, AdvancedButtonMetrics metrics,
-            out Rectangle iconBounds, out Rectangle textBounds)
+        private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context, AdvancedButtonMetrics metrics)
         {
             Rectangle bounds = context.Bounds;
             bool hasIcon = HasPrimaryIcon(context);
@@ -68,47 +66,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 
             if (hasIcon && hasText)
             {
-                // Both icon and text
                 int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
                 int startX = bounds.X + (bounds.Width - totalWidth) / 2;
 
-                iconBounds = new Rectangle(
-                    startX,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
+                DrawIcon(g, context, new Rectangle(startX, bounds.Y + (bounds.Height - metrics.IconSize) / 2, metrics.IconSize, metrics.IconSize),
+                    GetPrimaryIconPath(context));
 
-                textBounds = new Rectangle(
-                    startX + metrics.IconSize + metrics.IconTextGap,
-                    bounds.Y,
-                    totalWidth - metrics.IconSize - metrics.IconTextGap,
-                    bounds.Height
-                );
+                DrawText(g, context, new Rectangle(startX + metrics.IconSize + metrics.IconTextGap, bounds.Y,
+                    totalWidth - metrics.IconSize - metrics.IconTextGap, bounds.Height), GetForegroundColor(context));
             }
             else if (hasIcon)
             {
-                // Icon only
-                iconBounds = new Rectangle(
-                    bounds.X + (bounds.Width - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                textBounds = Rectangle.Empty;
+                DrawIcon(g, context, new Rectangle(bounds.X + (bounds.Width - metrics.IconSize) / 2,
+                    bounds.Y + (bounds.Height - metrics.IconSize) / 2, metrics.IconSize, metrics.IconSize),
+                    GetPrimaryIconPath(context));
             }
             else
             {
-                // Text only
-                iconBounds = Rectangle.Empty;
-                textBounds = new Rectangle(
-                    bounds.X + metrics.PaddingHorizontal,
-                    bounds.Y,
-                    bounds.Width - metrics.PaddingHorizontal * 2,
-                    bounds.Height
-                );
+                DrawText(g, context, bounds, GetForegroundColor(context));
             }
         }
-
     }
 }

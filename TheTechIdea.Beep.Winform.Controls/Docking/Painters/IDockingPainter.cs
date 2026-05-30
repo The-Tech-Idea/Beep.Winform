@@ -5,14 +5,13 @@ using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 {
     /// <summary>
-    /// Strategy interface for painting docking UI elements (tabs, panel chrome, splitters, etc.).
-    /// 
-    /// Painters are responsible for:
-    /// - Drawing tab strips with active/inactive/hover states
-    /// - Drawing panel title bars and borders
-    /// - Drawing splitter handles
-    /// - Managing theme-aware colors and fonts
-    /// - Calculating preferred sizes and layouts
+    /// Theme/metrics provider for the docking system.
+    ///
+    /// Element painting is owned by the distinct docking element renderers
+    /// (<c>CaptionRenderer</c>, the upcoming tab/splitter/strip/guide renderers) driven by their
+    /// layout managers — see <see cref="IDockingElementRenderer"/>. This interface only supplies
+    /// the theme-aware palette, fonts, and layout metrics those surfaces consume, and raises
+    /// invalidation when the active theme changes.
     /// </summary>
     public interface IDockingPainter : IDisposable
     {
@@ -65,79 +64,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         /// Gets the width of a splitter handle.
         /// </summary>
         int SplitterWidth { get; }
-
-        /// <summary>
-        /// Draws a tab strip with multiple tabs.
-        /// </summary>
-        /// <param name="graphics">Graphics context for drawing.</param>
-        /// <param name="bounds">Rectangle for the entire tab strip.</param>
-        /// <param name="tabs">Array of tab information.</param>
-        /// <param name="activeTabIndex">Index of the active tab (-1 if none).</param>
-        /// <param name="onTabClicked">Callback for tab click handling (returns tab index).</param>
-        void DrawTabStrip(Graphics graphics, Rectangle bounds, TabInfo[] tabs, int activeTabIndex, Action<int> onTabClicked);
-
-        /// <summary>
-        /// Draws a single tab.
-        /// </summary>
-        /// <param name="graphics">Graphics context for drawing.</param>
-        /// <param name="bounds">Rectangle for the tab.</param>
-        /// <param name="tab">Tab information.</param>
-        /// <param name="isActive">Whether this tab is currently active.</param>
-        /// <param name="isHovered">Whether the tab is hovered.</param>
-        void DrawTab(Graphics graphics, Rectangle bounds, TabInfo tab, bool isActive, bool isHovered);
-
-        /// <summary>
-        /// Draws a panel's title bar and borders.
-        /// </summary>
-        /// <param name="graphics">Graphics context for drawing.</param>
-        /// <param name="bounds">Rectangle for the panel.</param>
-        /// <param name="title">Panel title text.</param>
-        /// <param name="icon">Optional icon image.</param>
-        /// <param name="isDirty">Whether the panel has unsaved changes.</param>
-        void DrawPanelChrome(Graphics graphics, Rectangle bounds, string title, Image icon, bool isDirty);
-
-        /// <summary>
-        /// Draws a splitter handle.
-        /// </summary>
-        /// <param name="graphics">Graphics context for drawing.</param>
-        /// <param name="bounds">Rectangle for the splitter.</param>
-        /// <param name="orientation">Is the splitter vertical or horizontal?</param>
-        /// <param name="isHovered">Whether the splitter is hovered.</param>
-        void DrawSplitter(Graphics graphics, Rectangle bounds, SplitterOrientation orientation, bool isHovered);
-
-        /// <summary>
-        /// Draws a docking guide overlay (the visual guide when dragging a panel).
-        /// </summary>
-        /// <param name="graphics">Graphics context for drawing.</param>
-        /// <param name="bounds">Target rectangle where the panel would dock.</param>
-        /// <param name="position">Which edge (Left, Right, Top, Bottom, Fill) is being targeted.</param>
-        void DrawDockingGuide(Graphics graphics, Rectangle bounds, DockPosition position);
-
-        /// <summary>
-        /// Calculates the preferred size for a tab strip given the available width.
-        /// </summary>
-        /// <param name="tabs">Array of tabs.</param>
-        /// <param name="availableWidth">Available horizontal space.</param>
-        /// <returns>Preferred size (width, height).</returns>
-        Size GetTabStripPreferredSize(TabInfo[] tabs, int availableWidth);
-
-        /// <summary>
-        /// Calculates the tab index at the given point, or -1 if no tab is at that point.
-        /// </summary>
-        /// <param name="point">Point in tab strip coordinates.</param>
-        /// <param name="bounds">Bounds of the tab strip.</param>
-        /// <param name="tabs">Array of tabs.</param>
-        /// <returns>Tab index or -1.</returns>
-        int GetTabAtPoint(Point point, Rectangle bounds, TabInfo[] tabs);
-
-        /// <summary>
-        /// Calculates the close button rectangle for a given tab.
-        /// Returns Rectangle.Empty if the tab has no close button.
-        /// </summary>
-        /// <param name="tabBounds">Bounds of the tab.</param>
-        /// <param name="tab">Tab information.</param>
-        /// <returns>Close button rectangle or empty.</returns>
-        Rectangle GetTabCloseButtonRect(Rectangle tabBounds, TabInfo tab);
 
         /// <summary>
         /// Invalidates any cached resources (e.g., when theme changes).

@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Docking;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Infrastructure;
@@ -57,7 +58,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.ActionLists
             items.Add(new DesignerActionMethodItem(this, nameof(AttachHostForm), "Attach Host Form", "Layout",
                 "Assign the parent form as the docking manager's host form", true));
 
+            items.Add(new DesignerActionHeaderItem("Appearance"));
+            items.Add(new DesignerActionPropertyItem(nameof(Style), "Style", "Appearance",
+                "Control style applied to docking chrome (captions, splitters, strips)"));
+            items.Add(new DesignerActionPropertyItem(nameof(UseThemeColors), "Use Theme Colors", "Appearance",
+                "Paint docking chrome with the active Beep theme palette"));
+            items.Add(new DesignerActionPropertyItem(nameof(Theme), "Theme", "Appearance",
+                "Active Beep theme name used by docking chrome"));
+
             return items;
+        }
+
+        // ── Appearance (smart-tag editable properties) ───────────────────────────
+        // Mutations are routed through the change service so they persist into
+        // *.Designer.cs and re-render the live design surface.
+
+        public BeepControlStyle Style
+        {
+            get => _manager.Style;
+            set => BeepDockingDesignerWiring.SetProperty(_manager, nameof(BeepDockingManager.Style), value, AsServiceProvider);
+        }
+
+        public bool UseThemeColors
+        {
+            get => _manager.UseThemeColors;
+            set => BeepDockingDesignerWiring.SetProperty(_manager, nameof(BeepDockingManager.UseThemeColors), value, AsServiceProvider);
+        }
+
+        public string Theme
+        {
+            get => _manager.Theme;
+            set => BeepDockingDesignerWiring.SetProperty(_manager, nameof(BeepDockingManager.Theme), value, AsServiceProvider);
         }
 
         public void AddPanelLeft()   => AddPanel(DockPosition.Left);

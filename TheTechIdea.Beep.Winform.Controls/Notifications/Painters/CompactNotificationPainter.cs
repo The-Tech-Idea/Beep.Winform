@@ -14,10 +14,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 return;
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            var titleFont = new Font("Segoe UI", 9, FontStyle.Bold);
-
-            TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            using (var titleFont = new Font("Segoe UI", 9, FontStyle.Bold))
+                TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         public override void PaintMessage(Graphics g, Rectangle messageRect, string message, NotificationData data)
@@ -27,10 +26,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             var messageColor = Color.FromArgb(160, colors.ForeColor);
-            var messageFont = new Font("Segoe UI", 8);
-
-            TextRenderer.DrawText(g, message, messageFont, messageRect, messageColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            using (var messageFont = new Font("Segoe UI", 8))
+                TextRenderer.DrawText(g, message, messageFont, messageRect, messageColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
     }
 }

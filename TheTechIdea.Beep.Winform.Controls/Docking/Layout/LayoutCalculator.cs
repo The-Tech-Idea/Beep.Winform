@@ -39,6 +39,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         }
 
         /// <summary>
+        /// Clamps an edge allocation (in pixels) for a proportional split so neither the
+        /// allocated region nor the remaining region falls below their minimum sizes.
+        /// </summary>
+        /// <param name="desired">Desired size from the ratio.</param>
+        /// <param name="total">Total available size along the split axis (excluding the splitter).</param>
+        /// <param name="minThis">Minimum size for the allocated region.</param>
+        /// <param name="minOther">Minimum size for the remaining region.</param>
+        public int ClampSplit(int desired, int total, int minThis, int minOther)
+        {
+            int lo = Math.Max(1, minThis);
+            int hi = total - Math.Max(1, minOther);
+            if (hi < lo) hi = lo;             // container too small to honor both: prefer this side's min
+            return Math.Max(lo, Math.Min(hi, desired));
+        }
+
+        /// <summary>
+        /// Converts a pixel delta on a splitter into a new ratio (0.1–0.9) for the given axis size.
+        /// </summary>
+        public float RatioFromDelta(float currentRatio, int dragDelta, int totalSize)
+            => CalculateNewRatio(currentRatio, dragDelta, totalSize);
+
+        /// <summary>
         /// Clamps a rectangle to a parent rectangle.
         /// </summary>
         public Rectangle ClampBounds(Rectangle bounds, Rectangle parentBounds)

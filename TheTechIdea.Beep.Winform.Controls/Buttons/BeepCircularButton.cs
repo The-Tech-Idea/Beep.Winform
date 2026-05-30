@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -35,35 +35,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         private bool _isForColorSet = false;
         private bool _hidetext = false;
         private const int TextPadding = 5;
-        private Size circlesize = Size.Empty;
         private Timer clickAnimationTimer;
         private float clickAnimationProgress = 1f;
         private const int clickAnimationDuration = 200;
         private DateTime clickAnimationStartTime;
         private bool isAnimatingClick = false;
         private bool _applyThemeOnImage = false;
-        
-        // Layout rectangles for hit testing
         private Rectangle imageRect;
 
-        private Font _textFont = new Font("Arial", 10);
+        // TextFont uses new to shadow BaseControl.TextFont - we add Font sync behavior
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
         [Description("Text Font displayed in the control.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TextFont
+        public new Font TextFont
         {
-            get => _textFont;
+            get => base.TextFont;
             set
             {
-                _textFont = value;
-                Font = _textFont;
-                UseThemeFont = false;
-                Invalidate();
+                if (base.TextFont != value)
+                {
+                    var oldFont = base.TextFont;
+                    base.TextFont = value;
+                    Font = value;
+                    UseThemeFont = false;
+                    oldFont?.Dispose();
+                    Invalidate();
+                }
             }
         }
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("When true, the button image is tinted with the theme's button foreground color.")]
+        [DefaultValue(false)]
         public bool ApplyThemeOnImage
         {
             get => _applyThemeOnImage;
@@ -82,7 +88,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             set
             {
                 _hidetext = value;
-                //UpdateCircleRegion();
                 Invalidate();
             }
         }
@@ -107,7 +112,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             set
             {
                 _textLocation = value;
-             //   UpdateCircleRegion();
                 Invalidate();
             }
         }
@@ -221,6 +225,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
+            // Design-time / no-theme fallback
+            if (_currentTheme == null)
+            {
+                DrawDesignTimeFallback(graphics);
+                return;
+            }
+
             // Calculate layout once - text has priority, circle gets remaining space
             CalculateLayout(out Rectangle textRect, out Rectangle circleBounds);
             
@@ -234,14 +245,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 (int)(circleBounds.Height * (scale - 1f) / 2)
             );
 
-            // Fill circle background
-            var fillBrush = PaintersFactory.GetSolidBrush(IsHovered ? _currentTheme.ButtonHoverBackColor : _currentTheme.ButtonBackColor);
-            graphics.FillEllipse(fillBrush, animatedCircleBounds);
+            // Determine background color based on state
+            Color bgColor;
+            if (!Enabled)
+            {
+                bgColor = DisabledBackColor;
+            }
+            else if (IsPressed)
+            {
+                bgColor = PressedBackColor;
+            }
+            else if (IsHovered)
+            {
+                bgColor = HoverBackColor;
+            }
+            else
+            {
+                bgColor = _currentTheme.ButtonBackColor;
+            }
+            graphics.FillEllipse(PaintersFactory.GetSolidBrush(bgColor), animatedCircleBounds);
 
             // Border
             if (_showBorder)
             {
-                var pen = PaintersFactory.GetPen(_currentTheme.ShadowColor, BorderThickness);
+                var pen = PaintersFactory.GetPen(BorderColor, BorderThickness);
                 graphics.DrawEllipse(pen, animatedCircleBounds);
             }
 
@@ -249,21 +276,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (Focused)
             {
                 Color focusColor = _currentTheme?.FocusIndicatorColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight);
+                var focusPen = PaintersFactory.GetPen(focusColor, 2f);
+                focusPen.DashStyle = DashStyle.Dot;
                 Rectangle focusRect = Rectangle.Inflate(animatedCircleBounds, 4, 4);
-                using (var focusPen = PaintersFactory.GetPen(focusColor, 2f))
-                {
-                    focusPen.DashStyle = DashStyle.Dot;
-                    graphics.DrawEllipse(focusPen, focusRect);
-                }
+                graphics.DrawEllipse(focusPen, focusRect);
             }
 
             // Draw image inside circle using StyledImagePainter
             if (!string.IsNullOrEmpty(_imagePath) && diameter > 0)
             {
                 Size imageSize = GetInscribedSquareSize(diameter);
+                
+                // When text is Inside, shift image up to make room for text below
+                int imageYOffset = 0;
+                if (_textLocation == TextLocation.Inside && !HideText && !string.IsNullOrEmpty(Text))
+                {
+                    imageYOffset = -(int)(diameter * 0.1f);
+                }
+
                 imageRect = new Rectangle(
                     animatedCircleBounds.X + (animatedCircleBounds.Width - imageSize.Width) / 2,
-                    animatedCircleBounds.Y + (animatedCircleBounds.Height - imageSize.Height) / 2,
+                    animatedCircleBounds.Y + (animatedCircleBounds.Height - imageSize.Height) / 2 + imageYOffset,
                     imageSize.Width,
                     imageSize.Height
                 );
@@ -273,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                     Color tintColor = Color.Transparent;
                     if (ApplyThemeOnImage && _currentTheme != null)
                     {
-                        tintColor = _currentTheme.ButtonForeColor;
+                        tintColor = Enabled ? _currentTheme.ButtonForeColor : DisabledForeColor;
                     }
                     StyledImagePainter.PaintWithTint(graphics, imageRect.ToGraphicsPath(), _imagePath, tintColor);
                     AddHitArea("Image", imageRect, null, () => OnImageClick());
@@ -282,6 +315,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                 {
                     System.Diagnostics.Debug.WriteLine($"Error drawing image: {ex.Message}");
                 }
+            }
+
+            // Determine text color based on state
+            Color textColor;
+            if (!Enabled)
+            {
+                textColor = DisabledForeColor;
+            }
+            else if (IsPressed)
+            {
+                textColor = PressedForeColor;
+            }
+            else if (IsHovered)
+            {
+                textColor = HoverForeColor;
+            }
+            else
+            {
+                textColor = _currentTheme.ButtonForeColor;
             }
 
             // Draw text - use the pre-calculated textRect
@@ -325,8 +377,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                         break;
                 }
 
-                var textColor = _currentTheme.PrimaryTextColor;
-                TextRenderer.DrawText(graphics, Text, Font, textRect, textColor, flags);
+                // When text is Inside, shift down to make room for image above
+                Rectangle adjustedTextRect = textRect;
+                if (_textLocation == TextLocation.Inside && !string.IsNullOrEmpty(_imagePath) && diameter > 0)
+                {
+                    adjustedTextRect = new Rectangle(
+                        textRect.X,
+                        textRect.Y + (int)(diameter * 0.15f),
+                        textRect.Width,
+                        textRect.Height - (int)(diameter * 0.15f)
+                    );
+                }
+
+                using Font textFont = TextFont ?? SystemFonts.DefaultFont;
+                TextRenderer.DrawText(graphics, Text, textFont, adjustedTextRect, textColor, flags);
+            }
+        }
+
+        private void DrawDesignTimeFallback(Graphics g)
+        {
+            Rectangle bounds = ClientRectangle;
+            CalculateLayout(out _, out Rectangle circleBounds);
+            int diameter = Math.Min(circleBounds.Width, circleBounds.Height);
+            if (diameter <= 0) diameter = Math.Min(bounds.Width, bounds.Height);
+
+            // Fill
+            using var bgBrush = new SolidBrush(SystemColors.Control);
+            g.FillEllipse(bgBrush, circleBounds);
+
+            // Border
+            using var borderPen = new Pen(SystemColors.ControlDark, 1);
+            g.DrawEllipse(borderPen, circleBounds);
+
+            // Text
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                using var textBrush = new SolidBrush(SystemColors.ControlText);
+                using var textFont = TextFont ?? new Font("Segoe UI", 9f);
+                StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString(Text, textFont, textBrush, bounds, sf);
             }
         }
 
@@ -432,13 +521,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
                     int circleYI = contentY + (contentHeight - diameter2) / 2;
                     circleBounds = new Rectangle(circleXI, circleYI, diameter2, diameter2);
 
+                    // When image is present, text goes below image (bottom portion of circle)
+                    int textOffsetY = 0;
+                    if (!string.IsNullOrEmpty(_imagePath))
+                    {
+                        textOffsetY = (int)(diameter2 * 0.15f);
+                    }
+
                     // Inscribed square for text
                     int inscribedSize = (int)(diameter2 / Math.Sqrt(2)) - 2 * TextPadding;
                     inscribedSize = Math.Max(10, inscribedSize);
                     textSize = TextRenderer.MeasureText(Text, Font, new Size(inscribedSize, int.MaxValue), flags);
                     
                     int textXI = circleXI + (diameter2 - textSize.Width) / 2;
-                    int textYI = circleYI + (diameter2 - textSize.Height) / 2;
+                    int textYI = circleYI + (diameter2 - textSize.Height) / 2 + textOffsetY;
                     textRect = new Rectangle(textXI, textYI, textSize.Width, textSize.Height);
                     return;
             }
@@ -496,13 +592,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
 
             if (UseThemeFont)
             {
-                if (_currentTheme.ButtonStyle != null)
+                var newFont = BeepThemesManager.ToFont(
+                    _currentTheme.ButtonStyle ?? _currentTheme.LabelSmall,
+                    applyDpiScaling: true
+                );
+                if (newFont != null)
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-                }
-                else
-                {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    var oldFont = base.TextFont;
+                    base.TextFont = newFont;
+                    Font = newFont;
+                    oldFont?.Dispose();
                 }
             }
 
@@ -616,37 +715,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
             if (string.IsNullOrEmpty(BadgeText))
                 return;
 
-            const int badgeSize = 22;
+            int badgeSize = DpiScalingHelper.ScaleValue(22, this);
             int x = childBounds.Right - badgeSize / 2;
             int y = childBounds.Y - badgeSize / 2;
             var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
 
-            // Draw badge directly since BaseControl doesn't have DrawBadgeImplementation
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Draw badge background
             Color badgeBackColor = BadgeBackColor != Color.Empty ? BadgeBackColor : (_currentTheme?.BadgeBackColor ?? _currentTheme?.AccentColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight));
             using (var brush = new SolidBrush(badgeBackColor))
             {
                 g.FillEllipse(brush, badgeRect);
             }
 
-            // Draw badge text
             if (!string.IsNullOrEmpty(BadgeText))
             {
                 Color badgeForeColor = BadgeForeColor != Color.Empty ? BadgeForeColor : (_currentTheme?.BadgeForeColor ?? (badgeBackColor.GetBrightness() > 0.5 ? Color.Black : Color.White));
-                Font badgeFont = BadgeFont ?? _textFont;
-                using (var textBrush = new SolidBrush(badgeForeColor))
-                using (badgeFont)
+                using var textBrush = new SolidBrush(badgeForeColor);
+                using Font badgeFont = (BadgeFont ?? TextFont) ?? SystemFonts.DefaultFont;
+                var fmt = new StringFormat
                 {
-                    var fmt = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-                    g.DrawString(BadgeText, badgeFont, textBrush, badgeRect, fmt);
-                }
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(BadgeText, badgeFont, textBrush, badgeRect, fmt);
             }
         }
         #endregion "Badge"

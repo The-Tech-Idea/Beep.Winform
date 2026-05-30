@@ -5,7 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
     /// <summary>
-    /// Painter for outlined buttons with border and no fill
+    /// Outlined button - thick colored border, white interior, optional chevron.
+    /// Matches the "READ MORE / SUBSCRIBE" outline pill style from reference images.
     /// </summary>
     public class OutlinedButtonPainter : BaseButtonPainter
     {
@@ -16,104 +17,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
-            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
-            Rectangle buttonBounds = context.Bounds;
+            Rectangle bounds = context.Bounds;
 
-            // Draw background (transparent or subtle on hover)
-            Color bgColor = context.State switch
+            // Shadow
+            if (context.ShowShadow && context.State != Enums.AdvancedButtonState.Disabled)
             {
-                Enums.AdvancedButtonState.Hover => Color.FromArgb(24, context.BorderColor),
-                Enums.AdvancedButtonState.Pressed => Color.FromArgb(40, context.BorderColor),
-                _ => Color.Transparent
-            };
-            
-            using (Brush bgBrush = new SolidBrush(bgColor))
-            {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
+                DrawShadow(g, bounds, context.BorderRadius, 4, Color.FromArgb(25, 0, 0, 0));
             }
 
-            // Draw border
+            // Border color
             Color borderColor = context.State == Enums.AdvancedButtonState.Disabled
                 ? context.DisabledForeground
-                : context.BorderColor;
-                
-            using (Pen borderPen = new Pen(borderColor, Math.Max(1, context.BorderWidth)))
+                : context.SolidBackground;
+            if (context.State == Enums.AdvancedButtonState.Hover) borderColor = context.HoverBackground;
+            if (context.State == Enums.AdvancedButtonState.Pressed) borderColor = context.PressedBackground;
+
+            int borderWidth = Math.Max(3, context.BorderWidth);
+
+            // White interior
+            using (var path = GetShapePath(bounds, context))
+            using (var whiteBrush = new SolidBrush(Color.White))
             {
-                int borderInset = Math.Max(1, (int)Math.Round(borderPen.Width)) / 2;
-                Rectangle borderBounds = new Rectangle(
-                    buttonBounds.X + borderInset,
-                    buttonBounds.Y + borderInset,
-                    buttonBounds.Width - (borderInset * 2),
-                    buttonBounds.Height - (borderInset * 2)
-                );
-                DrawRoundedRectangle(g, borderPen, borderBounds, tokens.BorderRadius);
+                g.FillPath(whiteBrush, path);
             }
 
-            // Draw ripple effect
+            // Thick colored border
+            using (var path = GetShapePath(bounds, context))
+            using (var borderPen = new Pen(borderColor, borderWidth))
+            {
+                borderPen.Alignment = PenAlignment.Inset;
+                g.DrawPath(borderPen, path);
+            }
+
             DrawRippleEffect(g, context);
 
-            // Draw content
-            Color contentColor = context.State == Enums.AdvancedButtonState.Disabled
-                ? context.DisabledForeground
-                : context.BorderColor;
+            // Content with chevron
+            int chevronSpace = metrics.IconSize + 8;
+            Rectangle contentBounds = new Rectangle(
+                bounds.X + metrics.PaddingHorizontal + borderWidth,
+                bounds.Y,
+                bounds.Width - (metrics.PaddingHorizontal + borderWidth) * 2 - chevronSpace,
+                bounds.Height);
 
-            if (context.IsLoading)
+            Color textColor = context.State == Enums.AdvancedButtonState.Disabled
+                ? context.DisabledForeground : Color.FromArgb(50, 50, 50);
+
+            if (!context.IsLoading && !string.IsNullOrEmpty(context.Text))
             {
-                DrawLoadingSpinner(g, context, buttonBounds, contentColor);
+                DrawText(g, context, contentBounds, textColor);
             }
-            else
+            else if (context.IsLoading)
             {
-                // Draw icon and text centered
-                DrawCenteredContent(g, context, metrics, contentColor);
+                DrawLoadingSpinner(g, context, bounds, borderColor);
             }
+
+            // Chevron on right
+            Rectangle chevronBounds = new Rectangle(
+                bounds.Right - metrics.PaddingHorizontal - borderWidth - metrics.IconSize,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize, metrics.IconSize);
+            if (!context.IsLoading) DrawChevron(g, chevronBounds, borderColor);
 
             DrawFocusRingPrimitive(g, context);
         }
 
-        private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context, 
-            AdvancedButtonMetrics metrics, Color color)
+        private void DrawChevron(Graphics g, Rectangle bounds, Color color)
         {
-            Rectangle bounds = context.Bounds;
-            bool hasIcon = HasPrimaryIcon(context);
-            bool hasText = !string.IsNullOrEmpty(context.Text);
-
-            if (hasIcon && hasText)
+            using (var pen = new Pen(color, 2f))
             {
-                // Both icon and text
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
-                int startX = bounds.X + (bounds.Width - totalWidth) / 2;
-
-                Rectangle iconBounds = new Rectangle(
-                    startX,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-
-                Rectangle textBounds = new Rectangle(
-                    startX + metrics.IconSize + metrics.IconTextGap,
-                    bounds.Y,
-                    totalWidth - metrics.IconSize - metrics.IconTextGap,
-                    bounds.Height
-                );
-                DrawText(g, context, textBounds, color);
-            }
-            else if (hasIcon)
-            {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (bounds.Width - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-            }
-            else
-            {
-                DrawText(g, context, bounds, color);
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+                int midY = bounds.Y + bounds.Height / 2;
+                g.DrawLine(pen, bounds.X + 4, bounds.Y + 4, bounds.Right - 6, midY);
+                g.DrawLine(pen, bounds.Right - 6, midY, bounds.X + 4, bounds.Bottom - 4);
             }
         }
-
     }
 }

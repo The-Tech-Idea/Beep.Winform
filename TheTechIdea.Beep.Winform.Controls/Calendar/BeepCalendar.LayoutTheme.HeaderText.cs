@@ -26,17 +26,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             var headerRect = _rects.HeaderRect;
             if (headerRect.Width <= 0 || headerRect.Height <= 0)
-            {
                 return Rectangle.Empty;
+
+            // Calculate nav anchor from toolbar button bounds
+            int navRightAnchor = headerRect.X;
+            if (_toolbarButtons != null)
+            {
+                foreach (var btn in _toolbarButtons)
+                {
+                    if (!btn.IsViewSelector && !btn.Bounds.IsEmpty)
+                        navRightAnchor = Math.Max(navRightAnchor, btn.Bounds.Right);
+                }
             }
 
-            int navRightAnchor = new[]
-            {
-                _nextButton?.Visible == true ? _nextButton.Right : headerRect.X,
-                _todayButton?.Visible == true ? _todayButton.Right : headerRect.X,
-                _undoButton?.Visible == true ? _undoButton.Right : headerRect.X,
-                _redoButton?.Visible == true ? _redoButton.Right : headerRect.X
-            }.Max();
             int leftFromNav = navRightAnchor + CalendarLayoutMetrics.HeaderTextSpacingFromNav;
             int leftFromPadding = headerRect.X + Math.Max(0, HeaderLeftPadding);
             int leftFromGrid = Math.Max(headerRect.X, _rects.CalendarGridRect.Left);
@@ -59,11 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 }
             }
 
-            return new Rectangle(
-                availableLeft,
-                headerRect.Y,
-                Math.Max(1, availableRight - availableLeft),
-                headerRect.Height);
+            return new Rectangle(availableLeft, headerRect.Y, Math.Max(1, availableRight - availableLeft), headerRect.Height);
         }
     }
 }

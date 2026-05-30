@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using TheTechIdea.Beep.Winform.Controls.Docking.Interop;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
 {
     /// <summary>
-    /// Orchestrates hierarchical layout calculations for docking panels.
-    /// Manages panel positioning, splitter sizing, and dynamic layout recalculation.
+    /// Canonical layout authority for the docking system. Computes a dock-site edge layout
+    /// (Top/Bottom span the width, then Left/Right span the remaining height, Fill takes the
+    /// rest) from the <see cref="DockLayoutTree"/> root children. Each edge group is sized
+    /// proportionally from its <see cref="DockGroup.SplitRatio"/> and clamped by per-group
+    /// minimum sizes. Produces an immutable <see cref="DockLayoutResult"/> with panel bounds,
+    /// group bounds and splitter rectangles, and is the single source of truth for splitter
+    /// hit-testing and drag-resize.
     /// </summary>
     public class DockingLayoutController
     {
@@ -20,8 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         private Rectangle _containerBounds;
         private bool _isDirty = true;
 
-        // Cache for layout calculations (invalidated on structural changes)
-        private Dictionary<string, Rectangle> _layoutCache = new Dictionary<string, Rectangle>();
+        private DockLayoutResult _result;
 
         // Constants
         private const int MIN_PANEL_WIDTH = 50;
@@ -29,6 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         private const int SPLITTER_WIDTH = 4;
         private const int TAB_STRIP_HEIGHT = 30;
         private const int CHROME_HEIGHT = 24;
+
+        // Order in which edges claim space; Top/Bottom span full width first, then Left/Right.
+        private static readonly DockPosition[] EdgeOrder =
+            { DockPosition.Top, DockPosition.Bottom, DockPosition.Left, DockPosition.Right };
 
         public DockingLayoutController(DockLayoutTree layoutTree, IDockingPainter painter)
         {
@@ -39,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
 
         /// <summary>
         /// Gets or sets the container bounds for all layout calculations.
-        /// Set this whenever the MDI client is resized.
+        /// Set this whenever the host client area is resized.
         /// </summary>
         public Rectangle ContainerBounds
         {
@@ -55,7 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         }
 
         /// <summary>
-        /// Gets the metrics used for layout calculations (tab height, chrome height, splitter width).
+        /// Metrics used for layout calculations (tab height, chrome height, splitter width).
         /// </summary>
         public LayoutMetrics Metrics => new LayoutMetrics
         {
@@ -66,41 +73,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             MinPanelHeight = MIN_PANEL_HEIGHT
         };
 
+        /// <summary>Thickness of every splitter strip (DPI scaling applied by the caller).</summary>
+        public int SplitterWidth => SPLITTER_WIDTH;
+
         /// <summary>
-        /// Calculates layout for all panels in the hierarchy.
-        /// Returns a dictionary mapping panel keys to their calculated bounds.
+        /// Computes (or returns cached) layout for the current <see cref="ContainerBounds"/>.
+        /// </summary>
+        public DockLayoutResult CalculateLayoutResult()
+        {
+            if (!_isDirty && _result != null)
+                return _result;
+
+            _result = BuildLayout(_containerBounds);
+            _isDirty = false;
+            return _result;
+        }
+
+        /// <summary>
+        /// Sets <see cref="ContainerBounds"/> to <paramref name="rootBounds"/> and recomputes.
+        /// </summary>
+        public DockLayoutResult CalculateLayout(Rectangle rootBounds)
+        {
+            ContainerBounds = rootBounds;   // invalidates if changed
+            return CalculateLayoutResult();
+        }
+
+        /// <summary>
+        /// Back-compat: returns a panel-key → bounds map for the current container bounds.
         /// </summary>
         public Dictionary<string, Rectangle> CalculateLayout()
         {
-            if (!_isDirty && _layoutCache.Count > 0)
-                return new Dictionary<string, Rectangle>(_layoutCache);
-
-            _layoutCache.Clear();
-
-            if (_layoutTree.Root == null)
-                return _layoutCache;
-
-            // Calculate bounds for root group (fills entire container)
-            CalculateGroupBounds(_layoutTree.Root, _containerBounds);
-
-            _isDirty = false;
-            return new Dictionary<string, Rectangle>(_layoutCache);
+            var result = CalculateLayoutResult();
+            return new Dictionary<string, Rectangle>(
+                result.PanelBounds.ToDictionary(kv => kv.Key, kv => kv.Value));
         }
 
-        /// <summary>
-        /// Gets the bounds for a specific panel (or null if not found).
-        /// </summary>
+        /// <summary>Gets the bounds for a specific panel (or null if not found).</summary>
         public Rectangle? GetPanelBounds(string panelKey)
-        {
-            var layout = CalculateLayout();
-            if (layout.TryGetValue(panelKey, out var bounds))
-                return bounds;
-            return null;
-        }
+            => CalculateLayoutResult().GetPanelBounds(panelKey);
 
-        /// <summary>
-        /// Gets the bounds for the content area of a panel (excluding title bar).
-        /// </summary>
+        /// <summary>Gets the content bounds for a panel (excluding the caption/chrome).</summary>
         public Rectangle? GetPanelContentBounds(string panelKey)
         {
             var panelBounds = GetPanelBounds(panelKey);
@@ -109,30 +121,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
 
             var bounds = panelBounds.Value;
             bounds.Y += CHROME_HEIGHT;
-            bounds.Height -= CHROME_HEIGHT;
+            bounds.Height = Math.Max(0, bounds.Height - CHROME_HEIGHT);
             return bounds;
         }
 
-        /// <summary>
-        /// Gets the bounds for the splitter between two groups.
-        /// </summary>
+        /// <summary>Gets the bounds for the splitter that controls the given edge group.</summary>
         public Rectangle GetSplitterBounds(string groupId)
         {
-            var group = _layoutTree.GetGroup(groupId);
-            if (group == null)
-                return Rectangle.Empty;
-
-            // TODO: Implement based on group orientation and children
+            foreach (var hit in CalculateLayoutResult().Splitters)
+            {
+                if (hit.GroupId == groupId)
+                    return hit.Bounds;
+            }
             return Rectangle.Empty;
         }
 
-        /// <summary>
-        /// Finds which panel is at the given point in container coordinates.
-        /// </summary>
+        /// <summary>Finds which panel is at the given point in container coordinates.</summary>
         public string FindPanelAtPoint(Point point)
         {
-            var layout = CalculateLayout();
-            foreach (var kvp in layout)
+            foreach (var kvp in CalculateLayoutResult().PanelBounds)
             {
                 if (kvp.Value.Contains(point))
                     return kvp.Key;
@@ -140,242 +147,277 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             return null;
         }
 
-        /// <summary>
-        /// Finds which splitter is at the given point (if any).
-        /// </summary>
-        public string FindSplitterAtPoint(Point point)
-        {
-            // TODO: Implement splitter hit-testing
-            return null;
-        }
+        /// <summary>Finds which splitter (if any) is at the given point.</summary>
+        public DockSplitterHit? FindSplitterAtPoint(Point point)
+            => CalculateLayoutResult().FindSplitterAt(point);
 
         /// <summary>
-        /// Applies a drag delta to a splitter, recalculating layout.
-        /// dragDelta is the mouse movement (positive = drag right/down, negative = drag left/up).
+        /// Applies a pixel drag delta to an edge group's splitter and re-lays out.
+        /// Delta is along the resize axis (positive = grow the edge group). The axis is
+        /// derived from the group's <see cref="DockGroup.Position"/>.
+        /// Handles root-level edge splitters and nested child splitters (format: {parentId}_child_{i}).
         /// </summary>
-        public void DragSplitter(string groupId, int dragDelta, bool isVertical)
+        public void DragSplitter(string groupId, int deltaPx)
         {
             var group = _layoutTree.GetGroup(groupId);
-            if (group == null)
+            DockGroup adjustGroup = null;
+
+            if (group != null)
+            {
+                adjustGroup = group;
+            }
+            else
+            {
+                // Try nested child splitter: parse "{parentId}_child_{i}"
+                int lastUnderscore = groupId.LastIndexOf("_child_", StringComparison.Ordinal);
+                if (lastUnderscore >= 0)
+                {
+                    string parentId = groupId.Substring(0, lastUnderscore);
+                    var parent = _layoutTree.GetGroup(parentId);
+                    if (parent != null)
+                        adjustGroup = parent;
+                }
+            }
+
+            if (adjustGroup == null)
                 return;
 
-            // Calculate new ratio based on drag delta
-            float ratio = _calculator.CalculateNewRatio(group.SplitRatio, dragDelta, 
-                isVertical ? _containerBounds.Width : _containerBounds.Height);
+            bool horizontalAxis = adjustGroup.Position == DockPosition.Left || adjustGroup.Position == DockPosition.Right
+                || (adjustGroup.Children.Count >= 2 && adjustGroup.SplitOrientation == SplitOrientation.Horizontal);
 
-            // Clamp ratio to valid range
-            ratio = Math.Max(0.1f, Math.Min(0.9f, ratio));
+            // For nested groups, use the parent group's laid-out bounds as the axis reference.
+            int axisSize;
+            var cachedResult = _result;
+            if (cachedResult != null && cachedResult.GroupBounds.TryGetValue(adjustGroup.Id, out var parentBounds) && !parentBounds.IsEmpty)
+            {
+                axisSize = horizontalAxis ? parentBounds.Width : parentBounds.Height;
+            }
+            else
+            {
+                axisSize = horizontalAxis ? _containerBounds.Width : _containerBounds.Height;
+            }
 
-            group.SplitRatio = ratio;
+            // Right/Bottom edges grow when dragged toward the center (negative screen delta),
+            // so invert the sign for them.
+            // For nested groups, the first child is the one that "owns" the ratio, sign is consistent
+            // (positive delta = grow first child = left/top side).
+            int signedDelta;
+            if (group != null)
+            {
+                signedDelta = (adjustGroup.Position == DockPosition.Right || adjustGroup.Position == DockPosition.Bottom)
+                    ? -deltaPx
+                    : deltaPx;
+            }
+            else
+            {
+                signedDelta = deltaPx;
+            }
+
+            float ratio = _calculator.RatioFromDelta(adjustGroup.SplitRatio, signedDelta, axisSize);
+            adjustGroup.SplitRatio = ratio;
+            adjustGroup.RatioInitialized = true;
             InvalidateLayout();
         }
 
         /// <summary>
-        /// Invalidates the layout cache, forcing recalculation on next call to CalculateLayout().
-        /// Called when panels are added/removed or properties change.
+        /// Invalidates the layout cache, forcing recalculation on next request.
         /// </summary>
         public void InvalidateLayout()
         {
             _isDirty = true;
-            _layoutCache.Clear();
+            _result = null;
         }
 
-        /// <summary>
-        /// Gets diagnostic information about the current layout.
-        /// </summary>
+        /// <summary>Gets diagnostic information about the current layout.</summary>
         public LayoutDiagnostics GetDiagnostics()
         {
-            var layout = CalculateLayout();
+            var result = CalculateLayoutResult();
             return new LayoutDiagnostics
             {
                 TotalPanels = _layoutTree.GetAllPanels().Count,
                 TotalGroups = _layoutTree.GetAllGroups().Count,
-                CalculatedPanels = layout.Count,
+                CalculatedPanels = result.PanelBounds.Count,
                 CacheValid = !_isDirty,
                 ContainerBounds = _containerBounds,
-                PanelBounds = new Dictionary<string, Rectangle>(layout)
+                PanelBounds = result.PanelBounds.ToDictionary(kv => kv.Key, kv => kv.Value)
             };
         }
 
-        #region Private Layout Calculation
+        #region Private dock-site layout
 
-        /// <summary>
-        /// Recursively calculates bounds for a group and its children.
-        /// </summary>
-        private void CalculateGroupBounds(DockGroup group, Rectangle groupBounds)
+        private DockLayoutResult BuildLayout(Rectangle container)
         {
-            if (group == null || groupBounds.Width <= 0 || groupBounds.Height <= 0)
-                return;
+            var panelBounds = new Dictionary<string, Rectangle>();
+            var groupBounds = new Dictionary<string, Rectangle>();
+            var splitters = new List<DockSplitterHit>();
 
-            // If group has no children, this shouldn't happen but handle gracefully
-            if (group.Children.Count == 0 && group.Panels.Count == 0)
-                return;
+            if (container.Width <= 0 || container.Height <= 0 || _layoutTree.Root == null)
+                return new DockLayoutResult(container, panelBounds, groupBounds, splitters);
 
-            // If group has only panels (leaf group), distribute space among them
-            if (group.Children.Count == 0 && group.Panels.Count > 0)
+            var remaining = container;
+
+            // Resolve the edge groups that actually have visible panels.
+            var edgeGroups = _layoutTree.Root.Children
+                .Where(g => g.Position != DockPosition.Fill && HasVisiblePanels(g))
+                .ToDictionary(g => g.Position, g => g);
+
+            foreach (var position in EdgeOrder)
             {
-                LayoutPanelsInGroup(group, groupBounds);
-                return;
-            }
+                if (!edgeGroups.TryGetValue(position, out var group))
+                    continue;
 
-            // If group has child groups, split space according to orientation
-            if (group.Children.Count > 0)
-            {
-                LayoutChildGroups(group, groupBounds);
-                return;
-            }
-        }
+                bool horizontalAxis = position == DockPosition.Left || position == DockPosition.Right;
+                int axisTotal = horizontalAxis ? remaining.Width : remaining.Height;
+                int available = axisTotal - SPLITTER_WIDTH;
+                if (available <= 0)
+                    continue;
 
-        /// <summary>
-        /// Distributes bounds among panels in a leaf group (tabs).
-        /// </summary>
-        private void LayoutPanelsInGroup(DockGroup group, Rectangle groupBounds)
-        {
-            if (group.Panels.Count == 0)
-                return;
+                int minThis = horizontalAxis ? group.MinWidth : group.MinHeight;
+                int minOther = horizontalAxis ? MIN_PANEL_WIDTH : MIN_PANEL_HEIGHT;
 
-            // All panels in a group share the same bounds (they're tabbed)
-            var panelBounds = new Rectangle(
-                groupBounds.X,
-                groupBounds.Y + TAB_STRIP_HEIGHT,  // Account for tab strip
-                groupBounds.Width,
-                Math.Max(MIN_PANEL_HEIGHT, groupBounds.Height - TAB_STRIP_HEIGHT)
-            );
+                int desired = (int)Math.Round(available * group.SplitRatio);
+                int size = _calculator.ClampSplit(desired, available, minThis, minOther);
 
-            foreach (var panel in group.Panels)
-            {
-                _layoutCache[panel.Key] = panelBounds;
-            }
-        }
+                Rectangle groupRect;
+                Rectangle splitterRect;
 
-        /// <summary>
-        /// Distributes bounds among child groups based on orientation and split ratio.
-        /// </summary>
-        private void LayoutChildGroups(DockGroup parentGroup, Rectangle parentBounds)
-        {
-            if (parentGroup.Children.Count == 0)
-                return;
-
-            if (parentGroup.SplitOrientation == SplitOrientation.Vertical)
-            {
-                LayoutVerticalGroups(parentGroup, parentBounds);
-            }
-            else
-            {
-                LayoutHorizontalGroups(parentGroup, parentBounds);
-            }
-        }
-
-        /// <summary>
-        /// Distributes bounds vertically (left/right split).
-        /// </summary>
-        private void LayoutVerticalGroups(DockGroup parentGroup, Rectangle parentBounds)
-        {
-            var childGroups = parentGroup.Children.ToList();
-            if (childGroups.Count == 0)
-                return;
-
-            // Calculate width of first group using split ratio
-            float totalWidth = parentBounds.Width - (SPLITTER_WIDTH * (childGroups.Count - 1));
-            int firstGroupWidth = (int)(totalWidth * parentGroup.SplitRatio);
-            firstGroupWidth = Math.Max(MIN_PANEL_WIDTH, Math.Min((int)totalWidth - MIN_PANEL_WIDTH, firstGroupWidth));
-
-            // First group bounds (left side)
-            var firstGroupBounds = new Rectangle(
-                parentBounds.X,
-                parentBounds.Y,
-                firstGroupWidth,
-                parentBounds.Height
-            );
-
-            CalculateGroupBounds(childGroups[0], firstGroupBounds);
-
-            // Remaining groups get the rest (right side)
-            if (childGroups.Count > 1)
-            {
-                int remainingX = parentBounds.X + firstGroupWidth + SPLITTER_WIDTH;
-                int remainingWidth = parentBounds.Width - firstGroupWidth - SPLITTER_WIDTH;
-
-                var remainingBounds = new Rectangle(
-                    remainingX,
-                    parentBounds.Y,
-                    remainingWidth,
-                    parentBounds.Height
-                );
-
-                // If multiple remaining groups, create a container group
-                if (childGroups.Count > 2)
+                switch (position)
                 {
-                    // Recursively layout remaining groups
-                    foreach (var child in childGroups.Skip(1))
-                    {
-                        CalculateGroupBounds(child, remainingBounds);
-                    }
+                    case DockPosition.Left:
+                        groupRect = new Rectangle(remaining.X, remaining.Y, size, remaining.Height);
+                        splitterRect = new Rectangle(groupRect.Right, remaining.Y, SPLITTER_WIDTH, remaining.Height);
+                        remaining = new Rectangle(splitterRect.Right, remaining.Y,
+                            remaining.Width - size - SPLITTER_WIDTH, remaining.Height);
+                        break;
+
+                    case DockPosition.Right:
+                        groupRect = new Rectangle(remaining.Right - size, remaining.Y, size, remaining.Height);
+                        splitterRect = new Rectangle(groupRect.Left - SPLITTER_WIDTH, remaining.Y, SPLITTER_WIDTH, remaining.Height);
+                        remaining = new Rectangle(remaining.X, remaining.Y,
+                            remaining.Width - size - SPLITTER_WIDTH, remaining.Height);
+                        break;
+
+                    case DockPosition.Top:
+                        groupRect = new Rectangle(remaining.X, remaining.Y, remaining.Width, size);
+                        splitterRect = new Rectangle(remaining.X, groupRect.Bottom, remaining.Width, SPLITTER_WIDTH);
+                        remaining = new Rectangle(remaining.X, splitterRect.Bottom,
+                            remaining.Width, remaining.Height - size - SPLITTER_WIDTH);
+                        break;
+
+                    default: // Bottom
+                        groupRect = new Rectangle(remaining.X, remaining.Bottom - size, remaining.Width, size);
+                        splitterRect = new Rectangle(remaining.X, groupRect.Top - SPLITTER_WIDTH, remaining.Width, SPLITTER_WIDTH);
+                        remaining = new Rectangle(remaining.X, remaining.Y,
+                            remaining.Width, remaining.Height - size - SPLITTER_WIDTH);
+                        break;
+                }
+
+                groupBounds[group.Id] = groupRect;
+                splitters.Add(new DockSplitterHit(group.Id, splitterRect, horizontalAxis));
+                AssignPanelsRecursive(group, groupRect, panelBounds, groupBounds, splitters);
+            }
+
+            // Fill group(s) take whatever space is left.
+            foreach (var fill in _layoutTree.Root.Children.Where(g => g.Position == DockPosition.Fill && HasVisiblePanels(g)))
+            {
+                groupBounds[fill.Id] = remaining;
+                AssignPanelsRecursive(fill, remaining, panelBounds, groupBounds, splitters);
+            }
+
+            return new DockLayoutResult(container, panelBounds, groupBounds, splitters);
+        }
+
+        // A group reserves layout space only when it holds at least one docked panel.
+        // Floating/auto-hidden panels are removed from their group; hidden (Closed) panels
+        // remain registered but must not keep their edge alive or reserve space.
+        private static bool HasVisiblePanels(DockGroup group)
+            => group != null && group.GetAllPanelsRecursive().Any(p => p != null && p.State == DockPanelState.Docked);
+
+        private void AssignPanelsRecursive(DockGroup group, Rectangle groupRect,
+            Dictionary<string, Rectangle> panelBounds,
+            Dictionary<string, Rectangle> groupBounds,
+            List<DockSplitterHit> splitters)
+        {
+            groupBounds[group.Id] = groupRect;
+
+            var visibleChildren = group.Children.Where(c => HasVisiblePanels(c)).ToList();
+
+            if (visibleChildren.Count == 0)
+            {
+                foreach (var panel in group.Panels)
+                {
+                    if (panel?.Key != null && panel.State == DockPanelState.Docked)
+                        panelBounds[panel.Key] = groupRect;
+                }
+                return;
+            }
+
+            // Split group rect among visible child groups.
+            bool horizontal = group.SplitOrientation == SplitOrientation.Horizontal;
+            int axisStart = horizontal ? groupRect.X : groupRect.Y;
+            int axisTotal = horizontal ? groupRect.Width : groupRect.Height;
+            int available = axisTotal - (SPLITTER_WIDTH * (visibleChildren.Count - 1));
+            if (available <= 0) return;
+
+            // Distribute space proportionally: first child gets SplitRatio of the available space.
+            int firstSize = visibleChildren.Count == 1
+                ? available
+                : (int)Math.Round(available * group.SplitRatio);
+            firstSize = Math.Max(MIN_PANEL_WIDTH, Math.Min(available - MIN_PANEL_WIDTH, firstSize));
+
+            int remainingSize = available - firstSize;
+            int offset = axisStart;
+
+            for (int i = 0; i < visibleChildren.Count; i++)
+            {
+                int remainderChildren = visibleChildren.Count - 1;
+                int childSize;
+                if (i == 0)
+                {
+                    childSize = firstSize;
+                }
+                else if (visibleChildren.Count == 2)
+                {
+                    childSize = remainingSize;
                 }
                 else
                 {
-                    CalculateGroupBounds(childGroups[1], remainingBounds);
+                    childSize = remainingSize / remainderChildren;
+                    // Distribute the remainder so the last children absorb the extra pixels.
+                    if (i - 1 < remainingSize % remainderChildren)
+                        childSize++;
                 }
-            }
-        }
 
-        /// <summary>
-        /// Distributes bounds horizontally (top/bottom split).
-        /// </summary>
-        private void LayoutHorizontalGroups(DockGroup parentGroup, Rectangle parentBounds)
-        {
-            var childGroups = parentGroup.Children.ToList();
-            if (childGroups.Count == 0)
-                return;
-
-            // Calculate height of first group using split ratio
-            float totalHeight = parentBounds.Height - (SPLITTER_WIDTH * (childGroups.Count - 1));
-            int firstGroupHeight = (int)(totalHeight * parentGroup.SplitRatio);
-            firstGroupHeight = Math.Max(MIN_PANEL_HEIGHT, Math.Min((int)totalHeight - MIN_PANEL_HEIGHT, firstGroupHeight));
-
-            // First group bounds (top)
-            var firstGroupBounds = new Rectangle(
-                parentBounds.X,
-                parentBounds.Y,
-                parentBounds.Width,
-                firstGroupHeight
-            );
-
-            CalculateGroupBounds(childGroups[0], firstGroupBounds);
-
-            // Remaining groups get the rest (bottom)
-            if (childGroups.Count > 1)
-            {
-                int remainingY = parentBounds.Y + firstGroupHeight + SPLITTER_WIDTH;
-                int remainingHeight = parentBounds.Height - firstGroupHeight - SPLITTER_WIDTH;
-
-                var remainingBounds = new Rectangle(
-                    parentBounds.X,
-                    remainingY,
-                    parentBounds.Width,
-                    remainingHeight
-                );
-
-                if (childGroups.Count > 2)
+                Rectangle childRect;
+                if (horizontal)
                 {
-                    foreach (var child in childGroups.Skip(1))
-                    {
-                        CalculateGroupBounds(child, remainingBounds);
-                    }
+                    childRect = new Rectangle(offset, groupRect.Y, childSize, groupRect.Height);
+                    offset += childSize;
                 }
                 else
                 {
-                    CalculateGroupBounds(childGroups[1], remainingBounds);
+                    childRect = new Rectangle(groupRect.X, offset, groupRect.Width, childSize);
+                    offset += childSize;
                 }
+
+                if (i < visibleChildren.Count - 1)
+                {
+                    Rectangle splitterRect = horizontal
+                        ? new Rectangle(offset, groupRect.Y, SPLITTER_WIDTH, groupRect.Height)
+                        : new Rectangle(groupRect.X, offset, groupRect.Width, SPLITTER_WIDTH);
+
+                    offset += SPLITTER_WIDTH;
+                    splitters.Add(new DockSplitterHit($"{group.Id}_child_{i}", splitterRect, horizontal));
+                }
+
+                AssignPanelsRecursive(visibleChildren[i], childRect, panelBounds, groupBounds, splitters);
             }
         }
 
         #endregion
     }
 
-    /// <summary>
-    /// Metrics used for layout calculations.
-    /// </summary>
+    /// <summary>Metrics used for layout calculations.</summary>
     public struct LayoutMetrics
     {
         public int TabStripHeight { get; set; }
@@ -385,9 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
         public int MinPanelHeight { get; set; }
     }
 
-    /// <summary>
-    /// Diagnostic information about current layout state.
-    /// </summary>
+    /// <summary>Diagnostic information about current layout state.</summary>
     public class LayoutDiagnostics
     {
         public int TotalPanels { get; set; }

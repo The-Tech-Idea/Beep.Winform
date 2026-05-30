@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     /// <see cref="BeepDockingManager.AutoHiddenSeparatorResize"/> events.
     /// Mirrors Krypton's separator resize event args pattern.
     /// </summary>
-    public class SeparatorResizeEventArgs : EventArgs
+    public class SeparatorResizeEventArgs : System.ComponentModel.CancelEventArgs
     {
         /// <summary>
         /// Initialize a new instance of the <see cref="SeparatorResizeEventArgs"/> class.

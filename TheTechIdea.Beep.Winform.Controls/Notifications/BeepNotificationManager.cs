@@ -1219,7 +1219,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             DismissAll();
             ClearQueue();
-            
+
+            if (_schedulerTimer != null)
+            {
+                _schedulerTimer.Stop();
+                _schedulerTimer.Dispose();
+                _schedulerTimer = null;
+            }
+            _scheduledNotifications?.Clear();
+            _notificationGroups?.Clear();
+            _templates?.Clear();
+
+            if (_historyPanel != null)
+            {
+                _historyPanel.Dispose();
+                _historyPanel = null;
+            }
+
             // Dispose all animators
             foreach (var animator in _animators.Values)
             {

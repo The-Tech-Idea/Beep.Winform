@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Helpers
             return TabTextPadding + TabIconSize + TabIconGap;
         }
 
-        public static bool HasTabIcon(string iconPath) => true;
+        public static bool HasTabIcon(string iconPath) => !string.IsNullOrWhiteSpace(iconPath);
 
         public static string ResolveTabIconPath(string iconPath)
         {

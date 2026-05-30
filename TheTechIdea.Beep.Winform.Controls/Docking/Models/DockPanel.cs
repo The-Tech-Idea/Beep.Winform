@@ -4,8 +4,12 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Docking;
 using TheTechIdea.Beep.Winform.Controls.Docking.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers;
+using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
+using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 {
@@ -42,16 +46,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         private DockPosition _dockPosition = DockPosition.Left;
         private int _preferredWidth = 250;
         private int _preferredHeight = 150;
+        private int _minWidth = 80;
+        private int _minHeight = 60;
+        private bool _showCaption = true;
         private bool _canClose = true;
         private bool _canFloat = true;
         private bool _canAutoHide = true;
         private DockAreas _allowedAreas = DockAreas.All;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
 
-        // button hit rects — recalculated in OnResize / OnPaint
-        private Rectangle _closeBtnRect;
-        private Rectangle _floatBtnRect;
-        private Rectangle _autoHideBtnRect;
+        // Shared caption layout + renderer (single source of caption geometry and painting).
+        private readonly CaptionLayoutManager _captionLayout = new CaptionLayoutManager
+        {
+            ButtonSize = CaptionButtonSize,
+            ButtonSpacing = CaptionButtonSpacing,
+            MinTabWidth = MinTabWidth,
+            MaxTabWidth = TabMaxWidth
+        };
+        /// <summary>Control style driving caption background/border rendering. Set by the manager.</summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
+
+        // Caption drag state (drag-to-float/dock). Geometry/commit live in the manager's controller.
+        private bool _captionDragArmed;
+        private bool _captionDragging;
+        private bool _suppressCaptionClick;
+
+        // In-strip tab reorder state. While the cursor stays inside the caption strip a left-drag
+        // reorders the pressed tab; once it leaves the strip we hand off to the float/dock drag.
+        private bool _reorderActive;
+        private bool _reorderMoved;
+        private DockPanel _reorderPanel;
+        private Point _reorderPressScreen;
 
         /// <summary>
         /// Unique identifier for this panel (must be unique within the host).
@@ -65,6 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             set
             {
                 if (_key == value) return;
+                // Unregister old key from manager before changing.
+                if (!string.IsNullOrEmpty(_key))
+                    _manager?.UnregisterExistingPanel(this);
                 _key = value;
                 OnPropertyChanged(nameof(Key));
                 TryRegisterWithManager();
@@ -113,7 +143,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Rectangle ContentBounds => IsHostedInDockspace
             ? new Rectangle(0, 0, Width, Height)
-            : new Rectangle(0, CaptionHeight, Width, Math.Max(0, Height - CaptionHeight));
+            : new Rectangle(0, EffectiveCaptionHeight, Width, Math.Max(0, Height - EffectiveCaptionHeight));
+
+        /// <summary>
+        /// Whether this panel draws its own caption strip. The float window sets this to
+        /// <c>false</c> so the floating chrome can own the (themed) caption without duplication.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ShowCaption
+        {
+            get => _showCaption;
+            set
+            {
+                if (_showCaption == value) return;
+                _showCaption = value;
+                if (!IsHostedInDockspace)
+                    Padding = new Padding(0, EffectiveCaptionHeight, 0, 0);
+                if (_content != null)
+                    _content.Bounds = ContentBounds;
+                Invalidate();
+            }
+        }
+
+        /// <summary>Caption height honored for this instance (0 when <see cref="ShowCaption"/> is false).</summary>
+        private int EffectiveCaptionHeight => _showCaption ? CaptionHeight : 0;
 
         /// <summary>Display title shown in the caption strip.</summary>
         [Category("Docking")]
@@ -190,6 +244,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 if (_state == value) return;
                 _state = value;
                 OnPropertyChanged(nameof(State));
+                if (!IsDesigning)
+                    _manager?.RecalculateLayout();
             }
         }
 
@@ -240,6 +296,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 if (_preferredHeight == value) return;
                 _preferredHeight = value;
                 OnPropertyChanged(nameof(PreferredHeight));
+                if (!IsDesigning)
+                    _manager?.NotifyPanelPreferredSizeChanged(this);
+            }
+        }
+
+        /// <summary>Minimum width this panel may be resized to when docked Left or Right.</summary>
+        [Category("Docking")]
+        [Description("Minimum width this panel may be resized to when docked Left or Right")]
+        [DefaultValue(80)]
+        public int MinWidth
+        {
+            get => _minWidth;
+            set
+            {
+                int v = Math.Max(1, value);
+                if (_minWidth == v) return;
+                _minWidth = v;
+                OnPropertyChanged(nameof(MinWidth));
+                if (!IsDesigning)
+                    _manager?.NotifyPanelPreferredSizeChanged(this);
+            }
+        }
+
+        /// <summary>Minimum height this panel may be resized to when docked Top or Bottom.</summary>
+        [Category("Docking")]
+        [Description("Minimum height this panel may be resized to when docked Top or Bottom")]
+        [DefaultValue(60)]
+        public int MinHeight
+        {
+            get => _minHeight;
+            set
+            {
+                int v = Math.Max(1, value);
+                if (_minHeight == v) return;
+                _minHeight = v;
+                OnPropertyChanged(nameof(MinHeight));
                 if (!IsDesigning)
                     _manager?.NotifyPanelPreferredSizeChanged(this);
             }
@@ -375,6 +467,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             _themeColors = colors ?? DockingThemeColors.Default;
             BackColor = _themeColors.PanelBackColor;
             ForeColor = _themeColors.PanelForeColor;
+            if (_content != null)
+            {
+                _content.BackColor = _themeColors.PanelBackColor;
+                _content.ForeColor = _themeColors.PanelForeColor;
+            }
             Invalidate();
         }
 
@@ -383,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (IsHostedInDockspace)
+            if (IsHostedInDockspace || !_showCaption)
                 return;
 
             DrawCaption(e.Graphics);
@@ -392,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateButtonRects();
+            RecomputeCaptionLayout();
 
             if (_content != null)
                 _content.Bounds = ContentBounds;
@@ -401,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
-            Padding = IsHostedInDockspace ? Padding.Empty : new Padding(0, CaptionHeight, 0, 0);
+            Padding = IsHostedInDockspace ? Padding.Empty : new Padding(0, EffectiveCaptionHeight, 0, 0);
             TryRegisterWithManager();
         }
 
@@ -415,32 +512,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             _manager.RegisterExistingPanel(this);
         }
 
-        private void UpdateButtonRects()
+        /// <summary>Builds the ordered caption button set (right-to-left placement) for this panel.</summary>
+        private List<CaptionButtonKind> BuildCaptionButtons()
         {
-            int y = (CaptionHeight - CaptionButtonSize) / 2;
-            int x = Width - 4;
+            var buttons = new List<CaptionButtonKind>(3);
+            if (_canClose) buttons.Add(CaptionButtonKind.Close);
+            if (_canFloat) buttons.Add(CaptionButtonKind.Float);
+            if (_canAutoHide) buttons.Add(CaptionButtonKind.AutoHide);
+            return buttons;
+        }
 
-            _closeBtnRect = Rectangle.Empty;
-            _floatBtnRect = Rectangle.Empty;
-            _autoHideBtnRect = Rectangle.Empty;
+        /// <summary>
+        /// Recomputes caption geometry (tab + button rects) into the shared layout manager and
+        /// mirrors the tab rects back onto each panel's <see cref="TabBounds"/> for compatibility.
+        /// </summary>
+        private List<CaptionButtonKind> RecomputeCaptionLayout()
+        {
+            var panels = GetHeaderPanels();
+            var activePanel = GetActiveHeaderPanel(panels);
+            var buttons = BuildCaptionButtons();
 
-            if (_canClose)
+            var tabs = new List<CaptionTabModel>(panels.Count);
+            foreach (var panel in panels)
             {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _closeBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
+                tabs.Add(new CaptionTabModel
+                {
+                    Key = panel.Key,
+                    Title = panel.Title,
+                    IconPath = panel.IconPath,
+                    IsDirty = panel.IsDirty,
+                    IsActive = ReferenceEquals(activePanel, panel),
+                    Tag = panel
+                });
             }
 
-            if (_canFloat)
+            _captionLayout.Compute(Width, CaptionHeight, tabs, buttons);
+
+            foreach (var panel in panels)
+                panel.TabBounds = Rectangle.Empty;
+            foreach (var kv in _captionLayout.TabRects)
             {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _floatBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
+                if (kv.Key.Tag is DockPanel dp)
+                    dp.TabBounds = kv.Value;
             }
 
-            if (_canAutoHide)
-            {
-                x -= CaptionButtonSize + CaptionButtonSpacing;
-                _autoHideBtnRect = new Rectangle(x, y, CaptionButtonSize, CaptionButtonSize);
-            }
+            return buttons;
         }
 
         private void DrawCaption(Graphics g)
@@ -448,92 +564,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             if (!IsCaptionHost())
                 return;
 
-            UpdateButtonRects();
+            var buttons = RecomputeCaptionLayout();
 
-            var captionRect = new Rectangle(0, 0, Width, CaptionHeight);
-            var panels = GetHeaderPanels();
-            var activePanel = GetActiveHeaderPanel(panels);
-            Color stripBackColor = _themeColors.HeaderBackColor;
-            Color inactiveTabColor = _themeColors.InactiveTabBackColor;
-            Color activeTabColor = _themeColors.ActiveTabBackColor;
-            Color borderColor = _themeColors.TabBorderColor;
-
-            using (var brush = new SolidBrush(stripBackColor))
-                g.FillRectangle(brush, captionRect);
-
-            int buttonLeft = FirstButtonLeft();
-            int tabsWidth = Math.Max(0, buttonLeft - 2);
-            int tabWidth = panels.Count == 0
-                ? tabsWidth
-                : Math.Max(MinTabWidth, Math.Min(TabMaxWidth, tabsWidth / panels.Count));
-            int x = 0;
-
-            foreach (var panel in panels)
-                panel.TabBounds = Rectangle.Empty;
-
-            using (var font = new Font("Segoe UI", 9f, FontStyle.Regular))
+            var ctx = new DockingPainterContext
             {
-                foreach (var panel in panels)
-                {
-                    if (x >= tabsWidth)
-                        break;
+                Colors = _themeColors,
+                Style = ControlStyle,
+                Bounds = new Rectangle(0, 0, Width, CaptionHeight)
+            };
 
-                    bool tabActive = ReferenceEquals(activePanel, panel);
-                    var tabRect = new Rectangle(x, 0, Math.Min(tabWidth, tabsWidth - x), CaptionHeight);
-                    panel.TabBounds = tabRect;
-
-                    Color tabBack = tabActive ? activeTabColor : inactiveTabColor;
-                    Color tabFore = tabActive
-                        ? _themeColors.ActiveTabForeColor
-                        : _themeColors.InactiveTabForeColor;
-                    bool showTabIcon = DockingCaptionPainter.HasTabIcon(panel.IconPath);
-
-                    using (var brush = new SolidBrush(tabBack))
-                        g.FillRectangle(brush, tabRect);
-
-                    using (var pen = new Pen(borderColor))
-                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
-
-                    if (showTabIcon)
-                        DockingCaptionPainter.PaintTabIcon(g, tabRect, panel.IconPath, tabFore);
-
-                    int textLeft = tabRect.Left + DockingCaptionPainter.GetTabContentLeft(showTabIcon);
-                    var textRect = new Rectangle(
-                        textLeft,
-                        tabRect.Top,
-                        Math.Max(0, tabRect.Right - textLeft - DockingCaptionPainter.TabTextPadding),
-                        tabRect.Height);
-
-                    using (var brush = new SolidBrush(tabFore))
-                    using (var sf = new StringFormat
-                    {
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    })
-                    {
-                        g.DrawString(panel.Title ?? "Panel", font, brush, textRect, sf);
-                    }
-
-                    if (panel.IsDirty)
-                    {
-                        var dot = new Rectangle(tabRect.Right - 8, tabRect.Top + 6, 5, 5);
-                        using var dirtyBrush = new SolidBrush(activeTabColor);
-                        g.FillEllipse(dirtyBrush, dot);
-                    }
-
-                    x += tabRect.Width;
-                }
-            }
-
-            Color buttonTint = _themeColors.HeaderButtonForeColor;
-            DrawCaptionButton(g, _closeBtnRect, buttonTint, CaptionButtonType.Close);
-            DrawCaptionButton(g, _floatBtnRect, buttonTint, CaptionButtonType.Float);
-            DrawCaptionButton(g, _autoHideBtnRect, buttonTint, CaptionButtonType.AutoHide);
-
-            // bottom border
-            using (var pen = new Pen(borderColor))
-                g.DrawLine(pen, 0, CaptionHeight - 1, Width - 1, CaptionHeight - 1);
+            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
         }
 
         private IReadOnlyList<DockPanel> GetHeaderPanels()
@@ -613,86 +653,101 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             return ReferenceEquals(Group.Panels[0], this);
         }
 
-        private int FirstButtonLeft()
+        // ── mouse — caption button hit-testing ───────────────────────────────
+
+        protected override void OnMouseDown(MouseEventArgs e)
         {
-            int left = Width;
-            if (!_closeBtnRect.IsEmpty) left = Math.Min(left, _closeBtnRect.Left);
-            if (!_floatBtnRect.IsEmpty) left = Math.Min(left, _floatBtnRect.Left);
-            if (!_autoHideBtnRect.IsEmpty) left = Math.Min(left, _autoHideBtnRect.Left);
-            return left == Width ? Width : Math.Max(0, left - CaptionButtonSpacing);
-        }
+            base.OnMouseDown(e);
 
-        private static Color GetReadableTextColor(Color background) =>
-            DockingThemeColors.GetReadableTextColor(background);
+            _captionDragArmed = false;
+            _captionDragging = false;
+            _reorderActive = false;
+            _reorderMoved = false;
+            _reorderPanel = null;
 
-        private enum CaptionButtonType { Close, Float, AutoHide }
-
-        private void DrawCaptionButton(Graphics g, Rectangle r, Color color, CaptionButtonType type)
-        {
-            if (r.IsEmpty)
+            if (IsHostedInDockspace)
+                return;
+            if (e.Button != MouseButtons.Left)
+                return;
+            if (!_showCaption || e.Y > EffectiveCaptionHeight || !IsCaptionHost())
                 return;
 
-            string icon = type switch
-            {
-                CaptionButtonType.Close => DockingCaptionPainter.CaptionIcons.Close,
-                CaptionButtonType.Float => DockingCaptionPainter.CaptionIcons.Float,
-                CaptionButtonType.AutoHide => DockingCaptionPainter.CaptionIcons.Pin,
-                _ => string.Empty
-            };
+            RecomputeCaptionLayout();
 
-            if (!string.IsNullOrEmpty(icon))
+            // Caption buttons + overflow chevron own their click — never start a drag from them.
+            if (_captionLayout.HitTestButton(e.Location) != null || _captionLayout.HitTestOverflow(e.Location))
+                return;
+
+            // Pressing one of several tabs starts an in-strip reorder; we only hand off to the
+            // float/dock drag once the cursor leaves the caption strip (see OnMouseMove).
+            var pressedTab = _captionLayout.HitTestTab(e.Location)?.Tag as DockPanel;
+            if (pressedTab != null && Group != null && Group.Panels.Count > 1)
             {
-                DockingCaptionPainter.PaintIcon(g, r, icon, color);
+                _reorderActive = true;
+                _reorderPanel = pressedTab;
+                _reorderPressScreen = PointToScreen(e.Location);
+                Capture = true;
+                Focus();
+                return;
             }
 
-            switch (type)
-            {
-                case CaptionButtonType.Close:
-                    DockingCaptionPainter.PaintCloseFallback(g, r, color);
-                    break;
-                case CaptionButtonType.Float:
-                    DockingCaptionPainter.PaintFloatFallback(g, r, color);
-                    break;
-                case CaptionButtonType.AutoHide:
-                    DockingCaptionPainter.PaintPinFallback(g, r, color);
-                    break;
-            }
+            _captionDragArmed = true;
+            _manager?.BeginCaptionDrag(this, PointToScreen(e.Location));
+            Capture = true;
+            Focus();   // ensure ProcessCmdKey receives Escape during the drag
         }
-
-        // ── mouse — caption button hit-testing ───────────────────────────────
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
 
+            // A completed drag swallows the trailing click so it doesn't re-activate/toggle.
+            if (_suppressCaptionClick)
+            {
+                _suppressCaptionClick = false;
+                return;
+            }
+
             if (IsHostedInDockspace)
                 return;
 
-            if (e.Y > CaptionHeight || !IsCaptionHost())
+            if (!_showCaption || e.Y > EffectiveCaptionHeight || !IsCaptionHost())
                 return;
+
+            // Middle-click a tab closes it (honoring CanClose).
+            if (e.Button == MouseButtons.Middle)
+            {
+                RecomputeCaptionLayout();
+                if (_captionLayout.HitTestTab(e.Location)?.Tag is DockPanel midPanel && midPanel.CanClose)
+                    _manager?.CloseRequest(midPanel.Key);
+                return;
+            }
 
             if (e.Button == MouseButtons.Left)
             {
-                if (_canClose && _closeBtnRect.Contains(e.Location))
+                RecomputeCaptionLayout();
+
+                if (_captionLayout.HitTestOverflow(e.Location))
                 {
-                    _manager?.ClosePanel(_key);
+                    ShowOverflowMenu(_captionLayout.OverflowButtonRect);
                     return;
                 }
 
-                if (_canFloat && _floatBtnRect.Contains(e.Location))
+                switch (_captionLayout.HitTestButton(e.Location))
                 {
-                    _manager?.FloatPanel(_key);
-                    return;
+                    case CaptionButtonKind.Close when _canClose:
+                        _manager?.CloseRequest(_key);
+                        return;
+                    case CaptionButtonKind.Float when _canFloat:
+                        _manager?.MakeFloatingRequest(_key);
+                        return;
+                    case CaptionButtonKind.AutoHide when _canAutoHide:
+                        _manager?.MakeAutoHiddenRequest(_key);
+                        return;
                 }
 
-                if (_canAutoHide && _autoHideBtnRect.Contains(e.Location))
-                {
-                    _manager?.AutoHidePanel(_key);
-                    return;
-                }
-
-                var tabPanel = HitTestHeaderTab(e.Location);
-                if (tabPanel != null)
+                var tab = _captionLayout.HitTestTab(e.Location);
+                if (tab?.Tag is DockPanel tabPanel)
                 {
                     _manager?.ActivatePanel(tabPanel.Key);
                     return;
@@ -707,6 +762,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             }
         }
 
+        /// <summary>Shows the chevron dropdown listing the tabs that overflowed the caption strip.</summary>
+        private void ShowOverflowMenu(Rectangle anchor)
+        {
+            var overflow = _captionLayout.OverflowTabs;
+            if (overflow == null || overflow.Count == 0)
+                return;
+
+            var menu = new ContextMenuStrip();
+            foreach (var tab in overflow)
+            {
+                if (tab.Tag is not DockPanel panel)
+                    continue;
+                var item = new ToolStripMenuItem(string.IsNullOrEmpty(panel.Title) ? panel.Key : panel.Title)
+                {
+                    Checked = ReferenceEquals(Group?.ActivePanel, panel)
+                };
+                var keyCopy = panel.Key;
+                item.Click += (s, ev) => _manager?.ActivatePanel(keyCopy);
+                menu.Items.Add(item);
+            }
+
+            if (menu.Items.Count > 0)
+                menu.Show(this, new Point(anchor.Left, anchor.Bottom));
+            else
+                menu.Dispose();
+        }
+
         /// <summary>
         /// Shows the caption right-click context menu.
         /// Menu items match the panel's allowed operations, following DockPanelSuite
@@ -714,12 +796,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// </summary>
         private void ShowCaptionContextMenu(Point location)
         {
+            if (_manager?.TryShowPanelContextMenu(this, location) == true)
+                return;
+
             var menu = new ContextMenuStrip();
+
+            if (_state == DockPanelState.Hidden)
+            {
+                var itemShow = new ToolStripMenuItem("Show");
+                itemShow.Click += (s, e) => _manager?.MakeDockedRequest(_key);
+                menu.Items.Add(itemShow);
+            }
 
             if (_canFloat)
             {
                 var itemFloat = new ToolStripMenuItem("Floating");
-                itemFloat.Click += (s, e) => _manager?.FloatPanel(_key);
+                itemFloat.Click += (s, e) => _manager?.MakeFloatingRequest(_key);
                 menu.Items.Add(itemFloat);
             }
 
@@ -730,9 +822,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 itemAutoHide.Click += (s, e) =>
                 {
                     if (_state == DockPanelState.AutoHidden)
-                        _manager?.DockFloatingPanel(_key, _dockPosition);
+                        _manager?.RestoreAutoHiddenPanel(_key);   // unpin back to a docked group
                     else
-                        _manager?.AutoHidePanel(_key);
+                        _manager?.MakeAutoHiddenRequest(_key);
                 };
                 menu.Items.Add(itemAutoHide);
             }
@@ -742,7 +834,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 if (menu.Items.Count > 0)
                     menu.Items.Add(new ToolStripSeparator());
                 var itemClose = new ToolStripMenuItem("Close");
-                itemClose.Click += (s, e) => _manager?.ClosePanel(_key);
+                itemClose.Click += (s, e) => _manager?.CloseRequest(_key);
                 menu.Items.Add(itemClose);
             }
 
@@ -759,28 +851,109 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             if (IsHostedInDockspace)
                 return;
 
-            if (e.Y <= CaptionHeight)
-                Cursor = HitTestHeaderTab(e.Location) != null ||
-                         _closeBtnRect.Contains(e.Location) ||
-                         _floatBtnRect.Contains(e.Location) ||
-                         _autoHideBtnRect.Contains(e.Location)
-                    ? Cursors.Hand
-                    : Cursors.Default;
-        }
-
-        private DockPanel HitTestHeaderTab(Point location)
-        {
-            if (location.Y > CaptionHeight)
-                return null;
-
-            var panels = GetHeaderPanels();
-            foreach (var panel in panels)
+            // In-strip reorder: while the cursor stays within the caption band, reorder the pressed
+            // tab; if it leaves the band, hand off to the float/dock drag controller.
+            if (_reorderActive && (e.Button & MouseButtons.Left) == MouseButtons.Left)
             {
-                if (!panel.TabBounds.IsEmpty && panel.TabBounds.Contains(location))
-                    return panel;
+                bool insideStrip = e.Y >= 0 && e.Y <= EffectiveCaptionHeight;
+                if (insideStrip)
+                {
+                    ReorderUnderCursor(e.Location);
+                    return;
+                }
+
+                // Cursor left the strip — convert to a float/dock drag.
+                _reorderActive = false;
+                _captionDragArmed = true;
+                _manager?.BeginCaptionDrag(this, _reorderPressScreen);
+                _manager?.UpdateCaptionDrag(PointToScreen(e.Location));
+                if (_manager?.IsPanelDragging == true)
+                    _captionDragging = true;
+                return;
             }
 
-            return null;
+            // While armed, feed moves to the drag controller (it applies the drag threshold).
+            if (_captionDragArmed && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+            {
+                _manager?.UpdateCaptionDrag(PointToScreen(e.Location));
+                if (_manager?.IsPanelDragging == true)
+                    _captionDragging = true;
+                return;
+            }
+
+            if (_showCaption && e.Y <= EffectiveCaptionHeight)
+            {
+                RecomputeCaptionLayout();
+                Cursor = _captionLayout.HitTestTab(e.Location) != null ||
+                         _captionLayout.HitTestButton(e.Location) != null ||
+                         _captionLayout.HitTestOverflow(e.Location)
+                    ? Cursors.Hand
+                    : Cursors.Default;
+            }
+        }
+
+        /// <summary>Reorders the dragged tab to the position under the cursor within the caption strip.</summary>
+        private void ReorderUnderCursor(Point location)
+        {
+            if (_reorderPanel == null || Group == null)
+                return;
+
+            RecomputeCaptionLayout();
+            var targetTab = _captionLayout.HitTestTab(location)?.Tag as DockPanel;
+            if (targetTab == null || ReferenceEquals(targetTab, _reorderPanel))
+                return;
+
+            int targetIndex = Group.GetPanelIndex(targetTab);
+            if (targetIndex < 0)
+                return;
+
+            Group.MovePanelToIndex(_reorderPanel, targetIndex);
+            _reorderMoved = true;
+            RecomputeCaptionLayout();
+            Parent?.Invalidate(true);   // repaint the caption host with the new tab order
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            // A reorder that stayed inside the strip never started a caption drag — finalize here.
+            if (_reorderActive)
+            {
+                _reorderActive = false;
+                _suppressCaptionClick = _reorderMoved;   // swallow the trailing click if we reordered
+                _reorderPanel = null;
+                if (Capture)
+                    Capture = false;
+                return;
+            }
+
+            if (!_captionDragArmed)
+                return;
+
+            bool wasDragging = _manager?.IsPanelDragging == true;
+            _suppressCaptionClick = wasDragging;
+            _manager?.EndCaptionDrag(PointToScreen(e.Location), commit: true);
+
+            _captionDragArmed = false;
+            _captionDragging = false;
+            if (Capture)
+                Capture = false;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (_captionDragging && keyData == Keys.Escape)
+            {
+                _manager?.CancelCaptionDrag();
+                _captionDragArmed = false;
+                _captionDragging = false;
+                _suppressCaptionClick = true;
+                if (Capture)
+                    Capture = false;
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         // ── diagnostics / overrides ──────────────────────────────────────────

@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 {
@@ -74,8 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             if (hostForm == null) return;
             var centre = hostForm.RectangleToScreen(
-                new Rectangle(hostForm.ClientRectangle.Width  / 2 - Width  / 2,
-                              hostForm.ClientRectangle.Height / 2 - Height / 2, Width, Height));
+                new Rectangle(hostForm.DisplayRectangle.Width  / 2 - Width  / 2,
+                              hostForm.DisplayRectangle.Height / 2 - Height / 2, Width, Height));
             Location = centre.Location;
             if (!Visible) Show(hostForm);
         }
@@ -121,41 +123,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
         // ── Painting ─────────────────────────────────────────────────────────
 
+        // Direction glyphs use SvgsUIcons (rendered via StyledImagePainter), not Wingdings.
+        private static string IconFor(DockPosition target) => target switch
+        {
+            DockPosition.Left   => SvgsUIcons.Carets.Left,
+            DockPosition.Right  => SvgsUIcons.Carets.Right,
+            DockPosition.Top    => SvgsUIcons.Carets.Up,
+            DockPosition.Bottom => SvgsUIcons.Carets.Down,
+            DockPosition.Fill   => SvgsUIcons.Shapes.Square,
+            _                   => SvgsUIcons.Shapes.Square
+        };
+
         protected override void OnPaint(PaintEventArgs e)
         {
             // Background is transparent via TransparencyKey — only paint the diamonds
-            DrawDiamond(e.Graphics, _leftRect,   DockPosition.Left,   "◄");
-            DrawDiamond(e.Graphics, _rightRect,  DockPosition.Right,  "►");
-            DrawDiamond(e.Graphics, _topRect,    DockPosition.Top,    "▲");
-            DrawDiamond(e.Graphics, _bottomRect, DockPosition.Bottom, "▼");
-            DrawDiamond(e.Graphics, _fillRect,   DockPosition.Fill,   "▪");
+            DrawDiamond(e.Graphics, _leftRect,   DockPosition.Left);
+            DrawDiamond(e.Graphics, _rightRect,  DockPosition.Right);
+            DrawDiamond(e.Graphics, _topRect,    DockPosition.Top);
+            DrawDiamond(e.Graphics, _bottomRect, DockPosition.Bottom);
+            DrawDiamond(e.Graphics, _fillRect,   DockPosition.Fill);
         }
 
-        private void DrawDiamond(Graphics g, Rectangle r, DockPosition target, string arrow)
+        private void DrawDiamond(Graphics g, Rectangle r, DockPosition target)
         {
             bool isHot = (_hoveredTarget == target);
 
             Color back   = isHot ? Color.FromArgb(0, 122, 204) : Color.FromArgb(45, 45, 48);
             Color border = isHot ? Color.White                  : Color.FromArgb(100, 100, 100);
-            Color fore   = Color.White;
+            Color glyph  = Color.White;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Diamond shape path (rotated square)
-            var path = DiamondPath(r);
-
-            using (var fill = new SolidBrush(back))
-                g.FillPath(fill, path);
-            using (var pen = new Pen(border, 1.5f))
-                g.DrawPath(pen, path);
-
-            using (var font  = new Font("Wingdings 3", 9f))
-            using (var brush = new SolidBrush(fore))
+            using (var path = DiamondPath(r))
             {
-                var sf = new StringFormat
+                using (var fill = new SolidBrush(back))
+                    g.FillPath(fill, path);
+                using (var pen = new Pen(border, 1.5f))
+                    g.DrawPath(pen, path);
+            }
+
+            // Centred SVG glyph, inset so it sits inside the diamond body.
+            var iconRect = Rectangle.Inflate(r, -9, -9);
+            if (iconRect.Width >= 2 && iconRect.Height >= 2)
+            {
+                try
                 {
-                    Alignment     = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(arrow, SystemFonts.SmallCaptionFont, brush, r, sf);
+                    StyledImagePainter.PaintWithTint(g, iconRect, IconFor(target), glyph, 1f, 0);
+                }
+                catch
+                {
+                    // Overlay stays usable even if the icon asset fails to load.
+                }
             }
         }
 

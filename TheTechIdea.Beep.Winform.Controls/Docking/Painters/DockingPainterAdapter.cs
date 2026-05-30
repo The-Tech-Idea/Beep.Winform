@@ -1,16 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
-using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 {
     /// <summary>
-    /// Adapts Beep's theme painter system to the docking UI.
-    /// Extracts colors and fonts from the active Beep theme and applies them to docking elements.
+    /// Theme/metrics provider for the docking system. Extracts the palette, fonts, and layout
+    /// metrics from the active Beep theme and exposes them to the docking element renderers
+    /// (caption/tab/splitter/strip), which own all painting. This adapter contains no GDI drawing.
     /// </summary>
     public class DockingPainterAdapter : IDockingPainter
     {
@@ -21,29 +20,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         private Color _selectedColor = Color.FromArgb(0, 122, 255);
         private Color _disabledColor = Color.FromArgb(150, 150, 150);
 
-        private Font _uiFont = new Font("Segoe UI", 9f, FontStyle.Regular);
-        private Font _tabFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+        // Optional theme-supplied fonts; fall back to shared BeepFontManager fonts when unset.
+        private Font _uiFont;
+        private Font _tabFont;
 
         private int _tabStripHeight = 30;
         private int _splitterWidth = 5;
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         /// <summary>
-        /// Creates an adapter with default colors and fonts.
-        /// Call UpdateFromTheme() to apply actual Beep theme colors.
+        /// Creates an adapter with default colours. Call <see cref="UpdateFromTheme()"/> to apply
+        /// the active Beep theme.
         /// </summary>
         public DockingPainterAdapter()
         {
-            // Initialize with reasonable defaults
-            // These will be overridden by UpdateFromTheme() if Beep theme is available
         }
 
         /// <summary>
-        /// Updates the adapter's colors and fonts from the active Beep theme.
-        /// This method should be called:
-        /// - When the adapter is created (to get current theme)
-        /// - When BeepThemesManager.ThemeChanged event fires
+        /// Updates the adapter's colours and fonts from the active Beep theme. Call when created
+        /// and whenever <c>BeepThemesManager.ThemeChanged</c> fires.
         /// </summary>
         public void UpdateFromTheme()
         {
@@ -65,28 +61,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 
             if (theme != null)
             {
-                UIFont = BeepThemesManager.ToFont(theme.BodyMedium) ?? _uiFont ?? new Font("Segoe UI", 9f, FontStyle.Regular);
-                TabFont = BeepThemesManager.ToFont(theme.TabFont) ?? _tabFont ?? new Font("Segoe UI", 9f, FontStyle.Regular);
-            }
-            else
-            {
-                _uiFont = _uiFont ?? new Font("Segoe UI", 9f, FontStyle.Regular);
-                _tabFont = _tabFont ?? new Font("Segoe UI", 9f, FontStyle.Regular);
+                // Null results fall back to BeepFontManager via the property getters.
+                UIFont = BeepThemesManager.ToFont(theme.BodyMedium);
+                TabFont = BeepThemesManager.ToFont(theme.TabFont);
             }
 
             ThemeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
-        /// Applies explicit theme colours to the adapter.
-        /// Called by <see cref="BeepDockingManager.ApplyTheme"/> when the host application's
-        /// theme changes.  Follows Krypton's IPalette update-and-invalidate pattern.
+        /// Applies explicit theme colours to the adapter. Called by
+        /// <see cref="BeepDockingManager.ApplyTheme(Color, Color, Color, Color, Color)"/> when the
+        /// host application's theme changes (Krypton-style update-and-invalidate).
         /// </summary>
-        /// <param name="background">Panel / strip background colour.</param>
-        /// <param name="foreground">Title / tab text colour.</param>
-        /// <param name="border">Panel border / splitter colour.</param>
-        /// <param name="hover">Mouse-hover highlight colour.</param>
-        /// <param name="accent">Active-tab / active-caption accent colour.</param>
         public void ApplyTheme(Color background, Color foreground, Color border,
                                Color hover, Color accent)
         {
@@ -100,8 +87,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         }
 
         /// <summary>
-        /// Raised whenever <see cref="ApplyTheme"/> or <see cref="UpdateFromTheme"/> change colours.
-        /// Docking controls subscribe and call Invalidate() to repaint.
+        /// Raised whenever <see cref="ApplyTheme"/> or <see cref="UpdateFromTheme()"/> change colours.
+        /// Docking surfaces subscribe and call Invalidate() to repaint.
         /// </summary>
         public event EventHandler ThemeChanged;
 
@@ -149,22 +136,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 
         public Font UIFont
         {
-            get => _uiFont ?? new Font("Segoe UI", 9f);
-            set
-            {
-                _uiFont?.Dispose();
-                _uiFont = value ?? new Font("Segoe UI", 9f);
-            }
+            get => _uiFont ?? BeepFontManager.DefaultFont;
+            set => _uiFont = value;
         }
 
         public Font TabFont
         {
-            get => _tabFont ?? new Font("Segoe UI", 9f);
-            set
-            {
-                _tabFont?.Dispose();
-                _tabFont = value ?? new Font("Segoe UI", 9f);
-            }
+            get => _tabFont ?? BeepFontManager.DefaultFont;
+            set => _tabFont = value;
         }
 
         #endregion
@@ -185,213 +164,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 
         #endregion
 
-        #region Drawing Methods
-
-        public void DrawTabStrip(Graphics graphics, Rectangle bounds, TabInfo[] tabs, int activeTabIndex, Action<int> onTabClicked)
-        {
-            if (graphics == null || tabs == null || tabs.Length == 0)
-                return;
-
-            // Draw background
-            using (var brush = new SolidBrush(BackgroundColor))
-            {
-                graphics.FillRectangle(brush, bounds);
-            }
-
-            // Draw border
-            using (var pen = new Pen(BorderColor))
-            {
-                graphics.DrawRectangle(pen, bounds);
-            }
-
-            // Calculate tab widths
-            int tabWidth = (tabs.Length > 0) ? bounds.Width / tabs.Length : bounds.Width;
-            int x = bounds.X;
-
-            // Draw each tab
-            for (int i = 0; i < tabs.Length; i++)
-            {
-                var tabRect = new Rectangle(x, bounds.Y, tabWidth, bounds.Height);
-                bool isActive = (i == activeTabIndex);
-                bool isHovered = false;  // TODO: Track mouse position for hover state
-
-                DrawTab(graphics, tabRect, tabs[i], isActive, isHovered);
-
-                x += tabWidth;
-            }
-        }
-
-        public void DrawTab(Graphics graphics, Rectangle bounds, TabInfo tab, bool isActive, bool isHovered)
-        {
-            if (graphics == null)
-                return;
-
-            // Draw tab background
-            Color tabColor = isActive ? SelectedColor : (isHovered ? HoverColor : BackgroundColor);
-            using (var brush = new SolidBrush(tabColor))
-            {
-                graphics.FillRectangle(brush, bounds);
-            }
-
-            // Draw tab border
-            using (var pen = new Pen(BorderColor, 1f))
-            {
-                graphics.DrawRectangle(pen, bounds);
-            }
-
-            // Draw tab text
-            var textRect = new Rectangle(
-                bounds.X + 8,
-                bounds.Y + 4,
-                bounds.Width - 16,
-                bounds.Height - 8);
-
-            var format = new StringFormat
-            {
-                Alignment = StringAlignment.Near,
-                LineAlignment = StringAlignment.Center,
-                Trimming = StringTrimming.EllipsisCharacter
-            };
-
-            using (var brush = new SolidBrush(ForegroundColor))
-            {
-                graphics.DrawString(tab.Title, TabFont, brush, textRect, format);
-            }
-
-            // Draw dirty indicator if needed
-            if (tab.IsDirty)
-            {
-                var dotRect = new Rectangle(bounds.Right - 8, bounds.Y + 4, 4, 4);
-                using (var brush = new SolidBrush(SelectedColor))
-                {
-                    graphics.FillEllipse(brush, dotRect);
-                }
-            }
-
-            // Draw close button if allowed
-            if (tab.CanClose)
-            {
-                var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + 4, 12, bounds.Height - 8);
-                using (var pen = new Pen(ForegroundColor, 1.5f))
-                {
-                    // Draw X
-                    graphics.DrawLine(pen, closeRect.X + 2, closeRect.Y + 2, closeRect.X + 10, closeRect.Y + 10);
-                    graphics.DrawLine(pen, closeRect.X + 10, closeRect.Y + 2, closeRect.X + 2, closeRect.Y + 10);
-                }
-            }
-
-            format.Dispose();
-        }
-
-        public void DrawPanelChrome(Graphics graphics, Rectangle bounds, string title, Image icon, bool isDirty)
-        {
-            if (graphics == null)
-                return;
-
-            // Draw title bar background
-            var titleBarRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, 24);
-            using (var brush = new SolidBrush(SelectedColor))
-            {
-                graphics.FillRectangle(brush, titleBarRect);
-            }
-
-            // Draw title text
-            var textRect = new Rectangle(titleBarRect.X + 8, titleBarRect.Y, titleBarRect.Width - 16, titleBarRect.Height);
-            using (var brush = new SolidBrush(Color.White))
-            {
-                graphics.DrawString(title ?? "Panel", UIFont, brush, textRect, StringFormat.GenericDefault);
-            }
-
-            // Draw border
-            using (var pen = new Pen(BorderColor))
-            {
-                graphics.DrawRectangle(pen, bounds);
-            }
-        }
-
-        public void DrawSplitter(Graphics graphics, Rectangle bounds, SplitterOrientation orientation, bool isHovered)
-        {
-            if (graphics == null)
-                return;
-
-            Color color = isHovered ? HoverColor : BorderColor;
-            using (var brush = new SolidBrush(color))
-            {
-                graphics.FillRectangle(brush, bounds);
-            }
-
-            using (var pen = new Pen(BorderColor))
-            {
-                graphics.DrawRectangle(pen, bounds);
-            }
-        }
-
-        public void DrawDockingGuide(Graphics graphics, Rectangle bounds, DockPosition position)
-        {
-            if (graphics == null)
-                return;
-
-            // Draw semi-transparent overlay for docking guide
-            Color guideColor = Color.FromArgb(100, SelectedColor);
-            using (var brush = new SolidBrush(guideColor))
-            {
-                graphics.FillRectangle(brush, bounds);
-            }
-
-            // Draw colored border based on position
-            using (var pen = new Pen(SelectedColor, 3f))
-            {
-                graphics.DrawRectangle(pen, bounds);
-            }
-        }
-
-        #endregion
-
-        #region Layout Calculation
-
-        public Size GetTabStripPreferredSize(TabInfo[] tabs, int availableWidth)
-        {
-            if (tabs == null || tabs.Length == 0)
-                return new Size(0, TabStripHeight);
-
-            // For now, use equal width distribution
-            return new Size(availableWidth, TabStripHeight);
-        }
-
-        public int GetTabAtPoint(Point point, Rectangle bounds, TabInfo[] tabs)
-        {
-            if (tabs == null || tabs.Length == 0)
-                return -1;
-
-            if (!bounds.Contains(point))
-                return -1;
-
-            int tabWidth = bounds.Width / tabs.Length;
-            int tabIndex = (point.X - bounds.X) / tabWidth;
-
-            return (tabIndex >= 0 && tabIndex < tabs.Length) ? tabIndex : -1;
-        }
-
-        public Rectangle GetTabCloseButtonRect(Rectangle tabBounds, TabInfo tab)
-        {
-            if (!tab.CanClose)
-                return Rectangle.Empty;
-
-            return new Rectangle(
-                tabBounds.Right - 20,
-                tabBounds.Y + 4,
-                12,
-                tabBounds.Height - 8);
-        }
-
-        #endregion
-
         #region Cache Management
 
         public void InvalidateCache()
         {
-            // Repaint from scratch, but keep color scheme
-            // Typically called when theme changes
+            // Palette/metrics holder only; nothing cached to invalidate.
         }
 
         #endregion
@@ -403,9 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             if (_disposed)
                 return;
 
-            _uiFont?.Dispose();
-            _tabFont?.Dispose();
-
+            // Fonts are shared (BeepFontManager) or theme-owned; do not dispose here.
             _disposed = true;
         }
 

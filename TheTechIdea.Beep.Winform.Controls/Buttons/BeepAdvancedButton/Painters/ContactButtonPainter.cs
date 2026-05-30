@@ -286,7 +286,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw main button background
             using (Brush bgBrush = new SolidBrush(GetBackgroundColor(context)))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Draw icon circle (overlapping left edge)
@@ -342,7 +342,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw main button background
             using (Brush bgBrush = new SolidBrush(GetBackgroundColor(context)))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Draw icon circle (overlapping right edge)
@@ -398,7 +398,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw main background
             using (Brush bgBrush = new SolidBrush(GetBackgroundColor(context)))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Draw angled icon section
@@ -453,7 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw text background
             using (Brush bgBrush = new SolidBrush(GetBackgroundColor(context)))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Draw arrow-shaped icon section
@@ -508,14 +508,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw background (white or transparent)
             using (Brush bgBrush = new SolidBrush(Color.White))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Draw border
             Color borderColor = context.BorderColor != Color.Empty ? context.BorderColor : context.SolidBackground;
             using (Pen borderPen = new Pen(borderColor, context.BorderThickness))
             {
-                ButtonShapeHelper.DrawShape(g, context.ButtonShape, bounds, context.BorderRadius, borderPen);
+                ButtonShapeHelper.DrawShape(g, context.Shape, bounds, context.BorderRadius, borderPen);
             }
 
             // Calculate layout for icon and text
@@ -540,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             // Draw background
             using (Brush bgBrush = new SolidBrush(GetBackgroundColor(context)))
             {
-                ButtonShapeHelper.FillShape(g, context.ButtonShape, bounds, context.BorderRadius, bgBrush);
+                ButtonShapeHelper.FillShape(g, context.Shape, bounds, context.BorderRadius, bgBrush);
             }
 
             // Calculate layout

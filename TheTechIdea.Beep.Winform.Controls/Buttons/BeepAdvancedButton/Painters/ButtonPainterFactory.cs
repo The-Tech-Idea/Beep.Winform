@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 AdvancedButtonStyle.Outlined => new OutlinedButtonPainter(),
                 AdvancedButtonStyle.Link => new LinkButtonPainter(),
                 AdvancedButtonStyle.Gradient => new GradientButtonPainter(),
-                AdvancedButtonStyle.IconText => new IconTextButtonPainter(),
+                AdvancedButtonStyle.IconText => new SplitColorButtonPainter(),
                 AdvancedButtonStyle.Chip => new ChipButtonPainter(),
                 AdvancedButtonStyle.Contact => new ContactButtonPainter(),
                 AdvancedButtonStyle.NavigationChevron => new NavigationChevronButtonPainter(),
@@ -44,6 +44,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
                 AdvancedButtonStyle.FlatWeb => new FlatWebButtonPainter(),
                 AdvancedButtonStyle.LowerThird => new LowerThirdButtonPainter(),
                 AdvancedButtonStyle.StickerLabel => new StickerLabelButtonPainter(),
+                
+                // Image 1 - Column 1
+                AdvancedButtonStyle.OutlinePill => new OutlinePillButtonPainter(),
+                AdvancedButtonStyle.AccentEdge => new AccentEdgeButtonPainter(),
+                AdvancedButtonStyle.SpeechBubble => new SpeechBubbleButtonPainter(),
+                AdvancedButtonStyle.GradientSubButton => new GradientSubButtonPainter(),
+                AdvancedButtonStyle.MiniGradientPill => new MiniGradientPillButtonPainter(),
+                
+                // Image 1 - Column 2
+                AdvancedButtonStyle.GradientSpeechBubble => new GradientSpeechBubblePainter(),
+                AdvancedButtonStyle.SplitGradient => new SplitGradientButtonPainter(),
+                
+                // Image 1 - Column 3
+                AdvancedButtonStyle.IconCircleRight => new IconCircleRightButtonPainter(),
+                AdvancedButtonStyle.SplitIconLeft => new SplitIconLeftButtonPainter(),
+                
                 _ => new SolidButtonPainter()
             };
         }
@@ -52,28 +68,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         {
             return variant switch
             {
-                NewsBannerVariant.CircleBadgeLeft => new CircleBadge24NewsPainter(),
-                NewsBannerVariant.RectangleBadgeLeft => new BreakingNewsRectanglePainter(),
-                NewsBannerVariant.AngledBadgeLeft => new CircleBadgeAngledBannerPainter(),
-                NewsBannerVariant.ChevronRight => new ChevronRightNewsPainter(),
-                NewsBannerVariant.ChevronBoth => new HexagonWorldNewsPainter(),
-                NewsBannerVariant.FlagLeft => new LiveBreakingNewsPainter(),
-                NewsBannerVariant.AngledTwoTone => new PinkWhiteAngledBannerPainter(),
-                NewsBannerVariant.SlantedEdges => new FakeNewsChevronPainter(),
-                NewsBannerVariant.PillWithIcon => new IconCirclePillNewsPainter(),
-                NewsBannerVariant.BNLiveCircleBanner => new BNLiveCircleBannerPainter(),
-                NewsBannerVariant.BNSquareGreenBanner => new BNSquareGreenBannerPainter(),
-                NewsBannerVariant.BreakingNewsGlobe => new BreakingNewsGlobePainter(),
-                NewsBannerVariant.LightningBreakingNews => new LightningBreakingNewsPainter(),
-                NewsBannerVariant.LightningBreakingNewsLive => new LightningBreakingNewsLivePainter(),
-                NewsBannerVariant.LiveWorldNewsPill => new LiveWorldNewsPillPainter(),
-                NewsBannerVariant.MorningLiveYellowBanner => new MorningLiveYellowBannerPainter(),
-                NewsBannerVariant.NewsLiveCirclePink => new NewsLiveCirclePinkPainter(),
-                NewsBannerVariant.SportNewsCirclePill => new SportNewsCirclePillPainter(),
-                NewsBannerVariant.TwentyFourTVNews => new TwentyFourTVNewsPainter(),
-                NewsBannerVariant.TwentyFourWorldNewsHexagon => new TwentyFourWorldNewsHexagonPainter(),
-                NewsBannerVariant.WorldNewsGlobePill => new WorldNewsGlobePillPainter(),
-                _ => new NewsBannerButtonPainter()
+                // Circle badge styles (24, Live, Sport, etc.)
+                NewsBannerVariant.CircleBadgeLeft => new NewsCircleBadgePainter(),
+                NewsBannerVariant.BNLiveCircleBanner => new NewsCircleBadgePainter(),
+                NewsBannerVariant.NewsLiveCirclePink => new NewsCircleBadgePainter(),
+                NewsBannerVariant.SportNewsCirclePill => new NewsCircleBadgePainter(),
+                NewsBannerVariant.TwentyFourTVNews => new NewsCircleBadgePainter(),
+                
+                // Bar/Badge styles (Breaking News, Live, etc.)
+                NewsBannerVariant.RectangleBadgeLeft => new NewsBarPainter(),
+                NewsBannerVariant.FlagLeft => new NewsBarPainter(),
+                NewsBannerVariant.BNSquareGreenBanner => new NewsBarPainter(),
+                NewsBannerVariant.LiveWorldNewsPill => new NewsBarPainter(),
+                NewsBannerVariant.MorningLiveYellowBanner => new NewsBarPainter(),
+                
+                // Arrow/Chevron styles
+                NewsBannerVariant.ChevronRight => new NewsArrowPainter(),
+                NewsBannerVariant.ChevronBoth => new NewsArrowPainter(),
+                NewsBannerVariant.TwentyFourWorldNewsHexagon => new NewsArrowPainter(),
+                
+                // Angled/Slanted styles
+                NewsBannerVariant.AngledBadgeLeft => new NewsAngledPainter(),
+                NewsBannerVariant.AngledTwoTone => new NewsAngledPainter(),
+                NewsBannerVariant.SlantedEdges => new NewsAngledPainter(),
+                
+                // Icon badge styles (Globe, Lightning, etc.)
+                NewsBannerVariant.PillWithIcon => new NewsIconBadgePainter(),
+                NewsBannerVariant.BreakingNewsGlobe => new NewsIconBadgePainter(),
+                NewsBannerVariant.LightningBreakingNews => new NewsIconBadgePainter(),
+                NewsBannerVariant.LightningBreakingNewsLive => new NewsIconBadgePainter(),
+                NewsBannerVariant.WorldNewsGlobePill => new NewsIconBadgePainter(),
+                
+                // Default
+                _ => new NewsBarPainter()
             };
         }
     }

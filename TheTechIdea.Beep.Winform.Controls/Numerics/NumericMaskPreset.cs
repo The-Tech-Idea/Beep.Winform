@@ -385,6 +385,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                     config.IconPath = "SvgsUIcons.AtomN2";
                     break;
 
+                case NumericMaskPreset.ISBN10:
+                    config.MaskPattern = "#-###-#####-#";
+                    config.MaxLength = 13;
+                    config.AllowNegative = false;
+                    config.IconPath = "SvgsUIcons.Hash";
+                    break;
+
+                case NumericMaskPreset.ISBN13:
+                    config.MaskPattern = "###-#-###-#####-#";
+                    config.MaxLength = 17;
+                    config.AllowNegative = false;
+                    config.IconPath = "SvgsUIcons.Hash";
+                    break;
+
+                case NumericMaskPreset.ProductCode:
+                    config.MaskPattern = "###-###-###";
+                    config.MaxLength = 11;
+                    config.AllowNegative = false;
+                    config.IconPath = "SvgsUIcons.Package";
+                    break;
+
+                case NumericMaskPreset.Hexadecimal:
+                    config.MaskPattern = "0x########";
+                    config.MaxLength = 10;
+                    config.AllowNegative = true;
+                    config.IconPath = "SvgsUIcons.Hash";
+                    break;
+
+                case NumericMaskPreset.Binary:
+                    config.MaskPattern = "0b########";
+                    config.MaxLength = 10;
+                    config.AllowNegative = false;
+                    config.IconPath = "SvgsUIcons.Hash";
+                    break;
+
                 case NumericMaskPreset.Latitude:
                     config.MaskPattern = "##.######";
                     config.DecimalPlaces = 6;

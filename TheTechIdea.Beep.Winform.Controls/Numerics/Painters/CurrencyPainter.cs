@@ -16,9 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         private const int CurrencyIconWidth = 32;
         private const int DropdownWidth = 60;
         private const int CurrencySpacing = 8;
+        private Rectangle _lastBounds;
 
         public override NumericLayoutInfo CalculateLayout(INumericUpDownPainterContext context, Rectangle bounds)
         {
+            _lastBounds = bounds;
             var layout = new NumericLayoutInfo { ShowButtons = false };  // Currency uses dropdown, not spin buttons
 
             // Layout: [icon] [value] [USD dropdown]
@@ -71,8 +73,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         public override void PaintButtonIcons(Graphics g, INumericUpDownPainterContext context,
             Rectangle upButtonRect, Rectangle downButtonRect)
         {
-            // Currency doesn't use spin buttons, but we paint the currency icon and dropdown indicator
-            var layout = CalculateLayout(context, new Rectangle(0, 0, 100, 100));  // Get layout for areas
+            if (_lastBounds == Rectangle.Empty) return;
+            var layout = CalculateLayout(context, _lastBounds);
 
             // Paint currency icon (wallet/money icon) in CustomArea1
             if (layout.CustomArea1 != Rectangle.Empty)

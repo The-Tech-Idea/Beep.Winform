@@ -12,21 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             BackColor = _currentTheme.CalendarBackColor;
             ForeColor = _currentTheme.CalendarForeColor;
 
-
-
             if (UseThemeFont)
             {
                 ApplyThemeTypography();
             }
-            foreach (Control control in Controls)
-            {
-                if (control is BeepButton button)
-                {
-                    button.Theme = Theme;
-                }
-            }
-            UpdateViewButtonStates();
-            RequestLayoutAndRedraw();
+
+            Invalidate();
         }
     }
 }

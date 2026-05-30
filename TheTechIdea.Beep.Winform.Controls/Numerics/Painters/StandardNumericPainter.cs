@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Numerics.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 {
@@ -26,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
                 return layout;
             }
 
-            int buttonWidth = GetButtonWidth(context);
+            int buttonWidth = NumericStyleHelpers.GetButtonWidth(context.ControlStyle, context.ButtonSize);
 
             // Down button (left side)
             layout.DownButtonRect = new Rectangle(
@@ -73,18 +74,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 
             // Paint plus icon on up button
             PaintPlusMinusIcon(g, upButtonRect, true, upColor);
-        }
-
-        private int GetButtonWidth(INumericUpDownPainterContext context)
-        {
-            return context.ButtonSize switch
-            {
-                NumericSpinButtonSize.Small => 20,
-                NumericSpinButtonSize.Standard => 24,
-                NumericSpinButtonSize.Large => 28,
-                NumericSpinButtonSize.ExtraLarge => 32,
-                _ => 24
-            };
         }
     }
 }

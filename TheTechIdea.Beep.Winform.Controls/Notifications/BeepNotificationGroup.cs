@@ -65,8 +65,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             MaximumSize = new Size(DpiScalingHelper.ScaleValue(420, this), DpiScalingHelper.ScaleValue(600, this));
             Size = new Size(DpiScalingHelper.ScaleValue(350, this), DpiScalingHelper.ScaleValue(60, this));
 
+            TabStop = true;
+            base.AccessibleRole = AccessibleRole.Grouping;
+
             // Mouse events
             MouseClick += BeepNotificationGroup_MouseClick;
+            KeyDown += BeepNotificationGroup_KeyDown;
+        }
+
+        private void BeepNotificationGroup_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space)
+            {
+                _isExpanded = !_isExpanded;
+                Invalidate();
+                e.Handled = true;
+            }
         }
         #endregion
 

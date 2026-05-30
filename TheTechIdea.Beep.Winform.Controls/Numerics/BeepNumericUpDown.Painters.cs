@@ -14,30 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     public partial class BeepNumericUpDown
     {
         #region Painter Fields
-        private BeepControlStyle _style = BeepControlStyle.Material3;
         private INumericUpDownPainter _currentPainter;
         private Dictionary<string, (Rectangle rect, Action action)> _hitAreas = 
             new Dictionary<string, (Rectangle, Action)>();
         #endregion
 
         #region Painter Properties
-        [Category("Appearance")]
-        [Description("The visual Style painter for the numeric up-down control")]
-        [DefaultValue(BeepControlStyle.Material3)]
-        public BeepControlStyle Style
-        {
-            get => _style;
-            set
-            {
-                if (_style != value)
-                {
-                    _style = value;
-                    InitializePainter();
-                    Invalidate();
-                }
-            }
-        }
-
         [Browsable(false)]
         public INumericUpDownPainter CurrentPainter => _currentPainter;
         #endregion
@@ -188,6 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
             // Theme (for text colors only)
             public IBeepTheme Theme => _control._currentTheme;
+            public BeepControlStyle ControlStyle => _control.ControlStyle;
+            public bool UseThemeColors => _control.UseThemeColors;
 
             // Actions
             public void IncreaseValue() => _control.IncrementValueInternal();

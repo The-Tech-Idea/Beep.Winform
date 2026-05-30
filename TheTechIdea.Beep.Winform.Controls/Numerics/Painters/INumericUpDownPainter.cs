@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -137,6 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         // Theme (for text colors only, not backgrounds/borders/shadows)
         /// <summary>Current theme for text color references</summary>
         IBeepTheme Theme { get; }
+        /// <summary>Current BeepControlStyle for font and dimension calculations</summary>
+        BeepControlStyle ControlStyle { get; }
+        /// <summary>Whether to use theme colors</summary>
+        bool UseThemeColors { get; }
 
         // Actions
         /// <summary>Increment the value</summary>

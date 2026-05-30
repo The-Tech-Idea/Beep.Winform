@@ -130,6 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public void Stop()
         {
             _animationTimer?.Stop();
+            _notification = null;
         }
 
         #region Setup Methods - Show Animations

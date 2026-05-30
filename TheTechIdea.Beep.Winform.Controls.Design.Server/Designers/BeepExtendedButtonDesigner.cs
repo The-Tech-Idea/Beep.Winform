@@ -10,188 +10,188 @@ using TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists;
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     /// <summary>
-    /// Design-time support for BeepExtendedButton control
-    /// </summary>
-    public class BeepExtendedButtonDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
-    {
-        private DesignerVerbCollection? _verbs;
+    ///// Design-time support for BeepExtendedButton control
+    ///// </summary>
+    //public class BeepExtendedButtonDesigner : BaseBeepControlDesigner, IImagePathDesignerHost
+    //{
+    //    private DesignerVerbCollection? _verbs;
 
-        public BeepExtendedButton? ExtendedButton => Component as BeepExtendedButton;
+        
 
-        public DesignerVerbCollection CustomVerbs
-        {
-            get
-            {
-                if (_verbs == null)
-                {
-                    _verbs = new DesignerVerbCollection
-                    {
-                        new DesignerVerb("Select Main Button Icon...", OnSelectMainIcon),
-                        new DesignerVerb("Select Extend Button Icon...", OnSelectExtendIcon),
-                        new DesignerVerb("Clear Icons", OnClearIcons)
-                    };
-                }
-                return _verbs;
-            }
-        }
+    //    public DesignerVerbCollection CustomVerbs
+    //    {
+    //        get
+    //        {
+    //            if (_verbs == null)
+    //            {
+    //                _verbs = new DesignerVerbCollection
+    //                {
+    //                    new DesignerVerb("Select Main Button Icon...", OnSelectMainIcon),
+    //                    new DesignerVerb("Select Extend Button Icon...", OnSelectExtendIcon),
+    //                    new DesignerVerb("Clear Icons", OnClearIcons)
+    //                };
+    //            }
+    //            return _verbs;
+    //        }
+    //    }
 
-        public override DesignerVerbCollection Verbs => CustomVerbs;
+    //    public override DesignerVerbCollection Verbs => CustomVerbs;
 
-        protected override DesignerActionListCollection GetControlSpecificActionLists()
-        {
-            var lists = new DesignerActionListCollection();
-            lists.Add(new ImagePathDesignerActionList(this));
-            lists.Add(new BeepExtendedButtonActionList(this));
-            return lists;
-        }
+    //    protected override DesignerActionListCollection GetControlSpecificActionLists()
+    //    {
+    //        var lists = new DesignerActionListCollection();
+    //        lists.Add(new ImagePathDesignerActionList(this));
+    //        lists.Add(new BeepExtendedButtonActionList(this));
+    //        return lists;
+    //    }
 
-        private void OnSelectMainIcon(object? sender, EventArgs e)
-            => SelectMainIcon();
+    //    private void OnSelectMainIcon(object? sender, EventArgs e)
+    //        => SelectMainIcon();
 
-        public void SelectMainIcon()
-        {
-            SelectIcon("ImagePath");
-        }
+    //    public void SelectMainIcon()
+    //    {
+    //        SelectIcon("ImagePath");
+    //    }
 
-        private void OnSelectExtendIcon(object? sender, EventArgs e)
-            => SelectExtendIcon();
+    //    private void OnSelectExtendIcon(object? sender, EventArgs e)
+    //        => SelectExtendIcon();
 
-        public void SelectExtendIcon()
-        {
-            SelectIcon("ExtendButtonImagePath");
-        }
+    //    public void SelectExtendIcon()
+    //    {
+    //        SelectIcon("ExtendButtonImagePath");
+    //    }
 
-        private void SelectIcon(string propertyName)
-        {
-            if (Component == null) return;
+    //    private void SelectIcon(string propertyName)
+    //    {
+    //        if (Component == null) return;
 
-            var property = TypeDescriptor.GetProperties(Component)[propertyName];
-            if (property == null) return;
+    //        var property = TypeDescriptor.GetProperties(Component)[propertyName];
+    //        if (property == null) return;
 
-            var currentValue = property.GetValue(Component) as string;
+    //        var currentValue = property.GetValue(Component) as string;
             
-            using (var dialog = new Editors.IconPickerDialog(currentValue))
-            {
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    SetProperty(propertyName, dialog.SelectedIconPath);
-                }
-            }
-        }
+    //        using (var dialog = new Editors.IconPickerDialog(currentValue))
+    //        {
+    //            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+    //            {
+    //                SetProperty(propertyName, dialog.SelectedIconPath);
+    //            }
+    //        }
+    //    }
 
-        private void OnClearIcons(object? sender, EventArgs e)
-            => ClearIcons();
+    //    private void OnClearIcons(object? sender, EventArgs e)
+    //        => ClearIcons();
 
-        public void ClearIcons()
-        {
-            SetProperty("ImagePath", string.Empty);
-            SetProperty("ExtendButtonImagePath", string.Empty);
-        }
+    //    public void ClearIcons()
+    //    {
+    //        SetProperty("ImagePath", string.Empty);
+    //        SetProperty("ExtendButtonImagePath", string.Empty);
+    //    }
 
-        public void SelectImage() => SelectMainIcon();
+    //    public void SelectImage() => SelectMainIcon();
 
-        public void ClearImage() => SetProperty("ImagePath", string.Empty);
+    //    public void ClearImage() => SetProperty("ImagePath", string.Empty);
 
-        public void EmbedImage()
-        {
-            if (Component == null) return;
+    //    public void EmbedImage()
+    //    {
+    //        if (Component == null) return;
 
-            var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
-            var currentPath = GetImagePath();
+    //        var serviceProvider = Component.Site ?? (IServiceProvider)GetService(typeof(IServiceProvider));
+    //        var currentPath = GetImagePath();
 
-            using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
-            var result = dialog.ShowDialog();
+    //        using var dialog = new BeepImagePickerDialog(null, embed: true, serviceProvider, Component.GetType().Assembly, currentPath);
+    //        var result = dialog.ShowDialog();
 
-            if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
-            {
-                var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
-                if (!string.IsNullOrEmpty(newValue))
-                {
-                    SetImagePath(newValue);
-                }
-            }
-        }
+    //        if (result == DialogResult.OK && !dialog.SelectionResult.IsCancelled)
+    //        {
+    //            var newValue = dialog.SelectedResourcePath ?? dialog.SelectedFilePath;
+    //            if (!string.IsNullOrEmpty(newValue))
+    //            {
+    //                SetImagePath(newValue);
+    //            }
+    //        }
+    //    }
 
-        public string GetImagePath()
-            => GetProperty<string>("ImagePath") ?? string.Empty;
+    //    public string GetImagePath()
+    //        => GetProperty<string>("ImagePath") ?? string.Empty;
 
-        public void SetImagePath(string value)
-            => SetProperty("ImagePath", value ?? string.Empty);
-    }
+    //    public void SetImagePath(string value)
+    //        => SetProperty("ImagePath", value ?? string.Empty);
+    //}
 
-    public class BeepExtendedButtonActionList : DesignerActionList
-    {
-        private readonly BeepExtendedButtonDesigner _designer;
+    //public class BeepExtendedButtonActionList : DesignerActionList
+    //{
+    //    private readonly BeepExtendedButtonDesigner _designer;
 
-        public BeepExtendedButtonActionList(BeepExtendedButtonDesigner designer)
-            : base(designer.Component)
-        {
-            _designer = designer ?? throw new ArgumentNullException(nameof(designer));
-        }
+    //    public BeepExtendedButtonActionList(BeepExtendedButtonDesigner designer)
+    //        : base(designer.Component)
+    //    {
+    //        _designer = designer ?? throw new ArgumentNullException(nameof(designer));
+    //    }
 
-        #region Properties
+    //    #region Properties
 
-        [Category("Appearance")]
-        public string Text
-        {
-            get => _designer.GetProperty<string>("Text") ?? "";
-            set => _designer.SetProperty("Text", value);
-        }
+    //    [Category("Appearance")]
+    //    public string Text
+    //    {
+    //        get => _designer.GetProperty<string>("Text") ?? "";
+    //        set => _designer.SetProperty("Text", value);
+    //    }
 
-        [Category("Layout")]
-        public int ButtonWidth
-        {
-            get => _designer.GetProperty<int>("ButtonWidth");
-            set => _designer.SetProperty("ButtonWidth", value);
-        }
+    //    [Category("Layout")]
+    //    public int ButtonWidth
+    //    {
+    //        get => _designer.GetProperty<int>("ButtonWidth");
+    //        set => _designer.SetProperty("ButtonWidth", value);
+    //    }
 
-        [Category("Layout")]
-        public int RightButtonSize
-        {
-            get => _designer.GetProperty<int>("RightButtonSize");
-            set => _designer.SetProperty("RightButtonSize", value);
-        }
+    //    [Category("Layout")]
+    //    public int RightButtonSize
+    //    {
+    //        get => _designer.GetProperty<int>("RightButtonSize");
+    //        set => _designer.SetProperty("RightButtonSize", value);
+    //    }
 
-        #endregion
+    //    #endregion
 
-        #region Actions
+    //    #region Actions
 
-        public void SelectMainIcon() => _designer.SelectMainIcon();
-        public void SelectExtendIcon() => _designer.SelectExtendIcon();
+    //    public void SelectMainIcon() => _designer.SelectMainIcon();
+    //    public void SelectExtendIcon() => _designer.SelectExtendIcon();
 
-        public void UseDropdownExtendIcon()
-        {
-            _designer.SetProperty("ExtendButtonImagePath", TheTechIdea.Beep.Icons.SvgsUI.ChevronDown);
-        }
+    //    public void UseDropdownExtendIcon()
+    //    {
+    //        _designer.SetProperty("ExtendButtonImagePath", TheTechIdea.Beep.Icons.SvgsUI.ChevronDown);
+    //    }
 
-        public void UseMoreExtendIcon()
-        {
-            _designer.SetProperty("ExtendButtonImagePath", TheTechIdea.Beep.Icons.SvgsUI.Menu);
-        }
+    //    public void UseMoreExtendIcon()
+    //    {
+    //        _designer.SetProperty("ExtendButtonImagePath", TheTechIdea.Beep.Icons.SvgsUI.Menu);
+    //    }
 
-        #endregion
+    //    #endregion
 
-        public override DesignerActionItemCollection GetSortedActionItems()
-        {
-            var items = new DesignerActionItemCollection();
+    //    public override DesignerActionItemCollection GetSortedActionItems()
+    //    {
+    //        var items = new DesignerActionItemCollection();
 
-            items.Add(new DesignerActionHeaderItem("Appearance"));
-            items.Add(new DesignerActionPropertyItem("Text", "Button Text", "Appearance"));
+    //        items.Add(new DesignerActionHeaderItem("Appearance"));
+    //        items.Add(new DesignerActionPropertyItem("Text", "Button Text", "Appearance"));
 
-            items.Add(new DesignerActionHeaderItem("Layout"));
-            items.Add(new DesignerActionPropertyItem("ButtonWidth", "Main Button Width", "Layout"));
-            items.Add(new DesignerActionPropertyItem("RightButtonSize", "Extend Button Size", "Layout"));
+    //        items.Add(new DesignerActionHeaderItem("Layout"));
+    //        items.Add(new DesignerActionPropertyItem("ButtonWidth", "Main Button Width", "Layout"));
+    //        items.Add(new DesignerActionPropertyItem("RightButtonSize", "Extend Button Size", "Layout"));
 
-            items.Add(new DesignerActionHeaderItem("Icons"));
-            items.Add(new DesignerActionMethodItem(this, "SelectMainIcon", "Select Main Icon...", "Icons", true));
-            items.Add(new DesignerActionMethodItem(this, "SelectExtendIcon", "Select Extend Icon...", "Icons", true));
+    //        items.Add(new DesignerActionHeaderItem("Icons"));
+    //        items.Add(new DesignerActionMethodItem(this, "SelectMainIcon", "Select Main Icon...", "Icons", true));
+    //        items.Add(new DesignerActionMethodItem(this, "SelectExtendIcon", "Select Extend Icon...", "Icons", true));
 
-            items.Add(new DesignerActionHeaderItem("Extend Icon Presets"));
-            items.Add(new DesignerActionMethodItem(this, "UseDropdownExtendIcon", "▼ Dropdown", "Extend Icon Presets", false));
-            items.Add(new DesignerActionMethodItem(this, "UseMoreExtendIcon", "⋮ More Options", "Extend Icon Presets", false));
+    //        items.Add(new DesignerActionHeaderItem("Extend Icon Presets"));
+    //        items.Add(new DesignerActionMethodItem(this, "UseDropdownExtendIcon", "▼ Dropdown", "Extend Icon Presets", false));
+    //        items.Add(new DesignerActionMethodItem(this, "UseMoreExtendIcon", "⋮ More Options", "Extend Icon Presets", false));
 
-            return items;
-        }
-    }
+    //        return items;
+    //    }
+    //}
 }
 

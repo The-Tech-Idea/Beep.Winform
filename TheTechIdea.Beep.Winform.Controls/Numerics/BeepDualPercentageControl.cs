@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Numerics
 {
     [ToolboxItem(true)]
+    [Category("Beep Controls")]
     [DisplayName("Beep Dual Percentage Widget")]
     [Description("A themed control to display two labeled percentages with an icon on the left section.")]
     public class BeepDualPercentageControl : BaseControl
@@ -22,12 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         public BeepDualPercentageControl()
         {
-            Height = 60; // Initial height to match the image
-            Width = 300; // Initial width to match the image
-          
+            Height = 60;
+            Width = 300;
+           
             Padding = new Padding(10);
             BackColor = Color.White;
             BorderColor = Color.LightGray;
+
+            base.AccessibleRole = AccessibleRole.Grouping;
+            SetStyle(ControlStyles.Selectable, true);
 
             InitializeComponents();
             ApplyTheme();
@@ -35,11 +39,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         private void InitializeComponents()
         {
+            var blockFont = _currentTheme?.GetBlockTextFont();
+            var fallbackFont = blockFont != null 
+                ? FontListHelper.CreateFontFromTypography(blockFont) 
+                : new Font("Segoe UI", 10);
+
             // Left Section Icon
             lblLeftIcon = new BeepLabel
             {
-                Text = "🌙", // Placeholder; replace with an actual icon path if available
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
+                Text = "🌙",
+                Font = fallbackFont,
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -49,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblLeftLabel = new BeepLabel
             {
                 Text = "Category 1",
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
+                Font = fallbackFont,
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -59,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblLeftPercentage = new BeepLabel
             {
                 Text = "34%",
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
+                Font = fallbackFont,
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -69,8 +78,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblRightLabel = new BeepLabel
             {
                 Text = "Category 2",
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
-                ForeColor = _currentTheme.PrimaryTextColor,
+                Font = fallbackFont,
+                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Black,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
@@ -79,8 +88,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblRightPercentage = new BeepLabel
             {
                 Text = "66%",
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
-                ForeColor = _currentTheme.PrimaryTextColor,
+                Font = fallbackFont,
+                ForeColor = _currentTheme?.PrimaryTextColor ?? Color.Black,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
             };
@@ -89,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblDivider = new BeepLabel
             {
                 Text = "|",
-                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
+                Font = fallbackFont,
                 ForeColor = Color.LightGray,
                 AutoSize = true,
                 Anchor = AnchorStyles.None // Will be positioned dynamically
@@ -156,7 +165,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         }
 
         [Category("Appearance")]
-        public Color LeftSectionColor { get; set; } = BeepStyling.CurrentTheme?.SuccessColor ?? Color.Empty; // prefer theme token for left section
+        public Color LeftSectionColor
+        {
+            get => _leftSectionColor;
+            set
+            {
+                _leftSectionColor = value;
+                Invalidate();
+            }
+        }
+
+        private Color _leftSectionColor = Color.Empty;
 
         #endregion
 
@@ -214,7 +233,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         public override void ApplyTheme()
         {
-        //    base.ApplyTheme();
+            base.ApplyTheme();
+            if (_currentTheme == null) return;
+
             BackColor = _currentTheme.BackColor;
             BorderColor = _currentTheme.BorderColor;
             lblLeftIcon.Theme = Theme;
@@ -226,6 +247,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             lblRightPercentage.ForeColor = _currentTheme.PrimaryTextColor;
             lblDivider.Theme = Theme;
             lblDivider.ForeColor = Color.LightGray;
+
+            if (_leftSectionColor == Color.Empty)
+                _leftSectionColor = _currentTheme?.SuccessColor ?? Color.FromArgb(144, 238, 144);
 
             Invalidate();
         }

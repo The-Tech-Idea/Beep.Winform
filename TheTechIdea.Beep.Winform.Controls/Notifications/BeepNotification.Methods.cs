@@ -54,13 +54,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void Pause()
         {
-            if (!_isPaused && _autoDismissTimer.Enabled)
+            if (!_isPaused && _autoDismissTimer != null && _autoDismissTimer.Enabled)
             {
                 _isPaused = true;
                 var elapsed = (DateTime.Now - _startTime).TotalMilliseconds;
-                _remainingDuration = Math.Max(0, _notificationData.Duration - (int)elapsed);
+                _remainingDuration = Math.Max(0, (_notificationData?.Duration ?? 5000) - (int)elapsed);
                 _autoDismissTimer.Stop();
-                _progressTimer.Stop();
+                _progressTimer?.Stop();
             }
         }
 
@@ -73,8 +73,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 _isPaused = false;
                 _startTime = DateTime.Now;
-                _autoDismissTimer.Start();
-                _progressTimer.Start();
+                _autoDismissTimer?.Start();
+                if (_notificationData?.ShowProgressBar == true)
+                    _progressTimer?.Start();
             }
         }
         #endregion
@@ -113,6 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void BeepNotification_MouseEnter(object sender, EventArgs e)
         {
+            Cursor = Cursors.Hand;
             if (_notificationData != null && _notificationData.PauseOnHover)
             {
                 Pause();
@@ -121,6 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void BeepNotification_MouseLeave(object sender, EventArgs e)
         {
+            Cursor = Cursors.Default;
             if (_notificationData != null && _notificationData.PauseOnHover)
             {
                 Resume();

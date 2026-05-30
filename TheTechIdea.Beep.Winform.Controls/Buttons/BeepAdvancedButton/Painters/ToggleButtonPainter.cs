@@ -1,324 +1,109 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
     /// <summary>
-    /// Painter for toggle buttons with on/off states
-    /// Supports Split shape with two clickable areas (e.g., "A to Z" | "Z to A")
+    /// Toggle button - split-style toggle with ON/OFF visual states.
+    /// Shows filled color when ON, outlined when OFF, with smooth transition.
     /// </summary>
     public class ToggleButtonPainter : BaseButtonPainter
     {
-        /// <summary>
-        /// Paint the toggle button with appropriate on/off state styling
-        /// </summary>
-        /// <param name="context">Paint context with button state and styling</param>
         public override void Paint(AdvancedButtonPaintContext context)
         {
             Graphics g = context.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Check if we should draw as split button (two areas)
-            if (context.Shape == ButtonShape.Split)
+            var metrics = GetMetrics(context);
+            Rectangle bounds = context.Bounds;
+
+            // Shadow
+            if (context.ShowShadow && context.State != Enums.AdvancedButtonState.Disabled)
             {
-                DrawSplitButton(context);
+                DrawShadow(g, bounds, context.BorderRadius, 4, Color.FromArgb(30, 0, 0, 0));
+            }
+
+            Color bgColor, fgColor;
+            if (context.IsToggled)
+            {
+                bgColor = context.State == Enums.AdvancedButtonState.Pressed
+                    ? context.PressedBackground : context.SolidBackground;
+                fgColor = context.SolidForeground;
             }
             else
             {
-                DrawRegularToggleButton(context);
+                bgColor = context.State == Enums.AdvancedButtonState.Hover
+                    ? Color.FromArgb(20, context.SolidBackground) : Color.Transparent;
+                fgColor = context.SolidBackground;
+            }
+
+            // Background
+            if (bgColor.A > 0)
+            {
+                using (var path = GetShapePath(bounds, context))
+                using (var bgBrush = new SolidBrush(bgColor))
+                {
+                    g.FillPath(bgBrush, path);
+                }
+            }
+
+            // Border for OFF state
+            if (!context.IsToggled)
+            {
+                using (var path = GetShapePath(bounds, context))
+                using (var borderPen = new Pen(context.BorderColor, Math.Max(1.5f, context.BorderWidth)))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+            }
+
+            DrawRippleEffect(g, context);
+
+            // Content centered
+            Color contentColor = context.State == Enums.AdvancedButtonState.Disabled
+                ? context.DisabledForeground : fgColor;
+
+            if (context.IsLoading)
+            {
+                DrawLoadingSpinner(g, context, bounds, contentColor);
+            }
+            else if (!string.IsNullOrEmpty(context.Text))
+            {
+                Rectangle contentRect = new Rectangle(
+                    bounds.X + metrics.PaddingHorizontal,
+                    bounds.Y,
+                    bounds.Width - metrics.PaddingHorizontal * 2 - metrics.IconSize - 4,
+                    bounds.Height);
+                DrawText(g, context, contentRect, contentColor);
+
+                // Toggle indicator icon on right
+                using (var pen = new Pen(contentColor, 2f))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    int indicatorX = bounds.Right - metrics.PaddingHorizontal - metrics.IconSize + 4;
+                    int midY = bounds.Y + bounds.Height / 2;
+
+                    if (context.IsToggled)
+                    {
+                        // Checkmark style
+                        g.DrawLine(pen, indicatorX, midY + 2, indicatorX + 4, midY + 6);
+                        g.DrawLine(pen, indicatorX + 4, midY + 6, indicatorX + 14, midY - 4);
+                    }
+                    else
+                    {
+                        // X style
+                        g.DrawLine(pen, indicatorX + 2, midY - 4, indicatorX + 12, midY + 6);
+                        g.DrawLine(pen, indicatorX + 12, midY - 4, indicatorX + 2, midY + 6);
+                    }
+                }
             }
 
             DrawFocusRingPrimitive(g, context);
         }
-
-        /// <summary>
-        /// Draw split button with two clickable areas like in the image
-        /// Uses area hover/pressed states from BaseControl's input helper
-        /// </summary>
-        private void DrawSplitButton(AdvancedButtonPaintContext context)
-        {
-            Graphics g = context.Graphics;
-            Rectangle bounds = context.Bounds;
-            int halfWidth = bounds.Width / 2;
-
-            // Left button area
-            Rectangle leftArea = new Rectangle(bounds.X, bounds.Y, halfWidth, bounds.Height);
-
-            // Right button area  
-            Rectangle rightArea = new Rectangle(bounds.X + halfWidth, bounds.Y, halfWidth, bounds.Height);
-
-            // Determine which side is active based on IsToggled
-            // IsToggled = true means LEFT side is active (e.g., "A to Z")
-            // IsToggled = false means RIGHT side is active (e.g., "Z to A")
-            Color leftBg = context.IsToggled ? context.SolidBackground : GetInactiveSideColor(context);
-            Color rightBg = !context.IsToggled ? context.SolidBackground : GetInactiveSideColor(context);
-
-            Color inactiveForeground = context.TextColor.IsEmpty ? context.SolidForeground : context.TextColor;
-            Color leftFg = context.IsToggled ? context.SolidForeground : inactiveForeground;
-            Color rightFg = !context.IsToggled ? context.SolidForeground : inactiveForeground;
-
-            // Apply hover effect from BaseControl's input helper area tracking
-            if (context.LeftAreaHovered && !context.LeftAreaPressed)
-            {
-                // Lighten or darken left area on hover
-                leftBg = context.IsToggled 
-                    ? context.HoverBackground 
-                    : Blend(GetInactiveSideColor(context), context.HoverBackground, 0.25f);
-            }
-            
-            if (context.RightAreaHovered && !context.RightAreaPressed)
-            {
-                // Lighten or darken right area on hover
-                rightBg = !context.IsToggled 
-                    ? context.HoverBackground 
-                    : Blend(GetInactiveSideColor(context), context.HoverBackground, 0.25f);
-            }
-
-            // Apply pressed effect from BaseControl's input helper
-            if (context.LeftAreaPressed)
-            {
-                leftBg = context.PressedBackground;
-            }
-            
-            if (context.RightAreaPressed)
-            {
-                rightBg = context.PressedBackground;
-            }
-
-            // Draw left button half with rounded left corners only
-            using (GraphicsPath leftPath = ButtonShapeHelper.CreatePartialRoundedRectangle(leftArea, context.BorderRadius,
-                   roundTopLeft: true, roundBottomLeft: true, roundTopRight: false, roundBottomRight: false))
-            {
-                using (SolidBrush brush = new SolidBrush(leftBg))
-                {
-                    g.FillPath(brush, leftPath);
-                }
-            }
-
-            // Draw right button half with rounded right corners only
-            using (GraphicsPath rightPath = ButtonShapeHelper.CreatePartialRoundedRectangle(rightArea, context.BorderRadius,
-                   roundTopLeft: false, roundBottomLeft: false, roundTopRight: true, roundBottomRight: true))
-            {
-                using (SolidBrush brush = new SolidBrush(rightBg))
-                {
-                    g.FillPath(brush, rightPath);
-                }
-            }
-
-            // Draw separator line between the two areas
-            using (Pen separatorPen = new Pen(context.BorderColor, 1))
-            {
-                int x = leftArea.Right;
-                g.DrawLine(separatorPen, x, bounds.Y + 4, x, bounds.Bottom - 4);
-            }
-
-            // Draw outer border using common shape helper
-            using (GraphicsPath outerPath = ButtonShapeHelper.CreateShapePath(ButtonShape.RoundedRectangle, bounds, context.BorderRadius))
-            {
-                using (Pen borderPen = new Pen(context.BorderColor, context.BorderWidth))
-                {
-                    g.DrawPath(borderPen, outerPath);
-                }
-            }
-
-            // Draw text/icons in each area
-            DrawSplitContent(g, context, leftArea, rightArea, leftFg, rightFg);
-        }
-
-        /// <summary>
-        /// Get color for the inactive side of split button
-        /// </summary>
-        private Color GetInactiveSideColor(AdvancedButtonPaintContext context)
-        {
-            return Blend(context.SolidBackground, Color.White, 0.82f);
-        }
-
-        /// <summary>
-        /// Draw content (text/icons) in both split areas
-        /// </summary>
-        private void DrawSplitContent(Graphics g, AdvancedButtonPaintContext context,
-            Rectangle leftArea, Rectangle rightArea, Color leftColor, Color rightColor)
-        {
-            var metrics = GetMetrics(context);
-            // For split buttons, we'll use the main text split by "|" delimiter
-            // Or default to "ON" | "OFF" if no delimiter found
-            string leftText = "A to Z";
-            string rightText = "Z to A";
-
-            if (!string.IsNullOrEmpty(context.Text) && context.Text.Contains("|"))
-            {
-                string[] parts = context.Text.Split('|');
-                if (parts.Length >= 2)
-                {
-                    leftText = parts[0].Trim();
-                    rightText = parts[1].Trim();
-                }
-            }
-            else if (!string.IsNullOrEmpty(context.Text))
-            {
-                leftText = context.Text;
-                rightText = context.Text;
-            }
-
-            // Draw left text
-            var safeFont = context.TextFont ?? FontManagement.BeepFontManager.DefaultFont;
-            using (StringFormat sf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            })
-            {
-                using (SolidBrush textBrush = new SolidBrush(leftColor))
-                {
-                    g.DrawString(leftText, safeFont, textBrush, leftArea, sf);
-                }
-
-                using (SolidBrush textBrush = new SolidBrush(rightColor))
-                {
-                    g.DrawString(rightText, safeFont, textBrush, rightArea, sf);
-                }
-            }
-
-            // Draw icons if provided
-            if (!string.IsNullOrEmpty(context.IconLeft))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    leftArea.X + metrics.PaddingHorizontal / 2,
-                    leftArea.Y + (leftArea.Height - metrics.IconSize) / 2,
-                    metrics.IconSize, metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconLeft);
-            }
-
-            if (!string.IsNullOrEmpty(context.IconRight))
-            {
-                Rectangle iconBounds = new Rectangle(
-                    rightArea.Right - metrics.IconSize - (metrics.PaddingHorizontal / 2),
-                    rightArea.Y + (rightArea.Height - metrics.IconSize) / 2,
-                    metrics.IconSize, metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, context.IconRight);
-            }
-        }
-
-        /// <summary>
-        /// Draw regular toggle button (single area) when not using Split shape
-        /// </summary>
-        private void DrawRegularToggleButton(AdvancedButtonPaintContext context)
-        {
-            Graphics g = context.Graphics;
-            var metrics = GetMetrics(context);
-            Rectangle buttonBounds = context.Bounds;
-
-            // Determine colors based on toggle state
-            Color bgColor;
-            Color fgColor;
-
-            if (context.IsToggled)
-            {
-                // Toggled ON - use solid colors
-                bgColor = context.State == AdvancedButtonState.Disabled
-                    ? context.DisabledBackground
-                    : (context.State == AdvancedButtonState.Hover
-                        ? context.HoverBackground
-                        : context.SolidBackground);
-                fgColor = context.State == AdvancedButtonState.Disabled
-                    ? context.DisabledForeground
-                    : context.SolidForeground;
-            }
-            else
-            {
-                // Toggled OFF - use outlined style
-                bgColor = context.State == AdvancedButtonState.Hover
-                    ? Color.FromArgb(20, context.BorderColor)
-                    : Color.Transparent;
-                fgColor = context.State == AdvancedButtonState.Disabled
-                    ? context.DisabledForeground
-                    : context.BorderColor;
-            }
-
-            // Draw background
-            using (Brush bgBrush = new SolidBrush(bgColor))
-            {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, context.BorderRadius);
-            }
-
-            // Draw border for OFF state
-            if (!context.IsToggled)
-            {
-                using (Pen borderPen = new Pen(fgColor, context.BorderWidth))
-                {
-                    Rectangle borderBounds = new Rectangle(
-                        buttonBounds.X + context.BorderWidth / 2,
-                        buttonBounds.Y + context.BorderWidth / 2,
-                        buttonBounds.Width - context.BorderWidth,
-                        buttonBounds.Height - context.BorderWidth
-                    );
-                    DrawRoundedRectangle(g, borderPen, borderBounds, context.BorderRadius);
-                }
-            }
-
-            // Draw ripple effect
-            DrawRippleEffect(g, context);
-
-            // Draw content
-            if (context.IsLoading)
-            {
-                DrawLoadingSpinner(g, context, buttonBounds, fgColor);
-            }
-            else
-            {
-                DrawCenteredContent(g, context, metrics, fgColor);
-            }
-        }
-
-        private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context,
-            AdvancedButtonMetrics metrics, Color color)
-        {
-            Rectangle bounds = context.Bounds;
-            bool hasIcon = HasPrimaryIcon(context);
-            bool hasText = !string.IsNullOrEmpty(context.Text);
-
-            if (hasIcon && hasText)
-            {
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
-                int startX = bounds.X + (bounds.Width - totalWidth) / 2;
-
-                Rectangle iconBounds = new Rectangle(
-                    startX,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-
-                Rectangle textBounds = new Rectangle(
-                    startX + metrics.IconSize + metrics.IconTextGap,
-                    bounds.Y,
-                    totalWidth - metrics.IconSize - metrics.IconTextGap,
-                    bounds.Height
-                );
-                DrawText(g, context, textBounds, color);
-            }
-            else if (hasIcon)
-            {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (bounds.Width - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-            }
-            else
-            {
-                DrawText(g, context, bounds, color);
-            }
-        }
-
     }
 }

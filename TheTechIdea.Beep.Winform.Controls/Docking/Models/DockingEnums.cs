@@ -77,8 +77,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// <summary>Panel is auto-hidden (collapsed to a tab on the edge).</summary>
         AutoHidden = 2,
 
-        /// <summary>Panel is closed but can be reopened (persisted in layout).</summary>
-        Closed = 3
+        /// <summary>Panel is closed but can be reopened (stored in the closed panel registry).</summary>
+        Closed = 3,
+
+        /// <summary>Panel is hidden but remains in the layout tree (inverse of <see cref="Docked"/>).</summary>
+        Hidden = 4
     }
 
     /// <summary>

@@ -39,13 +39,14 @@
             // beepDockingManager1
             // 
             beepDockingManager1.HostForm = this;
-            beepDockingManager1.Theme = "DefaultTheme";
+            beepDockingManager1.Style = BeepControlStyle.DiscordStyle;
+            beepDockingManager1.Theme = "GalaxyTheme";
             // 
             // dockPanel1
             // 
             dockPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dockPanel1.BackColor = Color.FromArgb(245, 245, 245);
-            dockPanel1.ForeColor = Color.FromArgb(33, 33, 33);
+            dockPanel1.BackColor = Color.FromArgb(31, 25, 57);
+            dockPanel1.ForeColor = Color.White;
             dockPanel1.Key = "dockPanel1";
             dockPanel1.Location = new Point(0, 26);
             dockPanel1.Manager = beepDockingManager1;
@@ -57,22 +58,22 @@
             // beepDockspace1
             // 
             beepDockspace1.ActivePanelKey = "dockPanel2";
-            beepDockspace1.BackColor = Color.FromArgb(245, 245, 245);
+            beepDockspace1.BackColor = Color.FromArgb(31, 25, 57);
             beepDockspace1.Controls.Add(dockPanel2);
             beepDockspace1.Controls.Add(dockPanel1);
-            beepDockspace1.ForeColor = Color.FromArgb(33, 33, 33);
+            beepDockspace1.ForeColor = Color.White;
             beepDockspace1.Location = new Point(4, 48);
             beepDockspace1.Manager = beepDockingManager1;
             beepDockspace1.MinimumSize = new Size(150, 150);
             beepDockspace1.Name = "beepDockspace1";
             beepDockspace1.Size = new Size(250, 436);
-            beepDockspace1.TabIndex = 4;
+            beepDockspace1.TabIndex = 22;
             // 
             // dockPanel2
             // 
             dockPanel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dockPanel2.BackColor = Color.FromArgb(245, 245, 245);
-            dockPanel2.ForeColor = Color.FromArgb(33, 33, 33);
+            dockPanel2.BackColor = Color.FromArgb(31, 25, 57);
+            dockPanel2.ForeColor = Color.White;
             dockPanel2.Key = "dockPanel2";
             dockPanel2.Location = new Point(0, 26);
             dockPanel2.Manager = beepDockingManager1;

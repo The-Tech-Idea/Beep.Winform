@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             try
             {
-                InitializeControls();
+                InitializeToolbar();
                 _controlsInitialized = true;
             }
             catch { /* designer safety */ }

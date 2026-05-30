@@ -27,10 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
                 return;
 
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
-            var titleFont = new Font("Segoe UI", 9, FontStyle.Regular);
-
-            TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            using (var titleFont = new Font("Segoe UI", 9, FontStyle.Regular))
+                TextRenderer.DrawText(g, title, titleFont, titleRect, colors.ForeColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         public override void PaintMessage(Graphics g, Rectangle messageRect, string message, NotificationData data)

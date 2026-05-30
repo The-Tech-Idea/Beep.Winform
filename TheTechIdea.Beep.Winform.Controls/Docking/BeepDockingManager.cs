@@ -7,8 +7,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Docking.Interop;
 using TheTechIdea.Beep.Winform.Controls.Docking.Layout;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
@@ -18,11 +18,11 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 namespace TheTechIdea.Beep.Winform.Controls.Docking
 {
     /// <summary>
-    /// Core orchestrator for the native Win32 MDI-based docking system.
+    /// Core orchestrator for the WinForms-control docking system.
     /// 
     /// Responsibilities:
-    /// - Manages MDI client window (HWND) creation and lifecycle
     /// - Owns the panel registry and layout tree
+    /// - Hosts dock panels as WinForms child controls on the host form
     /// - Provides high-level API for panel operations (add, remove, activate)
     /// - Integrates with BeepThemesManager for live theme switching
     /// - Orchestrates rendering and layout updates
@@ -37,11 +37,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
     [DefaultProperty(nameof(Strings))]
     [Description("Docking management component.")]
     [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers.BeepDockingManagerDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
-    public class BeepDockingManager : IComponent, IDisposable
+    public partial class BeepDockingManager : IComponent, IDisposable, Runtime.DragDrop.IDockDragHost
     {
-        private IntPtr _hostHwnd = IntPtr.Zero;
-        private IntPtr _mdiClientHwnd = IntPtr.Zero;
         private Form _hostForm;
+        private EventHandler _hostLayoutChangedHandler;
 
         /// <summary>
         /// True when running inside the Visual Studio designer (no Win32 ops allowed).
@@ -57,18 +56,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private DockLayoutTree _layoutTree = new DockLayoutTree();
         private DockingLayoutController _layoutController;
         private IDockingPainter _painter = NullDockingPainter.Instance;
-        private MdiPanelPositioner _positioner;
-        private WindowChrome _chrome;
-        private PanelWindowManager _panelWindowManager;
-        private ContentHosting _contentHosting;
-        private EventInterceptor _eventInterceptor;
-        private DockingMouseEventHandler _mouseHandler;
-        private SplitterDragHandler _dragHandler;
         private TabInteractionHandler _tabHandler;
-        private PainterIntegration _painterIntegration;
         private Dictionary<string, DockPanel> _panelsByKey = new Dictionary<string, DockPanel>();
-        private Dictionary<IntPtr, DockPanel> _panelsByHwnd = new Dictionary<IntPtr, DockPanel>();
-        private Dictionary<IntPtr, string> _windowToPanelMap = new Dictionary<IntPtr, string>();
         // Panels that have been closed but not yet permanently removed — they can be reopened.
         // Key = panel key, Value = panel snapshot with its last known state preserved.
         private Dictionary<string, DockPanel> _closedPanels = new Dictionary<string, DockPanel>();
@@ -76,7 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private Dictionary<DockPosition, AutoHideStrip> _autoHideStrips = new Dictionary<DockPosition, AutoHideStrip>();
         // Shared guide overlay for drag-to-dock — created lazily on first FloatPanel() call.
         private DockingGuideOverlay _guideOverlay;
-        // Per-panel splitters — keyed by panel key.  Created in AddPanel(), disposed in RemovePanel().
+        // Float windows keyed by panel key — used to tear down chrome when re-docking or disposing.
+        private Dictionary<string, FloatWindow> _floatWindowsByKey = new Dictionary<string, FloatWindow>(StringComparer.Ordinal);
+        // Per-edge-group splitters — keyed by DockGroup.Id. Reconciled (created/positioned/disposed)
+        // exclusively by SyncSplitters() from the layout engine's DockLayoutResult.
         private Dictionary<string, BeepDockSplitter> _splitters = new Dictionary<string, BeepDockSplitter>();
         private bool _disposed = false;
         private bool _subscribedToThemeChanged = false;
@@ -84,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private string _themeName = string.Empty;
         private IBeepTheme _currentTheme;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
+        private BeepControlStyle _style = BeepControlStyle.Material3;
 
         // Batch-update nesting counter — layout is suspended while > 0.
         private int _updateDepth;
@@ -255,26 +248,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="BeepControlStyle"/> that drives docking chrome
+        /// background/border/shadow rendering. Propagates to every docking surface (captions,
+        /// tabs, splitters, strips) so they match the chosen style.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        [Description("The control style used to render docking chrome (captions, tabs, splitters, strips).")]
+        public BeepControlStyle Style
+        {
+            get => _style;
+            set
+            {
+                if (_style == value)
+                    return;
+
+                _style = value;
+                PropagateControlStyle();
+            }
+        }
+
+        /// <summary>
         /// Gets the resolved theme object currently used by the docking manager.
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IBeepTheme CurrentTheme => _currentTheme;
-
-        /// <summary>
-        /// Gets the host window handle (HWND).
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IntPtr HostHwnd => _hostHwnd;
-
-        /// <summary>
-        /// Gets the native MDI client window handle.
-        /// Returns IntPtr.Zero if not yet created.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IntPtr MdiClientHwnd => _mdiClientHwnd;
 
         /// <summary>
         /// Gets the layout tree containing all groups and panels.
@@ -311,52 +311,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                         _painter.Dispose();
                     _painter = incoming;
                     _layoutController?.InvalidateLayout();
-                    _chrome?.InvalidateCache();
                 }
             }
         }
-
-        /// <summary>
-        /// Gets the panel positioner for applying layout to windows.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MdiPanelPositioner Positioner => _positioner;
-
-        /// <summary>
-        /// Gets the window chrome renderer for tabs and decorations.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public WindowChrome Chrome => _chrome;
-
-        /// <summary>
-        /// Gets the panel window manager for lifecycle coordination.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PanelWindowManager PanelWindowManager => _panelWindowManager;
-
-        /// <summary>
-        /// Gets the content hosting manager for control reparenting.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ContentHosting ContentHosting => _contentHosting;
-
-        /// <summary>
-        /// Gets the event interceptor for message routing.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public EventInterceptor EventInterceptor => _eventInterceptor;
-
-        /// <summary>
-        /// Gets the splitter drag handler for interactive resizing.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SplitterDragHandler DragHandler => _dragHandler;
 
         /// <summary>
         /// Gets the tab interaction handler for tab management.
@@ -364,13 +321,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TabInteractionHandler TabHandler => _tabHandler;
-
-        /// <summary>
-        /// Gets the painter integration bridge.
-        /// </summary>
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PainterIntegration PainterIntegration => _painterIntegration;
 
         /// <summary>
         /// Applies explicit theme colours to every docking surface.
@@ -550,8 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             ApplyDockingThemeColors(_themeColors, updatePainter: true);
             _layoutController ??= new DockingLayoutController(_layoutTree, _painter);
-            _chrome ??= new WindowChrome(_painter);
-            _contentHosting ??= new ContentHosting();
+            _tabHandler ??= new TabInteractionHandler(ActivatePanel, _layoutTree);
             Debug.WriteLine("[BeepDockingManager] Subsystems initialised.");
         }
 
@@ -574,6 +523,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
+            DetachHostFormHandlers();
             _hostForm = hostForm;
 
             if (IsDesignHosted)
@@ -582,52 +532,245 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
+            AttachHostFormHandlers(hostForm);
             InitializeSubsystems();
             _layoutController.ContainerBounds = hostForm.DisplayRectangle;
+            CreateAutoHideStrips();
             RegisterDesignerCreatedPanels(hostForm);
-            RecalculateLayout();
+
+            // Apply a layout deserialized from the host *.Designer.cs (populated into the backing
+            // LayoutDefinition during InitializeComponent) now that the panels are registered.
+            if (_layoutDefinition != null && !_layoutDefinition.IsEmpty)
+            {
+                MaterializeFromDefinition(_layoutDefinition);
+            }
+            else
+            {
+                RecalculateLayout();
+            }
 
             Debug.WriteLine($"[BeepDockingManager] ManageControl — attached to: {hostForm.Name}");
         }
 
-        /// <summary>
-        /// Creates a <see cref="BeepDockSplitter"/> docked adjacent to <paramref name="panel"/>
-        /// so the user can resize it by dragging.
-        /// Follows DockPanelSuite SplitterControl positioning convention.
-        /// </summary>
-        private BeepDockSplitter CreateSplitterFor(DockPanel panel)
+        /// <summary>Subscribes to host resize so the layout engine tracks the client area.</summary>
+        private void AttachHostFormHandlers(Form hostForm)
         {
-            DockStyle splitterDock;
-            switch (panel.DockPosition)
+            if (hostForm == null)
+                return;
+
+            _hostLayoutChangedHandler ??= OnHostFormLayoutChanged;
+            hostForm.Resize += _hostLayoutChangedHandler;
+            hostForm.ClientSizeChanged += _hostLayoutChangedHandler;
+        }
+
+        private void DetachHostFormHandlers()
+        {
+            if (_hostForm == null || _hostLayoutChangedHandler == null)
+                return;
+
+            _hostForm.Resize -= _hostLayoutChangedHandler;
+            _hostForm.ClientSizeChanged -= _hostLayoutChangedHandler;
+        }
+
+        private void OnHostFormLayoutChanged(object sender, EventArgs e)
+        {
+            if (_hostForm == null || _hostForm.IsDisposed || _layoutController == null || _disposed || IsDesignHosted)
+                return;
+
+            _layoutController.ContainerBounds = GetLayoutClientBounds(_hostForm.DisplayRectangle);
+
+            if (_updateDepth > 0)
+                return;
+
+            ApplyLayout();
+        }
+
+        /// <summary>
+        /// Detaches a panel from float/auto-hide chrome and re-parents it onto the host form
+        /// so the layout engine can position it.
+        /// </summary>
+        private void PreparePanelForDock(DockPanel panel)
+        {
+            if (panel == null)
+                return;
+
+            if (panel.State == DockPanelState.Floating)
+                CloseFloatWindowFor(panel);
+            else if (panel.State == DockPanelState.AutoHidden)
+                DetachFromAutoHideStrip(panel);
+
+            EnsurePanelHostedForDock(panel);
+        }
+
+        private void EnsurePanelHostedForDock(DockPanel panel)
+        {
+            if (panel == null || _hostForm == null || IsDesignHosted)
+                return;
+
+            panel.ShowCaption = true;
+            panel.Dock = DockStyle.None;
+            panel.Visible = true;
+
+            if (panel.Parent != _hostForm)
             {
-                case DockPosition.Left:   splitterDock = DockStyle.Left;   break;
-                case DockPosition.Right:  splitterDock = DockStyle.Right;  break;
-                case DockPosition.Top:    splitterDock = DockStyle.Top;    break;
-                case DockPosition.Bottom: splitterDock = DockStyle.Bottom; break;
-                default:
-                    return null;   // Fill panels do not get a splitter
+                panel.Parent?.Controls.Remove(panel);
+                _hostForm.Controls.Add(panel);
+            }
+        }
+
+        private void CloseFloatWindowFor(DockPanel panel)
+        {
+            if (panel == null || string.IsNullOrWhiteSpace(panel.Key))
+                return;
+
+            if (_floatWindowsByKey.TryGetValue(panel.Key, out var tracked) && tracked != null && !tracked.IsDisposed)
+            {
+                tracked.PanelRedocked -= OnFloatWindowRedocked;
+                tracked.ExtractHostedPanel();
+                OnFloatingWindowRemoved(new FloatingWindowEventArgs(tracked, panel));
+                tracked.Close();
+                _floatWindowsByKey.Remove(panel.Key);
+                return;
             }
 
-            var splitter = new BeepDockSplitter { Dock = splitterDock };
-            splitter.ApplyDockingTheme(_themeColors);
+            if (_hostForm == null)
+                return;
 
-            splitter.SplitterMoved += (s, e) =>
+            foreach (Form owned in _hostForm.OwnedForms)
             {
-                bool horizontal = (panel.DockPosition == DockPosition.Left ||
-                                   panel.DockPosition == DockPosition.Right);
+                if (owned is FloatWindow fw && ReferenceEquals(fw.Panel, panel))
+                {
+                    fw.PanelRedocked -= OnFloatWindowRedocked;
+                    fw.ExtractHostedPanel();
+                    OnFloatingWindowRemoved(new FloatingWindowEventArgs(fw, panel));
+                    fw.Close();
+                    _floatWindowsByKey.Remove(panel.Key);
+                    break;
+                }
+            }
+        }
 
-                int newSize = Math.Max(50, e.SizeAtDragStart + e.Delta);
+        private void CloseAllFloatWindows()
+        {
+            foreach (var fw in _floatWindowsByKey.Values.ToList())
+            {
+                if (fw == null || fw.IsDisposed)
+                    continue;
 
-                if (horizontal)
-                    panel.PreferredWidth  = newSize;
-                else
-                    panel.PreferredHeight = newSize;
+                fw.PanelRedocked -= OnFloatWindowRedocked;
+                fw.ExtractHostedPanel();
+                fw.Close();
+            }
 
-                ApplyLayoutBounds(panel);
-                _layoutController.InvalidateLayout();
-            };
+            _floatWindowsByKey.Clear();
+        }
 
-            return splitter;
+        private void ClearAllAutoHidePanels()
+        {
+            foreach (var strip in _autoHideStrips.Values)
+            {
+                if (strip == null)
+                    continue;
+
+                foreach (var panel in strip.Panels.ToList())
+                    strip.RemovePanel(panel);
+
+                strip.Visible = false;
+            }
+        }
+
+        private void DetachFromAutoHideStrip(DockPanel panel)
+        {
+            if (panel == null)
+                return;
+
+            foreach (var kv in _autoHideStrips)
+            {
+                var strip = kv.Value;
+                if (strip == null || !strip.Panels.Contains(panel))
+                    continue;
+
+                strip.RemovePanel(panel);
+                if (strip.Panels.Count == 0)
+                    strip.Visible = false;
+
+                OnAutoHiddenGroupRemoved(new AutoHiddenGroupEventArgs(panel, kv.Key));
+                break;
+            }
+
+            if (panel.Parent != null && panel.Parent != _hostForm)
+                panel.Parent.Controls.Remove(panel);
+        }
+
+        /// <summary>
+        /// Reconciles the live <see cref="BeepDockSplitter"/> controls with the splitter
+        /// rectangles produced by the layout engine. One splitter per edge group, positioned
+        /// by explicit bounds (not WinForms Dock). Orphaned splitters are removed.
+        /// </summary>
+        private void SyncSplitters(DockLayoutResult result)
+        {
+            if (_hostForm == null || IsDesignHosted || result == null)
+                return;
+
+            var desired = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var hit in result.Splitters)
+            {
+                if (string.IsNullOrEmpty(hit.GroupId))
+                    continue;
+
+                desired.Add(hit.GroupId);
+
+                if (!_splitters.TryGetValue(hit.GroupId, out var splitter) || splitter == null || splitter.IsDisposed)
+                {
+                    splitter = new BeepDockSplitter { GroupId = hit.GroupId };
+                    splitter.ControlStyle = _style;
+                    splitter.ApplyDockingTheme(_themeColors);
+                    splitter.SplitterMoved += OnEngineSplitterMoved;
+                    _splitters[hit.GroupId] = splitter;
+                    _hostForm.Controls.Add(splitter);
+                }
+
+                splitter.Orientation = hit.IsVertical ? SplitterOrientation.Vertical : SplitterOrientation.Horizontal;
+                splitter.Bounds = hit.Bounds;
+                splitter.Visible = true;
+                splitter.BringToFront();
+            }
+
+            // Dispose splitters whose group no longer needs one.
+            var orphans = _splitters.Keys.Where(k => !desired.Contains(k)).ToList();
+            foreach (var key in orphans)
+            {
+                var splitter = _splitters[key];
+                if (splitter != null)
+                {
+                    splitter.SplitterMoved -= OnEngineSplitterMoved;
+                    if (_hostForm.Controls.Contains(splitter))
+                        _hostForm.Controls.Remove(splitter);
+                    splitter.Dispose();
+                }
+                _splitters.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Handles a live splitter drag: converts the pixel delta into an edge-group ratio
+        /// via the layout engine, then re-applies the whole layout.
+        /// </summary>
+        private void OnEngineSplitterMoved(object sender, SplitterMovedEventArgs e)
+        {
+            if (sender is BeepDockSplitter splitter && !string.IsNullOrEmpty(splitter.GroupId))
+            {
+                _layoutController?.DragSplitter(splitter.GroupId, e.Delta);
+                ApplyLayout();
+
+                var group = _layoutTree.GetGroup(splitter.GroupId);
+                var panel = group?.ActivePanel;
+                if (panel == null || panel.State != DockPanelState.Docked)
+                    panel = group?.Panels.FirstOrDefault(p => p.State == DockPanelState.Docked);
+
+                OnDockspaceSeparatorResize(new SeparatorResizeEventArgs(panel, splitter.Bounds));
+            }
         }
 
         /// <summary>
@@ -646,86 +789,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     continue;
 
                 var strip = new AutoHideStrip(edge, _hostForm);
+                strip.ControlStyle = _style;
                 strip.ApplyDockingTheme(_themeColors);
                 strip.Visible = false;   // only show when a panel is auto-hidden on this edge
+                strip.PanelRestoreRequested += OnStripRestoreRequested;
+                strip.SlideLayoutChanged += (_, __) => RecalculateLayout();
+                strip.SlideSeparatorResized += (_, e) =>
+                {
+                    OnAutoHiddenSeparatorResize(e);
+                    RecalculateLayout();
+                };
                 _autoHideStrips[edge] = strip;
             }
-        }
-
-        /// <summary>
-        /// Creates the native MDI client window.
-        /// Must be called before adding any panels.
-        /// </summary>
-        public void CreateMdiClient()
-        {
-            if (IsDesignHosted)
-            {
-                Debug.WriteLine("[BeepDockingManager] CreateMdiClient skipped at design-time.");
-                return;
-            }
-
-            if (_mdiClientHwnd != IntPtr.Zero)
-                return;  // Already created
-
-            InitializeSubsystems();
-
-            if (_hostForm == null)
-                throw new InvalidOperationException("Host form has not been assigned. Call ManageControl(form) first.");
-
-            _hostHwnd = _hostForm.Handle;
-            if (_hostHwnd == IntPtr.Zero)
-                throw new InvalidOperationException("Host window handle is invalid");
-
-            // Create MDI client using the native Win32 API
-            _mdiClientHwnd = MdiNativeApi.CreateWindowEx(
-                0,  // No extended style
-                MdiConstants.MDICLIENT_CLASS,
-                "",  // No title
-                MdiConstants.WS_CHILD | MdiConstants.WS_VISIBLE | MdiConstants.WS_CLIPCHILDREN | MdiConstants.WS_CLIPSIBLINGS,
-                0, 0, 0, 0,  // Will be sized by parent
-                _hostHwnd,
-                IntPtr.Zero,  // No menu
-                IntPtr.Zero,  // hInstance (not used)
-                IntPtr.Zero);  // No creation params
-
-            if (_mdiClientHwnd == IntPtr.Zero)
-                throw new InvalidOperationException(
-                    $"Failed to create MDI client window: {MdiNativeApi.GetLastErrorMessage()}");
-
-            _eventInterceptor ??= new EventInterceptor();
-            _painterIntegration ??= new PainterIntegration(_painter, _chrome);
-            _eventInterceptor.Install();
-            RegisterThemeHook();
-            CreateAutoHideStrips();
-
-            // Initialize runtime managers now that we have the MDI client
-            _positioner = new MdiPanelPositioner(_mdiClientHwnd, _painter);
-            _panelWindowManager = new PanelWindowManager(_layoutTree, _positioner, _chrome);
-            _tabHandler?.Dispose();
-            _tabHandler = new TabInteractionHandler(_panelWindowManager, _layoutTree);
-            foreach (var panel in _panelsByKey.Values)
-                _tabHandler.RegisterTab(panel.Key, panel.Title ?? "Panel");
-
-            // Initialize drag handler
-            _dragHandler = new SplitterDragHandler(
-                _layoutController,
-                _positioner,
-                _panelWindowManager,
-                _chrome,
-                _layoutTree,
-                _hostForm.ClientSize
-            );
-
-            // Initialize mouse handler
-            _mouseHandler = new DockingMouseEventHandler(
-                _eventInterceptor,
-                _chrome,
-                _panelWindowManager,
-                _dragHandler,
-                _windowToPanelMap
-            );
-
-            Debug.WriteLine($"[BeepDockingManager] MDI client created: 0x{_mdiClientHwnd:X8}");
         }
 
         private static bool IsWinFormsDesignerProcess()
@@ -777,24 +852,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (_hostForm != null && !IsDesignHosted)
             {
                 _hostForm.Controls.Add(panel);
-                ApplyLayoutBounds(panel);
                 panel.BringToFront();
 
-                // Add a splitter between this panel and the rest of the client area.
-                // Mirrors DockPanelSuite SplitterControl placed adjacent to each edge panel.
-                var splitter = CreateSplitterFor(panel);
-                if (splitter != null)
-                {
-                    _splitters[panelKey] = splitter;
-                    _hostForm.Controls.Add(splitter);
-                    splitter.BringToFront();
-                }
+                // Position panels + create/place edge splitters via the layout engine.
+                ApplyLayout();
             }
 
             // Register tab for interaction handling
             _tabHandler?.RegisterTab(panelKey, title ?? "Panel");
 
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
             OnPanelAdded(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel added: {panelKey}");
@@ -835,9 +902,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
                 if (panel.Parent == _hostForm)
                 {
-                    ApplyLayoutBounds(panel);
                     panel.BringToFront();
-                    EnsureSplitterFor(panel);
+                    ApplyLayout();
                 }
             }
 
@@ -861,21 +927,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (!_panelsByKey.TryGetValue(panel.Key, out var existing) || !ReferenceEquals(existing, panel))
                 return;
 
+            if (panel.State == DockPanelState.Floating)
+                CloseFloatWindowFor(panel);
+            else if (panel.State == DockPanelState.AutoHidden)
+                DetachFromAutoHideStrip(panel);
+
             panel.Group?.RemovePanel(panel);
             _tabHandler?.UnregisterTab(panel.Key);
-
-            if (_splitters.TryGetValue(panel.Key, out var splitter))
-            {
-                if (_hostForm != null && _hostForm.Controls.Contains(splitter))
-                    _hostForm.Controls.Remove(splitter);
-
-                splitter.Dispose();
-                _splitters.Remove(panel.Key);
-            }
 
             _panelsByKey.Remove(panel.Key);
             _layoutTree.UnregisterPanel(panel.Key);
             _layoutController?.InvalidateLayout();
+            // Reflow so the orphaned edge splitter (keyed by group id) is disposed by SyncSplitters.
+            RecalculateLayout();
             OnPanelRemoved(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Existing designer panel unregistered: {panel.Key}");
@@ -889,27 +953,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (!_panelsByKey.TryGetValue(panel.Key, out var existing) || !ReferenceEquals(existing, panel))
                 return;
 
+            // Position metadata for floating/auto-hidden panels is applied when they re-dock.
+            if (panel.State != DockPanelState.Docked && panel.State != DockPanelState.Hidden)
+                return;
+
             panel.Group?.RemovePanel(panel);
             var group = GetOrCreateGroupAtPosition(panel.DockPosition);
             group.AddPanel(panel);
 
-            if (_splitters.TryGetValue(panel.Key, out var splitter))
-            {
-                if (_hostForm != null && _hostForm.Controls.Contains(splitter))
-                    _hostForm.Controls.Remove(splitter);
-
-                splitter.Dispose();
-                _splitters.Remove(panel.Key);
-            }
-
             if (_hostForm != null && panel.Parent == _hostForm)
-            {
-                ApplyLayoutBounds(panel);
-                EnsureSplitterFor(panel);
-            }
+                panel.BringToFront();
 
             _layoutController?.InvalidateLayout();
-            RecalculateLayout();
+            RecalculateLayout();   // engine repositions panels + reconciles splitters
         }
 
         internal void NotifyPanelTitleChanged(DockPanel panel)
@@ -929,7 +985,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
 
             if (_hostForm != null && panel.Parent == _hostForm)
-                ApplyLayoutBounds(panel);
+                panel.Invalidate();
 
             _layoutController?.InvalidateLayout();
             RecalculateLayout();
@@ -940,10 +996,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (root == null || IsDesignHosted)
                 return;
 
+            // Reparent DockPanel children from BeepDockspace containers to the host form.
+            var dockspaces = EnumerateDockspaces(root).ToList();
+            foreach (var ds in dockspaces)
+            {
+                foreach (var panel in ds.Panels.ToArray())
+                {
+                    OnDockspaceAdding(new DockspaceEventArgs(panel));
+                    ds.Controls.Remove(panel);
+                    panel.DockPosition = ds.DockPosition;
+                    panel.ShowCaption = true;
+                    panel.Dock = DockStyle.None;
+                    panel.Visible = true;
+                    if (root is Form hostForm)
+                    {
+                        hostForm.Controls.Add(panel);
+                        panel.Manager ??= this;
+                    }
+                }
+            }
+
             foreach (var panel in EnumerateDockPanels(root).OrderBy(p => p.TabIndex).ToList())
             {
                 if (ReferenceEquals(panel.Manager, this))
                     RegisterExistingPanel(panel);
+            }
+
+            // Remove now-empty BeepDockspace controls.
+            foreach (var ds in dockspaces.Where(d => d.Panels.Count == 0))
+            {
+                OnDockspaceRemoved(new DockspaceEventArgs(null));
+                ds.Parent?.Controls.Remove(ds);
+                ds.Dispose();
+            }
+        }
+
+        private static IEnumerable<BeepDockspace> EnumerateDockspaces(Control root)
+        {
+            foreach (Control child in root.Controls)
+            {
+                if (child is BeepDockspace ds)
+                    yield return ds;
+                foreach (var nested in EnumerateDockspaces(child))
+                    yield return nested;
             }
         }
 
@@ -959,20 +1054,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
         }
 
-        private void EnsureSplitterFor(DockPanel panel)
-        {
-            if (_hostForm == null || _splitters.ContainsKey(panel.Key))
-                return;
-
-            var splitter = CreateSplitterFor(panel);
-            if (splitter == null)
-                return;
-
-            _splitters[panel.Key] = splitter;
-            _hostForm.Controls.Add(splitter);
-            splitter.BringToFront();
-        }
-
         /// <summary>
         /// Removes a panel from the manager, layout tree, and host form Controls.
         /// </summary>
@@ -980,6 +1061,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             if (!_panelsByKey.TryGetValue(panelKey, out var panel))
                 return false;
+
+            if (panel.State == DockPanelState.Floating)
+                CloseFloatWindowFor(panel);
+            else if (panel.State == DockPanelState.AutoHidden)
+                DetachFromAutoHideStrip(panel);
 
             panel.Group?.RemovePanel(panel);
 
@@ -989,21 +1075,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (_hostForm != null && _hostForm.Controls.Contains(panel))
                 _hostForm.Controls.Remove(panel);
 
-            // Remove and dispose the associated splitter
-            if (_splitters.TryGetValue(panelKey, out var splitter))
-            {
-                if (_hostForm != null && _hostForm.Controls.Contains(splitter))
-                    _hostForm.Controls.Remove(splitter);
-                splitter.Dispose();
-                _splitters.Remove(panelKey);
-            }
-
             panel.Dispose();
 
             _panelsByKey.Remove(panelKey);
             _layoutTree.UnregisterPanel(panelKey);
 
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+            // Reflow so remaining panels reclaim the freed space and SyncSplitters disposes
+            // any now-orphaned edge splitter (splitters are keyed by group id, not panel key).
+            RecalculateLayout();
             OnPanelRemoved(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel removed: {panelKey}");
@@ -1011,76 +1091,161 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         /// <summary>
-        /// Calculates and applies bounds for a panel based on its dock position and preferred size.
-        /// Called after adding a panel to the host form so it appears in the right place immediately.
+        /// Single layout pass: seeds edge-group ratios from preferred sizes (first time only),
+        /// runs the <see cref="DockingLayoutController"/> against the host client area, then
+        /// positions every docked panel and reconciles the edge splitters from the result.
+        /// This is the sole positioning path — all callers route through here.
         /// </summary>
-        private void ApplyLayoutBounds(DockPanel panel)
+        public void ApplyLayout()
         {
-            if (_hostForm == null) return;
-
-            if (panel?.Group != null && panel.Group.Panels.Count > 1)
-            {
-                ApplyDockGroupBounds(panel.Group);
+            if (_hostForm == null || IsDesignHosted || _disposed || _layoutController == null)
                 return;
-            }
 
-            var client = _hostForm.DisplayRectangle;
+            PruneEmptyRootGroups();
 
-            Rectangle bounds;
-            switch (panel.DockPosition)
+            var client = GetLayoutClientBounds(_hostForm.DisplayRectangle);
+            _layoutController.ContainerBounds = client;
+            SeedEdgeRatios(client);
+
+            var result = _layoutController.CalculateLayout(client);
+
+            _hostForm.SuspendLayout();
+            try
             {
-                case DockPosition.Left:
-                    bounds = new Rectangle(client.Left, client.Top, panel.PreferredWidth, client.Height);
-                    break;
-                case DockPosition.Right:
-                    bounds = new Rectangle(client.Right - panel.PreferredWidth, client.Top, panel.PreferredWidth, client.Height);
-                    break;
-                case DockPosition.Top:
-                    bounds = new Rectangle(client.Left, client.Top, client.Width, panel.PreferredHeight);
-                    break;
-                case DockPosition.Bottom:
-                    bounds = new Rectangle(client.Left, client.Bottom - panel.PreferredHeight, client.Width, panel.PreferredHeight);
-                    break;
-                case DockPosition.Fill:
-                    bounds = client;
-                    break;
-                default:
-                    bounds = new Rectangle(100, 100, panel.PreferredWidth, panel.PreferredHeight);
-                    break;
-            }
+                foreach (var panel in _panelsByKey.Values)
+                {
+                    if (panel == null || panel.Parent != _hostForm)
+                        continue;
+                    if (panel.State != DockPanelState.Docked)
+                        continue;
 
-            panel.Bounds = bounds;
-            panel.LayoutBounds = bounds;
+                    var bounds = result.GetPanelBounds(panel.Key);
+                    if (!bounds.HasValue)
+                        continue;
+
+                    panel.Bounds = bounds.Value;
+                    panel.LayoutBounds = bounds.Value;
+                }
+
+                SyncSplitters(result);
+
+                // Raise the active panel of each tabbed group above its stack-mates.
+                foreach (var group in _layoutTree.Root.Children)
+                    BringActivePanelToFrontRecursive(group);
+            }
+            finally
+            {
+                _hostForm.ResumeLayout();
+            }
         }
 
-        private void ApplyDockGroupBounds(DockGroup group)
+        private static void BringActivePanelToFrontRecursive(DockGroup group)
         {
-            if (_hostForm == null || group == null || group.Panels.Count == 0)
-                return;
-
-            var client = _hostForm.DisplayRectangle;
-            int width = group.Panels.Max(p => p.PreferredWidth);
-            int height = group.Panels.Max(p => p.PreferredHeight);
-
-            Rectangle bounds = group.Position switch
-            {
-                DockPosition.Left => new Rectangle(client.Left, client.Top, width, client.Height),
-                DockPosition.Right => new Rectangle(client.Right - width, client.Top, width, client.Height),
-                DockPosition.Top => new Rectangle(client.Left, client.Top, client.Width, height),
-                DockPosition.Bottom => new Rectangle(client.Left, client.Bottom - height, client.Width, height),
-                DockPosition.Fill => client,
-                _ => new Rectangle(100, 100, width, height)
-            };
-
-            foreach (var panel in group.Panels)
-            {
-                panel.Bounds = bounds;
-                panel.LayoutBounds = bounds;
-                panel.Invalidate();
-            }
-
+            if (group == null) return;
             group.ActivePanel?.BringToFront();
+            foreach (var child in group.Children)
+                BringActivePanelToFrontRecursive(child);
         }
+
+        /// <summary>
+        /// Seeds each edge group's <see cref="DockGroup.SplitRatio"/> from its active panel's
+        /// preferred size the first time it is laid out, so the engine reproduces the panel's
+        /// requested width/height. Once seeded (or after a user splitter drag) the ratio is the
+        /// canonical resize state and is not overwritten.
+        /// </summary>
+        private void SeedEdgeRatios(Rectangle client)
+        {
+            foreach (var group in _layoutTree.Root.Children)
+                SeedGroupAndDescendants(group, client);
+        }
+
+        private void SeedGroupAndDescendants(DockGroup group, Rectangle client)
+        {
+            if (group.RatioInitialized || group.Position == DockPosition.Fill)
+                return;
+
+            var panel = group.ActivePanel;
+            if (panel == null || panel.State != DockPanelState.Docked)
+                panel = group.Panels.FirstOrDefault(p => p.State == DockPanelState.Docked);
+            if (panel == null)
+                return;
+
+            bool horizontal = group.Position == DockPosition.Left || group.Position == DockPosition.Right;
+            int axis = horizontal ? client.Width : client.Height;
+            int preferred = horizontal ? panel.PreferredWidth : panel.PreferredHeight;
+
+            if (axis > 0 && preferred > 0)
+                group.SplitRatio = preferred / (float)axis;
+
+            group.RatioInitialized = true;
+
+            foreach (var child in group.Children)
+                SeedGroupAndDescendants(child, client);
+        }
+
+        /// <summary>
+        /// Shrinks the layout engine client area so docked panels do not draw under auto-hide strips.
+        /// </summary>
+        private Rectangle GetLayoutClientBounds(Rectangle fullClient)
+        {
+            int left = fullClient.X;
+            int top = fullClient.Y;
+            int right = fullClient.Right;
+            int bottom = fullClient.Bottom;
+
+            foreach (var kv in _autoHideStrips)
+            {
+                var strip = kv.Value;
+                if (strip == null || strip.Panels.Count == 0)
+                    continue;
+
+                int inset = AutoHideStrip.TabSize + strip.SlideExtent;
+                switch (kv.Key)
+                {
+                    case DockPosition.Left:
+                        left += inset;
+                        break;
+                    case DockPosition.Right:
+                        right -= inset;
+                        break;
+                    case DockPosition.Top:
+                        top += inset;
+                        break;
+                    case DockPosition.Bottom:
+                        bottom -= inset;
+                        break;
+                }
+            }
+
+            int width = Math.Max(0, right - left);
+            int height = Math.Max(0, bottom - top);
+            return new Rectangle(left, top, width, height);
+        }
+
+        /// <summary>Removes root-level groups that no longer contain any docked panels.</summary>
+        private void PruneEmptyRootGroups()
+        {
+            foreach (var child in _layoutTree.Root.Children.ToList())
+            {
+                if (GroupHasContent(child))
+                    continue;
+
+                _layoutTree.Root.RemoveChild(child);
+                _layoutTree.UnregisterGroup(child.Id);
+            }
+        }
+
+        /// <summary>
+        /// Back-compat shim: any legacy caller that asked to position a single panel now
+        /// triggers a full engine-driven layout pass.
+        /// </summary>
+        private void ApplyLayoutBounds(DockPanel panel) => ApplyLayout();
+
+        /// <summary>
+        /// Back-compat shim: any legacy caller that asked to position a group now triggers a
+        /// full engine-driven layout pass.
+        /// </summary>
+        private void ApplyDockGroupBounds(DockGroup group) => ApplyLayout();
 
         /// <summary>
         /// Gets a panel by its key.
@@ -1100,6 +1265,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var panel = GetPanel(panelKey);
             if (panel == null)
                 return false;
+
+            if (panel.State == DockPanelState.Floating)
+            {
+                panel.DockPosition = position;
+                DockFloatingPanel(panelKey, position);
+                ActivatePanel(panelKey);
+                return true;
+            }
+
+            if (panel.State == DockPanelState.AutoHidden)
+            {
+                if (panel.DockPosition == position)
+                    return true;
+
+                panel.DockPosition = position;
+                DetachFromAutoHideStrip(panel);
+                panel.State = DockPanelState.AutoHidden;
+
+                if (_autoHideStrips.TryGetValue(position, out var strip))
+                {
+                    strip.Visible = true;
+                    strip.AddPanel(panel);
+                    OnAutoHiddenGroupAdding(new AutoHiddenGroupEventArgs(panel, position));
+                }
+
+                return true;
+            }
+
+            if (panel.State == DockPanelState.Hidden)
+            {
+                panel.DockPosition = position;
+                return true;
+            }
 
             panel.DockPosition = position;
             ActivatePanel(panelKey);
@@ -1128,14 +1326,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.Group != null && panel.Group != targetGroup)
                 panel.Group.RemovePanel(panel);
 
+            PreparePanelForDock(panel);
+            panel.State = DockPanelState.Docked;
+
             targetGroup.AddPanel(panel);
             targetGroup.ActivePanel = panel;
-
-            if (_hostForm != null && panel.Parent == _hostForm)
-            {
-                ApplyLayoutBounds(panel);
-                panel.BringToFront();
-            }
 
             _layoutController?.InvalidateLayout();
             RecalculateLayout();
@@ -1171,12 +1366,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         /// <summary>
         /// Activates a panel (makes it the active panel in its group).
+        /// Returns false if the panel is not found.
         /// </summary>
-        public void ActivatePanel(string panelKey)
+        public bool ActivatePanel(string panelKey)
         {
             var panel = GetPanel(panelKey);
             if (panel == null)
-                throw new ArgumentException($"Panel '{panelKey}' not found", nameof(panelKey));
+                return false;
 
             if (panel.Group != null)
             {
@@ -1184,12 +1380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 panel.Group.ActivePanel = panel;
 
                 if (oldActive != panel)
-                {
-                    oldActive?.OnDeactivated();
-                    panel.OnActivated();
-
                     OnPanelActivated(panel);
-                }
 
                 foreach (var groupedPanel in panel.Group.Panels)
                     groupedPanel.Invalidate();
@@ -1199,6 +1390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 panel.BringToFront();
 
             Debug.WriteLine($"[BeepDockingManager] Panel activated: {panelKey}");
+            return true;
         }
 
         /// <summary>
@@ -1218,61 +1410,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         /// <summary>
-        /// Sizes the MDI client to fill the host form's client area.
-        /// Should be called when the host form is resized.
-        /// Also recalculates layout for all panels.
-        /// </summary>
-        public void ResizeMdiClient()
-        {
-            if (_mdiClientHwnd == IntPtr.Zero)
-                return;
-
-            if (!MdiNativeApi.GetClientRect(_hostHwnd, out var clientRect))
-            {
-                Debug.WriteLine($"[BeepDockingManager] Failed to get host client rect");
-                return;
-            }
-
-            MdiNativeApi.SetWindowPos(
-                _mdiClientHwnd,
-                IntPtr.Zero,
-                clientRect.Left,
-                clientRect.Top,
-                clientRect.Width,
-                clientRect.Height,
-                MdiConstants.SWP_NOZORDER);
-
-            // Convert Win32 RECT to System.Drawing.Rectangle
-            var bounds = new Rectangle(clientRect.Left, clientRect.Top, clientRect.Width, clientRect.Height);
-
-            // Update layout controller with new container bounds
-            _layoutController.ContainerBounds = bounds;
-
-            // Recalculate layout for all panels
-            RecalculateLayout();
-
-            Debug.WriteLine($"[BeepDockingManager] MDI client resized to {bounds.Width}x{bounds.Height}");
-        }
-
-        /// <summary>
-        /// Recalculates layout for all panels based on current container bounds.
-        /// Call this after panel add/remove or container resize.
+        /// Recalculates layout for all panels based on the host form's current client area.
+        /// Call this after panel add/remove or host resize.
         /// No-ops while a <see cref="BeepDockingUpdate"/> batch scope is active.
         /// </summary>
         public void RecalculateLayout()
         {
             if (_updateDepth > 0) return;
-            if (_layoutController == null) return;
+            if (_hostForm == null) return;
 
-            var layout = _layoutController.CalculateLayout();
-            Debug.WriteLine($"[BeepDockingManager] Layout recalculated: {layout.Count} panels");
-
-            // Apply calculated layout to actual windows
-            if (_positioner != null)
-            {
-                var allPanels = _layoutTree.GetAllPanels();
-                _positioner.ApplyLayout(layout, allPanels.ToList());
-            }
+            // Single authoritative pass: engine computes bounds + splitter rects, manager applies.
+            ApplyLayout();
         }
 
         /// <summary>
@@ -1304,12 +1452,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.State == DockPanelState.Docked)
                 return;
 
+            if (panel.State != DockPanelState.Hidden)
+                return;
+
+            EnsurePanelHostedForDock(panel);
             panel.State = DockPanelState.Docked;
+            panel.Visible = true;
 
-            if (panel.NativeHandle != IntPtr.Zero)
-                MdiNativeApi.ShowWindow(panel.NativeHandle, MdiConstants.SW_SHOWNOACTIVATE);
+            if (panel.Group == null)
+            {
+                var group = GetOrCreateGroupAtPosition(panel.DockPosition);
+                group.AddPanel(panel);
+                group.ActivePanel = panel;
+            }
 
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();
             OnPanelShown(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel shown: {panelKey}");
@@ -1325,15 +1483,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel == null)
                 throw new ArgumentException($"Panel '{panelKey}' not found", nameof(panelKey));
 
-            if (panel.State == DockPanelState.Closed)
+            if (panel.State == DockPanelState.Hidden)
                 return;
 
-            panel.State = DockPanelState.Closed;
+            panel.State = DockPanelState.Hidden;
+            panel.Visible = false;
 
-            if (panel.NativeHandle != IntPtr.Zero)
-                MdiNativeApi.ShowWindow(panel.NativeHandle, MdiConstants.SW_HIDE);
+            if (_hostForm != null && _hostForm.Controls.Contains(panel))
+                _hostForm.Controls.Remove(panel);
 
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+            // Reflow so the remaining docked panels reclaim the hidden panel's space.
+            RecalculateLayout();
             OnPanelHidden(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel hidden: {panelKey}");
@@ -1352,33 +1513,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // Preserve state before removal so ReopenPanel can restore it
             _closedPanels[panelKey] = panel;
 
+            if (panel.State == DockPanelState.Floating)
+                CloseFloatWindowFor(panel);
+            else if (panel.State == DockPanelState.AutoHidden)
+                DetachFromAutoHideStrip(panel);
+
             // Remove from active layout (same as RemovePanel but without discarding the object)
             if (panel.Group != null)
                 panel.Group.RemovePanel(panel);
 
-            _contentHosting?.UnhostContent(panelKey);
             _tabHandler?.UnregisterTab(panelKey);
 
-            if (panel.NativeHandle != IntPtr.Zero)
-            {
-                _painterIntegration?.UnregisterPanelFromRendering(panel.NativeHandle);
-                _mouseHandler?.UnregisterWindow(panel.NativeHandle);
-                MdiNativeApi.ShowWindow(panel.NativeHandle, MdiConstants.SW_HIDE);
-            }
+            // Remove the panel control from the host form (do not dispose — stored for reopen).
+            // The edge splitter (keyed by group id) is reconciled by the RecalculateLayout below.
+            if (_hostForm != null && _hostForm.Controls.Contains(panel))
+                _hostForm.Controls.Remove(panel);
+            panel.Visible = false;
 
-            _panelWindowManager?.DestroyPanel(panelKey);
             _panelsByKey.Remove(panelKey);
             _layoutTree.UnregisterPanel(panelKey);
 
-            if (panel.NativeHandle != IntPtr.Zero)
-            {
-                _windowToPanelMap.Remove(panel.NativeHandle);
-                _panelsByHwnd.Remove(panel.NativeHandle);
-                panel.NativeHandle = IntPtr.Zero;
-            }
-
             panel.State = DockPanelState.Closed;
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();
 
             panel.OnClosed();
             OnPanelClosed(panel);
@@ -1396,18 +1553,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 throw new InvalidOperationException($"No closed panel found for key '{panelKey}'");
 
             _closedPanels.Remove(panelKey);
+            InitializeSubsystems();
 
-            // Re-add using existing AddPanel path so all registrations are re-done
-            var restored = AddPanel(panelKey, panel.Title, panel.DockPosition, panel.Content);
-            restored.AllowedAreas = panel.AllowedAreas;
-            restored.CanClose = panel.CanClose;
-            restored.PreferredWidth = panel.PreferredWidth;
-            restored.PreferredHeight = panel.PreferredHeight;
+            _panelsByKey[panelKey] = panel;
+            if (_layoutTree.GetPanel(panelKey) == null)
+                _layoutTree.RegisterPanel(panel);
 
-            OnPanelReopened(restored);
+            ApplyThemeToPanel(panel);
+            panel.State = DockPanelState.Docked;
+            EnsurePanelHostedForDock(panel);
+
+            var group = GetOrCreateGroupAtPosition(panel.DockPosition);
+            group.AddPanel(panel);
+            group.ActivePanel = panel;
+
+            _tabHandler?.RegisterTab(panelKey, panel.Title ?? "Panel");
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();
+
+            panel.OnActivated();
+            OnPanelReopened(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel reopened: {panelKey}");
-            return restored;
+            return panel;
         }
 
         /// <summary>
@@ -1424,9 +1592,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// <summary>
         /// Moves a panel into a floating Form window.
         /// Mirrors FloatWindow behavior in DockPanelSuite / Krypton MakeFloatingRequest.
-        /// Requires panel.CanFloat (AllowedAreas.Float) to be set.
+        /// Uses <paramref name="initialBounds"/> when provided so the window appears at the
+        /// restore position without a flash.
         /// </summary>
-        public void FloatPanel(string panelKey)
+        public void FloatPanel(string panelKey, Rectangle initialBounds = default)
         {
             var panel = GetPanel(panelKey);
             if (panel == null)
@@ -1438,23 +1607,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.State == DockPanelState.Floating)
                 return;
 
+            if (panel.State == DockPanelState.AutoHidden)
+                DetachFromAutoHideStrip(panel);
+            else if (panel.State == DockPanelState.Hidden)
+            { /* already detached from host by HidePanel */ }
+            else if (panel.State == DockPanelState.Closed && _hostForm != null && _hostForm.Controls.Contains(panel))
+                _hostForm.Controls.Remove(panel);
+
             // Remove from its current group in the layout tree
             panel.Group?.RemovePanel(panel);
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+
+            panel.Visible = true;
 
             // Create and show the float window
-            var floatWindow = new FloatWindow(panel, _hostForm);
+            var floatWindow = initialBounds.IsEmpty
+                ? new FloatWindow(panel, _hostForm)
+                : new FloatWindow(panel, _hostForm, initialBounds);
+            floatWindow.ControlStyle = _style;
+            floatWindow.ApplyDockingTheme(_themeColors);
             floatWindow.PanelRedocked += OnFloatWindowRedocked;
 
             // Wire drag-guide overlay — shown while the float window is moved.
             // Follows DockPanelSuite DockDragHandler: overlay tracks cursor, HitTest on move.
             EnsureGuideOverlay();
-            floatWindow.Move  += (s, e) => OnFloatWindowMoved(floatWindow);
-            floatWindow.FormClosed += (s, e) => HideGuideOverlay();
+            floatWindow.Move += (s, e) => OnFloatWindowMoved(floatWindow);
+            floatWindow.MouseUp += (s, e) => TryCommitFloatWindowDrop(floatWindow, e);
+            floatWindow.MoveOperationEnded += (s, e) => TryCommitFloatWindowDrop(floatWindow, null);
+            floatWindow.FormClosed += (s, e) =>
+            {
+                _floatWindowsByKey.Remove(panelKey);
+                HideGuideOverlay();
+            };
+
+            _floatWindowsByKey[panelKey] = floatWindow;
+
+            var addingArgs = new FloatingWindowEventArgs(floatWindow, panel);
+            OnFloatingWindowAdding(addingArgs);
 
             floatWindow.Show(_hostForm);
 
             panel.State = DockPanelState.Floating;
+            RecalculateLayout();   // reflow remaining docked panels now this one left the site
             OnPanelFloated(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel floated: {panelKey}");
@@ -1471,6 +1665,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (_guideOverlay == null || _hostForm == null) return;
             _guideOverlay.ShowOver(_hostForm);
             DockingDropTarget.HitTest(_guideOverlay, Control.MousePosition);
+        }
+
+        private void TryCommitFloatWindowDrop(FloatWindow floatWindow, MouseEventArgs e)
+        {
+            if (e != null && e.Button != MouseButtons.Left)
+                return;
+
+            if (floatWindow?.Panel == null || _hostForm == null)
+                return;
+
+            var target = DockingDropTarget.HitTest(_guideOverlay, Control.MousePosition);
+            HideGuideOverlay();
+
+            if (!target.HasValue || target.Value == DockPosition.Floating)
+                return;
+
+            var panel = floatWindow.Panel;
+            if (panel.State != DockPanelState.Floating)
+                return;
+
+            if (!IsPositionAllowed(panel, target.Value))
+                return;
+
+            var args = new CancelPanelRequestEventArgs(panel.Key, panel);
+            OnPageDockedRequest(args);
+            if (args.Cancel)
+                return;
+
+            DockFloatingPanel(panel.Key, target.Value);
         }
 
         private void HideGuideOverlay()
@@ -1495,13 +1718,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             // Dismiss the drag-guide overlay now that a drop target is confirmed.
             // Mirrors DockPanelSuite DockDragHandler.OnEndDrag().
             HideGuideOverlay();
+            CloseFloatWindowFor(panel);
+            EnsurePanelHostedForDock(panel);
 
             panel.DockPosition = position;
-            panel.State        = DockPanelState.Docked;
+            panel.State = DockPanelState.Docked;
 
             var group = GetOrCreateGroupAtPosition(position);
             group.AddPanel(panel);
-            _layoutController.InvalidateLayout();
+            group.ActivePanel = panel;
+
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();
 
             Debug.WriteLine($"[BeepDockingManager] Panel docked: {panelKey} at {position}");
         }
@@ -1523,8 +1751,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.State == DockPanelState.AutoHidden)
                 return;
 
+            if (panel.State == DockPanelState.Floating)
+                CloseFloatWindowFor(panel);
+
             // Remove from its current docked group in the layout tree
             panel.Group?.RemovePanel(panel);
+
+            // Detach from the host — the slide panel hosts it while peeked.
+            if (_hostForm != null && _hostForm.Controls.Contains(panel))
+                _hostForm.Controls.Remove(panel);
+            panel.Dock = DockStyle.None;
 
             // Hand off to the AutoHideStrip for the panel's edge —
             // the strip adds a tab button and manages the slide panel.
@@ -1533,6 +1769,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             {
                 strip.Visible = true;   // show the strip edge if it was hidden
                 strip.AddPanel(panel);
+                OnAutoHiddenGroupAdding(new AutoHiddenGroupEventArgs(panel, panel.DockPosition));
             }
             else
             {
@@ -1541,10 +1778,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             panel.State = DockPanelState.AutoHidden;
-            _layoutController.InvalidateLayout();
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();   // reflow the panels that remain docked + reconcile splitters
             OnPanelAutoHidden(panel);
 
             Debug.WriteLine($"[BeepDockingManager] Panel auto-hidden: {panelKey}");
+        }
+
+        /// <summary>
+        /// Restores (unpins) an auto-hidden panel back to a real docked group at its edge.
+        /// Inverse of <see cref="AutoHidePanel"/>; triggered by clicking the edge strip tab.
+        /// </summary>
+        public void RestoreAutoHiddenPanel(string panelKey)
+        {
+            var panel = GetPanel(panelKey);
+            if (panel == null || panel.State != DockPanelState.AutoHidden)
+                return;
+
+            DetachFromAutoHideStrip(panel);
+            EnsurePanelHostedForDock(panel);
+            panel.State = DockPanelState.Docked;
+
+            var group = GetOrCreateGroupAtPosition(panel.DockPosition);
+            group.AddPanel(panel);
+            group.ActivePanel = panel;
+
+            _layoutController?.InvalidateLayout();
+            RecalculateLayout();
+            OnPanelShown(panel);
+
+            Debug.WriteLine($"[BeepDockingManager] Panel restored from auto-hide: {panelKey}");
+        }
+
+        private void OnStripRestoreRequested(object sender, DockPanel panel)
+        {
+            if (panel != null)
+                RestoreAutoHiddenPanel(panel.Key);
         }
 
         /// <summary>
@@ -1662,12 +1931,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 ApplyThemeToDockspace(dockspace);
 
             foreach (var strip in _autoHideStrips.Values)
-                strip?.ApplyDockingTheme(_themeColors);
+            {
+                if (strip == null) continue;
+                strip.ControlStyle = _style;
+                strip.ApplyDockingTheme(_themeColors);
+            }
 
             foreach (var splitter in _splitters.Values)
-                splitter?.ApplyDockingTheme(_themeColors);
+            {
+                if (splitter == null) continue;
+                splitter.ControlStyle = _style;
+                splitter.ApplyDockingTheme(_themeColors);
+            }
 
             OnThemeChanged();
+        }
+
+        /// <summary>
+        /// Pushes the current <see cref="Style"/> to every docking surface and repaints them.
+        /// </summary>
+        private void PropagateControlStyle()
+        {
+            foreach (var panel in _panelsByKey.Values)
+            {
+                if (panel == null) continue;
+                panel.ControlStyle = _style;
+                panel.Invalidate();
+            }
+
+            foreach (var dockspace in GetManagedDockspaces())
+            {
+                if (dockspace == null) continue;
+                dockspace.ControlStyle = _style;
+                dockspace.Invalidate();
+            }
+
+            foreach (var strip in _autoHideStrips.Values)
+            {
+                if (strip == null) continue;
+                strip.ControlStyle = _style;
+                strip.Invalidate();
+            }
+
+            foreach (var splitter in _splitters.Values)
+            {
+                if (splitter == null) continue;
+                splitter.ControlStyle = _style;
+                splitter.Invalidate();
+            }
         }
 
         internal void ApplyThemeToDockspace(BeepDockspace dockspace)
@@ -1675,6 +1986,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (dockspace == null)
                 return;
 
+            dockspace.ControlStyle = _style;
             dockspace.ApplyDockingTheme(_themeColors);
         }
 
@@ -1683,6 +1995,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel == null)
                 return;
 
+            panel.ControlStyle = _style;
             panel.ApplyDockingTheme(_themeColors);
         }
 
@@ -1872,6 +2185,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             if (panel?.State == DockPanelState.Floating)
                 DockFloatingPanel(panelKey, panel.DockPosition);
+            else if (panel?.State == DockPanelState.AutoHidden)
+                RestoreAutoHiddenPanel(panelKey);
+            else if (panel?.State == DockPanelState.Hidden)
+                ShowPanel(panelKey);
+            else if (_closedPanels.ContainsKey(panelKey))
+                ReopenPanel(panelKey);
         }
 
         /// <summary>
@@ -1881,6 +2200,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public virtual void MakeFloatingRequest(string panelKey)
         {
             var panel = GetPanel(panelKey);
+            if (panel == null) return;
+
             var args = new CancelPanelRequestEventArgs(panelKey, panel);
             OnPageFloatingRequest(args);
             if (args.Cancel) return;
@@ -1894,6 +2215,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public virtual void MakeAutoHiddenRequest(string panelKey)
         {
             var panel = GetPanel(panelKey);
+            if (panel == null) return;
+
             var args = new CancelPanelRequestEventArgs(panelKey, panel);
             OnPageAutoHiddenRequest(args);
             if (args.Cancel) return;
@@ -1909,13 +2232,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             ArgumentNullException.ThrowIfNull(panelKeys);
             using var scope = new BeepDockingUpdate(this);
             foreach (var key in panelKeys.ToList())
+                CloseRequest(key);
+        }
+
+        /// <summary>
+        /// Raises <see cref="PageCloseRequest"/> for a single panel and, unless cancelled,
+        /// closes it. This is the entry point for user-initiated closes (caption close button,
+        /// middle-click, context menu) so handlers can veto the close.
+        /// </summary>
+        public virtual void CloseRequest(string panelKey)
+        {
+            var panel = GetPanel(panelKey);
+            if (panel == null)
+                return;
+
+            var args = new PanelCloseRequestEventArgs(panelKey, panel);
+            OnPageCloseRequest(args);
+            if (args.Cancel)
+                return;
+
+            switch (args.CloseRequest)
             {
-                var panel = GetPanel(key);
-                var args = new PanelCloseRequestEventArgs(key, panel);
-                OnPageCloseRequest(args);
-                if (!args.Cancel)
-                    ClosePanel(key);
+                case DockingCloseRequest.None:
+                    break;
+                case DockingCloseRequest.RemovePanel:
+                    RemovePanel(panelKey);
+                    break;
+                case DockingCloseRequest.RemovePanelAndDispose:
+                    RemovePanel(panelKey);
+                    break;
+                case DockingCloseRequest.HidePanel:
+                default:
+                    HidePanel(panelKey);
+                    break;
             }
+        }
+
+        /// <summary>
+        /// Raises <see cref="ShowPanelContextMenu"/> and, if a custom menu was supplied, shows it.
+        /// Returns <c>true</c> when a custom menu was shown (built-in menu should be skipped).
+        /// </summary>
+        internal bool TryShowPanelContextMenu(DockPanel panel, Point clientLocation)
+        {
+            if (panel == null)
+                return false;
+
+            var screen = panel.PointToScreen(clientLocation);
+            var args = new PanelContextMenuEventArgs(panel, screen);
+            OnShowPanelContextMenu(args);
+
+            if (args.ContextMenu == null)
+                return false;
+
+            args.ContextMenu.Show(panel, clientLocation);
+            return true;
         }
 
         // ── Collection accessors (mirrors Krypton Pages / PagesDocked / etc.) ────────
@@ -1935,6 +2305,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public DockPanel[] PagesFloating =>
             _panelsByKey.Values.Where(p => p.State == DockPanelState.Floating).ToArray();
 
+        /// <summary>Gets all panels currently in the Hidden state.</summary>
+        public DockPanel[] PagesHidden =>
+            _panelsByKey.Values.Where(p => p.State == DockPanelState.Hidden).ToArray();
+
         /// <summary>
         /// Gets a diagnostic summary of the manager state.
         /// </summary>
@@ -1943,8 +2317,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("=== BeepDockingManager Diagnostics ===");
             sb.AppendLine($"Host Form: {_hostForm?.Name ?? "(null)"}");
-            sb.AppendLine($"Host HWND: 0x{_hostHwnd:X8}");
-            sb.AppendLine($"MDI Client HWND: 0x{_mdiClientHwnd:X8}");
             sb.AppendLine($"Panels: {PanelCount}");
             sb.AppendLine();
             sb.Append(_layoutTree.GetDiagnostics());
@@ -2062,17 +2434,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (_disposed)
                 return;
 
-            // Destroy MDI client if it exists
-            if (_mdiClientHwnd != IntPtr.Zero)
+            DetachHostFormHandlers();
+            CloseAllFloatWindows();
+            ClearAllAutoHidePanels();
+
+            foreach (var panel in _panelsByKey.Values.ToList())
             {
-                MdiNativeApi.DestroyWindow(_mdiClientHwnd);
-                _mdiClientHwnd = IntPtr.Zero;
+                if (_hostForm != null && _hostForm.Controls.Contains(panel))
+                    _hostForm.Controls.Remove(panel);
+                panel.Dispose();
             }
 
             _panelsByKey.Clear();
-            _panelsByHwnd.Clear();
-            _windowToPanelMap.Clear();
             _layoutTree.Clear();
+
+            // Closed panels were removed from the host form's Controls, so the form will not
+            // dispose them — release their controls here to avoid leaking them.
+            foreach (var closed in _closedPanels.Values)
+                closed?.Dispose();
+            _closedPanels.Clear();
 
             foreach (var strip in _autoHideStrips.Values)
                 strip?.Dispose();
@@ -2081,37 +2461,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _guideOverlay?.Dispose();
             _guideOverlay = null;
 
+            _dragController?.Dispose();
+            _dragController = null;
+
             foreach (var sp in _splitters.Values)
                 sp?.Dispose();
             _splitters.Clear();
 
-            // Dispose Phase 4 components
-            _dragHandler?.Dispose();
-            _dragHandler = null;
-
-            _contentHosting?.Dispose();
-            _contentHosting = null;
-
             _tabHandler?.Dispose();
             _tabHandler = null;
 
-            _painterIntegration?.Dispose();
-            _painterIntegration = null;
-
-            _mouseHandler = null;
-
-            _eventInterceptor?.Dispose();
-            _eventInterceptor = null;
-
-            // Dispose Phase 3 and earlier components
             if (!ReferenceEquals(_painter, NullDockingPainter.Instance))
                 _painter.Dispose();
             _painter = NullDockingPainter.Instance;
             _layoutController = null;
-            _positioner = null;
-            _chrome?.Dispose();
-            _chrome = null;
-            _panelWindowManager = null;
             Strings.PropertyChanged -= OnStringPropertyChanged;
             UnsubscribeThemeChanged();
 

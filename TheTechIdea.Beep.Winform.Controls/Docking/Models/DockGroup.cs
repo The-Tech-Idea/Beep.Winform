@@ -58,10 +58,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// </summary>
         public IReadOnlyList<DockPanel> Panels => _panels.AsReadOnly();
 
+        private DockPanel _activePanel;
+
         /// <summary>
         /// The active (currently visible) panel in this group.
+        /// Setting fires Deactivated on the old panel and Activated on the new one.
         /// </summary>
-        public DockPanel ActivePanel { get; set; }
+        public DockPanel ActivePanel
+        {
+            get => _activePanel;
+            set
+            {
+                if (ReferenceEquals(_activePanel, value))
+                    return;
+                var old = _activePanel;
+                _activePanel = value;
+                old?.OnDeactivated();
+                value?.OnActivated();
+            }
+        }
 
         /// <summary>
         /// Cached client area rectangle (computed by layout engine).
@@ -80,6 +95,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         {
             get => _splitRatio;
             set => _splitRatio = Math.Max(0.1f, Math.Min(0.9f, value));  // Clamp to [0.1, 0.9]
+        }
+
+        /// <summary>
+        /// True once <see cref="SplitRatio"/> has been seeded from preferred sizes (or by a
+        /// splitter drag). Lets the layout engine seed the ratio from preferred dimensions on
+        /// the first pass without overwriting a user-resized ratio afterwards.
+        /// </summary>
+        internal bool RatioInitialized { get; set; }
+
+        /// <summary>
+        /// Minimum width this group may be resized to. Derived from the largest
+        /// <see cref="DockPanel.MinWidth"/> of contained panels (and child groups),
+        /// with an absolute floor so a group can never collapse to nothing.
+        /// </summary>
+        public int MinWidth
+        {
+            get
+            {
+                int min = 24;
+                foreach (var p in _panels)
+                    min = Math.Max(min, p.MinWidth);
+                foreach (var c in _children)
+                    min = Math.Max(min, c.MinWidth);
+                return min;
+            }
+        }
+
+        /// <summary>
+        /// Minimum height this group may be resized to. Derived from the largest
+        /// <see cref="DockPanel.MinHeight"/> of contained panels (and child groups),
+        /// with an absolute floor so a group can never collapse to nothing.
+        /// </summary>
+        public int MinHeight
+        {
+            get
+            {
+                int min = 24;
+                foreach (var p in _panels)
+                    min = Math.Max(min, p.MinHeight);
+                foreach (var c in _children)
+                    min = Math.Max(min, c.MinHeight);
+                return min;
+            }
         }
 
         /// <summary>

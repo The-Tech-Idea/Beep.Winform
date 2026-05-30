@@ -80,12 +80,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                 StartEditing();
             }
         }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (_readOnly) return;
+
+            if (e.Delta > 0)
+                IncrementValueInternal();
+            else if (e.Delta < 0)
+                DecrementValueInternal();
+
+            ((HandledMouseEventArgs)e).Handled = true;
+        }
         #endregion
 
         #region Keyboard Events
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
+
+            if (_readOnly) return;
 
             if (!_interceptArrowKeys && (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down))
             {
@@ -177,6 +191,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             }
             Invalidate();
         }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+            if (!Enabled)
+                StopRepeatTimer();
+        }
         #endregion
 
         #region Timer Events
@@ -190,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
             _repeatCount = 0;
             _repeatTimer.Interval = INITIAL_DELAY;
-            _repeatTimer.Tag = increment; // Store direction
+            _repeatIncrementDirection = increment;
             _repeatTimer.Start();
 
             // Immediate action
@@ -219,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
                 _repeatTimer.Interval = REPEAT_DELAY;
             }
 
-            bool increment = (bool)_repeatTimer.Tag;
+            bool increment = _repeatIncrementDirection;
             if (increment)
                 IncrementValueInternal();
             else

@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
+using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
+using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 {
@@ -29,17 +33,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
     public class AutoHideStrip : Control
     {
         // ── Constants (mirrors DockPanelSuite theme measures) ──────────────
-        private const int TabSize      = 22;   // thickness of the strip
-        private const int TabMinLength = 60;   // minimum tab length along the strip
-        private const int TabPadding   = 8;    // horizontal padding inside each tab
+        internal const int TabSize = 22;   // thickness of the strip
+        private const int HidePollMs = 150;   // slide-back poll interval
+        private const int HideGraceTicks = 2; // cursor must be away ~300 ms before collapse
+
+        private static Font StripFont => BeepFontManager.StatusBarFont;
 
         // ── Fields ─────────────────────────────────────────────────────────
         private readonly DockPosition _edge;
-        private readonly List<DockPanel> _panels      = new List<DockPanel>();
-        private readonly List<Rectangle> _tabRects    = new List<Rectangle>();  // cached per tab
+        private readonly List<DockPanel> _panels = new List<DockPanel>();
+        private readonly AutoHideStripLayoutManager _layout = new AutoHideStripLayoutManager();
         private DockPanel _activePanel;   // tab that is currently selected (slide shown)
         private AutoHideSlidePanel _slidePanel;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
+        private readonly Timer _hideTimer;
+        private int _awayTicks;
+
+        /// <summary>Control style driving strip rendering. Set by the manager (used once StripRenderer lands).</summary>
+        internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
+
+        /// <summary>
+        /// Raised when the user clicks a strip tab to restore (unpin) the panel back to a docked
+        /// group. The manager re-docks the panel and removes it from this strip.
+        /// </summary>
+        public event EventHandler<DockPanel> PanelRestoreRequested;
+
+        /// <summary>Raised when the slide panel expands or collapses (layout inset may change).</summary>
+        internal event EventHandler SlideLayoutChanged;
+
+        /// <summary>Raised when the user drags the slide panel separator to resize it.</summary>
+        internal event EventHandler<SeparatorResizeEventArgs> SlideSeparatorResized;
+
+        private void NotifySlideLayoutChanged() => SlideLayoutChanged?.Invoke(this, EventArgs.Empty);
 
         // ── Constructor ─────────────────────────────────────────────────────
 
@@ -61,12 +86,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
             // Create the companion slide panel
             _slidePanel = new AutoHideSlidePanel(_edge);
+            _slidePanel.SeparatorResize += (_, e) => SlideSeparatorResized?.Invoke(this, e);
             if (hostForm != null)
             {
                 hostForm.Controls.Add(_slidePanel);
                 hostForm.Controls.Add(this);
                 BringToFront();
             }
+
+            // Poll timer drives slide-back: collapses the peeked panel once the cursor has been
+            // away from both the strip and the slide panel for HideGraceTicks ticks.
+            _hideTimer = new Timer { Interval = HidePollMs };
+            _hideTimer.Tick += OnHidePoll;
         }
 
         // ── Public API ───────────────────────────────────────────────────────
@@ -79,6 +110,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
         /// <summary>The panel whose slide-out is currently visible (null when collapsed).</summary>
         public DockPanel ActivePanel => _activePanel;
+
+        /// <summary>True while the peek slide panel is expanded.</summary>
+        internal bool IsSlideVisible => _slidePanel != null && _slidePanel.Visible;
+
+        /// <summary>Pixels the expanded slide consumes beyond the strip thickness.</summary>
+        internal int SlideExtent
+        {
+            get
+            {
+                if (!IsSlideVisible)
+                    return 0;
+
+                return _edge == DockPosition.Left || _edge == DockPosition.Right
+                    ? _slidePanel.Width
+                    : _slidePanel.Height;
+            }
+        }
 
         internal void ApplyDockingTheme(DockingThemeColors colors)
         {
@@ -131,7 +179,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
             _activePanel = panel;
             _slidePanel.Show(panel);
+            RecalculateTabs();
             Invalidate();
+            NotifySlideLayoutChanged();
+        }
+
+        /// <summary>
+        /// Hover-peek: slides the panel out (if not already showing) and arms the slide-back poll.
+        /// Unlike <see cref="ShowPanel"/> this does not toggle when the same tab is hovered again.
+        /// </summary>
+        public void PeekPanel(DockPanel panel)
+        {
+            if (panel == null || !_panels.Contains(panel)) return;
+            if (_activePanel == panel)
+            {
+                _awayTicks = 0;   // keep it open while interacting
+                return;
+            }
+
+            if (_activePanel != null)
+                _slidePanel.Hide();
+
+            _activePanel = panel;
+            _slidePanel.Show(panel);
+            RecalculateTabs();
+            Invalidate();
+            NotifySlideLayoutChanged();
+
+            _awayTicks = 0;
+            _hideTimer.Start();
         }
 
         /// <summary>
@@ -139,10 +215,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// </summary>
         public void CollapseSlide()
         {
+            _hideTimer.Stop();
             if (_activePanel == null) return;
             _slidePanel.Hide();
             _activePanel = null;
+            RecalculateTabs();
             Invalidate();
+            NotifySlideLayoutChanged();
+        }
+
+        // ── Hover-peek / slide-back ───────────────────────────────────────────
+
+        /// <summary>True when the cursor is over the strip or the visible slide panel.</summary>
+        private bool IsCursorOverStripOrSlide()
+        {
+            var p = Control.MousePosition;
+            if (RectangleToScreen(ClientRectangle).Contains(p))
+                return true;
+            if (_slidePanel != null && _slidePanel.Visible && _slidePanel.Width > 0 && _slidePanel.Height > 0)
+                return _slidePanel.RectangleToScreen(_slidePanel.ClientRectangle).Contains(p);
+            return false;
+        }
+
+        private void OnHidePoll(object sender, EventArgs e)
+        {
+            if (_activePanel == null)
+            {
+                _hideTimer.Stop();
+                return;
+            }
+
+            if (IsCursorOverStripOrSlide())
+            {
+                _awayTicks = 0;
+                return;
+            }
+
+            if (++_awayTicks >= HideGraceTicks)
+                CollapseSlide();
         }
 
         // ── Layout ───────────────────────────────────────────────────────────
@@ -172,25 +282,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
         private void RecalculateTabs()
         {
-            _tabRects.Clear();
             bool horizontal = (_edge == DockPosition.Top || _edge == DockPosition.Bottom);
-            int pos = 2;  // start offset
 
+            var models = new List<AutoHideTabModel>(_panels.Count);
             foreach (var p in _panels)
             {
-                int titleLen;
-                using (var g = CreateGraphics())
-                using (var font = new Font("Segoe UI", 8f))
-                    titleLen = (int)g.MeasureString(p.Title, font).Width + TabPadding * 2;
-                titleLen = Math.Max(titleLen, TabMinLength);
-
-                Rectangle r = horizontal
-                    ? new Rectangle(pos, 0, titleLen, TabSize)
-                    : new Rectangle(0, pos, TabSize, titleLen);
-
-                _tabRects.Add(r);
-                pos += (horizontal ? titleLen : titleLen) + 2;
+                models.Add(new AutoHideTabModel
+                {
+                    Title = p.Title,
+                    IconPath = p.IconPath,
+                    IsActive = (p == _activePanel),
+                    Tag = p
+                });
             }
+
+            _layout.Compute(horizontal, models, StripFont);
         }
 
         // ── Painting ─────────────────────────────────────────────────────────
@@ -198,60 +304,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            var g = e.Graphics;
 
-            // Strip background
-            using (var bg = new SolidBrush(_themeColors.AutoHideStripBackColor))
-                g.FillRectangle(bg, ClientRectangle);
-
-            bool horizontal = (_edge == DockPosition.Top || _edge == DockPosition.Bottom);
-
-            for (int i = 0; i < _panels.Count && i < _tabRects.Count; i++)
+            var ctx = new DockingPainterContext
             {
-                var panel = _panels[i];
-                var rect  = _tabRects[i];
-                bool isActive = (panel == _activePanel);
+                Colors = _themeColors,
+                Style = ControlStyle,
+                Bounds = ClientRectangle
+            };
 
-                // Tab background
-                Color tabBack = isActive
-                    ? _themeColors.AutoHideActiveTabBackColor
-                    : _themeColors.AutoHideTabBackColor;
-
-                using (var brush = new SolidBrush(tabBack))
-                    g.FillRectangle(brush, rect);
-
-                // Tab border
-                using (var pen = new Pen(_themeColors.TabBorderColor))
-                    g.DrawRectangle(pen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
-
-                // Tab title — rotate 90° for Left/Right edges, straight for Top/Bottom
-                using (var font  = new Font("Segoe UI", 8f))
-                using (var brush = new SolidBrush(isActive ? _themeColors.ActiveTabForeColor : _themeColors.InactiveTabForeColor))
-                {
-                    var sf = new StringFormat
-                    {
-                        Alignment     = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming      = StringTrimming.EllipsisCharacter
-                    };
-
-                    if (horizontal)
-                    {
-                        g.DrawString(panel.Title, font, brush, rect, sf);
-                    }
-                    else
-                    {
-                        // Rotate text 90° for vertical edges (Left / Right)
-                        var state = g.Save();
-                        g.TranslateTransform(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
-                        g.RotateTransform(-90f);
-                        var rotRect = new RectangleF(-rect.Height / 2f, -rect.Width / 2f,
-                                                      rect.Height, rect.Width);
-                        g.DrawString(panel.Title, font, brush, rotRect, sf);
-                        g.Restore(state);
-                    }
-                }
-            }
+            DockingPainterFactory.GetRenderers(ControlStyle).AutoHide.Paint(e.Graphics, ctx, _layout);
         }
 
         protected override void OnResize(EventArgs e)
@@ -260,25 +321,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             RecalculateTabs();
         }
 
-        // ── Mouse — click tab to show/hide slide panel ────────────────────────
+        // ── Mouse — hover peeks, click restores (unpin) ───────────────────────
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            var hit = _layout.HitTest(e.Location);
+            if (hit?.Tag is DockPanel panel)
+                PeekPanel(panel);
+        }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-            for (int i = 0; i < _tabRects.Count; i++)
-            {
-                if (_tabRects[i].Contains(e.Location))
-                {
-                    ShowPanel(_panels[i]);
-                    return;
-                }
-            }
+            var hit = _layout.HitTest(e.Location);
+            if (hit?.Tag is DockPanel panel)
+                PanelRestoreRequested?.Invoke(this, panel);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
+                _hideTimer?.Stop();
+                _hideTimer?.Dispose();
                 _slidePanel?.Dispose();
+            }
             base.Dispose(disposing);
         }
     }

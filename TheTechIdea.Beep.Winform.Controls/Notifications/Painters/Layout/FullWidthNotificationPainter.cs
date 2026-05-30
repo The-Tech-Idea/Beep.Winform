@@ -25,7 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Painters
             var colors = GetColorsForType(data.Type, CreateRenderOptions(data));
             // Solid fill — no rounding, full-width bar
             Color back = data.CustomBackColor ?? colors.IconColor;
-            g.FillRectangle(new SolidBrush(back), bounds);
+            using (var brush = new SolidBrush(back))
+                g.FillRectangle(brush, bounds);
         }
 
         public override void PaintIcon(Graphics g, Rectangle iconRect, NotificationData data)

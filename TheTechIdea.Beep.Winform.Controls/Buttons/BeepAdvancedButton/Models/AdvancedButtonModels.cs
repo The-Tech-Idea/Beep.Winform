@@ -56,11 +56,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         public string IconRight { get; set; }
         public bool IsToggled { get; set; }
         public bool IsLoading { get; set; }
-        public BeepTheme Theme { get; set; }
+        public IBeepTheme Theme { get; set; }
         public Font TextFont { get; set; } = SystemFonts.DefaultFont;
         public ButtonIntent Intent { get; set; } = ButtonIntent.Primary;
 
         // Shape property - determines how painters render the button
+        // NOTE: ButtonShape alias removed - use Shape consistently
         public ButtonShape Shape { get; set; }
         
         // Split button area states (for Toggle with Split shape)
@@ -111,8 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models
         // Size
         public AdvancedButtonSize ButtonSize { get; set; }
         
-        // Button shape for rendering
-        public ButtonShape ButtonShape { get; set; }
+        // Chevron style for navigation chevron buttons
         public ChevronStyle? ChevronStyle { get; set; }
 
         // Chip/Tag specific properties

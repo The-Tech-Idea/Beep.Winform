@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             Color bgColor = GetBackgroundColor(context);
             using (Brush bgBrush = new SolidBrush(bgColor))
             {
-                FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
+                FillShapePath(g, bgBrush, buttonBounds, context);
             }
 
             // Draw ripple effect

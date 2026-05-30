@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
     ///     Right → grow left   (X shrinks, Width grows)
     ///     Top   → grow down   (Y fixed, Height grows)
     ///     Bottom→ grow up     (Y shrinks, Height grows)
-    /// - No persistence — purely visual; actual panel state managed by BeepDockingManager.
+    /// - Resize grip on the inner edge follows DockPanelSuite separator sizing.
     ///
     /// Reference files:
     ///   dockpanelsuite-master\WinFormsUI\Docking\DockPanel.AutoHideWindow.cs  (AnimateWindow)
@@ -28,21 +28,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
     [DesignTimeVisible(false)]
     public class AutoHideSlidePanel : Panel
     {
-        // ── Constants (mirrors DockPanelSuite ANIMATE_TIME) ────────────────
-        private const int AnimateTime    = 100;   // total ms
-        private const int AnimateTickMs  = 10;    // timer interval ms
-        private const int AnimateSteps   = AnimateTime / AnimateTickMs;  // = 10
+        private const int AnimateTime    = 100;
+        private const int AnimateTickMs  = 10;
+        private const int AnimateSteps   = AnimateTime / AnimateTickMs;
 
-        // ── Fields ─────────────────────────────────────────────────────────
+        /// <summary>Thickness of the resize separator in pixels.</summary>
+        private const int SeparatorSize  = 5;
+        /// <summary>Minimum slide extent allowed when resizing.</summary>
+        private const int MinSlideExtent = 80;
+
         private readonly DockPosition _edge;
         private DockPanel _hostedPanel;
         private Timer _animTimer;
-        private bool _slidingIn;     // true = growing; false = shrinking
-        private int  _step;          // current animation step
-        private int  _targetSize;    // full preferred size (Width or Height)
+        private bool _slidingIn;
+        private int  _step;
+        private int  _targetSize;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
 
-        // ── Constructor ─────────────────────────────────────────────────────
+        // Resize grip state
+        private bool _resizeGripArmed;
+        private bool _resizeActive;
+        private Point _resizeDragOrigin;
+        private int   _resizeStartSize;
+
+        /// <summary>Raised when the user drags the separator to resize the slide panel.</summary>
+        public event EventHandler<SeparatorResizeEventArgs> SeparatorResize;
 
         public AutoHideSlidePanel(DockPosition edge)
         {
@@ -55,6 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             BorderStyle = BorderStyle.FixedSingle;
             Visible     = false;
             BackColor   = _themeColors.SlidePanelBackColor;
+            Padding     = ComputeSeparatorPadding();
 
             _animTimer = new Timer { Interval = AnimateTickMs };
             _animTimer.Tick += OnAnimTick;
@@ -62,12 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             ApplyEdgeDock();
         }
 
-        // ── Public API ───────────────────────────────────────────────────────
-
-        /// <summary>The edge this slide panel is anchored to.</summary>
         public DockPosition Edge => _edge;
-
-        /// <summary>The DockPanel currently hosted in this slide panel (null when hidden).</summary>
         public DockPanel HostedPanel => _hostedPanel;
 
         internal void ApplyDockingTheme(DockingThemeColors colors)
@@ -79,15 +85,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             Invalidate();
         }
 
-        /// <summary>
-        /// Begins the slide-in animation and shows the given panel.
-        /// If another panel is already hosted, it is removed first.
-        /// </summary>
         public void Show(DockPanel panel)
         {
             if (panel == null) return;
 
-            // Remove previous hosted panel if different
             if (_hostedPanel != null && _hostedPanel != panel)
             {
                 Controls.Remove(_hostedPanel);
@@ -99,7 +100,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             _targetSize   = IsVertical ? panel.PreferredWidth : panel.PreferredHeight;
             if (_targetSize <= 0) _targetSize = 200;
 
-            // Place panel inside slide control
             if (!Controls.Contains(panel))
             {
                 panel.Dock    = DockStyle.Fill;
@@ -116,9 +116,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             _animTimer.Start();
         }
 
-        /// <summary>
-        /// Begins the slide-out (collapse) animation.
-        /// </summary>
         public new void Hide()
         {
             if (!Visible) return;
@@ -127,9 +124,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             _animTimer.Start();
         }
 
-        // ── Layout helpers ───────────────────────────────────────────────────
-
         private bool IsVertical => (_edge == DockPosition.Left || _edge == DockPosition.Right);
+
+        private Padding ComputeSeparatorPadding()
+        {
+            return _edge switch
+            {
+                DockPosition.Left   => new Padding(0, 0, SeparatorSize, 0),
+                DockPosition.Right  => new Padding(SeparatorSize, 0, 0, 0),
+                DockPosition.Top    => new Padding(0, 0, 0, SeparatorSize),
+                DockPosition.Bottom => new Padding(0, SeparatorSize, 0, 0),
+                _                   => Padding.Empty
+            };
+        }
+
+        private Rectangle SeparatorRect
+        {
+            get
+            {
+                return _edge switch
+                {
+                    DockPosition.Left   => new Rectangle(Width - SeparatorSize, 0, SeparatorSize, Height),
+                    DockPosition.Right  => new Rectangle(0, 0, SeparatorSize, Height),
+                    DockPosition.Top    => new Rectangle(0, Height - SeparatorSize, Width, SeparatorSize),
+                    DockPosition.Bottom => new Rectangle(0, 0, Width, SeparatorSize),
+                    _                   => Rectangle.Empty
+                };
+            }
+        }
+
+        private Cursor SeparatorCursor
+        {
+            get
+            {
+                return _edge switch
+                {
+                    DockPosition.Left   => Cursors.SizeWE,
+                    DockPosition.Right  => Cursors.SizeWE,
+                    DockPosition.Top    => Cursors.SizeNS,
+                    DockPosition.Bottom => Cursors.SizeNS,
+                    _                   => Cursors.Default
+                };
+            }
+        }
 
         private void ApplyEdgeDock()
         {
@@ -170,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             }
         }
 
-        // ── Animation tick — mirrors DockPanelSuite AnimateWindow loop ────────
+        // ── Animation tick ────────────────────────────────────────────────────────
 
         private void OnAnimTick(object sender, EventArgs e)
         {
@@ -179,7 +216,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
             if (_slidingIn)
             {
-                // Ease in: size = targetSize * (step / totalSteps)
                 newSize = (_targetSize * _step) / AnimateSteps;
                 if (_step >= AnimateSteps || newSize >= _targetSize)
                 {
@@ -189,19 +225,146 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             }
             else
             {
-                // Ease out: shrink from _targetSize → 0
                 newSize = _targetSize - (_targetSize * _step) / AnimateSteps;
                 if (_step >= AnimateSteps || newSize <= 0)
                 {
                     newSize = 0;
                     _animTimer.Stop();
-                    Visible      = false;
-                    _hostedPanel = null;
+                    Visible = false;
+                    if (_hostedPanel != null)
+                    {
+                        Controls.Remove(_hostedPanel);
+                        _hostedPanel.Visible = false;
+                        _hostedPanel.Dock = DockStyle.None;
+                        _hostedPanel = null;
+                    }
                 }
             }
 
             CurrentSize = newSize;
             Parent?.PerformLayout();
+        }
+
+        // ── Resize grip ────────────────────────────────────────────────────────────
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            var sepRect = SeparatorRect;
+            if (sepRect.Contains(e.Location))
+            {
+                _resizeGripArmed = true;
+                _resizeActive = true;
+                _resizeDragOrigin = PointToScreen(e.Location);
+                _resizeStartSize = CurrentSize;
+                Capture = true;
+            }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (_resizeActive)
+            {
+                var screenNow = PointToScreen(e.Location);
+                int delta = IsVertical
+                    ? screenNow.X - _resizeDragOrigin.X
+                    : screenNow.Y - _resizeDragOrigin.Y;
+
+                int newSize = Math.Max(MinSlideExtent, _resizeStartSize + delta);
+                CurrentSize = newSize;
+
+                if (_hostedPanel != null)
+                {
+                    if (IsVertical) _hostedPanel.PreferredWidth  = newSize;
+                    else            _hostedPanel.PreferredHeight = newSize;
+                }
+
+                Parent?.PerformLayout();
+                return;
+            }
+
+            var sepRect = SeparatorRect;
+            if (sepRect.Contains(e.Location))
+            {
+                _resizeGripArmed = true;
+                Cursor = SeparatorCursor;
+            }
+            else
+            {
+                _resizeGripArmed = false;
+                Cursor = Cursors.Default;
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (_resizeActive)
+            {
+                _resizeActive = false;
+                Capture = false;
+
+                if (_hostedPanel != null)
+                {
+                    int newSize = CurrentSize;
+                    if (IsVertical) _hostedPanel.PreferredWidth  = newSize;
+                    else            _hostedPanel.PreferredHeight = newSize;
+                }
+
+                SeparatorResize?.Invoke(this, new SeparatorResizeEventArgs(
+                    _hostedPanel,
+                    _edge == DockPosition.Left || _edge == DockPosition.Right
+                        ? new Rectangle(0, 0, CurrentSize, Height)
+                        : new Rectangle(0, 0, Width, CurrentSize)));
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (!_resizeActive)
+            {
+                _resizeGripArmed = false;
+                Cursor = Cursors.Default;
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            var sepRect = SeparatorRect;
+            if (sepRect.Width <= 0 || sepRect.Height <= 0)
+                return;
+
+            using (var brush = new SolidBrush(_resizeGripArmed
+                ? _themeColors.AccentColor
+                : _themeColors.SplitterBackColor))
+            {
+                e.Graphics.FillRectangle(brush, sepRect);
+            }
+
+            // Small grip dots in the center of the separator.
+            int centerX = sepRect.X + sepRect.Width / 2;
+            int centerY = sepRect.Y + sepRect.Height / 2;
+            using (var pen = new Pen(_themeColors.BorderColor))
+            {
+                if (_edge == DockPosition.Left || _edge == DockPosition.Right)
+                {
+                    for (int y = centerY - 8; y <= centerY + 8; y += 4)
+                        e.Graphics.DrawLine(pen, centerX - 1, y, centerX + 1, y);
+                }
+                else
+                {
+                    for (int x = centerX - 8; x <= centerX + 8; x += 4)
+                        e.Graphics.DrawLine(pen, x, centerY - 1, x, centerY + 1);
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)

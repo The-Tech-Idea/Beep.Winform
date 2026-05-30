@@ -5,7 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
     /// <summary>
-    /// Painter for gradient filled buttons
+    /// Gradient badge button - gradient background, white icon circle on left, dark text, chevron.
+    /// Matches the "SEARCH / BUY NOW" gradient badge style from reference images.
     /// </summary>
     public class GradientButtonPainter : BaseButtonPainter
     {
@@ -16,91 +17,88 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
-            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
-            Rectangle buttonBounds = context.Bounds;
+            Rectangle bounds = context.Bounds;
 
-            // Draw shadow
+            // Shadow
             if (context.ShowShadow && context.State != Enums.AdvancedButtonState.Disabled)
             {
-                DrawShadow(g, buttonBounds, context.BorderRadius, context.ShadowBlur, context.ShadowColor);
+                DrawShadow(g, bounds, context.BorderRadius, 8, Color.FromArgb(35, 0, 0, 0));
             }
 
-            // Draw gradient background
+            // Gradient background
             Color startColor = GetBackgroundColor(context);
             Color endColor = context.State == Enums.AdvancedButtonState.Disabled
                 ? context.DisabledBackground
-                : Blend(startColor, context.PressedBackground, 0.35f);
+                : Blend(startColor, context.HoverBackground, 0.4f);
 
-            using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
-                buttonBounds,
-                startColor,
-                endColor,
-                LinearGradientMode.Vertical))
+            using (var path = GetShapePath(bounds, context))
+            using (var gradientBrush = new LinearGradientBrush(bounds, startColor, endColor, LinearGradientMode.Horizontal))
             {
-                FillRoundedRectangle(g, gradientBrush, buttonBounds, tokens.BorderRadius);
+                g.FillPath(gradientBrush, path);
             }
 
-            // Draw ripple effect
             DrawRippleEffect(g, context);
 
-            // Draw content
-            Color contentColor = GetForegroundColor(context);
+            // White icon circle on left
+            int circleSize = Math.Min(bounds.Height - 6, metrics.IconSize + 10);
+            Rectangle circleBounds = new Rectangle(
+                bounds.X + 6,
+                bounds.Y + (bounds.Height - circleSize) / 2,
+                circleSize, circleSize);
 
-            if (context.IsLoading)
+            if (HasPrimaryIcon(context) && !context.IsLoading)
             {
-                DrawLoadingSpinner(g, context, buttonBounds, contentColor);
+                // White circle background
+                using (var circlePath = new GraphicsPath())
+                {
+                    circlePath.AddEllipse(circleBounds);
+                    using (var whiteBrush = new SolidBrush(Color.White))
+                        g.FillPath(whiteBrush, circlePath);
+                }
+
+                // Icon inside
+                DrawIcon(g, context,
+                    new Rectangle(circleBounds.X + (circleSize - metrics.IconSize) / 2,
+                        circleBounds.Y + (circleSize - metrics.IconSize) / 2,
+                        metrics.IconSize, metrics.IconSize),
+                    GetPrimaryIconPath(context));
             }
-            else
+            else if (context.IsLoading)
             {
-                DrawCenteredContent(g, context, metrics, contentColor);
+                DrawLoadingSpinner(g, context, circleBounds, Color.DimGray);
+            }
+
+            // Dark text to right of circle
+            int textStartX = circleBounds.Right + 8;
+            Rectangle textBounds = new Rectangle(textStartX, bounds.Y,
+                bounds.Width - textStartX - metrics.IconSize, bounds.Height);
+
+            Color textColor = Color.FromArgb(50, 50, 50);
+            if (!context.IsLoading && !string.IsNullOrEmpty(context.Text))
+            {
+                DrawText(g, context, textBounds, textColor);
+            }
+
+            // White chevron on right
+            Rectangle chevronBounds = new Rectangle(
+                bounds.Right - metrics.IconSize - 6,
+                bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                metrics.IconSize, metrics.IconSize);
+            if (!context.IsLoading)
+            {
+                using (var pen = new Pen(Color.White, 2f))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    int midY = chevronBounds.Y + chevronBounds.Height / 2;
+                    g.DrawLine(pen, chevronBounds.X + 2, chevronBounds.Y + 2,
+                        chevronBounds.Right - 4, midY);
+                    g.DrawLine(pen, chevronBounds.Right - 4, midY,
+                        chevronBounds.X + 2, chevronBounds.Bottom - 2);
+                }
             }
 
             DrawFocusRingPrimitive(g, context);
         }
-
-        private void DrawCenteredContent(Graphics g, AdvancedButtonPaintContext context,
-            AdvancedButtonMetrics metrics, Color color)
-        {
-            Rectangle bounds = context.Bounds;
-            bool hasIcon = HasPrimaryIcon(context);
-            bool hasText = !string.IsNullOrEmpty(context.Text);
-
-            if (hasIcon && hasText)
-            {
-                int totalWidth = metrics.IconSize + metrics.IconTextGap + MeasureContextTextWidth(context);
-                int startX = bounds.X + (bounds.Width - totalWidth) / 2;
-
-                Rectangle iconBounds = new Rectangle(
-                    startX,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-
-                Rectangle textBounds = new Rectangle(
-                    startX + metrics.IconSize + metrics.IconTextGap,
-                    bounds.Y,
-                    totalWidth - metrics.IconSize - metrics.IconTextGap,
-                    bounds.Height
-                );
-                DrawText(g, context, textBounds, color);
-            }
-            else if (hasIcon)
-            {
-                Rectangle iconBounds = new Rectangle(
-                    bounds.X + (bounds.Width - metrics.IconSize) / 2,
-                    bounds.Y + (bounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-            }
-            else
-            {
-                DrawText(g, context, bounds, color);
-            }
-        }
-
     }
 }

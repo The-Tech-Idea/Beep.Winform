@@ -76,9 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             RegisterControl(typeof(BeepRadioGroup), typeof(BeepRadioGroupDesigner));
             RegisterControl(typeof(BeepTabs), typeof(BeepTabsDesigner));
             
-            // Combined Controls
-            RegisterControl(typeof(BeepExtendedButton), typeof(BeepExtendedButtonDesigner));
-
+          
             // Text Input Controls
             RegisterControl(typeof(BeepTextBox), typeof(BeepTextBoxDesigner));
 

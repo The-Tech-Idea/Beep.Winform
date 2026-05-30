@@ -40,23 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private readonly Stack<CalendarMutationRecord> _redoStack = new();
         private bool _suspendHistory;
 
-        // Controls
-        private BeepButton _prevButton;
-        private BeepButton _nextButton;
-        private BeepButton _todayButton;
-        private BeepButton _undoButton;
-        private BeepButton _redoButton;
-        private BeepButton _monthViewButton;
-        private BeepButton _weekViewButton;
-        private BeepButton _workWeekViewButton;
-        private BeepButton _dayViewButton;
-        private BeepButton _agendaViewButton;
-        private BeepButton _timelineViewButton;
-        private BeepButton _listViewButton;
-        private BeepButton _createEventButton;
-        private BeepButton _duplicateEventButton;
-        private BeepButton _editEventButton;
-        private BeepButton _deleteEventButton;
+        // Toolbar uses painted buttons (BeepCalendar.Toolbar.cs) — no child controls needed
 
         private const int InteractionDragThresholdPx = 4;
         private const int ResizeHandleHitSizePx = 6;

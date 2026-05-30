@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
     /// </summary>
     public class TabInteractionHandler : IDisposable
     {
-        private PanelWindowManager _panelManager;
+        private Func<string, bool> _onActivatePanel;
         private DockLayoutTree _layoutTree;
         private Dictionary<string, TabState> _tabStates = new();
         private string _activeTabKey;
@@ -47,11 +47,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// <summary>
         /// Initializes the tab interaction handler.
         /// </summary>
+        /// <param name="onActivatePanel">Callback invoked to activate a panel by key.</param>
+        /// <param name="layoutTree">The docking layout tree.</param>
         public TabInteractionHandler(
-            PanelWindowManager panelManager,
+            Func<string, bool> onActivatePanel,
             DockLayoutTree layoutTree)
         {
-            _panelManager = panelManager ?? throw new ArgumentNullException(nameof(panelManager));
+            _onActivatePanel = onActivatePanel;
             _layoutTree = layoutTree ?? throw new ArgumentNullException(nameof(layoutTree));
         }
 
@@ -131,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             _activeTabKey = panelKey;
 
             // Activate the panel
-            _panelManager?.ActivatePanel(panelKey);
+            _onActivatePanel?.Invoke(panelKey);
 
             Debug.WriteLine($"[TabInteractionHandler] Tab clicked: {panelKey}");
 

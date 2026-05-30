@@ -84,11 +84,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
         /// Applies font theme to numeric control
         /// Updates the control's Font property based on ControlStyle
         /// </summary>
-        public static void ApplyFontTheme(
-            BeepControlStyle controlStyle)
-        {
-            // This is a helper for getting fonts, not for setting control font
-            // The control should use these helpers when painting
-        }
     }
 }

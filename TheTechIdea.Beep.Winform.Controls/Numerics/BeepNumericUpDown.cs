@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics
@@ -96,6 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         internal bool _downButtonHovered;
         internal Timer? _repeatTimer;
         internal int _repeatCount;
+        internal bool _repeatIncrementDirection;
         internal const int INITIAL_DELAY = 500;
         internal const int REPEAT_DELAY = 50;
         internal const int MAX_REPEAT_SPEED = 10;
@@ -174,6 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         #region Properties
         [Browsable(true)]
+        [Bindable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the minimum numeric value.")]
         public decimal MinimumValue
@@ -189,6 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         }
 
         [Browsable(true)]
+        [Bindable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the maximum numeric value.")]
         public decimal MaximumValue
@@ -213,6 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         }
 
         [Browsable(true)]
+        [Bindable(true)]
         [Category("Numeric Settings")]
         [Description("Specifies the current numeric value.")]
         public decimal Value
@@ -319,8 +324,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             set
             {
                 _unit = value ?? "";
-                if (!string.IsNullOrEmpty(_unit))
-                    _suffix = $" {_unit}";
                 Invalidate();
             }
         }
@@ -373,12 +376,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("The accent color used for focused state and spin buttons.")]
-        public Color AccentColor { get; set; } = Color.FromArgb(0, 120, 212);
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [DefaultValue(true)]
         [Description("When true, uses theme colors from the current theme.")]
         public bool UseThemeColors { get; set; } = true;
 
@@ -461,6 +458,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         public bool EnableShadow { get; set; } = false;
 
         [Browsable(true)]
+        [Category("Accessibility")]
+        [DefaultValue("")]
+        [Description("The accessible name for screen readers.")]
+        public string AccessibilityName
+        {
+            get => base.AccessibleName ?? "";
+            set => base.AccessibleName = value;
+        }
+
+        [Browsable(true)]
+        [Category("Accessibility")]
+        [DefaultValue("")]
+        [Description("The accessible description for input guidance.")]
+        public string AccessibilityDescription
+        {
+            get => base.AccessibleDescription ?? "";
+            set => base.AccessibleDescription = value;
+        }
+
+        [Browsable(true)]
         [Category("Business")]
         [DefaultValue(0)]
         public decimal TotalValue
@@ -526,6 +543,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             IsBorderAffectedByTheme = true;
             CanBeHovered = true;
             CanBeFocused = true;
+
+            ControlStyle = BeepControlStyle.Material3;
+            base.AccessibleRole = AccessibleRole.SpinButton;
             
             InitializeComponent();
         }
@@ -633,10 +653,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             base.ApplyTheme();
             if (_currentTheme == null) return;
 
-            // Apply font theme based on ControlStyle
-            Numerics.Helpers.NumericFontHelpers.ApplyFontTheme(ControlStyle);
-
-            // Use theme helpers for consistent color retrieval
             BackColor = Numerics.Helpers.NumericThemeHelpers.GetNumericBackgroundColor(
                 _currentTheme, UseThemeColors);
             ForeColor = Numerics.Helpers.NumericThemeHelpers.GetNumericTextColor(
@@ -670,15 +686,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
         {
             if (disposing)
             {
+                if (_repeatTimer != null)
+                {
+                    _repeatTimer.Stop();
+                    _repeatTimer.Dispose();
+                    _repeatTimer = null;
+                }
                 if (_textBox != null)
                 {
                     _textBox.Dispose();
                     _textBox = null;
-                }
-                if (_repeatTimer != null)
-                {
-                    _repeatTimer.Dispose();
-                    _repeatTimer = null;
                 }
             }
             base.Dispose(disposing);

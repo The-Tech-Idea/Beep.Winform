@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Numerics.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
@@ -100,12 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 
         protected virtual Font GetFont(INumericUpDownPainterContext context)
         {
-            // Use font helpers for consistent font retrieval
-            // Note: We need ControlStyle from context, but it's not available
-            // For now, use default Material3 style
-            return TheTechIdea.Beep.Winform.Controls.Numerics.Helpers.NumericFontHelpers.GetValueFont(
-                TheTechIdea.Beep.Winform.Controls.Common.BeepControlStyle.Material3,
-                context.IsEditing);
+            return NumericFontHelpers.GetValueFont(context.ControlStyle, context.IsEditing);
         }
 
         /// <summary>

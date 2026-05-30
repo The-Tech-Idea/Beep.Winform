@@ -37,6 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private int _maxHistorySize = 100;
         private NotificationType? _filterType = null;
         private bool? _filterReadStatus = null;
+        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
         private Font _textFont;
         #endregion
 
@@ -161,6 +162,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             this.Controls.Add(_listPanel);
             this.Controls.Add(_scrollBar);
             this.Controls.Add(_headerPanel);
+
+            _searchDebounceTimer = new System.Windows.Forms.Timer { Interval = 250 };
+            _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
         }
         #endregion
 
@@ -273,6 +277,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         #region Event Handlers
         private void SearchBox_TextChanged(object? sender, EventArgs e)
         {
+            _searchDebounceTimer?.Stop();
+            _searchDebounceTimer?.Start();
+        }
+
+        private void SearchDebounceTimer_Tick(object? sender, EventArgs e)
+        {
+            _searchDebounceTimer?.Stop();
             _scrollOffset = 0;
             UpdateScrollBar();
             _listPanel.Invalidate();
@@ -345,9 +356,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _listPanel.Invalidate();
         }
 
+        public event EventHandler<NotificationHistoryItem>? HistoryItemClicked;
+
         private void ListPanel_Click(object? sender, EventArgs e)
         {
-            // Could implement click to view details or re-show notification
+            var mousePos = _listPanel.PointToClient(Cursor.Position);
+            var items = GetFilteredItems();
+            int startIndex = _scrollOffset / ItemHeight;
+            int itemY = startIndex * ItemHeight - _scrollOffset;
+
+            for (int i = startIndex; i < items.Count; i++)
+            {
+                var itemRect = new Rectangle(0, itemY, _listPanel.Width, ItemHeight);
+                if (itemRect.Contains(mousePos) && items[i] is NotificationHistoryItem item)
+                {
+                    HistoryItemClicked?.Invoke(this, item);
+                    return;
+                }
+                itemY += ItemHeight;
+            }
         }
 
         private void ListPanel_Paint(object? sender, PaintEventArgs e)
@@ -551,6 +578,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _searchBox?.Dispose();
                 _filterCombo?.Dispose();
                 _clearButton?.Dispose();
+                _statusFilterCombo?.Dispose();
+                _markAllReadButton?.Dispose();
+                _searchDebounceTimer?.Dispose();
             }
             base.Dispose(disposing);
         }

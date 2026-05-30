@@ -66,7 +66,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Helpers
         /// </summary>
         public static int GetBorderRadius(BeepControlStyle controlStyle, int controlHeight)
         {
-            return BeepStyling.GetRadius(controlStyle);
+            int baseRadius = BeepStyling.GetRadius(controlStyle);
+            return Math.Min(baseRadius, Math.Max(2, controlHeight / 4));
         }
 
         /// <summary>

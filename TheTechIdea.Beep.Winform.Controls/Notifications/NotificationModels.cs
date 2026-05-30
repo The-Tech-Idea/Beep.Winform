@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public object Tag { get; set; }
 
         /// <summary>UTC timestamp when the notification was created.</summary>
-        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
         /// <summary>Whether the notification has been read by the user.</summary>
         public bool IsRead { get; set; } = false;

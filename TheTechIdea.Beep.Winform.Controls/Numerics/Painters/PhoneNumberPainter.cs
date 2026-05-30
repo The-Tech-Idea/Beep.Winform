@@ -16,9 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         private const int CountryCodeWidth = 80;
         private const int FlagWidth = 24;
         private const int PhoneSpacing = 8;
+        private Rectangle _lastBounds;
 
         public override NumericLayoutInfo CalculateLayout(INumericUpDownPainterContext context, Rectangle bounds)
         {
+            _lastBounds = bounds;
             var layout = new NumericLayoutInfo { ShowButtons = false };  // Phone uses country dropdown, not spin buttons
 
             // Layout: [flag dropdown +353] [phone number]
@@ -47,19 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
 
         public override string FormatValue(INumericUpDownPainterContext context)
         {
-            // Format phone number with dashes: 123-456-7890
             string phoneStr = context.Value.ToString("0");
-            
-            if (phoneStr.Length >= 10)
-            {
-                // Format as XXX-XXX-XXXX
-                return $"{phoneStr.Substring(0, 3)}-{phoneStr.Substring(3, 3)}-{phoneStr.Substring(6)}";
-            }
-            else if (phoneStr.Length >= 6)
-            {
-                // Format as XXX-XXX...
+
+            if (phoneStr.Length >= 11)
+                return $"{phoneStr.Substring(0, 3)}-{phoneStr.Substring(3, 3)}-{phoneStr.Substring(6, 4)}-{phoneStr.Substring(10)}";
+            else if (phoneStr.Length >= 10)
+                return $"({phoneStr.Substring(0, 3)}) {phoneStr.Substring(3, 3)}-{phoneStr.Substring(6)}";
+            else if (phoneStr.Length >= 7)
                 return $"{phoneStr.Substring(0, 3)}-{phoneStr.Substring(3)}";
-            }
 
             return phoneStr;
         }
@@ -67,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
         public override void PaintButtonIcons(Graphics g, INumericUpDownPainterContext context,
             Rectangle upButtonRect, Rectangle downButtonRect)
         {
-            // Phone doesn't use spin buttons, paint country code dropdown instead
-            var layout = CalculateLayout(context, new Rectangle(0, 0, 100, 100));
+            if (_lastBounds == Rectangle.Empty) return;
+            var layout = CalculateLayout(context, _lastBounds);
 
             if (layout.CustomArea1 != Rectangle.Empty)
             {
@@ -138,12 +135,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics.Painters
             {
                 g.DrawLine(pen, rect.Right, rect.Y + 4, rect.Right, rect.Bottom - 4);
             }
-        }
-
-        private void PaintFlagIcon(Graphics g, Rectangle rect, INumericUpDownPainterContext context)
-        {
-            // This method is now obsolete - using PaintCountryCodeDropdown with phone icon instead
-            // Kept for backward compatibility if needed
         }
     }
 }

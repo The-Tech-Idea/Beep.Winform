@@ -95,17 +95,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
                 AdvancedButtonStyle.FAB => ButtonShape.Circle,
                 AdvancedButtonStyle.Ghost => ButtonShape.Pill,
                 AdvancedButtonStyle.Toggle => ButtonShape.Split,
-                AdvancedButtonStyle.Solid => ButtonShape.RoundedRectangle,
-                AdvancedButtonStyle.Icon => ButtonShape.RoundedRectangle,
-                AdvancedButtonStyle.Text => ButtonShape.RoundedRectangle,
-                AdvancedButtonStyle.Outlined => ButtonShape.RoundedRectangle,
+                AdvancedButtonStyle.Solid => ButtonShape.Pill,
+                AdvancedButtonStyle.Icon => ButtonShape.Pill,
+                AdvancedButtonStyle.Text => ButtonShape.Pill,
+                AdvancedButtonStyle.Outlined => ButtonShape.Pill,
                 AdvancedButtonStyle.Link => ButtonShape.Rectangle,
-                AdvancedButtonStyle.Gradient => ButtonShape.RoundedRectangle,
-                AdvancedButtonStyle.IconText => ButtonShape.RoundedRectangle,
+                AdvancedButtonStyle.Gradient => ButtonShape.Pill,
+                AdvancedButtonStyle.IconText => ButtonShape.Pill,
                 AdvancedButtonStyle.FlatWeb => ButtonShape.Rectangle,
                 AdvancedButtonStyle.LowerThird => ButtonShape.Rectangle,
                 AdvancedButtonStyle.StickerLabel => ButtonShape.RoundedRectangle,
-                _ => ButtonShape.RoundedRectangle
+                _ => ButtonShape.Pill
             };
         }
 

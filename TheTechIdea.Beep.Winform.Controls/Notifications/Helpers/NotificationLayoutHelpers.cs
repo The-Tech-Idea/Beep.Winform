@@ -53,6 +53,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
                 NotificationLayout.Snackbar  => CalculateSnackbar (bounds, hasTitle, hasActions, padding, spacing, ownerControl, messageFont),
                 NotificationLayout.StatusBar => CalculateStatusBar(bounds, hasTitle, padding, ownerControl, messageFont),
                 NotificationLayout.Chip      => CalculateChip     (bounds, hasIcon, hasTitle, padding, spacing, ownerControl, titleFont),
+                NotificationLayout.InlineAlert   => CalculateInlineAlert(bounds, hasIcon, hasTitle, hasMessage, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Callout      => CalculateCallout    (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Timeline     => CalculateTimeline   (bounds, hasIcon, hasTitle, hasMessage, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.MediaRich    => CalculateMediaRich  (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.ActionSheet  => CalculateActionSheet(bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.Overlay      => CalculateOverlay    (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding * 2, spacing, ownerControl, titleFont, messageFont),
+                NotificationLayout.FullWidth    => CalculateFullWidth  (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
                 _                            => CalculateStandard (bounds, hasIcon, hasTitle, hasMessage, hasActions, showProgressBar, iconSize, padding, spacing, ownerControl, titleFont, messageFont),
             };
 
@@ -380,6 +387,169 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications.Helpers
 
             m.TitleRect      = new Rectangle(innerX, centreY, closeX - innerX - spacing, lineH);
             m.CloseButtonRect = new Rectangle(closeX, bounds.Y + (bounds.Height - closeSz) / 2, closeSz, closeSz);
+            return m;
+        }
+
+        // ── InlineAlert layout ─────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateInlineAlert(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage,
+            int padding, int spacing, Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int innerX = bounds.X + padding;
+            int innerY = bounds.Y + padding;
+            int innerW = bounds.Width - padding * 2 - S(24, owner);
+            int lineH = OneLineHeight(titleFont, owner);
+
+            if (hasIcon)
+            {
+                int iconSz = S(16, owner);
+                m.IconRect = new Rectangle(innerX, innerY, iconSz, iconSz);
+                innerX += iconSz + spacing;
+                innerW -= iconSz + spacing;
+            }
+
+            m.TitleRect = new Rectangle(innerX, innerY, innerW, lineH);
+            if (hasMessage && messageFont != null)
+                m.MessageRect = new Rectangle(innerX, innerY + lineH + S(2, owner), innerW, OneLineHeight(messageFont, owner));
+
+            return m;
+        }
+
+        // ── Callout layout ─────────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateCallout(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = CalculateStandard(bounds, hasIcon, hasTitle, hasMessage, hasActions,
+                showProgressBar, iconSize, padding, spacing, owner, titleFont, messageFont);
+            return m;
+        }
+
+        // ── Timeline layout ────────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateTimeline(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage,
+            int padding, int spacing, Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int timelineX = bounds.X + padding + S(8, owner);
+            int lineH = OneLineHeight(titleFont, owner);
+
+            m.IconRect = new Rectangle(bounds.X + padding, bounds.Y + padding, S(12, owner), bounds.Height - padding * 2);
+
+            if (hasTitle)
+            {
+                m.TitleRect = new Rectangle(timelineX, bounds.Y + padding, bounds.Width - timelineX - padding, lineH);
+                if (hasMessage && messageFont != null)
+                    m.MessageRect = new Rectangle(timelineX, bounds.Y + padding + lineH + S(2, owner),
+                        bounds.Width - timelineX - padding, OneLineHeight(messageFont, owner));
+            }
+
+            return m;
+        }
+
+        // ── MediaRich layout ───────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateMediaRich(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int mediaH = bounds.Height * 40 / 100;
+            int contentY = bounds.Y + mediaH;
+            int contentH = bounds.Height - mediaH;
+
+            m.IconRect = new Rectangle(bounds.X + padding, bounds.Y + padding,
+                Math.Min(S(48, owner), mediaH - padding), Math.Min(S(48, owner), mediaH - padding));
+
+            int textX = bounds.X + padding;
+            if (hasTitle && titleFont != null)
+            {
+                int lineH = OneLineHeight(titleFont, owner);
+                m.TitleRect = new Rectangle(textX, contentY + padding, bounds.Width - padding * 2, lineH);
+                contentY = m.TitleRect.Bottom + S(2, owner);
+            }
+
+            if (hasMessage && messageFont != null)
+                m.MessageRect = new Rectangle(textX, contentY + padding, bounds.Width - padding * 2,
+                    Math.Min(OneLineHeight(messageFont, owner) * 2, contentH - padding * 2));
+
+            return m;
+        }
+
+        // ── ActionSheet layout ─────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateActionSheet(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int innerX = bounds.X + padding;
+            int innerY = bounds.Y + padding;
+            int innerW = bounds.Width - padding * 2;
+            int lineH = OneLineHeight(titleFont, owner);
+
+            if (hasTitle)
+            {
+                m.TitleRect = new Rectangle(innerX, innerY, innerW, lineH);
+                innerY += lineH + spacing;
+            }
+
+            if (hasMessage && messageFont != null)
+            {
+                m.MessageRect = new Rectangle(innerX, innerY, innerW, OneLineHeight(messageFont, owner));
+                innerY += m.MessageRect.Height + spacing;
+            }
+
+            if (hasActions)
+            {
+                int btnH = S(36, owner);
+                m.ActionsRect = new Rectangle(innerX, bounds.Bottom - padding - btnH, innerW, btnH);
+            }
+
+            return m;
+        }
+
+        // ── Overlay layout ─────────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateOverlay(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = CalculateStandard(bounds, hasIcon, hasTitle, hasMessage, hasActions,
+                showProgressBar, iconSize, padding * 2, spacing, owner, titleFont, messageFont);
+            return m;
+        }
+
+        // ── FullWidth layout ───────────────────────────────────────────────────
+        private static NotificationLayoutMetrics CalculateFullWidth(
+            Rectangle bounds, bool hasIcon, bool hasTitle, bool hasMessage, bool hasActions,
+            bool showProgressBar, int iconSize, int padding, int spacing,
+            Control owner, Font titleFont, Font messageFont)
+        {
+            var m = new NotificationLayoutMetrics();
+            int innerX = bounds.X + padding;
+            int innerY = bounds.Y + padding;
+            int innerW = bounds.Width - padding * 2;
+            int lineH = OneLineHeight(titleFont, owner);
+
+            if (hasIcon)
+            {
+                int iconSz = S(20, owner);
+                m.IconRect = new Rectangle(innerX, innerY + (lineH - iconSz) / 2, iconSz, iconSz);
+                innerX += iconSz + spacing;
+                innerW -= iconSz + spacing;
+            }
+
+            if (hasTitle)
+            {
+                m.TitleRect = new Rectangle(innerX, innerY, innerW, lineH);
+                if (hasMessage && messageFont != null)
+                    m.MessageRect = new Rectangle(bounds.X + padding, innerY + lineH + S(2, owner),
+                        innerW, OneLineHeight(messageFont, owner));
+            }
+
             return m;
         }
     }

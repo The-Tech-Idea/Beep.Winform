@@ -5,7 +5,8 @@ using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
 {
     /// <summary>
-    /// Painter for icon-only buttons
+    /// Icon-only button - circular icon badge with subtle hover background.
+    /// Matches the circular icon button style from reference images.
     /// </summary>
     public class IconButtonPainter : BaseButtonPainter
     {
@@ -13,89 +14,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters
         {
             Graphics g = context.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             var metrics = GetMetrics(context);
-            var tokens = AdvancedButtonPaintContract.CreateTokens(context);
-            Rectangle buttonBounds = context.Bounds;
+            Rectangle bounds = context.Bounds;
 
             // Subtle background on hover/pressed
-            if (context.State == Enums.AdvancedButtonState.Hover || 
+            if (context.State == Enums.AdvancedButtonState.Hover ||
                 context.State == Enums.AdvancedButtonState.Pressed)
             {
-                Color bgColor = context.State == Enums.AdvancedButtonState.Pressed
-                    ? Color.FromArgb(40, context.SolidBackground)
-                    : Color.FromArgb(20, context.SolidBackground);
-                    
-                using (Brush bgBrush = new SolidBrush(bgColor))
+                int alpha = context.State == Enums.AdvancedButtonState.Pressed ? 50 : 25;
+                Color bgColor = Color.FromArgb(alpha, context.SolidBackground);
+                using (var path = GetShapePath(bounds, context))
+                using (var bgBrush = new SolidBrush(bgColor))
                 {
-                    FillRoundedRectangle(g, bgBrush, buttonBounds, tokens.BorderRadius);
+                    g.FillPath(bgBrush, path);
                 }
             }
 
-            // Draw ripple effect
             DrawRippleEffect(g, context);
 
-            // Draw icon centered
-            if (context.IsLoading)
+            // Centered icon
+            Color iconColor = context.State == Enums.AdvancedButtonState.Disabled
+                ? context.DisabledForeground
+                : context.SolidBackground;
+
+            if (HasPrimaryIcon(context) && !context.IsLoading)
             {
-                Color spinnerColor = context.State == Enums.AdvancedButtonState.Disabled
-                    ? context.DisabledForeground
-                    : context.SolidBackground;
-                DrawLoadingSpinner(g, context, buttonBounds, spinnerColor);
+                DrawIcon(g, context,
+                    new Rectangle(bounds.X + (bounds.Width - metrics.IconSize) / 2,
+                        bounds.Y + (bounds.Height - metrics.IconSize) / 2,
+                        metrics.IconSize, metrics.IconSize),
+                    GetPrimaryIconPath(context));
             }
-            else if (HasPrimaryIcon(context))
+            else if (context.IsLoading)
             {
-                Rectangle iconBounds = new Rectangle(
-                    buttonBounds.X + (buttonBounds.Width - metrics.IconSize) / 2,
-                    buttonBounds.Y + (buttonBounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-
-                Color iconColor = context.State == Enums.AdvancedButtonState.Disabled
-                    ? context.DisabledForeground
-                    : context.SolidBackground;
-
-                DrawIcon(g, context, iconBounds, GetPrimaryIconPath(context));
-            }
-            else
-            {
-                // Fallback: Draw ellipsis icon when no icon provided
-                Color iconColor = context.State == Enums.AdvancedButtonState.Disabled
-                    ? context.DisabledForeground
-                    : context.SolidBackground;
-
-                Rectangle iconBounds = new Rectangle(
-                    buttonBounds.X + (buttonBounds.Width - metrics.IconSize) / 2,
-                    buttonBounds.Y + (buttonBounds.Height - metrics.IconSize) / 2,
-                    metrics.IconSize,
-                    metrics.IconSize
-                );
-
-                DrawFallbackEllipsisIcon(g, iconBounds, iconColor);
+                DrawLoadingSpinner(g, context, bounds, iconColor);
             }
 
             DrawFocusRingPrimitive(g, context);
-        }
-
-        /// <summary>
-        /// Draw a fallback ellipsis icon (three dots)
-        /// </summary>
-        private void DrawFallbackEllipsisIcon(Graphics g, Rectangle bounds, Color color)
-        {
-            int dotSize = Math.Max(3, bounds.Width / 5);
-            int gap = dotSize;
-            int totalWidth = dotSize * 3 + gap * 2;
-            int startX = bounds.X + (bounds.Width - totalWidth) / 2;
-            int centerY = bounds.Y + bounds.Height / 2 - dotSize / 2;
-
-            using (Brush brush = new SolidBrush(color))
-            {
-                // Draw three dots horizontally
-                g.FillEllipse(brush, startX, centerY, dotSize, dotSize);
-                g.FillEllipse(brush, startX + dotSize + gap, centerY, dotSize, dotSize);
-                g.FillEllipse(brush, startX + (dotSize + gap) * 2, centerY, dotSize, dotSize);
-            }
         }
     }
 }

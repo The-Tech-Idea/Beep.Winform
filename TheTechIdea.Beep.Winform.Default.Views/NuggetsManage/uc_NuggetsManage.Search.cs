@@ -138,29 +138,38 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         {
             if (string.IsNullOrWhiteSpace(packageId)) return;
 
-            var ctx = new WizardContext();
-            ctx.SetValue(NuggetWizardKeys.Service, GetService());
-            ctx.SetValue(NuggetWizardKeys.PackageId, packageId);
-            ctx.SetValue(NuggetWizardKeys.IncludePrerelease, _chkPrerelease.CurrentValue);
-
-            var wizard = new uc_NuggetsInstall_Wizard(
-                $"Install — {packageId}", ctx,
-                new uc_NuggetsInstall_Step_VersionSource(),
-                new uc_NuggetsInstall_Step_Options(),
-                new uc_NuggetsInstall_Step_Run());
-
-            wizard.Complete += c =>
+            var config = new WizardConfig
             {
-                var result = c.GetValue<NuggetInstallResult?>(NuggetWizardKeys.InstallResult, null);
-                var version = c.GetValue(NuggetWizardKeys.SelectedVersion, string.Empty);
-                var success = result?.Success ?? false;
-                var message = result?.Message ?? (success ? "Done" : "Install did not complete");
-                _lblSearchStatus.Text = message;
-                RaisePackageInstallCompleted(packageId, version, success, message);
-                if (success) RefreshInstalled();
+                Key = "NuggetInstall",
+                Title = $"Install — {packageId}",
+                Size = new System.Drawing.Size(700, 520),
+                FinishButtonText = "Install",
+                Steps =
+                {
+                    new WizardStep { Key = "v", Title = "Version & Source", Content = new uc_NuggetsInstall_Step_VersionSource() },
+                    new WizardStep { Key = "o", Title = "Options", Content = new uc_NuggetsInstall_Step_Options() },
+                    new WizardStep { Key = "r", Title = "Install", Content = new uc_NuggetsInstall_Step_Run() }
+                },
+                OnComplete = ctx =>
+                {
+                    var result = ctx.GetValue<NuggetInstallResult?>(NuggetWizardKeys.InstallResult, null);
+                    var version = ctx.GetValue(NuggetWizardKeys.SelectedVersion, string.Empty);
+                    var success = result?.Success ?? false;
+                    var message = result?.Message ?? (success ? "Done" : "Install did not complete");
+                    _lblSearchStatus.Text = message;
+                    RaisePackageInstallCompleted(packageId, version, success, message);
+                    if (success) RefreshInstalled();
+                }
             };
 
-            wizard.ShowWizard(FindForm());
+            config.Steps[0].OnEnter = ctx =>
+            {
+                ctx.SetValue(NuggetWizardKeys.Service, GetService());
+                ctx.SetValue(NuggetWizardKeys.PackageId, packageId);
+                ctx.SetValue(NuggetWizardKeys.IncludePrerelease, _chkPrerelease.CurrentValue);
+            };
+
+            _ = WizardManager.ShowWizardAsync(config, FindForm());
         }
 
         private static string Truncate(string? text, int maxLength)

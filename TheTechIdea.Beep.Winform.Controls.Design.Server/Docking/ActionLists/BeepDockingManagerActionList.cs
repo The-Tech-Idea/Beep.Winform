@@ -57,6 +57,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.ActionLists
                 "Check that all DockPanel components are properly configured", true));
             items.Add(new DesignerActionMethodItem(this, nameof(AttachHostForm), "Attach Host Form", "Layout",
                 "Assign the parent form as the docking manager's host form", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ShowDiagnostics), "Show Diagnostics", "Layout",
+                "Display a diagnostic dump of the docking manager state", true));
 
             items.Add(new DesignerActionHeaderItem("Appearance"));
             items.Add(new DesignerActionPropertyItem(nameof(Style), "Style", "Appearance",
@@ -123,6 +125,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.ActionLists
 
         public void RefreshLayout() =>
             BeepDockingDesignerWiring.RefreshHostLayout(_manager, AsServiceProvider);
+
+        public void ShowDiagnostics()
+        {
+            try
+            {
+                string diagnostics = _manager.GetDiagnostics();
+                var host = GetService(typeof(IDesignerHost)) as IDesignerHost;
+                string title = (host?.RootComponent as System.Windows.Forms.Form)?.Name ?? "Beep Docking";
+                System.Windows.Forms.MessageBox.Show(diagnostics, $"{title} — Diagnostics",
+                    System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BeepDockingManagerActionList] Diagnostics error: {ex.Message}");
+            }
+        }
 
         private void AddPanel(DockPosition position)
         {

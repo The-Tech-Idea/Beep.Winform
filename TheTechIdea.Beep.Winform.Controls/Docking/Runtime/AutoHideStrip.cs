@@ -48,6 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
         private readonly Timer _hideTimer;
         private int _awayTicks;
+        private readonly ToolTip _tabToolTip = new ToolTip();
 
         /// <summary>Control style driving strip rendering. Set by the manager (used once StripRenderer lands).</summary>
         internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
@@ -328,7 +329,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             base.OnMouseMove(e);
             var hit = _layout.HitTest(e.Location);
             if (hit?.Tag is DockPanel panel)
+            {
                 PeekPanel(panel);
+                if (!string.IsNullOrEmpty(panel.Title))
+                    _tabToolTip.Show(panel.Title, this, e.X + 12, e.Y + 12, 3000);
+            }
+            else
+            {
+                _tabToolTip.Hide(this);
+            }
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -346,6 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 _hideTimer?.Stop();
                 _hideTimer?.Dispose();
                 _slidePanel?.Dispose();
+                _tabToolTip?.Dispose();
             }
             base.Dispose(disposing);
         }

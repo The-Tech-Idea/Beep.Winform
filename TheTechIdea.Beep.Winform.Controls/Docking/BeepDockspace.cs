@@ -47,6 +47,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private DockPosition _dockPosition = DockPosition.Left;
         private string _activePanelKey = string.Empty;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
+        private readonly ToolTip _tabToolTip = new ToolTip();
+
+        // Tab drag-to-float/dock state.
+        private DockPanel _dragPanel;
+        private Point _dragStartScreen;
+        private bool _dragArmed;
+        private bool _isDragging;
 
         public BeepDockspace()
         {
@@ -57,6 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             BorderStyle = BorderStyle.None;
             MinimumSize = new Size(150, 150);
+            _tabToolTip.SetToolTip(this, string.Empty);
         }
 
         [Category("Docking")]
@@ -318,7 +326,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            HandleHeaderMouseDown(e.Location, e.Button);
+
+            // Reset drag state on every mouse-down.
+            _dragArmed = false;
+            _isDragging = false;
+            _dragPanel = null;
+
+            if (e.Button != MouseButtons.Left || e.Y > HeaderHeight)
+                return;
+
+            if (_captionLayout.HitTestButton(e.Location) != null)
+            {
+                HandleHeaderMouseDown(e.Location, e.Button);
+                return;
+            }
+
+            var tab = HitTestTab(e.Location);
+            if (tab != null)
+            {
+                _dragPanel = tab;
+                _dragStartScreen = PointToScreen(e.Location);
+                _dragArmed = true;
+            }
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (e.Y < 0 || e.Y > HeaderHeight)
+                return;
+
+            DockPanel tab = HitTestTab(e.Location);
+            if (tab == null)
+                return;
+
+            if (e.Button == MouseButtons.Middle && tab.CanClose)
+            {
+                _manager?.ClosePanel(tab.Key);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                ShowTabContextMenu(tab, e.Location);
+            }
+            else if (e.Button == MouseButtons.Left)
+            {
+                ActivatePanel(tab);
+            }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -328,11 +382,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (e.Y <= HeaderHeight)
                 RecomputeCaptionLayout();
 
+            // Tab drag to float/dock — start when system drag threshold is crossed.
+            if (_dragArmed && (e.Button & MouseButtons.Left) != 0 && !_isDragging)
+            {
+                Point screen = PointToScreen(e.Location);
+                Size delta = new Size(
+                    Math.Abs(screen.X - _dragStartScreen.X),
+                    Math.Abs(screen.Y - _dragStartScreen.Y));
+                if (delta.Width > SystemInformation.DragSize.Width ||
+                    delta.Height > SystemInformation.DragSize.Height)
+                {
+                    _isDragging = true;
+                    _manager?.BeginCaptionDrag(_dragPanel, _dragStartScreen);
+                    _manager?.UpdateCaptionDrag(screen);
+                }
+            }
+
+            if (_isDragging && (e.Button & MouseButtons.Left) != 0)
+            {
+                _manager?.UpdateCaptionDrag(PointToScreen(e.Location));
+                return;
+            }
+
+            var hoveredTab = e.Y <= HeaderHeight ? _captionLayout.HitTestTab(e.Location) : null;
+            if (hoveredTab?.Tag is DockPanel panel && !string.IsNullOrEmpty(panel.Title))
+            {
+                _tabToolTip.Show(panel.Title, this, e.X + 12, e.Y + 12, 3000);
+            }
+            else
+            {
+                _tabToolTip.Hide(this);
+            }
+
             Cursor = e.Y <= HeaderHeight &&
-                     (_captionLayout.HitTestTab(e.Location) != null ||
+                     (hoveredTab != null ||
                       _captionLayout.HitTestButton(e.Location) != null)
                 ? Cursors.Hand
                 : Cursors.Default;
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            if (_isDragging)
+            {
+                _manager?.EndCaptionDrag(PointToScreen(e.Location), commit: true);
+            }
+
+            _dragArmed = false;
+            _isDragging = false;
+            _dragPanel = null;
         }
 
         /// <summary>Builds the ordered caption button set (right-to-left placement) for the active page.</summary>
@@ -390,7 +490,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             {
                 Colors = _themeColors,
                 Style = ControlStyle,
-                Bounds = new Rectangle(0, 0, Width, HeaderHeight)
+                Bounds = new Rectangle(0, 0, Width, HeaderHeight),
+                IsDesignTime = IsDesigning
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
@@ -433,11 +534,68 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 menu.Dispose();
         }
 
+        private void ShowTabContextMenu(DockPanel panel, Point location)
+        {
+            if (panel == null) return;
+
+            if (_manager?.TryShowPanelContextMenu(panel, location) == true)
+                return;
+
+            // Activate the panel when right-clicking its tab
+            if (!ReferenceEquals(ActivePanel, panel))
+                ActivatePanel(panel);
+
+            var menu = new ContextMenuStrip();
+
+            if (panel.CanFloat)
+            {
+                var floating = new ToolStripMenuItem("Floating");
+                floating.Click += (s, e) => _manager?.FloatPanel(panel.Key);
+                menu.Items.Add(floating);
+            }
+
+            if (panel.CanAutoHide)
+            {
+                string label = panel.State == DockPanelState.AutoHidden ? "Dock" : "Auto Hide";
+                var autoHide = new ToolStripMenuItem(label);
+                autoHide.Click += (s, e) =>
+                {
+                    if (panel.State == DockPanelState.AutoHidden)
+                        _manager?.RestoreAutoHiddenPanel(panel.Key);
+                    else
+                        _manager?.MakeAutoHiddenRequest(panel.Key);
+                };
+                menu.Items.Add(autoHide);
+            }
+
+            if (panel.CanClose)
+            {
+                if (menu.Items.Count > 0)
+                    menu.Items.Add(new ToolStripSeparator());
+
+                var close = new ToolStripMenuItem("Close");
+                close.Click += (s, e) => _manager?.ClosePanel(panel.Key);
+                menu.Items.Add(close);
+            }
+
+            if (menu.Items.Count > 0)
+                menu.Show(this, location);
+            else
+                menu.Dispose();
+        }
+
         private DockPanel HitTestTab(Point location)
         {
             RecomputeCaptionLayout();
             var tab = _captionLayout.HitTestTab(location);
             return tab?.Tag as DockPanel;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _tabToolTip?.Dispose();
+            base.Dispose(disposing);
         }
 
         private DockPanel ResolveActivePanel()

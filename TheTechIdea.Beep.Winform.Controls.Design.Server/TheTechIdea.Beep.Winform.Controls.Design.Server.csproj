@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Beep.Winform\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
+    <ProjectReference Include="..\..\..\Beep.Winform.Data.Integrated\Beep.Winform.Data.Integrated.Controls\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />

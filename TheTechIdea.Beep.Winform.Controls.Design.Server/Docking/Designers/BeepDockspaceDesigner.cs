@@ -38,8 +38,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
         protected override bool GetHitTest(Point point)
         {
             Point client = Dockspace.PointToClient(point);
-            bool inHeader = client.Y >= 0 && client.Y <= BeepDockspace.HeaderHeight;
-            return _selectedByDesigner && inHeader;
+            if (client.Y < 0 || client.Y > BeepDockspace.HeaderHeight)
+                return false;
+
+            return Dockspace.HitTestTabAt(client) is null && _selectedByDesigner;
         }
 
         public override void Initialize(IComponent component)
@@ -87,17 +89,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers
                     Point clientPoint = ClientPointFromMessage(m);
                     if (clientPoint.Y >= 0 && clientPoint.Y <= BeepDockspace.HeaderHeight)
                     {
-                        if (!_selectedByDesigner)
+                        DockPanel tab = Dockspace.HitTestTabAt(clientPoint);
+                        if (tab != null)
                         {
-                            _selectionService?.SetSelectedComponents(new object[] { Dockspace }, SelectionTypes.Replace);
+                            Dockspace.ActivatePanel(tab);
+                            _selectionService?.SetSelectedComponents(
+                                new object[] { tab }, SelectionTypes.Replace);
+
+                            _dragPanel = tab;
+                            _dragStartScreen = Control.MousePosition;
+                            _draggingTab = false;
                             return;
                         }
 
-                        _dragPanel = Dockspace.HitTestTabAt(clientPoint);
-                        if (_dragPanel != null)
+                        if (!_selectedByDesigner)
                         {
-                            _dragStartScreen = Control.MousePosition;
-                            _draggingTab = false;
+                            _selectionService?.SetSelectedComponents(
+                                new object[] { Dockspace }, SelectionTypes.Replace);
+                            return;
                         }
 
                         if (Dockspace.HandleHeaderMouseDown(clientPoint, MouseButtons.Left))

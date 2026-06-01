@@ -570,7 +570,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             {
                 Colors = _themeColors,
                 Style = ControlStyle,
-                Bounds = new Rectangle(0, 0, Width, CaptionHeight)
+                Bounds = new Rectangle(0, 0, Width, CaptionHeight),
+                IsDesignTime = IsDesigning
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);

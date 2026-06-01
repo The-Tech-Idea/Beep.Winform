@@ -46,6 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         /// <summary>A drag operation involving this element is in progress.</summary>
         public bool IsDragging { get; init; }
 
+        /// <summary>True when hosted in the Visual Studio designer.</summary>
+        public bool IsDesignTime { get; init; }
+
         // ── Caption button visibility ────────────────────────────────────────────────
         /// <summary>Show the close button.</summary>
         public bool CanClose { get; init; }
@@ -73,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             IsPressed = IsPressed,
             IsFocused = IsFocused,
             IsDragging = IsDragging,
+            IsDesignTime = IsDesignTime,
             CanClose = CanClose,
             CanFloat = CanFloat,
             CanAutoHide = CanAutoHide,

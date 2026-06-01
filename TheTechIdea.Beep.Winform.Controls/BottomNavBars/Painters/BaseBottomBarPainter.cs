@@ -158,8 +158,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BottomNavBars.Painters
             int badgeY = iconRect.Top - badgeH / 2;
             var badgeRect = new Rectangle(badgeX, badgeY, badgeW, badgeH);
 
-            var badgeBack = item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : item.BadgeBackColor;
-            var badgeFore = item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : item.BadgeForeColor;
+            var badgeBack = (Color)(item.BadgeBackColor == Color.Empty ? ResolveBadgeBack(context) : (Color)item.BadgeBackColor);
+            var badgeFore = (Color)(item.BadgeForeColor == Color.Empty ? ResolveBadgeFore(context) : (Color)item.BadgeForeColor);
 
             using (var brush = new SolidBrush(badgeBack))
             {

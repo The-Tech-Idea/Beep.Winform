@@ -78,6 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar   = false;
+            TopMost         = true;
             TopLevel        = true;
             ShowIcon        = false;
             Text            = panel.Title;
@@ -89,7 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                      ControlStyles.ResizeRedraw, true);
 
             if (owner != null)
+            {
                 Owner = owner;
+                owner.VisibleChanged += OnOwnerVisibleChanged;
+                owner.SizeChanged += OnOwnerSizeChanged;
+            }
 
             if (initialBounds.IsEmpty)
             {
@@ -164,7 +169,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             {
                 Colors = _themeColors,
                 Style = ControlStyle,
-                Bounds = CaptionBounds
+                Bounds = CaptionBounds,
+                IsDesignTime = false
             };
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(e.Graphics, ctx, _captionLayout, CaptionButtons);
 
@@ -298,11 +304,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _panel != null)
+            if (disposing)
             {
-                ExtractHostedPanel();
+                if (Owner != null)
+                {
+                    Owner.VisibleChanged -= OnOwnerVisibleChanged;
+                    Owner.SizeChanged -= OnOwnerSizeChanged;
+                }
+
+                if (_panel != null)
+                {
+                    ExtractHostedPanel();
+                }
             }
             base.Dispose(disposing);
+        }
+
+        // ── Owner tracking (auto-hide when owner form is minimized) ─────────────
+
+        private void OnOwnerVisibleChanged(object sender, EventArgs e)
+        {
+            if (Owner == null || IsDisposed) return;
+            Visible = Owner.Visible && Owner.WindowState != FormWindowState.Minimized;
+        }
+
+        private void OnOwnerSizeChanged(object sender, EventArgs e)
+        {
+            if (Owner == null || IsDisposed) return;
+            Visible = Owner.WindowState != FormWindowState.Minimized;
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────

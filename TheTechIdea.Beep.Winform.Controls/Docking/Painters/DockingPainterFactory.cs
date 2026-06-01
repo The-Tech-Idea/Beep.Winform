@@ -47,8 +47,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
 
         private static DockingRendererSet CreateRendererSet(BeepControlStyle style)
         {
-            // Branch on style here when style-specific renderers are introduced.
-            return new DockingRendererSet(new CaptionRenderer(), new SplitterRenderer(), new AutoHideStripRenderer());
+            // Branch on style here when style-specific renderers are introduced
+            // (e.g. Fluent2 gets acrylic caption, Material3 gets tonal elevation).
+            // Currently all styles share the same renderer set.
+            switch (style)
+            {
+                case BeepControlStyle.Material3:
+                case BeepControlStyle.MaterialYou:
+                case BeepControlStyle.Fluent2:
+                case BeepControlStyle.Windows11Mica:
+                case BeepControlStyle.MacOSBigSur:
+                case BeepControlStyle.iOS15:
+                case BeepControlStyle.AntDesign:
+                case BeepControlStyle.ChakraUI:
+                case BeepControlStyle.TailwindCard:
+                default:
+                    return new DockingRendererSet(
+                        new CaptionRenderer(), new SplitterRenderer(), new AutoHideStripRenderer());
+            }
         }
 
         /// <summary>

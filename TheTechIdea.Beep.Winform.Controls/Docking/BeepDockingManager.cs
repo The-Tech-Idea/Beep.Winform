@@ -78,6 +78,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
         private BeepControlStyle _style = BeepControlStyle.Material3;
 
+        // MRU-ordered panel keys (head = most recently activated).
+        private readonly LinkedList<string> _mruList = new LinkedList<string>();
+        private KeyEventHandler _hostKeyDownHandler;
+        private KeyEventHandler _hostKeyUpHandler;
+        private BeepDockingNavigator _navigator;
+
         // Batch-update nesting counter — layout is suspended while > 0.
         private int _updateDepth;
 
@@ -561,15 +567,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _hostLayoutChangedHandler ??= OnHostFormLayoutChanged;
             hostForm.Resize += _hostLayoutChangedHandler;
             hostForm.ClientSizeChanged += _hostLayoutChangedHandler;
+
+            _hostKeyDownHandler ??= OnHostFormKeyDown;
+            _hostKeyUpHandler ??= OnHostFormKeyUp;
+            hostForm.KeyPreview = true;
+            hostForm.KeyDown += _hostKeyDownHandler;
+            hostForm.KeyUp += _hostKeyUpHandler;
         }
 
         private void DetachHostFormHandlers()
         {
-            if (_hostForm == null || _hostLayoutChangedHandler == null)
+            if (_hostForm == null)
                 return;
 
-            _hostForm.Resize -= _hostLayoutChangedHandler;
-            _hostForm.ClientSizeChanged -= _hostLayoutChangedHandler;
+            if (_hostLayoutChangedHandler != null)
+            {
+                _hostForm.Resize -= _hostLayoutChangedHandler;
+                _hostForm.ClientSizeChanged -= _hostLayoutChangedHandler;
+            }
+
+            if (_hostKeyDownHandler != null)
+            {
+                _hostForm.KeyDown -= _hostKeyDownHandler;
+            }
+
+            if (_hostKeyUpHandler != null)
+            {
+                _hostForm.KeyUp -= _hostKeyUpHandler;
+            }
         }
 
         private void OnHostFormLayoutChanged(object sender, EventArgs e)
@@ -974,6 +999,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
 
             _tabHandler?.UpdateTabLabel(panel.Key, panel.Title ?? "Panel");
+
+            // Repaint the parent dockspace header so the tab label updates immediately.
+            if (panel.Parent is BeepDockspace dockspace)
+                dockspace.Invalidate();
+
+            // Update float window caption if the panel is floating.
+            if (_floatWindowsByKey.TryGetValue(panel.Key, out var fw) && fw != null && !fw.IsDisposed)
+                fw.Text = panel.Title ?? panel.Key;
         }
 
         internal void NotifyPanelPreferredSizeChanged(DockPanel panel)
@@ -1079,6 +1112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             _panelsByKey.Remove(panelKey);
             _layoutTree.UnregisterPanel(panelKey);
+            RemoveMrPanel(panelKey);
 
             _layoutController?.InvalidateLayout();
             // Reflow so remaining panels reclaim the freed space and SyncSplitters disposes
@@ -1389,8 +1423,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (panel.Parent != null)
                 panel.BringToFront();
 
+            // Notify the parent dockspace so its header repaints the active tab.
+            if (panel.Parent is BeepDockspace dockspace)
+                dockspace.ActivePanelKey = panelKey;
+
+            PushMrPanel(panelKey);
+
             Debug.WriteLine($"[BeepDockingManager] Panel activated: {panelKey}");
             return true;
+        }
+
+        /// <summary>
+        /// Activates the next panel in MRU order (for Ctrl+Tab programmatic use).
+        /// Returns null if there is no panel to activate.
+        /// </summary>
+        public DockPanel ActivateNextPanel()
+        {
+            string key = GetNextMrPanel(forward: true);
+            if (key == null) return null;
+            PushMrPanel(key);
+            ActivatePanel(key);
+            return GetPanel(key);
+        }
+
+        /// <summary>
+        /// Activates the previous panel in MRU order (for Ctrl+Shift+Tab programmatic use).
+        /// Returns null if there is no panel to activate.
+        /// </summary>
+        public DockPanel ActivatePreviousPanel()
+        {
+            string key = GetNextMrPanel(forward: false);
+            if (key == null) return null;
+            PushMrPanel(key);
+            ActivatePanel(key);
+            return GetPanel(key);
         }
 
         /// <summary>
@@ -1532,6 +1598,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             _panelsByKey.Remove(panelKey);
             _layoutTree.UnregisterPanel(panelKey);
+            RemoveMrPanel(panelKey);
 
             panel.State = DockPanelState.Closed;
             _layoutController?.InvalidateLayout();
@@ -2426,6 +2493,156 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         protected virtual void OnDoDragDropQuit() =>
             DoDragDropQuit?.Invoke(this, EventArgs.Empty);
 
+        // ── MRU (Most Recently Used) panel ordering ─────────────────────────
+
+        private void PushMrPanel(string panelKey)
+        {
+            if (string.IsNullOrEmpty(panelKey)) return;
+            _mruList.Remove(panelKey);
+            _mruList.AddFirst(panelKey);
+        }
+
+        internal void RemoveMrPanel(string panelKey)
+        {
+            _mruList.Remove(panelKey);
+        }
+
+        private string GetNextMrPanel(bool forward)
+        {
+            if (_mruList.Count == 0) return null;
+
+            string active = _mruList.First?.Value;
+            if (active == null) return null;
+
+            var current = _mruList.Find(active);
+            if (current == null) return _mruList.First.Value;
+
+            if (forward)
+            {
+                var next = current.Next ?? _mruList.First;
+                return next?.Value;
+            }
+            else
+            {
+                var prev = current.Previous ?? _mruList.Last;
+                return prev?.Value;
+            }
+        }
+
+        // ── Keyboard handling (Ctrl+Tab navigator, Ctrl+F4, Escape) ────────────
+
+        private void OnHostFormKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Handled || _disposed) return;
+
+            if (e.Control && !e.Shift && e.KeyCode == Keys.Tab)
+            {
+                if (_navigator == null || _navigator.IsDisposed)
+                {
+                    ShowNavigator();
+                }
+                else
+                {
+                    _navigator.SelectNext();
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.Control && e.Shift && e.KeyCode == Keys.Tab)
+            {
+                if (_navigator == null || _navigator.IsDisposed)
+                {
+                    ShowNavigator();
+                    _navigator?.SelectPrevious();
+                }
+                else
+                {
+                    _navigator.SelectPrevious();
+                }
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.Control && (e.KeyCode == Keys.F4 || e.KeyCode == Keys.W))
+            {
+                string activeKey = GetActivePanelKey();
+                if (!string.IsNullOrEmpty(activeKey))
+                    ClosePanel(activeKey);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                if (_navigator != null && !_navigator.IsDisposed)
+                {
+                    _navigator.Cancel();
+                }
+                else
+                {
+                    _dragController?.Cancel();
+                }
+                e.Handled = true;
+            }
+        }
+
+        private void OnHostFormKeyUp(object sender, KeyEventArgs e)
+        {
+            if (_disposed) return;
+
+            if (e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.Menu)
+            {
+                if (_navigator != null && !_navigator.IsDisposed)
+                {
+                    CommitNavigatorSelection();
+                }
+            }
+        }
+
+        private void ShowNavigator()
+        {
+            if (_hostForm == null || _hostForm.IsDisposed) return;
+
+            var dockedPanels = _mruList
+                .Select(k => _panelsByKey.TryGetValue(k, out var p) ? p : null)
+                .Where(p => p != null && p.State == DockPanelState.Docked)
+                .ToList();
+
+            if (dockedPanels.Count == 0) return;
+
+            Point screenCenter = _hostForm.PointToScreen(
+                new Point(_hostForm.ClientSize.Width / 2, _hostForm.ClientSize.Height / 2));
+
+            _navigator = new BeepDockingNavigator(dockedPanels, _themeColors, screenCenter);
+            _navigator.FormClosed += (_, _) => _navigator = null;
+            _navigator.Show(_hostForm);
+        }
+
+        private void CommitNavigatorSelection()
+        {
+            if (_navigator == null || _navigator.IsDisposed) return;
+
+            string key = _navigator.SelectedPanelKey;
+            if (!string.IsNullOrEmpty(key))
+            {
+                ActivatePanel(key);
+            }
+            _navigator.Close();
+            _navigator = null;
+        }
+
+        private string GetActivePanelKey()
+        {
+            if (_mruList.First?.Value is string key &&
+                _panelsByKey.TryGetValue(key, out var panel) &&
+                panel.State == DockPanelState.Docked)
+            {
+                return key;
+            }
+
+            var fallback = _panelsByKey.Values
+                .FirstOrDefault(p => p.State == DockPanelState.Docked);
+            return fallback?.Key;
+        }
+
         /// <summary>
         /// Disposes the manager and cleans up all resources.
         /// </summary>
@@ -2463,6 +2680,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             _dragController?.Dispose();
             _dragController = null;
+
+            _navigator?.Close();
+            _navigator?.Dispose();
+            _navigator = null;
 
             foreach (var sp in _splitters.Values)
                 sp?.Dispose();

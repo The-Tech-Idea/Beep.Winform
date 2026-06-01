@@ -99,6 +99,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                     using var dirtyBrush = new SolidBrush(colors.ActiveTabBackColor);
                     g.FillEllipse(dirtyBrush, dot);
                 }
+
+                if (ctx.IsDesignTime && tab.IsActive)
+                {
+                    using var selectPen = new Pen(colors.ActiveTabBackColor)
+                    {
+                        DashStyle = DashStyle.Dot,
+                        Width = 1
+                    };
+                    g.DrawRectangle(selectPen,
+                        tabRect.X + 1, tabRect.Y + 1,
+                        System.Math.Max(0, tabRect.Width - 3),
+                        System.Math.Max(0, tabRect.Height - 3));
+                }
             }
         }
 

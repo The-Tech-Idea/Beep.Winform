@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Guide - Beep Controls</title>
+    <title>Performance Optimization - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,103 +16,316 @@
     <div class="container">
         <main class="content">
             <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="../index.html#guides">Guides</a>
+                    <span>&rsaquo;</span>
+                    <span>Performance Optimization</span>
+                </nav>
+
                 <div class="page-header">
-                    <h1><i class="bi bi-speedometer2"></i> Performance Guide</h1>
-                    <p class="page-subtitle">Optimize your Beep Controls applications for speed and responsiveness</p>
+                    <h1><i class="bi bi-speedometer2"></i> Performance Optimization</h1>
+                    <p class="page-subtitle">Techniques for maximizing rendering speed, reducing layout overhead, and scaling Beep applications to large datasets</p>
                 </div>
 
-                <section class="section">
-                    <h2>Reduce Control Count</h2>
-                    <p>Each control on a form adds overhead. For complex layouts:</p>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
                     <ul>
-                        <li>Use <code>BeepSimpleGrid</code> instead of many individual labels/textboxes for tabular data</li>
-                        <li>Use <code>BeepListBox</code> or <code>BeepTree</code> for large lists instead of dynamically created controls</li>
-                        <li>Use virtualization when displaying hundreds of items</li>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#dpi-rendering">DPI-Aware Rendering</a></li>
+                        <li><a href="#smart-invalidation">EnableSmartInvalidation</a></li>
+                        <li><a href="#begin-end-update">BeginUpdate / EndUpdate Batching</a></li>
+                        <li><a href="#suspend-layout">SuspendLayout / ResumeLayout</a></li>
+                        <li><a href="#virtual-mode">Virtual Mode for BeepGridPro</a></li>
+                        <li><a href="#debounced-painting">Debounced Painting</a></li>
+                        <li><a href="#caching">Caching GDI+ Resources</a></li>
+                        <li><a href="#layout-tips">Layout and Control Count Tips</a></li>
                     </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        Beep Controls are built on top of GDI+ with double-buffering enabled by default. However,
+                        as your application scales — more rows in a grid, more controls on a form, multiple monitors
+                        at different DPI settings — you need to employ the right optimization techniques to keep
+                        the UI responsive.
+                    </p>
+                    <p>
+                        This guide covers the key levers available in the Beep framework: DPI-aware painting,
+                        smart invalidation, update batching, virtual data modes, and debounced rendering.
+                    </p>
                 </section>
 
-                <section class="section">
-                    <h2>Suspend Layout During Bulk Updates</h2>
-                    <pre><code class="language-csharp">// Before adding many controls
-panel.SuspendLayout();
-
-for (int i = 0; i &lt; 100; i++)
+                <section id="dpi-rendering" class="section">
+                    <h2>DPI-Aware Rendering</h2>
+                    <p>
+                        Beep controls automatically scale their rendering based on the current monitor's DPI setting.
+                        <code>BaseControl</code> exposes a <code>ScaleFactor</code> property that reflects the
+                        current DPI ratio (e.g., 1.0 at 96 dpi, 1.5 at 144 dpi, 2.0 at 192 dpi). Use this factor
+                        in custom paint logic instead of hard-coded pixel values.
+                    </p>
+                    <pre><code class="language-csharp">protected override void OnPaint(PaintEventArgs e)
 {
-    var label = new BeepLabel { Text = $"Item {i}" };
+    float sf = ScaleFactor;
+
+    // Scale dimensions with DPI
+    int iconSize = (int)(24 * sf);
+    int padding = (int)(8 * sf);
+    int cornerRadius = (int)(6 * sf);
+
+    // Use scaled values for drawing
+    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+    using var path = RoundedRectangle(ClientRectangle, cornerRadius);
+    e.Graphics.FillPath(_backBrush, path);
+}</code></pre>
+                    <p>
+                        When a form moves between monitors with different DPI settings, <code>BaseControl</code>
+                        re-reads the device context and updates <code>ScaleFactor</code>. Override
+                        <code>OnDpiChanged</code> to react:
+                    </p>
+                    <pre><code class="language-csharp">protected override void OnDpiChanged(DpiChangedEventArgs e)
+{
+    base.OnDpiChanged(e);
+    // ScaleFactor is already updated by base
+    RebuildImageCache();
+    Invalidate();
+}</code></pre>
+                </section>
+
+                <section id="smart-invalidation" class="section">
+                    <h2>EnableSmartInvalidation</h2>
+                    <p>
+                        By default, calling <code>Invalidate()</code> marks the entire control rectangle for repaint.
+                        With <code>EnableSmartInvalidation = true</code>, <code>BaseControl</code> tracks dirty regions
+                        so that only parts of the control that actually changed are repainted. This is especially
+                        beneficial for controls that update frequently (e.g., status bars, live data displays).
+                    </p>
+                    <pre><code class="language-csharp">public class LiveStatusBar : BaseControl
+{
+    public LiveStatusBar()
+    {
+        EnableSmartInvalidation = true;
+    }
+
+    private string _statusText = "Ready";
+
+    public string StatusText
+    {
+        get => _statusText;
+        set
+        {
+            _statusText = value;
+            // Only invalidates the text area, not the entire bar
+            Rectangle dirty = GetTextBounds();
+            Invalidate(dirty);
+        }
+    }
+}</code></pre>
+                    <div class="info-box">
+                        <strong>When to enable:</strong> Controls with frequent partial updates. Do not enable on
+                        controls where every paint pass redraws the entire surface (e.g., a fully-rendered chart).
+                    </div>
+                </section>
+
+                <section id="begin-end-update" class="section">
+                    <h2>BeginUpdate / EndUpdate Batching</h2>
+                    <p>
+                        When you need to change multiple properties on a control at once, wrap the changes in
+                        <code>BeginUpdate()</code> / <code>EndUpdate()</code>. This suppresses intermediate
+                        layout calculations and repaints, performing a single update at the end.
+                    </p>
+                    <pre><code class="language-csharp">// Without batching: each line triggers Invalidate() and layout
+myGrid.Columns.Clear();
+myGrid.Columns.Add(new GridColumn("Id"));
+myGrid.Columns.Add(new GridColumn("Name"));
+myGrid.Columns.Add(new GridColumn("Email"));
+myGrid.DataSource = source;
+// 4+ repaints
+
+// With batching: single repaint
+myGrid.BeginUpdate();
+myGrid.Columns.Clear();
+myGrid.Columns.Add(new GridColumn("Id"));
+myGrid.Columns.Add(new GridColumn("Name"));
+myGrid.Columns.Add(new GridColumn("Email"));
+myGrid.Columns.Add(new GridColumn("Phone"));
+myGrid.Columns.Add(new GridColumn("Status"));
+myGrid.DataSource = source;
+myGrid.EndUpdate(); // Single repaint and layout pass</code></pre>
+                    <p>
+                        Nesting is supported — <code>EndUpdate()</code> only fires when the outermost call completes:
+                    </p>
+                    <pre><code class="language-csharp">myGrid.BeginUpdate();
+    myGrid.Columns.Add(new GridColumn("A"));
+    myGrid.BeginUpdate();     // Counter = 2
+        myGrid.Columns.Add(new GridColumn("B"));
+        myGrid.Columns.Add(new GridColumn("C"));
+    myGrid.EndUpdate();       // Counter = 1, no repaint yet
+    myGrid.Columns.Add(new GridColumn("D"));
+myGrid.EndUpdate();           // Counter = 0, single repaint now</code></pre>
+                </section>
+
+                <section id="suspend-layout" class="section">
+                    <h2>SuspendLayout / ResumeLayout</h2>
+                    <p>
+                        When adding or removing child controls from a container, use the WinForms
+                        <code>SuspendLayout()</code>/<code>ResumeLayout()</code> pair. This prevents the layout
+                        engine from recalculating positions after each individual addition.
+                    </p>
+                    <pre><code class="language-csharp">panel.SuspendLayout();
+
+for (int i = 0; i < 200; i++)
+{
+    var label = new BeepLabel
+    {
+        Text = $"Row {i}",
+        Location = new Point(10, i * 28),
+        Size = new Size(300, 26)
+    };
     panel.Controls.Add(label);
 }
 
-// Resume after all additions
 panel.ResumeLayout(true);</code></pre>
+                    <p>
+                        Combine <code>SuspendLayout()</code> with <code>BeginUpdate()</code> for maximum benefit
+                        when both adding controls and changing properties:
+                    </p>
+                    <pre><code class="language-csharp">form.SuspendLayout();
+grid.BeginUpdate();
+
+// Bulk operations here...
+
+grid.EndUpdate();
+form.ResumeLayout(true);</code></pre>
                 </section>
 
-                <section class="section">
-                    <h2>Use Double Buffering</h2>
-                    <p>BaseControl enables double buffering by default. If you create custom controls, ensure it's enabled:</p>
-                    <pre><code class="language-csharp">public class MyControl : BaseControl
+                <section id="virtual-mode" class="section">
+                    <h2>Virtual Mode for BeepGridPro</h2>
+                    <p>
+                        When displaying datasets with thousands of rows, set <code>VirtualMode = true</code>.
+                        Instead of creating row objects for every data item, the grid requests cell values
+                        on-demand via the <code>CellValueNeeded</code> event, dramatically reducing memory and
+                        startup time.
+                    </p>
+                    <pre><code class="language-csharp">public class LargeDataForm : BeepiFormPro
 {
-    public MyControl()
+    private List<Customer> _allCustomers;
+
+    public LargeDataForm()
     {
-        SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                 ControlStyles.AllPaintingInWmPaint |
-                 ControlStyles.UserPaint, true);
+        _allCustomers = LoadAllCustomers(); // 100,000+ rows
+
+        var grid = new BeepGridPro();
+        grid.VirtualMode = true;
+        grid.RowCount = _allCustomers.Count;
+        grid.Columns.Add(new GridColumn("Id"));
+        grid.Columns.Add(new GridColumn("Name"));
+        grid.Columns.Add(new GridColumn("Email"));
+
+        grid.CellValueNeeded += (s, e) =>
+        {
+            var customer = _allCustomers[e.RowIndex];
+            e.Value = e.ColumnIndex switch
+            {
+                0 => customer.Id,
+                1 => customer.Name,
+                2 => customer.Email,
+                _ => null
+            };
+        };
+
+        Controls.Add(grid);
+    }
+}</code></pre>
+                    <div class="info-box">
+                        <strong>When to use:</strong> Datasets with more than 1,000 rows. Below that threshold
+                        the overhead of virtual mode outweighs the benefit of pre-loaded rows.
+                    </div>
+                </section>
+
+                <section id="debounced-painting" class="section">
+                    <h2>Debounced Painting</h2>
+                    <p>
+                        When responding to rapid-fire events (mouse move, resize, scroll), painting on every
+                        event can cause stutter. Use debouncing to coalesce multiple paint requests into one.
+                        The <code>DebounceInvalidate</code> helper skips repaints that are queued within a
+                        configurable time window.
+                    </p>
+                    <pre><code class="language-csharp">public class SmoothChart : BaseControl
+{
+    private readonly Timer _debounceTimer = new Timer { Interval = 16 };
+
+    public SmoothChart()
+    {
+        _debounceTimer.Tick += (s, e) =>
+        {
+            _debounceTimer.Stop();
+            Invalidate();
+        };
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        DebounceInvalidate(); // Fires at most once per ~16ms (60 fps)
+    }
+
+    private void DebounceInvalidate()
+    {
+        _debounceTimer.Stop();
+        _debounceTimer.Start();
     }
 }</code></pre>
                 </section>
 
-                <section class="section">
-                    <h2>Cache GDI+ Resources</h2>
-                    <p>Creating brushes and pens on every paint call is expensive. Cache them:</p>
-                    <pre><code class="language-csharp">// Bad — creates new brush every paint
-protected override void OnPaint(PaintEventArgs e)
+                <section id="caching" class="section">
+                    <h2>Caching GDI+ Resources</h2>
+                    <p>
+                        Creating <code>Brush</code>, <code>Pen</code>, and <code>Font</code> objects in
+                        <code>OnPaint</code> is a common performance pitfall. Cache them as fields and only
+                        recreate when the theme changes.
+                    </p>
+                    <pre><code class="language-csharp">public class BadgeControl : BaseControl
 {
-    using var brush = new SolidBrush(CurrentTheme.BackColor);
-    e.Graphics.FillRectangle(brush, ClientRectangle);
-}
+    private SolidBrush _bgBrush;
+    private SolidBrush _textBrush;
+    private Pen _borderPen;
 
-// Good — cached brush, recreated only on theme change
-private SolidBrush _bgBrush;
+    protected override void ApplyControlStyle()
+    {
+        base.ApplyControlStyle();
+        var theme = BeepThemesManager.ActiveTheme;
 
-protected override void OnThemeChanged()
-{
-    base.OnThemeChanged();
-    _bgBrush?.Dispose();
-    _bgBrush = new SolidBrush(CurrentTheme.BackColor);
-}
+        _bgBrush?.Dispose();
+        _textBrush?.Dispose();
+        _borderPen?.Dispose();
 
-protected override void OnPaint(PaintEventArgs e)
-{
-    e.Graphics.FillRectangle(_bgBrush, ClientRectangle);
+        _bgBrush = new SolidBrush(theme.AccentColor);
+        _textBrush = new SolidBrush(theme.ForeColor);
+        _borderPen = new Pen(theme.BorderColor, 1f);
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        e.Graphics.FillRectangle(_bgBrush, ClientRectangle);
+        e.Graphics.DrawRectangle(_borderPen, 0, 0, Width - 1, Height - 1);
+        // Draw text using _textBrush
+    }
 }</code></pre>
                 </section>
 
-                <section class="section">
-                    <h2>Async Data Loading</h2>
-                    <p>Never load data on the UI thread. Use async patterns:</p>
-                    <pre><code class="language-csharp">private async void LoadData()
-{
-    var wait = new BeepWait();
-    wait.Show("Loading data...");
-
-    var data = await Task.Run(() =&gt; FetchDataFromDatabase());
-
-    grid.DataSource = data;
-    wait.Close();
-}</code></pre>
-                </section>
-
-                <section class="section">
-                    <h2>Minimize Theme Switching</h2>
-                    <p>Switching themes triggers a repaint cascade across all controls. Avoid switching themes rapidly (e.g., in a loop or timer). Switch themes only in response to deliberate user action.</p>
-                </section>
-
-                <section class="section">
-                    <h2>Grid Performance Tips</h2>
+                <section id="layout-tips" class="section">
+                    <h2>Layout and Control Count Tips</h2>
                     <ul>
-                        <li>Set <code>VirtualMode = true</code> for grids with &gt;1000 rows</li>
-                        <li>Avoid complex cell formatting in the paint handler</li>
-                        <li>Use pagination via <code>BeepDataNavigator</code> instead of loading all rows</li>
-                        <li>Disable auto-sizing columns for very wide data sets</li>
+                        <li><strong>Use BeepSimpleGrid for tabular layouts</strong> — instead of creating 50+ individual labels and textboxes.</li>
+                        <li><strong>Use BeepTree for tree structures</strong> — avoid nesting dozens of expandable panels.</li>
+                        <li><strong>Use BeepListBox for selectable lists</strong> — don't create individual checkboxes for each item.</li>
+                        <li><strong>Limit form control count</strong> — forms with 300+ controls exhibit measurable GDI+ overhead. Consider tab-based layouts.</li>
+                        <li><strong>Lazy-load tabs</strong> — populate tab pages only when the user navigates to them, not at form startup.</li>
+                        <li><strong>Use Pagination</strong> — combine <code>BeepDataNavigator</code> with server-side paging instead of loading all rows into the grid.</li>
+                        <li><strong>Profile with a debug build</strong> — measure paint times with <code>Stopwatch</code> to identify bottlenecks.</li>
                     </ul>
                 </section>
             </div>

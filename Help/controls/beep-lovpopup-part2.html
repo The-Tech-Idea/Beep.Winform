@@ -1,0 +1,259 @@
+                <section id="public-api" class="section">
+                    <h2>Public API Methods</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowAt</code></td>
+                                <td><code>public void ShowAt(List&lt;SimpleItem&gt; items, Point screenOrigin, int ownerWidth, string preloadSearch = "")</code></td>
+                                <td>Primary entry point. Loads items, optionally pre-fills search, configures grid columns, rebuilds recent chips, calculates form size, applies theme, positions below screenOrigin (clamped to screen bounds), shows and focuses search box.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyLovTheme</code></td>
+                                <td><code>public void ApplyLovTheme()</code></td>
+                                <td>Applies CurrentTheme to form and children: backcolors for header/footer/grid/recent panels, foreground for count label, theme propagation to all BeepControls, grid, and recent chips. Safe to call multiple times.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeginLoading</code></td>
+                                <td><code>public void BeginLoading()</code></td>
+                                <td>Shows semi-transparent overlay with animated Braille spinner (80ms interval) and "Loading..." text.</td>
+                            </tr>
+                            <tr>
+                                <td><code>EndLoading</code></td>
+                                <td><code>public void EndLoading(List&lt;SimpleItem&gt; items)</code></td>
+                                <td>Stops spinner, replaces internal items, re-applies current search filter, rebuilds recent chips, hides loading overlay.</td>
+                            </tr>
+                            <tr>
+                                <td><code>LoadItemsAsync</code></td>
+                                <td><code>public async Task LoadItemsAsync(Func&lt;CancellationToken, Task&lt;List&lt;SimpleItem&gt;&gt;&gt; loader, string preloadSearch = "")</code></td>
+                                <td>Async loading. Cancels previous load, calls BeginLoading, runs loader via Task.Run with CancellationToken, calls EndLoading. Silently discards OperationCanceledException. Shows error in label for other exceptions. Checks IsDisposed/IsHandleCreated before UI updates.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="private-helpers" class="section">
+                    <h2>Private Helper Methods</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InitializeComponents()</code></td><td>Builds full UI: header panel (search box + close button), grid (read-only, single-select, row height 24px), footer (count label + Cancel + OK), recent panel (FlowLayoutPanel), loading overlay + spinner timer. Sets dock order.</td></tr>
+                            <tr><td><code>ConfigureGridColumns()</code></td><td>Clears grid columns. Uses LovColumns if populated; otherwise creates two defaults: "Key" (Value, 90px) and "Display Value" (Text, auto-width).</td></tr>
+                            <tr><td><code>RebindGrid()</code></td><td>Wraps _filteredItems in BindingList&lt;SimpleItem&gt; and assigns to _grid.DataSource.</td></tr>
+                            <tr><td><code>FilterItems(string search)</code></td><td>If blank, sets _filteredItems = _allItems. Otherwise filters by lowercased containment match against Text, Value, and Description. Rebinds grid and updates count.</td></tr>
+                            <tr><td><code>UpdateCount()</code></td><td>Writes "N records" or "N of M" to _countLabel based on filtering state.</td></tr>
+                            <tr><td><code>UpdateRecentPanel()</code></td><td>Rebuilds recent chips most-recent first. Each chip is a BeepButton with truncated label (max 18 chars), SimpleItem in Tag, tooltip, themed, click handler fires ItemAccepted.</td></tr>
+                            <tr><td><code>PushRecent(SimpleItem)</code></td><td>Removes duplicates by Value equality, adds item to queue, evicts oldest if exceeding 5.</td></tr>
+                            <tr><td><code>PositionHeaderControls()</code></td><td>Repositions search box and close button on _headerPanel.Resize.</td></tr>
+                            <tr><td><code>PositionFooterControls()</code></td><td>Repositions OK (right), Cancel (left of OK), and count label on _footerPanel.Resize.</td></tr>
+                            <tr><td><code>PositionLoadingOverlay()</code></td><td>Positions loading overlay over the grid area. Called on OnResize.</td></tr>
+                            <tr><td><code>Grid_RowSelectionChanged</code></td><td>Stores selected row's SimpleItem as _pendingSelection via index lookup.</td></tr>
+                            <tr><td><code>Accept()</code></td><td>Uses _pendingSelection or falls back to _filteredItems[0]. Calls PushRecent, sets SelectedItem, fires ItemAccepted, hides popup.</td></tr>
+                            <tr><td><code>Cancel()</code></td><td>Cancels async load via _loadCts.Cancel(), fires Cancelled, hides popup.</td></tr>
+                            <tr><td><code>OnKeyDown(KeyEventArgs)</code></td><td>Escape->Cancel, Enter/F9->Accept. Sets e.Handled = true.</td></tr>
+                            <tr><td><code>OnDeactivate(EventArgs)</code></td><td>Cancels pending async load and hides popup on focus loss.</td></tr>
+                            <tr><td><code>OnPaint(PaintEventArgs)</code></td><td>Draws 1px themed border rectangle using CurrentTheme?.BorderColor.</td></tr>
+                            <tr><td><code>OnResize(EventArgs)</code></td><td>Calls base + PositionLoadingOverlay().</td></tr>
+                            <tr><td><code>Dispose(bool)</code></td><td>Cancels/disposes load CTS, stops/disposes spinner timer, disposes all child controls.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="layout" class="section">
+                    <h2>Layout & Control Tree</h2>
+                    <p>The popup is a <code>FormBorderStyle.None</code> form with <code>KeyPreview = true</code> and five docked panels:</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>Control Tree</span></div>
+                        <pre><code class="language-text">BeepLovPopup : Form
+├── _headerPanel (Dock=Top, H=44): _searchBox + _closeButton
+├── _recentPanel (Dock=Top, H=34, hidden when empty): max 5 BeepButton chips
+├── _grid (BeepGridPro, Dock=Fill): ReadOnly, SingleSelect, RowHeight=24
+├── _footerPanel (Dock=Bottom, H=44): _countLabel + _cancelButton + _okButton
+└── _loadingOverlay (non-docked, semi-transparent): _loadingLabel with spinner</code></pre>
+                    </div>
+                    <table class="props-table">
+                        <thead><tr><th>Constant</th><th>Value</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>HeaderH</code></td><td>44</td><td>Header panel height</td></tr>
+                            <tr><td><code>FooterH</code></td><td>44</td><td>Footer panel height</td></tr>
+                            <tr><td><code>RecentPanelH</code></td><td>34</td><td>Recent chips panel height</td></tr>
+                            <tr><td><code>MinPopupW</code></td><td>280</td><td>Minimum popup width</td></tr>
+                            <tr><td><code>MaxVisRows</code></td><td>12</td><td>Max visible grid rows</td></tr>
+                            <tr><td><code>BorderPx</code></td><td>1</td><td>OnPaint border thickness</td></tr>
+                            <tr><td><code>MaxRecentItems</code></td><td>5</td><td>Max recent items stored</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="async-loading" class="section">
+                    <h2>Async Data Loading</h2>
+                    <h3>Manual Loading</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>BeginLoading / EndLoading</span></div>
+                        <pre><code class="language-csharp">popup.BeginLoading();
+var items = await FetchItemsAsync();
+popup.EndLoading(items);</code></pre>
+                    </div>
+                    <h3>LoadItemsAsync (Recommended)</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Single Async Call with Cancellation</span></div>
+                        <pre><code class="language-csharp">await popup.LoadItemsAsync(async (token) =>
+{
+    var data = await db.SearchAsync(query, token);
+    return data.Select(d => new SimpleItem
+    {
+        Text = d.Name,
+        Value = d.Id
+    }).ToList();
+}, preloadSearch: "cust");</code></pre>
+                    </div>
+                    <p>Key behaviors: auto-cancels previous loads, silently swallows OperationCanceledException, shows errors in loading label, checks IsDisposed/IsHandleCreated before UI updates.</p>
+                </section>
+
+                <section id="recent-items" class="section">
+                    <h2>Recent Items System</h2>
+                    <p>The recent items system persists the last 5 selections in a Queue&lt;SimpleItem&gt; (oldest-first). When the user accepts a selection, PushRecent removes any duplicate (by Value equality) and adds the item. If the queue exceeds 5, the oldest is evicted.</p>
+                    <p>The RecentItems property enables cross-cycle persistence:</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>Persisting Recent Items</span></div>
+                        <pre><code class="language-csharp">var savedItems = popup.RecentItems.ToList();   // save
+popup.RecentItems = savedItems;               // restore</code></pre>
+                    </div>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>ApplyLovTheme() applies CurrentTheme to every visual element:</p>
+                    <ul>
+                        <li><strong>Form:</strong> BackColor = PanelBackColor, ForeColor.</li>
+                        <li><strong>Header:</strong> GridHeaderBackColor (falls back to PanelBackColor).</li>
+                        <li><strong>Footer & Recent Panel:</strong> PanelBackColor.</li>
+                        <li><strong>Count Label:</strong> SecondaryTextColor foreground, transparent background.</li>
+                        <li><strong>BeepControls:</strong> Each child gets Theme = LovTheme, UseThemeColors, ApplyTheme().</li>
+                        <li><strong>Grid:</strong> _grid.Theme = LovTheme, _grid.ApplyTheme().</li>
+                        <li><strong>Loading Overlay:</strong> Semi-transparent (alpha 220) PanelBackColor.</li>
+                        <li><strong>Border:</strong> CurrentTheme?.BorderColor via OnPaint.</li>
+                    </ul>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Example 1: Basic Popup from a TextBox</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Show LOV Below a Control</span></div>
+                        <pre><code class="language-csharp">private BeepLovPopup _popup = new BeepLovPopup();
+
+private void ShowLov(TextBox owner)
+{
+    var items = new List&lt;SimpleItem&gt;
+    {
+        new() { Value = 1, Text = "United States" },
+        new() { Value = 2, Text = "Canada" },
+        new() { Value = 3, Text = "Mexico" },
+    };
+
+    _popup.LovTheme = "Dark";
+    _popup.UseThemeColors = true;
+    _popup.CurrentTheme = BeepThemesManager.GetTheme("Dark");
+    _popup.ItemAccepted += (s, item) =>
+    {
+        owner.Text = item.Text;
+        owner.Tag = item.Value;
+    };
+
+    var screenPoint = owner.Parent.PointToScreen(owner.Location);
+    _popup.ShowAt(items,
+        new Point(screenPoint.X, screenPoint.Y + owner.Height),
+        owner.Width);
+}</code></pre>
+                    </div>
+
+                    <h3>Example 2: Custom Multi-Column Layout</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Custom Columns with Server-Side Filter</span></div>
+                        <pre><code class="language-csharp">var popup = new BeepLovPopup
+{
+    LovColumns = new()
+    {
+        new BeepColumnConfig { ColumnName = "Value", ColumnCaption = "ID", Width = 60 },
+        new BeepColumnConfig { ColumnName = "Text", ColumnCaption = "Product", Width = 200 },
+        new BeepColumnConfig { ColumnName = "Description", ColumnCaption = "Category", Width = 120 },
+    },
+    MaxPopupHeight = 400
+};
+
+popup.SearchChanged += async (s, query) =>
+{
+    var results = await ProductService.SearchAsync(query);
+    popup.EndLoading(results);
+};</code></pre>
+                    </div>
+
+                    <h3>Example 3: Persist Recent Items Across Sessions</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Save/Restore Recent Items</span></div>
+                        <pre><code class="language-csharp">private List&lt;SimpleItem&gt; _savedRecents = new();
+
+// After popup closes:
+_savedRecents = _popup.RecentItems.ToList();
+
+// Before showing popup again:
+if (_savedRecents.Count > 0)
+    _popup.RecentItems = _savedRecents;
+
+_popup.ShowAt(items, origin, width);</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepLovPopup.cs</code></td><td>Complete popup: form, header/search, recent chips, grid, footer, loading overlay, keyboard handling, client-side filtering, async loader, theming.</td></tr>
+                            <tr><td><code>BeepGridPro</code> (GridX)</td><td>Data grid used as selection surface with column config and row selection events.</td></tr>
+                            <tr><td><code>SimpleItem</code> (Models)</td><td>Data model: Value, Text, Description, Name. Used as grid rows and recent chips.</td></tr>
+                            <tr><td><code>BeepTextBox</code> (TextFields)</td><td>Search input in header with placeholder text.</td></tr>
+                            <tr><td><code>BeepButton</code> (Buttons)</td><td>Close, OK, Cancel buttons and recent chips.</td></tr>
+                            <tr><td><code>BeepListofValuesBox</code> (Lovs)</td><td>Parent control that creates/manages BeepLovPopup. Provides key/display value integration.</td></tr>
+                            <tr><td><code>IBeepTheme</code> (Vis/Modules)</td><td>Theme interface providing all UI colors.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Selection Pipeline</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Full Data Flow</span></div>
+                        <pre><code class="language-text">ShowAt(items, origin, width, preloadSearch)
+  → _allItems = items
+  → _searchBox.Text = preloadSearch
+  → FilterItems(search) → _filteredItems
+  → ConfigureGridColumns() → grid columns
+  → RebindGrid() → grid.DataSource
+  → UpdateRecentPanel() → chip strip
+  → Calc size + position + ApplyLovTheme()
+  → Show() + _searchBox.Focus()
+
+User types: SearchBox_TextChanged → FilterItems → RebindGrid → UpdateCount
+                                → SearchChanged event (server-side)
+
+Accepts: Enter / F9 / DoubleClick / OK / Recent chip → Accept()
+  → PushRecent(item) → SelectedItem = item → ItemAccepted → Hide()
+
+Cancels: Escape / Cancel / Close / OnDeactivate → Cancel()
+  → Cancelled → Hide()</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

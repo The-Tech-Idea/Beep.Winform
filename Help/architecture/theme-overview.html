@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Overview - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Theme Overview</span></nav><div class="page-header"><h1>Theme System Architecture</h1><p class="page-subtitle">IBeepTheme contract, BeepTheme partial class decomposition, theme types (Ubuntu/GNOME/Cyberpunk/Candy/Zen), and the token resolution pipeline</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#ibeep-theme">IBeepTheme Contract</a></li><li><a href="#beep-theme">BeepTheme Partial Class</a></li><li><a href="#theme-types">Theme Types</a></li><li><a href="#token-resolution">Token Resolution</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The Beep theme system powers the visual appearance of every control. It consists of:</p><ul><li><strong>IBeepTheme</strong> — Interface defining the theme contract (in TheTechIdea.Beep.Vis.Modules2.0)</li><li><strong>BeepTheme</strong> — Central partial class with 35+ partial files, each handling a control type</li><li><strong>Theme Types</strong> — Concrete implementations: Ubuntu, GNOME, Cyberpunk, Candy, Zen</li><li><strong>BeepThemesManager</strong> — Singleton manager for theme registration and switching</li></ul></section><section class="section" id="ibeep-theme"><h2>IBeepTheme Contract</h2><pre><code class="language-csharp">public interface IBeepTheme
+{
+    string ThemeName { get; }
+    Color ButtonBackColor { get; }
+    Color ButtonForeColor { get; }
+    Color ButtonBorderColor { get; }
+    Color ButtonHoverColor { get; }
+    // ... 200+ color/style properties for every control type
+    Font DefaultFont { get; }
+    Font TitleFont { get; }
+    int BorderRadius { get; }
+    float Opacity { get; }
+}</code></pre></section><section class="section" id="beep-theme"><h2>BeepTheme Partial Class (35 Files)</h2><p>Each partial file handles a specific control type:</p><table><thead><tr><th>File</th><th>Control Type</th><th>Properties</th></tr></thead><tbody><tr><td>BeepTheme.cs / Core.cs / Utility.cs</td><td>Base</td><td>Name, fonts, borders, opacity</td></tr><tr><td>BeepTheme.Buttons.cs</td><td>Button</td><td>BackColor, ForeColor, Border, Hover, Pressed, Disabled</td></tr><tr><td>BeepTheme.TextBox.cs</td><td>TextBox</td><td>BackColor, ForeColor, Border, Focused, Placeholder</td></tr><tr><td>BeepTheme.ComboBox.cs</td><td>ComboBox</td><td>Field, dropdown, popup colors</td></tr><tr><td>BeepTheme.CheckBox.cs</td><td>CheckBox</td><td>Check mark, box border, fill colors</td></tr><tr><td>BeepTheme.RadioButton.cs</td><td>RadioButton</td><td>Circle border, dot colors</td></tr><tr><td>BeepTheme.Grid.cs</td><td>Grid</td><td>Header, cell, alternating row, selection colors</td></tr><tr><td>BeepTheme.Chart.cs</td><td>Chart</td><td>Series palette, axis, legend colors</td></tr><tr><td>BeepTheme.Calendar.cs</td><td>Calendar</td><td>Cell, header, today, event colors</td></tr><tr><td>BeepTheme.Tab.cs</td><td>Tabs</td><td>Active, inactive, hover, border colors</td></tr><tr><td>BeepTheme.Stepper.cs</td><td>Stepper</td><td>Step node, connector, label colors</td></tr><tr><td>BeepTheme.Tree.cs</td><td>TreeView</td><td>Node, expander, selection colors</td></tr><tr><td>BeepTheme.Menu.cs</td><td>Menu</td><td>Bar, item, hover, separator colors</td></tr><tr><td>BeepTheme.Navigation.cs</td><td>Navigation</td><td>Sidebar, nav item colors</td></tr></tbody></table><p>Plus 22 more: Dialog, Login, Dashboard, StatusBar, ToolTip, FontAndTypography, Gradient, ColorPalette, Company, BlockquoteCode, Badge, Link, SideMenu, StarRating, StatsCard, TaskCard, Testimony, ScrollList, Card, ScrollBar, Switch, ProgressBar, Miscellaneous.</p></section><section class="section" id="theme-types"><h2>Theme Types</h2><table><thead><tr><th>Theme</th><th>Project</th><th>Files</th><th>Style</th></tr></thead><tbody><tr><td>UbuntuTheme</td><td>Controls</td><td>26 partial files</td><td>Ubuntu Linux aesthetic — orange accents, dark/light variants</td></tr><tr><td>GNOMETheme</td><td>Controls</td><td>30 partial files</td><td>GNOME desktop — Adwaita colors, rounded corners</td></tr><tr><td>CyberpunkTheme</td><td>Controls</td><td>30 partial files</td><td>Neon cyberpunk — bright magenta/cyan, dark backgrounds</td></tr><tr><td>CandyTheme</td><td>Vis.Modules2.0</td><td>1 file</td><td>Soft candy colors — pastels, rounded shapes</td></tr><tr><td>ZenTheme</td><td>Vis.Modules2.0</td><td>1 file</td><td>Minimal zen — earth tones, clean typography</td></tr><tr><td>CyberpunkNeonTheme</td><td>Vis.Modules2.0</td><td>5 partial files</td><td>Neon variant — brighter, more saturated</td></tr></tbody></table></section><section class="section" id="token-resolution"><h2>Token Resolution</h2><pre><code class="language-csharp">// Token resolution pipeline:
+// 1. Control checks its own theme property override
+// 2. Falls back to BeepThemesManager.CurrentTheme
+// 3. Falls back to default theme values
+
+public Color GetButtonBackColor(BaseControl control)
+{
+    if (control.ThemeOverrides?.ButtonBackColor != null)
+        return control.ThemeOverrides.ButtonBackColor;
+
+    return BeepThemesManager.CurrentTheme
+        ?.ButtonBackColor ?? DefaultTheme.ButtonBackColor;
+}</code></pre></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Global theme switch
+BeepThemesManager.Instance.SetTheme("DarkTheme");
+// All controls update automatically
+
+// Per-control override
+myButton.ThemeOverrides = new ThemeOverrides
+{
+    ButtonBackColor = Color.Red,
+    BorderRadius = 12
+};
+
+// Custom theme
+var myTheme = new BeepTheme
+{
+    ThemeName = "MyCustomTheme",
+    ButtonBackColor = Color.Navy,
+    ButtonForeColor = Color.White,
+    // ... configure all properties
+};
+BeepThemesManager.Instance.RegisterTheme(myTheme);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

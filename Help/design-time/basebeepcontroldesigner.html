@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BaseBeepControlDesigner - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
+<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
+<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
+<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
+<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
+<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
+<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>basebeepcontroldesigner</span></nav><div class="page-header"><h1>BaseBeepControlDesigner</h1><p class="page-subtitle">The abstract base designer for all leaf (non-container) Beep controls — provides unified smart-tag surface with style/theme/schema and IComponentChangeService-backed property mutation</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#inheritance">Inheritance Chain</a></li><li><a href="#smart-tag">Smart-Tag Integration</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.dll</code><br><strong>Inheritance:</strong> <code>Microsoft.DotNet.DesignTools.Designers.ControlDesigner</code><br><strong>Implements:</strong> <code>IBeepDesignerActionHost</code></p><p><code>BaseBeepControlDesigner</code> is the <strong>abstract base class</strong> for all leaf control designers in the Beep library. Every control that is NOT a container (buttons, labels, textboxes, grids, charts, calendars, etc.) has a designer that derives from this class.</p><p>It provides three critical services:</p><ol><li><strong>IComponentChangeService integration</strong> — Every property mutation routes through OnComponentChanging/OnComponentChanged for undo and .designer.cs serialization</li><li><strong>Unified smart-tag</strong> — Combines <code>CommonBeepControlActionList</code> (style/theme/schema) with control-specific action lists</li><li><strong>Convenience methods</strong> — <code>SetProperty()</code>, <code>GetProperty&lt;T&gt;()</code>, <code>ApplyTheme()</code>, <code>SetStyle()</code></li></ol></section><section class="section" id="features"><h2>Key Features</h2><ul><li>Implements <code>IBeepDesignerActionHost</code> for consumption by action lists</li><li>Captures <code>IComponentChangeService</code> during <code>Initialize()</code></li><li>Exposes <code>BeepControl</code> (casts Component to BaseControl) for derived classes</li><li>Auto-combines <code>CommonBeepControlActionList</code> with control-specific lists in <code>ActionLists</code> property</li><li>Provides <code>SetStyle(BeepControlStyle)</code> convenience method for style changes</li><li>All property setters use <code>TypeDescriptor</code> for proper property descriptor resolution</li><li>Abstract: derived designers MUST implement <code>GetControlSpecificActionLists()</code></li></ul></section><section class="section" id="properties"><h2>Properties</h2><table><thead><tr><th>Member</th><th>Type</th><th>Visibility</th><th>Description</th></tr></thead><tbody><tr><td>ChangeService</td><td>IComponentChangeService</td><td>protected</td><td>Captured during Initialize(). Used for undo/code-gen.</td></tr><tr><td>BeepControl</td><td>BaseControl</td><td>protected</td><td>Casts Component to BaseControl for convenient access.</td></tr><tr><td>ActionLists</td><td>DesignerActionListCollection</td><td>public override</td><td>Returns CommonBeepControlActionList + control-specific lists.</td></tr></tbody></table></section><section class="section" id="methods"><h2>Methods</h2><table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td>Initialize</td><td>void Initialize(IComponent component)</td><td>Captures IComponentChangeService. Calls base.</td></tr><tr><td>SetProperty</td><td>void SetProperty(string name, object value)</td><td>Sets property via TypeDescriptor with full change notification.</td></tr><tr><td>GetProperty</td><td>T GetProperty&lt;T&gt;(string name)</td><td>Gets property value via TypeDescriptor.</td></tr><tr><td>ApplyTheme</td><td>void ApplyTheme()</td><td>Calls BeepControl?.ApplyTheme().</td></tr><tr><td>SetStyle</td><td>void SetStyle(BeepControlStyle style)</td><td>Convenience: calls SetProperty("ControlStyle", style).</td></tr><tr><td>GetControlSpecificActionLists</td><td>abstract DesignerActionListCollection ...()</td><td>Override to provide control-specific smart-tag items.</td></tr></tbody></table></section><section class="section" id="inheritance"><h2>Inheritance Chain</h2><pre><code class="language-plaintext">Microsoft.DotNet.DesignTools.Designers.ControlDesigner
+  └── BaseBeepControlDesigner (abstract)
+       ├── BeepButtonDesigner
+       ├── BeepLabelDesigner
+       ├── BeepImageDesigner
+       ├── BeepCheckBoxDesigner
+       ├── BeepComboBoxDesigner
+       ├── BeepGridProDesigner
+       ├── BeepChartDesigner
+       ├── BeepCalendarDesigner
+       ├── BeepDockDesigner
+       ├── BeepBreadcrumpDesigner
+       ├── BeepMenuBarDesigner
+       ├── BeepAccordionMenuDesigner
+       ├── BeepMultiChipGroupDesigner
+       ├── BeepDatePickerDesigner
+       ├── BeepMultiSplitterDesigner
+       └── ... (+ widget designers)</code></pre></section><section class="section" id="smart-tag"><h2>Smart-Tag Integration</h2><p>Every leaf control automatically gets <code>CommonBeepControlActionList</code> in its smart-tag panel. This always includes:</p><ul><li><strong>ControlStyle</strong> — The visual style preset (Material3, Fluent, Cyberpunk, etc.)</li><li><strong>Theme</strong> — The theme name to apply</li><li><strong>Schema</strong> — Color schema selection</li></ul><p>Control-specific properties and actions are added by overriding <code>GetControlSpecificActionLists()</code> in the derived designer.</p></section><section class="section" id="examples"><h2>Examples</h2><h3>Setting a Property from an Action List</h3><pre><code class="language-csharp">internal class MyActionList : DesignerActionList
+{
+    private IBeepDesignerActionHost Host =>
+        (IBeepDesignerActionHost)Component.Designer;
+
+    public int RowHeight
+    {
+        get => Host.GetProperty&lt;int&gt;(nameof(RowHeight));
+        set => Host.SetProperty(nameof(RowHeight), value);
+    }
+}</code></pre><h3>Implementing a Concrete Leaf Designer</h3><pre><code class="language-csharp">[Designer(typeof(MyControlDesigner))]
+public class MyControl : BaseControl { }
+
+public class MyControlDesigner : BaseBeepControlDesigner
+{
+    protected override DesignerActionListCollection GetControlSpecificActionLists()
+    {
+        return new DesignerActionListCollection
+        {
+            new MyControlActionList(Component)
+        };
+    }
+}</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

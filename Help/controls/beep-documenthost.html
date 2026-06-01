@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDocumentHost - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#docking">Docking &amp; MDI</a><span>&rsaquo;</span>
+                    <span>BeepDocumentHost</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepDocumentHost</h1>
+                    <p class="page-subtitle">Multi-document MDI surface with tabbed navigation, split groups, auto-hide panels, keyboard shortcuts, and a full tab strip</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#document-states">Document States</a></li>
+                        <li><a href="#split-groups">Split Groups &amp; Nested Layouts</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepDocumentHost</strong> is a <code>UserControl</code>-based multi-document interface container that provides Visual-Studio-style tabbed document management. Drop it from the toolbox onto a form and it handles the full document lifecycle &mdash; open, close, activate, split, float, auto-hide, and persist &mdash; using an internal tab strip and nested <code>BeepDocumentPanel</code> surfaces.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.DocumentHost</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>System.Windows.Forms.UserControl &#x2192; BeepDocumentHost</code><br>
+                    <strong>Designer:</strong> <code>BeepDocumentHostDesigner</code> (intelligent smart-tag with wizard, context menus, layout assistant)</p>
+                    <p>Organized across multiple partial files spanning the core host, layout tree, features, and an extensive design-time designer with 8 partial files for verbs, context menus, drag-drop, panel siting, setup, tab selection, layout presets, and design-time document CRUD.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Tabbed document MDI</strong> &mdash; Open multiple documents as tabbed panels, each hosting any WinForms control</li>
+                        <li><strong>Six tab styles</strong> &mdash; Chrome, VS Code, Underline, Pill, Office, and Flat via <code>DocumentTabStyle</code></li>
+                        <li><strong>Flexible tab positioning</strong> &mdash; Top, Bottom, Left, Right, or Hidden via <code>TabStripPosition</code></li>
+                        <li><strong>Configurable close behaviour</strong> &mdash; Close button always visible, on hover only, or hidden entirely (<code>TabCloseMode</code>)</li>
+                        <li><strong>Split groups</strong> &mdash; Side-by-side horizontal or vertical split views with independent tab strips per group</li>
+                        <li><strong>Nested splits</strong> &mdash; Recursive split layouts up to <code>MaxSplitDepth</code> nesting levels</li>
+                        <li><strong>Floating documents</strong> &mdash; Drag a tab out to a free-floating window; dock it back with one call</li>
+                        <li><strong>Auto-hide strips</strong> &mdash; Collapse documents to slim edge strips with configurable hover-delay peek behaviour</li>
+                        <li><strong>Keyboard shortcuts</strong> &mdash; Built-in Ctrl+Tab, Ctrl+W, Ctrl+1&ndash;9, Ctrl+Shift+T via <code>CommandRegistry</code></li>
+                        <li><strong>Quick-switch popup</strong> &mdash; Ctrl+Tab document picker with MRU ordering</li>
+                        <li><strong>Layout persistence</strong> &mdash; Full layout tree serialization to/from JSON via <code>SaveLayout()</code></li>
+                        <li><strong>Session auto-save</strong> &mdash; Auto-save and restore the tab arrangement to a <code>SessionFile</code></li>
+                        <li><strong>Design-time wizard</strong> &mdash; First-drop quick setup picks tab style, seeds sample documents, selects template</li>
+                        <li><strong>Per-document tab colours</strong> &mdash; Accent bar, full background, or bottom border via <code>TabColorMode</code></li>
+                        <li><strong>Tab preview tooltips</strong> &mdash; Rich thumbnail previews on tab hover</li>
+                        <li><strong>Cross-host drag</strong> &mdash; Drag tabs between separate <code>BeepDocumentHost</code> instances</li>
+                        <li><strong>Transactional docking</strong> &mdash; Split/dock mutations wrapped in designer transactions for full undo support</li>
+                        <li><strong>Theme integration</strong> &mdash; Propagates <code>ThemeName</code> to tab strip and all document panels</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>TabStyle</code></td><td><code>DocumentTabStyle</code></td><td><code>Chrome</code></td><td>Visual rendering style of the tab strip: <code>Chrome</code>, <code>VSCode</code>, <code>Underline</code>, <code>Pill</code>, <code>Office</code>, or <code>Flat</code>.</td></tr>
+                            <tr><td><code>TabPosition</code></td><td><code>TabStripPosition</code></td><td><code>Top</code></td><td>Position of the tab strip relative to document panels: <code>Top</code>, <code>Bottom</code>, <code>Left</code>, <code>Right</code>, or <code>Hidden</code>.</td></tr>
+                            <tr><td><code>CloseMode</code></td><td><code>TabCloseMode</code></td><td><code>OnHover</code></td><td>Controls when the close (&times;) button is visible: <code>Always</code>, <code>OnHover</code>, or <code>Never</code>.</td></tr>
+                            <tr><td><code>ShowAddButton</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows the new-document (+) button at the end of the tab strip.</td></tr>
+                            <tr><td><code>TabColorMode</code></td><td><code>TabColorMode</code></td><td><code>None</code></td><td>How per-document tab colours are applied: <code>None</code>, <code>AccentBar</code>, <code>FullBackground</code>, or <code>BottomBorder</code>.</td></tr>
+                            <tr><td><code>KeyboardShortcutsEnabled</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable built-in keyboard shortcuts (Ctrl+Tab, Ctrl+W, Ctrl+1&ndash;9, Ctrl+Shift+T).</td></tr>
+                            <tr><td><code>ControlStyle</code></td><td><code>DocumentHostStyle</code></td><td><code>Flat</code></td><td>Border/elevation style of the host container: <code>Flat</code>, <code>Thin</code>, or <code>Raised</code>.</td></tr>
+                            <tr><td><code>ThemeName</code></td><td><code>string</code></td><td><code>""</code></td><td>Beep theme name propagated to the tab strip and all document panels.</td></tr>
+                            <tr><td><code>MaxGroups</code></td><td><code>int</code></td><td><code>4</code></td><td>Maximum number of side-by-side document groups allowed (1&ndash;8).</td></tr>
+                            <tr><td><code>SplitHorizontal</code></td><td><code>bool</code></td><td><code>true</code></td><td>Split orientation: <code>true</code> = side-by-side (horizontal); <code>false</code> = top/bottom (vertical).</td></tr>
+                            <tr><td><code>SplitRatio</code></td><td><code>float</code></td><td><code>0.5</code></td><td>Fraction of host space assigned to the first group (0.1&ndash;0.9).</td></tr>
+                            <tr><td><code>LayoutRoot</code></td><td><code>ILayoutNode</code></td><td>&mdash;</td><td>Read-only root node of the current layout tree.</td></tr>
+                            <tr><td><code>TabPreviewEnabled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show panel thumbnails inside rich tooltips on tab hover.</td></tr>
+                            <tr><td><code>MaxRecentHistory</code></td><td><code>int</code></td><td><code>20</code></td><td>Maximum number of recently-used documents tracked for MRU navigation (Ctrl+Tab popup).</td></tr>
+                            <tr><td><code>MaxClosedHistory</code></td><td><code>int</code></td><td><code>10</code></td><td>Maximum number of recently-closed documents available for Ctrl+Shift+T reopen.</td></tr>
+                            <tr><td><code>AllowDragBetweenHosts</code></td><td><code>bool</code></td><td><code>false</code></td><td>Allow tabs to be dragged from this host to another BeepDocumentHost in the same process.</td></tr>
+                            <tr><td><code>TabSizeMode</code></td><td><code>TabSizeMode</code></td><td><code>Auto</code></td><td>Controls how individual tabs are sized: <code>Auto</code> (content-based), <code>Fixed</code> (equal <code>FixedTabWidth</code>), or <code>Fill</code> (stretch to strip width).</td></tr>
+                            <tr><td><code>FixedTabWidth</code></td><td><code>int</code></td><td><code>150</code></td><td>Fixed pixel width for every tab when <code>TabSizeMode</code> = <code>Fixed</code>.</td></tr>
+                            <tr><td><code>TabTooltipMode</code></td><td><code>TabTooltipMode</code></td><td><code>Title</code></td><td>Controls what information is displayed in tab tooltips: <code>None</code>, <code>Title</code>, <code>TitleAndPath</code>, or <code>Full</code>.</td></tr>
+                            <tr><td><code>AllowDragFloat</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow the user to drag a tab into a free-floating window.</td></tr>
+                            <tr><td><code>AllowFloat</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow documents to be floated into their own window via drag or context menu.</td></tr>
+                            <tr><td><code>AllowSplit</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow documents to be split into side-by-side tab groups.</td></tr>
+                            <tr><td><code>AllowPin</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow documents to be pinned (icon-only, no close) to the tab strip.</td></tr>
+                            <tr><td><code>AllowAutoHide</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow documents to be minimised to auto-hide side strips.</td></tr>
+                            <tr><td><code>MaxSplitDepth</code></td><td><code>int</code></td><td><code>3</code></td><td>Maximum nesting depth for split groups (1 = no splits allowed).</td></tr>
+                            <tr><td><code>AutoHideHoverDelay</code></td><td><code>int</code></td><td><code>500</code></td><td>Hover delay (ms) before an auto-hide strip tab reveals its flyout. 0 = click-only.</td></tr>
+                            <tr><td><code>AutoSaveLayout</code></td><td><code>bool</code></td><td><code>false</code></td><td>Automatically save and restore the tab layout using <code>SessionFile</code>.</td></tr>
+                            <tr><td><code>SessionFile</code></td><td><code>string</code></td><td><code>""</code></td><td>File path for the automatic layout save/restore (requires <code>AutoSaveLayout = true</code>).</td></tr>
+                            <tr><td><code>EnableRoutedCommands</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable context-aware routed command execution for vNext command service APIs.</td></tr>
+                            <tr><td><code>EnableTransactionalDocking</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable transaction-scoped docking operations for split/dock mutations.</td></tr>
+                            <tr><td><code>EnableHostTelemetry</code></td><td><code>bool</code></td><td><code>false</code></td><td>Emit profiler telemetry events for command, docking, and restore flows.</td></tr>
+                            <tr><td><code>ActiveDocumentId</code></td><td><code>string</code></td><td><code>null</code></td><td>Read-only. ID of the currently active document, or <code>null</code> when empty.</td></tr>
+                            <tr><td><code>ActivePanel</code></td><td><code>BeepDocumentPanel</code></td><td><code>null</code></td><td>Read-only. Reference to the currently active document panel.</td></tr>
+                            <tr><td><code>DocumentCount</code></td><td><code>int</code></td><td>0</td><td>Read-only. Total number of open document panels across all groups.</td></tr>
+                            <tr><td><code>Groups</code></td><td><code>IReadOnlyList&lt;BeepDocumentGroup&gt;</code></td><td>Empty</td><td>Read-only. All document groups with their tab strips and document references.</td></tr>
+                            <tr><td><code>DocumentPanels</code></td><td><code>IReadOnlyList&lt;BeepDocumentPanel&gt;</code></td><td>Empty</td><td>Read-only. All panels currently hosted in the control.</td></tr>
+                            <tr><td><code>DesignTimeDocuments</code></td><td><code>Collection&lt;DocumentDescriptor&gt;</code></td><td>Empty</td><td>Design-time document descriptor collection persisted into <code>InitializeComponent</code>.</td></tr>
+                            <tr><td><code>DesignTimeLayoutJson</code></td><td><code>string</code></td><td><code>""</code></td><td>Cached layout JSON serialized to the form&rsquo;s designer.cs for design-time persistence.</td></tr>
+                            <tr><td><code>CommandRegistry</code></td><td><code>CommandRegistry</code></td><td>Lazy</td><td>Read-only. Keyboard shortcut registry for binding and customizing hotkeys.</td></tr>
+                            <tr><td><code>Site</code></td><td><code>ISite</code></td><td><code>null</code></td><td>Design-time component site binding the host to its container.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>AddDocument</code></td><td><code>BeepDocumentPanel AddDocument(string id, string title, Control content)</code></td><td>Creates and adds a new document panel with the given title and hosted content control.</td></tr>
+                            <tr><td><code>RemoveDocument</code></td><td><code>bool RemoveDocument(string id)</code></td><td>Permanently removes a document panel. Returns false if not found.</td></tr>
+                            <tr><td><code>CloseDocument</code></td><td><code>bool CloseDocument(string id)</code></td><td>Closes a document, moving it to the closed-document history for potential reopen.</td></tr>
+                            <tr><td><code>GetPanel</code></td><td><code>BeepDocumentPanel GetPanel(string id)</code></td><td>Retrieves a panel by its document ID, or <code>null</code> if not found.</td></tr>
+                            <tr><td><code>GetDocumentDockState</code></td><td><code>DocumentDockState GetDocumentDockState(string id)</code></td><td>Returns the current dock state (<code>Docked</code>, <code>Floating</code>, <code>AutoHide</code>, or <code>None</code>).</td></tr>
+                            <tr><td><code>SetActiveDocument</code></td><td><code>bool SetActiveDocument(string id)</code></td><td>Activates the specified document, bringing its tab to the front.</td></tr>
+                            <tr><td><code>SplitDocumentHorizontal</code></td><td><code>void SplitDocumentHorizontal(string id)</code></td><td>Creates a side-by-side split group with the given document.</td></tr>
+                            <tr><td><code>SplitDocumentVertical</code></td><td><code>void SplitDocumentVertical(string id)</code></td><td>Creates a top/bottom split group with the given document.</td></tr>
+                            <tr><td><code>MergeAllGroups</code></td><td><code>void MergeAllGroups()</code></td><td>Collapses all split groups back into a single group with one tab strip.</td></tr>
+                            <tr><td><code>FloatDocument</code></td><td><code>void FloatDocument(string id)</code></td><td>Detaches a document into its own free-floating window.</td></tr>
+                            <tr><td><code>DockBackDocument</code></td><td><code>void DockBackDocument(string id)</code></td><td>Docks a previously floated document back into the host.</td></tr>
+                            <tr><td><code>AutoHideDocument</code></td><td><code>void AutoHideDocument(string id, AutoHideSide side)</code></td><td>Collapses a document into an auto-hide strip on the specified edge.</td></tr>
+                            <tr><td><code>RestoreAutoHideDocument</code></td><td><code>void RestoreAutoHideDocument(string id)</code></td><td>Restores an auto-hidden document to its previous docked state.</td></tr>
+                            <tr><td><code>PinDocument</code></td><td><code>void PinDocument(string id, bool pinned)</code></td><td>Pins or unpins a document tab (pinned = icon-only, no close button).</td></tr>
+                            <tr><td><code>SaveLayout</code></td><td><code>string SaveLayout()</code></td><td>Exports the full layout tree (groups, splits, documents, tab order) as a JSON string.</td></tr>
+                            <tr><td><code>LoadLayout</code></td><td><code>void LoadLayout(string json)</code></td><td>Restores the entire layout from a previously saved JSON string.</td></tr>
+                            <tr><td><code>RecalculateLayout</code></td><td><code>void RecalculateLayout()</code></td><td>Forces a full layout recalculation and repaint of all groups and tabs.</td></tr>
+                            <tr><td><code>ShowQuickSwitch</code></td><td><code>void ShowQuickSwitch()</code></td><td>Opens the Ctrl+Tab quick-switch document picker popup.</td></tr>
+                            <tr><td><code>SetGroupTabPosition</code></td><td><code>void SetGroupTabPosition(string groupId, TabStripPosition position)</code></td><td>Sets a per-group tab strip position for asymmetric layouts.</td></tr>
+                            <tr><td><code>RegisterDocumentPanel</code></td><td><code>void RegisterDocumentPanel(BeepDocumentPanel panel, bool activate)</code></td><td>Registers a manually-created <code>BeepDocumentPanel</code> with the host.</td></tr>
+                            <tr><td><code>ReopenLastClosed</code></td><td><code>BeepDocumentPanel ReopenLastClosed()</code></td><td>Reopens the most recently closed document from the closed-document stack.</td></tr>
+                            <tr><td><code>ApplyDesignTimeDocuments</code></td><td><code>void ApplyDesignTimeDocuments()</code></td><td>Syncs the host&rsquo;s live panels with the <code>DesignTimeDocuments</code> descriptor collection.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ActiveDocumentChanged</code></td><td><code>EventArgs</code></td><td>Fires when the active document changes, driving designer selection promotion.</td></tr>
+                            <tr><td><code>TabStyleChanged</code></td><td><code>EventArgs</code></td><td>Fires when the <code>TabStyle</code> property changes, triggering repaint.</td></tr>
+                            <tr><td><code>DocumentAdded</code></td><td><code>DocumentAddedEventArgs</code></td><td>A new document panel was added to the host.</td></tr>
+                            <tr><td><code>DocumentClosed</code></td><td><code>DocumentClosedEventArgs</code></td><td>A document panel was closed (moved to closed history).</td></tr>
+                            <tr><td><code>DocumentFloated</code></td><td><code>DocumentFloatedEventArgs</code></td><td>A document transitioned to floating state.</td></tr>
+                            <tr><td><code>DocumentDocked</code></td><td><code>DocumentDockedEventArgs</code></td><td>A document transitioned to docked state (or was docked back).</td></tr>
+                            <tr><td><code>DocumentAutoHidden</code></td><td><code>DocumentAutoHiddenEventArgs</code></td><td>A document was minimised to an auto-hide strip.</td></tr>
+                            <tr><td><code>DocumentRestored</code></td><td><code>DocumentRestoredEventArgs</code></td><td>An auto-hidden document was restored to its docked position.</td></tr>
+                            <tr><td><code>GroupSplit</code></td><td><code>GroupEventArgs</code></td><td>The layout was split, creating a new document group.</td></tr>
+                            <tr><td><code>GroupMerged</code></td><td><code>GroupEventArgs</code></td><td>Two or more groups were merged into a single group.</td></tr>
+                            <tr><td><code>LayoutChanged</code></td><td><code>EventArgs</code></td><td>The layout tree was modified (split, merge, group reorder).</td></tr>
+                            <tr><td><code>DocumentPinnedChanged</code></td><td><code>DocumentPinnedChangedEventArgs</code></td><td>A document&rsquo;s pin state was toggled.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="document-states" class="section">
+                    <h2>Document States</h2>
+                    <p>Each document managed by <code>BeepDocumentHost</code> can be in one of four primary states, mirroring Visual Studio&rsquo;s MDI model:</p>
+                    <ul>
+                        <li><strong>Docked</strong> &mdash; The document occupies a region inside the host with its tab visible in the group&rsquo;s tab strip. Splitters separate side-by-side groups.</li>
+                        <li><strong>Split</strong> &mdash; The layout is divided into multiple <code>BeepDocumentGroup</code> regions, each with its own independent tab strip and active document.</li>
+                        <li><strong>Floating</strong> &mdash; The document is detached from the host in a separate tool window. Drag the title bar to reposition; right-click for a dock-back option.</li>
+                        <li><strong>Auto-Hidden</strong> &mdash; The document collapses to a slim edge strip. Hover (after <code>AutoHideHoverDelay</code> ms) to peek the panel as a flyout; click to pin it open.</li>
+                    </ul>
+                    <p>State transitions are managed by the host. The <code>AllowFloat</code>, <code>AllowSplit</code>, <code>AllowPin</code>, and <code>AllowAutoHide</code> policy properties let the application restrict which states are permitted.</p>
+                    <pre><code class="language-csharp">// Query the current dock state of a document
+var state = documentHost.GetDocumentDockState("editor1");
+switch (state)
+{
+    case DocumentDockState.Docked:
+        // Document is docked in a group
+        break;
+    case DocumentDockState.Floating:
+        // Document is in its own floating window
+        break;
+    case DocumentDockState.AutoHide:
+        // Document is collapsed to an edge strip
+        break;
+}</code></pre>
+                </section>
+
+                <section id="split-groups" class="section">
+                    <h2>Split Groups &amp; Nested Layouts</h2>
+                    <p><code>BeepDocumentHost</code> supports recursive split layouts via a layout tree composed of <code>GroupLayoutNode</code> and <code>SplitLayoutNode</code> instances. Each group has its own tab strip, independent tab positioning (via <code>SetGroupTabPosition</code>), and active document.</p>
+                    <pre><code class="language-csharp">// Split the current document horizontally (side-by-side)
+documentHost.SplitDocumentHorizontal("editor1");
+
+// Split the current document vertically (top/bottom)
+documentHost.SplitDocumentVertical("editor2");
+
+// Create a nested split &mdash; another split within an existing group
+documentHost.SplitDocumentHorizontal("editor3");
+
+// Inspect the current layout tree
+var root = documentHost.LayoutRoot;
+// root may be a GroupLayoutNode (single group)
+// or a SplitLayoutNode (horizontal/vertical split with two children)
+
+// Merge everything back to one group
+documentHost.MergeAllGroups();</code></pre>
+                    <p>Configure split behaviour through <code>MaxGroups</code> (1&ndash;8), <code>MaxSplitDepth</code> (1&ndash;5), <code>SplitHorizontal</code>, and <code>SplitRatio</code> properties. The <code>LayoutRoot</code> property provides read-only access to the current tree structure, while <code>GroupTabPositions</code> returns a per-group position summary string.</p>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><code>BeepDocumentHost</code> supports the Beep theming system through <code>ThemeName</code>. Setting a theme name propagates to the tab strip, document panels, and all nested child controls:</p>
+                    <pre><code class="language-csharp">// Apply a Beep theme by name
+documentHost.ThemeName = "DarkTheme";
+// Theme propagates to tab strip painters and all BeepDocumentPanel children.
+
+// Change appearance of the host itself
+documentHost.ControlStyle = DocumentHostStyle.Raised;
+
+// Per-document tab colouring via TabColorMode
+documentHost.TabColorMode = TabColorMode.AccentBar;
+// Each document can set its own TabColor/AccentColor via DocumentDescriptor.</code></pre>
+                    <p>The <code>TabStyle</code> property controls the visual shape of tabs independently of the theme colour system. The six built-in styles are <code>Chrome</code> (rounded trapezoid), <code>VSCode</code> (flat with active highlight), <code>Underline</code> (bottom accent line), <code>Pill</code> (capsule shape), <code>Office</code> (ribbon-style), and <code>Flat</code> (square edges). Toggle <code>TabPreviewEnabled</code> to overlay thumbnail previews on tab hover tooltips.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Basic Setup</h3>
+                    <pre><code class="language-csharp">// BeepDocumentHost is a UserControl &mdash; drop it on a form from the toolbox
+// or create it in code:
+var documentHost = new BeepDocumentHost
+{
+    Dock = DockStyle.Fill,
+    TabStyle = DocumentTabStyle.Chrome,
+    TabPosition = TabStripPosition.Top,
+    CloseMode = TabCloseMode.OnHover,
+    ShowAddButton = true,
+    KeyboardShortcutsEnabled = true
+};
+this.Controls.Add(documentHost);
+
+// Open documents by adding panels with hosted content
+documentHost.AddDocument("welcome", "Welcome", new Label
+{
+    Text = "Welcome to BeepDocumentHost!",
+    Dock = DockStyle.Fill,
+    TextAlign = ContentAlignment.MiddleCenter
+});
+
+documentHost.AddDocument("editor1", "Program.cs", new RichTextBox
+{
+    Dock = DockStyle.Fill
+});
+
+documentHost.AddDocument("output", "Output", new TextBox
+{
+    Dock = DockStyle.Fill,
+    Multiline = true,
+    ReadOnly = true
+});</code></pre>
+
+                    <h3>Float, Split &amp; Auto-Hide</h3>
+                    <pre><code class="language-csharp">// Float a document into its own window
+documentHost.FloatDocument("output");
+
+// Create a side-by-side split view
+documentHost.SplitDocumentHorizontal("editor1");
+// Now two side-by-side document groups exist, each with its own tab strip
+
+// Auto-hide a document to the right edge
+documentHost.AutoHideDocument("outline", AutoHideSide.Right);
+
+// Restore the auto-hidden document
+documentHost.RestoreAutoHideDocument("outline");
+
+// Dock a floated document back
+documentHost.DockBackDocument("output");
+
+// Pin a frequently-used document
+documentHost.PinDocument("welcome", pinned: true);</code></pre>
+
+                    <h3>Layout Persistence</h3>
+                    <pre><code class="language-csharp">// Save the entire layout (groups, splits, tab order, active document)
+string json = documentHost.SaveLayout();
+System.IO.File.WriteAllText("session.json", json);
+
+// Later: restore the exact layout
+string saved = System.IO.File.ReadAllText("session.json");
+documentHost.LoadLayout(saved);
+
+// Or enable automatic session persistence
+documentHost.AutoSaveLayout = true;
+documentHost.SessionFile = "workspace_layout.json";
+// The host automatically saves on close and restores on next load.</code></pre>
+
+                    <h3>Events &amp; Keyboard Shortcuts</h3>
+                    <pre><code class="language-csharp">// React to document lifecycle events
+documentHost.ActiveDocumentChanged += (s, e) =>
+{
+    Console.WriteLine($"Active document is now: {documentHost.ActiveDocumentId}");
+};
+
+documentHost.DocumentClosed += (s, e) =>
+{
+    Console.WriteLine($"Document closed: {e.DocumentId}");
+};
+
+documentHost.DocumentFloated += (s, e) =>
+{
+    Console.WriteLine($"Document floated: {e.DocumentId}");
+};
+
+// Customize keyboard shortcuts via the CommandRegistry
+var registry = documentHost.CommandRegistry;
+// Bind custom actions to key combinations
+// registry.RegisterCommand("MyCommand", Keys.Control | Keys.Shift | Keys.D, ...);</code></pre>
+
+                    <h3>Cross-Host Tab Drag</h3>
+                    <pre><code class="language-csharp">// Enable dragging tabs between two separate BeepDocumentHost instances
+leftHost.AllowDragBetweenHosts = true;
+rightHost.AllowDragBetweenHosts = true;
+
+// When a user drags a tab from leftHost to rightHost, the document
+// is moved between hosts automatically. Both hosts must share the
+// same process (they cannot be in separate applications).</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>Subsystem</th><th>Class</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <tr><td>Control host</td><td><code>BeepDocumentHost</code></td><td>Top-level <code>UserControl</code> container; owns all groups, panels, and the layout tree</td></tr>
+                            <tr><td>Document panel</td><td><code>BeepDocumentPanel</code></td><td>Hosts one document&rsquo;s content control; carries metadata (title, icon, modified state, pin, colours)</td></tr>
+                            <tr><td>Tab strip</td><td><code>BeepDocumentTabStrip</code></td><td>Renders individual tabs, close buttons, add button, overflow/scrolling; handles hit testing</td></tr>
+                            <tr><td>Document group</td><td><code>BeepDocumentGroup</code></td><td>A container with one tab strip and a collection of document IDs; holds <code>ActiveDocumentId</code></td></tr>
+                            <tr><td>Layout tree</td><td><code>LayoutRoot</code> (<code>ILayoutNode</code>)</td><td>In-memory tree of <code>GroupLayoutNode</code> and <code>SplitLayoutNode</code> representing the split hierarchy</td></tr>
+                            <tr><td>Tab painters</td><td><code>ITabPainter</code> &amp; implementations</td><td>Style-specific tab rendering (Chrome, VSCode, Pill, Underline, Office, Flat, Classic, Card, Capsule, Minimal, Segmented, Button)</td></tr>
+                            <tr><td>Layout validation</td><td><code>LayoutTreeValidator</code></td><td>Post-layout health checks for node ID consistency and tree integrity</td></tr>
+                            <tr><td>Layout repair</td><td><code>LayoutTreeRepairer</code></td><td>Auto-repair of invalid layout configurations (empty NodeIds, orphaned references)</td></tr>
+                            <tr><td>Layout history</td><td><code>BeepLayoutHistory</code></td><td>Undo/redo stack for layout mutations via state snapshots</td></tr>
+                            <tr><td>Diff engine</td><td><code>DocumentComparer</code></td><td>Myers-diff-based document text comparison for merge and change detection</td></tr>
+                            <tr><td>Command registry</td><td><code>CommandRegistry</code></td><td>Keyboard shortcut binding, command routing, and usage tracking</td></tr>
+                            <tr><td>Document descriptor</td><td><code>DocumentDescriptor</code></td><td>Serializable metadata snapshot (title, icon, modified, pinned, colours, initial content) for each document</td></tr>
+                            <tr><td>Designer</td><td><code>BeepDocumentHostDesigner</code></td><td>Design-time surface with smart-tag actions, right-click context menus, drag-drop panel routing, wizard, layout presets</td></tr>
+                        </tbody>
+                    </table>
+                    <p>The host is a <strong>standalone</strong> control &mdash; it does not require <code>BeepDocumentManager</code> to function. When a <code>BeepDocumentManager</code> is bound to a <code>BeepDocumentHost</code>, the manager acts as a non-visual component orchestrator that coordinates the host alongside docking panels, providing a unified design-time API that surfaces identical smart-tag actions from both the manager and the host.</p>
+                    <p><strong>Designer:</strong> On first drop from the toolbox, <code>BeepDocumentHostDesigner</code> launches a quick-setup wizard (tab style, sample documents, template). A single designer transaction wraps the entire initialization so Ctrl+Z undoes the first-drop setup. The smart-tag exposes all properties grouped by category: Tabs, Split View, Nested Splits, Interaction, Preview, History, Policies, Animation, Session, Cross-Host Drag, Appearance, and Quick Actions.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

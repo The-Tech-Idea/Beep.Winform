@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ImagePathDesignerActionList - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body><aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Action Lists</li><li style="padding:4px 1.5rem"><a href="imagepathdesigneractionlist.html">ImagePathDesignerActionList</a></li></ul></nav></aside><main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>ImagePathDesignerActionList</span></nav>
+<div class="page-header"><h1>ImagePathDesignerActionList</h1><p class="page-subtitle">Smart-tag for image-enabled controls -- single Image section with ImagePath property, Select/Link, Browse/Embed, and Clear image actions</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#interface">IImagePathDesignerHost</a></li><li><a href="#actionlist">Smart-Tag Items</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists</code><br><strong>Inheritance:</strong> <code>DesignerActionList</code> | <strong>Visibility:</strong> <code>internal sealed</code></p><p><code>ImagePathDesignerActionList</code> provides a compact image-management smart-tag for any image-enabled control (buttons, picture boxes, panels with background images). It requires the hosting designer to implement <code>IImagePathDesignerHost</code> -- an interface declaring <code>SelectImage()</code>, <code>ClearImage()</code>, <code>EmbedImage()</code>, <code>GetImagePath()</code>, <code>SetImagePath()</code>. All items appear under a single "Image" header section.</p></section>
+
+<section class="section" id="interface"><h2>IImagePathDesignerHost</h2><pre><code class="language-csharp">internal interface IImagePathDesignerHost
+{
+    void SelectImage();     // Select/link an existing image file
+    void ClearImage();      // Clear the current image
+    void EmbedImage();      // Browse and embed an image as project resource
+    string GetImagePath();  // Get current image path
+    void SetImagePath(string path); // Set image path
+}</code></pre></section>
+
+<section class="section" id="actionlist"><h2>Smart-Tag Items</h2><table><thead><tr><th>Section</th><th>Type</th><th>Name</th><th>Label</th><th>Description</th></tr></thead><tbody><tr><td><strong>Image</strong></td><td>Property</td><td>ImagePath</td><td>Image Path</td><td>Get/set the current image file path. Delegates to _host.GetImagePath()/_host.SetImagePath().</td></tr><tr><td><strong>Image</strong></td><td>Action</td><td>SelectImage</td><td>Select / Link Image...</td><td>Opens a file browser to select or link an existing image file. Delegates to _host.SelectImage().</td></tr><tr><td><strong>Image</strong></td><td>Action</td><td>EmbedImage</td><td>Browse and Embed Image...</td><td>Opens a file browser and embeds the chosen image as a project resource. Delegates to _host.EmbedImage().</td></tr><tr><td><strong>Image</strong></td><td>Action</td><td>ClearImage</td><td>Clear Image</td><td>Removes the current image. Delegates to _host.ClearImage().</td></tr></tbody></table></section>
+
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time, any image-enabled control shows:
+// Smart-tag > Image section > "Select / Link Image..."
+// -> Opens file dialog to pick icon.png
+// -> Sets ImagePath = "Icons/icon.png"
+
+// Smart-tag > Image section > "Browse and Embed Image..."
+// -> Opens file dialog, embeds as project resource
+// -> Sets ImagePath and adds to .resx file
+
+// Implementing IImagePathDesignerHost in a custom designer:
+public class MyImageDesigner : ControlDesigner, IImagePathDesignerHost
+{
+    public void SelectImage() { /* show file dialog, set path */ }
+    public void ClearImage() { /* clear ImagePath property */ }
+    public void EmbedImage() { /* browse, add to resx, set path */ }
+    public string GetImagePath() => ((MyControl)Component).ImagePath;
+    public void SetImagePath(string p) => ((MyControl)Component).ImagePath = p;
+}</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

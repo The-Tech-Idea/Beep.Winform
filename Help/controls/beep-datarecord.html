@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDataRecord - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#data-controls">Data Controls</a><span>&rsaquo;</span><span>BeepDataRecord</span></nav>
+            <div class="page-header"><h1>BeepDataRecord</h1><p class="page-subtitle">A dynamic data-bound record editor that auto-generates form fields from any CLR object, with full edit tracking, validation, and IEditableObject support.</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#enums">Enumerations</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#layout">Layout &amp; Orientation</a></li>
+                <li><a href="#edit-tracking">Edit Tracking &amp; IEditableObject</a></li>
+                <li><a href="#theming">Theming</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><code>BeepDataRecord</code> is a data-bound record editor that dynamically generates a form layout from any CLR object via reflection. It introspects the object&#39;s public properties and automatically creates the appropriate input controls &mdash; <code>BeepTextBox</code> for string/numeric types, <code>BeepComboBox</code> for enum types &mdash; arranged in a responsive <code>TableLayoutPanel</code>.</p>
+                <p>The control supports two-way data binding with built-in dirty tracking, original-value snapshots, per-field undo, and full <code>IEditableObject</code> implementation for integration with <code>BindingSource</code> and <code>DataGridView</code>. Validation runs automatically on every field change, highlighting required-but-empty fields in red.</p>
+                <table>
+                    <tr><th>Namespace</th><td><code>TheTechIdea.Beep.Winform.Controls</code></td></tr>
+                    <tr><th>Assembly</th><td>TheTechIdea.Beep.Winform.Controls</td></tr>
+                    <tr><th>Inheritance</th><td><code>BeepDataRecord</code> &rarr; <code>BaseControl</code> &rarr; <code>UserControl</code></td></tr>
+                    <tr><th>Implements</th><td><code>IEditableObject</code></td></tr>
+                    <tr><th>Rendering</th><td>Material-style via <code>BaseControl.DrawContent</code>, inner panel aligned to material content rect</td></tr>
+                    <tr><th>Layout Engine</th><td>TableLayoutPanel-based with horizontal/vertical orientation modes</td></tr>
+                </table>
+            </section>
+
+            <section id="features" class="section"><h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Auto Field Generation</h4>
+                        <p>Reflects over any CLR object&#39;s public properties and automatically instantiates the correct control type (BeepTextBox for primitives/strings, BeepComboBox for enums) via <code>ControlExtensions.CreateFieldBasedOnCategory</code>.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Two-Way Data Binding</h4>
+                        <p>Changes in the UI propagate back to the data object in real time. <code>BindDataRecord</code> pushes object values into fields; <code>UpdateDataRecord</code> pulls field values back to the object.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Edit Tracking &amp; Undo</h4>
+                        <p>Tracks original values in a dictionary snapshot. Supports per-field undo via <code>UndoField</code> and full record undo via <code>UndoChanges</code>. Maintains a <code>RecordStatus</code> state machine (New / Updated / Unchanged).</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>IEditableObject Support</h4>
+                        <p>Full implementation of <code>BeginEdit</code>, <code>CancelEdit</code>, and <code>EndEdit</code> for seamless integration with <code>BindingSource</code>, <code>DataGridView</code>, and other data infrastructure.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Dual Orientation Layout</h4>
+                        <p>Switch between <code>FieldOrientation.Horizontal</code> (fields in columns) and <code>FieldOrientation.Vertical</code> (fields stacked in rows). Optional field prompt labels displayed above or beside each field.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Built-in Validation</h4>
+                        <p>Validates all fields on every value change. Required-but-empty fields turn red and show a tooltip. Fires <code>RecordValidated</code> with a boolean indicating overall validity.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Deep Copy Snapshots</h4>
+                        <p>Uses <code>EntityHelper.DeepCopyUsingSerialize</code> to create independent copies of data records for undo/rollback, ensuring no reference entanglement with the original object.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Full Theme Integration</h4>
+                        <p>Inherits <code>BaseControl</code>&#39;s theme system and propagates the current theme to all auto-generated child controls, ensuring consistent visual styling.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="enums" class="section"><h2>Enumerations</h2>
+                <table>
+                    <thead><tr><th>Enum</th><th>Values</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>FieldOrientation</code></td><td><code>Horizontal</code>, <code>Vertical</code></td><td>Controls whether generated fields are arranged in a single row of columns or stacked vertically.</td></tr>
+                        <tr><td><code>RecordStatus</code></td><td><code>New</code>, <code>Updated</code>, <code>Unchanged</code></td><td>Tracks the editing state of the current data record. Automatically transitions on property changes.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>AutoSave</code></td><td><code>bool</code></td><td><code>false</code></td><td>Data</td><td>When true, changes are automatically persisted (reserved for future integration). Currently a placeholder signal flag.</td></tr>
+                        <tr><td><code>IsDirty</code></td><td><code>bool</code> (get/set)</td><td><code>false</code></td><td>&mdash;</td><td>Getter returns <code>RecordStatus == RecordStatus.Updated</code>. Can be explicitly set via the setter.</td></tr>
+                        <tr><td><code>DataRecord</code></td><td><code>object</code> (get; private set)</td><td><code>null</code></td><td>Data</td><td>The current data object bound to the record editor. Set via <code>SetDataRecord()</code>.</td></tr>
+                        <tr><td><code>DataRecordType</code></td><td><code>string</code> (get; private set)</td><td><code>null</code></td><td>Data</td><td>The CLR type name of the currently bound data record.</td></tr>
+                        <tr><td><code>RecordStatus</code></td><td><code>RecordStatus</code> (get; private set)</td><td><code>Unchanged</code></td><td>Data Status</td><td>Current editing state. Fires <code>RecordStatusChanged</code> on every transition.</td></tr>
+                        <tr><td><code>IsNewRecord</code></td><td><code>bool</code> (get)</td><td><code>false</code></td><td>Data Status</td><td>Returns <code>RecordStatus == RecordStatus.New</code>.</td></tr>
+                        <tr><td><code>IsUpdatedRecord</code></td><td><code>bool</code> (get)</td><td><code>false</code></td><td>Data Status</td><td>Returns <code>RecordStatus == RecordStatus.Updated</code>.</td></tr>
+                        <tr><td><code>FieldCount</code></td><td><code>int</code></td><td><code>0</code></td><td>Layout</td><td>Number of columns in horizontal layout. Setting triggers <code>UpdateLayout()</code>. Automatically synced to <code>Fields.Count</code> after generation.</td></tr>
+                        <tr><td><code>Fields</code></td><td><code>List&lt;IBeepUIComponent&gt;</code></td><td><code>new List</code></td><td>&mdash;</td><td>Collection of auto-generated UI components. <code>[Browsable(false)]</code>, setter marked <code>[DesignerSerializationVisibility(Content)]</code>. Setting triggers layout update.</td></tr>
+                        <tr><td><code>FieldOrientation</code></td><td><code>FieldOrientation</code></td><td><code>Horizontal</code></td><td>Layout</td><td>Orientation mode for the field layout. Horizontal uses a single row per field layer; Vertical stacks all fields with labels in a leading column.</td></tr>
+                        <tr><td><code>ShowFieldPrompts</code></td><td><code>bool</code></td><td><code>false</code></td><td>Labels</td><td>When true, each field gets a <code>BeepLabel</code> prompt above (horizontal) or beside (vertical) the input control.</td></tr>
+                        <tr><td><code>FieldPrompts</code></td><td><code>Dictionary&lt;string, string&gt;</code></td><td><code>new Dictionary</code></td><td>&mdash;</td><td>Custom label text keyed by field name. If a field name is not present, the label defaults to the property name with underscores replaced by spaces. <code>[Browsable(false)]</code>.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>SetDataRecord</strong></td><td><code>void SetDataRecord(object row, bool isNew = false)</code></td><td>Binds a new data object. If the type matches, reuses existing fields with <code>BindDataRecord</code>. If the type is new, calls <code>GenerateFieldsFromDataRecord</code>. Captures deep-copy and original-value snapshots.</td></tr>
+                        <tr><td><strong>UndoChanges</strong></td><td><code>void UndoChanges()</code></td><td>Restores the data record to its state at the last <code>SetDataRecord</code> call using the deep-copy snapshot.</td></tr>
+                        <tr><td><strong>BindDataRecord</strong></td><td><code>void BindDataRecord()</code></td><td>Pushes values from the <code>DataRecord</code> object into each field control via reflection on <code>BoundProperty</code>.</td></tr>
+                        <tr><td><strong>UpdateDataRecord</strong></td><td><code>void UpdateDataRecord()</code></td><td>Pulls current values from all field controls back into the <code>DataRecord</code> object&#39;s properties. Sets <code>RecordStatus</code> to <code>Updated</code>.</td></tr>
+                        <tr><td><strong>GenerateFieldsFromDataRecord</strong></td><td><code>void GenerateFieldsFromDataRecord()</code></td><td>Clears existing fields, reflects over <code>DataRecord</code>&#39;s public properties, and instantiates the appropriate control for each. Wires up <code>OnValueChanged</code>, <code>OnValidate</code>, and <code>OnSelected</code> handlers. Fires <code>OnFieldCreated</code> for each generated field.</td></tr>
+                        <tr><td><strong>UpdateLayout</strong></td><td><code>void UpdateLayout()</code></td><td>Reconfigures the internal <code>TableLayoutPanel</code>. Dispatches to <code>SetupHorizontalLayout</code>, <code>SetupVerticalLayout</code>, or <code>SetupEmptyLayout</code>. Then repositions the main panel to the material content rect.</td></tr>
+                        <tr><td><strong>UndoField</strong></td><td><code>void UndoField(string fieldName)</code></td><td>Restores a single field&#39;s value from the original-values dictionary, then re-binds to update the UI.</td></tr>
+                        <tr><td><strong>BeginEdit</strong></td><td><code>void BeginEdit()</code></td><td>(IEditableObject) Captures a deep-copy snapshot of the current data record for rollback.</td></tr>
+                        <tr><td><strong>CancelEdit</strong></td><td><code>void CancelEdit()</code></td><td>(IEditableObject) Restores the data record from the deep-copy snapshot taken during <code>BeginEdit</code>.</td></tr>
+                        <tr><td><strong>EndEdit</strong></td><td><code>void EndEdit()</code></td><td>(IEditableObject) Finalizes the edit by releasing the snapshot and setting <code>RecordStatus</code> to <code>Updated</code>.</td></tr>
+                        <tr><td><strong>ApplyTheme</strong></td><td><code>override void ApplyTheme()</code></td><td>Propagates the current theme to the main panel, table layout, and all child fields.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section"><h2>Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>FieldValueChanged</code></td><td><code>EventHandler&lt;BeepComponentEventArgs&gt;</code></td><td>Fired when any generated field&#39;s value changes. The event args carry <code>PropertyName</code> and <code>PropertyValue</code>. The change is immediately written back to the <code>DataRecord</code> object and <code>RecordStatus</code> transitions to <code>Updated</code>.</td></tr>
+                        <tr><td><code>FieldSelected</code></td><td><code>EventHandler&lt;BeepComponentEventArgs&gt;</code></td><td>Fired when a generated field receives focus or selection.</td></tr>
+                        <tr><td><code>RecordValidated</code></td><td><code>EventHandler&lt;bool&gt;</code></td><td>Fired after validation passes or fails. The <code>bool</code> argument indicates overall validity. Required-but-empty fields are highlighted with a red border.</td></tr>
+                        <tr><td><code>RecordStatusChanged</code></td><td><code>EventHandler&lt;RecordStatus&gt;</code></td><td>Fired whenever <code>RecordStatus</code> transitions between <code>New</code>, <code>Updated</code>, and <code>Unchanged</code>.</td></tr>
+                        <tr><td><code>OnFieldCreated</code></td><td><code>EventHandler&lt;IBeepUIComponent&gt;</code></td><td>Fired for each field component created during <code>GenerateFieldsFromDataRecord</code>, allowing consumers to customize individual fields before layout.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="layout" class="section"><h2>Layout &amp; Orientation</h2>
+                <p><code>BeepDataRecord</code> uses an internal <code>Panel</code> containing a <code>TableLayoutPanel</code> for layout. The panel is sized to match the <code>BaseControl.GetAdjustedContentRect()</code> material area on every paint and resize event, ensuring proper alignment with the control&#39;s themed borders and shadows.</p>
+
+                <h3>Horizontal Layout</h3>
+                <p>When <code>FieldOrientation = Horizontal</code>, fields are laid out in a single row per layer. If <code>ShowFieldPrompts</code> is true, labels occupy row 0 and input controls occupy row 1; otherwise only one row is used. Column count equals <code>FieldCount</code>, with each column getting an equal percentage of the total width.</p>
+
+                <h3>Vertical Layout</h3>
+                <p>When <code>FieldOrientation = Vertical</code>, the layout switches to two columns (label + input) with each field pair occupying its own row. The label column is fixed at 150px with the input column filling remaining space. If <code>ShowFieldPrompts</code> is false, only one column is used &mdash; just the inputs, stacked vertically.</p>
+
+                <h3>Empty State</h3>
+                <p>When no fields exist, a centered <code>BeepLabel</code> displays &quot;No fields available&quot; in a single-cell layout.</p>
+
+                <h3>Field Labels</h3>
+                <p>Labels are generated by <code>CreateFieldLabel</code>, which checks <code>FieldPrompts</code> for custom text. If no custom text is found, the <code>ComponentName</code> (property name) is used with underscores replaced by spaces.</p>
+            </section>
+
+            <section id="edit-tracking" class="section"><h2>Edit Tracking &amp; IEditableObject</h2>
+                <p>The control maintains two independent snapshot mechanisms:</p>
+                <ul>
+                    <li><strong>Deep Copy (<code>_originalDataRecord</code>)</strong>: A serialization-based clone created at <code>SetDataRecord</code> time. Used by <code>UndoChanges</code> and <code>IEditableObject.CancelEdit</code> for full rollback.</li>
+                    <li><strong>Original Values Dictionary (<code>_originalValues</code>)</strong>: A property-name-to-value map populated at <code>SetDataRecord</code> time. Used by <code>UndoField</code> for per-field rollback.</li>
+                </ul>
+                <p>The <code>RecordStatus</code> state machine transitions as follows:</p>
+                <ul>
+                    <li>Calling <code>SetDataRecord(row, isNew: true)</code> &rarr; <code>RecordStatus.New</code></li>
+                    <li>Calling <code>SetDataRecord(row, isNew: false)</code> &rarr; <code>RecordStatus.Unchanged</code></li>
+                    <li>Any field value change &rarr; <code>RecordStatus.Updated</code></li>
+                </ul>
+                <p>The <code>IEditableObject</code> interface is fully wired: <code>BeginEdit</code> saves a snapshot, <code>CancelEdit</code> restores from it, and <code>EndEdit</code> finalizes the edit by clearing the snapshot and marking the record as <code>Updated</code>.</p>
+            </section>
+
+            <section id="theming" class="section"><h2>Theming</h2>
+                <p><code>BeepDataRecord</code> inherits the full material theming pipeline from <code>BaseControl</code>. The <code>ApplyTheme</code> override:</p>
+                <ol>
+                    <li>Calls <code>base.ApplyTheme()</code> to handle border, shadow, background, and font tokens.</li>
+                    <li>Sets <code>_mainPanel.BackColor</code> and <code>_tableLayout.BackColor</code> to match the control&#39;s background.</li>
+                    <li>Iterates over all generated <code>_fields</code>, assigns the current <code>Theme</code> to each, and calls <code>field.ApplyTheme()</code>.</li>
+                </ol>
+                <p>The <code>DrawContent</code> override calls <code>base.DrawContent(g)</code> to render the material background and border, then ensures the inner panel is aligned via <code>PositionMainPanelToMaterialContent</code>.</p>
+                <p>Size changes trigger <code>OnSizeChanged</code> which repositions the inner panel to stay within the material content rect. DPI scaling is handled by the internal <code>TableLayoutPanel</code>&#39;s <code>AutoSize</code> and <code>GrowAndShrink</code> modes.</p>
+            </section>
+
+            <section id="examples" class="section"><h2>Examples</h2>
+                <h3>Example 1: Bind a Plain CLR Object</h3>
+                <pre><code class="language-csharp">public class Customer
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public int Age { get; set; }
+    public CustomerType Type { get; set; } // enum
+}
+
+// Create and bind
+var recordEditor = new BeepDataRecord();
+var customer = new Customer
+{
+    Name = "Alice",
+    Email = "alice@example.com",
+    Age = 30,
+    Type = CustomerType.Premium
+};
+recordEditor.SetDataRecord(customer);
+
+// Later, pull changes back
+recordEditor.UpdateDataRecord();
+</code></pre>
+
+                <h3>Example 2: Use with BindingSource &amp; IEditableObject</h3>
+                <pre><code class="language-csharp">var bindingSource = new BindingSource();
+bindingSource.DataSource = customersList; // List&lt;Customer&gt;
+bindingSource.PositionChanged += (s, e) =>
+{
+    var current = bindingSource.Current;
+    if (current != null)
+        beepDataRecord1.SetDataRecord(current);
+};
+
+// Cancel edits via IEditableObject
+beepDataRecord1.CancelEdit();  // rolls back to BeginEdit snapshot
+beepDataRecord1.EndEdit();     // commits the edit
+
+// Undo a single field
+beepDataRecord1.UndefField("Email");
+</code></pre>
+
+                <h3>Example 3: Configure Layout with Field Prompts</h3>
+                <pre><code class="language-csharp">var recordEditor = new BeepDataRecord
+{
+    FieldOrientation = FieldOrientation.Vertical,
+    ShowFieldPrompts = true,
+    FieldPrompts = new Dictionary&lt;string, string&gt;
+    {
+        { "Name", "Customer Name" },
+        { "Email", "Email Address" },
+        { "Age", "Age (years)" }
+    }
+};
+
+recordEditor.SetDataRecord(customer);
+recordEditor.FieldValueChanged += (s, e) =>
+{
+    Console.WriteLine($"Field '{e.PropertyName}' changed to '{e.PropertyValue}'");
+};
+
+recordEditor.RecordStatusChanged += (s, status) =>
+{
+    Console.WriteLine($"Record status: {status}");
+};
+</code></pre>
+
+                <h3>Example 4: Validate and Save</h3>
+                <pre><code class="language-csharp">beepDataRecord1.RecordValidated += (s, isValid) =>
+{
+    saveButton.Enabled = isValid;
+};
+
+beepDataRecord1.FieldValueChanged += (s, e) =>
+{
+    beepDataRecord1.UpdateDataRecord();
+    // DataRecord now contains the latest values
+};
+
+// Check state before saving
+if (beepDataRecord1.IsDirty)
+{
+    beepDataRecord1.EndEdit();
+    // persist DataRecord...
+    beepDataRecord1.AutoSave = true; // signal flag
+}
+</code></pre>
+            </section>
+
+            <section id="architecture" class="section"><h2>Architecture</h2>
+                <p><code>BeepDataRecord</code> is a single-file control. It does not use partial classes. The layout is managed by a two-level container hierarchy:</p>
+                <table>
+                    <thead><tr><th>Member</th><th>Type</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>_mainPanel</code></td><td><code>Panel</code></td><td>Outer container sized to the material content rect. Ensures fields render within themed borders.</td></tr>
+                        <tr><td><code>_tableLayout</code></td><td><code>TableLayoutPanel</code></td><td>Grid layout engine. Reconfigured by <code>SetupHorizontalLayout</code> / <code>SetupVerticalLayout</code> / <code>SetupEmptyLayout</code>.</td></tr>
+                        <tr><td><code>_fields</code></td><td><code>List&lt;IBeepUIComponent&gt;</code></td><td>Auto-generated field component list. Each item implements <code>IBeepUIComponent</code> with <code>BoundProperty</code>, <code>SetValue</code>, <code>GetValue</code>, and <code>OnValueChanged</code>.</td></tr>
+                        <tr><td><code>_originalDataRecord</code></td><td><code>object</code></td><td>Deep-copy snapshot for full undo. Created via <code>EntityHelper.DeepCopyUsingSerialize</code>.</td></tr>
+                        <tr><td><code>_originalValues</code></td><td><code>Dictionary&lt;string, object&gt;</code></td><td>Per-property original value map for field-level undo via <code>UndoField</code>.</td></tr>
+                        <tr><td><code>_currentRowType</code></td><td><code>Type</code></td><td>Cached type of the current data record. Used to decide whether to regenerate fields (type changed) or simply rebind (same type).</td></tr>
+                    </tbody>
+                </table>
+                <p>Field generation uses <code>ControlExtensions.CreateFieldBasedOnCategory</code>, which returns the appropriate control type based on the property&#39;s CLR type and optional metadata. Enums are automatically populated with a <code>BindingList&lt;SimpleItem&gt;</code> containing all enum values.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')=='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

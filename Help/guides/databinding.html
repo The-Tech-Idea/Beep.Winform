@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Binding Best Practices - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="../index.html#guides">Guides</a>
+                    <span>&rsaquo;</span>
+                    <span>Data Binding Best Practices</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1><i class="bi bi-link-45deg"></i> Data Binding Best Practices</h1>
+                    <p class="page-subtitle">Master the Beep data binding model: SetValue/GetValue, IBeepDataSource, master-detail, navigation, and validation</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#setvalue-getvalue">The SetValue / GetValue Pattern</a></li>
+                        <li><a href="#ibeepdatasource">IBeepDataSource — The Data Contract</a></li>
+                        <li><a href="#navigator">BeepBindingNavigator</a></li>
+                        <li><a href="#unitofwork">UnitOfWork Integration</a></li>
+                        <li><a href="#master-detail">Master-Detail Binding</a></li>
+                        <li><a href="#validation">Validation Pipeline</a></li>
+                        <li><a href="#custom-binding">Custom Data-Bound Controls</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        Beep Controls use a <strong>passive data binding</strong> model. Instead of the traditional
+                        WinForms <code>DataBindings</code> collection, Beep controls expose <code>SetValue</code> and
+                        <code>GetValue</code> methods that connect to an <code>IBeepDataSource</code>. This gives you
+                        full control over when data flows in and out, and integrates naturally with the UnitOfWork
+                        change-tracking system.
+                    </p>
+                    <p>The binding stack has three layers:</p>
+                    <ul>
+                        <li><strong>IBeepDataSource</strong> — the data provider that abstracts over DataTable, List&lt;T&gt;, or Entity Framework.</li>
+                        <li><strong>BaseControl.SetValue/GetValue</strong> — per-control methods to push/pull values to/from the data source.</li>
+                        <li><strong>BeepBindingNavigator</strong> — toolbar-style navigator that moves the current record pointer.</li>
+                    </ul>
+                </section>
+
+                <section id="setvalue-getvalue" class="section">
+                    <h2>The SetValue / GetValue Pattern</h2>
+                    <p>
+                        Every Beep data-editing control implements <code>SetValue(object value)</code> and
+                        <code>GetValue()</code>. These are the entry points for the binding engine.
+                    </p>
+                    <pre><code class="language-csharp">// Set a value into a textbox from your data source
+var row = dataSource.GetCurrentRow();
+nameTextBox.SetValue(row["Name"]);
+ageNumericBox.SetValue(row["Age"]);
+hireDatePicker.SetValue(row["HireDate"]);
+
+// -- user edits --
+
+// Pull values back from the controls
+row["Name"] = nameTextBox.GetValue();
+row["Age"] = ageNumericBox.GetValue();
+row["HireDate"] = hireDatePicker.GetValue();
+
+dataSource.UpdateCurrentRow(row);</code></pre>
+                    <p>
+                        For controls that display complex types, <code>SetValue</code> and <code>GetValue</code>
+                        use the appropriate type conversion:
+                    </p>
+                    <pre><code class="language-csharp">// BeepDateTimePicker handles DateTime values
+myDatePicker.SetValue(DateTime.Today);          // DateTime
+DateTime selected = (DateTime)myDatePicker.GetValue();
+
+// BeepComboBox can bind to display/value members
+categoryCombo.SetValue("DisplayMember", "ValueMember");
+var selectedId = categoryCombo.GetValue();</code></pre>
+                </section>
+
+                <section id="ibeepdatasource" class="section">
+                    <h2>IBeepDataSource — The Data Contract</h2>
+                    <p>
+                        <code>IBeepDataSource</code> is the abstraction layer that allows Beep controls to work
+                        with any data store. Implementations exist for DataTable, List, and Entity Framework.
+                    </p>
+                    <pre><code class="language-csharp">public interface IBeepDataSource
+{
+    object GetCurrentRow();
+    void UpdateCurrentRow(object row);
+    bool MoveNext();
+    bool MovePrevious();
+    bool MoveFirst();
+    bool MoveLast();
+    int CurrentPosition { get; set; }
+    int RowCount { get; }
+    bool HasChanges { get; }
+    void AcceptChanges();
+    void RejectChanges();
+    IEnumerable<ValidationError> Validate();
+}</code></pre>
+                    <p>Using a data source with a grid is straightforward:</p>
+                    <pre><code class="language-csharp">// Bind a DataTable-backed source
+IBeepDataSource source = new BeepDataTableSource(myDataTable);
+grid.DataSource = source;
+
+// Bind a list-backed source
+var customers = db.Customers.ToList();
+IBeepDataSource source = new BeepListSource<Customer>(customers);
+grid.DataSource = source;</code></pre>
+                </section>
+
+                <section id="navigator" class="section">
+                    <h2>BeepBindingNavigator</h2>
+                    <p>
+                        <code>BeepBindingNavigator</code> provides a ready-made toolbar with First, Previous, Next,
+                        Last, Add, Delete, and Save buttons. It connects to an <code>IBeepDataSource</code> and
+                        automatically manages record position.
+                    </p>
+                    <pre><code class="language-csharp">public class CustomerForm : BeepiFormPro
+{
+    public CustomerForm()
+    {
+        var source = new BeepListSource<Customer>(LoadCustomers());
+
+        var grid = new BeepGridPro();
+        grid.DataSource = source;
+        grid.Location = new Point(10, 10);
+        grid.Size = new Size(700, 350);
+
+        var navigator = new BeepBindingNavigator();
+        navigator.DataSource = source;
+        navigator.Location = new Point(10, 370);
+        navigator.Size = new Size(700, 40);
+
+        // Navigator fires events when the current row changes
+        source.CurrentChanged += (s, e) =>
+        {
+            var row = source.GetCurrentRow();
+            nameTextBox.SetValue(row.Name);
+            emailTextBox.SetValue(row.Email);
+        };
+
+        Controls.AddRange(new Control[] { grid, navigator });
+    }
+}</code></pre>
+                </section>
+
+                <section id="unitofwork" class="section">
+                    <h2>UnitOfWork Integration</h2>
+                    <p>
+                        Beep's binding system integrates with <code>UnitOfWork</code> for atomic save/rollback.
+                        The UnitOfWork tracks which rows were Added, Modified, or Deleted, and the data source
+                        defers persistence until <code>Commit()</code> is called.
+                    </p>
+                    <pre><code class="language-csharp">var uow = new UnitOfWork(connectionString);
+var source = uow.GetDataSource<Customer>();
+
+// Bind to controls
+nameTextBox.SetValue(source.GetCurrentRow().Name);
+
+// Deferred persistence
+navigator.SaveClicked += (s, e) =>
+{
+    // Pull latest values from UI into the current row
+    source.GetCurrentRow().Name = nameTextBox.GetValue();
+    source.GetCurrentRow().Email = emailTextBox.GetValue();
+
+    uow.Commit(); // Persists all tracked changes atomically
+};
+
+// Rollback
+cancelButton.Click += (s, e) =>
+{
+    uow.Rollback();
+    source.Refresh();
+    RebindAllControls();
+};</code></pre>
+                </section>
+
+                <section id="master-detail" class="section">
+                    <h2>Master-Detail Binding</h2>
+                    <p>
+                        Master-detail scenarios link a parent data source to a child data source via a foreign key.
+                        When the user navigates to a different parent record, the child data source automatically
+                        filters to show only related rows.
+                    </p>
+                    <pre><code class="language-csharp">var customerSource = new BeepListSource<Customer>(customers);
+var orderSource = new BeepListSource<Order>(allOrders);
+
+// Link child to parent via master-detail relationship
+customerSource.AddDetailSource(
+    detailSource: orderSource,
+    parentKeyField: "Id",
+    childForeignKeyField: "CustomerId"
+);
+
+masterGrid.DataSource = customerSource;
+detailGrid.DataSource = orderSource;
+
+// Navigating customers automatically filters orders
+// No manual filter code needed</code></pre>
+                </section>
+
+                <section id="validation" class="section">
+                    <h2>Validation Pipeline</h2>
+                    <p>
+                        Beep controls have a built-in validation pipeline that runs before data is committed.
+                        Validation can happen at the control level, the data source level, or both.
+                    </p>
+                    <pre><code class="language-csharp">// Control-level validation
+nameTextBox.Validating += (s, e) =>
+{
+    var value = nameTextBox.GetValue() as string;
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        e.ErrorMessage = "Name is required.";
+        e.Cancel = true;
+    }
+};
+
+// Data-source-level validation
+source.ValidateRow = (row) =>
+{
+    var errors = new List<ValidationError>();
+    if (string.IsNullOrWhiteSpace(row.Name))
+        errors.Add(new ValidationError("Name", "Name is required."));
+    if (row.Age < 18)
+        errors.Add(new ValidationError("Age", "Age must be at least 18."));
+    return errors;
+};
+
+// Before saving, validate the entire data source
+saveButton.Click += (s, e) =>
+{
+    var errors = source.Validate();
+    if (errors.Any())
+    {
+        errorLabel.Text = string.Join("\n", errors.Select(e => e.Message));
+        return;
+    }
+    uow.Commit();
+};</code></pre>
+                </section>
+
+                <section id="custom-binding" class="section">
+                    <h2>Custom Data-Bound Controls</h2>
+                    <p>
+                        To make a custom control participate in the Beep binding system, implement
+                        <code>IBeepBindableControl</code>. This ensures your control can receive and
+                        provide values to the data source.
+                    </p>
+                    <pre><code class="language-csharp">public class RatingControl : BaseControl, IBeepBindableControl
+{
+    private int _rating;
+
+    public object GetValue() => _rating;
+
+    public void SetValue(object value)
+    {
+        _rating = Convert.ToInt32(value);
+        Invalidate();
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        // Paint star rating based on _rating
+    }
+
+    protected override void OnClick(EventArgs e)
+    {
+        // Allow user to click stars to set rating
+        Point pt = PointToClient(Cursor.Position);
+        _rating = pt.X / (Width / 5) + 1;
+        Invalidate();
+    }
+}</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Always use IBeepDataSource</strong> — do not bind controls directly to DataTable or List properties; go through the abstraction.</li>
+                        <li><strong>Pull values before saving</strong> — call <code>GetValue()</code> on every bound control before <code>Commit()</code>. The data source does not auto-sync.</li>
+                        <li><strong>Validate at both levels</strong> — use control-level <code>Validating</code> for immediate feedback and data-source-level <code>ValidateRow</code> for business rules.</li>
+                        <li><strong>Use UnitOfWork with navigator</strong> — the paired UoW/navigator pattern gives you atomic save/rollback and standard CRUD buttons.</li>
+                        <li><strong>Set master-detail relationships early</strong> — link detail sources before binding to grids to avoid extra filter calls.</li>
+                        <li><strong>Disable controls during data load</strong> — use <code>BeginUpdate()</code>/<code>EndUpdate()</code> to prevent UI flicker while populating bound controls.</li>
+                        <li><strong>Handle CurrentChanged</strong> — subscribe to <code>source.CurrentChanged</code> to push new row data into detail controls when the user navigates.</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

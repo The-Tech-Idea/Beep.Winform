@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accessibility Guide - Beep Controls</title>
+    <title>Accessibility & Inclusive Design - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,93 +16,337 @@
     <div class="container">
         <main class="content">
             <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="../index.html#guides">Guides</a>
+                    <span>&rsaquo;</span>
+                    <span>Accessibility &amp; Inclusive Design</span>
+                </nav>
+
                 <div class="page-header">
-                    <h1><i class="bi bi-universal-access"></i> Accessibility Guide</h1>
-                    <p class="page-subtitle">Build accessible applications with Beep Controls</p>
+                    <h1><i class="bi bi-universal-access"></i> Accessibility &amp; Inclusive Design</h1>
+                    <p class="page-subtitle">Building Beep applications that are usable by everyone — keyboard-only users, screen readers, and users with visual, motor, or cognitive needs</p>
                 </div>
 
-                <section class="section">
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#high-contrast">HighContrastMode</a></li>
+                        <li><a href="#screen-reader">ScreenReaderSupport</a></li>
+                        <li><a href="#keyboard-navigation">Keyboard Navigation</a></li>
+                        <li><a href="#focus-indicators">Focus Indicators and Tab Order</a></li>
+                        <li><a href="#caption-accessibility">Caption Accessibility</a></li>
+                        <li><a href="#hit-testing">Region-Based Hit Testing</a></li>
+                        <li><a href="#aria-equivalents">ARIA Equivalent Properties</a></li>
+                        <li><a href="#theme-for-accessibility">Designing Accessible Themes</a></li>
+                        <li><a href="#checklist">Accessibility Checklist</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
                     <h2>Overview</h2>
                     <p>
-                        Beep Controls are designed with accessibility in mind. This guide covers 
-                        how to ensure your applications are usable by everyone, including users 
-                        with visual, motor, or cognitive disabilities.
+                        Beep Controls are designed with accessibility as a first-class concern. The framework
+                        provides built-in support for high-contrast mode, screen reader integration, keyboard
+                        navigation, and configurable focus indicators. This guide explains how to use these
+                        features and how to ensure your own custom controls meet the same bar.
+                    </p>
+                    <p>
+                        Accessibility is not a bolt-on feature — it is woven into <code>BaseControl</code> so
+                        that every control inherits it automatically. You need to opt <em>in</em> to enable the
+                        full stack, but you should never need to opt <em>out</em>.
                     </p>
                 </section>
 
-                <section class="section">
-                    <h2>Keyboard Navigation</h2>
-                    <p>All Beep Controls support keyboard navigation:</p>
-                    <ul>
-                        <li><strong>Tab / Shift+Tab</strong> — Move focus between controls</li>
-                        <li><strong>Enter / Space</strong> — Activate buttons and toggles</li>
-                        <li><strong>Arrow Keys</strong> — Navigate within lists, grids, and menus</li>
-                        <li><strong>Escape</strong> — Close dialogs and popups</li>
-                    </ul>
-                    <p>Set the <code>TabIndex</code> property to control the focus order:</p>
-                    <pre><code class="language-csharp">nameTextBox.TabIndex = 0;
-emailTextBox.TabIndex = 1;
-submitButton.TabIndex = 2;</code></pre>
-                </section>
-
-                <section class="section">
-                    <h2>Screen Reader Support</h2>
-                    <p>Set accessible names and descriptions for controls:</p>
-                    <pre><code class="language-csharp">submitButton.AccessibleName = "Submit Form";
-submitButton.AccessibleDescription = "Submits the registration form";
-
-searchBox.AccessibleName = "Search";
-searchBox.AccessibleRole = AccessibleRole.Text;</code></pre>
-                </section>
-
-                <section class="section">
-                    <h2>Color Contrast</h2>
-                    <p>Beep themes are designed to meet WCAG 2.1 AA contrast ratios. When creating custom themes:</p>
-                    <ul>
-                        <li>Minimum contrast ratio of <strong>4.5:1</strong> for normal text</li>
-                        <li>Minimum contrast ratio of <strong>3:1</strong> for large text (18px+)</li>
-                        <li>Test your themes with a contrast checker tool</li>
-                        <li>Never rely on color alone to convey information — use icons or text labels too</li>
-                    </ul>
-                </section>
-
-                <section class="section">
-                    <h2>High Contrast / Large Fonts</h2>
-                    <p>Beep Controls automatically respect system high contrast settings. To support variable font sizes:</p>
-                    <pre><code class="language-csharp">// Allow controls to resize with font changes
-label.AutoSize = true;
-
-// Use relative sizing where possible
-panel.Padding = new Padding(
-    (int)(8 * scaleFactor),
-    (int)(8 * scaleFactor),
-    (int)(8 * scaleFactor),
-    (int)(8 * scaleFactor)
-);</code></pre>
-                </section>
-
-                <section class="section">
-                    <h2>Focus Indicators</h2>
-                    <p>Beep Controls show visible focus indicators by default. Never disable them. If customizing, ensure the focus ring is clearly visible:</p>
-                    <pre><code class="language-csharp">// BaseControl paints a focus rectangle automatically
-// To customize, override in your control:
-protected override void OnGotFocus(EventArgs e)
+                <section id="high-contrast" class="section">
+                    <h2>HighContrastMode</h2>
+                    <p>
+                        <code>HighContrastMode</code> is a global toggle that tells all Beep controls to use
+                        system high-contrast colors instead of theme colors. When enabled, controls ignore the
+                        active theme's palette and read from <code>SystemColors</code>, ensuring legibility
+                        for users who have enabled Windows High Contrast.
+                    </p>
+                    <pre><code class="language-csharp">static void Main()
 {
-    base.OnGotFocus(e);
-    Invalidate(); // Triggers repaint with focus indicator
+    ApplicationConfiguration.Initialize();
+
+    // Detect system high-contrast setting on startup
+    if (SystemInformation.HighContrast)
+    {
+        BeepThemesManager.EnableHighContrastMode();
+    }
+
+    // Or expose a toggle in your settings
+    SystemEvents.UserPreferenceChanged += (s, e) =>
+    {
+        if (e.Category == UserPreferenceCategory.Accessibility)
+        {
+            if (SystemInformation.HighContrast)
+                BeepThemesManager.EnableHighContrastMode();
+            else
+                BeepThemesManager.DisableHighContrastMode();
+        }
+    };
+
+    Application.Run(new MainForm());
+}</code></pre>
+                    <p>
+                        When HighContrastMode is active, <code>BaseControl.ApplyControlStyle()</code> automatically
+                        substitutes theme colors with high-contrast equivalents. No control-level code changes needed.
+                    </p>
+                    <pre><code class="language-csharp">// Inside BaseControl.ApplyControlStyle():
+if (BeepThemesManager.HighContrastMode)
+{
+    BackColor = SystemColors.Window;
+    ForeColor = SystemColors.WindowText;
+    _borderPen = new Pen(SystemColors.WindowText, 2f); // Thicker borders
+}
+else
+{
+    var theme = BeepThemesManager.ActiveTheme;
+    BackColor = theme.BackColor;
+    ForeColor = theme.ForeColor;
 }</code></pre>
                 </section>
 
-                <section class="section">
-                    <h2>Checklist</h2>
+                <section id="screen-reader" class="section">
+                    <h2>ScreenReaderSupport</h2>
+                    <p>
+                        <code>ScreenReaderSupport</code> automatically populates <code>AccessibleName</code>,
+                        <code>AccessibleDescription</code>, and <code>AccessibleRole</code> on all Beep controls.
+                        Enable it globally in <code>Program.cs</code>:
+                    </p>
+                    <pre><code class="language-csharp">static void Main()
+{
+    ApplicationConfiguration.Initialize();
+    BeepThemesManager.ApplyTheme("MaterialBlue");
+    ScreenReaderSupport.Enable(); // Activates accessibility properties globally
+
+    Application.Run(new MainForm());
+}</code></pre>
+                    <p>
+                        With <code>ScreenReaderSupport</code> enabled, controls automatically derive their
+                        accessible names from nearby labels, button text, or the <code>Caption</code> property:
+                    </p>
+                    <pre><code class="language-csharp">// ScreenReaderSupport automatically pairs labels with inputs
+var nameLabel = new BeepLabel { Text = "Full Name" };
+var nameBox = new BeepTextBox();
+// nameBox.AccessibleName is automatically set to "Full Name"
+
+// For standalone controls, set explicitly:
+myButton.Text = "Save";
+myButton.AccessibleName = "Save Document"; // Override for more context
+myButton.AccessibleDescription = "Saves the current document to disk";</code></pre>
+                </section>
+
+                <section id="keyboard-navigation" class="section">
+                    <h2>Keyboard Navigation</h2>
+                    <p>
+                        Every Beep control supports keyboard navigation out of the box. The standard navigation
+                        model includes:
+                    </p>
+                    <table class="props-table">
+                        <thead><tr><th>Key</th><th>Behavior</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Tab</code> / <code>Shift+Tab</code></td><td>Move focus forward/backward through controls in TabIndex order</td></tr>
+                            <tr><td><code>Enter</code> / <code>Space</code></td><td>Activate focused button, checkbox, or toggle</td></tr>
+                            <tr><td><code>Arrow Keys</code></td><td>Navigate within grids, lists, trees, menus, and tab controls</td></tr>
+                            <tr><td><code>Escape</code></td><td>Close modal dialogs, popups, and dropdowns</td></tr>
+                            <tr><td><code>Home</code> / <code>End</code></td><td>Jump to first/last item in a list or grid</td></tr>
+                            <tr><td><code>Page Up</code> / <code>Page Down</code></td><td>Scroll a page in scrollable areas</td></tr>
+                            <tr><td><code>Alt+Letter</code></td><td>Activate menu items with mnemonic shortcuts</td></tr>
+                        </tbody>
+                    </table>
+                    <p></p>
+                    <pre><code class="language-csharp">// Set logical tab order for form controls
+nameTextBox.TabIndex = 0;
+emailTextBox.TabIndex = 1;
+passwordTextBox.TabIndex = 2;
+submitButton.TabIndex = 3;
+
+// Mnemonics — Alt+S activates this button
+submitButton.Text = "&Save";
+
+// Custom key handling for non-standard controls
+protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+{
+    if (keyData == (Keys.Control | Keys.F))
+    {
+        searchBox.Focus();
+        return true;
+    }
+    return base.ProcessCmdKey(ref msg, keyData);
+}</code></pre>
+                </section>
+
+                <section id="focus-indicators" class="section">
+                    <h2>Focus Indicators and Tab Order</h2>
+                    <p>
+                        <code>BaseControl</code> paints a visible focus rectangle whenever the control has keyboard
+                        focus. You can customize the focus indicator thickness, color, and style:
+                    </p>
+                    <pre><code class="language-csharp">// Per-control focus indicator customization
+myButton.FocusIndicatorColor = Color.FromArgb(0, 120, 215);
+myButton.FocusIndicatorWidth = 3;
+myButton.FocusIndicatorStyle = FocusBorderStyle.Solid;
+
+// Style options
+// Solid    — 2px-4px solid border in FocusIndicatorColor
+// Dashed   — standard Windows focus rectangle (dotted)
+// Glow     — soft glow around the control perimeter</code></pre>
+                    <p>
+                        <strong>Never disable focus indicators.</strong> Keyboard-only and low-vision users rely on
+                        them to know where they are on the form. If you customize, ensure high contrast against
+                        the control's background:
+                    </p>
+                    <pre><code class="language-csharp">// Bad — invisible focus indicator on a dark control
+darkPanel.FocusIndicatorColor = Color.DarkBlue;
+
+// Good — visible indicator regardless of background
+darkPanel.FocusIndicatorColor = Color.Cyan;</code></pre>
+                </section>
+
+                <section id="caption-accessibility" class="section">
+                    <h2>Caption Accessibility</h2>
+                    <p>
+                        Beep controls support a <code>Caption</code> property that serves as the accessible
+                        label. When <code>ScreenReaderSupport</code> is enabled:
+                    </p>
                     <ul>
-                        <li>All interactive controls are reachable by keyboard</li>
-                        <li>Focus order is logical (set <code>TabIndex</code>)</li>
-                        <li>All images have <code>AccessibleName</code> set</li>
-                        <li>Color is not the sole indicator of state</li>
-                        <li>Dialog boxes can be dismissed with Escape</li>
-                        <li>Custom themes meet WCAG contrast requirements</li>
-                        <li>Forms work at 150% and 200% DPI scaling</li>
+                        <li><code>Caption</code> → populates <code>AccessibleName</code> automatically</li>
+                        <li><code>CaptionDescription</code> → populates <code>AccessibleDescription</code></li>
+                        <li>Contextual hints propagate to the Windows accessibility API</li>
+                    </ul>
+                    <pre><code class="language-csharp">// Caption on a disabled control — screen reader reads "Date of Birth, disabled"
+dobPicker.Caption = "Date of Birth";
+dobPicker.CaptionDescription = "Select your birth date from the calendar";
+dobPicker.Enabled = false;
+
+// Validation errors + captions
+emailBox.Caption = "Email Address";
+emailBox.ValidationError = "Please enter a valid email";
+// Screen reader announces: "Email Address, error: Please enter a valid email"</code></pre>
+                </section>
+
+                <section id="hit-testing" class="section">
+                    <h2>Region-Based Hit Testing</h2>
+                    <p>
+                        For controls with non-rectangular shapes (rounded corners, circular buttons, custom paths),
+                        Beep supports region-based hit testing through <code>HitTestRegion</code>. This ensures
+                        that clicks outside the visible region are not captured, which is important for users
+                        with motor impairments who may click near the control's edge.
+                    </p>
+                    <pre><code class="language-csharp">public class CircularButton : BaseControl
+{
+    private Region _hitRegion;
+
+    public CircularButton()
+    {
+        Size = new Size(60, 60);
+        UpdateHitRegion();
+    }
+
+    protected override void OnSizeChanged(EventArgs e)
+    {
+        base.OnSizeChanged(e);
+        UpdateHitRegion();
+    }
+
+    private void UpdateHitRegion()
+    {
+        _hitRegion?.Dispose();
+        using var path = new GraphicsPath();
+        path.AddEllipse(ClientRectangle);
+        _hitRegion = new Region(path);
+        HitTestRegion = _hitRegion;
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        using var path = new GraphicsPath();
+        path.AddEllipse(ClientRectangle);
+        e.Graphics.FillPath(_backBrush, path);
+    }
+}</code></pre>
+                    <p>
+                        Set <code>HitTestRegion</code> on any <code>BaseControl</code> descendant to define a
+                        custom clickable area. Clicks outside the region pass through to controls beneath.
+                    </p>
+                </section>
+
+                <section id="aria-equivalents" class="section">
+                    <h2>ARIA Equivalent Properties</h2>
+                    <p>
+                        Beep controls map logical roles and states to the Windows accessibility API, providing
+                        the equivalent of ARIA attributes for desktop applications. Most are automatic; the
+                        table below shows the mapping for custom scenarios:
+                    </p>
+                    <table class="props-table">
+                        <thead><tr><th>Beep Property</th><th>Windows API</th><th>ARIA Equivalent</th><th>Automatically Set?</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Caption</code></td><td><code>AccessibleName</code></td><td><code>aria-label</code></td><td>Yes (via ScreenReaderSupport)</td></tr>
+                            <tr><td><code>CaptionDescription</code></td><td><code>AccessibleDescription</code></td><td><code>aria-description</code></td><td>Yes</td></tr>
+                            <tr><td><code>ControlRole</code></td><td><code>AccessibleRole</code></td><td><code>role</code></td><td>Yes (derived from control type)</td></tr>
+                            <tr><td><code>ValidationError</code></td><td>LiveRegion update</td><td><code>aria-invalid</code></td><td>Yes (announced on change)</td></tr>
+                            <tr><td><code>Enabled</code></td><td>State flag</td><td><code>aria-disabled</code></td><td>Yes</td></tr>
+                            <tr><td><code>IsChecked</code></td><td>State flag</td><td><code>aria-checked</code></td><td>Yes (checkboxes/toggles)</td></tr>
+                        </tbody>
+                    </table>
+                    <p></p>
+                    <pre><code class="language-csharp">// Manually set role for custom controls
+public class RatingStars : BaseControl
+{
+    public RatingStars()
+    {
+        ControlRole = AccessibleRole.Slider;
+        Caption = "Rating";
+        CaptionDescription = "Rate this item from 1 to 5 stars";
+    }
+}
+
+// Override for dynamic accessible descriptions
+protected override AccessibleObject CreateAccessibilityInstance()
+{
+    return new RatingAccessibleObject(this);
+}</code></pre>
+                </section>
+
+                <section id="theme-for-accessibility" class="section">
+                    <h2>Designing Accessible Themes</h2>
+                    <p>
+                        When creating a custom <code>IBeepTheme</code>, validate these accessibility requirements:
+                    </p>
+                    <ul>
+                        <li><strong>Contrast ratio ≥ 4.5:1</strong> for normal text (WCAG 2.1 AA)</li>
+                        <li><strong>Contrast ratio ≥ 3:1</strong> for large text (≥ 18px or 14px bold)</li>
+                        <li><strong>Non-color indicators</strong> — use icons, text labels, or patterns alongside color (e.g., error state = red border + <i class="bi bi-exclamation-triangle"></i> icon)</li>
+                        <li><strong>Minimum touch target 44 × 44px</strong> at native resolution</li>
+                        <li><strong>Focus indicator visible</strong> against all background colors in the theme</li>
+                        <li><strong>Disabled state clearly distinguishable</strong> — not just lighter color, but reduced opacity + different visual treatment</li>
+                    </ul>
+                </section>
+
+                <section id="checklist" class="section">
+                    <h2>Accessibility Checklist</h2>
+                    <div class="info-box">
+                        <p>Use this checklist as a pre-release gate for any Beep-powered form:</p>
+                    </div>
+                    <ul>
+                        <li><i class="bi bi-check2"></i> <code>ScreenReaderSupport.Enable()</code> is called at startup</li>
+                        <li><i class="bi bi-check2"></i> HighContrastMode detection and <code>UserPreferenceChanged</code> handler are wired up</li>
+                        <li><i class="bi bi-check2"></i> All interactive controls are reachable by <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></li>
+                        <li><i class="bi bi-check2"></i> <code>TabIndex</code> follows a logical reading order (left-to-right, top-to-bottom)</li>
+                        <li><i class="bi bi-check2"></i> Every control without visible text has <code>Caption</code> set</li>
+                        <li><i class="bi bi-check2"></i> Focus indicators are visible against all background colors</li>
+                        <li><i class="bi bi-check2"></i> Color is never the sole differentiator of state (use icons, text, or patterns too)</li>
+                        <li><i class="bi bi-check2"></i> Modal dialogs and dropdowns close with <kbd>Escape</kbd></li>
+                        <li><i class="bi bi-check2"></i> All text meets 4.5:1 contrast ratio in all themes</li>
+                        <li><i class="bi bi-check2"></i> Touch targets are ≥ 44 × 44px</li>
+                        <li><i class="bi bi-check2"></i> Forms degrade gracefully at 150% and 200% DPI</li>
+                        <li><i class="bi bi-check2"></i> Non-rectangular controls use <code>HitTestRegion</code></li>
                     </ul>
                 </section>
             </div>

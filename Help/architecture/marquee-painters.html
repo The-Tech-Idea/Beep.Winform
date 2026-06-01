@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marquee Painters (8 Renderers) - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Marquee Painters</span></nav><div class="page-header"><h1>Marquee Painters (8 Renderers)</h1><p class="page-subtitle">8 IMarqueeItemRenderer implementations — Default, Card, Pill, StockTicker, NewsBanner, Minimal, Slide, Vertical — with MarqueePainterFactory and MarqueeRenderContext</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#contract">IMarqueeItemRenderer Contract</a></li><li><a href="#factory">MarqueePainterFactory</a></li><li><a href="#catalog">Painter Catalog (8)</a></li><li><a href="#context">MarqueeRenderContext</a></li><li><a href="#helpers">Marquee Helpers</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The <code>BeepMarquee</code> control provides an animated ticker/scrolling display with <strong>8 distinct item renderer styles</strong>. Each renderer implements <code>IMarqueeItemRenderer</code> and is resolved via <code>MarqueePainterFactory</code>. The factory creates renderer instances on demand, falling back to <code>DefaultMarqueePainter</code> if no match is found.</p><p>Renderers receive a <code>MarqueeRenderContext</code> that captures the current scroll position, theme colors, animation offset, and direction. This enables styles ranging from simple text scrolling to stock tickers with green/red arrows and news banners with separator dots.</p></section>
+<section class="section" id="contract"><h2>IMarqueeItemRenderer Contract</h2><pre><code class="language-csharp">public interface IMarqueeItemRenderer
+{
+    string Name { get; }
+    Size Measure(Graphics g, MarqueeItem item, MarqueeRenderContext context);
+    void Draw(Graphics g, MarqueeItem item, Rectangle bounds, MarqueeRenderContext context);
+}</code></pre><table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Name</code></td><td><code>string</code></td><td>Unique renderer name used for lookup (e.g., "Default", "StockTicker", "NewsBanner")</td></tr><tr><td><code>Measure</code></td><td>Method</td><td>Computes the pixel size of a marquee item given the current context (font, spacing, style)</td></tr><tr><td><code>Draw</code></td><td>Method</td><td>Renders the item within its bounds: text, icons, backgrounds, arrows, separators, badges</td></tr></tbody></table></section>
+<section class="section" id="factory"><h2>MarqueePainterFactory</h2><p><code>MarqueePainterFactory</code> resolves <code>IMarqueeItemRenderer</code> instances by name. It maintains a static dictionary of all 8 renderers and provides a <code>Create</code> method with fallback logic.</p><table><thead><tr><th>Member</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><code>Create</code></td><td><code>static IMarqueeItemRenderer Create(string name)</code></td><td>Returns the renderer instance for the given name; returns <code>DefaultMarqueePainter</code> if name is invalid</td></tr><tr><td><code>Register</code></td><td><code>static void Register(string name, IMarqueeItemRenderer renderer)</code></td><td>Registers a custom renderer, overriding the default for that name</td></tr></tbody></table></section>
+<section class="section" id="catalog"><h2>Painter Catalog (8 Total)</h2><table><thead><tr><th>#</th><th>Name</th><th>Class</th><th>Visual Style</th><th>Key Features</th></tr></thead><tbody>
+<tr><td>1</td><td>Default</td><td><code>DefaultMarqueePainter</code></td><td>Plain text scroll</td><td>Simple left-to-right scrolling text, custom font and color, no borders or backgrounds</td></tr>
+<tr><td>2</td><td>Card</td><td><code>CardMarqueePainter</code></td><td>Card-style items</td><td>Rounded rectangle background per item, drop shadow, padded text, theme-colored background</td></tr>
+<tr><td>3</td><td>Pill</td><td><code>PillMarqueePainter</code></td><td>Pill/capsule items</td><td>Full capsule background, colored accent left edge, bold text, compact spacing</td></tr>
+<tr><td>4</td><td>StockTicker</td><td><code>StockTickerMarqueePainter</code></td><td>Stock market ticker</td><td>Symbol + price + change display; green up-arrow for gains, red down-arrow for losses; percentage change; bold numeric formatting</td></tr>
+<tr><td>5</td><td>NewsBanner</td><td><code>NewsBannerMarqueePainter</code></td><td>News headline banner</td><td>Headline text with separator dots between items, optional category badge prefix ("BREAKING", "SPORTS"), left-aligned label</td></tr>
+<tr><td>6</td><td>Minimal</td><td><code>MinimalMarqueePainter</code></td><td>Minimalist</td><td>No backgrounds, thin text, subtle separators (vertical line), low visual weight, good for status bars</td></tr>
+<tr><td>7</td><td>Slide</td><td><code>SlideMarqueePainter</code></td><td>Slide/fade transition</td><td>Items slide in from right with fade effect, full-width items, crossfade transition between adjacent items</td></tr>
+<tr><td>8</td><td>Vertical</td><td><code>VerticalMarqueePainter</code></td><td>Vertical scroll</td><td>Top-to-bottom scrolling, full-width rows, alternate background stripes, vertical direction setting</td></tr></tbody></table></section>
+<section class="section" id="context"><h2>MarqueeRenderContext</h2><p><code>MarqueeRenderContext</code> is passed to every <code>Measure</code> and <code>Draw</code> call and captures the current state of the marquee animation.</p><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Theme</code></td><td><code>Theme</code></td><td>Current theme object for color resolution</td></tr><tr><td><code>Font</code></td><td><code>Font</code></td><td>Base font for item text rendering</td></tr><tr><td><code>TextColor</code></td><td><code>Color</code></td><td>Default text color from theme</td></tr><tr><td><code>AccentColor</code></td><td><code>Color</code></td><td>Accent/highlight color for emphasis (arrows, badges, backgrounds)</td></tr><tr><td><code>ScrollPosition</code></td><td><code>float</code></td><td>Current scroll offset in pixels; used to calculate item positions for smooth animation</td></tr><tr><td><code>IsVertical</code></td><td><code>bool</code></td><td>True for vertical scrolling (Vertical renderer); false for horizontal</td></tr><tr><td><code>Gap</code></td><td><code>int</code></td><td>Pixel gap between consecutive items</td></tr><tr><td><code>AnimationOffset</code></td><td><code>float</code></td><td>Additional animation phase offset (in radians) for effects like pulsing or wave motion</td></tr></tbody></table></section>
+<section class="section" id="helpers"><h2>Marquee Helpers</h2><table><thead><tr><th>Class</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>AnimationHelper</code></td><td>Manages the scroll animation loop: timer-driven position updates, smooth easing, pause-on-hover</td></tr><tr><td><code>LayoutHelper</code></td><td>Calculates item positions along the scroll axis, wrapping logic for infinite scroll, spacing computation</td></tr><tr><td><code>InputHelper</code></td><td>Handles mouse hover (pause animation), click on items, tooltip display for truncated text</td></tr><tr><td><code>ItemsCollection</code></td><td>Observable collection of <code>MarqueeItem</code> objects; notifies the marquee to re-measure on add/remove</td></tr></tbody></table></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Style Switching with Items</h3><pre><code class="language-csharp">var marquee = new BeepMarquee();
+
+marquee.Items.Add(new MarqueeItem { Text = "AAPL 192.53 ▲ 2.1%", Tag = "stock" });
+marquee.Items.Add(new MarqueeItem { Text = "GOOGL 175.12 ▼ 0.8%", Tag = "stock" });
+marquee.Items.Add(new MarqueeItem { Text = "MSFT 378.91 ▲ 1.4%", Tag = "stock" });
+marquee.Items.Add(new MarqueeItem { Text = "TSLA 245.67 ▼ 3.2%", Tag = "stock" });
+
+marquee.RendererName = "StockTicker";
+marquee.ScrollSpeed = 60;
+marquee.Gap = 32;
+
+marquee.Items.Clear();
+marquee.Items.Add(new MarqueeItem { Text = "BREAKING: Market opens higher on tech rally", Tag = "news" });
+marquee.Items.Add(new MarqueeItem { Text = "SPORTS: Local team advances to finals", Tag = "news" });
+marquee.Items.Add(new MarqueeItem { Text = "WEATHER: Sunny, high of 75°F", Tag = "news" });
+marquee.RendererName = "NewsBanner";
+
+marquee.RendererName = "Card";
+marquee.Items.Clear();
+for (int i = 0; i < 10; i++)
+    marquee.Items.Add(new MarqueeItem { Text = $"User {i} completed task #{i * 7}" });
+marquee.ScrollSpeed = 40;
+
+marquee.RendererName = "Vertical";
+marquee.IsVertical = true;
+marquee.Height = 120;</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

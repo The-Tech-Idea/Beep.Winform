@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFormsPersistenceShelf - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span><span>BeepFormsPersistenceShelf</span></nav>
+            <div class="page-header"><h1>BeepFormsPersistenceShelf</h1><p class="page-subtitle">Standalone persistence action shelf for BeepForms commit and rollback commands</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+            <section id="overview" class="section"><h2>Overview</h2><p><strong>BeepFormsPersistenceShelf</strong> is a compact button bar providing commit and rollback actions for a <code>BeepForms</code> host. Both buttons are dirty-state-aware: they are enabled only when the bound host&apos;s view state indicates pending changes (<code>IsDirty</code>).</p>
+            <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.Forms</code><br>
+            <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+            <strong>Inheritance:</strong> <code>BaseControl &#x2192; BeepFormsPersistenceShelf</code> (sealed)<br>
+            <strong>Designer:</strong> <code>BeepFormsPersistenceShelfDesigner</code></p></section>
+            <section id="features" class="section"><h2>Key Features</h2><ul>
+                <li><strong>Commit</strong> &mdash; Calls <code>CommitFormAsync()</code> on the bound <code>BeepForms</code> host; enabled only when <code>IsDirty</code></li>
+                <li><strong>Rollback</strong> &mdash; Calls <code>RollbackFormAsync()</code> on the bound <code>BeepForms</code> host; enabled only when <code>IsDirty</code></li>
+                <li><strong>Configurable buttons</strong> &mdash; <code>PersistenceButtons</code> flags enum controls which buttons are shown</li>
+                <li><strong>Flow direction control</strong> &mdash; <code>PersistenceFlowDirection</code> sets the layout direction</li>
+                <li><strong>Auto-bind to host</strong> &mdash; Automatically discovers a nearby <code>BeepForms</code> in the parent hierarchy</li>
+            </ul></section>
+            <section id="properties" class="section"><h2>Properties</h2><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                <tr><td><code>FormsHost</code></td><td><code>BeepForms?</code></td><td><code>null</code></td><td>Optional <code>BeepForms</code> coordinator surfaced by this persistence shelf.</td></tr>
+                <tr><td><code>AutoBindFormsHost</code></td><td><code>bool</code></td><td><code>true</code></td><td>Automatically resolve a nearby <code>BeepForms</code> host when <code>FormsHost</code> is not set explicitly.</td></tr>
+                <tr><td><code>PersistenceButtons</code></td><td><code>BeepFormsPersistenceShelfButtons</code></td><td><code>All</code></td><td>Select which persistence buttons are shown (flags: <code>Commit</code>, <code>Rollback</code>, <code>All</code>).</td></tr>
+                <tr><td><code>PersistenceFlowDirection</code></td><td><code>FlowDirection</code></td><td><code>LeftToRight</code></td><td>Controls the flow direction used by the persistence shelf button row.</td></tr>
+            </tbody></table></section>
+            <section id="methods" class="section"><h2>Methods</h2><table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                <tr><td><code>Dispose</code></td><td><code>override void Dispose(bool disposing)</code></td><td>Detaches from the current <code>FormsHost</code> and cleans up resources.</td></tr>
+                <tr><td><code>OnCreateControl</code></td><td><code>override void OnCreateControl()</code></td><td>Attempts to auto-bind a <code>BeepForms</code> host from the control hierarchy.</td></tr>
+                <tr><td><code>OnParentChanged</code></td><td><code>override void OnParentChanged(EventArgs e)</code></td><td>Re-attempts host binding when the parent changes.</td></tr>
+            </tbody></table></section>
+            <section id="events" class="section"><h2>Events</h2><table><thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                <tr><td colspan="2"><em>No public events are defined. Async persistence actions delegate to the bound <code>BeepForms</code> host.</em></td></tr>
+            </tbody></table></section>
+            <section id="theming" class="section"><h2>Theming</h2><p><strong>BeepFormsPersistenceShelf</strong> uses <code>UseThemeColors = true</code> and passes the current <code>Theme</code> to each created <code>BeepButton</code>. Button widths are auto-measured via <code>TextRenderer.MeasureText</code> with a minimum of 90px (Commit) and 96px (Rollback). Shadows are disabled on all buttons to keep the shelf compact.</p></section>
+            <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Full persistence shelf with auto-bind
+var persistenceShelf = new BeepFormsPersistenceShelf
+{
+    Dock = DockStyle.Top,
+    PersistenceButtons = BeepFormsPersistenceShelfButtons.All
+};
+this.Controls.Add(persistenceShelf);
+
+// Commit-only shelf, explicit host
+var commitOnly = new BeepFormsPersistenceShelf
+{
+    PersistenceButtons = BeepFormsPersistenceShelfButtons.Commit,
+    FormsHost = myBeepForms,
+    AutoBindFormsHost = false
+};</code></pre></section>
+            <section id="architecture" class="section"><h2>Architecture</h2><p>The control wraps a <code>FlowLayoutPanel</code> that is rebuilt by <code>RefreshPersistenceShelf()</code> whenever the <code>PersistenceButtons</code> flags change. The panel is hidden when no buttons are configured. State updates are driven by <code>UpdatePersistenceShelfState()</code>, which checks <code>_formsHost.ViewState.IsDirty</code> to enable or disable both buttons. Button click handlers invoke async methods with <code>ConfigureAwait(true)</code> to return to the UI context.</p></section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

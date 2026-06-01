@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepBottomBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&#8250;</span>
+                    <a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&#8250;</span>
+                    <span>BeepBottomBar</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepBottomBar</h1>
+                    <p class="page-subtitle">Versatile bottom navigation bar with 10 visual styles, smooth selection animations, and popup sub-menu support</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#visual-styles">Visual Styles</a></li>
+                        <li><a href="#style-tuning">Style Tuning Properties</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepBottomBar</strong> (class name <code>BottomBar</code>) is a feature-rich bottom navigation control built on <code>BaseControl</code>. It displays a horizontal row of navigation items as <code>SimpleItem</code> objects with icons, text labels, and optional badges. The control supports 10 distinct visual styles driven by a painter architecture, smooth animated selection indicators, centered floating call-to-action (CTA) items, and accessibility-compliant keyboard navigation.</p>
+                    <p>Each visual style is implemented as a dedicated painter class, enabling drastically different appearances while sharing the same item model and event pipeline. The control auto-docks to the bottom of its parent container.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.BottomNavBars</code> &nbsp;|&nbsp; <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component &#8594; Control &#8594; BaseControl &#8594; BottomBar</code> &nbsp;|&nbsp; <strong>Designer:</strong> <code>ControlDesigner</code> (Visual Studio toolbox support)</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>10 visual styles</strong> — Classic, FloatingCTA, Bubble, Pill, Diamond, NotionMinimal, MovableNotch, OutlineFloatingCTA, SegmentedTrack, and GlassAcrylic</li>
+                        <li><strong>Smooth selection animation</strong> — Eased quartic interpolation animates the indicator between items with configurable <code>AnimationDuration</code></li>
+                        <li><strong>Centered floating CTA</strong> — Designate any item as a CTA with <code>CTAIndex</code>; it renders raised above the bar with shadow effects</li>
+                        <li><strong>Popup child menus</strong> — Items with <code>Children</code> collections trigger popup sub-menus on press-and-hold or long-click</li>
+                        <li><strong>Responsive layout engine</strong> — <code>BeepBottomBarLayoutHelper</code> dynamically spaces items with configurable width factors for selected and CTA items</li>
+                        <li><strong>Label visibility policy</strong> — Choose <code>Always</code>, <code>SelectedOnly</code>, or <code>IconOnly</code> label display via <code>LabelPolicy</code></li>
+                        <li><strong>Theme-aware rendering</strong> — Navigation-specific theme tokens drive bar, hover, badge, and shadow colors</li>
+                        <li><strong>Keyboard navigation</strong> — Full arrow key, Home/End, Space/Enter, and Escape support for accessible operation</li>
+                        <li><strong>Accessibility</strong> — Custom <code>AccessibleObject</code> hierarchy with <code>MenuBar</code> and <code>MenuItem</code> roles, live region descriptions</li>
+                        <li><strong>Continuous animation</strong> — Built-in ticker timer drives pulse effects for hover and active states</li>
+                        <li><strong>Tooltip integration</strong> — Hover tooltips show item text, sub-text, badge info, and child item counts</li>
+                        <li><strong>HiDPI scaling</strong> — DPI-aware minimum bar height scaling with <code>DpiScalingHelper</code></li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Items</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td><code>empty</code></td><td>The list of navigation items with icon, text, subtext, badge, and optional child items for popups.</td></tr>
+                            <tr><td><code>BarStyle</code></td><td><code>BottomBarStyle</code></td><td><code>Classic</code></td><td>The visual style determining which painter renders the bar. See <a href="#visual-styles">Visual Styles</a>.</td></tr>
+                            <tr><td><code>SelectedItem</code></td><td><code>SimpleItem?</code></td><td><code>null</code></td><td>Current selected item. Setting this triggers the animated indicator and <code>SelectedItemChanged</code>. Browsable(false).</td></tr>
+                            <tr><td><code>BarHeight</code></td><td><code>int</code></td><td><code>72</code></td><td>Height of the navigation bar in pixels. Minimum 48.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td><code>Color</code></td><td><code>(96, 80, 255)</code></td><td>Accent color for the active indicator, CTA highlight, and icon tints.</td></tr>
+                            <tr><td><code>AnimationDuration</code></td><td><code>int</code></td><td><code>240</code></td><td>Duration of the selection indicator animation in milliseconds. Minimum 80.</td></tr>
+                            <tr><td><code>CTAIndex</code></td><td><code>int</code></td><td><code>-1</code></td><td>Zero-based index of the item to render as a centered floating CTA. -1 disables CTA rendering.</td></tr>
+                            <tr><td><code>DefaultItemImagePath</code></td><td><code>string</code></td><td><code>Svgs.Menu</code></td><td>Default icon path for items without an explicit <code>ImagePath</code>.</td></tr>
+                            <tr><td><code>ShowCTAShadow</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether the floating CTA item renders a drop shadow.</td></tr>
+                            <tr><td><code>CTAWidthFactor</code></td><td><code>float</code></td><td><code>1.6</code></td><td>Width multiplier for the CTA item relative to standard items. Minimum 1.0.</td></tr>
+                            <tr><td><code>SelectedWidthFactor</code></td><td><code>float</code></td><td><code>1.25</code></td><td>Width multiplier for the currently selected item relative to unselected items. Minimum 1.0.</td></tr>
+                            <tr><td><code>LabelPolicy</code></td><td><code>LabelVisibilityPolicy</code></td><td><code>Always</code></td><td>Controls item label visibility: <code>Always</code>, <code>SelectedOnly</code>, or <code>IconOnly</code>.</td></tr>
+                            <tr><td><code>MinItemTouchWidth</code></td><td><code>int</code></td><td><code>48</code></td><td>Minimum touch target width per item for accessibility compliance. Minimum 32.</td></tr>
+                            <tr><td><code>IsOverflow</code></td><td><code>bool</code></td><td><code>false</code></td><td>Read-only. Indicates if items overflow the available bar width. Browsable(false).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme()</code></td><td>Applies active Beep theme tokens to the bar background, accent color, badge colors, and <code>ImagePainter</code>.</td></tr>
+                            <tr><td><code>CloseChildPopup</code></td><td><code>void CloseChildPopup()</code></td><td>Programmatically closes any open popup sub-menu.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ItemClicked</code></td><td>Raised when a navigation item is clicked. Provides the <code>SimpleItem</code> that was clicked.</td></tr>
+                            <tr><td><code>SelectedItemChanged</code></td><td>Raised when <code>SelectedItem</code> changes. Provides <code>SelectedItemChangedEventArgs</code> with the new selected item.</td></tr>
+                            <tr><td><code>PopupRequested</code></td><td>Raised when a long-press or right-click on an item with children requests a popup sub-menu.</td></tr>
+                            <tr><td><code>PopupClosed</code></td><td>Raised when a popup sub-menu is dismissed.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="visual-styles" class="section">
+                    <h2>Visual Styles</h2>
+                    <p>The <code>BottomBarStyle</code> enum offers 10 distinct visual styles. Each is rendered by a dedicated painter class:</p>
+                    <table>
+                        <thead><tr><th>Style</th><th>Value</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Classic</code></td><td>0</td><td>Standard flat bottom bar with pill-shaped selection indicator. Default style.</td></tr>
+                            <tr><td><code>FloatingCTA</code></td><td>1</td><td>Raises the CTA item above the bar with a floating pill shape and drop shadow.</td></tr>
+                            <tr><td><code>Bubble</code></td><td>2</td><td>Selection indicator appears as a colored bubble that stretches behind the active item.</td></tr>
+                            <tr><td><code>Pill</code></td><td>3</td><td>Rounded pill-shaped bar with the active indicator sliding within a capsule.</td></tr>
+                            <tr><td><code>Diamond</code></td><td>4</td><td>Angled cut shape for the selection indicator with a diamond-like appearance.</td></tr>
+                            <tr><td><code>NotionMinimal</code></td><td>5</td><td>Minimalist style inspired by Notion's sidebar: thin accent underline on selected item.</td></tr>
+                            <tr><td><code>MovableNotch</code></td><td>6</td><td>Animated notch cutout that moves along the top edge to highlight the selected item.</td></tr>
+                            <tr><td><code>OutlineFloatingCTA</code></td><td>7</td><td>Center CTA rendered with an animated glow halo, inner highlight, and ring stroke outline.</td></tr>
+                            <tr><td><code>SegmentedTrack</code></td><td>8</td><td>Horizontal segmented track bar with a sliding capsule indicator. iOS style.</td></tr>
+                            <tr><td><code>GlassAcrylic</code></td><td>9</td><td>Translucent glass/acrylic effect with blur and configurable opacity.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="style-tuning" class="section">
+                    <h2>Style Tuning Properties</h2>
+                    <p>Several style-specific properties fine-tune individual painter behavior:</p>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Used By</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FloatingCTANotchRadiusFactor</code></td><td><code>float</code></td><td><code>1.05</code></td><td>FloatingCTA, MovableNotch</td><td>Radius multiplier for the floating CTA notch cutout.</td></tr>
+                            <tr><td><code>CTAShadowYOffset</code></td><td><code>int</code></td><td><code>8</code></td><td>FloatingCTA</td><td>Vertical offset of the CTA drop shadow.</td></tr>
+                            <tr><td><code>MovableNotchDepth</code></td><td><code>float</code></td><td><code>22</code></td><td>MovableNotch</td><td>Depth of the notch cut into the bar for the selection indicator.</td></tr>
+                            <tr><td><code>MovableNotchWidthFactor</code></td><td><code>float</code></td><td><code>1.15</code></td><td>MovableNotch</td><td>Width multiplier for the movable notch relative to the item width.</td></tr>
+                            <tr><td><code>MovableNotchOutlineCTA</code></td><td><code>bool</code></td><td><code>false</code></td><td>MovableNotch</td><td>When true, the movable notch renders an outline border around the CTA.</td></tr>
+                            <tr><td><code>OutlineRingStrokeWidth</code></td><td><code>int</code></td><td><code>4</code></td><td>OutlineFloatingCTA, MovableNotch</td><td>Width of the outer ring stroke around the CTA.</td></tr>
+                            <tr><td><code>OutlineHaloAlpha</code></td><td><code>int</code></td><td><code>36</code></td><td>OutlineFloatingCTA</td><td>Alpha value (0-255) for the outer glow halo.</td></tr>
+                            <tr><td><code>OutlineInnerAlpha</code></td><td><code>int</code></td><td><code>12</code></td><td>OutlineFloatingCTA</td><td>Alpha value for the inner highlight behind the CTA.</td></tr>
+                            <tr><td><code>OutlineHaloScale</code></td><td><code>float</code></td><td><code>1.4</code></td><td>OutlineFloatingCTA</td><td>Scale factor for the halo relative to the CTA size.</td></tr>
+                            <tr><td><code>SegmentedTrackHeight</code></td><td><code>int</code></td><td><code>6</code></td><td>SegmentedTrack</td><td>Height of the segmented track bar.</td></tr>
+                            <tr><td><code>SegmentedIndicatorWidth</code></td><td><code>int</code></td><td><code>40</code></td><td>SegmentedTrack</td><td>Width of the sliding capsule indicator within the track.</td></tr>
+                            <tr><td><code>GlassAcrylicOpacity</code></td><td><code>float</code></td><td><code>0.6</code></td><td>GlassAcrylic</td><td>Opacity level of the glass/acrylic overlay effect.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>BeepBottomBar deeply integrates with the Beep theme system using navigation-specific tokens when available, falling back to surface and accent colors:</p>
+                    <ul>
+                        <li><code>NavigationBackColor</code> / <code>NavigationForeColor</code> — Bar background and text colors</li>
+                        <li><code>NavigationHoverBackColor</code> / <code>NavigationHoverForeColor</code> — Hover state colors for items</li>
+                        <li><code>BorderColor</code> / <code>ActiveBorderColor</code> — Navigation border color derivation</li>
+                        <li><code>BadgeBackColor</code> / <code>BadgeForeColor</code> — Item badge colors</li>
+                        <li><code>AccentColor</code> — Drives the selection indicator, CTA highlight, and icon tinting</li>
+                        <li><code>OnPrimaryColor</code> — Icon/text color on the accent background</li>
+                    </ul>
+                    <pre><code class="language-csharp">BeepThemesManager.ApplyTheme("AzureDark"); // Bottom bar and all painters update
+bottomBar.ApplyTheme(); // Force per-instance theme refresh</code></pre>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <h3>Basic Bottom Navigation</h3>
+                    <pre><code class="language-csharp">var bottomBar = new BottomBar
+{
+    BarHeight = 64,
+    BarStyle = BottomBarStyle.Classic,
+    Dock = DockStyle.Bottom
+};
+
+bottomBar.Items.Add(new SimpleItem { Text = "Home", ImagePath = Svgs.Home });
+bottomBar.Items.Add(new SimpleItem { Text = "Search", ImagePath = Svgs.Search });
+bottomBar.Items.Add(new SimpleItem { Text = "Profile", ImagePath = Svgs.User });
+
+bottomBar.ItemClicked += item => Console.WriteLine($"Navigated to: {item.Text}");</code></pre>
+
+                    <h3>Floating CTA with Custom Styling</h3>
+                    <pre><code class="language-csharp">var bottomBar = new BottomBar
+{
+    BarStyle = BottomBarStyle.FloatingCTA,
+    CTAIndex = 2,              // Center item as CTA
+    CTAWidthFactor = 1.8f,
+    ShowCTAShadow = true,
+    CTAShadowYOffset = 10,
+    AccentColor = Color.FromArgb(255, 65, 108)
+};
+
+bottomBar.Items.Add(new SimpleItem { Text = "Feed", ImagePath = Svgs.Home });
+bottomBar.Items.Add(new SimpleItem { Text = "Explore", ImagePath = Svgs.Search });
+bottomBar.Items.Add(new SimpleItem { Text = "Add", ImagePath = Svgs.Plus });
+bottomBar.Items.Add(new SimpleItem { Text = "Messages", ImagePath = Svgs.Chat });
+bottomBar.Items.Add(new SimpleItem { Text = "Account", ImagePath = Svgs.User });</code></pre>
+
+                    <h3>Popup Child Menus</h3>
+                    <pre><code class="language-csharp">var moreItem = new SimpleItem
+{
+    Text = "More",
+    ImagePath = Svgs.More,
+    Children = new List&lt;SimpleItem&gt;
+    {
+        new SimpleItem { Text = "Settings", ImagePath = Svgs.Settings },
+        new SimpleItem { Text = "Help", ImagePath = Svgs.Help },
+        new SimpleItem { Text = "About", ImagePath = Svgs.Info }
+    }
+};
+bottomBar.Items.Add(moreItem);
+
+bottomBar.PopupRequested += (s, e) => Console.WriteLine($"Popup for: {e.Item.Text}");
+bottomBar.PopupClosed += (s, e) => Console.WriteLine("Popup dismissed");</code></pre>
+
+                    <h3>iOS-Style Segmented Track</h3>
+                    <pre><code class="language-csharp">var iosBar = new BottomBar
+{
+    BarStyle = BottomBarStyle.SegmentedTrack,
+    SegmentedTrackHeight = 8,
+    SegmentedIndicatorWidth = 48,
+    SelectedWidthFactor = 1.1f,
+    AnimationDuration = 300
+};
+
+iosBar.Items.Add(new SimpleItem { Text = "Today", ImagePath = Svgs.Calendar });
+iosBar.Items.Add(new SimpleItem { Text = "Games", ImagePath = Svgs.Gamepad });
+iosBar.Items.Add(new SimpleItem { Text = "Apps", ImagePath = Svgs.Grid });
+iosBar.Items.Add(new SimpleItem { Text = "Search", ImagePath = Svgs.Search });</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>File / Class</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BottomBar.cs</code></td><td>Main control: properties, events, painting pipeline, keyboard/accessibility, hit test routing</td></tr>
+                            <tr><td><code>BottomBarStyle.cs</code></td><td>Enumerations: <code>BottomBarStyle</code> and <code>LabelVisibilityPolicy</code></td></tr>
+                            <tr><td><code>BottomBarPainterContext</code></td><td>Data transfer object passed to painters with layout, colors, hit test info, and animation phase</td></tr>
+                            <tr><td><code>IBottomBarPainter</code></td><td>Painter interface: <code>CalculateLayout</code>, <code>Paint</code>, <code>RegisterHitAreas</code></td></tr>
+                            <tr><td><code>ClassicBottomBarPainter</code></td><td>Flat bar with pill-shaped indicator</td></tr>
+                            <tr><td><code>FloatingCTABottomBarPainter</code></td><td>Raised CTA with floating pill and shadow</td></tr>
+                            <tr><td><code>BubbleBottomBarPainter</code></td><td>Colored bubble indicator behind active item</td></tr>
+                            <tr><td><code>PillBottomBarPainter</code></td><td>Rounded capsule bar with sliding indicator</td></tr>
+                            <tr><td><code>DiamondBottomBarPainter</code></td><td>Angled diamond-shaped selection indicator</td></tr>
+                            <tr><td><code>NotionMinimalBottomBarPainter</code></td><td>Minimal underline accent on selected item</td></tr>
+                            <tr><td><code>MovableNotchBottomBarPainter</code></td><td>Animated notch cutout moving along the top edge</td></tr>
+                            <tr><td><code>OutlineFloatingCTABottomBarPainter</code></td><td>CTA with animated glow halo, inner highlight, and ring outline</td></tr>
+                            <tr><td><code>SegmentedTrackBottomBarPainter</code></td><td>iOS-style segmented track with sliding capsule</td></tr>
+                            <tr><td><code>GlassAcrylicBottomBarPainter</code></td><td>Translucent glass/acrylic effect with configurable opacity</td></tr>
+                            <tr><td><code>BeepBottomBarLayoutHelper</code></td><td>Dynamic layout engine: item spacing, CTA sizing, overflow detection, DPI scaling</td></tr>
+                            <tr><td><code>BottomBarHitTestHelper</code></td><td>Mouse hit testing, hover state, popup triggering on long-click/right-click</td></tr>
+                            <tr><td><code>ImagePainter</code></td><td>Shared icon rendering with theme-aware SVG recoloring</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-sidebar.html"><i class="bi bi-arrow-left"></i> BeepSideBar</a>
+                    <a href="beep-button.html">BeepButton <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

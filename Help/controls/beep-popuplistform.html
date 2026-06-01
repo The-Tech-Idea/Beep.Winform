@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepPopupListForm - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+<button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+<div class="container"><div id="sidebar-placeholder"></div>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#forms-dialogs">Forms &amp; Dialogs</a><span>&rsaquo;</span><span>BeepPopupListForm</span></nav>
+<div class="page-header"><h1>BeepPopupListForm</h1><p class="page-subtitle">Lightweight popup list form for displaying selectable item lists with search filtering and extendable context menus</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+<li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+</ul></div>
+
+<section id="overview" class="section"><h2>Overview</h2>
+<p><strong>BeepPopupListForm</strong> is a popup form that hosts an internal <code>BeepListBox</code> for displaying a list of <code>SimpleItem</code> entries. It serves as the dropdown for <code>BeepComboBox</code> and as a standalone context-menu-style popup. Supports search filtering, child cascading popups for hierarchical items, and extension method invocation.</p>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code> &nbsp;|&nbsp; <strong>Inheritance:</strong> <code>Form → BeepPopupForm → BeepPopupListForm</code></p>
+</section>
+
+<section id="features" class="section"><h2>Key Features</h2>
+<ul>
+<li><strong>Popup list display</strong> — Renders a filtered <code>BeepListBox</code> inside a borderless popup form</li>
+<li><strong>Search filtering</strong> — <code>Filter(string)</code> method for live text filtering of list items</li>
+<li><strong>Cascading child popups</strong> — Items with children open sub-popups positioned to the right</li>
+<li><strong>Extension method support</strong> — <code>RunFunctionFromExtensions</code> delegate for invoking global methods from list items</li>
+<li><strong>Auto-sizing</strong> — Calculates optimal width and height based on item text and count</li>
+<li><strong>Customizable font</strong> — <code>TextFont</code> property overrides the theme font for list items</li>
+<li><strong>Configurable title bar</strong> — <code>ShowTitle</code> toggles a title caption on the popup</li>
+<li><strong>Positional popup</strong> — <code>ShowPopup()</code> overloads support trigger-control, anchor-point, and offset-based positioning</li>
+</ul></section>
+
+<section id="properties" class="section"><h2>Properties</h2>
+<table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>PopupMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>When enabled, the form behaves as a popup (no caption bar, borderless).</td></tr>
+<tr><td><code>ListItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>empty</td><td>Data source for the popup list items.</td></tr>
+<tr><td><code>SelectedItem</code></td><td><code>SimpleItem</code></td><td><code>null</code></td><td>The currently selected item. Setting this fires <code>ItemSelected</code>.</td></tr>
+<tr><td><code>SelectedIndex</code></td><td><code>int</code></td><td><code>-1</code></td><td>Zero-based index of the selected item.</td></tr>
+<tr><td><code>TextFont</code></td><td><code>Font</code></td><td>Arial 10pt</td><td>Font used for list item text.</td></tr>
+<tr><td><code>ShowTitle</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows or hides the title caption on the popup.</td></tr>
+<tr><td><code>CurrenItemButton</code></td><td><code>BeepButton</code></td><td>varies</td><td>Button associated with the currently selected item (read-only).</td></tr>
+<tr><td><code>Menuitemheight</code></td><td><code>int</code></td><td><code>15</code></td><td>Height of each menu item in the popup list.</td></tr>
+<tr><td><code>MaxHeight</code></td><td><code>int</code></td><td><code>300</code></td><td>Maximum height of the popup list in pixels.</td></tr>
+</tbody></table>
+</section>
+
+<section id="methods" class="section"><h2>Methods</h2>
+<table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>InitializeMenu</code></td><td><code>void InitializeMenu(List&lt;SimpleItem&gt; items)</code></td><td>Populates the list and sizes the popup form to fit the given items.</td></tr>
+<tr><td><code>Filter</code></td><td><code>void Filter(string searchText)</code></td><td>Filters the list items by search text.</td></tr>
+<tr><td><code>GetMaxHeight</code></td><td><code>int GetMaxHeight()</code></td><td>Returns the maximum height needed by the underlying <code>BeepListBox</code>.</td></tr>
+<tr><td><code>GetMaxWidth</code></td><td><code>int GetMaxWidth()</code></td><td>Returns the maximum width needed by the underlying <code>BeepListBox</code>.</td></tr>
+<tr><td><code>SetSizeBasedonItems</code></td><td><code>void SetSizeBasedonItems()</code></td><td>Recalculates and updates the form size based on current list items.</td></tr>
+<tr><td><code>ShowPopup</code></td><td><code>SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)</code></td><td>Shows the popup positioned relative to a trigger control.</td></tr>
+<tr><td><code>ShowPopup</code></td><td><code>SimpleItem ShowPopup(string Title, Control triggerControl, Point pointAdjustment, BeepPopupFormPosition position, bool showtitle = false, bool isoffset = false)</code></td><td>Shows the popup with a point offset adjustment.</td></tr>
+<tr><td><code>ShowPopup</code></td><td><code>SimpleItem ShowPopup(string Title, Point anchorPoint, BeepPopupFormPosition position, bool showtitle = false)</code></td><td>Shows the popup at an absolute anchor point.</td></tr>
+<tr><td><code>RunMethodFromGlobalFunctions</code></td><td><code>IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)</code></td><td>Invokes an extension method via the <code>RunFunctionFromExtensionsHandler</code> delegate.</td></tr>
+<tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies the active theme's list colors to the form and internal listbox.</td></tr>
+</tbody></table>
+</section>
+
+<section id="events" class="section"><h2>Events</h2>
+<table><thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>ItemSelected</code></td><td>Raised when the user selects an item. Provides the selected <code>SimpleItem</code>.</td></tr>
+</tbody></table>
+
+<h3>Delegate</h3>
+<table><thead><tr><th>Delegate</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>RunFunctionFromExtensions</code></td><td><code>delegate void RunFunctionFromExtensions(SimpleItem item, string MethodName)</code></td><td>Handler for invoking extension methods from a selected item.</td></tr>
+</tbody></table>
+</section>
+
+<section id="theming" class="section"><h2>Theming</h2>
+<p><code>BeepPopupListForm.ApplyTheme()</code> applies the active theme to both the popup form and its internal <code>BeepListBox</code>. Theme tokens consumed include <code>ListBackColor</code>, <code>ListForeColor</code>, and <code>ListBorderColor</code>. The internal listbox is configured with no borders or shadows, as the popup form handles its own border drawing through the <code>FormPainterMetrics</code> system.</p></section>
+
+<section id="examples" class="section"><h2>Examples</h2>
+<h3>Basic Popup List</h3>
+<pre><code class="language-csharp">var items = new List&lt;SimpleItem&gt; {
+    new SimpleItem { Text = "Option A", Value = 1 },
+    new SimpleItem { Text = "Option B", Value = 2 },
+    new SimpleItem { Text = "Option C", Value = 3 }
+};
+
+// Show popup next to a button
+var popup = new BeepPopupListForm(items);
+popup.ItemSelected += (s, item) =&gt; Console.WriteLine($"Selected: {item.Text}");
+popup.ShowPopup("Choose Option", myButton, BeepPopupFormPosition.Bottom);</code></pre>
+
+<h3>Hierarchical Cascading Popups</h3>
+<pre><code class="language-csharp">var parentItem = new SimpleItem {
+    Text = "Settings",
+    Children = new BindingList&lt;SimpleItem&gt; {
+        new SimpleItem { Text = "General" },
+        new SimpleItem { Text = "Advanced" }
+    }
+};
+
+var popup = new BeepPopupListForm(new List&lt;SimpleItem&gt; { parentItem });
+// Clicking "Settings" automatically opens a child BeepPopupListForm to the right
+popup.ShowPopup("Menu", myButton, BeepPopupFormPosition.Bottom);</code></pre>
+
+<h3>Filtering the List</h3>
+<pre><code class="language-csharp">var popup = new BeepPopupListForm(allItems);
+popup.Filter("sea"); // Only items containing "sea" are shown
+popup.ShowPopup("Search Results", myTextBox, BeepPopupFormPosition.Bottom);</code></pre>
+</section>
+
+<section id="architecture" class="section"><h2>Architecture</h2>
+<p><code>BeepPopupListForm</code> is a <code>partial class</code> extending <code>BeepPopupForm</code>. It contains an auto-generated <code>BeepListBox</code> (<code>_beepListBox</code>) created in the <code>.Designer.cs</code> partial file. The form is configured as borderless (<code>FormBorderStyle.None</code>) with double-buffering enabled to prevent flicker. Border and shadow calculations are performed via <code>FormPainterMetrics</code> and <code>StyleShadows</code>, with the listbox positioned inside the form's client area offset by padding to prevent overlap with painted borders.</p>
+<p>The control is declared as <code>public partial class BeepPopupListForm : BeepPopupForm</code> in <code>TheTechIdea.Beep.Winform.Controls</code> namespace.</p>
+</section>
+
+<footer class="documentation-footer"><p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p></footer>
+</div></main></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="../script.js"></script>
+</body></html>

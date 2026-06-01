@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridX Cell Editors - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>GridX Cell Editors</span></nav><div class="page-header"><h1>GridX Cell Editors</h1><p class="page-subtitle">Pluggable editing — 7 editor types (Text, Numeric, Date, Combo, CheckBox, Masked, Generic) with GridEditorFactory registry and IGridEditor/IGridEditorEvents contracts</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#factory">GridEditorFactory</a></li><li><a href="#registry">Default Editor Registry</a></li><li><a href="#interface">IGridEditor Interface</a></li><li><a href="#events">IGridEditorEvents</a></li><li><a href="#details">Editor Details</a></li><li><a href="#lifecycle">Editor Lifecycle</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The GridX cell editor system uses a <strong>factory-based registry</strong> that maps column types (<code>BeepColumnType</code>) to editor implementations. Seven default editors are pre-registered, covering all standard data types. The factory supports custom editor registration and a fallback mechanism for unknown column types.</p><p>Each editor wraps a native WinForms control (TextBox, ComboBox, CheckBox, etc.) and manages the full lifecycle: control creation, setup, value binding, event attachment, and cleanup. Editors communicate back to the grid via the <code>IGridEditorEvents</code> callback interface.</p><p>The system is managed by <code>GridEditHelper</code> (orchestrates edit mode enter/exit) and <code>GridEditorFactory</code> (69 lines, creates/resolves editor instances).</p></section>
+<section class="section" id="factory"><h2>GridEditorFactory (69 lines)</h2><p><code>GridEditorFactory</code> maintains an internal <code>Dictionary&lt;BeepColumnType, Type&gt;</code> registry and provides three methods:</p><table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><code>Register</code></td><td><code>void Register(BeepColumnType columnType, Type editorType)</code></td><td>Registers a custom editor type for a column type; overrides the default</td></tr><tr><td><code>SetFallback</code></td><td><code>void SetFallback(Type editorType)</code></td><td>Sets the fallback editor type (default: <code>BeepGridTextEditor</code>)</td></tr><tr><td><code>Resolve</code></td><td><code>IGridEditor Resolve(BeepColumnType columnType)</code></td><td>Creates and returns an editor instance; falls back if not registered</td></tr></tbody></table><p>The factory is a singleton per grid instance. <code>Resolve()</code> uses <code>Activator.CreateInstance()</code> to instantiate editors, then calls <code>editor.Setup()</code> before returning. If no matching editor is found for a column type, the fallback editor is returned (defaults to <code>BeepGridTextEditor</code>).</p></section>
+<section class="section" id="registry"><h2>Default Editor Registry</h2><table><thead><tr><th>BeepColumnType</th><th>Editor Class</th><th>Native Control</th></tr></thead><tbody><tr><td><code>Text</code></td><td><code>BeepGridTextEditor</code></td><td>TextBox</td></tr><tr><td><code>ComboBox</code></td><td><code>BeepGridComboBoxEditor</code></td><td>ComboBox</td></tr><tr><td><code>DateTime</code></td><td><code>BeepGridDateDropDownEditor</code></td><td>DateTimePicker</td></tr><tr><td><code>NumericUpDown</code></td><td><code>BeepGridNumericEditor</code></td><td>NumericUpDown</td></tr><tr><td><code>CheckBoxBool</code></td><td><code>BeepGridCheckBoxEditor</code></td><td>CheckBox</td></tr><tr><td><code>CheckBoxChar</code></td><td><code>BeepGridCheckBoxEditor</code></td><td>CheckBox</td></tr><tr><td><code>CheckBoxString</code></td><td><code>BeepGridCheckBoxEditor</code></td><td>CheckBox</td></tr><tr><td><code>MaskedTextBox</code></td><td><code>BeepGridMaskedEditor</code></td><td>MaskedTextBox</td></tr><tr><td><code>ListBox</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>LOV</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>Image</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>Button</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>ProgressBar</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>Radio</code></td><td><code>BeepGridGenericEditor</code></td><td>TextBox</td></tr><tr><td><code>Unknown</code> / unregistered</td><td><code>BeepGridTextEditor</code> (fallback)</td><td>TextBox</td></tr></tbody></table></section>
+<section class="section" id="interface"><h2>IGridEditor Interface</h2><p>Every editor implements <code>IGridEditor</code>. This contract defines the full editing lifecycle.</p><pre><code class="language-csharp">public interface IGridEditor
+{
+    Control CreateControl(BeepColumnConfig column, object currentValue);
+    void Setup(BeepColumnConfig column, IGridEditorEvents editorEvents, Theme theme);
+    void SetValue(object value);
+    object GetValue();
+    void AttachEvents();
+    void DetachEvents();
+    void OnBeginEdit(Rectangle cellBounds);
+    bool IsPopupOpen { get; }
+    bool IsEditing { get; }
+    Control EditingControl { get; }
+}</code></pre><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>CreateControl</code></td><td>Instantiates the native WinForms control and configures it with column metadata</td></tr><tr><td><code>Setup</code></td><td>Stores column config, event callback, and theme references for the editing session</td></tr><tr><td><code>SetValue</code></td><td>Sets the current value into the editing control (called when edit mode begins)</td></tr><tr><td><code>GetValue</code></td><td>Retrieves the (potentially modified) value from the editing control (called on commit)</td></tr><tr><td><code>AttachEvents</code></td><td>Wires up KeyDown, LostFocus, and value-changed events to the editor callback</td></tr><tr><td><code>DetachEvents</code></td><td>Unwires all event handlers before disposing the control</td></tr><tr><td><code>OnBeginEdit</code></td><td>Called when the cell enters edit mode; positions the control over the cell bounds</td></tr><tr><td><code>IsPopupOpen</code></td><td>For combo/date pickers: true while dropdown or calendar popup is visible</td></tr></tbody></table></section>
+<section class="section" id="events"><h2>IGridEditorEvents</h2><p>Editors communicate with the grid host via the <code>IGridEditorEvents</code> callback interface. The grid passes itself as this interface during <code>Setup()</code>.</p><pre><code class="language-csharp">public interface IGridEditorEvents
+{
+    void RequestEndEdit(bool commit);
+    void RequestCancelEdit();
+    void OnEditorValueChanged(object newValue);
+}</code></pre><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>RequestEndEdit(bool commit)</code></td><td>Editor signals that editing should end. If <code>commit=true</code>, the current value is saved to the data source; if <code>commit=false</code>, changes are discarded</td></tr><tr><td><code>RequestCancelEdit</code></td><td>Editor signals that editing should be cancelled and the original value restored</td></tr><tr><td><code>OnEditorValueChanged</code></td><td>Optional live-update: editor notifies grid of interim value changes (e.g., CheckBox toggle)</td></tr></tbody></table></section>
+<section class="section" id="details"><h2>Editor Details</h2><h3>BeepGridTextEditor</h3><p>Wraps a <code>TextBox</code> control. <strong>Enter</strong> key commits the edit (<code>RequestEndEdit(true)</code>). <strong>Escape</strong> cancels (<code>RequestCancelEdit()</code>). Supports <code>MaxLength</code> and <code>CharacterCasing</code> from column config. On <code>LostFocus</code>, auto-commits.</p><h3>BeepGridComboBoxEditor</h3><p>Wraps a <code>ComboBox</code> with <code>DropDownStyle = DropDownList</code>. Fills items from the column's <code>DataSource</code> or <code>Items</code> collection. Supports <code>AutoCompleteMode = SuggestAppend</code> when configured. Dropdown opens automatically on <code>OnBeginEdit</code>. Enter commits; Escape cancels.</p><h3>BeepGridDateDropDownEditor</h3><p>Wraps a <code>DateTimePicker</code> with <code>ShowUpDown = false</code> (calendar popup). Format from <code>Format</code> property (<code>Short</code>, <code>Long</code>, or custom). Popup opens on Focus. <strong>Enter</strong> or click-away commits; <strong>Escape</strong> cancels.</p><h3>BeepGridNumericEditor</h3><p>Wraps a <code>NumericUpDown</code> control. Reads <code>Minimum</code>, <code>Maximum</code>, <code>Increment</code>, and <code>DecimalPlaces</code> from column config. Supports <code>ThousandsSeparator</code>. Enter commits; Escape cancels. Up/down arrow keys adjust value within bounds.</p><h3>BeepGridCheckBoxEditor</h3><p>Wraps a <code>CheckBox</code> control supporting three data type mappings: <code>bool</code> (Checked/Unchecked), <code>char</code> (Y/N mapping), <code>string</code> (True/False mapping). On toggle, immediately fires <code>RequestEndEdit(true)</code> — no separate commit step needed. Space bar toggles the checkbox.</p><h3>BeepGridMaskedEditor</h3><p>Wraps a <code>MaskedTextBox</code> control. The mask is read from the column's <code>Mask</code> property (e.g., <code>"(999) 000-0000"</code>). <code>PromptChar</code> and <code>TextMaskFormat</code> configurable. Enter commits (must pass validation); Escape cancels.</p><h3>BeepGridGenericEditor</h3><p>Fallback editor for complex column types (ListBox, LOV, Image, Button, ProgressBar, Radio). Wraps a simple TextBox for string editing. Displays the cell's <code>ToString()</code> representation. Used when no specialized editor is registered.</p></section>
+<section class="section" id="lifecycle"><h2>Editor Lifecycle</h2><p>The editing lifecycle is managed by <code>GridEditHelper</code> and follows this sequence:</p><pre><code class="language-plaintext">1. User double-clicks cell or presses F2
+2. GridEditHelper calls GridEditorFactory.Resolve(column.ColumnType)
+3. Editor.CreateControl(column, currentValue) → instantiates native control
+4. Editor.Setup(column, gridAsEvents, theme) → stores references
+5. Editor.SetValue(currentValue) → populates control
+6. Editor.AttachEvents() → wires KeyDown/LostFocus
+7. Editor.OnBeginEdit(cellBounds) → positions &amp; shows control
+8. [User edits value]
+9a. Enter pressed / focus lost → Editor calls events.RequestEndEdit(true)
+9b. Escape pressed → Editor calls events.RequestCancelEdit()
+10. Editor.GetValue() → grid writes back to data source
+11. Editor.DetachEvents() → unwires handlers
+12. Editor.EditingControl.Dispose() → cleanup</code></pre></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Custom Editor Registration</h3><pre><code class="language-csharp">var factory = grid.EditorFactory;
+
+factory.Register(BeepColumnType.DateTime, typeof(MyCustomDateEditor));
+
+public class MyCustomDateEditor : IGridEditor
+{
+    private DateTimePicker _control;
+    private IGridEditorEvents _events;
+
+    public Control CreateControl(BeepColumnConfig column, object currentValue)
+    {
+        _control = new DateTimePicker
+        {
+            Format = DateTimePickerFormat.Custom,
+            CustomFormat = "ddd, MMM dd yyyy",
+            Width = 200
+        };
+        return _control;
+    }
+
+    public void Setup(BeepColumnConfig column, IGridEditorEvents editorEvents, Theme theme)
+    {
+        _events = editorEvents;
+    }
+
+    public void SetValue(object value) => _control.Value = (DateTime)value;
+    public object GetValue() => _control.Value;
+    public void AttachEvents()
+    {
+        _control.KeyDown += (s, e) =>
+        {
+            if (e.KeyCode == Keys.Enter) _events.RequestEndEdit(true);
+            if (e.KeyCode == Keys.Escape) _events.RequestCancelEdit();
+        };
+    }
+    public void DetachEvents() { }
+    public void OnBeginEdit(Rectangle cellBounds)
+    {
+        _control.Bounds = cellBounds;
+        _control.Focus();
+        _control.Select();
+    }
+    public bool IsPopupOpen => false;
+    public bool IsEditing => _control != null;
+    public Control EditingControl => _control;
+}</code></pre><h3>Set Fallback Editor</h3><pre><code class="language-csharp">grid.EditorFactory.SetFallback(typeof(BeepGridMaskedEditor));</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

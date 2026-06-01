@@ -1,731 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeepComboBox - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="_sidebar.js"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-    </button>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span><span>BeepComboBox</span></nav>
+            <div class="page-header"><h1>BeepComboBox</h1><p class="page-subtitle">A themable, painter-driven combo box with 11 visual variants, multi-select, inline editing, search filtering, loading states, and full accessibility support.</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#combobox-types">ComboBoxType Variants</a></li>
+                <li><a href="#enums">Supporting Enums</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#popup-behavior">Popup Behavior</a></li>
+                <li><a href="#inline-editor">Inline Editor &amp; Search</a></li>
+                <li><a href="#multi-select">Multi-Select Mode</a></li>
+                <li><a href="#validation">Validation &amp; Skeleton Loading</a></li>
+                <li><a href="#theming">Theming &amp; Visual Tokens</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#examples">Code Examples</a></li>
+            </ul></div>
 
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="bi bi-sun-fill" id="theme-icon"></i>
-    </button>
+            <!-- ═══════ OVERVIEW ═══════ -->
+            <section id="overview">
+                <h2>Overview</h2>
+                <p><code>BeepComboBox</code> is a modern, fully themable combo box control built on the <code>BaseControl</code> framework. It uses a <strong>painter methodology</strong> where each visual variant (<code>ComboBoxType</code>) delegates rendering to a dedicated painter class, enabling consistent styling across 11 design-system variants while sharing core logic for selection, popup management, and keyboard navigation.</p>
+                <p>The control is implemented across <strong>6 partial class files</strong> and supported by <strong>11 painter classes</strong>, <strong>5 helper engines</strong>, and the shared <code>BeepContextMenu</code> for dropdown popups. It inherits border rendering, DPI scaling, theme application, and hit-testing from <code>BaseControl</code>.</p>
+                <table>
+                    <tr><th>Namespace</th><td><code>TheTechIdea.Beep.Winform.Controls</code></td></tr>
+                    <tr><th>Base Class</th><td><code>BaseControl</code></td></tr>
+                    <tr><th>Toolbox Category</th><td>Beep Controls</td></tr>
+                    <tr><th>Designer Support</th><td>Full (ToolboxItem, property grid, design-time painting)</td></tr>
+                    <tr><th>Rendering</th><td>Painter-driven via <code>IComboBoxPainter</code> with immutable <code>ComboBoxRenderState</code> snapshots</td></tr>
+                    <tr><th>Accessibility</th><td>Full, via custom <code>AccessibleObject</code> with Value/Role/State overrides</td></tr>
+                </table>
+            </section>
 
-    <div class="container">
-        <!-- Sidebar -->
-                                                                                        <div id="sidebar-placeholder"></div>
-
-        <!-- Main Content -->
-        <main class="content">
-            <div class="content-wrapper">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-nav">
-                    <a href="../index.html">Home</a>
-                    <span>›</span>
-                    <a href="../index.html#input-controls">Input Controls</a>
-                    <span>›</span>
-                    <span>BeepComboBox</span>
-                </nav>
-
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1>BeepComboBox</h1>
-                    <p class="page-subtitle">Advanced dropdown selection control with theming, editing, and popup list support</p>
+            <!-- ═══════ KEY FEATURES ═══════ -->
+            <section id="features">
+                <h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>11 Visual Variants</h4>
+                        <p>OutlineDefault, OutlineSearchable, FilledSoft, RoundedPill, SegmentedTrigger, MultiChipCompact, MultiChipSearch, DenseList, MinimalBorderless, CommandMenu, VisualDisplay &mdash; each with dedicated painter and layout tokens.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Painter Methodology</h4>
+                        <p>Stateless frame-by-frame rendering: <code>ComboBoxStateFactory</code> snapshots live state into an immutable <code>ComboBoxRenderState</code>, <code>ComboBoxLayoutEngine</code> computes rectangles, and the active painter renders without reaching back into the control.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Multi-Select with Chips</h4>
+                        <p>Two dedicated multi-select variants (<code>MultiChipCompact</code>, <code>MultiChipSearch</code>) render selected items as chip tokens with close (&times;) buttons, overflow count badges (<code>+N</code>), and animated chip add/remove transitions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Inline Text Editor</h4>
+                        <p>When editable or searchable, a <code>BeepTextBox</code> child control overlays the text area for live typing. Supports auto-complete with prefix/fuzzy/full matching modes, free-text tokenization via delimiter characters, and debounced suggestions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Searchable Popup</h4>
+                        <p>Types that support search (<code>OutlineSearchable</code>, <code>MultiChipSearch</code>, <code>CommandMenu</code>) show a search box in the dropdown. The <code>ComboBoxSearchEngine</code> provides prefix, substring, and fuzzy-subsequence matching against both primary text and sub-text.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Loading States</h4>
+                        <p>Two distinct loading mechanisms: an animated spinner that replaces the chevron while <code>IsLoading = true</code>, and a shimmer skeleton sweep when <code>ShowSkeleton = true</code> (for async data population).</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Validation States</h4>
+                        <p>Four validation states (<code>None</code>, <code>Error</code>, <code>Warning</code>, <code>Success</code>) drive border colour, background tint, and trailing status icons (SVG: AlertCircle, AlertTriangle, Check).</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>RTL &amp; Accessibility</h4>
+                        <p>Full right-to-left layout mirroring via <code>IsRtl</code>. Custom <code>AccessibleObject</code> exposes combo box value, role, and expanded/collapsed state to screen readers. Keyboard navigation covers Up/Down/Home/End/PageUp/PageDown/Enter/Escape/Space/Backspace.</p>
+                    </div>
                 </div>
+            </section>
 
-                <!-- Table of Contents -->
-                <div class="toc">
-                    <h3>📑 Table of Contents</h3>
-                    <ul>
-                        <li><a href="#overview">Overview</a></li>
-                        <li><a href="#features">Key Features</a></li>
-                        <li><a href="#basic-usage">Basic Usage</a></li>
-                        <li><a href="#properties">Properties</a></li>
-                        <li><a href="#events">Events</a></li>
-                        <li><a href="#examples">Examples</a></li>
-                        <li><a href="#theming">Theming</a></li>
-                        <li><a href="#best-practices">Best Practices</a></li>
-                    </ul>
-                </div>
+            <!-- ═══════ COMBOBOX TYPES ═══════ -->
+            <section id="combobox-types">
+                <h2>ComboBoxType Variants</h2>
+                <p>The <code>ComboBoxType</code> enum defines 11 design-system variants. Each variant maps to a dedicated <code>IComboBoxPainter</code> implementation and a set of <code>ComboBoxVisualTokens</code> (button width, inner padding, corner radius, text inset, row density). Changing <code>ComboBoxType</code> dynamically swaps the painter and re-applies layout defaults.</p>
+                <table>
+                    <tr><th>Enum Value</th><th>Description</th><th>Painter Class</th><th>Key Tokens</th><th>Search?</th></tr>
+                    <tr><td><code>OutlineDefault = 0</code></td><td>Primary enterprise outlined dropdown with hover/focus accent rings.</td><td><code>OutlineDefaultComboBoxPainter</code></td><td>ButtonW:34, Padding:(12,6,8,6), Radius:6, Separator:Yes</td><td>No</td></tr>
+                    <tr><td><code>OutlineSearchable = 1</code></td><td>Outlined dropdown with inline search box in popup and inline editor support.</td><td><code>OutlineSearchableComboBoxPainter</code></td><td>ButtonW:36, Padding:(12,6,8,6), Radius:6, Separator:Yes</td><td>Yes</td></tr>
+                    <tr><td><code>FilledSoft = 2</code></td><td>Soft filled field with subtle background tint and modern density.</td><td><code>FilledSoftComboBoxPainter</code></td><td>ButtonW:36, Padding:(12,8,8,8), Radius:8, IsFilled:Yes</td><td>No</td></tr>
+                    <tr><td><code>RoundedPill = 3</code></td><td>High-radius pill shell with generous padding.</td><td><code>RoundedPillComboBoxPainter</code></td><td>ButtonW:38, Padding:(16,8,12,8), Radius:18</td><td>No</td></tr>
+                    <tr><td><code>SegmentedTrigger = 4</code></td><td>Split trigger with visually distinct chevron segment using primary colour fill.</td><td><code>SegmentedTriggerComboBoxPainter</code></td><td>ButtonW:40, Padding:(12,6,8,6), Radius:8, Segmented:Yes</td><td>No</td></tr>
+                    <tr><td><code>MultiChipCompact = 5</code></td><td>Multi-select chip field with compact token layout; auto-enables <code>AllowMultipleSelection</code>.</td><td><code>MultiChipCompactComboBoxPainter</code></td><td>ButtonW:36, Padding:(10,6,8,6), Radius:8, ChipH:24</td><td>No</td></tr>
+                    <tr><td><code>MultiChipSearch = 6</code></td><td>Multi-select chips with searchable checkbox popup; auto-enables multi-select + search.</td><td><code>MultiChipSearchComboBoxPainter</code></td><td>ButtonW:36, Padding:(10,6,8,6), Radius:8, ChipH:24, Density:36</td><td>Yes</td></tr>
+                    <tr><td><code>DenseList = 7</code></td><td>Data-dense list-oriented variant with compact padding and small button.</td><td><code>DenseListComboBoxPainter</code></td><td>ButtonW:28, Padding:(6,3,4,3), Radius:4, Density:30</td><td>No</td></tr>
+                    <tr><td><code>MinimalBorderless = 8</code></td><td>Low-chrome borderless/minimal shell with smallest button footprint.</td><td><code>MinimalBorderlessComboBoxPainter</code></td><td>ButtonW:22, Padding:(4,6,4,6), Radius:6, Borderless:Yes</td><td>No</td></tr>
+                    <tr><td><code>CommandMenu = 9</code></td><td>Command-palette style field with inline search editor and popup rows showing shortcut metadata.</td><td><code>CommandMenuComboBoxPainter</code></td><td>ButtonW:32, Padding:(10,6,8,6), Radius:6, Density:32</td><td>Yes</td></tr>
+                    <tr><td><code>VisualDisplay = 10</code></td><td>Visual-forward display (icon/swatch-first) for selected values with leading image support.</td><td><code>VisualDisplayComboBoxPainter</code></td><td>ButtonW:32, Padding:(10,6,8,6), Radius:8, Separator:Yes</td><td>No</td></tr>
+                </table>
+                <h4>ControlStyle Mapping</h4>
+                <p>When <code>ComboBoxType</code> has not been explicitly set, setting <code>ControlStyle</code> on the control automatically maps to a default <code>ComboBoxType</code>:
+                    <code>Material*</code> &rarr; <code>FilledSoft</code>,
+                    <code>iOS15/Apple/PillRail</code> &rarr; <code>RoundedPill</code>,
+                    <code>Fluent*/Windows11Mica/Shadcn/RadixUI/NextJS/Linear</code> &rarr; <code>OutlineDefault</code>,
+                    <code>Minimal/NotionMinimal/VercelClean</code> &rarr; <code>MinimalBorderless</code>,
+                    <code>NeoBrutalist/Brutalist</code> &rarr; <code>SegmentedTrigger</code>,
+                    <code>Bootstrap/AntDesign/ChakraUI</code> &rarr; <code>OutlineSearchable</code>.</p>
+            </section>
 
-                <!-- Overview -->
-                <section id="overview" class="section">
-                    <h2>Overview</h2>
-                    <p>
-                        <strong>BeepComboBox</strong> is an advanced dropdown selection control that combines the functionality 
-                        of traditional ComboBox controls with modern styling, theming support, and enhanced user experience features. 
-                        It provides both dropdown list selection and inline text editing capabilities.
-                    </p>
-                    <p>
-                        Built on the <strong>BeepControl</strong> foundation, BeepComboBox features custom popup lists, 
-                        state-aware theming, placeholder text support, and seamless integration with the SimpleItem data model 
-                        for flexible item management.
-                    </p>
-                </section>
+            <!-- ═══════ SUPPORTING ENUMS ═══════ -->
+            <section id="enums">
+                <h2>Supporting Enums</h2>
+                <h3>BeepAutoCompleteMode</h3>
+                <table>
+                    <tr><th>Value</th><th>Description</th></tr>
+                    <tr><td><code>None</code></td><td>No auto-complete suggestions.</td></tr>
+                    <tr><td><code>Prefix</code></td><td>Matches items starting with the typed text (default).</td></tr>
+                    <tr><td><code>Fuzzy</code></td><td>Fuzzy subsequence matching: all typed characters must appear in order in the item text.</td></tr>
+                    <tr><td><code>Full</code></td><td>Contains/substring match anywhere in the item text.</td></tr>
+                </table>
+                <h3>BeepComboBoxValidationState</h3>
+                <table>
+                    <tr><th>Value</th><th>Description</th></tr>
+                    <tr><td><code>None</code></td><td>No validation state (default).</td></tr>
+                    <tr><td><code>Error</code></td><td>Shows red border, error-coloured status icon (AlertCircle), red-tinted background.</td></tr>
+                    <tr><td><code>Warning</code></td><td>Shows orange border, warning icon (AlertTriangle), orange-tinted background.</td></tr>
+                    <tr><td><code>Success</code></td><td>Shows green border, success check icon (Check), green-tinted background.</td></tr>
+                </table>
+                <h3>BeepComboBoxSize</h3>
+                <table>
+                    <tr><th>Value</th><th>Logical Height</th><th>Use Case</th></tr>
+                    <tr><td><code>Small</code></td><td>24 px</td><td>Compact toolbars, dense forms.</td></tr>
+                    <tr><td><code>Medium</code></td><td>32 px</td><td>Default form controls (default).</td></tr>
+                    <tr><td><code>Large</code></td><td>40 px</td><td>Prominent inputs, touch-friendly UIs.</td></tr>
+                </table>
+            </section>
 
-                <!-- Key Features -->
-                <section id="features" class="section">
-                    <h2>Key Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>📥 Dual Input Mode</h3>
-                            <p>Support for both dropdown selection and direct text input editing</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎯 Custom Popup Lists</h3>
-                            <p>Advanced popup list with theme-aware styling and smooth animations</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎨 State-Aware Theming</h3>
-                            <p>Different visual states (normal, hover, focused, selected) with theme support</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>💬 Placeholder Support</h3>
-                            <p>Placeholder text to guide users when no item is selected</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🔗 SimpleItem Integration</h3>
-                            <p>Built-in support for SimpleItem data model with value and display text separation</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🔍 Smart Search</h3>
-                            <p>Type-to-find functionality when in editing mode</p>
-                        </div>
-                    </div>
-                </section>
+            <!-- ═══════ PROPERTIES ═══════ -->
+            <section id="properties">
+                <h2>Properties</h2>
+                <h3>Data &amp; Selection</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr>
+                    <tr><td><code>ListItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>Empty list</td><td>Data</td><td>The collection of items in the dropdown. Supports <code>DesignerSerializationVisibility.Content</code>.</td></tr>
+                    <tr><td><code>SelectedItem</code></td><td><code>SimpleItem</code></td><td><code>null</code></td><td>Data</td><td>The currently selected item. Setting resets error state if a valid non-empty item is selected. Fires <code>SelectedItemChanged</code> and <code>SelectedIndexChanged</code>.</td></tr>
+                    <tr><td><code>SelectedText</code></td><td><code>string</code></td><td>""</td><td>Data</td><td>Read-only. Returns the text of <code>SelectedItem</code> or the free-typed input text.</td></tr>
+                    <tr><td><code>SelectedValue</code></td><td><code>object</code></td><td><code>null</code></td><td>Data</td><td>Setter accepts <code>SimpleItem</code> or arbitrary values resolved via <code>ResolveItemFromValue</code>. Getter returns <code>item.Value ?? item.Item ?? item.Text</code>.</td></tr>
+                    <tr><td><code>SelectedIndex</code></td><td><code>int</code></td><td>-1</td><td>Data</td><td>Index of the selected item. Setting out-of-range clears selection.</td></tr>
+                    <tr><td><code>Category</code></td><td><code>DbFieldCategory</code></td><td><code>String</code></td><td>Behavior</td><td>Database field category for data binding.</td></tr>
+                </table>
+                <h3>Appearance</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>ComboBoxType</code></td><td><code>ComboBoxType</code></td><td><code>OutlineDefault</code></td><td>Visual variant. Changing swaps the painter, re-applies layout tokens, and may auto-enable multi-select/search.</td></tr>
+                    <tr><td><code>ControlStyle</code></td><td><code>BeepControlStyle</code></td><td>Inherited</td><td>Maps to <code>ComboBoxType</code> unless type was explicitly set.</td></tr>
+                    <tr><td><code>TextFont</code></td><td><code>Font</code></td><td>System default</td><td>Font for display text. Setting disables theme font. Resolved via <code>BeepThemesManager.ToFont</code> when <code>UseThemeFont = true</code>.</td></tr>
+                    <tr><td><code>PlaceholderText</code></td><td><code>string</code></td><td>"Select an item..."</td><td>Placeholder shown when no item is selected and no text has been typed.</td></tr>
+                    <tr><td><code>DropdownIconPath</code></td><td><code>string</code></td><td>""</td><td>Custom path to dropdown icon. Default uses <code>SvgsUI.ChevronDown</code> SVG with animated rotation.</td></tr>
+                    <tr><td><code>ShowStatusIcons</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, renders the <code>ImagePath</code> icon for each popup row.</td></tr>
+                    <tr><td><code>ShowOptionDescription</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, renders each item&apos;s <code>SubText</code> as a second line below the label.</td></tr>
+                </table>
+                <h3>Behavior</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>IsEditable</code></td><td><code>bool</code></td><td><code>false</code></td><td>Allows text editing via the inline editor.</td></tr>
+                    <tr><td><code>ShowSearchInDropdown</code></td><td><code>bool</code></td><td><code>false</code></td><td>Forces the search box to appear in the dropdown regardless of type. Auto-enabled for searchable types.</td></tr>
+                    <tr><td><code>AutoComplete</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables auto-complete as the user types.</td></tr>
+                    <tr><td><code>AutoCompleteMode</code></td><td><code>BeepAutoCompleteMode</code></td><td><code>Prefix</code></td><td>Matching strategy: None, Prefix, Fuzzy, or Full.</td></tr>
+                    <tr><td><code>AutoCompleteMinLength</code></td><td><code>int</code></td><td>1</td><td>Minimum input length before triggering auto-complete.</td></tr>
+                    <tr><td><code>MaxSuggestions</code></td><td><code>int</code></td><td>10</td><td>Maximum number of auto-complete suggestions.</td></tr>
+                    <tr><td><code>AutoCompleteDelay</code></td><td><code>int</code></td><td>0</td><td>Debounce delay in milliseconds before triggering auto-complete.</td></tr>
+                    <tr><td><code>AnimationDuration</code></td><td><code>int</code></td><td>200</td><td>Duration of animations in milliseconds.</td></tr>
+                    <tr><td><code>EnableAnimations</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether animations are enabled.</td></tr>
+                    <tr><td><code>AnimateChevron</code></td><td><code>bool</code></td><td><code>true</code></td><td>Animates chevron rotation (0&deg; closed &rarr; 180&deg; open) at ~60 FPS via a 16 ms timer.</td></tr>
+                    <tr><td><code>ReduceMotion</code></td><td><code>bool</code></td><td><code>false</code></td><td>Skips all timer-driven animations (chevron, spinner, chip) and snaps to final state.</td></tr>
+                    <tr><td><code>IsLoading</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a rotating spinner in the dropdown button area and a translucent haze over text. Disables interaction.</td></tr>
+                    <tr><td><code>ShowSkeleton</code></td><td><code>bool</code></td><td><code>false</code></td><td>Renders an animated shimmer stripe over the text area. Sweeps left-to-right at ~42 FPS.</td></tr>
+                    <tr><td><code>ShowClearButton</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a &times; button when a value is selected. Clicking clears selection.</td></tr>
+                    <tr><td><code>ValidationState</code></td><td><code>BeepComboBoxValidationState</code></td><td><code>None</code></td><td>Drives border colour, status icon, and background tint.</td></tr>
+                    <tr><td><code>EmptyStateText</code></td><td><code>string</code></td><td>"No options"</td><td>Text shown when the dropdown list is empty or all items are filtered out.</td></tr>
+                    <tr><td><code>AutoFlip</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, the dropdown opens upward if insufficient space below.</td></tr>
+                </table>
+                <h3>Multi-Select</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>AllowMultipleSelection</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables multi-select mode. Auto-enabled for <code>MultiChipCompact</code> and <code>MultiChipSearch</code> types.</td></tr>
+                    <tr><td><code>SelectedItems</code></td><td><code>List&lt;SimpleItem&gt;</code></td><td>Empty list</td><td>The collection of currently selected items. Setting triggers chip add/remove animations. <code>SelectedItem</code> syncs to first selected item.</td></tr>
+                    <tr><td><code>MaxDisplayChips</code></td><td><code>int</code></td><td>3</td><td>Number of chips to show before collapsing into a <code>+N</code> overflow badge.</td></tr>
+                    <tr><td><code>ChipAnimationDuration</code></td><td><code>int</code></td><td>200</td><td>Duration of chip add/remove animations in ms. Animated at ~60 FPS.</td></tr>
+                    <tr><td><code>ShowSelectAll</code></td><td><code>bool</code></td><td><code>true</code></td><td>Pins a "Select all / Clear all" row at the top of the dropdown in multi-select mode.</td></tr>
+                    <tr><td><code>UseApplyCancelFooter</code></td><td><code>bool</code></td><td><code>false</code></td><td>Selection changes stay pending until Apply; Cancel restores snapshot.</td></tr>
+                    <tr><td><code>UsePrimaryActionFooter</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a single configurable CTA footer button instead of Apply/Cancel.</td></tr>
+                    <tr><td><code>PrimaryActionFooterText</code></td><td><code>string</code></td><td>"Select {count} item(s)"</td><td>Primary CTA footer text. <code>{count}</code> is replaced with selected count.</td></tr>
+                    <tr><td><code>AllowFreeText</code></td><td><code>bool</code></td><td><code>false</code></td><td>When enabled in multi-select, typing a delimiter converts the current token into a chip.</td></tr>
+                    <tr><td><code>TokenDelimiters</code></td><td><code>char[]</code></td><td><code>','</code>, <code>';'</code></td><td>Characters that trigger free-text tokenization.</td></tr>
+                </table>
+                <h3>Layout</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>DropdownButtonWidth</code></td><td><code>int</code></td><td>32</td><td>Width of the dropdown button in pixels. &le;0 resets to painter default.</td></tr>
+                    <tr><td><code>InnerPadding</code></td><td><code>Padding</code></td><td>Painter default</td><td>Padding inside the combo box. <code>Padding.Empty</code> resets to painter default.</td></tr>
+                    <tr><td><code>SizeVariant</code></td><td><code>BeepComboBoxSize</code></td><td><code>Medium</code></td><td>Predefined height: Small (24 px), Medium (32 px), Large (40 px).</td></tr>
+                    <tr><td><code>MinDropdownWidth</code></td><td><code>int</code></td><td>0</td><td>Minimum width of the dropdown. 0 means the popup matches control width.</td></tr>
+                    <tr><td><code>DropDownRows</code></td><td><code>int</code></td><td>8</td><td>Maximum visible items in the dropdown. Determines popup height.</td></tr>
+                    <tr><td><code>AutoSizeDropDown</code></td><td><code>bool</code></td><td><code>true</code></td><td>Automatically sizes dropdown width to fit the widest item.</td></tr>
+                    <tr><td><code>DropDownWidth</code></td><td><code>int</code></td><td>0</td><td>Explicit dropdown width. 0 means auto-size.</td></tr>
+                    <tr><td><code>DropdownListBoxType</code></td><td><code>ListBoxType?</code></td><td><code>null</code></td><td>ListBoxType for dropdown popup. Null means auto-mapped from <code>ComboBoxType</code> via <code>ComboBoxListBoxTypeMapper</code>.</td></tr>
+                    <tr><td><code>MaxDropdownHeight</code></td><td><code>int</code></td><td>200</td><td>Maximum height of the dropdown list in pixels.</td></tr>
+                    <tr><td><code>IsRtl</code></td><td><code>bool</code></td><td><code>false</code></td><td>Mirrors the layout: dropdown button on the left, text right-aligned, chips flow right-to-left. Uses <code>Graphics.ScaleTransform(-1, 1)</code>.</td></tr>
+                </table>
+                <h3>Accessibility</h3>
+                <table>
+                    <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>AccessibleName</code></td><td><code>string</code></td><td>"Combo box"</td><td>Name for screen readers.</td></tr>
+                    <tr><td><code>AccessibleDescription</code></td><td><code>string</code></td><td>"Select an item from the dropdown list"</td><td>Description for screen readers.</td></tr>
+                </table>
+            </section>
 
-                <!-- Basic Usage -->
-                <section id="basic-usage" class="section">
-                    <h2>Basic Usage</h2>
-                    
-                    <div class="code-example">
-                        <h3>Simple ComboBox Creation</h3>
-                        <pre><code class="language-csharp">// Create a basic BeepComboBox
-var comboBox = new BeepComboBox
+            <!-- ═══════ METHODS ═══════ -->
+            <section id="methods">
+                <h2>Methods</h2>
+                <h3>Value Access</h3>
+                <table>
+                    <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                    <tr><td><code>SetValue</code></td><td><code>void SetValue(object value)</code></td><td>Sets the selected value. Wraps <code>SelectedValue</code>.</td></tr>
+                    <tr><td><code>GetValue</code></td><td><code>object GetValue()</code></td><td>Gets the selected value. Returns <code>SelectedValue</code>.</td></tr>
+                    <tr><td><code>ClearSelection</code></td><td><code>void ClearSelection()</code></td><td>Clears selection, input text, and display text.</td></tr>
+                    <tr><td><code>Clear</code></td><td><code>void Clear()</code></td><td>Clears selection by setting <code>SelectedItem = null</code>.</td></tr>
+                    <tr><td><code>Reset</code></td><td><code>void Reset()</code></td><td>Clears selection, input text, error state, and error text.</td></tr>
+                </table>
+                <h3>Dropdown Management</h3>
+                <table>
+                    <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                    <tr><td><code>ShowDropdown</code></td><td><code>void ShowDropdown()</code></td><td>Opens the dropdown popup. Creates a fresh <code>BeepContextMenu</code> each time. Fires <code>PopupOpened</code>.</td></tr>
+                    <tr><td><code>CloseDropdown</code></td><td><code>void CloseDropdown()</code></td><td>Closes the dropdown popup. Fires <code>PopupClosed</code>.</td></tr>
+                    <tr><td><code>ToggleDropdown</code></td><td><code>void ToggleDropdown()</code></td><td>Toggles the dropdown open/closed state.</td></tr>
+                    <tr><td><code>ShowPopup</code></td><td><code>void ShowPopup()</code></td><td>Legacy alias for <code>ShowDropdown</code>.</td></tr>
+                    <tr><td><code>ClosePopup</code></td><td><code>void ClosePopup()</code></td><td>Legacy alias for <code>CloseDropdown</code>.</td></tr>
+                    <tr><td><code>TogglePopup</code></td><td><code>void TogglePopup()</code></td><td>Legacy alias for <code>ToggleDropdown</code>.</td></tr>
+                </table>
+                <h3>Editing</h3>
+                <table>
+                    <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                    <tr><td><code>ShowInlineEditor</code></td><td><code>void ShowInlineEditor()</code></td><td>Shows the inline <code>BeepTextBox</code> over the text area. Only allowed when editable, free-text, or type supports inline editing.</td></tr>
+                    <tr><td><code>HideInlineEditor</code></td><td><code>void HideInlineEditor(bool commitText)</code></td><td>Hides the inline editor. If <code>true</code>, matches typed text against the list or keeps it as free text.</td></tr>
+                    <tr><td><code>StartEditing</code></td><td><code>void StartEditing()</code></td><td>Delegates to <code>ShowInlineEditor</code>.</td></tr>
+                    <tr><td><code>StopEditing</code></td><td><code>void StopEditing()</code></td><td>Delegates to <code>HideInlineEditor(true)</code>.</td></tr>
+                </table>
+                <h3>Selection Helpers</h3>
+                <table>
+                    <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                    <tr><td><code>SelectItemByText</code></td><td><code>void SelectItemByText(string text)</code></td><td>Selects the first item matching by <code>Text</code> (case-insensitive).</td></tr>
+                    <tr><td><code>SelectItemByValue</code></td><td><code>void SelectItemByValue(object value)</code></td><td>Selects by value. Uses <code>ResolveItemFromValue</code> for matching.</td></tr>
+                    <tr><td><code>DeselectItem</code></td><td><code>void DeselectItem(SimpleItem item)</code></td><td>Removes a specific item from the multi-select set. No-op if not selected.</td></tr>
+                </table>
+                <h3>Layout &amp; Rendering</h3>
+                <table>
+                    <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                    <tr><td><code>GetTextAreaRect</code></td><td><code>Rectangle GetTextAreaRect()</code></td><td>Returns the calculated text area rectangle.</td></tr>
+                    <tr><td><code>GetDropdownButtonRect</code></td><td><code>Rectangle GetDropdownButtonRect()</code></td><td>Returns the calculated dropdown button rectangle.</td></tr>
+                    <tr><td><code>GetImageRect</code></td><td><code>Rectangle GetImageRect()</code></td><td>Returns the calculated leading image rectangle.</td></tr>
+                    <tr><td><code>Draw</code></td><td><code>void Draw(Graphics g, Rectangle rect)</code></td><td>Statically paints the combo box into an arbitrary rectangle. Used by grid and container controls. Uses same layout/painter as <code>DrawContent</code>.</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies combo-box-specific theme colours and resolves theme font.</td></tr>
+                </table>
+            </section>
+
+            <!-- ═══════ EVENTS ═══════ -->
+            <section id="events">
+                <h2>Events</h2>
+                <table>
+                    <tr><th>Event</th><th>Delegate</th><th>Raised When</th></tr>
+                    <tr><td><code>SelectedItemChanged</code></td><td><code>EventHandler&lt;SelectedItemChangedEventArgs&gt;</code></td><td>The selected item changes (single-select). Fires <code>RaiseSubmitChanges()</code>.</td></tr>
+                    <tr><td><code>SelectedIndexChanged</code></td><td><code>EventHandler&lt;SelectedItemChangedEventArgs&gt;</code></td><td>Raised simultaneously with <code>SelectedItemChanged</code> for backwards compatibility.</td></tr>
+                    <tr><td><code>SelectedItemsChanged</code></td><td><code>EventHandler</code></td><td>The multi-select selection set changes. Fires when items are toggled in the popup.</td></tr>
+                    <tr><td><code>PopupOpened</code></td><td><code>EventHandler</code></td><td>Fires at the end of <code>ShowDropdown</code> after the context menu is displayed.</td></tr>
+                    <tr><td><code>PopupClosed</code></td><td><code>EventHandler</code></td><td>Fires when the dropdown menu closes (via <code>CloseDropdown</code>, <code>MenuClosed</code>, or focus loss).</td></tr>
+                </table>
+                <p>The <code>SelectedItemChangedEventArgs</code> carries the newly selected <code>SimpleItem</code>.</p>
+            </section>
+
+            <!-- ═══════ POPUP BEHAVIOR ═══════ -->
+            <section id="popup-behavior">
+                <h2>Popup Behavior</h2>
+                <p>The dropdown popup is implemented using <code>BeepContextMenu</code>, the same menu infrastructure used by the application menu bar. Each time the dropdown opens:</p>
+                <ol>
+                    <li>A <strong>fresh</strong> <code>BeepContextMenu</code> instance is created with <code>DestroyOnClose = true</code>.</li>
+                    <li>The menu is configured with the combo box&apos;s current state: <code>MultiSelect</code>, <code>ShowCheckBox</code>, <code>ShowSearchBox</code>, <code>Theme</code>.</li>
+                    <li>All <code>ListItems</code> are copied to <code>MenuItems</code>, with checkbox state synced for multi-select.</li>
+                    <li>The menu is positioned at <code>PointToScreen(Point(0, Height))</code> with width matching the control.</li>
+                    <li><code>ItemClicked</code> and <code>MenuClosed</code> events are wired for selection and state cleanup.</li>
+                </ol>
+                <h3>Popup Row Model System</h3>
+                <p>The popup content is normalized through <code>ComboBoxPopupModelBuilder</code>, which converts raw <code>SimpleItem</code> collections into immutable <code>ComboBoxPopupRowModel</code> instances. Each row knows its <code>RowKind</code>:</p>
+                <table>
+                    <tr><th>RowKind</th><th>Description</th></tr>
+                    <tr><td><code>Normal</code></td><td>Standard selectable item.</td></tr>
+                    <tr><td><code>Selected</code></td><td>Currently selected item (single-select committed value).</td></tr>
+                    <tr><td><code>Disabled</code></td><td>Non-interactive, visually muted item.</td></tr>
+                    <tr><td><code>GroupHeader</code></td><td>Non-selectable group label. Auto-injected when <code>GroupName</code> changes between items.</td></tr>
+                    <tr><td><code>Separator</code></td><td>Thin non-selectable divider line (items with <code>IsSeparator = true</code>).</td></tr>
+                    <tr><td><code>WithSubText</code></td><td>Item showing secondary description text below the label.</td></tr>
+                    <tr><td><code>CheckRow</code></td><td>Checkbox row for multi-select flows.</td></tr>
+                    <tr><td><code>EmptyState</code></td><td>Synthetic row when the list is empty before any search.</td></tr>
+                    <tr><td><code>LoadingState</code></td><td>Synthetic row while async data is loading.</td></tr>
+                    <tr><td><code>NoResults</code></td><td>Synthetic row when a filter produces zero matches.</td></tr>
+                </table>
+                <p>The builder also detects group headers, manages keyboard focus state, and applies <code>ComboBoxSearchEngine</code> filtering. Search results include <code>MatchStart</code> and <code>MatchLength</code> metadata for highlight rendering.</p>
+                <h3>Dropdown ListBoxType Mapping</h3>
+                <p>Each <code>ComboBoxType</code> maps to a <code>ListBoxType</code> for popup appearance. When <code>DropdownListBoxType</code> is <code>null</code>: <code>OutlineDefault</code> &rarr; <code>Outlined</code>, <code>FilledSoft</code> &rarr; <code>Filled</code>, <code>RoundedPill</code> &rarr; <code>Rounded</code>, <code>CommandMenu</code> &rarr; <code>CommandList</code>, <code>VisualDisplay</code> &rarr; <code>AvatarList</code>, etc.</p>
+            </section>
+
+            <!-- ═══════ INLINE EDITOR & SEARCH ═══════ -->
+            <section id="inline-editor">
+                <h2>Inline Editor &amp; Search</h2>
+                <h3>Inline Editor Lifecycle</h3>
+                <p>The inline editor is a <code>BeepTextBox</code> child control (frameless, no shadow, <code>ControlStyle.None</code>) created lazily on first use. It overlays <code>_textAreaRect</code> when the user clicks the text area in an editable or searchable combo box.</p>
+                <ul>
+                    <li><strong>Creation:</strong> Theme and font applied once at creation &mdash; never on every show.</li>
+                    <li><strong>Show:</strong> <code>ShowInlineEditor()</code> positions the editor over <code>_textAreaRect</code>, pre-fills with current display text, suppresses live-search during programmatic text assignment.</li>
+                    <li><strong>Live Search:</strong> <code>InlineEditor_TextChanged</code> syncs <code>_inputText</code> and opens the dropdown if not already open.</li>
+                    <li><strong>Free-Text Tokenization:</strong> When <code>AllowFreeText</code> + <code>AllowMultipleSelection</code> are enabled, typing <code>,</code> or <code>;</code> creates a chip from the typed token and clears input.</li>
+                    <li><strong>Key Handling:</strong> Enter commits, Escape discards, Down commits and shows dropdown.</li>
+                    <li><strong>Commit:</strong> <code>HideInlineEditor(true)</code> matches typed text via <code>FindItemByText</code>. If found, selects the match; otherwise keeps free text.</li>
+                </ul>
+                <h3>Auto-Complete Engine</h3>
+                <ul>
+                    <li><code>Prefix</code>: <code>StartsWith(StringComparison.OrdinalIgnoreCase)</code></li>
+                    <li><code>Fuzzy</code>: All typed characters must appear in order in the item text (character walk).</li>
+                    <li><code>Full</code>: <code>Contains(StringComparison.OrdinalIgnoreCase)</code></li>
+                </ul>
+                <p>Configurable debounce via <code>AutoCompleteDelay</code>. Results capped at <code>MaxSuggestions</code>.</p>
+                <h3>Search Engine (Popup)</h3>
+                <p><code>ComboBoxSearchEngine.FilterRows</code> provides scored search:</p>
+                <ul>
+                    <li><strong>Prefix:</strong> <code>baseWeight + 300 - lengthDiff</code></li>
+                    <li><strong>Substring:</strong> <code>baseWeight + 200 - startIndex</code></li>
+                    <li><strong>Fuzzy:</strong> <code>baseWeight + 100 - spread</code></li>
+                </ul>
+                <p>Group headers are kept only when at least one child item matches. Best match tracked for keyboard focus.</p>
+            </section>
+
+            <!-- ═══════ MULTI-SELECT MODE ═══════ -->
+            <section id="multi-select">
+                <h2>Multi-Select Mode</h2>
+                <h3>Enabling</h3>
+                <p>Set <code>AllowMultipleSelection = true</code> or use <code>ComboBoxType.MultiChipCompact</code> / <code>MultiChipSearch</code>. The popup switches to checkbox rows; selected items render as chip tokens.</p>
+                <h3>Chip Layout Engine</h3>
+                <p><code>ComboBoxChipLayoutEngine</code> computes chip positions left-to-right, wrapping to a second row if needed (up to 2 rows). Each chip has body, text, and close button (16px &times;) rectangles. Exceeding space produces a <code>+N</code> overflow badge.</p>
+                <h3>Chip Rendering</h3>
+                <p><code>ComboBoxChipPainter</code> draws rounded-rect chips using theme tokens (<code>SelectedBackColor</code>, <code>SelectedForeColor</code>, <code>SelectedBorderColor</code>). Disabled chips use muted colours. Contrast ratio checked (2.5:1 minimum). Overflow badge shows <code>+N</code> text centered. Close buttons render SVG <code>X</code> at 75% opacity.</p>
+                <p>Hit-test rects for chip bodies and close buttons are registered in <code>ChipCloseRects</code> and <code>ChipBodyRects</code> dictionaries, keyed by item identity. Chip body click opens popup and can scroll to item.</p>
+                <h3>Chip Animation</h3>
+                <p>When <code>SelectedItems</code> is set, the setter diffs old/new lists and starts animations for added/removed chips. A 16 ms (~60 FPS) timer drives linear progress 0&rarr;1 (add) or 1&rarr;0 (remove) over <code>ChipAnimationDuration</code>.</p>
+                <h3>Popup Selection Flow</h3>
+                <ul>
+                    <li><strong>Immediate:</strong> Checkbox toggle updates <code>SelectedItems</code> via deferred <code>BeginInvoke</code>. Popup stays open.</li>
+                    <li><strong>Apply/Cancel:</strong> Pending list; Apply commits, Cancel restores snapshot.</li>
+                    <li><strong>Primary Action:</strong> Single CTA button with <code>{count}</code> placeholder.</li>
+                    <li><strong>Select All:</strong> Virtual <code>_selectall</code> row toggles all/none.</li>
+                </ul>
+            </section>
+
+            <!-- ═══════ VALIDATION & SKELETON ═══════ -->
+            <section id="validation">
+                <h2>Validation &amp; Skeleton Loading</h2>
+                <h3>Validation States</h3>
+                <p><code>ValidationState</code> controls:</p>
+                <ul>
+                    <li><strong>Border:</strong> Resolved from <code>ErrorBorderColor</code>, <code>WarningBorderColor</code>, <code>SuccessBorderColor</code>.</li>
+                    <li><strong>Background tint:</strong> 20-alpha overlay over the text area.</li>
+                    <li><strong>Status icon:</strong> Trailing SVG: AlertCircle (error), AlertTriangle (warning), Check (success).</li>
+                    <li><strong>Text colour:</strong> Error state uses <code>ComboBoxErrorForeColor</code>.</li>
+                </ul>
+                <h3>Loading Spinner</h3>
+                <p>When <code>IsLoading = true</code>: translucent haze covers the text area (90-alpha of <code>ComboBoxBackColor</code>). Rotating <code>CircleArrowRight</code> SVG animates in the dropdown button area at 20 FPS (15&deg;/tick, 50 ms). All mouse interaction disabled.</p>
+                <h3>Skeleton Shimmer</h3>
+                <p>When <code>ShowSkeleton = true</code>: all normal content replaced by shimmer. Base gray fill with an animated highlight band sweeping left-to-right using a triangular-blend <code>LinearGradientBrush</code>. Sweep advances at ~42 FPS (24 ms interval, <code>SkeletonOffset</code> 0&rarr;1). Clipped to text area.</p>
+            </section>
+
+            <!-- ═══════ THEMING & VISUAL TOKENS ═══════ -->
+            <section id="theming">
+                <h2>Theming &amp; Visual Tokens</h2>
+                <h3>Theme Token Resolution</h3>
+                <p><code>ComboBoxStateFactory.Build</code> resolves 40+ colour and font tokens into a <code>ComboBoxThemeTokens</code> snapshot once per paint frame:</p>
+                <table>
+                    <tr><th>Group</th><th>Tokens</th></tr>
+                    <tr><td>Field Shell</td><td><code>BackColor</code>, <code>ForeColor</code>, <code>BorderColor</code>, <code>HoverBorderColor</code>, <code>FocusBorderColor</code>, <code>OpenBorderColor</code></td></tr>
+                    <tr><td>Disabled</td><td><code>DisabledBackColor</code>, <code>DisabledForeColor</code></td></tr>
+                    <tr><td>Validation</td><td><code>ErrorBorderColor</code>, <code>WarningBorderColor</code>, <code>SuccessBorderColor</code>, <code>ErrorForeColor</code></td></tr>
+                    <tr><td>Affordances</td><td><code>PlaceholderColor</code>, <code>ChevronColor</code>, <code>ClearButtonColor</code>, <code>SelectionHighlight</code>, <code>ButtonHoverBackground</code></td></tr>
+                    <tr><td>Chip/Selected</td><td><code>SelectedBackColor</code>, <code>SelectedForeColor</code>, <code>SelectedBorderColor</code></td></tr>
+                    <tr><td>Popup Surface</td><td><code>PopupBackColor</code>, <code>PopupBorderColor</code>, <code>PopupRowBack/Hover/Selected/FocusColor</code>, <code>PopupGroupHeaderBack/Fore</code>, <code>PopupMutedForeColor</code>, <code>PopupSeparatorColor</code>, <code>PopupSubTextColor</code></td></tr>
+                    <tr><td>Typography</td><td><code>LabelFont</code> (from <code>LabelFont</code> theme), <code>SubTextFont</code> (from <code>ComboBoxListFont</code> theme)</td></tr>
+                </table>
+                <p>A <code>Fallback()</code> method provides sensible Material-style defaults when no theme is active.</p>
+                <h3>Visual Token Catalog</h3>
+                <p><code>ComboBoxVisualTokenCatalog.Resolve</code> returns layout geometry per type:</p>
+                <table>
+                    <tr><th>Token</th><th>Type</th><th>Range</th><th>Purpose</th></tr>
+                    <tr><td><code>ButtonWidth</code></td><td><code>int</code></td><td>22&ndash;40 px</td><td>Preferred dropdown button width.</td></tr>
+                    <tr><td><code>InnerPadding</code></td><td><code>Padding</code></td><td>varies</td><td>Default padding between border and content.</td></tr>
+                    <tr><td><code>CornerRadius</code></td><td><code>int</code></td><td>4&ndash;18 px</td><td>Border corner radius.</td></tr>
+                    <tr><td><code>TextInset</code></td><td><code>int</code></td><td>6&ndash;10 px</td><td>Horizontal text inset within text area.</td></tr>
+                    <tr><td><code>RowDensity</code></td><td><code>int</code></td><td>30&ndash;36 px</td><td>Popup row height.</td></tr>
+                    <tr><td><code>ChipHeight</code></td><td><code>int</code></td><td>22&ndash;24 px</td><td>Chip token height.</td></tr>
+                    <tr><td><code>ShowButtonSeparator</code></td><td><code>bool</code></td><td>&mdash;</td><td>Vertical separator line between text and button.</td></tr>
+                    <tr><td><code>UseSegmentedTrigger</code></td><td><code>bool</code></td><td>&mdash;</td><td>Filled, distinct chevron segment.</td></tr>
+                    <tr><td><code>IsFilled</code></td><td><code>bool</code></td><td>&mdash;</td><td>Filled/tinted text area background.</td></tr>
+                </table>
+                <h3>ApplyTheme Override</h3>
+                <p>Copies <code>ComboBoxBackColor/ForeColor/BorderColor</code>, hover/selected state colours, syncs inline editor colours from <code>TextBoxBackColor/ForeColor</code>, resolves <code>TextFont</code> via <code>BeepThemesManager.ToFont(ComboBoxItemFont)</code> when <code>UseThemeFont = true</code>. Batched via <code>InvalidateOnce()</code>.</p>
+            </section>
+
+            <!-- ═══════ ARCHITECTURE ═══════ -->
+            <section id="architecture">
+                <h2>Architecture</h2>
+                <p>The BeepComboBox follows a layered architecture with strict separation of concerns:</p>
+                <h3>Partial Class Breakdown</h3>
+                <table>
+                    <tr><th>File</th><th>Lines</th><th>Contents</th></tr>
+                    <tr><td><code>BeepComboBox.cs</code></td><td>57</td><td>Class declaration, attributes (<code>ToolboxItem</code>, <code>DisplayName</code>, <code>Category</code>, <code>Description</code>), accessibility object (<code>BeepComboBoxAccessibleObject</code>).</td></tr>
+                    <tr><td><code>BeepComboBox.Core.cs</code></td><td>743</td><td>Private fields, constructor, layout management, DPI scaling (<code>OnDpiScaleChanged</code>), loading/skeleton timers, chip animation helpers, <code>Dispose</code>.</td></tr>
+                    <tr><td><code>BeepComboBox.Properties.cs</code></td><td>795</td><td>All public properties with <code>[Browsable]</code>/<code>[Category]</code>/<code>[Description]</code>/<code>[DefaultValue]</code> attributes.</td></tr>
+                    <tr><td><code>BeepComboBox.Events.cs</code></td><td>540</td><td>Mouse events, keyboard events (<code>OnKeyDown/KeyPress</code>, <code>ProcessDialogKey</code>), auto-complete logic, fuzzy matching.</td></tr>
+                    <tr><td><code>BeepComboBox.Methods.cs</code></td><td>912</td><td>Public methods (dropdown, inline editor, selection helpers), <code>ApplyTheme</code>, value resolution, popup selection queue, chevron animation trigger, fuzzy search scoring.</td></tr>
+                    <tr><td><code>BeepComboBox.Drawing.cs</code></td><td>240</td><td><code>DrawContent</code> and <code>Draw</code> overrides, painter factory, hit area registration, loading spinner drawing.</td></tr>
+                </table>
+                <h3>Render Pipeline (per frame)</h3>
+                <ol>
+                    <li><code>DrawContent(g)</code> calls <code>base.DrawContent(g)</code> (border + background via <code>BaseControl</code>).</li>
+                    <li><code>ComboBoxStateFactory.Build(this)</code> snapshots all live state into an immutable <code>ComboBoxRenderState</code>.</li>
+                    <li><code>ComboBoxLayoutEngine.Compute(DrawingRect, renderState, this)</code> calculates sub-rectangles (text area, dropdown button, clear button, image, chips).</li>
+                    <li>If <code>IsRtl</code>, all rectangles are mirrored horizontally.</li>
+                    <li>The painter is lazily created via <code>ComboBoxTypeRegistry.CreatePainter</code>.</li>
+                    <li><code>_comboBoxPainter.Paint(g, this, state, layout)</code> renders chips &rarr; text &rarr; decorations &rarr; clear button &rarr; validation icon &rarr; dropdown button &rarr; spinner/skeleton.</li>
+                    <li><code>RegisterHitAreas()</code> registers interactive zones for mouse hover/cursor changes.</li>
+                </ol>
+                <h3>Painter Hierarchy</h3>
+                <pre><code class="language-text">IComboBoxPainter
+ &boxvr;&boxh; ComboBoxFieldPainterBase           (background, text, icons, spinner, skeleton, RTL)
+    &boxvr;&boxh; DesignSystemComboBoxFieldPainterBase (filled, segmented, borderless, search-icon)
+       &boxvr;&boxh; OutlineDefaultComboBoxPainter     &boxh; FilledSoftComboBoxPainter
+       &boxvr;&boxh; RoundedPillComboBoxPainter         &boxh; SegmentedTriggerComboBoxPainter
+       &boxvr;&boxh; MultiChipCompactComboBoxPainter    &boxh; MultiChipSearchComboBoxPainter
+       &boxvr;&boxh; DenseListComboBoxPainter           &boxh; MinimalBorderlessComboBoxPainter
+       &boxvr;&boxh; CommandMenuComboBoxPainter         &boxh; VisualDisplayComboBoxPainter
+       &boxvr;&boxh; OutlineSearchableComboBoxPainter</code></pre>
+                <h3>Helper Classes</h3>
+                <table>
+                    <tr><th>Class</th><th>Location</th><th>Purpose</th></tr>
+                    <tr><td><code>BeepComboBoxHelper</code></td><td><code>Helpers/</code></td><td>Text measurement, display text resolution, placeholder detection, item lookup, colour computation.</td></tr>
+                    <tr><td><code>ComboBoxTypeRegistry</code></td><td><code>Helpers/</code></td><td>Maps <code>ComboBoxType</code> to painter class (factory pattern).</td></tr>
+                    <tr><td><code>ComboBoxStateFactory</code></td><td><code>Helpers/</code></td><td>Builds immutable <code>ComboBoxRenderState</code> and <code>ComboBoxThemeTokens</code> snapshots.</td></tr>
+                    <tr><td><code>ComboBoxLayoutEngine</code></td><td><code>Helpers/</code></td><td>Stateless layout calculator producing <code>ComboBoxLayoutSnapshot</code>.</td></tr>
+                    <tr><td><code>ComboBoxChipLayoutEngine</code></td><td><code>Helpers/</code></td><td>Computes chip positions, wrapping, and overflow badges for multi-select.</td></tr>
+                    <tr><td><code>ComboBoxSearchEngine</code></td><td><code>Helpers/</code></td><td>Prefix + substring + fuzzy search across popup rows with scoring.</td></tr>
+                    <tr><td><code>ComboBoxPopupModelBuilder</code></td><td><code>Helpers/</code></td><td>Converts <code>SimpleItem</code> lists into normalized <code>ComboBoxPopupRowModel</code> with group headers, separators, and state flags.</td></tr>
+                    <tr><td><code>ComboBoxListBoxTypeMapper</code></td><td><code>Helpers/</code></td><td>Maps <code>ComboBoxType</code> to <code>ListBoxType</code> for popup rendering.</td></tr>
+                </table>
+            </section>
+
+            <!-- ═══════ CODE EXAMPLES ═══════ -->
+            <section id="examples">
+                <h2>Code Examples</h2>
+                <h3>Basic Dropdown</h3>
+                <pre><code class="language-csharp">var combo = new BeepComboBox
 {
-    PlaceholderText = "Select an option...",
-    Size = new Size(200, 40),
-    Location = new Point(10, 10)
+    Location = new Point(12, 12),
+    Size = new Size(240, 32),
+    ComboBoxType = ComboBoxType.OutlineDefault,
+    PlaceholderText = "Select a category..."
 };
 
-// Add items to the list
-comboBox.ListItems.Add(new SimpleItem { Text = "Option 1", Value = 1 });
-comboBox.ListItems.Add(new SimpleItem { Text = "Option 2", Value = 2 });
-comboBox.ListItems.Add(new SimpleItem { Text = "Option 3", Value = 3 });
+combo.ListItems.Add(new SimpleItem { Text = "Electronics", Name = "Elec" });
+combo.ListItems.Add(new SimpleItem { Text = "Books", Name = "Books" });
+combo.ListItems.Add(new SimpleItem { Text = "Clothing", Name = "Cloth" });
 
-// Add to form
-this.Controls.Add(comboBox);
+combo.SelectedItemChanged += (s, e) =>
+{
+    Console.WriteLine($"Selected: {combo.SelectedItem.Text}");
+};
 
-// Handle selection changes
-comboBox.SelectedItemChanged += (sender, e) => {
-    MessageBox.Show($"Selected: {e.SelectedItem.Text}");
+this.Controls.Add(combo);</code></pre>
+                <h3>Multi-Select with Chips</h3>
+                <pre><code class="language-csharp">var multiCombo = new BeepComboBox
+{
+    ComboBoxType = ComboBoxType.MultiChipSearch,
+    MaxDisplayChips = 2,
+    ChipAnimationDuration = 150,
+    ShowSelectAll = true,
+    PlaceholderText = "Choose tags..."
+};
+
+multiCombo.ListItems.Add(new SimpleItem { Text = "UI/UX", GuidId = "tag1" });
+multiCombo.ListItems.Add(new SimpleItem { Text = "Backend", GuidId = "tag2" });
+multiCombo.ListItems.Add(new SimpleItem { Text = "DevOps", GuidId = "tag3" });
+multiCombo.ListItems.Add(new SimpleItem { Text = "Data Science", GuidId = "tag4" });
+multiCombo.ListItems.Add(new SimpleItem { Text = "Security", GuidId = "tag5" });
+
+multiCombo.SelectedItemsChanged += (s, e) =>
+{
+    Console.WriteLine($"Selected {multiCombo.SelectedItems.Count} tag(s)");
 };</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>ComboBox with Object Data</h3>
-                        <pre><code class="language-csharp">// Create ComboBox for customer selection
-var customerCombo = new BeepComboBox
+                <h3>Searchable with Auto-Complete</h3>
+                <pre><code class="language-csharp">var searchCombo = new BeepComboBox
 {
-    PlaceholderText = "Select a customer...",
-    Size = new Size(250, 40)
-};
-
-// Add customers with object references
-var customers = GetCustomers(); // Your data source
-foreach (var customer in customers)
-{
-    customerCombo.ListItems.Add(new SimpleItem 
-    { 
-        Text = customer.Name, 
-        Value = customer.Id,
-        Item = customer // Reference to full object
-    });
-}
-
-// Handle selection
-customerCombo.SelectedItemChanged += (sender, e) => {
-    if (e.SelectedItem?.Item is Customer selectedCustomer)
-    {
-        LoadCustomerDetails(selectedCustomer);
-    }
+    ComboBoxType = ComboBoxType.OutlineSearchable,
+    IsEditable = true,
+    AutoComplete = true,
+    AutoCompleteMode = BeepAutoCompleteMode.Fuzzy,
+    AutoCompleteDelay = 300,
+    MaxSuggestions = 8,
+    ShowClearButton = true
 };</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>💡 Usage Tip</strong>
-                        <p>Use the SimpleItem pattern to separate display text from underlying values, making data binding and object management much easier.</p>
-                    </div>
-                </section>
-
-                <!-- Properties -->
-                <section id="properties" class="section">
-                    <h2>Properties</h2>
-
-                    <h3>Core Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>ListItems</code></td>
-                                <td>BindingList&lt;SimpleItem&gt;</td>
-                                <td>Collection of items displayed in dropdown</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedItem</code></td>
-                                <td>SimpleItem</td>
-                                <td>Currently selected item</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedIndex</code></td>
-                                <td>int</td>
-                                <td>Index of selected item (-1 if none selected)</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedText</code></td>
-                                <td>string</td>
-                                <td>Text content of the ComboBox (read-only)</td>
-                            </tr>
-                            <tr>
-                                <td><code>PlaceholderText</code></td>
-                                <td>string</td>
-                                <td>Placeholder text shown when no item selected</td>
-                            </tr>
-                            <tr>
-                                <td><code>IsPopupOpen</code></td>
-                                <td>bool</td>
-                                <td>Whether the dropdown popup is currently open</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Appearance Properties</h3>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>TextFont <code>Font</code></h4>
-                            <p>Font used for text display</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>Category <code>DbFieldCategory</code></h4>
-                            <p>Data category for the control</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>BorderRadius <code>int</code></h4>
-                            <p>Border radius for rounded corners</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>DropDownStyle <code>ComboBoxStyle</code></h4>
-                            <p>Style of the dropdown (DropDown, DropDownList)</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Events -->
-                <section id="events" class="section">
-                    <h2>Events</h2>
-                    
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>SelectedItemChanged</code></td>
-                                <td>EventHandler&lt;SelectedItemChangedEventArgs&gt;</td>
-                                <td>Triggered when the selected item changes</td>
-                            </tr>
-                            <tr>
-                                <td><code>PopupOpened</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the dropdown popup opens</td>
-                            </tr>
-                            <tr>
-                                <td><code>PopupClosed</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the dropdown popup closes</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="code-example">
-                        <h3>Event Handling Examples</h3>
-                        <pre><code class="language-csharp">var comboBox = new BeepComboBox();
-
-// Selection changed event
-comboBox.SelectedItemChanged += (sender, e) => {
-    if (e.SelectedItem != null)
-    {
-      //  Console.WriteLine($"Selected: {e.SelectedItem.Text}");
-      //  Console.WriteLine($"Value: {e.SelectedItem.Value}");
-        
-        // Access the full object if stored
-        if (e.SelectedItem.Item != null)
-        {
-          //  Console.WriteLine($"Object: {e.SelectedItem.Item}");
-        }
-    }
+                <h3>Command Palette Style</h3>
+                <pre><code class="language-csharp">var cmdCombo = new BeepComboBox
+{
+    ComboBoxType = ComboBoxType.CommandMenu,
+    IsEditable = true
 };
 
-// Popup events for UI feedback
-comboBox.PopupOpened += (sender, e) => {
-  //  Console.WriteLine("Dropdown opened");
-    // Could show loading indicator for dynamic data
+cmdCombo.ListItems.Add(new SimpleItem
+{
+    Text = "New File",
+    SubText = "Create a new document",
+    ShortcutText = "Ctrl+N"
+});
+cmdCombo.ListItems.Add(new SimpleItem
+{
+    Text = "Open Folder",
+    SubText = "Browse and open a directory",
+    ShortcutText = "Ctrl+O"
+});</code></pre>
+                <h3>Validation &amp; Loading</h3>
+                <pre><code class="language-csharp">combo.IsLoading = true;
+
+// After data arrives
+combo.ListItems = new BindingList&lt;SimpleItem&gt;(fetchedItems);
+combo.IsLoading = false;
+
+if (!combo.SelectedItem?.IsEnabled == true)
+{
+    combo.ValidationState = BeepComboBoxValidationState.Error;
+}</code></pre>
+                <h3>RTL Support</h3>
+                <pre><code class="language-csharp">var rtlCombo = new BeepComboBox
+{
+    IsRtl = true,
+    ComboBoxType = ComboBoxType.RoundedPill,
+    PlaceholderText = "اختر عنصرًا..."
 };
+rtlCombo.ListItems.Add(new SimpleItem { Text = "الخيار الأول" });
+rtlCombo.ListItems.Add(new SimpleItem { Text = "الخيار الثاني" });</code></pre>
+            </section>
 
-comboBox.PopupClosed += (sender, e) => {
-  //  Console.WriteLine("Dropdown closed");
-    // Perform validation or other cleanup
-};</code></pre>
-                    </div>
-                </section>
-
-                <!-- Examples -->
-                <section id="examples" class="section">
-                    <h2>Examples</h2>
-
-                    <div class="code-example">
-                        <h3>Country/State Selection</h3>
-                        <pre><code class="language-csharp">public class LocationSelector : UserControl
-{
-    private BeepComboBox countryCombo;
-    private BeepComboBox stateCombo;
-
-    public LocationSelector()
-    {
-        InitializeControls();
-        LoadCountries();
-    }
-
-    private void InitializeControls()
-    {
-        // Country ComboBox
-        countryCombo = new BeepComboBox
-        {
-            PlaceholderText = "Select Country...",
-            Size = new Size(200, 40),
-            Location = new Point(10, 10)
-        };
-        countryCombo.SelectedItemChanged += CountryCombo_SelectedItemChanged;
-
-        // State ComboBox
-        stateCombo = new BeepComboBox
-        {
-            PlaceholderText = "Select State...",
-            Size = new Size(200, 40),
-            Location = new Point(220, 10),
-            Enabled = false
-        };
-
-        Controls.AddRange(new Control[] { countryCombo, stateCombo });
-    }
-
-    private void LoadCountries()
-    {
-        var countries = GetCountries(); // Your data source
-        
-        countryCombo.ListItems.Clear();
-        countryCombo.ListItems.Add(new SimpleItem 
-        { 
-            Text = "-- Select Country --", 
-            Value = null 
-        });
-
-        foreach (var country in countries)
-        {
-            countryCombo.ListItems.Add(new SimpleItem
-            {
-                Text = country.Name,
-                Value = country.Code,
-                Item = country
-            });
-        }
-    }
-
-    private void CountryCombo_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
-    {
-        if (e.SelectedItem?.Item is Country selectedCountry)
-        {
-            LoadStates(selectedCountry);
-            stateCombo.Enabled = true;
-        }
-        else
-        {
-            stateCombo.ListItems.Clear();
-            stateCombo.Enabled = false;
-            stateCombo.Reset();
-        }
-    }
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Data-Bound ComboBox</h3>
-                        <pre><code class="language-csharp">public void SetupDataBoundComboBox()
-{
-    var employeeCombo = new BeepComboBox
-    {
-        PlaceholderText = "Select Employee...",
-        Size = new Size(300, 40)
-    };
-
-    // Load from database or API
-    using (var context = new MyDbContext())
-    {
-        var employees = context.Employees
-            .Where(e => e.IsActive)
-            .OrderBy(e => e.LastName)
-            .ThenBy(e => e.FirstName)
-            .ToList();
-
-        foreach (var employee in employees)
-        {
-            employeeCombo.ListItems.Add(new SimpleItem
-            {
-                Text = $"{employee.LastName}, {employee.FirstName}",
-                Value = employee.Id,
-                Item = employee,
-                Description = employee.Department?.Name
-            });
-        }
-    }
-
-    // Handle selection for further processing
-    employeeCombo.SelectedItemChanged += (s, e) => {
-        if (e.SelectedItem?.Item is Employee selectedEmployee)
-        {
-            LoadEmployeeDetails(selectedEmployee);
-            UpdateRelatedControls(selectedEmployee);
-        }
-    };
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Searchable ComboBox</h3>
-                        <pre><code class="language-csharp">public class SearchableComboBox : BeepComboBox
-{
-    private Timer searchTimer;
-    private string lastSearchText;
-
-    public SearchableComboBox()
-    {
-        searchTimer = new Timer { Interval = 300 };
-        searchTimer.Tick += SearchTimer_Tick;
-        
-        // Override text change behavior
-        this.Click += OnComboBoxClick;
-    }
-
-    private void OnComboBoxClick(object sender, EventArgs e)
-    {
-        // Enable editing mode for search
-        StartEditing();
-    }
-
-    protected override void OnTextChanged(EventArgs e)
-    {
-        base.OnTextChanged(e);
-        
-        string currentText = this.SelectedText;
-        if (currentText != lastSearchText)
-        {
-            lastSearchText = currentText;
-            searchTimer.Stop();
-            searchTimer.Start();
-        }
-    }
-
-    private void SearchTimer_Tick(object sender, EventArgs e)
-    {
-        searchTimer.Stop();
-        
-        if (!string.IsNullOrEmpty(lastSearchText) && lastSearchText.Length >= 2)
-        {
-            PerformSearch(lastSearchText);
-        }
-    }
-
-    private async void PerformSearch(string searchText)
-    {
-        try
-        {
-            this.PlaceholderText = "Searching...";
-            
-            var results = await SearchDataAsync(searchText);
-            
-            this.ListItems.Clear();
-            
-            if (results.Any())
-            {
-                foreach (var result in results)
-                {
-                    this.ListItems.Add(new SimpleItem
-                    {
-                        Text = result.DisplayText,
-                        Value = result.Id,
-                        Item = result
-                    });
-                }
-                
-                this.ShowPopup();
-            }
-            else
-            {
-                this.PlaceholderText = "No results found";
-            }
-        }
-        catch (Exception ex)
-        {
-            this.PlaceholderText = "Search error occurred";
-        }
-    }
-}</code></pre>
-                    </div>
-                </section>
-
-                <!-- Theming -->
-                <section id="theming" class="section">
-                    <h2>Theming</h2>
-                    
-                    <p>BeepComboBox integrates fully with the Beep theming system, supporting different visual states:</p>
-
-                    <div class="code-example">
-                        <h3>Theme Application</h3>
-                        <pre><code class="language-csharp">var comboBox = new BeepComboBox
-{
-    PlaceholderText = "Themed ComboBox",
-    Theme = "DarkTheme"
-};
-
-// Theme automatically applies:
-// - ComboBoxBackColor (normal background)
-// - ComboBoxForeColor (text color)
-// - ComboBoxBorderColor (border color)
-// - ComboBoxHoverBackColor (hover background)
-// - ComboBoxHoverForeColor (hover text)
-// - ComboBoxHoverBorderColor (hover border)
-// - ComboBoxSelectedBackColor (selected background)
-// - ComboBoxSelectedForeColor (selected text)
-// - ComboBoxSelectedBorderColor (selected border)
-
-// Apply theme manually if needed
-comboBox.ApplyTheme();</code></pre>
-                    </div>
-
-                    <h3>Theme-Responsive Visual States</h3>
-                    <ul>
-                        <li><strong>Normal State</strong> - Default appearance with theme background and border colors</li>
-                        <li><strong>Hover State</strong> - Highlighted appearance when mouse hovers over control</li>
-                        <li><strong>Focused State</strong> - Active appearance when control has keyboard focus</li>
-                        <li><strong>Selected State</strong> - Appearance when an item is selected from dropdown</li>
-                        <li><strong>Popup Open State</strong> - Visual indication when dropdown is expanded</li>
-                    </ul>
-
-                    <div class="tip">
-                        <strong>🎨 Theming Tip</strong>
-                        <p>The ComboBox automatically applies theme colors to its internal components (text box, dropdown button, and popup list) for a consistent appearance.</p>
-                    </div>
-                </section>
-
-                <!-- Best Practices -->
-                <section id="best-practices" class="section">
-                    <h2>Best Practices</h2>
-
-                    <h3>🎨 User Experience</h3>
-                    <ul>
-                        <li><strong>Use meaningful placeholders:</strong> Provide clear guidance with PlaceholderText</li>
-                        <li><strong>Sort items logically:</strong> Order items alphabetically or by usage frequency</li>
-                        <li><strong>Include empty selection:</strong> Provide a "-- Select --" option when appropriate</li>
-                        <li><strong>Handle selection events:</strong> Always respond to SelectedItemChanged events</li>
-                        <li><strong>Validate selections:</strong> Check for valid selections before processing</li>
-                    </ul>
-
-                    <h3>⚡ Performance</h3>
-                    <ul>
-                        <li><strong>Lazy load large lists:</strong> Load items only when needed for large datasets</li>
-                        <li><strong>Use search for long lists:</strong> Implement search functionality for lists > 50 items</li>
-                        <li><strong>Cache commonly used lists:</strong> Avoid reloading static data repeatedly</li>
-                        <li><strong>Dispose properly:</strong> Always dispose of ComboBox instances to prevent memory leaks</li>
-                    </ul>
-
-                    <h3>📊 Data Management</h3>
-                    <ul>
-                        <li><strong>Use SimpleItem properly:</strong> Separate display text from underlying values</li>
-                        <li><strong>Store object references:</strong> Use the Item property for complex objects</li>
-                        <li><strong>Handle null selections:</strong> Always check for null SelectedItem values</li>
-                        <li><strong>Validate data binding:</strong> Ensure proper data synchronization in bound scenarios</li>
-                    </ul>
-
-                    <h3>♿ Accessibility</h3>
-                    <ul>
-                        <li><strong>Provide tooltips:</strong> Add helpful ToolTipText for context</li>
-                        <li><strong>Keyboard navigation:</strong> Ensure proper tab order and keyboard support</li>
-                        <li><strong>Color contrast:</strong> Use high contrast themes when needed</li>
-                        <li><strong>Screen reader support:</strong> Use meaningful item text for screen readers</li>
-                    </ul>
-
-                    <div class="warning">
-                        <strong>⚠️ Warning</strong>
-                        <p>When using object references in SimpleItem.Item, ensure proper memory management to avoid memory leaks in long-running applications.</p>
-                    </div>
-
-                    <div class="success">
-                        <strong>✅ Success Pattern</strong>
-                        <p>Always check for null values when accessing SelectedItem properties and provide meaningful default selections for better user experience.</p>
-                    </div>
-                </section>
-
-                <!-- Navigation -->
-                <div class="nav-links">
-                    <a href="beep-textbox.html"><i class="bi bi-arrow-left"></i> BeepTextBox</a>
-                    <a href="beep-checkbox.html">BeepCheckBox <i class="bi bi-arrow-right"></i></a>
-                </div>
-
-                <!-- Footer -->
-                <footer class="documentation-footer">
-                    <div class="footer-content">
-                        <div class="footer-copyright">
-                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
-                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
-                        </div>
-                        <div class="footer-links">
-                            <a href="../index.html">Home</a>
-                            <a href="../getting-started/installation.html">Getting Started</a>
-                            <a href="../api/beep-control-base.html">API Reference</a>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-        </main>
+            <div class="page-navigation"><a href="#" class="back-to-top">Back to top &uarr;</a></div>
+        </div></main>
     </div>
-
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const submenus = document.querySelectorAll('.has-submenu > a');
-            
-            submenus.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.parentElement;
-                    parent.classList.toggle('open');
-                });
-            });
-        });
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            const currentTheme = body.getAttribute('data-theme');
-            
-            if (currentTheme === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'bi bi-moon-fill';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
-            }
-        });
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function searchDocs(query) {
-            const links = document.querySelectorAll('.nav-menu a');
-            const lowerQuery = query.toLowerCase();
-            
-            links.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                const listItem = link.closest('li');
-                
-                if (text.includes(lowerQuery) || lowerQuery === '') {
-                    listItem.style.display = '';
-                } else {
-                    listItem.style.display = 'none';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeBlocks = document.querySelectorAll('pre code');
-            
-            codeBlocks.forEach(block => {
-                const button = document.createElement('button');
-                button.textContent = 'Copy';
-                button.style.cssText = `
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    background: var(--color-brand-primary);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    padding: 4px 8px;
-                    font-size: 12px;
-                    cursor: pointer;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-                
-                const pre = block.parentElement;
-                pre.style.position = 'relative';
-                pre.appendChild(button);
-                
-                pre.addEventListener('mouseenter', () => {
-                    button.style.opacity = '1';
-                });
-                
-                pre.addEventListener('mouseleave', () => {
-                    button.style.opacity = '0';
-                });
-                
-                button.addEventListener('click', () => {
-                    navigator.clipboard.writeText(block.textContent).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    });
-                });
-            });
-        });
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=l.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
     </script>
 </body>
 </html>

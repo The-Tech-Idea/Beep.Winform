@@ -1,813 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeepRadioButton - Beep Controls Documentation</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepRadioGroup - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="_sidebar.js"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-    </button>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span><span>BeepRadioGroup</span></nav>
+            <div class="page-header"><h1>BeepRadioGroup</h1><p class="page-subtitle">A modern, flexible radio group control with 11 render styles, multiple selection modes, layouts, per-item states, and WCAG 2.2 accessibility support</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#hierarchical">BeepHierarchicalRadioGroup</a></li><li><a href="#render-styles">Render Styles</a></li><li><a href="#enums">Enumerations</a></li></ul></div>
 
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="bi bi-sun-fill" id="theme-icon"></i>
-    </button>
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.RadioGroup</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code></p>
+                <p><strong>Inheritance:</strong> <code>BeepRadioGroup</code> &rarr; <code>BaseControl</code> &rarr; <code>Control</code></p>
+                <p><strong>Implements:</strong> <code>IBeepComponent</code>, <code>IBeepUIComponent</code> (via BaseControl)</p>
+                <p><strong>Toolbox:</strong> <code>Beep Controls</code> category, display name "Beep Radio Group Advanced"</p>
+                <p><strong>Source files:</strong> 5 partial class files (main 763 lines, Properties 583, EventHandlers 93, Input 116, Drawing 193), 11 renderers, 7 helpers, 3 model configs, 1 hierarchical variant (1155 lines)</p>
+                <p>BeepRadioGroup is a comprehensive, owner-draw radio button group control that supports single-selection (radio) and multi-selection (checkbox) modes with 11 distinct visual render styles. It uses a pluggable renderer architecture (<code>IRadioGroupRenderer</code>), a layout helper for vertical/horizontal/grid/flow arrangements, a hit-test helper for precise mouse/keyboard interaction, and a state helper for selection tracking. All rendering is done via GDI+ owner-draw &mdash; no child Windows controls are created. The control provides full WCAG 2.2 accessibility support via <code>AccessibleObject</code> overrides, per-item disabled states, validation (IsRequired, HasError, ErrorMessage), and data-binding through <code>SetValue</code>/<code>GetValue</code>.</p>
+                <p>A companion control, <code>BeepHierarchicalRadioGroup</code> (1155 lines), extends the concept with tree-structured items, expand/collapse buttons, hierarchy lines, and keyboard navigation (Right to expand, Left to collapse or focus parent).</p>
+            </section>
 
-    <div class="container">
-        <!-- Sidebar -->
-                                                                        <div id="sidebar-placeholder"></div>
+            <section id="features" class="section"><h2>Key Features</h2>
+                <ul>
+                    <li><strong>11 render styles:</strong> Material, Card, Chip, Circular, Flat, Checkbox, Button, Toggle, Segmented, Pill, Tile</li>
+                    <li><strong>Single and multiple selection modes:</strong> Switch between radio-button (exclusive) and checkbox (multi-select) behavior via <code>AllowMultipleSelection</code></li>
+                    <li><strong>4 orientation layouts:</strong> Vertical, Horizontal, Grid (with configurable <code>ColumnCount</code>), Flow</li>
+                    <li><strong>4 alignment modes:</strong> Left, Center, Right, Stretch</li>
+                    <li><strong>Pluggable renderers:</strong> Each render style implements <code>IRadioGroupRenderer</code> with <code>RenderItem</code>, <code>MeasureItem</code>, <code>GetContentArea</code>, <code>GetSelectorArea</code>, <code>RenderGroupDecorations</code>, <code>Cleanup</code></li>
+                    <li><strong>Per-item states:</strong> Each item tracks IsSelected, IsHovered, IsFocused, IsPressed, IsEnabled, IsError, AnimationProgress, Index</li>
+                    <li><strong>Per-item disabled support:</strong> Disable/enable individual items by text value using <code>DisableItem</code>, <code>EnableItem</code>, <code>SetItemsEnabled</code>, <code>EnableAllItems</code>, <code>IsItemDisabled</code></li>
+                    <li><strong>Image support:</strong> Items render images from <code>ImagePath</code> with configurable <code>MaxImageSize</code> (default 24x24)</li>
+                    <li><strong>Validation:</strong> <code>IsRequired</code> property, <code>HasError</code> state, <code>ErrorMessage</code>, <code>Validate()</code> method returning bool</li>
+                    <li><strong>Keyboard navigation:</strong> Arrow keys in all orientations, Tab/Shift+Tab for focus movement, Space/Enter for selection</li>
+                    <li><strong>WCAG 2.2 accessibility:</strong> Custom <code>AccessibleObject</code> (Grouping role) with item-level <code>BeepRadioGroupItemAccessibleObject</code> supporting RadioButton/CheckButton roles, Bounds, HitTest, DoDefaultAction, State, Value</li>
+                    <li><strong>Style/color profiles:</strong> <code>RadioGroupStyleConfig</code> and <code>RadioGroupColorConfig</code> for runtime customization with expandable property editor support</li>
+                    <li><strong>SubText support:</strong> Items can display secondary descriptive text below the main label</li>
+                    <li><strong>Data-binding:</strong> <code>SetValue</code> accepts string, List&lt;string&gt;, SimpleItem, List&lt;SimpleItem&gt;; <code>GetValue</code> returns selected item(s)</li>
+                    <li><strong>DPI-aware rendering:</strong> Full DPI scaling via <code>OnDpiScaleChanged</code> override with renderer re-initialization</li>
+                    <li><strong>Focus-aware rendering:</strong> Renderers can implement <code>IFocusAwareRenderer</code> for WCAG-compliant focus rings (min 2px, 3:1 contrast)</li>
+                    <li><strong>Design-time support:</strong> Placeholder rendering in Visual Studio designer showing style, item count, and control info</li>
+                    <li><strong>IBeepUIComponent integration:</strong> Fires <code>ValueChanged</code> via <code>InvokeOnValueChanged</code> on selection change with LinkedProperty support</li>
+                </ul>
+            </section>
 
-        <!-- Main Content -->
-        <main class="content">
-            <div class="content-wrapper">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-nav">
-                    <a href="../index.html">Home</a>
-                    <span>›</span>
-                    <a href="../index.html#input-controls">Input Controls</a>
-                    <span>›</span>
-                    <span>BeepRadioButton</span>
-                </nav>
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>UseThemeColors</td><td>bool</td><td>true</td><td>Use theme colors instead of style-based colors. Propagates to all renderers.</td></tr>
+                    <tr><td>Style</td><td>BeepControlStyle</td><td>BeepControlStyle.Material3</td><td>The visual control style/painter for rendering the radio group.</td></tr>
+                    <tr><td>TextFont</td><td>Font</td><td>Segoe UI 9pt</td><td>Font for item text. Setting this disables UseThemeFont.</td></tr>
+                    <tr><td>IsChild</td><td>bool</td><td>false</td><td>Whether this control is a child of another Beep control.</td></tr>
+                    <tr><td>Items</td><td>List&lt;SimpleItem&gt;</td><td>empty list</td><td>Collection of items. Supports CollectionEditor in designer. [DesignerSerializationVisibility.Content]</td></tr>
+                    <tr><td>AllowMultipleSelection</td><td>bool</td><td>false</td><td>Toggle between single-select (radio) and multi-select (checkbox) mode.</td></tr>
+                    <tr><td>SelectedValue</td><td>string</td><td>null</td><td>Currently selected value in single selection mode. Setting updates visuals.</td></tr>
+                    <tr><td>SelectedValues</td><td>List&lt;string&gt;</td><td>empty list</td><td>All selected values in multiple selection mode. [Hidden in designer]</td></tr>
+                    <tr><td>SelectedItems</td><td>List&lt;SimpleItem&gt;</td><td>empty list</td><td>The selected item objects. [Browsable(false)]</td></tr>
+                    <tr><td>SelectedCount</td><td>int</td><td>0</td><td>Number of currently selected items. [Browsable(false)]</td></tr>
+                    <tr><td>RadioGroupStyle</td><td>RadioGroupRenderStyle</td><td>Material</td><td>The visual render style for items. Changing this switches the active renderer.</td></tr>
+                    <tr><td>Orientation</td><td>RadioGroupOrientation</td><td>Vertical</td><td>Layout direction: Vertical, Horizontal, Grid, or Flow.</td></tr>
+                    <tr><td>Alignment</td><td>RadioGroupAlignment</td><td>Left</td><td>Item alignment within the control: Left, Center, Right, Stretch.</td></tr>
+                    <tr><td>ItemSpacing</td><td>int</td><td>8</td><td>Spacing between items in pixels (minimum 0).</td></tr>
+                    <tr><td>ItemPadding</td><td>Padding</td><td>Padding(8)</td><td>Padding around each individual item.</td></tr>
+                    <tr><td>ColumnCount</td><td>int</td><td>1</td><td>Number of columns when Orientation = Grid. Must be > 0.</td></tr>
+                    <tr><td>AutoSizeItems</td><td>bool</td><td>true</td><td>Whether items auto-size to their content. Enables/disables layout helper AutoSize.</td></tr>
+                    <tr><td>MaxImageSize</td><td>Size</td><td>(24, 24)</td><td>Maximum image rendering size. Propagates to all IImageAwareRenderer renderers.</td></tr>
+                    <tr><td>StyleProfile</td><td>RadioGroupStyleConfig</td><td>new instance</td><td>Runtime style profile: BorderRadius, ShowShadow, ShadowColor, ShadowOffset, ControlStyle, BorderWidth, RecommendedItemHeight/Spacing/Padding. [ExpandableObjectConverter]</td></tr>
+                    <tr><td>ColorProfile</td><td>RadioGroupColorConfig</td><td>new instance</td><td>Runtime color profile when UseThemeColors=false. Contains GroupBackgroundColor, TextColor.</td></tr>
+                    <tr><td>IsRequired</td><td>bool</td><td>false</td><td>Whether a selection is required. Triggers validation.</td></tr>
+                    <tr><td>HasError</td><td>bool</td><td>false</td><td>Whether the control is in an error state. [new keyword, Category: Validation]</td></tr>
+                    <tr><td>ErrorMessage</td><td>string</td><td>""</td><td>The error message to display when validation fails.</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1>BeepRadioButton</h1>
-                    <p class="page-subtitle">Advanced radio button group control with image support, multiple orientations, and theme integration</p>
-                </div>
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>AddItem</td><td>void AddItem(SimpleItem item)</td><td>Adds an item and triggers full layout update.</td></tr>
+                    <tr><td>AddItem</td><td>void AddItem(string text, string imagePath = null, string subText = null)</td><td>Convenience overload; creates a SimpleItem and calls AddItem.</td></tr>
+                    <tr><td>RemoveItem</td><td>bool RemoveItem(SimpleItem item)</td><td>Removes an item; returns true if found and removed.</td></tr>
+                    <tr><td>ClearItems</td><td>void ClearItems()</td><td>Clears all items and triggers layout update.</td></tr>
+                    <tr><td>SelectItem</td><td>bool SelectItem(string value)</td><td>Selects item by string value via state helper.</td></tr>
+                    <tr><td>DeselectItem</td><td>bool DeselectItem(string value)</td><td>Deselects item by string value via state helper.</td></tr>
+                    <tr><td>ClearSelection</td><td>void ClearSelection()</td><td>Clears all current selections.</td></tr>
+                    <tr><td>SelectAll</td><td>void SelectAll()</td><td>Selects all items (only when AllowMultipleSelection is true).</td></tr>
+                    <tr><td>RegisterRenderer</td><td>void RegisterRenderer(RadioGroupRenderStyle style, IRadioGroupRenderer renderer)</td><td>Registers or replaces a custom renderer for the given style.</td></tr>
+                    <tr><td>Validate</td><td>bool Validate()</td><td>Runs selection validation; returns true if valid, false if error.</td></tr>
+                    <tr><td>DisableItem</td><td>void DisableItem(string itemText)</td><td>Disables a specific item by its text value (adds to HashSet).</td></tr>
+                    <tr><td>EnableItem</td><td>void EnableItem(string itemText)</td><td>Re-enables a previously disabled item (removes from HashSet).</td></tr>
+                    <tr><td>IsItemDisabled</td><td>bool IsItemDisabled(string itemText)</td><td>Checks whether a specific item is in the disabled set.</td></tr>
+                    <tr><td>SetItemsEnabled</td><td>void SetItemsEnabled(IEnumerable&lt;string&gt; items, bool enabled)</td><td>Batch enables or disables multiple items at once.</td></tr>
+                    <tr><td>EnableAllItems</td><td>void EnableAllItems()</td><td>Clears the disabled items set and enables everything.</td></tr>
+                    <tr><td>SetValue</td><td>override void SetValue(object value)</td><td>Accepts string, List&lt;string&gt;, SimpleItem, or List&lt;SimpleItem&gt;.</td></tr>
+                    <tr><td>GetValue</td><td>override object GetValue()</td><td>Returns SelectedItems (multi) or first selected item (single).</td></tr>
+                    <tr><td>Reset</td><td>bool Reset()</td><td>Clears selection; returns true if value changed.</td></tr>
+                    <tr><td>ApplyTheme</td><td>override void ApplyTheme()</td><td>Applies font theme, updates all renderers with current theme token set, resets layout.</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Table of Contents -->
-                <div class="toc">
-                    <h3>📑 Table of Contents</h3>
-                    <ul>
-                        <li><a href="#overview">Overview</a></li>
-                        <li><a href="#features">Key Features</a></li>
-                        <li><a href="#basic-usage">Basic Usage</a></li>
-                        <li><a href="#orientations">Layout Orientations</a></li>
-                        <li><a href="#properties">Properties</a></li>
-                        <li><a href="#events">Events</a></li>
-                        <li><a href="#examples">Examples</a></li>
-                        <li><a href="#theming">Theming</a></li>
-                        <li><a href="#best-practices">Best Practices</a></li>
-                    </ul>
-                </div>
+            <section id="events" class="section"><h2>Events</h2>
+                <table><thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>SelectionChanged</td><td>SelectionChangedEventArgs</td><td>Fired when selection changes (add/remove). Updates states and accessibility.</td></tr>
+                    <tr><td>ItemSelectionChanged</td><td>ItemSelectionChangedEventArgs</td><td>Fired when an individual item's selection state toggles. Triggers ValueChanged.</td></tr>
+                    <tr><td>ItemClicked</td><td>ItemClickEventArgs</td><td>Fired when an item is clicked. In single mode, selects; in multi mode, toggles.</td></tr>
+                    <tr><td>ItemDoubleClicked</td><td>ItemClickEventArgs</td><td>Fired when an item is double-clicked via HitTestHelper.</td></tr>
+                    <tr><td>ItemHoverEnter</td><td>ItemHoverEventArgs</td><td>Fired when the mouse enters an item's bounds.</td></tr>
+                    <tr><td>ItemHoverLeave</td><td>ItemHoverEventArgs</td><td>Fired when the mouse leaves an item's bounds.</td></tr>
+                </tbody></table>
+                <p>All event handlers are wired through helper classes (<code>RadioGroupHitTestHelper</code> for mouse/keyboard, <code>RadioGroupStateHelper</code> for selection). The <code>ItemClicked</code> handler respects per-item disabled state (skipping disabled items). Selection events propagate to <code>IBeepUIComponent.ValueChanged</code> through <code>InvokeOnValueChanged</code> on the base control. The <code>ValidateSelection()</code> method automatically sets HasError and ErrorMessage when IsRequired and no items are selected.</p>
+            </section>
 
-                <!-- Overview -->
-                <section id="overview" class="section">
-                    <h2>Overview</h2>
-                    <p>
-                        <strong>BeepRadioButton</strong> is an advanced radio button group control that displays multiple 
-                        mutually exclusive options in a single control. Unlike traditional radio button groups that require 
-                        multiple individual controls, BeepRadioButton manages all options internally and provides a unified 
-                        interface for selection handling.
-                    </p>
-                    <p>
-                        Built on the <code>BeepControl</code> foundation, it supports both horizontal and vertical layouts, 
-                        image icons for each option, hover effects, and seamless integration with the Beep theming system. 
-                        The control uses the <code>SimpleItem</code> model for flexible option management.
-                    </p>
-                </section>
+            <section id="theming" class="section"><h2>Theming</h2>
+                <p>BeepRadioGroup applies theming through the <code>ApplyTheme()</code> override:</p>
+                <ol>
+                    <li>Calls <code>base.ApplyTheme()</code> for base theme tokens (background, foreground, border)</li>
+                    <li>Uses <code>RadioGroupFontHelpers.ApplyFontTheme(this, Style, _currentTheme)</code> to resolve fonts from theme tokens based on the active <code>Style</code> (Material3, Flat, etc.)</li>
+                    <li><code>_isApplyingThemeFont</code> guard prevents the TextFont setter from disabling UseThemeFont during theme application</li>
+                    <li>Propagates <code>_currentTheme</code> to the active renderer via <code>_currentRenderer.UpdateTheme(_currentTheme)</code></li>
+                    <li>Updates all registered renderers in the <code>_renderers</code> dictionary by calling <code>UpdateTheme</code> on each</li>
+                    <li>Re-assigns the <code>ItemMeasurer</code> delegate to use the current renderer's <code>MeasureItem</code></li>
+                    <li>Calls <code>RequestVisualRefresh(resetLayout: true)</code> for batched repaint</li>
+                </ol>
+                <p><strong>Font resolution chain:</strong> <code>RadioGroupFontHelpers.ApplyFontTheme</code> reads theme font tokens appropriate for the render style and <code>BeepControlStyle</code>. When <code>UseThemeFont</code> is true, the helper overrides the <code>TextFont</code> property from theme tokens. Setting <code>TextFont</code> manually disables <code>UseThemeFont</code> (unless <code>_isApplyingThemeFont</code> guard is active).</p>
+                <p><strong>Color resolution:</strong> When <code>UseThemeColors</code> is true (default), the theme's <code>SideMenuBackColor</code> is used for the background during rendering. When false, colors from <code>ColorProfile</code> are applied (<code>GroupBackgroundColor</code> &rarr; BackColor, <code>TextColor</code> &rarr; ForeColor). Each renderer independently resolves its own colors from the theme based on the active <code>ControlStyle</code>.</p>
+                <p><strong>DPI scaling:</strong> On <code>OnDpiScaleChanged</code>, all renderers receive <code>UpdateTheme</code> with the current theme, layout is recalculated, hit-test data is rebuilt, and a full visual refresh is requested.</p>
+            </section>
 
-                <!-- Key Features -->
-                <section id="features" class="section">
-                    <h2>Key Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>🎯 Single Control Management</h3>
-                            <p>All radio button options managed within a single control instance</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>📐 Dual Orientations</h3>
-                            <p>Support for both vertical (stacked) and horizontal (side-by-side) layouts</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🖼️ Image Support</h3>
-                            <p>Optional images for each option with SVG support and theme-aware coloring</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎨 Interactive Feedback</h3>
-                            <p>Hover effects and visual selection indicators for enhanced user experience</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🔗 SimpleItem Integration</h3>
-                            <p>Uses SimpleItem model for flexible option data with text, values, and metadata</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎭 Theme Integration</h3>
-                            <p>Complete integration with Beep theming system for consistent styling</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Basic Usage -->
-                <section id="basic-usage" class="section">
-                    <h2>Basic Usage</h2>
-                    
-                    <div class="code-example">
-                        <h3>Simple Radio Button Group</h3>
-                        <pre><code class="language-csharp">// Create a basic BeepRadioButton
-var radioGroup = new BeepRadioButton
+            <section id="examples" class="section"><h2>Examples</h2>
+                <h3>Example 1: Basic Material-Style Radio Group</h3>
+                <pre><code class="language-csharp">var radioGroup = new BeepRadioGroup
 {
-    Size = new Size(200, 120),
-    Location = new Point(10, 10),
-    Orientation = RadioButtonOrientation.Vertical
+    Location = new Point(20, 20),
+    Size = new Size(300, 200),
+    RadioGroupStyle = RadioGroupRenderStyle.Material,
+    Orientation = RadioGroupOrientation.Vertical,
+    ItemSpacing = 8
 };
 
-// Add options
-radioGroup.Options.Add(new SimpleItem { Text = "Option 1", Value = "opt1" });
-radioGroup.Options.Add(new SimpleItem { Text = "Option 2", Value = "opt2" });
-radioGroup.Options.Add(new SimpleItem { Text = "Option 3", Value = "opt3" });
+radioGroup.AddItem("Option A");
+radioGroup.AddItem("Option B", "icons/star.svg");
+radioGroup.AddItem("Option C", null, "Recommended choice");
 
-// Set default selection
-radioGroup.SelectedValue = "Option 1";
-
-// Handle selection changes
-radioGroup.SelectedValueChanged += (sender, e) => {
-  //  Console.WriteLine($"Selected: {e.SelectedValue} (Index: {e.SelectedIndex})");
+radioGroup.SelectionChanged += (s, e) =>
+{
+    Console.WriteLine($"Selected: {radioGroup.SelectedValue}");
 };
 
-// Add to form
 this.Controls.Add(radioGroup);</code></pre>
-                    </div>
 
-                    <div class="code-example">
-                        <h3>Radio Group with Images</h3>
-                        <pre><code class="language-csharp">var imageRadioGroup = new BeepRadioButton
+                <h3>Example 2: Multiple Selection with Checkbox Renderer</h3>
+                <pre><code class="language-csharp">var multiGroup = new BeepRadioGroup
 {
-    Size = new Size(300, 100),
-    Location = new Point(10, 150),
-    Orientation = RadioButtonOrientation.Horizontal
+    AllowMultipleSelection = true,
+    RadioGroupStyle = RadioGroupRenderStyle.Checkbox,
+    Orientation = RadioGroupOrientation.Vertical,
+    Size = new Size(300, 250)
 };
 
-// Add options with images
-imageRadioGroup.Options.Add(new SimpleItem 
-{ 
-    Text = "Small", 
-    Value = "S", 
-    ImagePath = "icons/size-small.svg" 
-});
+multiGroup.AddItem("Feature A");
+multiGroup.AddItem("Feature B");
+multiGroup.AddItem("Feature C");
+multiGroup.AddItem("Feature D");
 
-imageRadioGroup.Options.Add(new SimpleItem 
-{ 
-    Text = "Medium", 
-    Value = "M", 
-    ImagePath = "icons/size-medium.svg" 
-});
+// Pre-select multiple items
+multiGroup.SetValue(new List&lt;string&gt; { "Feature A", "Feature C" });
 
-imageRadioGroup.Options.Add(new SimpleItem 
-{ 
-    Text = "Large", 
-    Value = "L", 
-    ImagePath = "icons/size-large.svg" 
-});
+// Get all selected values
+List&lt;string&gt; selected = multiGroup.SelectedValues; // ["Feature A", "Feature C"]
 
-// Set default selection
-imageRadioGroup.SelectedValue = "Medium";</code></pre>
-                    </div>
+// Toggle individual item
+multiGroup.DeselectItem("Feature A");
 
-                    <div class="code-example">
-                        <h3>Programmatic Selection Management</h3>
-                        <pre><code class="language-csharp">// Select by value
-radioGroup.SelectedValue = "Option 2";
+// Select all
+multiGroup.SelectAll();</code></pre>
 
-// Get selected item
-var selectedItem = radioGroup.GetValue() as SimpleItem;
-if (selectedItem != null)
+                <h3>Example 3: Segmented Control (Horizontal Button Group)</h3>
+                <pre><code class="language-csharp">var segmented = new BeepRadioGroup
 {
-  //  Console.WriteLine($"Selected item: {selectedItem.Text}");
+    RadioGroupStyle = RadioGroupRenderStyle.Segmented,
+    Orientation = RadioGroupOrientation.Horizontal,
+    ItemSpacing = 0, // Segmented controls have no gaps
+    Size = new Size(400, 44)
+};
+
+segmented.AddItem("Daily");
+segmented.AddItem("Weekly");
+segmented.AddItem("Monthly");
+segmented.AddItem("Yearly");
+
+segmented.SelectedValue = "Daily";
+segmented.ItemClicked += (s, e) =>
+    Console.WriteLine($"View: {e.Item.Text}");</code></pre>
+
+                <h3>Example 4: Per-Item Disabling and Validation</h3>
+                <pre><code class="language-csharp">var validatedGroup = new BeepRadioGroup
+{
+    IsRequired = true,
+    RadioGroupStyle = RadioGroupRenderStyle.Card,
+    Size = new Size(350, 220)
+};
+
+validatedGroup.AddItem("Credit Card", "icons/credit-card.svg");
+validatedGroup.AddItem("PayPal", "icons/paypal.svg");
+validatedGroup.AddItem("Bank Transfer", "icons/bank.svg", "2-3 business days");
+validatedGroup.AddItem("Crypto", "icons/crypto.svg");
+
+validatedGroup.DisableItem("Crypto"); // Unavailable option
+
+if (!validatedGroup.Validate())
+{
+    validatedGroup.HasError = true;
+    validatedGroup.ErrorMessage = "Payment method is required";
 }
 
-// Get selected index
-int index = radioGroup.SelectedIndex;
-Console.WriteLine($"Selected index: {index}");
+validatedGroup.Reset();
+validatedGroup.EnableAllItems();</code></pre>
 
-// Check if anything is selected
-if (radioGroup.SelectedIndex >= 0)
+                <h3>Example 5: Grid Layout with Toggle Renderer</h3>
+                <pre><code class="language-csharp">var toggleGrid = new BeepRadioGroup
 {
-  //  Console.WriteLine("Something is selected");
-}
-
-// Clear selection
-radioGroup.Reset();</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>💡 Usage Tip</strong>
-                        <p>Use the SimpleItem pattern to separate display text from underlying values, making data binding and business logic much easier to manage.</p>
-                    </div>
-                </section>
-
-                <!-- Layout Orientations -->
-                <section id="orientations" class="section">
-                    <h2>Layout Orientations</h2>
-                    <p>BeepRadioButton supports two layout orientations for different UI scenarios:</p>
-
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>📋 Vertical (Stacked)</h4>
-                            <p>Options arranged vertically, ideal for forms and long option text</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>➡️ Horizontal (Side-by-side)</h4>
-                            <p>Options arranged horizontally, perfect for toolbars and compact layouts</p>
-                        </div>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Vertical Layout (Default)</h3>
-                        <pre><code class="language-csharp">var verticalRadio = new BeepRadioButton
-{
-    Orientation = RadioButtonOrientation.Vertical,
-    Size = new Size(200, 150) // Height accommodates stacked options
+    AllowMultipleSelection = true,
+    RadioGroupStyle = RadioGroupRenderStyle.Toggle,
+    Orientation = RadioGroupOrientation.Grid,
+    ColumnCount = 3,
+    ItemSpacing = 10,
+    Size = new Size(500, 180),
+    MaxImageSize = new Size(32, 32)
 };
 
-verticalRadio.Options.AddRange(new[]
-{
-    new SimpleItem { Text = "Priority: High", Value = "high" },
-    new SimpleItem { Text = "Priority: Medium", Value = "medium" },
-    new SimpleItem { Text = "Priority: Low", Value = "low" }
-});
+toggleGrid.AddItem("Wi-Fi", "icons/wifi.svg");
+toggleGrid.AddItem("Bluetooth", "icons/bluetooth.svg");
+toggleGrid.AddItem("NFC", "icons/nfc.svg");
+toggleGrid.AddItem("GPS", "icons/gps.svg");
+toggleGrid.AddItem("Data", "icons/data.svg");
+toggleGrid.AddItem("Hotspot", "icons/hotspot.svg");
 
-// Good for:
-// - Forms with limited width
-// - Long option text
-// - Traditional radio button feel</code></pre>
-                    </div>
+toggleGrid.SetItemsEnabled(
+    new[] { "Wi-Fi", "Bluetooth", "Data" }, true);
+toggleGrid.SetItemsEnabled(
+    new[] { "NFC", "GPS", "Hotspot" }, false);</code></pre>
 
-                    <div class="code-example">
-                        <h3>Horizontal Layout</h3>
-                        <pre><code class="language-csharp">var horizontalRadio = new BeepRadioButton
-{
-    Orientation = RadioButtonOrientation.Horizontal,
-    Size = new Size(400, 50) // Width accommodates side-by-side options
-};
+                <h3>Example 6: Custom Renderer Registration</h3>
+                <pre><code class="language-csharp">var group = new BeepRadioGroup();
+group.RegisterRenderer(RadioGroupRenderStyle.Custom, new MyCustomRadioRenderer());
+group.RadioGroupStyle = RadioGroupRenderStyle.Custom;
+// MyCustomRadioRenderer must implement IRadioGroupRenderer</code></pre>
 
-horizontalRadio.Options.AddRange(new[]
-{
-    new SimpleItem { Text = "Yes", Value = "yes" },
-    new SimpleItem { Text = "No", Value = "no" },
-    new SimpleItem { Text = "Maybe", Value = "maybe" }
-});
+                <h3>Example 7: Data-Binding Integration</h3>
+                <pre><code class="language-csharp">// Single selection binding
+radioGroup.BoundProperty = "PaymentMethod";
+radioGroup.SetValue("CreditCard");
 
-// Good for:
-// - Short option text
-// - Toolbar-style selection
-// - Compact layouts</code></pre>
-                    </div>
+// Get value from IBeepUIComponent
+var selected = (SimpleItem)radioGroup.GetValue();
 
-                    <div class="tip">
-                        <strong>📏 Layout Tip</strong>
-                        <p>Choose orientation based on available space and option text length. Vertical works better for longer text, while horizontal is ideal for short options.</p>
-                    </div>
-                </section>
+// Multiple selection binding
+multiGroup.SetValue(new List&lt;string&gt; { "A", "B" });
+var selectedList = (List&lt;SimpleItem&gt;)multiGroup.GetValue();
 
-                <!-- Properties -->
-                <section id="properties" class="section">
-                    <h2>Properties</h2>
+// Reset returns bool indicating if value changed
+bool didChange = radioGroup.Reset();</code></pre>
+            </section>
 
-                    <h3>Core Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Options</code></td>
-                                <td>List&lt;SimpleItem&gt;</td>
-                                <td>Collection of radio button options</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedValue</code></td>
-                                <td>string</td>
-                                <td>Text of the currently selected option</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedIndex</code></td>
-                                <td>int</td>
-                                <td>Index of selected option (-1 if none selected)</td>
-                            </tr>
-                            <tr>
-                                <td><code>Orientation</code></td>
-                                <td>RadioButtonOrientation</td>
-                                <td>Layout orientation (Vertical or Horizontal)</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <section id="architecture" class="section"><h2>Architecture</h2>
+                <p>BeepRadioGroup follows a clean separation-of-concerns architecture using helper classes and pluggable renderers:</p>
+                <table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td>BeepRadioGroup.cs (763 lines)</td><td>Main control: constructor, public methods, BaseControl overrides, accessibility, Dispose, style/color profile application, internal helpers (UpdateAccessibilityMetadata, MarkLayoutDirty, RequestVisualRefresh)</td></tr>
+                    <tr><td>BeepRadioGroup.Properties.cs (582 lines)</td><td>All public properties with change notification, layout triggers, validation logic, per-item disabled HashSet</td></tr>
+                    <tr><td>BeepRadioGroup.EventHandlers.cs (93 lines)</td><td>Internal event handlers: OnItemClicked (selection logic), OnItemHoverEnter/Leave, OnHoveredIndexChanged, OnFocusedIndexChanged, OnPressedIndexChanged, OnSelectionChanged, OnItemSelectionChanged</td></tr>
+                    <tr><td>BeepRadioGroup.Input.cs (116 lines)</td><td>Mouse overrides (MouseMove/Click/Down/Up/DoubleClick) and keyboard overrides (KeyDown, ProcessTabKey) - all routes through HitTestHelper</td></tr>
+                    <tr><td>BeepRadioGroup.Drawing.cs (193 lines)</td><td>Layout calculation (UpdateLayout), item state update (UpdateItemStates), DrawContent (runtime + DesignMode placeholder), OnResize</td></tr>
+                    <tr><td>BeepHierarchicalRadioGroup.cs (1155 lines)</td><td>Tree-structured variant: hierarchy flattening, expand/collapse buttons, dotted indent lines, keyboard nav, DPI scaling</td></tr>
+                </tbody></table>
+                <p><strong>Helper classes:</strong></p>
+                <table><thead><tr><th>Helper</th><th>File</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td>RadioGroupLayoutHelper</td><td>Helpers/RadioGroupLayoutHelper.cs</td><td>Item rectangle calculation (CalculateItemRectangles), orientation layout, alignment application, column count for grid layout, auto-size calculation, DPI-aware size computation</td></tr>
+                    <tr><td>RadioGroupHitTestHelper</td><td>Helpers/RadioGroupHitTestHelper.cs</td><td>Mouse hit-testing against item rectangles, item click/hover/enter/leave detection, keyboard navigation (arrow keys respecting orientation), tab focus movement</td></tr>
+                    <tr><td>RadioGroupStateHelper</td><td>Helpers/RadioGroupStateHelper.cs</td><td>Selection state tracking (single/multi), SelectValue, DeselectValue, ToggleItem, SelectAll, ClearSelection, SelectedCount, SelectedItems, SelectedValue, SelectedValues</td></tr>
+                    <tr><td>RadioGroupFontHelpers</td><td>Helpers/RadioGroupFontHelpers.cs</td><td>Theme font resolution for different render styles and control styles; resolves appropriate font sizes and weights</td></tr>
+                    <tr><td>RadioGroupThemeHelpers</td><td>Helpers/RadioGroupThemeHelpers.cs</td><td>Theme color and style resolution for renderers based on active BeepControlStyle</td></tr>
+                    <tr><td>RadioGroupStyleHelpers</td><td>Helpers/RadioGroupStyleHelpers.cs</td><td>Style profile application helpers</td></tr>
+                    <tr><td>RadioGroupIconHelpers</td><td>Helpers/RadioGroupIconHelpers.cs</td><td>Icon rendering helpers for items with ImagePath</td></tr>
+                </tbody></table>
+                <p><strong>Models:</strong></p>
+                <table><thead><tr><th>Model</th><th>File</th><th>Purpose</th></tr></thead><tbody>
+                    <tr><td>RadioGroupStyleConfig</td><td>Models/RadioGroupStyleConfig.cs</td><td>BorderRadius, ShowShadow, ShadowColor, ShadowOffset, ControlStyle, BorderWidth, RecommendedItemHeight/Spacing/Padding. [ExpandableObjectConverter]</td></tr>
+                    <tr><td>RadioGroupColorConfig</td><td>Models/RadioGroupColorConfig.cs</td><td>GroupBackgroundColor, TextColor (used when UseThemeColors=false)</td></tr>
+                    <tr><td>RadioGroupColorTokens</td><td>Models/RadioGroupColorTokens.cs</td><td>Color token definitions for renderer theming</td></tr>
+                </tbody></table>
+            </section>
 
-                    <h3>Appearance Properties</h3>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>TextFont <code>Font</code></h4>
-                            <p>Font used for option text</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>UseThemeFont <code>bool</code></h4>
-                            <p>Whether to use theme font settings</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>BorderRadius <code>int</code></h4>
-                            <p>Corner radius for rounded appearance</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>RadioButtonSize <code>Size</code></h4>
-                            <p>Size of individual radio button indicators</p>
-                        </div>
-                    </div>
-                </section>
+            <section id="hierarchical" class="section"><h2>BeepHierarchicalRadioGroup</h2>
+                <p>A companion control (<code>BeepHierarchicalRadioGroup</code>) in the same namespace extends the radio group concept with a tree-like hierarchical structure. Items use the <code>SimpleItem.Children</code> property (a <code>BindingList&lt;SimpleItem&gt;</code>) to define parent-child relationships. The hierarchy is flattened for rendering with DPI-aware indentation.</p>
+                <p><strong>Key properties:</strong> <code>RootItems</code> (hierarchical item collection, CollectionEditor), <code>ShowExpanderButtons</code> (toggle +/- buttons, default true), <code>IndentSize</code> (pixels per level, default 20, scaled by DPI), <code>RenderStyle</code> (subset of 5 renderers: Material, Card, Chip, Circular, Flat). Supports single/multi selection with the same <code>AllowMultipleSelection</code> flag.</p>
+                <p><strong>Key features:</strong> Recursive hierarchy flattening (respects <code>IsExpanded</code> on each item), dotted-line drawing for parent-child relationship visualization, expand/collapse with clickable +/- ellipses, keyboard navigation (Right arrow to expand, Left arrow to collapse or focus parent), <code>ExpandAll()</code> / <code>CollapseAll()</code> bulk operations, <code>FindItem(string guidId)</code> recursive search, <code>AddRootItem(SimpleItem)</code> and <code>AddChildItem(SimpleItem parent, SimpleItem child)</code> for programmatic tree construction.</p>
+                <p><strong>Events:</strong> All standard radio group events (<code>SelectionChanged</code>, <code>ItemSelectionChanged</code>, <code>ItemClicked</code>, <code>ItemHoverEnter</code>, <code>ItemHoverLeave</code>) plus <code>ItemExpandedChanged</code> (with <code>ItemExpandedEventArgs</code> carrying the item and its new IsExpanded state).</p>
+                <p><strong>Data-binding:</strong> Supports <code>SetValue</code>/<code>GetValue</code> with string, List&lt;string&gt;, or SimpleItem. Has <code>StyleProfile</code> and <code>ColorProfile</code> matching the flat version. DPI-aware with <code>S()</code>/<code>SF()</code> scaling helpers. Accessibility reports selected count, expanded group count, and focused item.</p>
+            </section>
 
-                <!-- Events -->
-                <section id="events" class="section">
-                    <h2>Events</h2>
-                    
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>SelectedValueChanged</code></td>
-                                <td>EventHandler&lt;RadioButtonSelectedEventArgs&gt;</td>
-                                <td>Triggered when selection changes</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <section id="render-styles" class="section"><h2>Render Styles</h2>
+                <p>All 11 renderers implement <code>IRadioGroupRenderer</code>. Each provides a unique visual appearance while respecting the same item state model and theme tokens.</p>
+                <table><thead><tr><th>Style</th><th>Renderer Class</th><th>Description</th><th>Multi-Select</th></tr></thead><tbody>
+                    <tr><td>Circular</td><td>CircularRadioRenderer</td><td>Traditional circular radio buttons with fill animation</td><td>No</td></tr>
+                    <tr><td>Checkbox</td><td>CheckboxRadioRenderer</td><td>Square checkbox-style selection with check mark</td><td>Yes</td></tr>
+                    <tr><td>Material</td><td>MaterialRadioRenderer</td><td>Material Design ripple radio buttons (default style)</td><td>Yes</td></tr>
+                    <tr><td>Card</td><td>CardRadioRenderer</td><td>Card-based selection with elevation/shadow (modern web style)</td><td>Yes</td></tr>
+                    <tr><td>Chip</td><td>ChipRadioRenderer</td><td>Chip/pill-style selection badges with fill toggle</td><td>Yes</td></tr>
+                    <tr><td>Flat</td><td>FlatRadioRenderer</td><td>Modern flat design with accent underline indicator</td><td>Yes</td></tr>
+                    <tr><td>Button</td><td>ButtonRadioRenderer</td><td>Toggle-button group style with border and fill</td><td>No</td></tr>
+                    <tr><td>Toggle</td><td>ToggleRadioRenderer</td><td>Toggle switch style with animated thumb slider</td><td>Yes</td></tr>
+                    <tr><td>Segmented</td><td>SegmentedRadioRenderer</td><td>iOS-style segmented control (connected buttons, zero spacing)</td><td>No</td></tr>
+                    <tr><td>Pill</td><td>PillRadioRenderer</td><td>Fully rounded capsule-shaped selectable buttons</td><td>Yes</td></tr>
+                    <tr><td>Tile</td><td>TileRadioRenderer</td><td>Large touch-friendly tiles (Windows 8/10 style, best for Grid layout)</td><td>Yes</td></tr>
+                    <tr><td>Custom</td><td>(user-registered)</td><td><code>RegisterRenderer(Custom, yourRenderer)</code> - any IRadioGroupRenderer</td><td>Varies</td></tr>
+                </tbody></table>
+                <p><strong>Renderer interface methods:</strong></p>
+                <ul>
+                    <li><code>Initialize(BaseControl, IBeepTheme)</code> &mdash; Setup on activation</li>
+                    <li><code>RenderItem(Graphics, SimpleItem, Rectangle, RadioItemState)</code> &mdash; Draw a single item</li>
+                    <li><code>MeasureItem(SimpleItem, Graphics)</code> &mdash; Calculate minimum item size for layout</li>
+                    <li><code>GetContentArea(Rectangle)</code> &mdash; Content bounds within item rect (excluding margins/borders)</li>
+                    <li><code>GetSelectorArea(Rectangle)</code> &mdash; Radio button/checkbox clickable area</li>
+                    <li><code>RenderGroupDecorations(Graphics, Rectangle, ...)</code> &mdash; Group-level visual effects</li>
+                    <li><code>UpdateTheme(IBeepTheme)</code> &mdash; Theme change notification</li>
+                    <li><code>Cleanup()</code> &mdash; Release GDI+ resources (fonts, pens, brushes)</li>
+                </ul>
+                <p><strong>Optional interfaces:</strong> <code>IImageAwareRenderer</code> (MaxImageSize property for image rendering), <code>IFocusAwareRenderer</code> (DrawFocusRing for WCAG 2.2 compliant 2px focus outlines with 3:1 contrast).</p>
+                <p>Renderers that don't support multiple selection (<code>SupportsMultipleSelection = false</code>: Circular, Button, Segmented) auto-switch <code>AllowMultipleSelection</code> to false when selected. The control handles this automatically in the RadioGroupStyle setter.</p>
+            </section>
 
-                    <h3>RadioButtonSelectedEventArgs Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>SelectedIndex</code></td>
-                                <td>int</td>
-                                <td>Index of the selected option</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedValue</code></td>
-                                <td>string</td>
-                                <td>Text value of the selected option</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="code-example">
-                        <h3>Event Handling Examples</h3>
-                        <pre><code class="language-csharp">var radioGroup = new BeepRadioButton();
-
-// Basic selection handling
-radioGroup.SelectedValueChanged += (sender, e) => {
-  //  Console.WriteLine($"Selection changed to: {e.SelectedValue}");
-  //  Console.WriteLine($"Selected index: {e.SelectedIndex}");
-    
-    // Get the full SimpleItem if needed
-    var selectedItem = radioGroup.Options[e.SelectedIndex];
-  //  Console.WriteLine($"Selected item value: {selectedItem.Value}");
-};
-
-// Advanced selection handling with business logic
-radioGroup.SelectedValueChanged += (sender, e) => {
-    switch (e.SelectedValue)
-    {
-        case "High Priority":
-            SetHighPriorityMode();
-            break;
-        case "Medium Priority":
-            SetMediumPriorityMode();
-            break;
-        case "Low Priority":
-            SetLowPriorityMode();
-            break;
-    }
-    
-    // Update other controls based on selection
-    UpdateRelatedControls(e.SelectedValue);
-    
-    // Validate form if needed
-    ValidateForm();
-};</code></pre>
-                    </div>
-                </section>
-
-                <!-- Examples -->
-                <section id="examples" class="section">
-                    <h2>Examples</h2>
-
-                    <div class="code-example">
-                        <h3>Settings Panel with Radio Groups</h3>
-                        <pre><code class="language-csharp">public void CreateSettingsPanel()
-{
-    var panel = new BeepPanel
-    {
-        TitleText = "Application Settings",
-        ShowTitle = true,
-        Size = new Size(500, 400),
-        IsRounded = true
-    };
-
-    // Theme selection
-    var themeRadio = new BeepRadioButton
-    {
-        Size = new Size(200, 100),
-        Location = new Point(20, 60),
-        Orientation = RadioButtonOrientation.Vertical
-    };
-
-    themeRadio.Options.AddRange(new[]
-    {
-        new SimpleItem { Text = "Light Theme", Value = "light", ImagePath = "icons/sun.svg" },
-        new SimpleItem { Text = "Dark Theme", Value = "dark", ImagePath = "icons/moon.svg" },
-        new SimpleItem { Text = "Auto Theme", Value = "auto", ImagePath = "icons/auto.svg" }
-    });
-
-    // Language selection
-    var languageRadio = new BeepRadioButton
-    {
-        Size = new Size(200, 100),
-        Location = new Point(250, 60),
-        Orientation = RadioButtonOrientation.Vertical
-    };
-
-    languageRadio.Options.AddRange(new[]
-    {
-        new SimpleItem { Text = "English", Value = "en", ImagePath = "flags/us.svg" },
-        new SimpleItem { Text = "Spanish", Value = "es", ImagePath = "flags/es.svg" },
-        new SimpleItem { Text = "French", Value = "fr", ImagePath = "flags/fr.svg" }
-    });
-
-    // Event handlers
-    themeRadio.SelectedValueChanged += (s, e) => ApplyTheme(e.SelectedValue);
-    languageRadio.SelectedValueChanged += (s, e) => ChangeLanguage(e.SelectedValue);
-
-    // Add labels
-    var themeLabel = new BeepLabel { Text = "Theme:", Location = new Point(20, 40) };
-    var languageLabel = new BeepLabel { Text = "Language:", Location = new Point(250, 40) };
-
-    panel.Controls.AddRange(new Control[] 
-    {
-        themeLabel, themeRadio,
-        languageLabel, languageRadio
-    });
-
-    this.Controls.Add(panel);
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Survey Question Interface</h3>
-                        <pre><code class="language-csharp">public BeepRadioButton CreateSurveyQuestion(string question, string[] options)
-{
-    var questionLabel = new BeepLabel
-    {
-        Text = question,
-        Font = new Font("Segoe UI", 12, FontStyle.Bold),
-        AutoSize = true
-    };
-
-    var radioGroup = new BeepRadioButton
-    {
-        Size = new Size(400, options.Length * 35),
-        Orientation = RadioButtonOrientation.Vertical,
-        Location = new Point(questionLabel.Left, questionLabel.Bottom + 10)
-    };
-
-    // Add options
-    for (int i = 0; i < options.Length; i++)
-    {
-        radioGroup.Options.Add(new SimpleItem 
-        { 
-            Text = options[i], 
-            Value = $"option_{i + 1}" 
-        });
-    }
-
-    return radioGroup;
-}
-
-// Usage example
-public void CreateSurvey()
-{
-    var q1 = CreateSurveyQuestion(
-        "How satisfied are you with our service?",
-        new[] { "Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied" }
-    );
-
-    var q2 = CreateSurveyQuestion(
-        "How likely are you to recommend us?",
-        new[] { "Very Likely", "Likely", "Neutral", "Unlikely", "Very Unlikely" }
-    );
-
-    // Position questions
-    q1.Location = new Point(20, 20);
-    q2.Location = new Point(20, q1.Bottom + 40);
-
-    this.Controls.AddRange(new Control[] { q1, q2 });
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Data-Bound Radio Group</h3>
-                        <pre><code class="language-csharp">public class Priority
-{
-    public string Name { get; set; }
-    public string Code { get; set; }
-    public string IconPath { get; set; }
-    public int Level { get; set; }
-}
-
-public void CreateDataBoundRadioGroup()
-{
-    // Sample data
-    var priorities = new List<Priority>
-    {
-        new Priority { Name = "Critical", Code = "CRIT", IconPath = "icons/critical.svg", Level = 1 },
-        new Priority { Name = "High", Code = "HIGH", IconPath = "icons/high.svg", Level = 2 },
-        new Priority { Name = "Medium", Code = "MED", IconPath = "icons/medium.svg", Level = 3 },
-        new Priority { Name = "Low", Code = "LOW", IconPath = "icons/low.svg", Level = 4 }
-    };
-
-    var priorityRadio = new BeepRadioButton
-    {
-        Size = new Size(300, 150),
-        Location = new Point(20, 20),
-        Orientation = RadioButtonOrientation.Vertical
-    };
-
-    // Bind data to radio group
-    foreach (var priority in priorities)
-    {
-        priorityRadio.Options.Add(new SimpleItem
-        {
-            Text = priority.Name,
-            Value = priority.Code,
-            ImagePath = priority.IconPath,
-            Item = priority // Store reference to full object
-        });
-    }
-
-    // Handle selection
-    priorityRadio.SelectedValueChanged += (s, e) => {
-        var selectedOption = priorityRadio.Options[e.SelectedIndex];
-        var priority = selectedOption.Item as Priority;
-        
-        if (priority != null)
-        {
-          //  Console.WriteLine($"Selected priority: {priority.Name} (Level: {priority.Level})");
-            UpdateTaskPriority(priority);
-        }
-    };
-
-    this.Controls.Add(priorityRadio);
-}</code></pre>
-                    </div>
-                </section>
-
-                <!-- Theming -->
-                <section id="theming" class="section">
-                    <h2>Theming</h2>
-                    
-                    <p>BeepRadioButton integrates seamlessly with the Beep theming system, automatically applying theme colors to radio indicators, text, and background elements.</p>
-
-                    <div class="code-example">
-                        <h3>Theme Application</h3>
-                        <pre><code class="language-csharp">var radioGroup = new BeepRadioButton
-{
-    Theme = "DarkTheme"
-};
-
-// Theme automatically applies:
-// - PanelBackColor (background)
-// - LabelForeColor (text and radio indicators)
-// - Theme fonts (if UseThemeFont = true)
-
-// Apply theme manually if needed
-radioGroup.ApplyTheme();</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Custom Styling</h3>
-                        <pre><code class="language-csharp">// Override specific colors
-radioGroup.BackColor = Color.FromArgb(248, 249, 250);
-radioGroup.ForeColor = Color.FromArgb(33, 37, 41);
-
-// Custom font
-radioGroup.TextFont = new Font("Roboto", 11f, FontStyle.Regular);
-radioGroup.UseThemeFont = false;</code></pre>
-                    </div>
-
-                    <h3>Theme-Responsive Features</h3>
-                    <ul>
-                        <li><strong>Radio Indicators</strong> - Automatically adapt to theme accent colors</li>
-                        <li><strong>Text Colors</strong> - Use theme foreground colors for optimal contrast</li>
-                        <li><strong>Background Colors</strong> - Apply theme background colors for consistency</li>
-                        <li><strong>SVG Icons</strong> - Theme-aware coloring for vector graphics</li>
-                        <li><strong>Hover Effects</strong> - Theme-appropriate highlight colors</li>
-                    </ul>
-
-                    <div class="tip">
-                        <strong>🎨 Theming Tip</strong>
-                        <p>The control automatically applies theme colors to SVG images when using the ImagePath property, ensuring consistent icon coloring.</p>
-                    </div>
-                </section>
-
-                <!-- Best Practices -->
-                <section id="best-practices" class="section">
-                    <h2>Best Practices</h2>
-
-                    <h3>🎨 User Experience</h3>
-                    <ul>
-                        <li><strong>Clear options:</strong> Use descriptive, mutually exclusive option text</li>
-                        <li><strong>Logical ordering:</strong> Order options logically (alphabetical, by frequency, or importance)</li>
-                        <li><strong>Default selection:</strong> Provide sensible default selections when appropriate</li>
-                        <li><strong>Appropriate spacing:</strong> Ensure adequate spacing between options for easy selection</li>
-                        <li><strong>Consistent orientation:</strong> Use the same orientation for similar radio groups</li>
-                    </ul>
-
-                    <h3>📐 Layout Guidelines</h3>
-                    <ul>
-                        <li><strong>Vertical for forms:</strong> Use vertical orientation for traditional form layouts</li>
-                        <li><strong>Horizontal for toolbars:</strong> Use horizontal orientation for toolbar-style selections</li>
-                        <li><strong>Size appropriately:</strong> Ensure the control size accommodates all options</li>
-                        <li><strong>Consider text length:</strong> Choose orientation based on option text length</li>
-                    </ul>
-
-                    <h3>📊 Data Management</h3>
-                    <ul>
-                        <li><strong>Use SimpleItem properly:</strong> Leverage Text for display and Value for data binding</li>
-                        <li><strong>Store object references:</strong> Use the Item property for complex data objects</li>
-                        <li><strong>Handle selection events:</strong> Always respond to SelectedValueChanged events</li>
-                        <li><strong>Validate selections:</strong> Check for valid selections in forms</li>
-                    </ul>
-
-                    <h3>♿ Accessibility</h3>
-                    <ul>
-                        <li><strong>Keyboard navigation:</strong> Ensure proper tab order and keyboard accessibility</li>
-                        <li><strong>Screen readers:</strong> Use meaningful option text for screen reader compatibility</li>
-                        <li><strong>High contrast:</strong> Ensure sufficient contrast for radio indicators</li>
-                        <li><strong>Touch targets:</strong> Provide adequate touch target sizes for mobile scenarios</li>
-                    </ul>
-
-                    <div class="warning">
-                        <strong>⚠️ Design Warning</strong>
-                        <p>Ensure mutual exclusivity of options. Each option should represent a distinct choice that cannot coexist with others in the same group.</p>
-                    </div>
-
-                    <div class="success">
-                        <strong>✅ Success Pattern</strong>
-                        <p>Always handle the SelectedValueChanged event to respond to user selections and maintain application state consistency.</p>
-                    </div>
-                </section>
-
-                <!-- Navigation -->
-                <div class="nav-links">
-                    <a href="beep-checkbox.html"><i class="bi bi-arrow-left"></i> BeepCheckBox</a>
-                    <a href="beep-datepicker.html">BeepDatePicker <i class="bi bi-arrow-right"></i></a>
-                </div>
-
-                <!-- Footer -->
-                <footer class="documentation-footer">
-                    <div class="footer-content">
-                        <div class="footer-copyright">
-                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
-                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
-                        </div>
-                        <div class="footer-links">
-                            <a href="../index.html">Home</a>
-                            <a href="../getting-started/installation.html">Getting Started</a>
-                            <a href="../api/beep-control-base.html">API Reference</a>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-        </main>
+            <section id="enums" class="section"><h2>Enumerations</h2>
+                <h3>RadioGroupRenderStyle (from Renderers/IRadioGroupRenderer.cs)</h3>
+                <p>12 values: <code>Circular</code>, <code>Checkbox</code>, <code>Material</code>, <code>Card</code>, <code>Chip</code>, <code>Flat</code>, <code>Button</code>, <code>Toggle</code>, <code>Segmented</code>, <code>Pill</code>, <code>Tile</code>, <code>Custom</code>.</p>
+                <h3>RadioGroupOrientation (from Helpers/RadioGroupLayoutHelper.cs)</h3>
+                <p>4 values: <code>Vertical</code>, <code>Horizontal</code>, <code>Grid</code> (uses ColumnCount), <code>Flow</code>.</p>
+                <h3>RadioGroupAlignment (from Helpers/RadioGroupLayoutHelper.cs)</h3>
+                <p>4 values: <code>Left</code>, <code>Center</code>, <code>Right</code>, <code>Stretch</code>.</p>
+            </section>
+        </div></main>
     </div>
-
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const submenus = document.querySelectorAll('.has-submenu > a');
-            
-            submenus.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.parentElement;
-                    parent.classList.toggle('open');
-                });
-            });
-        });
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            const currentTheme = body.getAttribute('data-theme');
-            
-            if (currentTheme === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'bi bi-moon-fill';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
-            }
-        });
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function searchDocs(query) {
-            const links = document.querySelectorAll('.nav-menu a');
-            const lowerQuery = query.toLowerCase();
-            
-            links.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                const listItem = link.closest('li');
-                
-                if (text.includes(lowerQuery) || lowerQuery === '') {
-                    listItem.style.display = '';
-                } else {
-                    listItem.style.display = 'none';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeBlocks = document.querySelectorAll('pre code');
-            
-            codeBlocks.forEach(block => {
-                const button = document.createElement('button');
-                button.textContent = 'Copy';
-                button.style.cssText = `
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    background: var(--color-brand-primary);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    padding: 4px 8px;
-                    font-size: 12px;
-                    cursor: pointer;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-                
-                const pre = block.parentElement;
-                pre.style.position = 'relative';
-                pre.appendChild(button);
-                
-                pre.addEventListener('mouseenter', () => {
-                    button.style.opacity = '1';
-                });
-                
-                pre.addEventListener('mouseleave', () => {
-                    button.style.opacity = '0';
-                });
-                
-                button.addEventListener('click', () => {
-                    navigator.clipboard.writeText(block.textContent).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    });
-                });
-            });
-        });
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')=='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
     </script>
 </body>
 </html>

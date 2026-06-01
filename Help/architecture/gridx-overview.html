@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gridx Overview - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Gridx Overview</span></nav><div class="page-header"><h1>GridX Architecture</h1><p class="page-subtitle">BeepGridPro internal architecture — helper decomposition, virtualization, selection strategies, grouping, filtering, and export pipeline</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#helpers">Helper Decomposition</a></li><li><a href="#data-flow">Data Flow</a></li><li><a href="#painting">Painting Pipeline</a></li><li><a href="#features">Advanced Features</a></li><li><a href="#code">Code Example</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><code>BeepGridPro</code> is the flagship data grid control, organized across multiple partial files. Internally, it decomposes functionality into 18 specialized helper classes, each handling a specific concern:</p></section><section class="section" id="helpers"><h2>Helper Decomposition (18 Classes)</h2><table><thead><tr><th>Helper</th><th>Class</th><th>Responsibility</th></tr></thead><tbody><tr><td>Layout</td><td>GridLayoutHelper</td><td>Column/row sizing, header layout, scrollbar positioning</td></tr><tr><td>Data</td><td>GridDataHelper</td><td>Data binding, value access, conversion</td></tr><tr><td>Render</td><td>GridRenderHelper</td><td>Cell painting, grid lines, header rendering</td></tr><tr><td>Selection</td><td>GridSelectionHelper</td><td>Multi-select, cell/row/column selection state</td></tr><tr><td>Input</td><td>GridInputHelper</td><td>Mouse clicks, hit testing, context menu</td></tr><tr><td>Scroll</td><td>GridScrollHelper</td><td>Scroll position tracking, wheel handling</td></tr><tr><td>ScrollBars</td><td>GridScrollBarsHelper</td><td>Scrollbar visibility and sizing</td></tr><tr><td>SortFilter</td><td>GridSortFilterHelper</td><td>Column sorting, filtering state</td></tr><tr><td>Edit</td><td>GridEditHelper</td><td>Cell editing mode, editor lifecycle</td></tr><tr><td>Theme</td><td>GridThemeHelper</td><td>Theme token application</td></tr><tr><td>Navigator</td><td>GridNavigatorHelper</td><td>Keyboard navigation, focus tracking</td></tr><tr><td>NavigatorPainter</td><td>GridNavigationPainterHelper</td><td>Navigation bar painting</td></tr><tr><td>Sizing</td><td>GridSizingHelper</td><td>Column resize, auto-size, DPI scaling</td></tr><tr><td>Dialog</td><td>GridDialogHelper</td><td>Filtering dialogs, inline criterion menus</td></tr><tr><td>Clipboard</td><td>GridClipboardHelper</td><td>Copy/paste, CSV format</td></tr><tr><td>ColumnReorder</td><td>GridColumnReorderHelper</td><td>Drag-to-reorder columns</td></tr><tr><td>KeyboardNavigator</td><td>GridKeyboardNavigator</td><td>Arrow keys, Tab, Home/End navigation</td></tr><tr><td>FocusManager</td><td>GridFocusManager</td><td>Focus tracking, accessibility</td></tr></tbody></table></section><section class="section" id="data-flow"><h2>Data Flow</h2><pre><code class="language-plaintext">DataSource (object)
+  └── GridDataHelper (Bind, GetValue, SetValue)
+       ├── GridColumnConfigCollection (column definitions)
+       ├── GridSortFilterHelper (sort/filter state)
+       └── GridRenderHelper (paint cells)
+
+Optional Virtualization:
+  GridVirtualDataSource (IVirtualDataSource)
+    └── GridRowVirtualizer (window management)
+         └── GridDataHelper (fetch visible window)
+
+Optional Grouping:
+  GridGroupEngine
+    └── IGridGrouper (sort + group)
+         └── GridGroupSummaryRow (aggregate row)</code></pre></section><section class="section" id="painting"><h2>Painting Pipeline</h2><p>Grid painting is style-aware with 6 style families, each providing Header, Navigation, and Filter panel painters:</p><table><thead><tr><th>Style Family</th><th>Header Painter</th><th>Navigation Painter</th><th>Filter Panel Painter</th></tr></thead><tbody><tr><td>AG Grid</td><td>AGGridHeaderPainter</td><td>AGGridNavigationPainter</td><td>AGGridFilterPanelPainter</td></tr><tr><td>Ant Design</td><td>AntDesignHeaderPainter</td><td>AntDesignNavigationPainter</td><td>AntDesignFilterPanelPainter</td></tr><tr><td>Bootstrap</td><td>BootstrapHeaderPainter</td><td>BootstrapNavigationPainter</td><td>BootstrapFilterPanelPainter</td></tr><tr><td>Card</td><td>CardHeaderPainter</td><td>CardNavigationPainter</td><td>CardFilterPanelPainter</td></tr><tr><td>Compact</td><td>CompactHeaderPainter</td><td>CompactNavigationPainter</td><td>CompactFilterPanelPainter</td></tr><tr><td>DataTables</td><td>DataTablesHeaderPainter</td><td>DataTablesNavigationPainter</td><td>DataTablesFilterPanelPainter</td></tr></tbody></table></section><section class="section" id="features"><h2>Advanced Features</h2><ul><li><strong>Virtualization</strong> — Large datasets (millions of rows) via IVirtualDataSource</li><li><strong>Selection</strong> — Cell, row, column, multi-range via ISelectionStrategy</li><li><strong>Grouping</strong> — Multi-level grouping with aggregate summary rows</li><li><strong>Filtering</strong> — Quick filter bar, advanced filter dialog, per-column filters</li><li><strong>Export</strong> — CSV, JSON, HTML built-in; Excel/PDF stubs (plugin-extensible)</li><li><strong>Editors</strong> — 7 cell editor types (Text, Numeric, Date, Combo, CheckBox, Masked, Generic)</li><li><strong>Accessibility</strong> — UIA provider pattern, screen reader support, keyboard navigation</li></ul></section><section class="section" id="code"><h2>Code Example</h2><pre><code class="language-csharp">var grid = new BeepGridPro();
+grid.DataSource = myDataTable;
+grid.RowHeight = 28;
+grid.GridStyle = "Bootstrap";
+grid.MultiSelect = true;
+grid.AllowColumnReorder = true;
+
+// Virtual mode
+var source = GridVirtualDataSource.FromList(myMillionRows);
+grid.RowVirtualizer.DataSource = source;
+
+// Grouping
+grid.GroupEngine.AddDescriptor(new GroupDescriptor("Category"));
+grid.GroupEngine.AddDescriptor(new GroupDescriptor("Region"));
+
+// Export
+grid.ExportEngine.Export(ExportFormat.Csv, "data.csv");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

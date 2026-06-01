@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDockspace - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#docking">Docking & MDI</a><span>&rsaquo;</span><span>BeepDockspace</span></nav>
+            <div class="page-header"><h1>BeepDockspace</h1><p class="page-subtitle">Krypton-style dockspace control that hosts dock panels as tabbed pages with caption header rendering</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Docking</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Inheritance:</strong> <code>Panel</code></p>
+                <p>The <strong>BeepDockspace</strong> is a Krypton-style docking cell that owns a single tab header bar and hosts <code>DockPanel</code> instances as tabbed pages within its client area. It represents one edge of the docking layout (Left, Right, Top, or Bottom) and is typically created and managed by a <code>BeepDockingManager</code>. Each dockspace manages its own tab strip, caption buttons (Close, Pin, DropDown), and active page visibility.</p>
+                <p>The control is not toolbox-visible (<code>[ToolboxItem(false)]</code>) and is designed to be instantiated programmatically by the docking manager infrastructure. It implements a Krypton-inspired page selection API with <code>SelectPage</code>, <code>PageForKey</code>, and <code>CellVisiblePages</code> methods. All header rendering is delegated to the <code>DockingPainterFactory</code> caption renderers based on the current <code>BeepControlStyle</code>.</p>
+            </section>
+
+            <section id="features" class="section">
+                <h2>Key Features</h2>
+                <ul>
+                    <li>Krypton-style tab header bar with caption button support (Close, Pin/AutoHide, DropDown)</li>
+                    <li>Tab strip rendering via <code>CaptionLayoutManager</code> with configurable tab widths (min 1px, max 160px)</li>
+                    <li>Active page tracking via <code>ActivePanelKey</code> with page bring-to-front logic</li>
+                    <li>Designer-aware activation: pages are selected via ISelectionService at design time</li>
+                    <li>DockPosition synchronization: child <code>DockPanel</code> instances inherit the dockspace's position</li>
+                    <li>Drop-down context menu for active pages: Floating, Auto Hide, Close</li>
+                    <li>Owner-drawn header via caption painter factory (style-dependent rendering)</li>
+                    <li>Double-buffered painting with <code>OptimizedDoubleBuffer</code> and <code>AllPaintingInWmPaint</code></li>
+                    <li>Automatic panel layout: all dock panels share the same bounds (below the header) with z-order stacking</li>
+                    <li>Manager-attachment: panels auto-adopt the dockspace's manager when added</li>
+                    <li>Designtime detection supporting both <code>Site.DesignMode</code> and process-name heuristics</li>
+                </ul>
+            </section>
+
+            <section id="properties" class="section">
+                <h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>HeaderHeight</code></td><td><code>const int</code></td><td><code>26</code></td><td>Constant height of the tab header bar in pixels</td></tr>
+                        <tr><td><code>Manager</code></td><td><code>BeepDockingManager</code></td><td><code>null</code></td><td>The docking manager that owns this dockspace; setting auto-applies theme</td></tr>
+                        <tr><td><code>DockPosition</code></td><td><code>DockPosition</code></td><td><code>Left</code></td><td>The edge represented by this dockspace; synchronized to all child DockPanels</td></tr>
+                        <tr><td><code>ActivePanelKey</code></td><td><code>string</code></td><td><code>""</code></td><td>Key of the active panel page; setting triggers layout and invalidation</td></tr>
+                        <tr><td><code>Panels</code></td><td><code>IReadOnlyList&lt;DockPanel&gt;</code></td><td>—</td><td>Read-only list of all non-disposed DockPanel children ordered by TabIndex then z-order</td></tr>
+                        <tr><td><code>ActivePanel</code></td><td><code>DockPanel</code></td><td>—</td><td>The currently active DockPanel, resolved from ActivePanelKey or z-order</td></tr>
+                        <tr><td><code>IsDesigning</code></td><td><code>bool</code></td><td>—</td><td>True when running in the WinForms designer (checks DesignMode, LicenseManager, and process name)</td></tr>
+                        <tr><td><code>ControlStyle</code></td><td><code>BeepControlStyle</code></td><td><code>Material3</code></td><td>Internal. Drives header background/border rendering style, set by the manager</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section">
+                <h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>ApplyDockingTheme</code></td><td><code>internal void ApplyDockingTheme(DockingThemeColors colors)</code></td><td>Applies theme colors to the dockspace and all child DockPanels</td></tr>
+                        <tr><td><code>ActivatePanel</code></td><td><code>void ActivatePanel(DockPanel panel)</code></td><td>Activates and brings a panel to front; optionally selects in designer</td></tr>
+                        <tr><td><code>SelectPage</code></td><td><code>void SelectPage(string panelKey)</code></td><td>Krypton-style: activates the page with the specified key</td></tr>
+                        <tr><td><code>PageForKey</code></td><td><code>DockPanel PageForKey(string panelKey)</code></td><td>Returns the DockPanel with the specified key, or null</td></tr>
+                        <tr><td><code>CellVisiblePages</code></td><td><code>DockPanel[] CellVisiblePages(string panelKey)</code></td><td>Returns all visible pages in the same cell as the named page. Mirrors Krypton's pattern</td></tr>
+                        <tr><td><code>SelectTabAt</code></td><td><code>bool SelectTabAt(Point clientPoint)</code></td><td>If the point hits a tab, activates that panel and returns true</td></tr>
+                        <tr><td><code>HitTestTabAt</code></td><td><code>DockPanel HitTestTabAt(Point clientPoint)</code></td><td>Returns the DockPanel whose tab is at the given point, or null</td></tr>
+                        <tr><td><code>HandleHeaderMouseDown</code></td><td><code>bool HandleHeaderMouseDown(Point clientPoint, MouseButtons button)</code></td><td>Processes mouse-down on the header: handles caption buttons (Close/Pin/DropDown) then tab selection</td></tr>
+                        <tr><td><code>SyncPages</code></td><td><code>void SyncPages()</code></td><td>Synchronizes panel docking properties, layouts panels, and invalidates</td></tr>
+                        <tr><td><code>OnControlAdded</code></td><td><code>protected override void OnControlAdded(ControlEventArgs e)</code></td><td>Sets DockPanel's manager, position, and theme when added; auto-activates first panel</td></tr>
+                        <tr><td><code>OnControlRemoved</code></td><td><code>protected override void OnControlRemoved(ControlEventArgs e)</code></td><td>Clears ActivePanelKey if the removed panel was active</td></tr>
+                        <tr><td><code>OnPaint</code></td><td><code>protected override void OnPaint(PaintEventArgs e)</code></td><td>Redraws the header via DockingPainterFactory caption renderer</td></tr>
+                        <tr><td><code>OnLayout</code></td><td><code>protected override void OnLayout(LayoutEventArgs e)</code></td><td>Ensures panels are laid out on resize/layout events</td></tr>
+                        <tr><td><code>OnMouseDown</code></td><td><code>protected override void OnMouseDown(MouseEventArgs e)</code></td><td>Routes to HandleHeaderMouseDown</td></tr>
+                        <tr><td><code>OnMouseMove</code></td><td><code>protected override void OnMouseMove(MouseEventArgs e)</code></td><td>Updates cursor to Hand when hovering over tabs or buttons</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section">
+                <h2>Events</h2>
+                <p>BeepDockspace does not expose custom public events. Interaction is routed through the following inherited events and internal callbacks:</p>
+                <ul>
+                    <li><strong>MouseDown/MouseMove</strong> — inherited from Panel, used for tab hit-testing and cursor changes</li>
+                    <li><strong>Paint</strong> — inherited from Panel, used for header rendering</li>
+                    <li><strong>ControlAdded/ControlRemoved</strong> — inherited from Panel, used for DockPanel lifecycle management</li>
+                    <li><strong>Layout</strong> — inherited from Panel, used for panel layout synchronization</li>
+                </ul>
+                <p>Caption button actions are dispatched to the <code>BeepDockingManager</code>: Close (<code>_manager.ClosePanel</code>), AutoHide (<code>_manager.MakeAutoHiddenRequest</code>), Float (<code>_manager.FloatPanel</code>).</p>
+            </section>
+
+            <section id="theming" class="section">
+                <h2>Theming</h2>
+                <p>The dockspace uses <code>DockingThemeColors</code> which provides:</p>
+                <table>
+                    <thead><tr><th>Theme Token</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>PanelBackColor</code></td><td>Dockspace background color</td></tr>
+                        <tr><td><code>PanelForeColor</code></td><td>Dockspace foreground/text color</td></tr>
+                    </tbody>
+                </table>
+                <p>The header rendering is delegated to <code>DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint()</code>, which uses a <code>DockingPainterContext</code> with the theme colors, control style, and header bounds. The caption layout manager (<code>CaptionLayoutManager</code>) handles the geometry of tabs and buttons, while the caption painter renders the actual pixels.</p>
+                <p>Control style defaults to <code>Material3</code> and can be changed by the owning <code>BeepDockingManager</code>. The theme is propagated to all child <code>DockPanel</code> instances via their <code>ApplyDockingTheme</code> method.</p>
+            </section>
+
+            <section id="examples" class="section">
+                <h2>Examples</h2>
+                <h3>Creating a Dockspace with a Docking Manager</h3>
+                <pre><code class="language-csharp">var manager = new BeepDockingManager();
+manager.Dock = DockStyle.Fill;
+this.Controls.Add(manager);
+
+var dockspace = new BeepDockspace
+{
+    Dock = DockStyle.Left,
+    Width = 250
+};
+dockspace.Manager = manager;
+
+var panel = new DockPanel
+{
+    Key = "toolbox",
+    Title = "Toolbox",
+    CanClose = true,
+    CanAutoHide = true,
+    CanFloat = true
+};
+panel.Controls.Add(new Label { Text = "Tool content" });
+dockspace.Controls.Add(panel);
+this.Controls.Add(dockspace);</code></pre>
+
+                <h3>Navigating Panels Programmatically</h3>
+                <pre><code class="language-csharp">var dockspace = manager.Dockspaces.FirstOrDefault();
+dockspace.SelectPage("properties");  // Krypton-style
+
+DockPanel panel = dockspace.PageForKey("toolbox");
+if (panel != null)
+    dockspace.ActivatePanel(panel);
+
+DockPanel[] allPanels = dockspace.CellVisiblePages("toolbox");
+foreach (var p in allPanels)
+    Console.WriteLine(p.Title);</code></pre>
+
+                <h3>Handling Tab Selection</h3>
+                <pre><code class="language-csharp">dockspace.MouseDown += (s, e) =>
+{
+    var hitPanel = dockspace.HitTestTabAt(e.Location);
+    if (hitPanel != null)
+    {
+        Console.WriteLine($"Tab hit: {hitPanel.Title}");
+        dockspace.SelectTabAt(e.Location);
+    }
+};</code></pre>
+            </section>
+
+            <section id="architecture" class="section">
+                <h2>Architecture</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Docking\BeepDockspace.cs</code></td><td>Single-file implementation (514 lines). Contains all logic: constructor, properties, theme application, tab/page navigation (ActivatePanel, SelectPage, PageForKey, CellVisiblePages), header drawing (RecomputeCaptionLayout, DrawHeader), context menu (ShowActivePageMenu), hit testing (HitTestTab, SelectTabAt, HandleHeaderMouseDown), panel layout (LayoutPanels), panel lifecycle (OnControlAdded/Removed), mouse handlers, and designer process detection</td></tr>
+                        <tr><td><code>Docking\Helpers\CaptionLayoutManager.cs</code></td><td>Shared layout engine that computes tab and caption button geometry; used by RecomputeCaptionLayout</td></tr>
+                        <tr><td><code>Docking\Models\CaptionTabModel.cs</code></td><td>Data model for a tab entry: Key, Title, IconPath, IsDirty, IsActive, Tag</td></tr>
+                        <tr><td><code>Docking\Models\DockPanel.cs</code></td><td>The page control hosted inside the dockspace; has Key, Title, CanClose, CanAutoHide, CanFloat, TabBounds</td></tr>
+                        <tr><td><code>Docking\Painters\DockingPainterFactory.cs</code></td><td>Factory that provides style-specific caption renderers</td></tr>
+                        <tr><td><code>Docking\Models\DockingThemeColors.cs</code></td><td>Theme color data for the docking system</td></tr>
+                    </tbody>
+                </table>
+                <p>The dockspace follows the <strong>caption layout manager</strong> pattern: tab geometries are computed by <code>CaptionLayoutManager.Compute()</code> and stored in a dictionary keyed by <code>CaptionTabModel</code>. Tab bounds are mirrored back to each <code>DockPanel.TabBounds</code> for compatibility with docking manager operations. The active panel is resolved by ActivePanelKey lookup, falling back to frontmost child by z-order.</p>
+                <p>Caption buttons (Close, Pin, DropDown) are built dynamically for the active page based on its <code>CanClose</code>, <code>CanAutoHide</code>, and presence. The drop-down context menu offers Floating, Auto Hide, and Close actions, dispatching to the owning <code>BeepDockingManager</code>.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

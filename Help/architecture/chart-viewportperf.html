@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart Viewport & Performance - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Chart Viewport &amp; Performance</span></nav>
+<div class="page-header"><h1>Chart Viewport &amp; Performance</h1><p class="page-subtitle">Interactive zoom/pan/auto-scale via BeepChartViewportHelper, performance optimization (culling, decimation, streaming) via BeepChartPerformanceHelper</p></div>
+
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#viewport-props">Viewport Properties</a></li>
+<li><a href="#autoscale">Auto-Scale Logic</a></li>
+<li><a href="#streaming">Real-Time Streaming</a></li>
+<li><a href="#culling">Point Culling</a></li>
+<li><a href="#decimation">Vertex Decimation</a></li>
+<li><a href="#perf-methods">Performance Methods Table</a></li>
+<li><a href="#perf-events">Performance Events</a></li>
+<li><a href="#presets">Visual Presets Table</a></li>
+<li><a href="#examples">Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Charts</code><br>
+<strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code></p>
+<p>The chart control provides two static helper classes to manage viewport navigation and rendering performance. <strong>BeepChartViewportHelper</strong> (internal) handles interactive zoom/pan via mouse wheel drag and keyboard, auto-scale computation, and viewport limit enforcement. <strong>BeepChartPerformanceHelper</strong> (public) provides point culling, vertex decimation, grid density optimization, label recommendation, and rendering cost estimation for large datasets exceeding thousands of data points. Together, they enable smooth interaction with datasets of 100,000+ points on modest hardware.</p>
+<p>The viewport is defined by four properties: <code>ViewportXMin</code>, <code>ViewportXMax</code>, <code>ViewportYMin</code>, <code>ViewportYMax</code>. These represent the visible data range and can diverge from the full data range when the user zooms or pans. Series painters receive the viewport range (not the full data range) through their <code>xMin/xMax/yMin/yMax</code> parameters, so only visible data is drawn.</p></section>
+
+<section class="section" id="viewport-props"><h2>Viewport Properties</h2>
+<table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>ViewportXMin</strong></td><td><code>float</code></td><td>Auto</td><td>Left edge of the visible X-axis data range. Set by AutoScaleViewport() or user zoom/pan.</td></tr>
+<tr><td><strong>ViewportXMax</strong></td><td><code>float</code></td><td>Auto</td><td>Right edge of the visible X-axis data range.</td></tr>
+<tr><td><strong>ViewportYMin</strong></td><td><code>float</code></td><td>Auto</td><td>Bottom edge of the visible Y-axis data range.</td></tr>
+<tr><td><strong>ViewportYMax</strong></td><td><code>float</code></td><td>Auto</td><td>Top edge of the visible Y-axis data range.</td></tr>
+<tr><td><strong>CanResetViewport</strong></td><td><code>bool</code></td><td>true</td><td>When true, double-clicking the chart or pressing the Home key calls <code>ResetViewport()</code>, which delegates to <code>AutoScaleViewport()</code> and fires <code>ViewportChanged</code>.</td></tr>
+<tr><td><strong>EnableMouseWheelZoom</strong></td><td><code>bool</code></td><td>false</td><td>Enables Ctrl+MouseWheel zoom in/out. Zooming is always centered on the mouse cursor position for intuitive navigation.</td></tr>
+<tr><td><strong>MouseWheelZoomStepPercent</strong></td><td><code>float</code></td><td>10f</td><td>Percentage of the current viewport range to zoom per wheel step. 10 = zoom 10% of current range in or out. Higher values = faster zoom.</td></tr>
+<tr><td><strong>EnableMouseDragPan</strong></td><td><code>bool</code></td><td>false</td><td>Enables click-and-drag panning of the viewport. The mouse cursor "grabs" the chart and moves the visible range proportional to the drag distance. Right-click cancels a pan in progress.</td></tr>
+<tr><td><strong>MouseDragPanFactor</strong></td><td><code>float</code></td><td>1.0f</td><td>Multiplier for drag-to-pan sensitivity. 1.0 = 1:1 cursor-to-data mapping. 0.5 = half speed (drag 100px moves data 50px). 2.0 = double speed.</td></tr>
+<tr><td><strong>EnableKeyboardViewportNavigation</strong></td><td><code>bool</code></td><td>false</td><td>Enables arrow keys for panning and +/- for zooming. Requires the chart to have focus.</td></tr>
+<tr><td><strong>KeyboardPanStepPercent</strong></td><td><code>float</code></td><td>10f</td><td>Percentage of the current viewport range to pan per arrow key press. 10 = move 10% per keypress.</td></tr>
+</tbody></table></section>
+
+<section class="section" id="autoscale"><h2>Auto-Scale Logic</h2>
+<p><code>BeepChartViewportHelper</code> provides two primary methods for viewport range management:</p>
+<h3>AutoScaleViewport</h3>
+<p>Scans all data points across all series to compute the full data range, then sets the viewport to that range plus 10% padding on each axis. This ensures no data point touches the edge of the plot area.</p>
+<pre><code class="language-csharp">internal static void AutoScaleViewport(BeepChart chart)
+{
+    float dataXMin = float.MaxValue, dataXMax = float.MinValue;
+    float dataYMin = float.MaxValue, dataYMax = float.MinValue;
+
+    foreach (var series in chart.DataSeries)
+    {
+        foreach (var point in series.DataPoints)
+        {
+            float x = BeepChartDataHelper.ConvertXValue(chart, point);
+            float y = BeepChartDataHelper.ConvertYValue(chart, point);
+            dataXMin = Math.Min(dataXMin, x);
+            dataXMax = Math.Max(dataXMax, x);
+            dataYMin = Math.Min(dataYMin, y);
+            dataYMax = Math.Max(dataYMax, y);
+        }
+    }
+
+    float xPadding = (dataXMax - dataXMin) * 0.1f;
+    float yPadding = (dataYMax - dataYMin) * 0.1f;
+
+    // Handle degenerate ranges (single point or identical values)
+    if (Math.Abs(dataXMax - dataXMin) < float.Epsilon)
+        { xPadding = 1f; dataXMin -= 0.5f; dataXMax += 0.5f; }
+    if (Math.Abs(dataYMax - dataYMin) < float.Epsilon)
+        { yPadding = dataYMax * 0.1f; }
+
+    chart.ViewportXMin = dataXMin - xPadding;
+    chart.ViewportXMax = dataXMax + xPadding;
+    chart.ViewportYMin = dataYMin - yPadding;
+    chart.ViewportYMax = dataYMax + yPadding;
+}</code></pre>
+
+<h3>EnforceViewportLimits</h3>
+<p>Called after every user interaction (zoom, pan) to clamp values and prevent inverted ranges (XMin >= XMax). If the minimum exceeds the maximum due to over-zooming, the range is collapsed to a single-point span.</p>
+<pre><code class="language-csharp">internal static void EnforceViewportLimits(BeepChart chart)
+{
+    if (chart.ViewportXMin > chart.ViewportXMax)
+    {
+        float center = (chart.ViewportXMin + chart.ViewportXMax) / 2f;
+        chart.ViewportXMin = center - 0.5f;
+        chart.ViewportXMax = center + 0.5f;
+    }
+    if (chart.ViewportYMin > chart.ViewportYMax)
+    {
+        float center = (chart.ViewportYMin + chart.ViewportYMax) / 2f;
+        chart.ViewportYMin = center - 0.5f;
+        chart.ViewportYMax = center + 0.5f;
+    }
+}</code></pre>
+<p>The <strong>10% padding</strong> ensures data points never sit exactly on the axis lines, which is important for bar charts (bars would otherwise be clipped at the edge) and bubble charts (circles would be cut off). The padding is applied symmetrically on both sides of the range.</p></section>
+
+<section class="section" id="streaming"><h2>Real-Time Streaming</h2>
+<p>The streaming subsystem enables live data feeds (sensor readings, stock prices, log tails) to update the chart incrementally without full repaints. Configuration and API:</p>
+<table><thead><tr><th>Property / Method</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>EnableRealTimeStreaming</strong></td><td><code>bool</code></td><td>false</td><td>Master toggle. When enabled, a <code>System.Windows.Forms.Timer</code> with interval <code>StreamRenderThrottleMs</code> is started. The timer callback batches pending data and triggers an incremental render.</td></tr>
+<tr><td><strong>StreamRenderThrottleMs</strong></td><td><code>int</code></td><td>50</td><td>Milliseconds between batch renders. Lower = more responsive but higher CPU. 50ms = ~20 FPS max for the chart area.</td></tr>
+<tr><td><strong>MaxStreamPointsPerSeries</strong></td><td><code>int</code></td><td>1000</td><td>Rolling window size in points. When exceeded, oldest points are removed via a circular buffer to prevent unbounded memory growth.</td></tr>
+<tr><td><strong>AppendDataPoint(int seriesIndex, ChartDataPoint, bool flush)</strong></td><td>Method</td><td>—</td><td>Adds a single data point to the specified series' streaming buffer. If <code>flush=true</code>, triggers an immediate render batch.</td></tr>
+<tr><td><strong>AppendDataPoints(int seriesIndex, IEnumerable, bool flush)</strong></td><td>Method</td><td>—</td><td>Adds multiple data points at once. Useful for importing a batch of historical data before live streaming begins.</td></tr>
+<tr><td><strong>FlushStreamingRender()</strong></td><td>Method</td><td>—</td><td>Manually triggers a batch render of all pending buffered points. Called automatically by the throttle timer.</td></tr>
+</tbody></table>
+<h3>Streaming Events</h3>
+<table><thead><tr><th>Event</th><th>EventArgs</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>StreamingDataAppended</strong></td><td><code>ChartStreamingDataAppendedEventArgs</code></td><td>Fired when new data points are appended to the buffer. Properties: <code>SeriesIndex</code>, <code>NewPointCount</code>, <code>TotalBufferedPoints</code>.</td></tr>
+<tr><td><strong>IncrementalRenderCompleted</strong></td><td><code>ChartIncrementalRenderCompletedEventArgs</code></td><td>Fired after each batch render completes. Properties: <code>RenderTimeMs</code>, <code>PointsRendered</code>, <code>SeriesRendered</code>.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Internal streaming buffer structure (per series):
+class StreamingBuffer
+{
+    Queue&lt;ChartDataPoint&gt; pendingPoints = new();
+    List&lt;ChartDataPoint&gt; activePoints = new(); // visible window
+
+    void Append(ChartDataPoint point)
+    {
+        pendingPoints.Enqueue(point);
+    }
+
+    List&lt;ChartDataPoint&gt; Flush(int maxPoints)
+    {
+        while (pendingPoints.Count > 0)
+        {
+            activePoints.Add(pendingPoints.Dequeue());
+            while (activePoints.Count > maxPoints)
+                activePoints.RemoveAt(0);
+        }
+        return new List&lt;ChartDataPoint&gt;(activePoints);
+    }
+}</code></pre></section>
+
+<section class="section" id="culling"><h2>Point Culling</h2>
+<p>Point culling reduces the number of points sent to the painter by filtering out those that fall outside the current viewport. This is critical for large datasets where 99% of points may be off-screen.</p>
+<table><thead><tr><th>Property</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>EnablePointCulling</strong></td><td><code>bool</code>, default false. When true, <code>CullPointsOutsideViewport()</code> is called before each paint cycle. Only points within the viewport range are passed to the series painter.</td></tr>
+<tr><td><strong>CullPointsOutsideViewport</strong></td><td>Filters a list to points where <code>pointX >= xMin &amp;&amp; pointX <= xMax</code>. Critically, the <strong>first and last</strong> points of the series are always retained, even if they fall outside the viewport. This prevents line segments from abruptly starting/stopping at the viewport edge — the line painter can extend from the last off-screen point into the visible region.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">public static List&lt;ChartDataPoint&gt; CullPointsOutsideViewport(
+    List&lt;ChartDataPoint&gt; points,
+    Func&lt;ChartDataPoint, float&gt; toXValue,
+    float xMin, float xMax)
+{
+    if (!ShouldOptimizePerformance(points.Count, 1000))
+        return new List&lt;ChartDataPoint&gt;(points); // pass-through for small sets
+
+    var result = new List&lt;ChartDataPoint&gt; { points.First() };
+
+    for (int i = 1; i < points.Count - 1; i++)
+    {
+        float x = toXValue(points[i]);
+        if (x >= xMin && x <= xMax)
+            result.Add(points[i]);
+    }
+
+    result.Add(points.Last());
+    return result;
+}</code></pre></section>
+
+<section class="section" id="decimation"><h2>Vertex Decimation</h2>
+<p>Vertex decimation reduces the number of rendered vertices to a target count while preserving the visual shape of the data.</p>
+<table><thead><tr><th>Property / Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>EnableVertexSimplification</strong></td><td><code>bool</code>, default false. When true, decimation is applied before rendering. The last data point is always preserved.</td></tr>
+<tr><td><strong>DecimatePoints(points, factor)</strong></td><td>Takes every Nth point from the list. <code>factor=5</code> keeps every 5th point (80% reduction). Always includes the last point. Returns a new list.</td></tr>
+<tr><td><strong>EstimateDecimationFactor(count, target=200)</strong></td><td>Computes the factor needed to reduce a dataset to approximately the target point count. <code>factor = Math.Max(1, count / target)</code>. For 10,000 points with target=200, returns factor=50.</td></tr>
+<tr><td><strong>SimplificationTolerance</strong></td><td><code>float</code> property tied to the chart. Controls decimation aggressiveness. Higher = more points removed. Used in conjunction with <code>EstimateDecimationFactor</code>.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">public static List&lt;ChartDataPoint&gt; DecimatePoints(
+    List&lt;ChartDataPoint&gt; points, int factor)
+{
+    if (factor <= 1) return new List&lt;ChartDataPoint&gt;(points);
+
+    var result = new List&lt;ChartDataPoint&gt;(points.Count / factor + 2);
+    for (int i = 0; i < points.Count; i += factor)
+        result.Add(points[i]);
+
+    // Always include the last point to preserve the right boundary
+    if (result.Last() != points.Last())
+        result.Add(points.Last());
+
+    return result;
+}
+
+public static int EstimateDecimationFactor(int count, int target = 200)
+{
+    if (count <= target) return 1;
+    return Math.Max(1, count / target);
+}</code></pre></section>
+
+<section class="section" id="perf-methods"><h2>Performance Methods Table</h2>
+<p><code>BeepChartPerformanceHelper</code> is public and static, meaning it can be used from user code for custom optimization pipelines:</p>
+<table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>CullPointsOutsideViewport</strong><br><code>(List&lt;ChartDataPoint&gt;, Func&lt;ChartDataPoint,float&gt;, float xMin, float xMax)</code></td><td><code>List&lt;ChartDataPoint&gt;</code></td><td>Filters points to visible viewport range. Always preserves first and last points. Pass-through for datasets under 1,000 points.</td></tr>
+<tr><td><strong>DecimatePoints</strong><br><code>(List&lt;ChartDataPoint&gt;, int factor)</code></td><td><code>List&lt;ChartDataPoint&gt;</code></td><td>Reduces points by keeping every Nth. Always preserves last point. factor=1 returns original list copy.</td></tr>
+<tr><td><strong>EstimateDecimationFactor</strong><br><code>(int count, int target = 200)</code></td><td><code>int</code></td><td>Computes factor = Ceil(count / target). Returns 1 if count <= target. The 200-point target is chosen because most screens can render 200 data points without perceivable difference at common chart sizes.</td></tr>
+<tr><td><strong>OptimizeGridDensity</strong><br><code>(int dataPointCount, float zoomLevel)</code></td><td><code>int</code></td><td>Recommends grid line skip interval. At zoom < 1x (zoomed out), grid lines are skipped. Returns 1 (all grid lines) for small datasets, up to 10 (every 10th) for 100K+ points with wide zoom.</td></tr>
+<tr><td><strong>RecommendLabelInterval</strong><br><code>(int axisLengthPixels, float dataRangePercent)</code></td><td><code>int</code></td><td>Recommends tick label skip interval to prevent label overcrowding. Based on available pixel width and the percentage of total data range visible. Shorter visible ranges (zoomed in) get more labels.</td></tr>
+<tr><td><strong>EstimateRenderingCost</strong><br><code>(int pointCount, int pixelWidth)</code></td><td><code>float</code></td><td>Returns 0.0-1.0 cost estimate based on points-per-pixel ratio. <code>cost = Math.Min(1f, pointCount / (pixelWidth * 2f))</code>. A value > 0.5 triggers the <code>PerformanceOptimized</code> event suggesting optimization is desirable.</td></tr>
+<tr><td><strong>ShouldOptimizePerformance</strong><br><code>(int pointCount, int threshold = 10000)</code></td><td><code>bool</code></td><td>Returns true when point count exceeds the threshold. Default threshold is 10,000 points. This is the gatekeeper method checked before applying culling or decimation.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Integration in BeepChart.Drawing.cs paint cycle:
+if (EnablePerformanceMode || EnablePointCulling || EnableVertexSimplification)
+{
+    bool shouldOpt = BeepChartPerformanceHelper.ShouldOptimizePerformance(
+        GetTotalPointCount(), LargeDatasetThreshold);
+
+    if (shouldOpt && EnablePointCulling)
+    {
+        optimizedPoints = BeepChartPerformanceHelper.CullPointsOutsideViewport(
+            allPoints, p => ConvertXValue(p), ViewportXMin, ViewportXMax);
+    }
+
+    if (shouldOpt && EnableVertexSimplification)
+    {
+        int factor = BeepChartPerformanceHelper.EstimateDecimationFactor(
+            optimizedPoints?.Count ?? allPoints.Count);
+        optimizedPoints = BeepChartPerformanceHelper.DecimatePoints(
+            optimizedPoints ?? allPoints, factor);
+    }
+
+    OnPerformanceOptimized(beforeCount, optimizedPoints?.Count ?? allPoints.Count);
+    OnLabelOptimizationApplied(optimizedCount, factor);
+}</code></pre></section>
+
+<section class="section" id="perf-events"><h2>Performance Events</h2>
+<table><thead><tr><th>Event</th><th>EventArgs</th><th>Fires When</th></tr></thead><tbody>
+<tr><td><strong>PerformanceOptimized</strong></td><td><code>ChartPerformanceOptimizedEventArgs</code><br>(int BeforePointCount, int AfterPointCount, float CostEstimate, OptimizationType Type)</td><td>After culling/decimation is applied. Provides before/after counts so callers can log optimization effectiveness.</td></tr>
+<tr><td><strong>LabelOptimizationApplied</strong></td><td><code>ChartLabelOptimizationEventArgs</code><br>(int OriginalLabelCount, int OptimizedLabelCount, float SkipFactor)</td><td>When tick label density optimization skips labels to prevent overlap. Reports reduction ratios.</td></tr>
+<tr><td><strong>ViewportChanged</strong></td><td><code>ChartViewportChangedEventArgs</code><br>(float XMin, float XMax, float YMin, float YMax, ViewportChangeSource Source)</td><td>After any viewport modification (zoom, pan, auto-scale, reset). Source enum: UserInteraction, Programmatic, AutoScale, Reset.</td></tr>
+<tr><td><strong>IncrementalRenderCompleted</strong></td><td><code>ChartIncrementalRenderCompletedEventArgs</code><br>(long RenderTimeMs, int PointsRendered, int SeriesRendered)</td><td>After a streaming batch render completes. Useful for monitoring streaming performance in real-time dashboards.</td></tr>
+</tbody></table></section>
+
+<section class="section" id="presets"><h2>Visual Presets Table</h2>
+<p><code>ApplyVisualPreset(ChartVisualPreset)</code> applies a pre-configured set of property values optimized for different use cases. This method is defined in <code>BeepChart.Methods.cs</code>:</p>
+<table><thead><tr><th>Preset</th><th>Settings Applied</th><th>Use Case</th></tr></thead><tbody>
+<tr><td><strong>Dashboard</strong></td><td>ShowLegend=false, ShowTitle=false, compact fonts (8pt), ShowGrid=false, thin margins (24px), auto-scale, simplified axis labels, SurfaceStyle=Card</td><td>Embedded chart in a dashboard tile (200-300px). Minimal chrome to maximize data ink.</td></tr>
+<tr><td><strong>Analytical</strong></td><td>ShowLegend=true, ShowTitle=true, standard fonts (10pt), ShowGrid=true, 48px margins, EnableMouseWheelZoom=true, EnableMouseDragPan=true, EnableTrackball=true, EnablePointSelection=true, EnablePerformanceMode=true</td><td>Full-featured exploratory chart (500+ px). All interactions enabled for data analysis.</td></tr>
+<tr><td><strong>HighContrast</strong></td><td>Thick pen widths (3px), larger markers (10px), bold fonts, high-contrast palette (black/white/primary), large legend squares, disabled transparency, SurfaceStyle=Outline</td><td>Accessibility-focused chart for users with visual impairments. WCAG AA compliant contrast ratios.</td></tr>
+<tr><td><strong>Print</strong></td><td>Black-and-white palette, thick axis lines (2px), dashed fill patterns, disabled grid lines, white background forced, SurfaceStyle=Classic, Font=Arial 10pt</td><td>Chart destined for monochrome printing or PDF export. Eliminates color dependency.</td></tr>
+<tr><td><strong>Presentation</strong></td><td>Large fonts (14pt title, 11pt labels), thick lines (3px), bold markers (10px), ShowDataLabels=true (if applicable), high-contrast palette, SurfaceStyle=Card, accent color highlight, ShowGrid=false</td><td>Chart shown in a presentation or on a large display (TV/projector). Maximizes readability at distance.</td></tr>
+</tbody></table></section>
+
+<section class="section" id="examples"><h2>Examples</h2>
+<h3>Large Dataset Optimization</h3>
+<pre><code class="language-csharp">var chart = new BeepChart();
+chart.ChartType = ChartType.Line;
+chart.EnablePerformanceMode = true;
+chart.LargeDatasetThreshold = 5000;  // optimize above 5K points
+chart.EnablePointCulling = true;
+chart.EnableVertexSimplification = true;
+chart.SimplificationTolerance = 0.5f;
+
+// Generate 100,000 points
+var points = new List&lt;ChartDataPoint&gt;();
+var rng = new Random(42);
+for (int i = 0; i < 100000; i++)
+{
+    float x = i * 0.1f;
+    float y = (float)(Math.Sin(x * 0.1) * 100 + rng.NextDouble() * 10);
+    points.Add(new ChartDataPoint { X = x.ToString("F1"), Y = y.ToString("F2") });
+}
+
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Signal",
+    DataPoints = points
+});
+
+chart.AutoScaleViewport();
+
+// Monitor optimization
+chart.PerformanceOptimized += (s, e) =>
+    Console.WriteLine($"Optimized: {e.BeforePointCount} -> {e.AfterPointCount} points");
+
+// Get rendering cost estimate
+float cost = BeepChartPerformanceHelper.EstimateRenderingCost(
+    chart.GetTotalPointCount(), chart.Width);
+if (cost > 0.5f)
+    chart.EnablePointCulling = true;
+</code></pre>
+
+<h3>Interactive Zoom/Pan Setup</h3>
+<pre><code class="language-csharp">chart.EnableMouseWheelZoom = true;
+chart.MouseWheelZoomStepPercent = 15f;
+chart.EnableMouseDragPan = true;
+chart.MouseDragPanFactor = 1.0f;
+chart.EnableKeyboardViewportNavigation = true;
+chart.KeyboardPanStepPercent = 10f;
+chart.CanResetViewport = true;
+
+chart.ViewportChanged += (s, e) =>
+{
+    Console.WriteLine($"Viewport: X[{e.XMin:F1}-{e.XMax:F1}] Y[{e.YMin:F1}-{e.YMax:F1}]");
+    if (e.Source == ViewportChangeSource.UserInteraction)
+        UpdateDependentCharts();
+};
+
+// Reset on double-click (handled internally via CanResetViewport)
+// Ctrl+Wheel zooms centered on cursor
+// Arrow keys pan 10% per press
+// Home resets to auto-scale
+</code></pre>
+
+<h3>Real-Time Streaming Setup</h3>
+<pre><code class="language-csharp">chart.ChartType = ChartType.Line;
+chart.EnableRealTimeStreaming = true;
+chart.StreamRenderThrottleMs = 50;   // 20 FPS max
+chart.MaxStreamPointsPerSeries = 500; // rolling 500-point window
+chart.ChartTitle = "Live Sensor Data";
+
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Temperature",
+    DataPoints = new List&lt;ChartDataPoint&gt;()
+});
+
+chart.AutoScaleViewport();
+
+// Streaming data source (e.g., Timer or background thread)
+var timer = new System.Timers.Timer(100); // 10 Hz data source
+timer.Elapsed += (s, e) =>
+{
+    float value = ReadSensor();
+    chart.BeginInvoke(new Action(() =>
+    {
+        chart.AppendDataPoint(0, new ChartDataPoint
+        {
+            X = DateTime.Now.ToString("HH:mm:ss.fff"),
+            Y = value.ToString("F1")
+        }, flush: false); // batch every 50ms via throttle
+    }));
+};
+timer.Start();
+
+chart.StreamingDataAppended += (s, e) =>
+    Console.WriteLine($"{e.NewPointCount} new, {e.TotalBufferedPoints} buffered");
+
+chart.IncrementalRenderCompleted += (s, e) =>
+    Debug.WriteLine($"Batch render: {e.RenderTimeMs}ms, {e.PointsRendered}pts");
+</code></pre>
+
+<h3>Apply Visual Presets</h3>
+<pre><code class="language-csharp">// Dashboard mode for a small embedded chart
+chart.ApplyVisualPreset(ChartVisualPreset.Dashboard);
+
+// Analytical mode for exploratory data analysis
+chart.ApplyVisualPreset(ChartVisualPreset.Analytical);
+
+// High-contrast for accessibility
+chart.ApplyVisualPreset(ChartVisualPreset.HighContrast);
+
+// Print-ready chart
+chart.ApplyVisualPreset(ChartVisualPreset.Print);
+using var bmp = new Bitmap(chart.Width, chart.Height);
+chart.DrawToBitmap(bmp, chart.ClientRectangle);
+bmp.Save("chart_print.png", ImageFormat.Png);
+
+// Presentation mode for large display
+chart.ApplyVisualPreset(ChartVisualPreset.Presentation);
+chart.Font = new Font("Segoe UI", 12f);
+</code></pre>
+</section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

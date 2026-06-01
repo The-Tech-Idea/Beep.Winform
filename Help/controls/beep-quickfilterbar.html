@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepQuickFilterBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>→</span>
+                    <span>BeepQuickFilterBar</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepQuickFilterBar</h1>
+                    <p class="page-subtitle">An Excel-like quick filter bar for <strong>BeepGridPro</strong> — now superseded by the grid's unified toolbar. Provides column selector, search input, filter count badge, and gateway to advanced filtering.</p>
+                    <div class="header-badges">
+                        <span class="badge badge-obsolete">Obsolete</span>
+                        <span class="badge badge-version">v1.0</span>
+                        <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.GridX.Filtering</span>
+                        <span class="badge badge-base">BaseControl</span>
+                    </div>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#replacement">Replacement Notice</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events & FilterEventArgs</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#layout">Layout & Internal Structure</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Obsolete:</strong> This control is marked with <code>[Obsolete("Use BeepGridPro unified toolbar (ShowToolbar + ApplyQuickFilter) instead.")]</code>. It is maintained for backward compatibility but new development should use the grid's built-in toolbar.
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepQuickFilterBar</strong> is a <strong>BaseControl</strong>-derived composite that emulates Excel's quick filter toolbar. It provides a column selector dropdown, a search text box, clear and advanced filter buttons, and a filter count badge. The control emits <code>FilterChanged</code> events as the user types or changes the column selector, and <code>AdvancedFilterRequested</code> when the ⚙ Advanced button is clicked.
+                    </p>
+                    <p>
+                        The control is designed to be hosted immediately above or below a <strong>BeepGridPro</strong>. It communicates with the grid through events, never directly — the grid's parent form wires the events to the appropriate filtering logic. The <code>FilterEventArgs</code> class carries <code>SearchText</code> and <code>ColumnName</code> (nullable — <code>null</code> means "all columns").
+                    </p>
+                    <p>
+                        The control also supports loading filter state from a <code>FilterConfiguration</code> object via <code>SetFromConfiguration</code>, making it bidirectional: the bar can both generate and receive filter criteria.
+                    </p>
+                </section>
+
+                <section id="replacement" class="section">
+                    <h2>Replacement Notice</h2>
+                    <p>This control has been superseded by the <strong>BeepGridPro</strong> unified toolbar. The equivalent functionality is now available through:</p>
+                    <table class="props-table">
+                        <thead><tr><th>BeepQuickFilterBar</th><th>BeepGridPro Replacement</th></tr></thead>
+                        <tbody>
+                            <tr><td>Search text box</td><td>Grid toolbar search input (<code>ShowToolbar = true</code>)</td></tr>
+                            <tr><td>Column selector</td><td>Filter buttons with per-column dropdowns</td></tr>
+                            <tr><td>⚙ Advanced button</td><td>Toolbar Filter button → <code>BeepAdvancedFilterDialog</code></td></tr>
+                            <tr><td>Clear button</td><td>Toolbar Clear Filter button</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Column Selector</h3>
+                            <p>A <strong>BeepComboBox</strong> populated with column names from the host grid. The first item is always "All Columns". Changing the selection fires <code>FilterChanged</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Live Search</h3>
+                            <p>A <strong>BeepTextBox</strong> with placeholder "Type to filter...". Every keystroke fires <code>FilterChanged</code> with the current text and selected column.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Filter Count Badge</h3>
+                            <p>A <strong>BeepLabel</strong> shows "🔖 N filters" when <code>ActiveFilterCount > 0</code>. Automatically uses plural ("filter" vs "filters") and is hidden when count is zero.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Advanced Filter Gateway</h3>
+                            <p>The ⚙ Advanced button fires <code>AdvancedFilterRequested</code>. The parent form typically responds by opening <strong>BeepAdvancedFilterDialog</strong>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Configuration Sync</h3>
+                            <p><code>SetFromConfiguration</code> reads a <code>FilterConfiguration</code> and populates the search text and column selector — for single-criterion Contains filters.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Themed</h3>
+                            <p>Built with <strong>BaseControl</strong> + themed child controls. Shows borders and shadow by default (<code>IsFrameless = false</code>, <code>ShowAllBorders = true</code>, <code>ShowShadow = true</code>).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Access</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SearchText</code></td>
+                                <td><code>string</code></td>
+                                <td>Get / Set</td>
+                                <td><code>""</code></td>
+                                <td>Current text in the search box. Setting this updates <code>_searchTextBox.Text</code>, which triggers <code>FilterChanged</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedColumn</code></td>
+                                <td><code>string</code></td>
+                                <td>Get / Set</td>
+                                <td><code>"All Columns"</code></td>
+                                <td>The currently selected column name. On get, returns the <code>Name</code> property of the selected <code>SimpleItem</code>, or <code>"All Columns"</code> if none selected. On set, finds the matching <code>SimpleItem</code> and sets <code>SelectedItem</code> on the combo.</td>
+                            </tr>
+                            <tr>
+                                <td><code>AvailableColumns</code></td>
+                                <td><code>string[]</code></td>
+                                <td>Write-only</td>
+                                <td>—</td>
+                                <td>Sets the column names available in the dropdown. Clears and rebuilds the combo items list (always preserving "All Columns" as the first entry). Sets <code>SelectedIndex = 0</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>ActiveFilterCount</code></td>
+                                <td><code>int</code></td>
+                                <td>Get / Set</td>
+                                <td><code>0</code></td>
+                                <td>The number of active filters to display in the badge. Setting this calls <code>UpdateFilterCountDisplay()</code> which formats the badge text as <code>"🔖 N filter(s)"</code> and toggles visibility.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events & FilterEventArgs</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FilterChanged</code></td>
+                                <td><code>FilterEventArgs</code></td>
+                                <td>Fires when the search text changes or the column selector changes (<code>_searchTextBox.TextChanged</code> and <code>_columnSelector.SelectedIndexChanged</code>). The event args carry the current <code>SearchText</code> and <code>ColumnName</code> (where <code>null</code> means all columns).</td>
+                            </tr>
+                            <tr>
+                                <td><code>AdvancedFilterRequested</code></td>
+                                <td><code>EventArgs</code></td>
+                                <td>Fires when the user clicks the ⚙ Advanced button. Does not carry filter data — the consumer should open a full filter dialog (e.g., <strong>BeepAdvancedFilterDialog</strong>) and combine its result with the current quick filter state.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>FilterEventArgs Class</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SearchText</code></td><td><code>string</code></td><td>The current search text entered by the user.</td></tr>
+                            <tr><td><code>ColumnName</code></td><td><code>string?</code></td><td>The column scope of the filter. <code>null</code> when "All Columns" is selected, meaning the filter should be applied across all columns.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <h3>Public Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SetFromConfiguration</code></td>
+                                <td><code>public void SetFromConfiguration(FilterConfiguration config)</code></td>
+                                <td>Synchronizes the bar's state from an existing <code>FilterConfiguration</code>. If the config is null or has no criteria, calls <code>ClearFilter()</code>. If the config has exactly one criterion with <code>FilterOperator.Contains</code>, sets <code>SelectedColumn</code> and <code>SearchText</code> to match. In all cases, sets <code>ActiveFilterCount</code> from <code>config.EnabledFilterCount</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Private Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InitializeControls()</code></td><td>Creates all six child controls: <code>_searchLabel</code> (🔍 icon, 30×30), <code>_columnSelector</code> (150px combo, "All Columns" pre-added), <code>_searchTextBox</code> (300px, placeholder "Type to filter..."), <code>_clearButton</code> (80px, "✕ Clear"), <code>_advancedButton</code> (100px, "⚙ Advanced"), <code>_filterCountLabel</code> (80px, hidden by default). All marked <code>IsChild = true</code>.</td></tr>
+                            <tr><td><code>LayoutControls()</code></td><td>Positions controls horizontally: 🔍 label → column selector → search box → clear button → advanced button → filter count label. Vertically centers controls within the 50px bar height.</td></tr>
+                            <tr><td><code>HookEvents()</code></td><td>Wires <code>_searchTextBox.TextChanged</code> → <code>OnFilterChanged</code>, <code>_columnSelector.SelectedIndexChanged</code> → <code>OnFilterChanged</code>, <code>_clearButton.Click</code> → <code>ClearFilter</code>, <code>_advancedButton.Click</code> → <code>AdvancedFilterRequested</code>.</td></tr>
+                            <tr><td><code>OnFilterChanged()</code></td><td>Constructs a <code>FilterEventArgs</code> with <code>SearchText</code> and <code>ColumnName</code> (null for "All Columns"). Invokes <code>FilterChanged</code>.</td></tr>
+                            <tr><td><code>ClearFilter()</code></td><td>Resets search text to empty, column selector to index 0, and <code>ActiveFilterCount</code> to 0.</td></tr>
+                            <tr><td><code>UpdateFilterCountDisplay()</code></td><td>Sets <code>_filterCountLabel.Text</code> to "🔖 N filter(s)" with correct plural form. Shows the label if count > 0, hides otherwise.</td></tr>
+                            <tr><td><code>Dispose(bool)</code></td><td>Disposes all six child controls.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="layout" class="section">
+                    <h2>Layout & Internal Structure</h2>
+                    <p>The control has a fixed height of 50px. Controls are laid out in a single horizontal row with 5px margins:</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>Visual Layout</span></div>
+                        <pre><code class="language-text">┌──────────────────────────────────────────────────────────────────────────────┐
+│ BeepQuickFilterBar (BaseControl, Height=50)                                   │
+│                                                                               │
+│ ┌───┐ ┌─────────────────┐ ┌──────────────────────────┐ ┌───────┐ ┌────────┐ ┌──────────┐│
+│ │ 🔍│ │ Column Selector │ │ Search Text               │ │✕Clear│ │⚙Advnc │ │🔖N filt ││
+│ │30 │ │ BeepComboBox    │ │ BeepTextBox (300px)       │ │80px  │ │100px  │ │80px     ││
+│ │×30│ │ 150×30          │ │ Placeholder: "Type to..." │ │      │ │       │ │hidden   ││
+│ └───┘ └─────────────────┘ └──────────────────────────┘ └───────┘ └────────┘ └──────────┘│
+└──────────────────────────────────────────────────────────────────────────────┘</code></pre>
+                    </div>
+                    <p>
+                        The filter count badge (<code>_filterCountLabel</code>) is invisible when <code>ActiveFilterCount = 0</code>. When visible, it shows the count with the 🔖 icon and correct English pluralization.
+                    </p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Example 1: Basic Setup with a Grid</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Attach Quick Filter Bar to BeepGridPro</span></div>
+                        <pre><code class="language-csharp">var filterBar = new BeepQuickFilterBar
+{
+    Dock = DockStyle.Top
+};
+
+// Populate available columns from the grid
+var columnNames = grid.ColumnConfigs
+    .Where(c => c.Visible && !c.IsSelectionCheckBox)
+    .Select(c => c.ColumnName)
+    .ToArray();
+filterBar.AvailableColumns = columnNames;
+
+// React to filter changes
+filterBar.FilterChanged += (s, e) =>
+{
+    if (string.IsNullOrWhiteSpace(e.SearchText))
+    {
+        grid.ClearFilters();
+    }
+    else
+    {
+        grid.ApplyQuickFilter(e.SearchText, e.ColumnName);
+    }
+    filterBar.ActiveFilterCount = string.IsNullOrWhiteSpace(e.SearchText) ? 0 : 1;
+};
+
+// Open advanced dialog
+filterBar.AdvancedFilterRequested += (s, e) =>
+{
+    var dialog = new BeepAdvancedFilterDialog(grid.ColumnConfigs);
+    if (dialog.ShowDialog() == DialogResult.OK && dialog.Result != null)
+    {
+        grid.ApplyFilterConfiguration(dialog.Result);
+        filterBar.SetFromConfiguration(dialog.Result);
+    }
+    dialog.Dispose();
+};
+
+this.Controls.Add(filterBar);
+this.Controls.Add(grid); // grid.Dock = Fill</code></pre>
+                    </div>
+
+                    <h3>Example 2: Clear Filter</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Clear Filter Programmatically</span></div>
+                        <pre><code class="language-csharp">// Clear filter bar (user clicked "✕ Clear" or programmatic reset)
+private void OnClearFilter()
+{
+    // The bar already resets its own state internally.
+    // FilterChanged will fire with empty SearchText.
+    // In your FilterChanged handler:
+    //   if (string.IsNullOrWhiteSpace(e.SearchText))
+    //       grid.ClearFilters();
+}</code></pre>
+                    </div>
+
+                    <h3>Example 3: Restoring Filter State from Configuration</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Load Saved Filter into Bar</span></div>
+                        <pre><code class="language-csharp">// Restore a previously saved simple filter
+var savedConfig = LoadFilterConfigurationFromDisk();
+filterBar.SetFromConfiguration(savedConfig);
+
+// If the config is a single Contains filter,
+// it will auto-populate the column selector and search text
+// e.g., ColumnName="ProductName", SearchText="chair"</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BeepQuickFilterBar.cs</code></td>
+                                <td>Contains two classes:<br>
+                                <strong>BeepQuickFilterBar</strong> — the quick filter toolbar<br>
+                                <strong>FilterEventArgs</strong> — event args carrying search text and column scope</td>
+                            </tr>
+                            <tr>
+                                <td><code>BaseControl</code> (Base)</td>
+                                <td>Base class providing theming, borders, and shadow.</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterConfiguration</code> (Filtering)</td>
+                                <td>Domain model used by <code>SetFromConfiguration</code> to sync the bar's state.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepComboBox</code> (ComboBoxes)</td>
+                                <td>Themed combo bound to <code>SimpleItem</code> instances for column selection.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepTextBox</code> (TextFields)</td>
+                                <td>Themed search input with placeholder text.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepButton</code> (Buttons)</td>
+                                <td>Themed buttons for clear and advanced actions.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepLabel</code></td>
+                                <td>Themed label for the 🔍 icon and filter count badge.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Event Flow</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Internal Event Propagation</span></div>
+                        <pre><code class="language-text">User types in search box
+    │
+    ├── _searchTextBox.TextChanged
+    │       └── OnFilterChanged()
+    │               └── FilterChanged(FilterEventArgs{SearchText, ColumnName})
+    │                       └── Consumer (parent form) applies filter to grid
+    │
+    User changes column selector
+    │
+    ├── _columnSelector.SelectedIndexChanged
+    │       └── OnFilterChanged() (same flow)
+    │
+    User clicks "⚙ Advanced"
+    │
+    └── _advancedButton.Click
+            └── AdvancedFilterRequested
+                    └── Consumer opens BeepAdvancedFilterDialog</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

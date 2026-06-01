@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTimePicker - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a><span>›</span>
+                    <span>BeepTimePicker</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepTimePicker</h1>
+                    <p class="page-subtitle">A modern time picker control with multiple format styles, validation, business-hour rules, and built-in popup selector</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#formats">Time Formats</a></li>
+                        <li><a href="#business-modes">Business Configuration</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepTimePicker</strong> extends <code>BaseControl</code> to provide a fully themed time input. It composites an internal <code>TextBox</code>, a dropdown clock button, and optional spin up/down buttons. A popup panel with scrollable hours, minutes, and AM/PM lists enables quick visual selection.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code> &nbsp;|&nbsp; <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component → Control → BaseControl → BeepTimePicker</code></p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Multiple time formats</strong> — 12-hour, 24-hour, with/without seconds, hours-only, and custom format strings</li>
+                        <li><strong>Dropdown popup</strong> — Clock icon button opens a <code>BeepPopupForm</code> with hours, minutes, and AM/PM list boxes</li>
+                        <li><strong>Spin buttons</strong> — Optional increment/decrement buttons that respect <code>MinuteInterval</code></li>
+                        <li><strong>Validation pipeline</strong> — Min/max time range, business hours enforcement, and customizable error display</li>
+                        <li><strong>Business presets</strong> — <code>ConfigureForMeetingTime()</code>, <code>ConfigureForAppointment()</code>, <code>ConfigureForShiftTime()</code>, <code>ConfigureForDeadline()</code></li>
+                        <li><strong>Minute snapping</strong> — <code>SnapToInterval</code> rounds time to the configured <code>MinuteInterval</code></li>
+                        <li><strong>Auto-submit</strong> — When enabled, raises <code>TimeSubmitted</code> immediately on selection</li>
+                        <li><strong>Locale-aware</strong> — <code>Culture</code> property controls parsing and formatting per culture</li>
+                        <li><strong>Validation error visuals</strong> — Error background/border colors sourced from theme tokens; tooltip error messages</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SelectedTime</code></td><td><code>TimeSpan</code></td><td>Current time</td><td>Gets or sets the selected time. Honors <code>SnapToInterval</code> and fires change events.</td></tr>
+                            <tr><td><code>Value</code></td><td><code>TimeSpan</code></td><td>—</td><td>Alias for <code>SelectedTime</code> for compatibility. Browsable(false).</td></tr>
+                            <tr><td><code>SelectedTimeString</code></td><td><code>string</code></td><td>Formatted text</td><td>Gets/sets the displayed time as a string; attempts parsing before accepting.</td></tr>
+                            <tr><td><code>TimeFormatStyle</code></td><td><code>TimeFormatStyle</code></td><td><code>TwentyFourHour</code></td><td>Predefined format: <code>TwelveHour</code>, <code>TwentyFourHour</code>, <code>TwelveHourWithSeconds</code>, <code>TwentyFourHourWithSeconds</code>, <code>HoursOnly</code>, or <code>Custom</code>.</td></tr>
+                            <tr><td><code>TimeFormat</code></td><td><code>string</code></td><td><code>"HH:mm"</code></td><td>Custom .NET format string used when <code>TimeFormatStyle</code> is <code>Custom</code>.</td></tr>
+                            <tr><td><code>Culture</code></td><td><code>CultureInfo</code></td><td><code>CurrentCulture</code></td><td>Culture for time formatting and parsing.</td></tr>
+                            <tr><td><code>MinTime</code></td><td><code>TimeSpan?</code></td><td><code>null</code></td><td>Minimum allowed time. Validation rejects values before this.</td></tr>
+                            <tr><td><code>MaxTime</code></td><td><code>TimeSpan?</code></td><td><code>null</code></td><td>Maximum allowed time.</td></tr>
+                            <tr><td><code>AllowEmpty</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether empty/null times are permitted.</td></tr>
+                            <tr><td><code>ShowDropDown</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows the clock icon button that opens the popup selector.</td></tr>
+                            <tr><td><code>ShowSpinButtons</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows ▲/▼ buttons to increment/decrement by <code>MinuteInterval</code>.</td></tr>
+                            <tr><td><code>ReadOnly</code></td><td><code>bool</code></td><td><code>false</code></td><td>Disables the text box, dropdown, and spin buttons.</td></tr>
+                            <tr><td><code>MinuteInterval</code></td><td><code>int</code></td><td><code>1</code></td><td>Step size for spin buttons and popup minute list (clamped 1–60).</td></tr>
+                            <tr><td><code>SnapToInterval</code></td><td><code>bool</code></td><td><code>false</code></td><td>Rounds <code>SelectedTime</code> to the nearest <code>MinuteInterval</code> boundary.</td></tr>
+                            <tr><td><code>Use24HourFormat</code></td><td><code>bool</code></td><td><code>true</code></td><td>Controls popup display (shows 0–23 or 1–12 with AM/PM).</td></tr>
+                            <tr><td><code>AllowSecondsEdit</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables seconds input in custom format strings.</td></tr>
+                            <tr><td><code>AutoSubmit</code></td><td><code>bool</code></td><td><code>false</code></td><td>Automatically fires <code>TimeSubmitted</code> when time changes.</td></tr>
+                            <tr><td><code>ShowValidationIcon</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows error background and tooltip when validation fails.</td></tr>
+                            <tr><td><code>TimeContext</code></td><td><code>string</code></td><td><code>"Time Selection"</code></td><td>Context label passed in <code>TimeSubmittedEventArgs</code>.</td></tr>
+                            <tr><td><code>BusinessStartTime</code></td><td><code>TimeSpan</code></td><td><code>09:00</code></td><td>Start of business hours for <code>AutoAdjustToBusinessHours</code>.</td></tr>
+                            <tr><td><code>BusinessEndTime</code></td><td><code>TimeSpan</code></td><td><code>17:00</code></td><td>End of business hours.</td></tr>
+                            <tr><td><code>AutoAdjustToBusinessHours</code></td><td><code>bool</code></td><td><code>false</code></td><td>Clamps times outside <code>BusinessStartTime</code>–<code>BusinessEndTime</code> on focus loss.</td></tr>
+                            <tr><td><code>ValidationErrorMessage</code></td><td><code>string</code></td><td><code>""</code></td><td>Read-only. Current validation error text.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>GetCurrentFormat</code></td><td><code>string GetCurrentFormat()</code></td><td>Returns the active .NET time format string based on <code>TimeFormatStyle</code>.</td></tr>
+                            <tr><td><code>IsTimeValid</code></td><td><code>bool IsTimeValid(TimeSpan time)</code></td><td>Checks against <code>MinTime</code>, <code>MaxTime</code>, and business hours; sets <code>ValidationErrorMessage</code>.</td></tr>
+                            <tr><td><code>SnapTimeToInterval</code></td><td><code>TimeSpan SnapTimeToInterval(TimeSpan time)</code></td><td>Rounds down to the nearest <code>MinuteInterval</code>.</td></tr>
+                            <tr><td><code>GetNextBusinessTime</code></td><td><code>TimeSpan GetNextBusinessTime(TimeSpan time)</code></td><td>Returns the nearest valid business-hour time (clamps to start if outside).</td></tr>
+                            <tr><td><code>ConfigureForMeetingTime</code></td><td><code>void ConfigureForMeetingTime()</code></td><td>12h format, 15-min intervals, business hours, snap enabled.</td></tr>
+                            <tr><td><code>ConfigureForAppointment</code></td><td><code>void ConfigureForAppointment()</code></td><td>12h format, 30-min intervals, 8AM–6PM, auto-submit on.</td></tr>
+                            <tr><td><code>ConfigureForShiftTime</code></td><td><code>void ConfigureForShiftTime()</code></td><td>24h format, 15-min intervals, empty disallowed, snap enabled.</td></tr>
+                            <tr><td><code>ConfigureForDeadline</code></td><td><code>void ConfigureForDeadline()</code></td><td>12h format, auto-submit on, validation icon on.</td></tr>
+                            <tr><td><code>SetValue</code></td><td><code>void SetValue(object value)</code></td><td>Accepts <code>TimeSpan</code>, <code>DateTime</code>, or parsable <code>string</code>.</td></tr>
+                            <tr><td><code>GetValue</code></td><td><code>object GetValue()</code></td><td>Returns <code>SelectedTime</code> or <code>null</code> if zero.</td></tr>
+                            <tr><td><code>Reset</code></td><td><code>void Reset()</code></td><td>Resets <code>SelectedTime</code> to the current time of day.</td></tr>
+                            <tr><td><code>Clear</code></td><td><code>void Clear()</code></td><td>Clears the time and text if <code>AllowEmpty</code> is true.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SelectedTimeChanged</code></td><td>Raised when <code>SelectedTime</code> changes for any reason.</td></tr>
+                            <tr><td><code>TimeChanged</code></td><td>Raised with <code>TimeChangedEventArgs</code> containing old and new values.</td></tr>
+                            <tr><td><code>TimeSubmitted</code></td><td>Raised when the user commits a time (always if <code>AutoSubmit</code> is true). <code>TimeSubmittedEventArgs</code> includes context.</td></tr>
+                            <tr><td><code>TimeValidationFailed</code></td><td>Raised with <code>TimeValidationEventArgs</code> when validation against min/max/business fails.</td></tr>
+                            <tr><td><code>TimePickerOpened</code></td><td>Raised when the popup selector is opened.</td></tr>
+                            <tr><td><code>TimePickerClosed</code></td><td>Raised when the popup selector is closed.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="formats" class="section">
+                    <h2>Time Formats</h2>
+                    <table>
+                        <thead><tr><th>Format</th><th>.NET Pattern</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>TwelveHour</code></td><td><code>"h:mm tt"</code></td><td><code>1:30 PM</code></td></tr>
+                            <tr><td><code>TwentyFourHour</code></td><td><code>"HH:mm"</code></td><td><code>13:30</code></td></tr>
+                            <tr><td><code>TwelveHourWithSeconds</code></td><td><code>"h:mm:ss tt"</code></td><td><code>1:30:45 PM</code></td></tr>
+                            <tr><td><code>TwentyFourHourWithSeconds</code></td><td><code>"HH:mm:ss"</code></td><td><code>13:30:45</code></td></tr>
+                            <tr><td><code>HoursOnly</code></td><td><code>"HH" or "h tt"</code></td><td><code>13</code> or <code>1 PM</code></td></tr>
+                            <tr><td><code>Custom</code></td><td><code>TimeFormat</code> value</td><td>User-specified</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="business-modes" class="section">
+                    <h2>Business Configuration</h2>
+                    <p>Four preset methods configure the picker for common business scenarios:</p>
+                    <pre><code class="language-csharp">// Meeting scheduler: 12h, 15-min snaps, business hours required
+picker.ConfigureForMeetingTime();
+
+// Appointment booking: 12h, 30-min snaps, 8AM–6PM, auto-submit
+picker.ConfigureForAppointment();
+
+// Shift scheduling: 24h, 15-min snaps, non-empty required
+picker.ConfigureForShiftTime();
+
+// Deadline entry: 12h, auto-submit on change
+picker.ConfigureForDeadline();</code></pre>
+                    <p>After calling a preset, you can further customize individual properties like <code>BusinessStartTime</code> or <code>MinTime</code>.</p>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>The control reads theme tokens for text box background/foreground, border color, and error state colors (<code>TextBoxErrorBackColor</code>, <code>TextBoxErrorBorderColor</code>). Child buttons and the popup panel inherit the theme automatically via <code>ApplyTheme()</code> propagation.</p>
+                    <pre><code class="language-csharp">picker.Theme = "MaterialDark";
+picker.ApplyTheme(); // Propagates to text box, buttons, and popup panel</code></pre>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <h3>Basic 12-Hour Picker</h3>
+                    <pre><code class="language-csharp">var picker = new BeepTimePicker
+{
+    TimeFormatStyle = TimeFormatStyle.TwelveHour,
+    ShowDropDown = true,
+    ShowSpinButtons = true,
+    MinuteInterval = 5,
+    SnapToInterval = true
+};
+picker.SelectedTime = new TimeSpan(14, 30, 0); // 2:30 PM</code></pre>
+
+                    <h3>With Validation and Events</h3>
+                    <pre><code class="language-csharp">var picker = new BeepTimePicker
+{
+    MinTime = new TimeSpan(9, 0, 0),  // 9 AM
+    MaxTime = new TimeSpan(17, 0, 0), // 5 PM
+    AutoSubmit = true
+};
+picker.TimeValidationFailed += (s, e) =>
+    MessageBox.Show($"Invalid: {e.ErrorMessage}");
+picker.TimeSubmitted += (s, e) =>
+    SaveTime(e.SelectedTime, e.Context);</code></pre>
+
+                    <h3>Data-Binding</h3>
+                    <pre><code class="language-csharp">var picker = new BeepTimePicker();
+picker.SetValue(new DateTime(2025, 6, 1, 10, 30, 0)); // from DateTime
+picker.SetValue("14:45");                              // from string
+var result = picker.GetValue() as TimeSpan?;           // nullable TimeSpan</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>_textBox</code> (TextBox)</td><td>Inline text editing with input filtering, focus/leave validation</td></tr>
+                            <tr><td><code>_dropdownButton</code> (BeepButton)</td><td>Clock icon that opens <code>BeepPopupForm</code> with time lists</td></tr>
+                            <tr><td><code>_incrementButton</code> / <code>_decrementButton</code></td><td>Spin buttons adjusting by <code>MinuteInterval</code>; wrap at 23:59/00:00</td></tr>
+                            <tr><td><code>_timePopup</code> (BeepPopupForm)</td><td>Floating popup containing hours/minutes/AMPM list boxes</td></tr>
+                            <tr><td><code>_timePickerPanel</code> (BeepPanel)</td><td>Container panel for the popup's list boxes and OK/Cancel buttons</td></tr>
+                            <tr><td><code>AdjustLayout()</code></td><td>Repositions all sub-controls based on visibility and current dimensions</td></tr>
+                            <tr><td><code>TryParseTime()</code></td><td>Attempts parsing via <code>DateTime.TryParse</code> then <code>TimeSpan.TryParse</code></td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-hierarchicalradiogroup.html"><i class="bi bi-arrow-left"></i> BeepHierarchicalRadioGroup</a>
+                    <a href="beep-radiolistbox.html">BeepRadioListBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

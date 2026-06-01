@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridX Grouping Engine - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>GridX Grouping Engine</span></nav><div class="page-header"><h1>GridX Grouping Engine</h1><p class="page-subtitle">Multi-level grouping with aggregate summary rows, collapsible groups, nested GroupDescriptor, IGridGrouper, GridGroup model, group header rendering, and sort-within-groups</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#engine">GridGroupEngine (436 lines)</a></li><li><a href="#descriptor">GroupDescriptor</a></li><li><a href="#grouper">IGridGrouper</a></li><li><a href="#model">GridGroup Model</a></li><li><a href="#header">Group Header Rendering</a></li><li><a href="#sortwithin">Sort-Within-Groups</a></li><li><a href="#expand">Expand/Collapse</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The GridX grouping engine provides <strong>multi-level nested grouping</strong> on any column in the data grid. Groups are rendered as collapsible header rows with summary aggregate rows (sum, avg, count, min, max) below each group. The engine supports up to N-levels of nested grouping — each new <code>GroupDescriptor</code> added creates a sub-group within the previous level.</p><p><strong>Key classes:</strong></p><table><thead><tr><th>Class</th><th>Responsibility</th><th>Lines</th></tr></thead><tbody><tr><td><code>GridGroupEngine</code></td><td>Orchestrates all grouping operations, manages descriptors and group tree</td><td>436</td></tr><tr><td><code>GridGroup</code></td><td>Tree node representing one group with its rows, sub-groups, and collapse state</td><td>152</td></tr><tr><td><code>GroupDescriptor</code></td><td>Definition of a grouping level: column name, sort direction, display format, aggregates</td><td>98</td></tr><tr><td><code>IGridGrouper</code></td><td>Interface for custom grouping logic; <code>DefaultGridGrouper</code> is the built-in implementation</td><td>84</td></tr><tr><td><code>GridGroupSummaryRow</code></td><td>Displays aggregate values (sum, avg, count, min, max) at group footer</td><td>67</td></tr><tr><td><code>GridGroupHeaderRenderer</code></td><td>Renders group header with chevron, key display, item count, and expand/collapse</td><td>93</td></tr></tbody></table></section>
+<section class="section" id="engine"><h2>GridGroupEngine (436 lines)</h2><p><code>GridGroupEngine</code> is the central coordinator attached to every <code>BeepGridPro</code> instance via the <code>GroupEngine</code> property. It owns the descriptor collection, the group tree, and delegates grouping logic to the injected <code>IGridGrouper</code>.</p><table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Descriptors</code></td><td>Property: <code>List&lt;GroupDescriptor&gt;</code></td><td>Ordered list of group descriptors defining nesting hierarchy</td></tr><tr><td><code>Groups</code></td><td>Property: <code>List&lt;GridGroup&gt;</code></td><td>Root-level groups after <code>ApplyGrouping()</code></td></tr><tr><td><code>IsGrouped</code></td><td>Property: <code>bool</code></td><td>True when at least one descriptor is registered and grouping is applied</td></tr><tr><td><code>Grouper</code></td><td>Property: <code>IGridGrouper</code></td><td>Injectable grouper instance; defaults to <code>DefaultGridGrouper</code></td></tr></tbody></table><h3>Methods</h3><table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><code>AddDescriptor</code></td><td><code>void AddDescriptor(GroupDescriptor descriptor)</code></td><td>Appends a grouping level and re-applies grouping</td></tr><tr><td><code>ClearDescriptors</code></td><td><code>void ClearDescriptors()</code></td><td>Removes all descriptors, ungroups rows, restores flat view</td></tr><tr><td><code>SetDescriptors</code></td><td><code>void SetDescriptors(IEnumerable&lt;GroupDescriptor&gt; descriptors)</code></td><td>Replaces entire descriptor set in one operation</td></tr><tr><td><code>ToggleCollapse</code></td><td><code>void ToggleCollapse(GridGroup group)</code></td><td>Flips <code>IsCollapsed</code> on the given group node</td></tr><tr><td><code>ExpandAll</code></td><td><code>void ExpandAll()</code></td><td>Recursively sets <code>IsCollapsed = false</code> on all groups</td></tr><tr><td><code>CollapseAll</code></td><td><code>void CollapseAll()</code></td><td>Recursively sets <code>IsCollapsed = true</code> on all groups</td></tr><tr><td><code>ApplyGrouping</code></td><td><code>void ApplyGrouping()</code></td><td>Rebuilds the group tree from the current data source using <code>IGridGrouper</code></td></tr><tr><td><code>SortWithinGroups</code></td><td><code>void SortWithinGroups(string columnName, SortDirection direction)</code></td><td>Sorts rows inside each group by the given column/direction</td></tr><tr><td><code>SortGroupsByColumn</code></td><td><code>void SortGroupsByColumn(string columnName, SortDirection direction)</code></td><td>Reorders top-level groups themselves by the specified column</td></tr><tr><td><code>GetHeaderHeight</code></td><td><code>int GetHeaderHeight(int level)</code></td><td>Returns pixel height of group header for a given nesting level</td></tr><tr><td><code>GetHeaderCountBeforeRow</code></td><td><code>int GetHeaderCountBeforeRow(int dataRowIndex)</code></td><td>Count of group/summary headers before a flat row index (for scroll math)</td></tr><tr><td><code>GetTotalContentHeight</code></td><td><code>int GetTotalContentHeight()</code></td><td>Full scrollable height including all headers, rows, and summary rows</td></tr><tr><td><code>GetTotalHeightBeforeRow</code></td><td><code>int GetTotalHeightBeforeRow(int flatIndex)</code></td><td>Cumulative pixel height before a given flat row index</td></tr></tbody></table></section>
+<section class="section" id="descriptor"><h2>GroupDescriptor</h2><p><code>GroupDescriptor</code> defines one level of grouping. Multiple descriptors create a nested group hierarchy — e.g., <code>{Country, City}</code> produces Country groups with City sub-groups inside each.</p><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><code>ColumnName</code></td><td><code>string</code></td><td>—</td><td>Data column to group by (required)</td></tr><tr><td><code>SortDirection</code></td><td><code>SortDirection</code></td><td><code>Ascending</code></td><td>Sort order for group keys: Ascending or Descending</td></tr><tr><td><code>DisplayFormat</code></td><td><code>string</code></td><td><code>"{0}"</code></td><td>Format string for the group key value in the header (e.g., <code>"Year: {0}"</code>)</td></tr><tr><td><code>ShowSummaryRow</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, renders a <code>GridGroupSummaryRow</code> below each group</td></tr><tr><td><code>Aggregates</code></td><td><code>List&lt;GroupAggregate&gt;</code></td><td><code>new()</code></td><td>Aggregate definitions for the summary row (sum, avg, count, min, max)</td></tr></tbody></table><p><code>GroupAggregate</code> has properties: <code>Function</code> (enum: <code>Sum</code>, <code>Average</code>, <code>Count</code>, <code>Min</code>, <code>Max</code>), <code>ColumnName</code> (target numeric column), and <code>DisplayFormat</code> (e.g., <code>"SUM: {0:N2}"</code>).</p></section>
+<section class="section" id="grouper"><h2>IGridGrouper</h2><p>The grouping algorithm is abstracted behind <code>IGridGrouper</code>, enabling custom grouping logic injection. The built-in <code>DefaultGridGrouper</code> uses hash-based partitioning with stable sort order.</p><pre><code class="language-csharp">public interface IGridGrouper
+{
+    List&lt;GridGroup&gt; BuildGroups(
+        IEnumerable dataSource,
+        List&lt;GroupDescriptor&gt; descriptors,
+        int level);
+
+    List&lt;GridGroup&gt; BuildSubGroups(
+        GridGroup parentGroup,
+        List&lt;GroupDescriptor&gt; descriptors,
+        int level);
+}</code></pre><p><code>DefaultGridGrouper</code> uses <code>PropertyDescriptor</code> to access column values, groups by <code>ColumnName</code> using a <code>Dictionary&lt;object, List&gt;</code> partition, sorts groups by <code>SortDirection</code>, and recursively calls <code>BuildSubGroups</code> for each subsequent descriptor level. To inject a custom grouper:</p><pre><code class="language-csharp">grid.GroupEngine.Grouper = new MyCustomGrouper();</code></pre></section>
+<section class="section" id="model"><h2>GridGroup Model</h2><p><code>GridGroup</code> is a tree node representing one group at any nesting level. Each group holds its child rows and optional sub-groups.</p><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Key</code></td><td><code>object</code></td><td>The grouped value (e.g., <code>"USA"</code> for a Country group)</td></tr><tr><td><code>Value</code></td><td><code>string</code></td><td>Formatted display string (applies <code>DisplayFormat</code> from descriptor)</td></tr><tr><td><code>Level</code></td><td><code>int</code></td><td>Nesting depth (0 = top level, 1 = first sub-group, etc.)</td></tr><tr><td><code>IsCollapsed</code></td><td><code>bool</code></td><td>True when group is collapsed; child rows and sub-groups are hidden</td></tr><tr><td><code>Rows</code></td><td><code>ArrayList</code></td><td>Data rows belonging to this group (leaf rows, not in sub-groups)</td></tr><tr><td><code>SubGroups</code></td><td><code>List&lt;GridGroup&gt;</code></td><td>Child groups for the next descriptor level</td></tr><tr><td><code>Parent</code></td><td><code>GridGroup</code></td><td>Reference to parent group; null for root-level groups</td></tr><tr><td><code>SummaryValues</code></td><td><code>Dictionary&lt;string, object&gt;</code></td><td>Computed aggregate values when <code>ShowSummaryRow</code> is enabled</td></tr></tbody></table><p>The group tree is built by a recursive walk: root-level <code>Groups</code> contain <code>SubGroups</code> which contain further <code>SubGroups</code>, with leaf <code>Rows</code> at the deepest level. A flattened view for rendering is computed by <code>GetHeaderCountBeforeRow()</code> and <code>GetTotalHeightBeforeRow()</code>.</p></section>
+<section class="section" id="header"><h2>Group Header Rendering</h2><p><code>GridGroupHeaderRenderer</code> draws each group's visual header row. It renders:</p><ul><li><strong>Chevron icon</strong> — Expandable/collapsible indicator (&#x25B6; collapsed, &#x25BC; expanded) drawn at left margin with level-based indentation</li><li><strong>Group key + display value</strong> — Column name prefix + formatted value, e.g., <code>"Country: USA"</code></li><li><strong>Item count</strong> — Number of leaf rows in this group, displayed as <code>"(247 items)"</code></li><li><strong>Summary row</strong> — When <code>ShowSummaryRow = true</code>, an additional row below the group rows displays aggregate values (Sum, Avg, Count, Min, Max) per the <code>Aggregates</code> list</li></ul><p>Header height varies by level: <code>GetHeaderHeight(int level)</code> returns the pixel height, defaulting to 32px for level 0 and 28px for deeper levels. The renderer respects theme tokens via <code>GridThemeHelper</code> for colors and fonts.</p></section>
+<section class="section" id="sortwithin"><h2>Sort-Within-Groups</h2><p>Rows inside each group can be independently sorted without affecting group ordering. <code>SortWithinGroups(columnName, direction)</code> iterates all groups and sorts their <code>Rows</code> by the given column. <code>SortGroupsByColumn(columnName, direction)</code> reorders the groups themselves at the top level.</p><pre><code class="language-csharp">var engine = grid.GroupEngine;
+
+engine.AddDescriptor(new GroupDescriptor("Country", SortDirection.Ascending));
+engine.AddDescriptor(new GroupDescriptor("City", SortDirection.Ascending));
+
+engine.SortWithinGroups("Population", SortDirection.Descending);
+
+engine.SortGroupsByColumn("Country", SortDirection.Descending);</code></pre><p>Sort direction uses the standard <code>SortDirection</code> enum (<code>Ascending</code> / <code>Descending</code>). When no sort is specified within groups, rows retain their original order from the data source.</p></section>
+<section class="section" id="expand"><h2>Expand/Collapse</h2><p>Each group can be independently collapsed or expanded. The engine provides both per-group and bulk operations:</p><table><thead><tr><th>Operation</th><th>Method</th><th>Scope</th></tr></thead><tbody><tr><td>Toggle one group</td><td><code>ToggleCollapse(GridGroup)</code></td><td>Single group — children hidden/shown</td></tr><tr><td>Expand all</td><td><code>ExpandAll()</code></td><td>All groups at all levels</td></tr><tr><td>Collapse all</td><td><code>CollapseAll()</code></td><td>All groups at all levels</td></tr></tbody></table><p>When a parent group is collapsed, all its child rows and sub-groups are hidden from rendering. The <code>GetTotalContentHeight()</code> method accounts for collapse state — collapsed groups contribute only their header height to the scroll height. The <code>GetHeaderCountBeforeRow()</code> method skips collapsed sub-groups when computing flat-to-visual row mapping.</p></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Two-Level Grouping with Aggregates</h3><pre><code class="language-csharp">var engine = grid.GroupEngine;
+
+engine.AddDescriptor(new GroupDescriptor
+{
+    ColumnName = "Category",
+    SortDirection = SortDirection.Ascending,
+    DisplayFormat = "Category: {0}",
+    ShowSummaryRow = true,
+    Aggregates =
+    {
+        new GroupAggregate { Function = AggregateFunction.Sum, ColumnName = "Sales", DisplayFormat = "Total: {0:C}" },
+        new GroupAggregate { Function = AggregateFunction.Average, ColumnName = "Sales", DisplayFormat = "Avg: {0:C}" },
+        new GroupAggregate { Function = AggregateFunction.Count, ColumnName = "ProductId", DisplayFormat = "Count: {0}" }
+    }
+});
+
+engine.AddDescriptor(new GroupDescriptor
+{
+    ColumnName = "Region",
+    SortDirection = SortDirection.Ascending,
+    DisplayFormat = "Region: {0}",
+    ShowSummaryRow = true,
+    Aggregates =
+    {
+        new GroupAggregate { Function = AggregateFunction.Sum, ColumnName = "Sales", DisplayFormat = "Subtotal: {0:C}" }
+    }
+});
+
+engine.ApplyGrouping();</code></pre><h3>Collapse All, Then Toggle One</h3><pre><code class="language-csharp">grid.GroupEngine.CollapseAll();
+
+var rootGroups = grid.GroupEngine.Groups;
+if (rootGroups.Count > 0)
+{
+    grid.GroupEngine.ToggleCollapse(rootGroups[0]);
+
+    if (rootGroups[0].SubGroups.Count > 0)
+    {
+        grid.GroupEngine.ToggleCollapse(rootGroups[0].SubGroups[0]);
+    }
+}</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

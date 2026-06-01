@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BeepDocumentManagerDesigner - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body><aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Document Designers</li><li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li></ul></nav></aside><main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>BeepDocumentManagerDesigner</span></nav>
+<div class="page-header"><h1>BeepDocumentManagerDesigner</h1><p class="page-subtitle">Design-time designer for BeepDocumentManager -- Setup Wizard integration, Tabbed/Browser/NativeMDI view modes, auto-host creation, layout templates, and registry-based wizard preferences</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#view-modes">View Mode Management</a></li><li><a href="#setup-wizard">Setup Wizard</a></li><li><a href="#host-resolution">Host Resolution</a></li><li><a href="#wizard-prefs">Registry-Based Wizard Preferences</a></li><li><a href="#status">Status Banner</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Visibility:</strong> <code>public sealed partial</code> | Spread across 2 partial files after the original main file was deleted</p><p><code>BeepDocumentManagerDesigner</code> provides the design-time experience for <strong>BeepDocumentManager</strong> -- the high-level coordinator for document management. It handles three document presentation modes (Tabbed, BrowserTabs, NativeMdi), auto-creates <code>BeepDocumentHost</code> instances via <code>IDesignerHost.CreateComponent</code>, exposes a setup wizard, and remembers user preferences in the Windows Registry. It does NOT use <code>BaseBeepControlDesigner</code> -- it likely extends <code>ControlDesigner</code> directly.</p></section>
+
+<section class="section" id="view-modes"><h2>View Mode Management</h2><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>ApplyTabbedViewMode(showInfo)</strong></td><td>Configures the host with standard tabbed documents. Calls ApplyTabbedViewModeCore(browserStyle: false).</td></tr><tr><td><strong>ApplyBrowserTabsMode(showInfo)</strong></td><td>Configures host with Chrome-style browser tabs (ShowAddButton=true, TabStyle=Chrome, CloseMode=Always, TabPosition=Top).</td></tr><tr><td><strong>ApplyNativeMdiViewMode(showInfo)</strong></td><td>Falls back to tabbed mode with a message box explaining Native MDI is not yet supported.</td></tr><tr><td><strong>ApplyLayoutTemplate(templateId)</strong></td><td>Maps wizard template IDs to concrete host template method calls (Single, SideBySide, Stacked, ThreeWay, etc.).</td></tr></tbody></table></section>
+
+<section class="section" id="setup-wizard"><h2>Setup Wizard</h2><p>The setup wizard flow auto-opens when the component is first dropped on a form:</p><ol><li><strong>Auto-detect</strong> -- <code>InitializeNewComponent</code> checks <code>ShouldAutoOpenWizard()</code> (registry key). If enabled, posts <code>ShowSetupWizard()</code>.</li><li><strong>Wizard dialog</strong> -- Opens <code>DocumentSetupWizardDialog</code> with mode selection (Tabbed/BrowserTabs/NativeMdi), sample document seeding, layout template picker.</li><li><strong>Apply result</strong> -- <code>ApplySetupResult(result)</code> opens a designer transaction, applies the chosen mode, optionally seeds sample documents, and optionally applies a layout template.</li><li><strong>"Do not show again"</strong> -- Stored in registry. Can be reset via <code>OnResetWizardPreference()</code>.</li></ol></section>
+
+<section class="section" id="host-resolution"><h2>Host Resolution</h2><pre><code class="language-csharp">// Auto-creates a BeepDocumentHost if one doesn't exist
+private BeepDocumentHost? EnsureBeepDocumentHostExists(
+    out string status, out bool autoCreated)
+{
+    // Uses IDesignerHost.CreateComponent(typeof(BeepDocumentHost))
+    // Docks Fill, sends to back
+    // Wires host to manager via Manager.Host + Hosts collection
+}</code></pre><p>When multiple hosts exist on the form, the wizard shows a <strong>HostPickerOption</strong> combo box to let the developer select which host to wire.</p></section>
+
+<section class="section" id="wizard-prefs"><h2>Registry-Based Wizard Preferences</h2><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>ShouldAutoOpenWizard()</strong></td><td>Static. Reads <code>HKCU\Software\TheTechIdea\Beep\Design\DocumentSetupWizard\AutoOpen</code> (DWORD). Returns true if key absent or non-zero.</td></tr><tr><td><strong>SetAutoOpenWizard(bool)</strong></td><td>Static. Writes 1 (auto-open) or 0 (suppress) to the registry key.</td></tr><tr><td><strong>OnResetWizardPreference()</strong></td><td>Resets to auto-open and shows a MessageBox confirmation.</td></tr></tbody></table></section>
+
+<section class="section" id="status"><h2>Status Banner</h2><p><code>DescribeViewMode()</code> returns a human-readable status string shown in the smart-tag:</p><ul><li>"Tabbed Documents · 3 docs · Top tabs · Splits allowed"</li><li>"Browser Tabs · 0 docs — drop a control on the host..."</li><li>"Not configured — click 'Setup Wizard...' to start."</li></ul></section>
+
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time:
+// 1. Drop BeepDocumentManager from toolbox -> tray component
+// 2. Setup Wizard auto-opens (if registry allows)
+// 3. Choose "Browser Tabs" mode -> auto-creates BeepDocumentHost with Chrome style
+
+// At runtime:
+var mgr = new BeepDocumentManager();
+mgr.ViewMode = DocumentViewMode.BrowserTabs;
+var host = new BeepDocumentHost();
+mgr.Host = host;
+mgr.Hosts.Add(host);
+host.AddDocument("Main.cs", new RichTextBox());
+host.AddDocument("App.config", new TextBox());</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

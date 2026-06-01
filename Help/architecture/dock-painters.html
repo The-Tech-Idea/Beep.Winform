@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dock Painters (22 Styles) - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Dock Painters (22 Styles)</span></nav><div class="page-header"><h1>Dock Painters (22 Styles)</h1><p class="page-subtitle">Complete catalog of 22 IDockPainter implementations — from AppleDock to DraculaDock — with DockPainterFactory, DockConfig, DockItemState, and DockPainterMetrics</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#contract">IDockPainter Contract</a></li><li><a href="#factory">DockPainterFactory</a></li><li><a href="#config">DockConfig &amp; DockItemState</a></li><li><a href="#catalog">Painter Catalog (22)</a></li><li><a href="#pipeline">Rendering Pipeline</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The BeepDock control supports <strong>22 distinct visual painter styles</strong>, each implementing the <code>IDockPainter</code> interface. Painters control every aspect of dock rendering: background glass/shelf effects, item icons and labels, magnification animation, hover indicators, drag indicators, separators, badges, and hit testing.</p><p>Painters are resolved at runtime via <code>DockPainterFactory.GetPainter(dockStyle)</code>. The factory returns a singleton instance per style. Key supporting types include <code>DockConfig</code> (layout/behavior properties), <code>DockItemState</code> (per-item visual state), and <code>DockPainterMetrics</code> (computed sizes and bounds).</p></section>
+<section class="section" id="contract"><h2>IDockPainter Contract</h2><p>Every dock painter implements these 7 core methods:</p><pre><code class="language-csharp">public interface IDockPainter
+{
+    void PaintDockBackground(Graphics g, Rectangle bounds, DockConfig config);
+    void PaintDockItem(Graphics g, DockItemState state, DockConfig config);
+    void PaintIndicator(Graphics g, Rectangle bounds, DockConfig config);
+    void PaintSeparator(Graphics g, Rectangle bounds, DockConfig config);
+    Rectangle CalculateItemBounds(int index, DockItemState state, DockConfig config);
+    Rectangle CalculateDockBounds(Control host, DockConfig config, int itemCount);
+    int HitTest(Point point, List&lt;Rectangle&gt; itemBounds);
+}</code></pre><table><thead><tr><th>Method</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>PaintDockBackground</code></td><td>Draws the dock's background surface: glass, acrylic, shelf, frosted, gradient, dark panel</td></tr><tr><td><code>PaintDockItem</code></td><td>Renders a single dock item: icon, label, badge, hover glow, magnification scale, active indicator</td></tr><tr><td><code>PaintIndicator</code></td><td>Draws the active-application dot/line/glow indicator below the item</td></tr><tr><td><code>PaintSeparator</code></td><td>Draws a visual separator between groups of dock items</td></tr><tr><td><code>CalculateItemBounds</code></td><td>Computes the bounding rectangle for a specific item given its index, state, and config</td></tr><tr><td><code>CalculateDockBounds</code></td><td>Computes the total dock area based on item count, orientation, and host control size</td></tr><tr><td><code>HitTest</code></td><td>Determines which item index (if any) is at the given point; returns -1 if no hit</td></tr></tbody></table></section>
+<section class="section" id="factory"><h2>DockPainterFactory</h2><p><code>DockPainterFactory</code> maintains a static <code>Dictionary&lt;DockStyle, IDockPainter&gt;</code> mapping each style enum to its painter instance. The factory is initialized with all 22 painters at startup.</p><table><thead><tr><th>Member</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><code>GetPainter</code></td><td><code>static IDockPainter GetPainter(DockStyle style)</code></td><td>Returns the painter for the given style; falls back to <code>AppleDockPainter</code> if style is unrecognized</td></tr><tr><td><code>Register</code></td><td><code>static void Register(DockStyle style, IDockPainter painter)</code></td><td>Overrides or adds a painter for a given style (for plugin/extensibility scenarios)</td></tr></tbody></table><p>The <code>DockStyle</code> enum includes all 22 values: <code>Apple</code>, <code>Windows11</code>, <code>iOS</code>, <code>Material3</code>, <code>GNOME</code>, <code>Plank</code>, <code>PlasmaPanel</code>, <code>Neumorphic</code>, <code>Glassmorphism</code>, <code>Cyberpunk</code>, <code>Dracula</code>, <code>Nord</code>, <code>Neon</code>, <code>Minimal</code>, <code>Floating</code>, <code>Bubble</code>, <code>Arc</code>, <code>Terminal</code>, <code>ClassicTaskbar</code>, <code>Pill</code>, <code>Custom</code>, and <code>Default</code>.</p></section>
+<section class="section" id="config"><h2>DockConfig &amp; DockItemState</h2><h3>DockConfig</h3><p><code>DockConfig</code> holds layout and behavior properties that affect all items. It is passed to every painter method.</p><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>DockStyle</code></td><td><code>DockStyle</code></td><td>Enum identifying the active painter style</td></tr><tr><td><code>ItemSize</code></td><td><code>int</code></td><td>Base pixel size of each item (default 48)</td></tr><tr><td><code>DockHeight</code></td><td><code>int</code></td><td>Pixel height of the entire dock background</td></tr><tr><td><code>ItemSpacing</code></td><td><code>int</code></td><td>Pixels between adjacent items (default 4)</td></tr><tr><td><code>MaxScale</code></td><td><code>float</code></td><td>Maximum magnification scale factor for hovered items (default 1.5)</td></tr><tr><td><code>Position</code></td><td><code>DockPosition</code></td><td>Screen edge: Bottom, Left, Right, Top</td></tr><tr><td><code>Orientation</code></td><td><code>Orientation</code></td><td>Horizontal or Vertical</td></tr><tr><td><code>Alignment</code></td><td><code>DockAlignment</code></td><td>Start, Center, or End within the dock area</td></tr><tr><td><code>IndicatorStyle</code></td><td><code>IndicatorStyle</code></td><td>Dot, Line, Glow, or None below active items</td></tr><tr><td><code>AnimationStyle</code></td><td><code>AnimationStyle</code></td><td>Magnification, Bounce, Pulse, or None on hover</td></tr><tr><td><code>IconMode</code></td><td><code>IconMode</code></td><td>IconOnly, IconWithLabel, or LabelOnly</td></tr><tr><td><code>ShowTooltips</code></td><td><code>bool</code></td><td>Whether to show tooltips on hover</td></tr><tr><td><code>ShowBadges</code></td><td><code>bool</code></td><td>Whether to render notification badges</td></tr></tbody></table><h3>DockItemState</h3><p><code>DockItemState</code> captures the per-item visual state for a single rendering frame.</p><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Index</code></td><td><code>int</code></td><td>Position of this item within the dock</td></tr><tr><td><code>Bounds</code></td><td><code>Rectangle</code></td><td>Computed bounding rectangle (from CalculateItemBounds)</td></tr><tr><td><code>IsHovered</code></td><td><code>bool</code></td><td>Mouse is over this item</td></tr><tr><td><code>IsActive</code></td><td><code>bool</code></td><td>This item's application is the active window</td></tr><tr><td><code>IsDragging</code></td><td><code>bool</code></td><td>Item is being dragged (reorder or remove)</td></tr><tr><td><code>Scale</code></td><td><code>float</code></td><td>Current animated scale factor (1.0 = normal, up to MaxScale)</td></tr><tr><td><code>BadgeCount</code></td><td><code>int</code></td><td>Notification badge number; 0 = no badge</td></tr><tr><td><code>IconPath</code></td><td><code>string</code></td><td>File path to the item's icon image</td></tr><tr><td><code>Label</code></td><td><code>string</code></td><td>Display text for the item (shown when IconMode includes labels)</td></tr></tbody></table></section>
+<section class="section" id="catalog"><h2>Painter Catalog (22 Total)</h2><table><thead><tr><th>#</th><th>Painter Class</th><th>Visual Style</th><th>Key Features</th></tr></thead><tbody>
+<tr><td>1</td><td><code>AppleDockPainter</code></td><td>macOS Dock</td><td>Translucent glass shelf background, magnification zoom animation, active dot indicator, icon bounce on launch</td></tr>
+<tr><td>2</td><td><code>Windows11DockPainter</code></td><td>Windows 11 Taskbar</td><td>Centered layout, acrylic blur background, pill-shaped active indicator, rounded corners, Fluent Design System colors</td></tr>
+<tr><td>3</td><td><code>iOSDockPainter</code></td><td>iOS Home Screen Dock</td><td>Frosted glass background with blur, rounded-rect icons, subtle shadow, no labels, badge in upper-right</td></tr>
+<tr><td>4</td><td><code>Material3DockPainter</code></td><td>Material Design 3</td><td>Pill-shaped item backgrounds, dynamic color from theme, elevated hover state with surface tint, ripple animation</td></tr>
+<tr><td>5</td><td><code>GNOMEDockPainter</code></td><td>GNOME Shell Dash</td><td>Dark semi-transparent panel, minimal icons, left-side dash layout, glowing active dot, subtle separators</td></tr>
+<tr><td>6</td><td><code>PlankDockPainter</code></td><td>Plank (Linux)</td><td>Gradient glass shelf, 3D reflection effect, zoom magnification, sharp active triangle indicator</td></tr>
+<tr><td>7</td><td><code>PlasmaPanelPainter</code></td><td>KDE Plasma Panel</td><td>Full-width panel with gradient, task-style items with progress bars, icon+label by default, thin active underline</td></tr>
+<tr><td>8</td><td><code>NeumorphicDockPainter</code></td><td>Neumorphism</td><td>Soft raised/pressed shadows, pastel color palette, rounded items, inset active indicator, low contrast</td></tr>
+<tr><td>9</td><td><code>GlassmorphismDockPainter</code></td><td>Glassmorphism</td><td>Multi-layer glass effect, colorful border glow, frosted background, vibrant hover colors, gradient borders</td></tr>
+<tr><td>10</td><td><code>CyberpunkDockPainter</code></td><td>Cyberpunk / Synthwave</td><td>Neon glow borders, dark grid-pattern background, cyan/magenta accents, glitch-style active indicator, terminal font</td></tr>
+<tr><td>11</td><td><code>DraculaDockPainter</code></td><td>Dracula Theme</td><td>Dark purple background (#282A36), pink active highlight (#FF79C6), green hover (#50FA7B), consistent Dracula palette</td></tr>
+<tr><td>12</td><td><code>NordDockPainter</code></td><td>Nord Theme</td><td>Frost-blue arctic palette (#3B4252, #434C5E), subtle highlights, clean minimal separators, calm aesthetic</td></tr>
+<tr><td>13</td><td><code>NeonDockPainter</code></td><td>Neon / Glow</td><td>Intense neon glow effects, dark background, color-cycled hover states, pulsing active indicators, glow blur</td></tr>
+<tr><td>14</td><td><code>MinimalDockPainter</code></td><td>Ultra-Minimal</td><td>Nearly invisible background, thin indicator lines only, no labels, flat icons, maximum transparency</td></tr>
+<tr><td>15</td><td><code>FloatingDockPainter</code></td><td>Floating Dock</td><td>Rounded pill background detached from screen edge, drop shadow, padding from screen corners, smooth expand/collapse</td></tr>
+<tr><td>16</td><td><code>BubbleDockPainter</code></td><td>Bubble / Circular</td><td>Circular item backgrounds, connected by thin line, bubble-pop hover animation, playful rounded aesthetic</td></tr>
+<tr><td>17</td><td><code>ArcDockPainter</code></td><td>Arc Browser</td><td>Gradient sidebar-style dock, vertical layout, colorful separator lines, space-themed dark mode, pill highlights</td></tr>
+<tr><td>18</td><td><code>TerminalDockPainter</code></td><td>Terminal / CLI</td><td>Monospace terminal aesthetic, dark green-on-black, box-drawing characters for borders, retro computer look</td></tr>
+<tr><td>19</td><td><code>ClassicTaskbarDockPainter</code></td><td>Classic Windows Taskbar</td><td>Windows 95/XP-style raised 3D borders, gray gradient, task-style items with labels, flat active state</td></tr>
+<tr><td>20</td><td><code>PillDockPainter</code></td><td>Pill Shape</td><td>Long pill-shaped background, each item in a rounded capsule, smooth transitions, compact layout</td></tr></tbody></table><p>Two additional slots exist for <code>Custom</code> (user-provided) and <code>Default</code> (resolves to AppleDockPainter).</p></section>
+<section class="section" id="pipeline"><h2>Rendering Pipeline</h2><p>The dock rendering pipeline follows this order each frame:</p><pre><code class="language-plaintext">1. ConfigureAsStyleDock(dockStyle) → sets DockConfig.DockStyle
+2. painter = DockPainterFactory.GetPainter(config.DockStyle)
+3. painter.CalculateDockBounds(host, config, items.Count)
+4. For each item: painter.CalculateItemBounds(i, state, config)
+5. painter.PaintDockBackground(g, dockBounds, config)
+6. For each item: painter.PaintSeparator(g, sepBounds, config) [if between groups]
+7. For each item: painter.PaintDockItem(g, state, config)
+8. For each active item: painter.PaintIndicator(g, indicatorBounds, config)</code></pre><p>The <code>DockPainterMetrics</code> helper computes derived values: total dock width, item spacing, separator positions, magnification zones, and padding. These metrics are cached per-frame and consumed by painters.</p></section>
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var dock = new BeepDock();
+
+dock.DockStyle = DockStyle.Windows11;
+
+dock.DockStyle = DockStyle.Material3;
+dock.Config.AnimationStyle = AnimationStyle.Magnification;
+dock.Config.MaxScale = 1.8f;
+dock.Config.IconMode = IconMode.IconWithLabel;
+
+dock.DockStyle = DockStyle.Cyberpunk;
+dock.Config.ItemSize = 56;
+dock.Config.ItemSpacing = 8;
+
+dock.DockStyle = DockStyle.Floating;
+dock.Config.DockHeight = 64;
+dock.Config.Alignment = DockAlignment.Center;
+
+var item1 = dock.AddItem("browser", "Browser", Color.Cyan);
+var item2 = dock.AddItem("terminal", "Terminal", Color.Magenta);
+item2.BadgeCount = 3;
+
+dock.DockStyle = DockStyle.Dracula;</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

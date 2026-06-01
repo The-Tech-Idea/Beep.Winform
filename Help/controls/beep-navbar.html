@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepNavBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#menus">Menus &amp; Navigation</a><span>&rsaquo;</span>
+                    <span>BeepNavBar</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepNavBar</h1>
+                    <p class="page-subtitle">Modern painter-based navigation bar control supporting horizontal and vertical orientations with automatic item sizing and theme integration</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepNavBar</strong> is a modern, lightweight navigation bar control for Windows Forms.
+                        It displays a collection of <code>SimpleItem</code> objects as clickable navigation items with
+                        icons and text. The control supports both horizontal (icon-above-text) and vertical (icon-beside-text)
+                        orientations with DPI-aware automatic item sizing to prevent text clipping.
+                    </p>
+                    <p>
+                        BeepNavBar serves as the base class for <code>TopNavBar</code> and <code>BottomNavBar</code>
+                        and follows the same painter-based architecture as BeepSideBar. It inherits from <code>BaseControl</code>
+                        and uses double-buffered rendering with <code>ResizeRedraw</code> for smooth layout updates.
+                    </p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.NavBars</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BaseControl &rarr; BeepNavBar</code><br>
+                    <strong>Designer category:</strong> <code>"Beep Controls"</code> &mdash; DisplayName: <code>"Beep Nav Bar"</code></p>
+                    <p>The control uses a <code>MenuItemCollectionEditor</code> for design-time item editing and safely disables expensive layout calculations during design-time to prevent flicker.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Dual Orientation</h3>
+                            <p>Horizontal mode (icon above text, default) and Vertical mode (icon left, text right) via <code>NavBarOrientation</code> enum</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Automatic Item Sizing</h3>
+                            <p>DPI-aware <code>RecalculateItemSizes()</code> measures text and icons to compute optimal item dimensions, preventing text clipping</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Painter-Based Rendering</h3>
+                            <p>Follows the same architecturally consistent painter pattern used by BeepSideBar with double-buffered, user-painted output</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Layout Caching</h3>
+                            <p>Dirty-flag tracking (<code>_layoutDirty</code>, <code>_itemSizesDirty</code>) prevents redundant hit-area and size recalculations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Design-Time Safety</h3>
+                            <p><code>IsDesignModeSafe</code> property detects all design-mode scenarios (LicenseManager, DesignMode, Site.DesignMode) to skip expensive runtime operations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Theme Integration</h3>
+                            <p>Overrides <code>ApplyTheme()</code> to synchronize fonts from the theme's <code>NavigationUnSelectedFont</code> property</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Visual Customization</h3>
+                            <p>Configurable accent color, shadow effects, corner radius, and per-item width/height with theme-color toggle</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Collection Editor</h3>
+                            <p><code>MenuItemCollectionEditor</code> provides a rich design-time editor for managing the <code>BindingList&lt;SimpleItem&gt;</code> items collection</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Data</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Items</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty list</td>
+                                <td>Collection of navigation items. Supports designer serialization and <code>MenuItemCollectionEditor</code>. Setting a new list re-subscribes ListChanged and triggers layout refresh</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>null</td>
+                                <td>Currently selected navigation item (non-browsable, raises PropertyChanged on change)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ItemWidth</code></td>
+                                <td>int</td>
+                                <td>80</td>
+                                <td>Width of each navigation item in pixels (for horizontal layout). Marks layout dirty on change</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemHeight</code></td>
+                                <td>int</td>
+                                <td>48</td>
+                                <td>Height of each navigation item in pixels. Auto-updates the control's Height for horizontal orientation</td>
+                            </tr>
+                            <tr>
+                                <td><code>NavItemWidth</code></td>
+                                <td>int</td>
+                                <td>—</td>
+                                <td>Read-only convenience property returning <code>_itemWidth</code> (non-browsable)</td>
+                            </tr>
+                            <tr>
+                                <td><code>NavItemHeight</code></td>
+                                <td>int</td>
+                                <td>—</td>
+                                <td>Read-only convenience property returning <code>_itemHeight</code> (non-browsable)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Orientation</code></td>
+                                <td>NavBarOrientation</td>
+                                <td>Horizontal</td>
+                                <td>Layout direction — <code>Horizontal</code> stacks icon above text; <code>Vertical</code> places icon left of text</td>
+                            </tr>
+                            <tr>
+                                <td><code>AccentColor</code></td>
+                                <td>Color</td>
+                                <td>rgb(0,120,215)</td>
+                                <td>Accent color used for highlights, selection indicators, and focus visual elements</td>
+                            </tr>
+                            <tr>
+                                <td><code>UseThemeColors</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>When true, theme colors override the custom AccentColor. Set false to use a manually chosen accent</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableShadow</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether shadow effects are painted (used by derived painters for depth effects)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CornerRadius</code></td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>Corner radius in pixels for rounded item rectangles and selection highlights</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Visibility</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectNavItemByIndex</code></td>
+                                <td>internal</td>
+                                <td>int index</td>
+                                <td>void</td>
+                                <td>Selects and fires click for the item at the given index (used by painters to notify the control of selection)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>public override</td>
+                                <td>—</td>
+                                <td>void</td>
+                                <td>Applies the current theme: sets the text font from <code>NavigationUnSelectedFont</code>, falls back to <code>BeepFontManager.DefaultFont</code>, then invalidates</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnPropertyChanged</code></td>
+                                <td>protected virtual</td>
+                                <td>string propertyName</td>
+                                <td>void</td>
+                                <td>Raises the <code>PropertyChanged</code> event with the given property name</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnItemClicked</code></td>
+                                <td>protected virtual</td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Sets <code>SelectedItem</code> and raises the <code>ItemClicked</code> action. Override to intercept click handling</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnResize</code></td>
+                                <td>protected override</td>
+                                <td>EventArgs e</td>
+                                <td>void</td>
+                                <td>Skips expensive operations during design-time; at runtime compares <code>_lastLayoutSize</code> and refreshes hit areas only when actual size changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnHandleCreated</code></td>
+                                <td>protected override</td>
+                                <td>EventArgs e</td>
+                                <td>void</td>
+                                <td>Performs initial layout (hit area refresh) when the control handle is created at runtime if layout is dirty</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Internal Helpers</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>RecalculateItemSizes()</code></td>
+                                <td>DPI-aware measurement pass that iterates all items, measures text with <code>TextRenderer.MeasureText</code>, computes required width/height based on orientation (icon+text stacked vs side-by-side), and updates <code>_itemWidth</code>/<code>_itemHeight</code>. Runs only when <code>_itemSizesDirty</code> is true</td>
+                            </tr>
+                            <tr>
+                                <td><code>Items_ListChanged()</code></td>
+                                <td>Handler for the BindingList change notifications. Marks both size and layout dirty, then at runtime recalculates sizes, refreshes hit areas, and invalidates</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsDesignModeSafe</code></td>
+                                <td>Property checking <code>LicenseManager.UsageMode</code>, <code>DesignMode</code>, and <code>Site?.DesignMode</code> for reliable design-time detection in all scenarios</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ItemClicked</code></td>
+                                <td>Action&lt;SimpleItem&gt;</td>
+                                <td>Fired when a navigation item is clicked. The delegate receives the clicked <code>SimpleItem</code>. Raised by <code>OnItemClicked</code> which also sets <code>SelectedItem</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>PropertyChanged</code></td>
+                                <td>PropertyChangedEventHandler</td>
+                                <td>Fired when properties like <code>SelectedItem</code> change. Raised via <code>OnPropertyChanged(string)</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Related Enum: NavBarOrientation</h3>
+                    <div class="code-example">
+                        <pre><code class="language-csharp">public enum NavBarOrientation
+{
+    Horizontal = 0,  // Icon above text, items arranged left-to-right
+    Vertical = 1      // Icon left of text, items arranged top-to-bottom
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>
+                        BeepNavBar integrates with the Beep theming system via its <code>ApplyTheme()</code> override.
+                        When a theme is active, the control's text font is derived from the theme's
+                        <code>NavigationUnSelectedFont</code> property through <code>BeepFontManager.ToFont()</code>.
+                        If no theme is set, it falls back to <code>BeepFontManager.DefaultFont</code>.
+                    </p>
+                    <p>
+                        The <code>UseThemeColors</code> property (default <code>true</code>) lets you choose between
+                        theme-driven colors and a manually specified <code>AccentColor</code>. Derived painter classes
+                        are responsible for querying these properties to resolve the effective color for highlights,
+                        selection banners, and focus indicators.
+                    </p>
+                    <div class="code-example">
+                        <h3>Theme Integration</h3>
+                        <pre><code class="language-csharp">var navbar = new BeepNavBar
+{
+    UseThemeColors = true,  // Follow theme accent automatically
+    EnableShadow = true,
+    CornerRadius = 10
+};
+
+// ThemeChanged handlers should call:
+navbar.ApplyTheme();</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h3>Custom Accent Override</h3>
+                        <pre><code class="language-csharp">var navbar = new BeepNavBar
+{
+    UseThemeColors = false,
+    AccentColor = Color.FromArgb(255, 87, 34)  // Deep orange accent
+};</code></pre>
+                    </div>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Basic Horizontal Navigation Bar</h3>
+                        <pre><code class="language-csharp">var navbar = new BeepNavBar
+{
+    Dock = DockStyle.Top,
+    Orientation = NavBarOrientation.Horizontal,
+    ItemWidth = 80,
+    ItemHeight = 56,
+    AccentColor = Color.FromArgb(0, 120, 215),
+    UseThemeColors = true,
+    CornerRadius = 8
+};
+
+navbar.Items.Add(new SimpleItem { Text = "Home", ImagePath = "home.svg" });
+navbar.Items.Add(new SimpleItem { Text = "Explore", ImagePath = "explore.svg" });
+navbar.Items.Add(new SimpleItem { Text = "Notifications", ImagePath = "bell.svg" });
+navbar.Items.Add(new SimpleItem { Text = "Profile", ImagePath = "user.svg" });
+
+navbar.ItemClicked += item =>
+{
+    Console.WriteLine($"Navigating to: {item?.Text}");
+};
+
+this.Controls.Add(navbar);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Vertical Side Navigation</h3>
+                        <pre><code class="language-csharp">var sidebar = new BeepNavBar
+{
+    Dock = DockStyle.Left,
+    Width = 200,
+    Orientation = NavBarOrientation.Vertical,
+    ItemWidth = 180,
+    ItemHeight = 44,
+    CornerRadius = 6
+};
+
+// Items display icon-left, text-right in vertical mode
+sidebar.Items.Add(new SimpleItem { Text = "Dashboard", ImagePath = "dashboard.svg" });
+sidebar.Items.Add(new SimpleItem { Text = "Analytics", ImagePath = "chart.svg" });
+sidebar.Items.Add(new SimpleItem { Text = "Messages", ImagePath = "envelope.svg" });
+sidebar.Items.Add(new SimpleItem { Text = "Calendar", ImagePath = "calendar.svg" });
+sidebar.Items.Add(new SimpleItem { Text = "Settings", ImagePath = "gear.svg" });
+
+sidebar.ItemClicked += item =>
+{
+    // Switch views based on selected item
+    NavigateToView(item?.Text);
+};
+
+sidebar.PropertyChanged += (s, e) =>
+{
+    if (e.PropertyName == nameof(BeepNavBar.SelectedItem))
+    {
+        Console.WriteLine($"Selection changed");
+    }
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Programmatic Item Management</h3>
+                        <pre><code class="language-csharp">// Add items
+navbar.Items.Add(new SimpleItem { Text = "New Tab", ImagePath = "plus.svg", GuidId = "tab-1" });
+
+// Move items
+var item = navbar.Items[0];
+navbar.Items.RemoveAt(0);
+navbar.Items.Insert(2, item);
+
+// Replace entire collection
+navbar.Items = new BindingList<SimpleItem>
+{
+    new SimpleItem { Text = "A", ImagePath = "a.svg" },
+    new SimpleItem { Text = "B", ImagePath = "b.svg" },
+    new SimpleItem { Text = "C", ImagePath = "c.svg" }
+};
+
+// Items property setter automatically re-subscribes ListChanged and triggers full layout refresh</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Orientation Switch</h3>
+                        <pre><code class="language-csharp">// Toggle between horizontal (top) and vertical (left) mode
+private void ToggleNavBarMode(BeepNavBar navbar)
+{
+    if (navbar.Orientation == NavBarOrientation.Horizontal)
+    {
+        navbar.Orientation = NavBarOrientation.Vertical;
+        navbar.Dock = DockStyle.Left;
+        navbar.Width = 200;
+    }
+    else
+    {
+        navbar.Orientation = NavBarOrientation.Horizontal;
+        navbar.Dock = DockStyle.Top;
+        navbar.Height = navbar.ItemHeight;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Handling Clicks with Selection</h3>
+                        <pre><code class="language-csharp">navbar.ItemClicked += clickedItem =>
+{
+    // Clear selection on all items visually (if needed by your painter)
+    foreach (var item in navbar.Items)
+    {
+        // Derived controls may update item states here
+    }
+
+    // The SelectedItem is already set by OnItemClicked before this fires
+    var selected = navbar.SelectedItem;
+    if (selected != null)
+    {
+        Console.WriteLine($"Active nav: {selected.Text} (ID: {selected.GuidId})");
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p>
+                        BeepNavBar uses a single-file partial class design (one <code>.cs</code> file with a
+                        <code>.Designer.cs</code> companion generated by the WinForms designer). It does not
+                        employ the multi-file partial organization of BeepDock, instead consolidating all logic
+                        within the main file for simplicity:
+                    </p>
+                    <table class="property-table">
+                        <thead>
+                            <tr><th>Concern</th><th>Location</th><th>Responsibility</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Control body</td><td><code>BeepNavBar.cs</code> line 26</td><td>Fields, events, constructor, properties, methods, theme, and dispose in a single <code>partial class</code></td>
+                            </tr>
+                            <tr><td>Data binding</td><td>Lines 29, 79, 91-105</td><td><code>BindingList&lt;SimpleItem&gt;</code> with <code>ListChanged</code> subscription for auto-refresh on add/remove/replace</td>
+                            </tr>
+                            <tr><td>Item sizing</td><td>Lines 286-406</td><td>DPI-scaled measurement of text and icon sizes for both orientations; computes max required dimensions and updates <code>_itemWidth</code>/<code>_itemHeight</code></td>
+                            </tr>
+                            <tr><td>Layout caching</td><td>Lines 36-38</td><td><code>_lastLayoutSize</code>, <code>_layoutDirty</code>, and <code>_itemSizesDirty</code> prevent redundant layout recalculation</td>
+                            </tr>
+                            <tr><td>Design-time safety</td><td>Lines 45-48</td><td><code>IsDesignModeSafe</code> gates all expensive operations (hit-area calculation, size recalculation) to prevent designer flicker</td>
+                            </tr>
+                            <tr><td>Selection</td><td>Lines 108-120, 258-262</td><td><code>SelectedItem</code> setter fires <code>PropertyChanged</code>; <code>OnItemClicked</code> sets selection then raises <code>ItemClicked</code></td>
+                            </tr>
+                            <tr><td>Theming</td><td>Lines 423-433</td><td><code>ApplyTheme()</code> reads <code>NavigationUnSelectedFont</code> from the active theme and applies it as the text font</td>
+                            </tr>
+                            <tr><td>Dpi scaling</td><td>Lines 304-307</td><td>Uses <code>DpiScalingHelper.ScaleValue()</code> for default dimensions (80, 48, 24, 12) to ensure crisp rendering on high-DPI displays</td>
+                            </tr>
+                            <tr><td>Collection editor</td><td>Line 90</td><td><code>[Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]</code> provides a designer collection editor for <code>Items</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-dock.html"><i class="bi bi-arrow-left"></i> BeepDock</a>
+                    <a href="beep-sidemenu.html">BeepSideMenu <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

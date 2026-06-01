@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMenuAppBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span>
+                    <span>BeepMenuAppBar</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepMenuAppBar</h1>
+                    <p class="page-subtitle">A menu bar control that displays a list of items with dynamic menu creation from Beep configuration</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepMenuAppBar</strong> extends <code>BeepMenuBar</code> to provide an application-level menu bar with dynamic menu creation driven by the Beep configuration system. It integrates with the <code>IBeepService</code> infrastructure and uses <code>DynamicMenuManager</code> to create combined menu items from configuration data. The control supports configurable menu names for switching between different menu configurations at runtime.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.MenuBar</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BeepMenuBar &#x2192; BeepMenuAppBar</code><br>
+                    <strong>Display Name:</strong> <code>"Beep Menu App Bar"</code></p>
+                    <p>This control builds on top of <code>BeepMenuBar</code>'s rendering and layout capabilities, adding configuration-driven menu population via <code>DynamicMenuManager.CreateCombinedMenuItems()</code>.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Dynamic menu creation</strong> &mdash; <code>CreateMenuItems()</code> populates the menu bar from combined menu sources via <code>DynamicMenuManager</code></li>
+                        <li><strong>Named menu support</strong> &mdash; <code>CreateMenuItems(string menuname)</code> changes the current menu context and rebuilds items</li>
+                        <li><strong>Beep service integration</strong> &mdash; Constructor accepts <code>IBeepService</code> for configuration and DME editor access</li>
+                        <li><strong>Error handling</strong> &mdash; Returns <code>IErrorsInfo</code> with <code>Errors.Ok</code> or <code>Errors.Failed</code> and exception details</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>beepServices</code></td><td><code>IBeepService</code></td><td><code>null</code></td><td>The Beep service instance providing configuration and DMEEditor access.</td></tr>
+                            <tr><td><code>ObjectType</code></td><td><code>string?</code></td><td><code>null</code></td><td>Object type identifier (read-only).</td></tr>
+                        </tbody>
+                    </table>
+                    <p>In addition to its own properties, <strong>BeepMenuAppBar</strong> inherits all properties from <code>BeepMenuBar</code>, including <code>MenuItems</code> (the collection of menu items), rendering options, layout parameters, and theming properties.</p>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>CreateMenuItems</code></td><td><code>IErrorsInfo CreateMenuItems()</code></td><td>Creates menu items using the current <code>currentMenuName</code> (default <code>"Beep"</code>). Calls <code>DynamicMenuManager.CreateCombinedMenuItems()</code>, adds items to <code>MenuItems</code>, and invalidates the control.</td></tr>
+                            <tr><td><code>CreateMenuItems</code></td><td><code>IErrorsInfo CreateMenuItems(string menuname)</code></td><td>Sets <code>currentMenuName</code> to the specified name and calls the parameterless <code>CreateMenuItems()</code> overload.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <p><strong>BeepMenuAppBar</strong> does not define any new events directly. It inherits all events from <code>BeepMenuBar</code>, including menu item click events, selection events, and base control events.</p>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><strong>BeepMenuAppBar</strong> inherits its theming entirely from <code>BeepMenuBar</code>, which extends <code>BaseControl</code>. The base <code>BeepMenuBar</code> provides full Material3 theming with support for menu item colors, hover effects, active states, separator styling, and font management through the Beep theme system.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <pre><code class="language-csharp">// Create a BeepMenuAppBar with Beep service integration
+var menuBar = new BeepMenuAppBar(beepService)
+{
+    Dock = DockStyle.Top
+};
+
+// Create menu items using the default "Beep" configuration
+var result = menuBar.CreateMenuItems();
+
+if (result.Flag == Errors.Ok)
+{
+    Console.WriteLine("Menu items created successfully");
+}
+else
+{
+    Console.WriteLine($"Failed to create menu items: {result.Message}");
+}
+
+// Switch to a different menu configuration
+menuBar.CreateMenuItems("AdminMenu");
+
+// Create without service (uses parameterless constructor)
+var standaloneMenu = new BeepMenuAppBar();
+standaloneMenu.beepServices = beepService;
+standaloneMenu.CreateMenuItems("Reports");
+
+// Handle inherited events from BeepMenuBar
+// (menu item clicks, selection changes, etc.)
+menuBar.ItemClicked += (s, e) =>
+{
+    Console.WriteLine($"Menu item clicked: {e.Item?.Text}");
+};
+
+// Add to form
+this.Controls.Add(menuBar);</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>BeepMenuAppBar</strong> is a thin extension of <code>BeepMenuBar</code> that adds Beep-configuration-driven menu population. It holds a reference to <code>IBeepService</code> (via both constructor injection and the <code>beepServices</code> property) and uses the service's <code>DMEEditor</code> indirectly through <code>DynamicMenuManager.CreateCombinedMenuItems()</code>.</p>
+                    <p>The control stores the current menu name in a private <code>currentMenuName</code> field (defaulting to <code>"Beep"</code>). The <code>CreateMenuItems()</code> method delegates to <code>DynamicMenuManager</code> which combines menu items from multiple configuration sources (Beep configuration editor, assembly classes, and global menu definitions). After adding items to the inherited <code>MenuItems</code> collection, the control calls <code>Invalidate()</code> to trigger a repaint. All errors are captured and returned via <code>IErrorsInfo</code> with the <code>ErrorsInfo</code> implementation.</p>
+                    <p>The <code>partial class</code> declaration supports splitting additional functionality (designer integration, layout management) across separate files while keeping the primary API clean and focused.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

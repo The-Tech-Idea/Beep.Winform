@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepProjectCard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#cards-projects">Cards &amp; Projects</a><span>&rsaquo;</span>
+                    <span>BeepProjectCard</span>
+                </nav>
+                <div class="page-header"><h1>BeepProjectCard</h1><p class="page-subtitle">A comprehensive Kanban-style project task card with team avatars, status indicators, priority tracking, progress bars, and action buttons</p></div>
+                <div class="toc"><h3>Table of Contents</h3><ul>
+                    <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                    <li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+                </ul></div>
+                <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepProjectCard</strong> (class: <code>BeepProjectTaskCard</code>) is a visual project management card designed for Kanban-style boards. It inherits from <code>BaseControl</code> and resides in the <code>TheTechIdea.Beep.Winform.Controls.ProjectCards</code> namespace. The control renders status/priority badges with icons, project title and description, team avatars, task metrics, a progress bar, and View/Update action buttons. It supports compact mode and full theme awareness via <code>ApplyTheme()</code>.</p></section>
+                <section id="features" class="section"><h2>Key Features</h2><ul>
+                    <li>Status and priority badges with auto-color mapping (Not Started, In Progress, Completed, On Hold, Cancelled / Low, Medium, High, Critical)</li>
+                    <li>Team avatars with overflow indicator rendered via BeepImage</li>
+                    <li>Progress bar with percentage label</li>
+                    <li>Task metrics (completed/total tasks, hours spent/estimated)</li>
+                    <li>Due date display with overdue highlighting</li>
+                    <li>View Details and Update action buttons</li>
+                    <li>Compact mode for smaller card sizes</li>
+                    <li>Gradient background with rounded corners and anti-aliased drawing</li>
+                    <li>Full theme integration via <code>ApplyTheme()</code></li>
+                    <li>Selectable card (mouse events fire <code>ProjectClicked</code> and <code>ActionButtonClicked</code>)</li>
+                </ul></section>
+                <section id="properties" class="section"><h2>Properties</h2><table>
+                <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>UseThemeColors</code></td><td>bool</td><td>true</td><td>Use theme colors instead of custom accent color</td></tr>
+                    <tr><td><code>Style</code></td><td>BeepControlStyle</td><td>Material3</td><td>The visual style/painter to use for rendering</td></tr>
+                    <tr><td><code>ProjectTitle</code></td><td>string</td><td>"New Project"</td><td>Main project title</td></tr>
+                    <tr><td><code>ProjectDescription</code></td><td>string</td><td>"Project description goes here"</td><td>Project description or summary</td></tr>
+                    <tr><td><code>ProjectStatus</code></td><td>string</td><td>"In Progress"</td><td>Current project status (e.g., Not Started, In Progress, Completed, On Hold, Cancelled)</td></tr>
+                    <tr><td><code>ProjectPriority</code></td><td>string</td><td>"Medium"</td><td>Project priority level (Low, Medium, High, Critical)</td></tr>
+                    <tr><td><code>ProjectCategory</code></td><td>string</td><td>"Development"</td><td>Project category or type</td></tr>
+                    <tr><td><code>TeamAvatarPaths</code></td><td>List&lt;string&gt;</td><td>empty</td><td>List of team member avatar image paths</td></tr>
+                    <tr><td><code>ProjectManager</code></td><td>string</td><td>"Unassigned"</td><td>Project manager or lead person</td></tr>
+                    <tr><td><code>TeamCount</code></td><td>string</td><td>"3"</td><td>Total number of team members</td></tr>
+                    <tr><td><code>DueDate</code></td><td>DateTime?</td><td>Now + 7 days</td><td>Project due date</td></tr>
+                    <tr><td><code>CreatedDate</code></td><td>DateTime</td><td>DateTime.Now</td><td>Project creation date</td></tr>
+                    <tr><td><code>ProgressValue</code></td><td>float</td><td>45</td><td>Overall project progress percentage (0-100, clamped)</td></tr>
+                    <tr><td><code>CompletedTasks</code></td><td>int</td><td>5</td><td>Number of completed tasks</td></tr>
+                    <tr><td><code>TotalTasks</code></td><td>int</td><td>12</td><td>Total number of tasks in the project</td></tr>
+                    <tr><td><code>HoursSpent</code></td><td>int</td><td>85</td><td>Hours spent on the project</td></tr>
+                    <tr><td><code>EstimatedHours</code></td><td>int</td><td>120</td><td>Estimated total hours for the project</td></tr>
+                    <tr><td><code>StatusIconPath</code></td><td>string</td><td>Svgs.CheckCircle</td><td>Status icon path or name</td></tr>
+                    <tr><td><code>PriorityIconPath</code></td><td>string</td><td>Svgs.ExclamationTriangle</td><td>Priority icon path or name</td></tr>
+                    <tr><td><code>CompactMode</code></td><td>bool</td><td>false</td><td>Use compact layout for smaller cards</td></tr>
+                    <tr><td><code>ShowTeamAvatars</code></td><td>bool</td><td>true</td><td>Show team member avatars</td></tr>
+                    <tr><td><code>ShowProgressBar</code></td><td>bool</td><td>true</td><td>Show progress bar</td></tr>
+                    <tr><td><code>ShowActionButtons</code></td><td>bool</td><td>true</td><td>Show action buttons</td></tr>
+                    <tr><td><code>ShowDueDate</code></td><td>bool</td><td>true</td><td>Show due date information</td></tr>
+                    <tr><td><code>ShowTaskCount</code></td><td>bool</td><td>true</td><td>Show task count information</td></tr>
+                </tbody></table></section>
+                <section id="methods" class="section"><h2>Methods</h2><table>
+                <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ApplyTheme</code></td><td>public override void ApplyTheme()</td><td>Applies current theme colors (BackColor, Gradient, Border, ForeColor) and invalidates</td></tr>
+                    <tr><td><code>DrawContent</code></td><td>protected override void DrawContent(Graphics g)</td><td>Renders header badges, title, description, avatars, metrics, progress bar, and action buttons</td></tr>
+                    <tr><td><code>OnClick</code></td><td>protected override void OnClick(EventArgs e)</td><td>Fires <code>ProjectClicked</code> event with project info payload</td></tr>
+                    <tr><td><code>OnMouseDown</code></td><td>protected override void OnMouseDown(MouseEventArgs e)</td><td>Hit-tests action buttons and fires <code>ActionButtonClicked</code> with action name</td></tr>
+                    <tr><td><code>UpdateStatusColor</code></td><td>private void UpdateStatusColor()</td><td>Maps status string to color (Gray/Blue/Green/Orange/Red)</td></tr>
+                    <tr><td><code>UpdatePriorityColor</code></td><td>private void UpdatePriorityColor()</td><td>Maps priority string to color (Green/Orange/Red/Purple)</td></tr>
+                </tbody></table></section>
+                <section id="events" class="section"><h2>Events</h2><table>
+                <thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ProjectClicked</code></td><td>Fired when the card is clicked; carries ProjectTitle, ProjectStatus, ProjectPriority, ProgressValue via <code>ProjectCardEventArgs</code></td></tr>
+                    <tr><td><code>StatusChanged</code></td><td>Fired when project status changes; carries project info via <code>ProjectCardEventArgs</code></td></tr>
+                    <tr><td><code>PriorityChanged</code></td><td>Fired when project priority changes; carries project info via <code>ProjectCardEventArgs</code></td></tr>
+                    <tr><td><code>ProgressUpdated</code></td><td>Fired when progress is updated; carries project info via <code>ProjectCardEventArgs</code></td></tr>
+                    <tr><td><code>ActionButtonClicked</code></td><td>Fired when View Details or Update button is pressed; carries Action name and ProjectTitle via <code>ProjectCardActionEventArgs</code></td></tr>
+                </tbody></table></section>
+                <section id="theming" class="section"><h2>Theming</h2><p>The control fully responds to <code>ApplyTheme()</code>. It sets <code>BackColor</code> from <code>_currentTheme.TaskCardBackColor</code>, gradient from <code>GradientStartColor</code> / <code>GradientEndColor</code>, border from <code>TaskCardBorderColor</code>, and foreground from <code>TaskCardForeColor</code>. Child labels and images internally use <code>_currentTheme</code> properties for fonts (<code>TaskCardTitleFont</code>, <code>TaskCardSubStyleStyle</code>, <code>TaskCardMetricTextStyle</code>) and colors (<code>TaskCardTitleForeColor</code>, <code>TaskCardMetricTextForeColor</code>). Status and priority colors are determined by string-switch logic with fallback to <code>SubLabelForColor</code>.</p></section>
+                <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Basic project card
+var card = new BeepProjectTaskCard
+{
+    ProjectTitle = "Website Redesign",
+    ProjectDescription = "Complete overhaul of the company landing page",
+    ProjectStatus = "In Progress",
+    ProjectPriority = "High",
+    ProgressValue = 65f,
+    CompletedTasks = 8,
+    TotalTasks = 15,
+    HoursSpent = 42,
+    EstimatedHours = 80,
+    ProjectManager = "Alice Johnson",
+    TeamCount = "5",
+    DueDate = DateTime.Now.AddDays(14),
+    CompactMode = false,
+    Size = new Size(300, 350)
+};
+
+card.ActionButtonClicked += (s, e) =>
+{
+    switch (e.Action)
+    {
+        case "ViewDetails": OpenProjectView(e.ProjectTitle); break;
+        case "Update": ShowStatusDialog(e.ProjectTitle); break;
+    }
+};
+
+card.ProjectClicked += (s, e) =>
+{
+    NavigateToProject(e.ProjectTitle);
+};
+
+this.Controls.Add(card);</code></pre></section>
+                <section id="architecture" class="section"><h2>Architecture</h2><p><code>BeepProjectTaskCard</code> extends <code>BaseControl</code> and overrides <code>DrawContent</code> to render the card in distinct sections (header badges, content area, metrics, progress bar, action buttons). It uses reusable <code>BeepImage</code> and <code>BeepLabel</code> instances as drawing helpers. Team avatars are rendered as rounded images with a white border, and an overflow "+N" badge appears when avatars exceed the visible limit. The card is selectable (<code>TabStop = true</code>) and uses hit-testing in <code>OnMouseDown</code> to distinguish between View Details and Update button clicks. Status and priority colors are determined by case-insensitive string matching with predefined color palettes.</p></section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

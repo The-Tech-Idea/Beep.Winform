@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BeepComboBoxDesigner - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body>
+<aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Control Designers</li><li style="padding:4px 1.5rem"><a href="beepcomboboxdesigner.html">BeepComboBoxDesigner</a></li><li style="padding:4px 1.5rem"><a href="beepmenubardesigner.html">BeepMenuBarDesigner</a></li><li style="padding:4px 1.5rem"><a href="beepaccordionmenudesigner.html">BeepAccordionMenuDesigner</a></li><li style="padding:4px 1.5rem"><a href="beepbreadcrumpdesigner.html">BeepBreadcrumpDesigner</a></li></ul></nav></aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>BeepComboBoxDesigner</span></nav>
+<div class="page-header"><h1>BeepComboBoxDesigner</h1><p class="page-subtitle">Design-time designer for BeepComboBox — 13 smart-tag properties, 5 configuration presets, combo type variants, auto-complete/loading states, and IComponentChangeService-backed property mutation</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#designer">BeepComboBoxDesigner</a></li><li><a href="#actionlist">BeepComboBoxActionList</a></li><li><a href="#presets">Configuration Presets</a></li><li><a href="#sections">Smart-Tag Sections</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Inheritance:</strong> <code>BaseBeepControlDesigner</code></p><p><code>BeepComboBoxDesigner</code> provides the design-time experience for <strong>BeepComboBox</strong>. The smart-tag exposes 13 properties across Appearance and Behavior categories, plus 5 one-click configuration presets that reconfigure the combo box for common use cases (searchable picker, chip multi-select, command menu, simple dropdown, minimal picker). Inherits <code>CommonBeepControlActionList</code> for style/theme/schema.</p></section>
+
+<section class="section" id="designer"><h2>BeepComboBoxDesigner</h2><table><thead><tr><th>Member</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><strong>ComboBox</strong></td><td>BeepComboBox? (get)</td><td>Casts Component to BeepComboBox for convenient access</td></tr><tr><td><strong>GetControlSpecificActionLists()</strong></td><td>override DesignerActionListCollection</td><td>Returns BeepComboBoxActionList singleton</td></tr></tbody></table></section>
+
+<section class="section" id="actionlist"><h2>BeepComboBoxActionList — Smart-Tag Properties</h2>
+<table><thead><tr><th>Property</th><th>Type</th><th>Category</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>IsEditable</strong></td><td>bool</td><td>Behavior</td><td>Allow free-text entry in the combo field</td></tr>
+<tr><td><strong>MultiSelect</strong></td><td>bool</td><td>Behavior</td><td>Allow multiple item selection (chip display). Proxies <code>AllowMultipleSelection</code>.</td></tr>
+<tr><td><strong>ComboBoxType</strong></td><td>ComboBoxType</td><td>Appearance</td><td>Visual variant: OutlineDefault, OutlineSearchable, MultiChipSearch, CommandMenu, MinimalBorderless</td></tr>
+<tr><td><strong>PlaceholderText</strong></td><td>string</td><td>Appearance</td><td>Placeholder shown when no value is selected</td></tr>
+<tr><td><strong>SizeVariant</strong></td><td>BeepComboBoxSize</td><td>Appearance</td><td>Control size: Small, Medium, Large</td></tr>
+<tr><td><strong>ShowClearButton</strong></td><td>bool</td><td>Appearance</td><td>Show an X button to clear the current value</td></tr>
+<tr><td><strong>ShowSearchInDropdown</strong></td><td>bool</td><td>Behavior</td><td>Show a search textbox inside the dropdown panel</td></tr>
+<tr><td><strong>AutoComplete</strong></td><td>bool</td><td>Behavior</td><td>Enable auto-complete suggestions while typing</td></tr>
+<tr><td><strong>AutoCompleteMode</strong></td><td>BeepAutoCompleteMode</td><td>Behavior</td><td>Suggest, Append, or SuggestAppend</td></tr>
+<tr><td><strong>AutoCompleteMinLength</strong></td><td>int</td><td>Behavior</td><td>Minimum characters before auto-complete triggers</td></tr>
+<tr><td><strong>MaxSuggestions</strong></td><td>int</td><td>Behavior</td><td>Maximum number of auto-complete suggestions shown</td></tr>
+<tr><td><strong>AllowFreeText</strong></td><td>bool</td><td>Behavior</td><td>Accept text not in the dropdown list</td></tr>
+<tr><td><strong>IsLoading</strong></td><td>bool</td><td>Behavior</td><td>Show a loading spinner indicator</td></tr></tbody></table></section>
+
+<section class="section" id="presets"><h2>Configuration Presets (Action Methods)</h2>
+<table><thead><tr><th>Preset</th><th>Combo Type</th><th>Search</th><th>Auto Complete</th><th>Multi Select</th><th>Use Case</th></tr></thead><tbody>
+<tr><td>ConfigureAsSearchablePicker()</td><td>OutlineSearchable</td><td>On</td><td>On</td><td>Off</td><td>Single-value search with suggestions</td></tr>
+<tr><td>ConfigureAsChipMultiSelect()</td><td>MultiChipSearch</td><td>On</td><td>Off</td><td>On</td><td>Multiple values shown as chips</td></tr>
+<tr><td>ConfigureAsCommandMenu()</td><td>CommandMenu</td><td>Fuzzy</td><td>Off</td><td>Off</td><td>Command palette with fuzzy search</td></tr>
+<tr><td>ConfigureAsSimpleDropdown()</td><td>OutlineDefault</td><td>Off</td><td>Off</td><td>Off</td><td>Basic single-select dropdown</td></tr>
+<tr><td>ConfigureAsMinimalPicker()</td><td>MinimalBorderless</td><td>Off</td><td>Off</td><td>Off</td><td>Minimal inline picker, small size</td></tr></tbody></table></section>
+
+<section class="section" id="sections"><h2>Smart-Tag Sections</h2>
+<p><code>GetSortedActionItems()</code> organizes items into 3 sections:</p>
+<table><thead><tr><th>Section</th><th>Items</th><th>Description</th></tr></thead><tbody><tr><td><strong>Presets</strong></td><td>5 action methods</td><td>Quick configuration presets listed above</td></tr><tr><td><strong>Appearance</strong></td><td>ComboBoxType, PlaceholderText, SizeVariant, ShowClearButton</td><td>Visual appearance settings</td></tr><tr><td><strong>Behavior</strong></td><td>IsEditable, MultiSelect, ShowSearchInDropdown, AutoComplete, AutoCompleteMode, AutoCompleteMinLength, MaxSuggestions, AllowFreeText, IsLoading</td><td>Interaction and functionality settings</td></tr></tbody></table></section>
+
+<section class="section" id="examples"><h2>Examples</h2>
+<pre><code class="language-csharp">// At design time, use smart-tag presets:
+// Smart-tag > Presets > "Configure as Searchable Picker"
+// -> ComboBoxType=OutlineSearchable, ShowSearchInDropdown=true, AutoComplete=true
+
+// At runtime, equivalent API:
+var combo = new BeepComboBox();
+combo.ComboBoxType = ComboBoxType.OutlineSearchable;
+combo.ShowSearchInDropdown = true;
+combo.AutoComplete = true;
+combo.AutoCompleteMode = BeepAutoCompleteMode.Suggest;
+combo.AutoCompleteMinLength = 2;
+combo.MaxSuggestions = 10;
+combo.PlaceholderText = "Type to search...";
+combo.ShowClearButton = true;</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docking Painters - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Docking Painters</span></nav><div class="page-header"><h1>Docking Painters</h1><p class="page-subtitle">The theme-aware painting pipeline for docking chrome — captions, tab strips, splitters, auto-hide strips rendered through IDockingPainter and specialized renderers</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#interfaces">Painter Interfaces</a></li><li><a href="#factory">DockingPainterFactory</a></li><li><a href="#renderers">Specialized Renderers</a></li><li><a href="#adapter">DockingPainterAdapter</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The docking painting pipeline follows a bridge/adapter pattern to decouple Beep theme tokens from docking-specific rendering:</p><ul><li><strong>IDockingPainter</strong> — Top-level interface for the painting contract</li><li><strong>DockingPainterAdapter</strong> — Bridges BeepTheme tokens to color values</li><li><strong>DockingRendererSet</strong> — Set of specialized renderers for each UI element</li><li><strong>DockingPainterFactory</strong> — Creates painters based on style/theme</li></ul></section><section class="section" id="interfaces"><h2>Painter Interfaces</h2><h3>IDockingPainter</h3><pre><code class="language-csharp">internal interface IDockingPainter
+{
+    void Initialize(IBeepTheme theme);
+    void PaintDockspace(Graphics g, BeepDockspace dockspace, Rectangle bounds);
+    void PaintCaption(Graphics g, Rectangle bounds, string title,
+        bool isActive, DockPanelState state);
+    void PaintTab(Graphics g, Rectangle bounds, string title,
+        bool isActive, bool isHovered, bool isDirty, string iconPath);
+    void PaintSplitter(Graphics g, Rectangle bounds,
+        SplitOrientation orientation);
+    void PaintAutoHideStrip(Graphics g, AutoHideStrip strip,
+        Rectangle bounds);
+}</code></pre><h3>IDockingElementRenderer</h3><pre><code class="language-csharp">internal interface IDockingElementRenderer
+{
+    void Render(Graphics g, DockingPainterContext ctx);
+}</code></pre><p>Specialized implementations: <code>CaptionRenderer</code>, <code>SplitterRenderer</code>, <code>AutoHideStripRenderer</code>.</p></section><section class="section" id="factory"><h2>DockingPainterFactory</h2><pre><code class="language-csharp">internal static class DockingPainterFactory
+{
+    public static IDockingPainter Create(
+        BeepControlStyle style, IBeepTheme theme);
+}</code></pre><p>The factory resolves the style to a concrete implementation. <code>NullDockingPainter</code> is the no-op default.</p></section><section class="section" id="renderers"><h2>Specialized Renderers</h2><table><thead><tr><th>Class</th><th>Location</th><th>Renders</th></tr></thead><tbody><tr><td>CaptionRenderer</td><td>Painters/Caption/</td><td>Title bar, tab strip, action buttons (close, float, pin, dropdown)</td></tr><tr><td>SplitterRenderer</td><td>Painters/Splitter/</td><td>Resize grips between docked groups</td></tr><tr><td>AutoHideStripRenderer</td><td>Painters/AutoHide/</td><td>Edge strip tabs and hover effects</td></tr></tbody></table></section><section class="section" id="adapter"><h2>DockingPainterAdapter</h2><pre><code class="language-csharp">internal class DockingPainterAdapter : IDockingPainter
+{
+    private IBeepTheme _theme;
+    private DockingRendererSet _renderers;
+
+    // Bridges theme tokens:
+    //   _theme.TabActiveBackColor  → caption active background
+    //   _theme.TabInactiveBackColor → caption inactive background
+    //   _theme.TabBorderColor       → splitter color
+    //   _theme.PanelBackColor       → auto-hide strip background
+}
+
+internal class DockingRendererSet
+{
+    public CaptionRenderer Caption { get; }
+    public SplitterRenderer Splitter { get; }
+    public AutoHideStripRenderer AutoHide { get; }
+}</code></pre></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Apply theme globally
+manager.ApplyTheme(myTheme);
+// → DockingPainterFactory.Create(style, theme)
+// → Adapter bridges theme tokens to renderers
+// → All dockspace surfaces repaint
+
+// Apply explicit colors (bypass theme system)
+manager.ApplyTheme(
+    Color.FromArgb(30, 30, 30),  // background
+    Color.White,                  // foreground
+    Color.FromArgb(60, 60, 60),  // border
+    Color.FromArgb(80, 80, 80),  // hover
+    Color.DodgerBlue              // accent
+);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

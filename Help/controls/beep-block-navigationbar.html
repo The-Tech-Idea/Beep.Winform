@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepBlockNavigationBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span><span>BeepBlockNavigationBar</span></nav>
+            <div class="page-header"><h1>BeepBlockNavigationBar</h1><p class="page-subtitle">Navigation and command bar bound to one BeepBlock</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+            <section id="overview" class="section"><h2>Overview</h2><p><strong>BeepBlockNavigationBar</strong> is a record-navigation and command toolbar bound to a single <code>BeepBlock</code> instance. It renders ten SVG-icon buttons for record navigation (first, previous, next, last), CRUD operations (new, delete), query management (enter/execute query), and persistence (commit/rollback). A position label on the right displays the current record index and total count.</p>
+            <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.Blocks</code><br>
+            <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+            <strong>Inheritance:</strong> <code>BaseControl &#x2192; BeepBlockNavigationBar</code> (sealed)<br>
+            <strong>Designer:</strong> none (no custom designer attribute)</p>
+            <p>All buttons are created once in the constructor and their visibility and enablement are controlled by the bound block via <code>IsNavigatorCommandVisible()</code> and <code>IsNavigatorCommandEnabled()</code>.</p></section>
+            <section id="features" class="section"><h2>Key Features</h2><ul>
+                <li><strong>Ten command buttons</strong> &mdash; First, Previous, Next, Last, New, Delete, Enter Query, Execute Query, Save (Commit), and Rollback</li>
+                <li><strong>All SVG icons</strong> &mdash; Each button uses an embedded SVG image path (e.g. <code>angle-double-small-left.svg</code>, <code>floppy-disk.svg</code>)</li>
+                <li><strong>Position indicator</strong> &mdash; Right-aligned label showing <code>current / total</code> (e.g. <code>5 / 42</code>) via <code>GetNavigatorPositionText()</code></li>
+                <li><strong>Block-driven visibility</strong> &mdash; Each button&apos;s visibility and enabled state is resolved from the bound <code>BeepBlock</code> per command key</li>
+                <li><strong>Frameless button style</strong> &mdash; All buttons are frameless, 24x24px with 18x18 max image size, appearing as a clean icon strip</li>
+                <li><strong>Theme-aware</strong> &mdash; Theme is inherited from the bound <code>BeepBlock</code> automatically</li>
+            </ul></section>
+            <section id="properties" class="section"><h2>Properties</h2><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                <tr><td><code>Block</code></td><td><code>BeepBlock?</code></td><td><code>null</code></td><td>The <code>BeepBlock</code> instance bound to this navigation bar. Setting this attaches/detaches the <code>ViewStateChanged</code> handler and syncs button states. (Not browsable in designer.)</td></tr>
+            </tbody></table></section>
+            <section id="methods" class="section"><h2>Methods</h2><table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies the current theme to the layout table, command panel, position label, and all child buttons. Falls back to <code>SystemColors.Control</code> for chrome backgrounds.</td></tr>
+            </tbody></table></section>
+            <section id="events" class="section"><h2>Events</h2><table><thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                <tr><td colspan="2"><em>No public events are defined. The control observes the bound <code>BeepBlock.ViewStateChanged</code> event internally to re-sync button states.</em></td></tr>
+            </tbody></table></section>
+            <section id="theming" class="section"><h2>Theming</h2><p><strong>BeepBlockNavigationBar</strong> disables borders, shadows, and rounding (<code>ShowAllBorders = false</code>, <code>ShowShadow = false</code>, <code>IsRounded = false</code>). <code>ApplyTheme()</code> sets the <code>Theme</code> property on the <code>_positionLabel</code> and all buttons in the <code>_buttons</code> dictionary. Chrome backgrounds fall back to <code>ParentBackColor</code> or <code>SystemColors.Control</code> when the inherited back color is fully transparent.</p></section>
+            <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Create and bind a navigation bar to a BeepBlock
+var navBar = new BeepBlockNavigationBar
+{
+    Dock = DockStyle.Bottom,
+    Block = myBeepBlock
+};
+this.Controls.Add(navBar);
+
+// The nav bar automatically syncs button visibility/enablement
+// from the block's ViewStateChanged event
+myBeepBlock.ViewStateChanged += (s, e) =>
+{
+    // navBar updates automatically;
+    // manual refresh is not needed
+};</code></pre></section>
+            <section id="architecture" class="section"><h2>Architecture</h2><p>The control uses a two-column <code>TableLayoutPanel</code>: the left column (100% width) contains a <code>FlowLayoutPanel</code> with all command buttons; the right column (120px fixed) contains the <code>BeepLabel</code> position indicator. Buttons are created once in <code>CreateButtons()</code> and stored in a <code>Dictionary&lt;string, BeepButton&gt;</code> keyed by command name. <code>SyncFromBlock()</code> is called on every <code>ViewStateChanged</code> event and iterates through button keys, querying the block&apos;s <code>IsNavigatorCommandVisible(key)</code> and <code>IsNavigatorCommandEnabled(key)</code> to set each button&apos;s visible and enabled state. When no block is bound, all buttons disable and the position label shows <code>0 / 0</code>.</p></section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

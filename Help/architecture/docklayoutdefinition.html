@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docklayoutdefinition - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Docklayoutdefinition</span></nav><div class="page-header"><h1>DockLayoutDefinition</h1><p class="page-subtitle">Serialization format for Beep docking layouts — groups, floating panels, auto-hidden panels, and their properties preserved across save/restore</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#classes">Serialization Classes</a></li><li><a href="#format">JSON Format</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Docking.Models</code></p><p><code>DockLayoutDefinition</code> is the root serializable object for persisting docking layouts. It contains three collections that capture the complete state:</p></section><section class="section" id="classes"><h2>Serialization Classes</h2><h3>DockLayoutDefinition (root)</h3><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>SchemaVersion</td><td>int</td><td>Layout format version. Default 1</td></tr><tr><td>Groups</td><td>List&lt;DockGroupDefinition&gt;</td><td>Top-level docked groups (content-serialized)</td></tr><tr><td>Floating</td><td>List&lt;FloatingPanelInfo&gt;</td><td>Floating panel positions</td></tr><tr><td>AutoHidden</td><td>List&lt;AutoHiddenPanelInfo&gt;</td><td>Auto-hidden panel edges</td></tr><tr><td>IsEmpty</td><td>bool</td><td>True when all collections are null/empty</td></tr></tbody></table><h3>DockGroupDefinition</h3><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>Position</td><td>DockPosition</td><td>Docked edge. Default Left</td></tr><tr><td>SplitOrientation</td><td>SplitOrientation</td><td>Horizontal or Vertical. Default Horizontal</td></tr><tr><td>SplitRatio</td><td>float</td><td>Proportional split. Default 0.5</td></tr><tr><td>PanelKeys</td><td>List&lt;string&gt;</td><td>Panel keys in this group (content-serialized)</td></tr><tr><td>ActivePanelKey</td><td>string</td><td>Key of active panel. Default null</td></tr><tr><td>Children</td><td>List&lt;DockGroupDefinition&gt;</td><td>Nested split children (content-serialized)</td></tr></tbody></table><h3>FloatingPanelInfo</h3><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>Key</td><td>string</td><td>Panel identifier</td></tr><tr><td>Bounds</td><td>Rectangle</td><td>Screen position and size</td></tr><tr><td>LastDockPosition</td><td>DockPosition</td><td>Position before floating. Default Left</td></tr></tbody></table><h3>AutoHiddenPanelInfo</h3><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>Key</td><td>string</td><td>Panel identifier</td></tr><tr><td>Edge</td><td>DockPosition</td><td>Auto-hide edge. Default Left</td></tr></tbody></table></section><section class="section" id="format"><h2>JSON Format</h2><pre><code class="language-json">{
+  "SchemaVersion": 1,
+  "Groups": [
+    {
+      "Position": "Left",
+      "SplitOrientation": "Horizontal",
+      "SplitRatio": 0.3,
+      "PanelKeys": ["explorer", "toolbox"],
+      "ActivePanelKey": "explorer",
+      "Children": []
+    },
+    {
+      "Position": "Fill",
+      "SplitOrientation": "Vertical",
+      "SplitRatio": 0.6,
+      "PanelKeys": [],
+      "ActivePanelKey": null,
+      "Children": [
+        {
+          "PanelKeys": ["editor1"],
+          "ActivePanelKey": "editor1"
+        },
+        {
+          "PanelKeys": ["editor2"],
+          "ActivePanelKey": "editor2"
+        }
+      ]
+    }
+  ],
+  "Floating": [
+    {
+      "Key": "output",
+      "Bounds": "100,100,600,400",
+      "LastDockPosition": "Bottom"
+    }
+  ],
+  "AutoHidden": [
+    {
+      "Key": "properties",
+      "Edge": "Right"
+    }
+  ]
+}</code></pre></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Save to file
+var def = manager.LayoutTree.ToDefinition();
+string json = JsonConvert.SerializeObject(def, Formatting.Indented);
+File.WriteAllText("layout.json", json);
+
+// Restore from file
+string json = File.ReadAllText("layout.json");
+var def = JsonConvert.DeserializeObject&lt;DockLayoutDefinition&gt;(json);
+manager.MaterializeFromDefinition(def);
+
+// Check if layout is empty
+if (def.IsEmpty)
+    Console.WriteLine("No layout to restore");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

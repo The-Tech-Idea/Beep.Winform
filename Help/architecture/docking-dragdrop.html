@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docking Dragdrop - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Docking Dragdrop</span></nav><div class="page-header"><h1>Docking Drag-Drop System</h1><p class="page-subtitle">The drag-and-drop pipeline for Beep docking — ghost windows, diamond guide overlay, target resolution, and drag session management</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#pipeline">Drag Pipeline</a></li><li><a href="#ghost">DockDragGhost</a></li><li><a href="#guides">DockingGuideOverlay</a></li><li><a href="#controller">DockDragController</a></li><li><a href="#target">DockTargetResolver</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The drag-drop subsystem provides the Visual-Studio-like docking experience when users drag panels or tab headers. It consists of 7 classes in the <strong>Runtime/DragDrop/</strong> directory:</p></section><section class="section" id="pipeline"><h2>Drag Pipeline</h2><ol><li><strong>Initiation</strong> — User starts dragging a tab header or panel caption</li><li><strong>DockDragSession</strong> created — tracks source panel, start position, current state</li><li><strong>DockDragGhost</strong> shown — semi-transparent window following the mouse</li><li><strong>DockingGuideOverlay</strong> shown — 5-diamond guide overlay on the host form</li><li><strong>DockTargetResolver</strong> evaluates valid drop positions</li><li><strong>DockGuideController</strong> manages guide diamond highlighting</li><li><strong>Completion</strong> — Panel moved to resolved position; layout recalculated</li></ol></section><section class="section" id="ghost"><h2>DockDragGhost</h2><p>A <strong>Form</strong> subclass rendered as a semi-transparent rectangle during drag. Size matches the source panel/tab. Color is theme-aware.</p></section><section class="section" id="guides"><h2>DockingGuideOverlay</h2><p>A transparent always-on-top <strong>Form</strong> centered on the host form showing 5 directional diamonds:</p><ul><li><strong>Left/Right/Top/Bottom</strong> — Dock to that edge</li><li><strong>Center (Fill)</strong> — Dock to fill remaining space</li><li>Hovered diamond is highlighted in blue</li><li>Directional SVG icons from <code>SvgsUIcons</code> rendered inside each diamond</li><li><strong>ActiveTarget</strong> property exposes the currently hovered <code>DockPosition?</code></li></ul></section><section class="section" id="controller"><h2>DockDragController</h2><p>Orchestrates the complete drag operation:</p><ul><li>Starts/stops the drag session</li><li>Updates ghost position on mouse move</li><li>Shows/hides the guide overlay</li><li>Resolves drop targets</li><li>Commits the panel repositioning</li><li>Fires <code>DoDragDropEnd</code> / <code>DoDragDropQuit</code> events on the manager</li></ul></section><section class="section" id="target"><h2>DockTargetResolver</h2><p>Determines valid drop positions based on:</p><ul><li>Current mouse position relative to host form and dockspaces</li><li>Panel's <code>AllowedAreas</code> (bitmask gate)</li><li>Panel's capability flags (<code>CanFloat</code>, <code>CanAutoHide</code>)</li><li>Current layout constraints (max groups, max split depth)</li><li>Tab strip hit testing for in-place reordering</li></ul></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Subscribe to drag events
+manager.DoDragDropEnd += (s, e) =>
+    Console.WriteLine("Drag completed");
+
+manager.DoDragDropQuit += (s, e) =>
+    Console.WriteLine("Drag cancelled (Escape)");
+
+// During drag, guide overlay shows 5 diamonds:
+//   ┌───┐
+//   │ &#x25B2; │   &larr; Top
+//   ├───┤
+//   │&#x25C0; &#x25C9; &#x25B6;│  &#x25C0;Left  &#x25C9;Fill  &#x25B6;Right
+//   ├───┤
+//   │ &#x25BC; │   &rarr; Bottom
+//   └───┘</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

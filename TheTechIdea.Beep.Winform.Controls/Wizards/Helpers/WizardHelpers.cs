@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -9,7 +10,8 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
 {
     /// <summary>
-    /// Helper utilities for wizard animations and transitions
+    /// Helper utilities for wizard animations and transitions.
+    /// Bitmap-based animation eliminates per-frame control hierarchy repaints.
     /// </summary>
     public static class WizardHelpers
     {
@@ -38,13 +40,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
         }
 
         /// <summary>
-        /// Animate a step transition by sliding controls in/out
+        /// Animate a step transition by sliding control bitmaps.
+        /// Captures snapshots of both controls, animates the bitmaps,
+        /// then swaps in the live target control on completion.
+        /// Eliminates per-frame control hierarchy repaints during animation.
         /// </summary>
-        /// <param name="fromControl">The control being navigated away from</param>
-        /// <param name="toControl">The control being navigated to</param>
-        /// <param name="forward">True for forward (slide left), false for back (slide right)</param>
-        /// <param name="onComplete">Callback when animation completes</param>
-        /// <param name="timerRegistry">Optional timer list for disposal tracking</param>
         public static void AnimateStepTransition(
             Control fromControl,
             Control toControl,
@@ -60,52 +60,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
 
             var container = fromControl.Parent;
             int width = container.ClientSize.Width;
+            int height = container.ClientSize.Height;
 
-            // Position the new control off-screen
-            toControl.Location = new Point(forward ? width : -width, 0);
-            toControl.Size = fromControl.Size;
-
-            if (!container.Controls.Contains(toControl))
+            // Guard against zero-dimension container (form not yet shown)
+            if (width <= 0 || height <= 0)
             {
-                container.Controls.Add(toControl);
+                onComplete?.Invoke();
+                return;
             }
 
-            // Animation parameters
-            const int totalFrames = 12;
-            int currentFrame = 0;
-            int fromStartX = fromControl.Left;
-            int toStartX = toControl.Left;
+            // Capture bitmaps. fromControl is already a visible child.
+            // toControl may not be parented yet — parent it momentarily for bitmap capture.
+            Bitmap fromBitmap = null, toBitmap = null;
+            try
+            {
+                fromBitmap = new Bitmap(width, height);
+                fromControl.DrawToBitmap(fromBitmap, new Rectangle(0, 0, width, height));
+
+                bool toWasUnparented = toControl.Parent == null;
+                if (toWasUnparented)
+                {
+                    // Minimally parent toControl so DrawToBitmap works (needs a handle)
+                    container.Controls.Add(toControl);
+                    toControl.Visible = false;
+                }
+
+                toBitmap = new Bitmap(width, height);
+                toControl.DrawToBitmap(toBitmap, new Rectangle(0, 0, width, height));
+
+                if (toWasUnparented)
+                    container.Controls.Remove(toControl);
+            }
+            catch
+            {
+                fromBitmap?.Dispose();
+                toBitmap?.Dispose();
+                onComplete?.Invoke();
+                return;
+            }
+
+            // Hide fromControl during bitmap-only animation
+            fromControl.Visible = false;
+
+            // Create a PictureBox for the animation overlay
+            var overlay = new PictureBox
+            {
+                Size = new Size(width, height),
+                Location = Point.Empty,
+                BackColor = container.BackColor
+            };
+            container.Controls.Add(overlay);
+            overlay.BringToFront();
+
+            // Draw initial state
+            using (var g = overlay.CreateGraphics())
+            {
+                g.DrawImageUnscaled(fromBitmap, 0, 0);
+            }
+
+            int fromStartX = 0;
             int fromEndX = forward ? -width : width;
+            int toStartX = forward ? width : -width;
             int toEndX = 0;
 
-            var timer = new Timer { Interval = 16 }; // ~60fps
+            var stopwatch = Stopwatch.StartNew();
+            const int durationMs = 300;
+            var timer = new Timer { Interval = 16 };
             timerRegistry?.Add(timer);
 
             timer.Tick += (s, e) =>
             {
-                currentFrame++;
-                float progress = (float)currentFrame / totalFrames;
+                long elapsed = stopwatch.ElapsedMilliseconds;
+                float progress = Math.Min(1f, (float)elapsed / durationMs);
 
-                // Ease-out cubic for smooth deceleration
-                float eased = 1f - (1f - progress) * (1f - progress) * (1f - progress);
-
-                int fromX = (int)(fromStartX + (fromEndX - fromStartX) * eased);
-                int toX = (int)(toStartX + (toEndX - toStartX) * eased);
-
-                fromControl.Left = fromX;
-                toControl.Left = toX;
-
-                if (currentFrame >= totalFrames)
+                if (progress >= 1f)
                 {
                     timer.Stop();
                     timerRegistry?.Remove(timer);
                     timer.Dispose();
+                    stopwatch.Stop();
 
-                    // Final positions
-                    toControl.Left = 0;
-                    toControl.Dock = DockStyle.Fill;
+                    overlay.Dispose();
+                    fromBitmap?.Dispose();
+                    toBitmap?.Dispose();
 
+                    // Callback handles parenting and making toControl visible with Dock = Fill
                     onComplete?.Invoke();
+                    return;
+                }
+
+                float eased = WizardAnimationEngine.EaseInOutCubic(progress);
+                int fromX = (int)(fromStartX + (fromEndX - fromStartX) * eased);
+                int toX = (int)(toStartX + (toEndX - toStartX) * eased);
+
+                using (var g = overlay.CreateGraphics())
+                {
+                    g.Clear(container.BackColor);
+                    g.DrawImageUnscaled(fromBitmap, fromX, 0);
+                    g.DrawImageUnscaled(toBitmap, toX, 0);
                 }
             };
 
@@ -113,7 +165,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
         }
 
         /// <summary>
-        /// Animate a fade transition between controls
+        /// Animate a fade transition between controls.
+        /// Simple swap — true opacity animation requires per-pixel alpha which is complex in WinForms.
         /// </summary>
         public static void AnimateFadeTransition(
             Control fromControl,
@@ -127,8 +180,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
                 return;
             }
 
-            // Simple approach: just invoke complete immediately
-            // True opacity animation requires per-pixel alpha which is complex in WinForms
             onComplete?.Invoke();
         }
     }

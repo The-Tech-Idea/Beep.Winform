@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BeepMenuBarDesigner - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body><aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Control Designers</li><li style="padding:4px 1.5rem"><a href="beepcomboboxdesigner.html">BeepComboBoxDesigner</a></li><li style="padding:4px 1.5rem"><a href="beepmenubardesigner.html">BeepMenuBarDesigner</a></li></ul></nav></aside><main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>BeepMenuBarDesigner</span></nav>
+<div class="page-header"><h1>BeepMenuBarDesigner</h1><p class="page-subtitle">Design-time designer for BeepMenuBar — 5 smart-tag properties, 8 action methods, transaction-wrapped mutations, and IComponentChangeService-backed property updates</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#designer">BeepMenuBarDesigner</a></li><li><a href="#transactions">Transaction-Wrapped Mutations</a></li><li><a href="#actionlist">BeepMenuBarActionList</a></li><li><a href="#sections">Smart-Tag Sections</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Inheritance:</strong> <code>BaseBeepControlDesigner</code> | <strong>Visibility:</strong> <code>public sealed</code></p><p><code>BeepMenuBarDesigner</code> provides the design-time experience for <strong>BeepMenuBar</strong>. It wraps all property mutations in <strong>DesignerTransaction</strong> with <code>IComponentChangeService</code> notifications for clean undo support and .designer.cs serialization. The smart-tag (BeepMenuBarActionList) exposes 5 properties, item manipulation actions, style presets, and height presets.</p></section>
+
+<section class="section" id="designer"><h2>BeepMenuBarDesigner</h2>
+<table><thead><tr><th>Member</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><strong>MenuBar</strong></td><td>BeepMenuBar? (get)</td><td>Casts Component to BeepMenuBar</td></tr><tr><td><strong>GetControlSpecificActionLists()</strong></td><td>override</td><td>Returns new BeepMenuBarActionList(this)</td></tr><tr><td><strong>ExecuteAction(desc, Action)</strong></td><td>internal void</td><td>Wraps action in DesignerTransaction + IComponentChangeService, commits on success, cancels on exception, then calls RefreshDesignerActionUI()</td></tr><tr><td><strong>SetPropertyWithTransaction(name, value, desc)</strong></td><td>internal void</td><td>Same transaction pattern for per-property writes. Uses TypeDescriptor to read/write. No-op when old==new.</td></tr></tbody></table></section>
+
+<section class="section" id="transactions"><h2>Transaction-Wrapped Mutations</h2><pre><code class="language-csharp">internal void SetPropertyWithTransaction(string name, object? value, string desc)
+{
+    var prop = TypeDescriptor.GetProperties(MenuBar)[name];
+    var old = prop.GetValue(MenuBar);
+    if (Equals(old, value)) return;
+
+    using (var tx = DesignerHost.CreateTransaction(desc))
+    {
+        ChangeService.OnComponentChanging(MenuBar, prop);
+        prop.SetValue(MenuBar, value);
+        ChangeService.OnComponentChanged(MenuBar, prop, old, value);
+        tx.Commit();
+    }
+    RefreshDesignerActionUI();
+}</code></pre></section>
+
+<section class="section" id="actionlist"><h2>BeepMenuBarActionList — Smart-Tag</h2>
+<h3>Properties</h3><table><thead><tr><th>Property</th><th>Type</th><th>Category</th><th>Description</th></tr></thead><tbody><tr><td><strong>ItemCount</strong></td><td>int</td><td>Items</td><td>Number of top-level menu items (read-only)</td></tr><tr><td><strong>ControlStyle</strong></td><td>BeepControlStyle</td><td>Style</td><td>Visual style of top-level menu items</td></tr><tr><td><strong>Height</strong></td><td>int</td><td>Layout</td><td>Menu bar height in pixels</td></tr><tr><td><strong>TextFont</strong></td><td>Font?</td><td>Appearance</td><td>Font for menu item text</td></tr><tr><td><strong>ShowImage</strong></td><td>bool</td><td>Appearance</td><td>Toggle per-item image/icon column</td></tr></tbody></table>
+<h3>Action Methods</h3><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td>LoadSampleMenuItems()</td><td>Populates the menu bar with a representative sample menu tree (File > New/Open/Save + separator + Exit, Edit > Undo/Redo/Cut/Copy/Paste, Help > About)</td></tr><tr><td>ClearAllItems()</td><td>Removes every top-level item from the menu bar</td></tr><tr><td>SetMaterialStyle()</td><td>Sets ControlStyle to Material3</td></tr><tr><td>SetFluentStyle()</td><td>Sets ControlStyle to Fluent2</td></tr><tr><td>SetOfficeStyle()</td><td>Sets ControlStyle to Office</td></tr><tr><td>SetStandardHeight()</td><td>Sets Height to 44 px</td></tr><tr><td>SetCompactHeight()</td><td>Sets Height to 32 px</td></tr><tr><td>SetComfortableHeight()</td><td>Sets Height to 56 px</td></tr></tbody></table></section>
+
+<section class="section" id="sections"><h2>Smart-Tag Sections (4 Sections, 16 Items)</h2><table><thead><tr><th>Section</th><th>Items</th></tr></thead><tbody><tr><td><strong>Items</strong></td><td>Load Sample Items (action), Clear All Items (action), Item Count (read-only)</td></tr><tr><td><strong>Style</strong></td><td>Set Material 3 Style (action), Set Fluent 2 Style (action), Set Office Style (action), Control Style (property)</td></tr><tr><td><strong>Layout</strong></td><td>Standard 44px (action), Compact 32px (action), Comfortable 56px (action), Height (property)</td></tr><tr><td><strong>Appearance</strong></td><td>Text Font (property), Show Image (property)</td></tr></tbody></table></section>
+
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time, use smart-tag:
+// Smart-tag > Items > "Load Sample Items"
+// -> Creates File/Edit/Help menu structure with icons and shortcuts
+
+// Smart-tag > Layout > "Compact (32 px)"
+// -> Sets Height=32 for a compact toolbar appearance
+
+// Equivalent at runtime:
+var menu = new BeepMenuBar();
+menu.ControlStyle = BeepControlStyle.Material3;
+menu.Height = 44;
+menu.ShowImage = true;
+menu.Items.Add(new BeepMenuItem("File", null, new List&lt;BeepMenuItem&gt;
+{
+    new BeepMenuItem("New", Icons.NewFile, () => NewFile()),
+    new BeepMenuItem("Open", Icons.OpenFolder, () => OpenFile()),
+    new BeepMenuItem("Save", Icons.Save, () => SaveFile()),
+    new BeepMenuSeparator(),
+    new BeepMenuItem("Exit", null, () => Application.Exit())
+}));</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

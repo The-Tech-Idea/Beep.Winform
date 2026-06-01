@@ -112,6 +112,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
             _titleLabel.Text = WelcomeTitle;
             _messageLabel.Text = WelcomeMessage;
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _titleLabel?.Font?.Dispose();
+                _messageLabel?.Font?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 
     /// <summary>
@@ -173,6 +183,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
                 };
                 _summaryPanel.Controls.Add(label);
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _titleLabel?.Font?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 
@@ -274,6 +293,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
             _titleLabel.Text = CompletionTitle;
             _messageLabel.Text = CompletionMessage;
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _titleLabel?.Font?.Dispose();
+                _messageLabel?.Font?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 
     /// <summary>
@@ -367,6 +396,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Templates
         {
             _titleLabel.Text = ErrorTitle;
             _messageLabel.Text = ErrorMessage;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _titleLabel?.Font?.Dispose();
+                _messageLabel?.Font?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

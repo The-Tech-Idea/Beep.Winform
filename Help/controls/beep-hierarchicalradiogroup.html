@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepHierarchicalRadioGroup - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a><span>›</span>
+                    <span>BeepHierarchicalRadioGroup</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepHierarchicalRadioGroup</h1>
+                    <p class="page-subtitle">A hierarchical radio group control with tree-like expand/collapse support, multiple render styles, and bidirectional keyboard navigation</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#render-styles">Render Styles</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepHierarchicalRadioGroup</strong> extends <code>BaseControl</code> to provide a radio list with parent-child tree nesting. Items are defined via <code>SimpleItem</code> objects whose <code>Children</code> property creates the hierarchy. Expand/collapse toggles, indented tree lines, and DPI-aware rendering are built in.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.RadioGroup</code> &nbsp;|&nbsp; <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component → Control → BaseControl → BeepHierarchicalRadioGroup</code></p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Hierarchical data model</strong> — Uses <code>SimpleItem.Children</code> for arbitrary-depth nesting via a flattened visible-item list</li>
+                        <li><strong>Expand/collapse</strong> — Toggle parent nodes with mouse clicks on expander buttons, or with Right/Left keyboard arrows</li>
+                        <li><strong>Tree lines</strong> — Dashed vertical and horizontal lines visually connect child items to their ancestors</li>
+                        <li><strong>Multiple render styles</strong> — <code>Flat</code>, <code>Material</code>, <code>Card</code>, <code>Chip</code>, and <code>Circular</code> via pluggable <code>IRadioGroupRenderer</code> providers</li>
+                        <li><strong>Single and multiple selection</strong> — Controlled by <code>AllowMultipleSelection</code>; state managed by <code>RadioGroupStateHelper</code></li>
+                        <li><strong>Keyboard navigation</strong> — Arrow keys move focus; Right expands, Left collapses or moves to parent</li>
+                        <li><strong>Auto-size</strong> — Automatically calculates the control size based on flattened item layout</li>
+                        <li><strong>Image support</strong> — <code>MaxImageSize</code> property; renderers implementing <code>IImageAwareRenderer</code> draw item icons</li>
+                        <li><strong>Style/color profiles</strong> — <code>RadioGroupStyleConfig</code> and <code>RadioGroupColorConfig</code> for fine-grained appearance control</li>
+                        <li><strong>Accessibility</strong> — Full <code>AccessibleObject</code> metadata including selected count, expanded count, and focused item</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>RootItems</code></td><td><code>List&lt;SimpleItem&gt;</code></td><td>Empty list</td><td>Top-level items with hierarchy support via <code>Children</code> property. Editable in designer via CollectionEditor.</td></tr>
+                            <tr><td><code>SelectedValue</code></td><td><code>string</code></td><td><code>null</code></td><td>Currently selected value in single-selection mode. Maps to the <code>Text</code> of a <code>SimpleItem</code>.</td></tr>
+                            <tr><td><code>SelectedValues</code></td><td><code>List&lt;string&gt;</code></td><td>Empty list</td><td>Currently selected values in multiple-selection mode. Read-only.</td></tr>
+                            <tr><td><code>SelectedItems</code></td><td><code>List&lt;SimpleItem&gt;</code></td><td>Empty list</td><td>Currently selected <code>SimpleItem</code> objects. Browsable(false).</td></tr>
+                            <tr><td><code>SelectedCount</code></td><td><code>int</code></td><td><code>0</code></td><td>Number of currently selected items. Browsable(false).</td></tr>
+                            <tr><td><code>AllowMultipleSelection</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, multiple items can be toggled independent of each other.</td></tr>
+                            <tr><td><code>ShowExpanderButtons</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows +/- circle buttons for parent items with children.</td></tr>
+                            <tr><td><code>IndentSize</code></td><td><code>int</code></td><td><code>20</code></td><td>Indentation pixels per hierarchy level (DPI-scaled).</td></tr>
+                            <tr><td><code>RenderStyle</code></td><td><code>RadioGroupRenderStyle</code></td><td><code>Flat</code></td><td>Visual style: <code>Flat</code>, <code>Material</code>, <code>Card</code>, <code>Chip</code>, or <code>Circular</code>.</td></tr>
+                            <tr><td><code>ItemSpacing</code></td><td><code>int</code></td><td><code>4</code></td><td>Vertical space in pixels between items.</td></tr>
+                            <tr><td><code>AutoSizeItems</code></td><td><code>bool</code></td><td><code>true</code></td><td>Items are measured to fit their content; otherwise fixed-size.</td></tr>
+                            <tr><td><code>MaxImageSize</code></td><td><code>Size</code></td><td><code>(24, 24)</code></td><td>Maximum size for images loaded from <code>SimpleItem.ImagePath</code>.</td></tr>
+                            <tr><td><code>StyleProfile</code></td><td><code>RadioGroupStyleConfig</code></td><td>Default instance</td><td>Runtime style defaults (item height, spacing, padding, control style).</td></tr>
+                            <tr><td><code>ColorProfile</code></td><td><code>RadioGroupColorConfig</code></td><td>Default instance</td><td>Runtime colors used when <code>UseThemeColors</code> is false.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>AddRootItem</code></td><td><code>void AddRootItem(SimpleItem item)</code></td><td>Adds a top-level item and rebuilds the hierarchy layout.</td></tr>
+                            <tr><td><code>AddChildItem</code></td><td><code>void AddChildItem(SimpleItem parent, SimpleItem child)</code></td><td>Nests a child under a parent, auto-creating the Children collection if needed.</td></tr>
+                            <tr><td><code>ExpandAll</code></td><td><code>void ExpandAll()</code></td><td>Recursively expands all parent nodes in the tree.</td></tr>
+                            <tr><td><code>CollapseAll</code></td><td><code>void CollapseAll()</code></td><td>Recursively collapses all parent nodes.</td></tr>
+                            <tr><td><code>FindItem</code></td><td><code>SimpleItem FindItem(string guidId)</code></td><td>Depth-first search for an item by its <code>GuidId</code> string.</td></tr>
+                            <tr><td><code>SetValue</code></td><td><code>void SetValue(object value)</code></td><td>Sets selection from a string, string list, or <code>SimpleItem</code>.</td></tr>
+                            <tr><td><code>GetValue</code></td><td><code>object GetValue()</code></td><td>Returns <code>SelectedItems</code> (multi) or first selected item (single).</td></tr>
+                            <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme()</code></td><td>Applies the current theme to all renderers and refreshes the control.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SelectionChanged</code></td><td>Raised when the overall selection changes. <code>SelectionChangedEventArgs</code> carries the affected items.</td></tr>
+                            <tr><td><code>ItemSelectionChanged</code></td><td>Raised when an individual item's selection state is toggled.</td></tr>
+                            <tr><td><code>ItemClicked</code></td><td>Raised when any item is clicked. <code>ItemClickEventArgs</code> includes the <code>SimpleItem</code> and index.</td></tr>
+                            <tr><td><code>ItemExpandedChanged</code></td><td>Raised when a parent node is expanded or collapsed. <code>ItemExpandedEventArgs</code> carries the item and new state.</td></tr>
+                            <tr><td><code>ItemHoverEnter</code></td><td>Raised when the mouse enters an item's bounding rectangle.</td></tr>
+                            <tr><td><code>ItemHoverLeave</code></td><td>Raised when the mouse leaves an item's bounding rectangle.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="render-styles" class="section">
+                    <h2>Render Styles</h2>
+                    <p>Set <code>RenderStyle</code> to one of five built-in renderers:</p>
+                    <table>
+                        <thead><tr><th>Style</th><th>Renderer</th><th>Visual Character</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Flat</code></td><td><code>FlatRadioRenderer</code></td><td>Simple radio button with label. Clean, minimal appearance.</td></tr>
+                            <tr><td><code>Material</code></td><td><code>MaterialRadioRenderer</code></td><td>Material Design inspired with ripple-like selection indicator and rounded corners.</td></tr>
+                            <tr><td><code>Card</code></td><td><code>CardRadioRenderer</code></td><td>Card-style with shadow/border, suitable for selection panels.</td></tr>
+                            <tr><td><code>Chip</code></td><td><code>ChipRadioRenderer</code></td><td>Pill/chip shaped toggle buttons ideal for filter bars.</td></tr>
+                            <tr><td><code>Circular</code></td><td><code>CircularRadioRenderer</code></td><td>Round radio button with accent fill on selection.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>All renderers automatically respect the active Beep theme. Colors, fonts, and border styles are sourced from <code>_currentTheme</code> tokens. When <code>UseThemeColors</code> is false, the <code>ColorProfile</code> properties override theme defaults.</p>
+                    <pre><code class="language-csharp">// Apply a dark theme, all hierarchies update automatically
+BeepThemesManager.ApplyTheme("MaterialDark");</code></pre>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <h3>Two-Level Hierarchy</h3>
+                    <pre><code class="language-csharp">var group = new BeepHierarchicalRadioGroup();
+
+var europe = new SimpleItem { Text = "Europe" };
+europe.Children.Add(new SimpleItem { Text = "France" });
+europe.Children.Add(new SimpleItem { Text = "Germany" });
+
+var asia = new SimpleItem { Text = "Asia" };
+asia.Children.Add(new SimpleItem { Text = "Japan" });
+asia.Children.Add(new SimpleItem { Text = "India" });
+
+group.RootItems.Add(europe);
+group.RootItems.Add(asia);</code></pre>
+
+                    <h3>Chip-Style Selection with Events</h3>
+                    <pre><code class="language-csharp">var group = new BeepHierarchicalRadioGroup
+{
+    RenderStyle = RadioGroupRenderStyle.Chip,
+    ItemSpacing = 8
+};
+group.ItemClicked += (s, e) =>
+    Console.WriteLine($"Clicked: {e.Item.Text}");
+group.SelectionChanged += (s, e) =>
+    Console.WriteLine($"Selection changed: {e.SelectedItems?.Count} item(s)");</code></pre>
+
+                    <h3>Programmatic Expand/Collapse and Search</h3>
+                    <pre><code class="language-csharp">// Collapse all, then expand only the "Europe" branch
+group.CollapseAll();
+var node = group.FindItem("europe-guid");
+if (node != null) node.IsExpanded = true;
+group.UpdateHierarchy(); // manual invalidation after direct property change</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>RadioGroupLayoutHelper</code></td><td>Calculates item rectangles, indentation offsets, and total size for auto-sizing</td></tr>
+                            <tr><td><code>RadioGroupHitTestHelper</code></td><td>Mouse hit detection, hover/press/focus index tracking, expander click routing</td></tr>
+                            <tr><td><code>RadioGroupStateHelper</code></td><td>Selection state management, single/multi toggle, selected value lookups</td></tr>
+                            <tr><td><code>IRadioGroupRenderer</code> implementations</td><td>Visual rendering per style (Flat, Material, Card, Chip, Circular)</td></tr>
+                            <tr><td><code>IImageAwareRenderer</code></td><td>Optional interface for renderers that support image painting from <code>ImagePath</code></td></tr>
+                            <tr><td><code>RadioGroupStyleConfig</code></td><td>Style defaults: item height, spacing, padding, control style</td></tr>
+                            <tr><td><code>RadioGroupColorConfig</code></td><td>Color overrides for background, text, and sub-items when not using theme colors</td></tr>
+                        </tbody>
+                    </table>
+                    <p>The control maintains three parallel lists: <code>_rootItems</code> (user data), <code>_flattenedItems</code> (visible-for-rendering), and <code>_itemStates</code> (hover/select/focus per index). <code>UpdateHierarchy()</code> flattens the tree respecting <code>IsExpanded</code> flags, then recalculates layout, states, and hit-test data in a single pass.</p>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-radiobutton.html"><i class="bi bi-arrow-left"></i> BeepRadioGroup</a>
+                    <a href="beep-timepicker.html">BeepTimePicker <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

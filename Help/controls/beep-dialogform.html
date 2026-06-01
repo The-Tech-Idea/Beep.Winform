@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDialogForm - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#forms-dialogs">Forms & Dialogs</a><span>&rsaquo;</span><span>BeepDialogForm</span></nav>
+            <div class="page-header"><h1>BeepDialogForm</h1><p class="page-subtitle">Programmatic modal dialog form with 15+ presets, input validation, typed confirmation, and auto-close countdown</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#dialogtypes">DialogType & Buttons</a></li>
+                <li><a href="#presets">DialogPreset</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Inheritance:</strong> <code>BeepiFormPro</code></p>
+                <p><strong>Source:</strong> 1156 lines, single file (<code>DialogsManagers\Forms\BeepDialogForm.cs</code>)</p>
+                <p>The <strong>BeepDialogForm</strong> is a pure code-behind modal dialog form with <strong>no designer file</strong>. It follows the same architecture pattern as BeepCommandPaletteDialog, constructing all panels and controls programmatically in the constructor. It provides a header (icon + title), a scrollable body (message, optional input/combo, validation, details, confirmation), and a button footer panel with 1–3 action buttons that support 12 button-set configurations.</p>
+                <p>The dialog integrates with the <strong>BeepDialogManager</strong> infrastructure, supports 18 semantic <code>DialogPreset</code> values for color/icon/button adaptation, and provides advanced features: input validation with shake animation, typed confirmation for destructive actions, auto-close countdown, keyboard navigation (Tab/Shift+Tab cycling, Enter/Escape), and callback-driven validation.</p>
+            </section>
+
+            <section id="features" class="section">
+                <h2>Key Features</h2>
+                <ul>
+                    <li>Pure code-behind — no .Designer.cs file; all layout is programmatic with <code>Dock</code> stacking</li>
+                    <li>Three-panel layout: Header (BeepPanel with BeepImage + BeepLabel), Body (BeepPanel with scroll), Button footer (BeepPanel)</li>
+                    <li>6 DialogType values: Information, Warning, Error, Question, GetInputString, GetInputFromList, None</li>
+                    <li>12 BeepDialogButtons sets: Ok, Cancel, YesNo, OkCancel, AbortRetryIgnore, SaveDontSaveCancel, SaveAllDontSaveCancel, Close, Help, TryAgainContinue, OK, Continue</li>
+                    <li>18 DialogPreset semantic values: Information, Success, Warning, Danger, Question, DestructiveConfirm, UnsavedChanges, BlockingError, SessionTimeout, InlineValidation, SuccessWithUndo, MultiStepProgress, Announcement</li>
+                    <li>Inline text input with password masking and multiline support</li>
+                    <li>ComboBox-based list selection (GetInputFromList)</li>
+                    <li>Input validation via <code>Func&lt;string, string?&gt;</code> callback with red border + error label + shake animation</li>
+                    <li>Typed confirmation for destructive actions (e.g., type "DELETE" to confirm)</li>
+                    <li>Expandable details section (Show/Hide toggle)</li>
+                    <li>Auto-close countdown timer with annotated button labels (e.g., "OK (5)")</li>
+                    <li>Keyboard navigation: Tab/Shift+Tab cycling between inputs and buttons; Enter for default action, Escape for cancel</li>
+                    <li>Custom content hosting via <code>CustomContent</code> property (any Control, DockStyle.Fill)</li>
+                    <li>Custom button labels via <code>CustomButtonLabels</code> dictionary</li>
+                    <li>Preset-driven icon selection and semantic theming (accent, warning, danger, success colors)</li>
+                    <li>Reduced motion flag to disable shake animation</li>
+                    <li>Auto-focus on shown: input box → combo box → default button</li>
+                </ul>
+            </section>
+
+            <section id="dialogtypes" class="section">
+                <h2>DialogType & Button Sets</h2>
+                <h3>DialogType Enum</h3>
+                <table>
+                    <thead><tr><th>Value</th><th>Default Buttons</th><th>Icon</th><th>Input Visibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Information</code></td><td>Single center OK</td><td>Information icon</td><td>None</td></tr>
+                        <tr><td><code>Warning</code></td><td>Single center OK</td><td>Warning icon</td><td>None</td></tr>
+                        <tr><td><code>Error</code></td><td>Single center OK</td><td>Error icon</td><td>None</td></tr>
+                        <tr><td><code>Question</code></td><td>Based on DialogButtons</td><td>Question icon</td><td>None</td></tr>
+                        <tr><td><code>GetInputString</code></td><td>Based on DialogButtons</td><td>Input icon</td><td>TextBox visible</td></tr>
+                        <tr><td><code>GetInputFromList</code></td><td>Based on DialogButtons</td><td>Input icon</td><td>ComboBox visible</td></tr>
+                        <tr><td><code>None</code></td><td>Based on DialogButtons</td><td>Information icon</td><td>None</td></tr>
+                    </tbody>
+                </table>
+                <h3>BeepDialogButtons Sets</h3>
+                <table>
+                    <thead><tr><th>Set</th><th>Left Button</th><th>Middle Button</th><th>Right Button</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Ok</code></td><td>—</td><td>OK</td><td>—</td></tr>
+                        <tr><td><code>Cancel</code></td><td>—</td><td>Cancel</td><td>—</td></tr>
+                        <tr><td><code>OkCancel</code></td><td>OK</td><td>—</td><td>Cancel</td></tr>
+                        <tr><td><code>YesNo</code></td><td>Yes</td><td>—</td><td>No</td></tr>
+                        <tr><td><code>AbortRetryIgnore</code></td><td>Abort</td><td>Ignore</td><td>Retry</td></tr>
+                        <tr><td><code>SaveDontSaveCancel</code></td><td>Save</td><td>Don't Save</td><td>Cancel</td></tr>
+                        <tr><td><code>SaveAllDontSaveCancel</code></td><td>Save All</td><td>Don't Save</td><td>Cancel</td></tr>
+                        <tr><td><code>Close</code></td><td>—</td><td>Close</td><td>—</td></tr>
+                        <tr><td><code>Help</code></td><td>—</td><td>Help</td><td>—</td></tr>
+                        <tr><td><code>TryAgainContinue</code></td><td>Try Again</td><td>—</td><td>Continue</td></tr>
+                    </tbody>
+                </table>
+                <p>All button labels are overridable via <code>CustomButtonLabels</code> dictionary using <code>BeepDialogButtons</code> keys.</p>
+            </section>
+
+            <section id="presets" class="section">
+                <h2>DialogPreset</h2>
+                <p>The <code>PresetIntent</code> property (type <code>DialogPreset</code>) drives semantic theming:</p>
+                <table>
+                    <thead><tr><th>Preset</th><th>Icon</th><th>Button Color</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>None</code></td><td>Per DialogType</td><td>Default</td><td>No preset; uses raw DialogType configuration</td></tr>
+                        <tr><td><code>Information</code></td><td>Information</td><td>Info accent</td><td>Neutral informational dialog</td></tr>
+                        <tr><td><code>Success</code></td><td>Check circle</td><td>Success green</td><td>Positive confirmation</td></tr>
+                        <tr><td><code>Warning</code></td><td>Warning</td><td>Warning yellow</td><td>Caution message</td></tr>
+                        <tr><td><code>Danger</code></td><td>Error</td><td>Error red</td><td>Destructive action warning</td></tr>
+                        <tr><td><code>Question</code></td><td>Question</td><td>Info accent</td><td>Yes/No decision prompt</td></tr>
+                        <tr><td><code>DestructiveConfirm</code></td><td>Error</td><td>Error red</td><td>Requires typed confirmation (e.g. "DELETE")</td></tr>
+                        <tr><td><code>UnsavedChanges</code></td><td>Warning</td><td>Warning yellow</td><td>Save/Discard/Cancel three-button flow</td></tr>
+                        <tr><td><code>BlockingError</code></td><td>Error</td><td>Error red</td><td>Requires acknowledgement; ESC and X disabled</td></tr>
+                        <tr><td><code>SessionTimeout</code></td><td>Warning</td><td>Info accent</td><td>Sign In / Not Now prompt</td></tr>
+                        <tr><td><code>InlineValidation</code></td><td>Warning</td><td>Warning yellow</td><td>Validation-focused corrective entry</td></tr>
+                        <tr><td><code>SuccessWithUndo</code></td><td>Check circle</td><td>Success green</td><td>Done / Undo two-button flow</td></tr>
+                        <tr><td><code>MultiStepProgress</code></td><td>Loading</td><td>Info accent</td><td>Multi-step progress status</td></tr>
+                        <tr><td><code>Announcement</code></td><td>Notice</td><td>Info accent</td><td>Low-risk notice with "Got it" button</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="properties" class="section">
+                <h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Title</code></td><td><code>string</code></td><td><code>""</code></td><td>Dialog title shown in the header (get/set via _titleLabel)</td></tr>
+                        <tr><td><code>Message</code></td><td><code>string</code></td><td><code>""</code></td><td>Main message text in the body (get/set via _messageLabel)</td></tr>
+                        <tr><td><code>DetailsText</code></td><td><code>string</code></td><td><code>""</code></td><td>Detailed description shown in expandable section (get/set via _detailsLabel)</td></tr>
+                        <tr><td><code>ReturnValue</code></td><td><code>string</code></td><td><code>""</code></td><td>Read-only. Returns the text value after dialog closes (input text or button label)</td></tr>
+                        <tr><td><code>ReturnItem</code></td><td><code>SimpleItem?</code></td><td><code>null</code></td><td>Read-only. Returns the selected item from combo box (GetInputFromList)</td></tr>
+                        <tr><td><code>DialogType</code></td><td><code>DialogType</code></td><td><code>None</code></td><td>Sets dialog type; triggers full reconfiguration (icon, buttons, input visibility)</td></tr>
+                        <tr><td><code>DialogButtons</code></td><td><code>BeepDialogButtons</code></td><td><code>OkCancel</code></td><td>Sets the button combination; triggers reconfiguration</td></tr>
+                        <tr><td><code>PresetIntent</code></td><td><code>DialogPreset</code></td><td><code>None</code></td><td>Semantic preset that overrides icon, theme colors, and button emphasis</td></tr>
+                        <tr><td><code>Items</code></td><td><code>List&lt;SimpleItem&gt;?</code></td><td><code>null</code></td><td>List of items to populate the combo box (GetInputFromList mode)</td></tr>
+                        <tr><td><code>CustomButtonLabels</code></td><td><code>Dictionary&lt;BeepDialogButtons, string&gt;?</code></td><td><code>null</code></td><td>Override dictionary for button text labels</td></tr>
+                        <tr><td><code>AllowEscapeClose</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether pressing Escape closes the dialog (Cancel action)</td></tr>
+                        <tr><td><code>AllowCaptionCloseButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether the title bar close (X) button is shown</td></tr>
+                        <tr><td><code>DefaultActionButton</code></td><td><code>BeepDialogButtons?</code></td><td><code>null</code></td><td>Which logical button receives Enter key focus. Falls back to middle → left → right</td></tr>
+                        <tr><td><code>RequireTypedConfirmation</code></td><td><code>bool</code></td><td><code>false</code></td><td>Requires user to type confirmation keyword before primary action is enabled</td></tr>
+                        <tr><td><code>ConfirmationKeyword</code></td><td><code>string</code></td><td><code>""</code></td><td>The keyword text to type for confirmation (case-insensitive match)</td></tr>
+                        <tr><td><code>DisablePrimaryUntilAcknowledged</code></td><td><code>bool</code></td><td><code>false</code></td><td>Disables primary button until validation and/or typed confirmation pass</td></tr>
+                        <tr><td><code>ReducedMotion</code></td><td><code>bool</code></td><td><code>false</code></td><td>Disables the shake animation on validation error</td></tr>
+                        <tr><td><code>InputValidator</code></td><td><code>Func&lt;string, string?&gt;?</code></td><td><code>null</code></td><td>Validation callback; returns error message string or null for success</td></tr>
+                        <tr><td><code>InputBoxMultiline</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables multiline text input (sets height to 80px)</td></tr>
+                        <tr><td><code>InputBoxUsePasswordChar</code></td><td><code>bool</code></td><td><code>false</code></td><td>Masks input text with password character</td></tr>
+                        <tr><td><code>InputDefaultValue</code></td><td><code>string</code></td><td>—</td><td>Write-only. Sets the initial text in the input box (if visible)</td></tr>
+                        <tr><td><code>CustomContent</code></td><td><code>Control?</code></td><td><code>null</code></td><td>Custom control hosted in the body panel with DockStyle.Fill. Replaces previous custom content</td></tr>
+                        <tr><td><code>CustomContentFillsDialog</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, custom content expands to fill the dialog area</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section">
+                <h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>StartAutoClose</code></td><td><code>void StartAutoClose(int timeoutMs)</code></td><td>Starts a 1-second interval timer that counts down and auto-closes with DialogResult.Cancel; annotates primary button with "(N)" countdown</td></tr>
+                        <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies theme to all child panels and controls; resolves preset-aware primary color via DialogStyleAdapter; tints header for semantic presets</td></tr>
+                        <tr><td><code>ProcessCmdKey</code></td><td><code>protected override bool ProcessCmdKey(ref Message msg, Keys keyData)</code></td><td>Handles Tab/Shift+Tab focus cycling, Enter for default action, Escape for cancel/close</td></tr>
+                        <tr><td><code>OnShown</code></td><td><code>protected override void OnShown(EventArgs e)</code></td><td>Auto-focuses input box → combo box → default button on first display</td></tr>
+                        <tr><td><code>OnResize</code></td><td><code>protected override void OnResize(EventArgs e)</code></td><td>Re-positions buttons and reflows body content on resize</td></tr>
+                        <tr><td><code>Dispose</code></td><td><code>protected override void Dispose(bool disposing)</code></td><td>Stops auto-close timer and disposes base resources</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section">
+                <h2>Events</h2>
+                <p>BeepDialogForm does not expose custom public events. Communication is via the standard <code>DialogResult</code> property and the following state properties read after <code>ShowDialog()</code> returns:</p>
+                <ul>
+                    <li><code>ReturnValue</code> (string) — text payload (input text, selected combo item text, or clicked button label)</li>
+                    <li><code>ReturnItem</code> (SimpleItem?) — selected combo box item for GetInputFromList mode</li>
+                    <li><code>DialogResult</code> (WinForms) — standard OK/Cancel/Yes/No/Abort/Retry/Ignore mapping</li>
+                </ul>
+                <p><strong>Internal events</strong> that drive button behavior:</p>
+                <ul>
+                    <li><strong>_leftButton.Click</strong> → LeftButton_Click: sets ReturnValue, maps DialogResult per button set, closes</li>
+                    <li><strong>_middleButton.Click</strong> → MiddleButton_Click: sets ReturnValue, maps DialogResult per button set, closes</li>
+                    <li><strong>_rightButton.Click</strong> → RightButton_Click: sets ReturnValue to null, maps DialogResult per button set, closes</li>
+                    <li><strong>_detailsToggleButton.Click</strong> → DetailsToggleButton_Click: toggles _detailsExpanded and updates visibility</li>
+                    <li><strong>_inputBox.TextChanged</strong> → InputBox_TextChanged: runs InputValidator callback</li>
+                    <li><strong>_confirmationBox.TextChanged</strong> → ConfirmationBox_TextChanged: checks typed keyword match</li>
+                </ul>
+            </section>
+
+            <section id="theming" class="section">
+                <h2>Theming</h2>
+                <p>BeepDialogForm applies theming via <code>ApplyTheme()</code>, which propagates the current <code>BeepTheme</code> to all child controls (panels, labels, text boxes, combo boxes, buttons). Key theme tokens used:</p>
+                <table>
+                    <thead><tr><th>Theme Token</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>ErrorColor</code></td><td>Validation error label text and input border color</td></tr>
+                        <tr><td><code>TextBoxBorderColor</code></td><td>Input box border when no error (fallback: ButtonBorderColor)</td></tr>
+                        <tr><td><code>ButtonBackColor</code> / <code>ButtonForeColor</code></td><td>Cancel/secondary button styling</td></tr>
+                        <tr><td><code>AccentColor</code></td><td>Default primary button color (when no preset)</td></tr>
+                        <tr><td>Preset-specific button colors</td><td>Resolved via <code>DialogStyleAdapter.GetPresetPrimaryColor()</code> — maps DialogPreset to appropriate theme color (SuccessColor, ErrorColor, WarningColor, DialogInformationButtonBackColor, etc.)</td></tr>
+                        <tr><td>Preset-specific header tint</td><td>Resolved via <code>DialogStyleAdapter.GetPresetHeaderTint()</code> — subtle semantic background tint</td></tr>
+                    </tbody>
+                </table>
+                <p>The primary button also receives computed contrast foreground (<code>ColorUtils.GetContrastColor</code>) and hover back color (<code>ColorUtils.ShiftLuminance(primaryColor, 0.12f)</code>).</p>
+            </section>
+
+            <section id="examples" class="section">
+                <h2>Examples</h2>
+                <h3>Simple Information Dialog</h3>
+                <pre><code class="language-csharp">using (var dialog = new BeepDialogForm())
+{
+    dialog.Title = "Operation Complete";
+    dialog.Message = "Your files have been processed successfully.";
+    dialog.DialogType = DialogType.Information;
+    dialog.PresetIntent = DialogPreset.Success;
+    dialog.ShowDialog(this);
+
+    if (dialog.DialogResult == DialogResult.OK)
+        Console.WriteLine("User acknowledged.");
+}</code></pre>
+
+                <h3>Text Input with Validation</h3>
+                <pre><code class="language-csharp">using (var dialog = new BeepDialogForm())
+{
+    dialog.Title = "Enter Name";
+    dialog.Message = "Please enter your full name:";
+    dialog.DialogType = DialogType.GetInputString;
+    dialog.DialogButtons = BeepDialogButtons.OkCancel;
+    dialog.InputValidator = input =>
+        string.IsNullOrWhiteSpace(input) ? "Name is required" : null;
+    dialog.ShowDialog(this);
+
+    if (dialog.DialogResult == DialogResult.OK)
+        Console.WriteLine($"Name: {dialog.ReturnValue}");
+}</code></pre>
+
+                <h3>Destructive Confirmation</h3>
+                <pre><code class="language-csharp">using (var dialog = new BeepDialogForm())
+{
+    dialog.Title = "Delete Project?";
+    dialog.Message = "This action is permanent and cannot be undone.";
+    dialog.PresetIntent = DialogPreset.DestructiveConfirm;
+    dialog.RequireTypedConfirmation = true;
+    dialog.ConfirmationKeyword = "DELETE";
+    dialog.DisablePrimaryUntilAcknowledged = true;
+    dialog.DialogType = DialogType.Error;
+    dialog.CustomButtonLabels = new Dictionary&lt;BeepDialogButtons, string&gt;
+    {
+        [BeepDialogButtons.Ok] = "Delete",
+        [BeepDialogButtons.Cancel] = "Keep"
+    };
+    dialog.ShowDialog(this);
+
+    if (dialog.DialogResult == DialogResult.OK)
+        Console.WriteLine("Project deleted.");
+}</code></pre>
+
+                <h3>Combo Box Selection</h3>
+                <pre><code class="language-csharp">using (var dialog = new BeepDialogForm())
+{
+    dialog.Title = "Select Category";
+    dialog.Message = "Choose a category:";
+    dialog.DialogType = DialogType.GetInputFromList;
+    dialog.DialogButtons = BeepDialogButtons.OkCancel;
+    dialog.Items = new List&lt;SimpleItem&gt;
+    {
+        new SimpleItem { Text = "Electronics" },
+        new SimpleItem { Text = "Clothing" },
+        new SimpleItem { Text = "Books" }
+    };
+    dialog.ShowDialog(this);
+
+    if (dialog.DialogResult == DialogResult.OK)
+        Console.WriteLine($"Category: {dialog.ReturnValue}, Item: {dialog.ReturnItem?.Text}");
+}</code></pre>
+
+                <h3>Auto-Close Timer</h3>
+                <pre><code class="language-csharp">using (var dialog = new BeepDialogForm())
+{
+    dialog.Title = "Session Timeout";
+    dialog.Message = "Your session will expire soon.";
+    dialog.PresetIntent = DialogPreset.SessionTimeout;
+    dialog.DialogType = DialogType.Warning;
+    dialog.CustomButtonLabels = new Dictionary&lt;BeepDialogButtons, string&gt;
+    {
+        [BeepDialogButtons.Ok] = "Sign In",
+        [BeepDialogButtons.Cancel] = "Not Now"
+    };
+    dialog.StartAutoClose(30000); // 30-second countdown
+    dialog.ShowDialog(this);
+}</code></pre>
+            </section>
+
+            <section id="architecture" class="section">
+                <h2>Architecture</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>DialogsManagers\Forms\BeepDialogForm.cs</code></td><td>Single-file implementation (1156 lines). Contains: constructor (builds header/body/button panels with all child controls), DialogType and DialogButton configuration, button click handlers with DialogResult mapping, keyboard handling (ProcessCmdKey for Tab/Escape/Enter), Focus cycling (CycleFocus), input validation (InputBox_TextChanged), typed confirmation (ConfirmationBox_TextChanged), details expand/collapse, auto-close timer, theming (ApplyTheme), body content layout (ReflowBodyContent and MeasureWrappedTextHeight), and primary action enable/disable logic</td></tr>
+                        <tr><td><code>DialogsManagers\Helpers\DialogStyleAdapter.cs</code></td><td>Resolves preset-aware primary button colors and header tints from BeepTheme tokens</td></tr>
+                        <tr><td><code>DialogsManagers\Helpers\DialogMotionEngine.cs</code></td><td>Provides shake animation for validation errors (cycles, amplitude, duration)</td></tr>
+                        <tr><td><code>DialogsManagers\Models\DialogPreset.cs</code></td><td>DialogPreset enum and DialogPresetStyling utility class</td></tr>
+                        <tr><td><code>Forms\BeepDialogModal.cs</code></td><td>Defines the DialogType enum (Information, Warning, Error, Question, GetInputString, GetInputFromList, None)</td></tr>
+                    </tbody>
+                </table>
+                <p>The dialog uses a <strong>Dock stacking</strong> layout: Body (Fill) is added first, then Button panel (Bottom), then Header (Top) — this ensures correct Dock order. The body panel uses AutoScroll with AutoScrollMinSize dynamically set by <code>ReflowBodyContent()</code> which measures wrapped text heights and positions all body controls vertically with 8px spacing.</p>
+                <p>Button handling maps the <code>BeepDialogButtons</code> set to 1–3 visible buttons using a logical-to-physical mapping (<code>MapLogicalButtonToControl</code>). Button positioning is right-aligned for 2–3 buttons, centered for single buttons.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

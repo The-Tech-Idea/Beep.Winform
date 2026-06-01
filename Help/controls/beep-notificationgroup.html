@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepNotificationGroup - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&rsaquo;</span>
+                    <span>BeepNotificationGroup</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepNotificationGroup</h1>
+                    <p class="page-subtitle">Grouped notification control that displays multiple similar notifications as a stack with expand/collapse and count badge</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepNotificationGroup</strong> is a <code>BaseControl</code>-derived grouped notification control that aggregates similar notifications into a compact, expandable stack. It displays a colored header with icon, title, subtitle preview, expand/collapse chevron, and a count badge. Expanding reveals individual notification items with title, message, and relative timestamp.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Notifications</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BaseControl &#x2192; BeepNotificationGroup</code><br>
+                    <strong>Toolbox:</strong> <code>Beep Controls</code> tab</p>
+                    <p>The control uses Material3 styling with rounded corners, drop shadow, and DPI-aware scaling. It supports keyboard navigation (Enter/Space to toggle) and accessibility via <code>AccessibleRole.Grouping</code>.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Grouped stacking</strong> &mdash; Aggregates notifications by key, type, or source into a single collapsible card</li>
+                        <li><strong>Expand / collapse</strong> &mdash; Click the header or chevron to reveal or hide individual notification items</li>
+                        <li><strong>Count badge</strong> &mdash; Circular badge shows notification count (99+ for overflow)</li>
+                        <li><strong>Color-coded by type</strong> &mdash; Header background adapts to <code>NotificationType</code> (Info, Warning, Error, Success)</li>
+                        <li><strong>Message preview</strong> &mdash; Shows the most recent notification message in the collapsed header</li>
+                        <li><strong>Relative timestamps</strong> &mdash; Each expanded item shows "now", "5m", "3h", "2d" time-ago labels</li>
+                        <li><strong>Hover effects</strong> &mdash; Individual items and expand button highlight on mouse hover</li>
+                        <li><strong>Keyboard accessible</strong> &mdash; Enter/Space to toggle expand, <code>AccessibleRole.Grouping</code></li>
+                        <li><strong>DPI-aware</strong> &mdash; All dimensions scaled via <code>DpiScalingHelper</code></li>
+                        <li><strong>Material3 themed</strong> &mdash; Inherits <code>BaseControl</code> theming with rounded corners, shadows, and border</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>GroupKey</code></td><td><code>string</code></td><td><code>""</code></td><td>Unique key for grouping notifications. Used to identify similar notifications.</td></tr>
+                            <tr><td><code>GroupTitle</code></td><td><code>string</code></td><td><code>"Notifications"</code></td><td>Display title shown in the group header.</td></tr>
+                            <tr><td><code>GroupType</code></td><td><code>NotificationType</code></td><td>-</td><td>Notification type for icon and color theming (e.g. Info, Warning, Error, Success).</td></tr>
+                            <tr><td><code>IsExpanded</code></td><td><code>bool</code></td><td><code>false</code></td><td>Whether the group is expanded to show individual notifications. Triggers <code>PopupOpened</code>/<code>PopupClosed</code> events.</td></tr>
+                            <tr><td><code>Count</code></td><td><code>int</code></td><td>0</td><td>Number of notifications currently in the group (read-only).</td></tr>
+                            <tr><td><code>Notifications</code></td><td><code>IReadOnlyList&lt;NotificationData&gt;</code></td><td>-</td><td>Read-only collection of all notifications in the group.</td></tr>
+                            <tr><td><code>MinTouchTargetWidth</code></td><td><code>int</code></td><td><code>44</code></td><td>Minimum touch target width in pixels (clamped to 32 minimum).</td></tr>
+                            <tr><td><code>IsPopupOpen</code></td><td><code>bool</code></td><td><code>false</code></td><td>Whether the group popup (expanded view) is currently open (read-only).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>AddNotification</code></td><td><code>void AddNotification(NotificationData data)</code></td><td>Adds a notification to the group. On first notification, updates <code>GroupType</code> and <code>GroupTitle</code> from the data.</td></tr>
+                            <tr><td><code>RemoveNotification</code></td><td><code>void RemoveNotification(string notificationId)</code></td><td>Removes a notification from the group by its ID and refreshes layout.</td></tr>
+                            <tr><td><code>Clear</code></td><td><code>void Clear()</code></td><td>Clears all notifications from the group, collapses the view, and refreshes layout.</td></tr>
+                            <tr><td><code>ToggleExpand</code></td><td><code>void ToggleExpand()</code></td><td>Toggles the expand/collapse state of the group.</td></tr>
+                            <tr><td><code>CloseChildPopup</code></td><td><code>void CloseChildPopup()</code></td><td>Closes the child popup by collapsing the group if currently expanded.</td></tr>
+                            <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies the current theme and updates the text font from <code>BeepFontManager</code>.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Event</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>NotificationClicked</code></td><td>Raised when a notification item is clicked while the group is expanded. Provides <code>NotificationEventArgs</code> with the <code>Notification</code> data.</td></tr>
+                            <tr><td><code>GroupDismissed</code></td><td>Raised when the group is dismissed. Provides <code>NotificationEventArgs</code>.</td></tr>
+                            <tr><td><code>PopupOpened</code></td><td>Raised when the group popup is opened (expanded).</td></tr>
+                            <tr><td><code>PopupClosed</code></td><td>Raised when the group popup is closed (collapsed).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><strong>BeepNotificationGroup</strong> inherits theme support from <code>BaseControl</code> via <code>ApplyTheme()</code>. It uses the <code>_currentTheme</code> to set the <code>_textFont</code> from <code>BeepFontManager.ToFont(_currentTheme.BodyMedium)</code>. The notification type colors are resolved through <code>NotificationThemeHelpers.GetColorsForType()</code> which returns icon and border colors for each <code>NotificationType</code>. Contrast colors for the badge text and borders are calculated using <code>NotificationThemeHelpers.GetContrastColor()</code> and <code>NotificationThemeHelpers.ShiftLuminance()</code>.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <pre><code class="language-csharp">// Create and configure a notification group
+var group = new BeepNotificationGroup
+{
+    GroupKey = "build-errors",
+    GroupTitle = "Build Errors",
+    GroupType = NotificationType.Error,
+    Location = new Point(10, 10),
+    Size = new Size(350, 60)
+};
+
+// Add notifications
+group.AddNotification(new NotificationData
+{
+    Id = "err-1",
+    Title = "CS1002: Semicolon expected",
+    Message = "Line 42 in Program.cs",
+    Type = NotificationType.Error,
+    Source = "Build",
+    Timestamp = DateTime.Now.AddMinutes(-5)
+});
+
+group.AddNotification(new NotificationData
+{
+    Id = "err-2",
+    Title = "CS0246: Type not found",
+    Message = "Line 108 in Services.cs",
+    Type = NotificationType.Error,
+    Source = "Build",
+    Timestamp = DateTime.Now.AddMinutes(-2)
+});
+
+// Handle notification click events
+group.NotificationClicked += (s, e) =>
+{
+    var notification = e.Notification;
+    Console.WriteLine($"Notification clicked: {notification.Title}");
+};
+
+// Handle popup open/close
+group.PopupOpened += (s, e) => Console.WriteLine("Group expanded");
+group.PopupClosed += (s, e) => Console.WriteLine("Group collapsed");
+
+// Add to form
+this.Controls.Add(group);</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>BeepNotificationGroup</strong> extends <code>BaseControl</code> and overrides <code>DrawContent(Graphics g)</code> for custom painting. The layout is calculated in <code>RecalculateLayout()</code> which determines <code>_headerRect</code>, <code>_badgeRect</code>, <code>_expandButtonRect</code>, and <code>_contentRect</code> regions. Notifications are stored in a private <code>List&lt;NotificationData&gt;</code> and exposed as <code>IReadOnlyList</code>. The control supports Material3 styling with <code>BeepControlStyle.Material3</code>, rounded borders, drop shadows, and DPI-aware scaling through <code>DpiScalingHelper</code>. Size constraints use scaled minimum (280x60) and maximum (420x600) values. The expand/collapse behavior fires <code>PopupOpened</code> and <code>PopupClosed</code> events and recalculates the control height via <code>UpdateSize()</code>.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

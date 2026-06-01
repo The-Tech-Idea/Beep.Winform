@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docking Overview - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Docking Overview</span></nav><div class="page-header"><h1>Docking Architecture</h1><p class="page-subtitle">The complete architecture of the Beep docking system — layout tree, panels, groups, positions, floating windows, auto-hide, persistence, and the painter pipeline</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#architecture">System Architecture</a></li><li><a href="#core-types">Core Types</a></li><li><a href="#layout-tree">Layout Tree</a></li><li><a href="#panel-states">Panel States &amp; Lifecycle</a></li><li><a href="#painter-pipeline">Painter Pipeline</a></li><li><a href="#drag-drop">Drag-Drop System</a></li><li><a href="#persistence">Layout Persistence</a></li><li><a href="#code-example">Code Example</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The Beep docking system provides a complete Visual-Studio-style docking experience. At its heart is <strong>BeepDockingManager</strong>, a non-visual component that orchestrates a network of <strong>DockPanel</strong> components, <strong>BeepDockspace</strong> controls, <strong>FloatWindow</strong> forms, and <strong>AutoHideSlidePanel</strong> controls.</p><p>The system spans ~48 source files organized into subsystems:</p><ul><li><strong>Models</strong> — DockPanel, DockGroup, DockLayoutTree, serialization types</li><li><strong>Runtime</strong> — FloatWindow, AutoHideSlidePanel, AutoHideStrip, BeepDockspace, splitters</li><li><strong>Layout</strong> — DockingLayoutController, LayoutCalculator, LayoutValidator</li><li><strong>Drag-Drop</strong> — DockDragController, DockGuideController, DockDragGhost, guide overlay</li><li><strong>Painters</strong> — IDockingPainter, caption/splitter/auto-hide renderers, adapter</li><li><strong>Animation</strong> — DockAnimator, AnimationTrack, easing functions</li></ul></section><section class="section" id="architecture"><h2>System Architecture</h2><pre><code class="language-plaintext">BeepDockingManager (IComponent, IDockDragHost)
+  ├── HostForm (Form)
+  ├── LayoutTree (DockLayoutTree)
+  │    └── Root (DockGroup) — tree of nested groups
+  │         ├── DockGroup (Id="left", Position=Left)
+  │         │    ├── DockPanel ("solution-explorer")
+  │         │    └── DockPanel ("properties")
+  │         ├── DockGroup (Id="main", Position=Fill)
+  │         │    ├── DockGroup (split child, Horizontal)
+  │         │    │    ├── DockPanel ("editor1")
+  │         │    │    └── DockPanel ("editor2")
+  │         │    └── DockPanel ("output")
+  │         └── DockGroup (Id="right", Position=Right)
+  │              └── DockPanel ("toolbox")
+  ├── LayoutController (DockingLayoutController)
+  │    ├── LayoutCalculator (ratio-based split math)
+  │    └── LayoutValidator (post-layout checks)
+  ├── Dockspaces (BeepDockspace[]) — visual containers
+  ├── FloatWindows (FloatWindow[]) — floating windows
+  ├── AutoHideStrips (AutoHideStrip[]) — edge strips
+  ├── Painter (IDockingPainter) — theme-aware rendering
+  └── DragController (DockDragController)
+       ├── DockDragGhost (ghost window during drag)
+       ├── DockGuideController (diamond overlay)
+       └── DockTargetResolver (drop target logic)</code></pre></section><section class="section" id="core-types"><h2>Core Types</h2><table><thead><tr><th>Type</th><th>Base</th><th>Role</th></tr></thead><tbody><tr><td>BeepDockingManager</td><td>Component</td><td>Central orchestrator — panel registry, layout, theming, events</td></tr><tr><td>DockPanel</td><td>Panel</td><td>Dockable content container — Title, Key, Content, State, Capabilities</td></tr><tr><td>DockGroup</td><td>object</td><td>Tree node — contains panels and child groups, split ratios</td></tr><tr><td>DockLayoutTree</td><td>object</td><td>In-memory layout — Root group, panel/group registries, ToDefinition()</td></tr><tr><td>BeepDockspace</td><td>Panel</td><td>Visual container — tab strip, caption, panel content area</td></tr><tr><td>FloatWindow</td><td>Form</td><td>Floating window — borderless, caption drag, edge snap</td></tr><tr><td>AutoHideSlidePanel</td><td>Panel</td><td>Slide-out panel — animated reveal from edge strip</td></tr><tr><td>AutoHideStrip</td><td>Panel</td><td>Edge strip — tab-like buttons for collapsed panels</td></tr><tr><td>DockingLayoutController</td><td>object</td><td>Computes pixel rectangles for every group/dockspace</td></tr><tr><td>DockLayoutDefinition</td><td>object</td><td>Serialization format — Groups, Floating, AutoHidden collections</td></tr></tbody></table></section><section class="section" id="layout-tree"><h2>Layout Tree</h2><p>The layout tree is a hierarchical structure where each <strong>DockGroup</strong> node can contain panels and child groups:</p><ul><li><strong>Leaf groups</strong> contain one or more DockPanel (rendered as a BeepDockspace with tabs)</li><li><strong>Split groups</strong> contain two or more child groups (rendered side-by-side with splitters)</li><li>The <strong>Root</strong> group always has Position=Fill and may contain child groups</li><li>Each group has a <strong>SplitRatio</strong> (0.1-0.9, default 0.5) controlling proportional space</li></ul><p>The <strong>DockingLayoutController</strong> traverses this tree to compute pixel rectangles, handling min-width/height constraints and splitter positions.</p></section><section class="section" id="panel-states"><h2>Panel States &amp; Lifecycle</h2><table><thead><tr><th>State</th><th>Description</th><th>Visual</th></tr></thead><tbody><tr><td><strong>Docked</strong></td><td>Panel occupies a region of the form (Left/Right/Top/Bottom/Fill)</td><td>Tab in a dockspace with caption bar</td></tr><tr><td><strong>Tabbed</strong></td><td>Multiple panels share a dockspace (stacked tabs)</td><td>Tabs with active indicator</td></tr><tr><td><strong>Floating</strong></td><td>Panel detached in a separate FloatWindow form</td><td>Borderless window with title bar</td></tr><tr><td><strong>Auto-Hidden</strong></td><td>Panel collapsed to an edge strip</td><td>Tab button on edge; hover reveals slide panel</td></tr><tr><td><strong>Closed</strong></td><td>Panel in the closed store (can be reopened)</td><td>Not visible</td></tr></tbody></table><p>State transitions are managed by BeepDockingManager. Cancelable request events (PageCloseRequest, PageFloatingRequest, etc.) let applications veto transitions.</p></section><section class="section" id="painter-pipeline"><h2>Painter Pipeline</h2><p>Docking chrome rendering uses a two-layer abstraction:</p><ol><li><strong>DockingPainterAdapter</strong> — Bridges BeepTheme tokens to docking-specific colors</li><li><strong>DockingRendererSet</strong> — Concrete renderers for each element type</li></ol><table><thead><tr><th>Renderer</th><th>Class</th><th>Responsibility</th></tr></thead><tbody><tr><td>Caption</td><td>CaptionRenderer</td><td>Draws title bar, tab strip, action buttons (close/float/pin)</td></tr><tr><td>Splitter</td><td>SplitterRenderer</td><td>Draws resize handle between docked groups</td></tr><tr><td>Auto-Hide</td><td>AutoHideStripRenderer</td><td>Draws edge strip tabs and slide panel chrome</td></tr></tbody></table></section><section class="section" id="drag-drop"><h2>Drag-Drop System</h2><p>The drag-drop pipeline:</p><ol><li><strong>Initiation</strong> — User starts dragging a tab header or caption</li><li><strong>Ghost</strong> — DockDragGhost creates a semi-transparent window tracking the mouse</li><li><strong>Guide Overlay</strong> — DockingGuideOverlay shows a 5-diamond guide (Left/Right/Top/Bottom/Fill)</li><li><strong>Target Resolution</strong> — DockTargetResolver determines valid drop positions</li><li><strong>Completion</strong> — Panel is moved to the new position; layout recalculates</li></ol></section><section class="section" id="persistence"><h2>Layout Persistence</h2><pre><code class="language-csharp">// Save
+var def = manager.LayoutTree.ToDefinition();
+string json = JsonConvert.SerializeObject(def);
+
+// Restore
+var def = JsonConvert.DeserializeObject&lt;DockLayoutDefinition&gt;(json);
+manager.LoadLayout(def);</code></pre><p>The <strong>DockLayoutDefinition</strong> contains three serializable collections:</p><ul><li><strong>Groups</strong> — List of DockGroupDefinition (position, orientation, split ratio, panel keys)</li><li><strong>Floating</strong> — List of FloatingPanelInfo (key, bounds, last dock position)</li><li><strong>AutoHidden</strong> — List of AutoHiddenPanelInfo (key, edge)</li></ul></section><section class="section" id="code-example"><h2>Code Example</h2><pre><code class="language-csharp">var mgr = new BeepDockingManager();
+mgr.ManageControl(this);
+
+mgr.AddPanel("explorer", "Solution Explorer",
+    DockPosition.Right, new TreeView());
+mgr.AddPanel("editor", "Main.cs",
+    DockPosition.Fill, new RichTextBox());
+mgr.AddPanel("output", "Output",
+    DockPosition.Bottom, new TextBox { Multiline = true });
+
+// Float and re-dock
+mgr.FloatPanel("output",
+    new Rectangle(100, 100, 600, 400));
+mgr.DockFloatingPanel("output",
+    DockPosition.Right);
+
+// Auto-hide
+mgr.AutoHidePanel("explorer");
+mgr.RestoreAutoHiddenPanel("explorer");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

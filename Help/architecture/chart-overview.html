@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart Architecture - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Chart Architecture</span></nav>
+<div class="page-header"><h1>Chart Architecture</h1><p class="page-subtitle">Complete BeepChart internal architecture -- 5 partial files, 20 helper classes, painter pipeline (IChartPainter/IChartSeriesPainter/IChartAxisPainter/IChartLegendPainter), viewport control, and performance optimization for large datasets</p></div>
+
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#partials">Partial File Layout (5 files)</a></li>
+<li><a href="#helpers">Helper Subsystems (20 classes)</a></li>
+<li><a href="#pipeline">Painting Pipeline</a></li>
+<li><a href="#painter-contracts">Painter Contracts (4 interfaces)</a></li>
+<li><a href="#series">Series Painters (5 types)</a></li>
+<li><a href="#axis">Axis &amp; Legend System</a></li>
+<li><a href="#viewport">Viewport &amp; Performance</a></li>
+<li><a href="#data">Data Pipeline</a></li>
+<li><a href="#interaction">Interaction &amp; Trackball</a></li>
+<li><a href="#enums">Key Enums &amp; EventArgs</a></li>
+<li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Charts</code><br>
+<strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+<strong>Inheritance:</strong> <code>BaseControl</code></p>
+<p><code>BeepChart</code> is a full-featured charting control supporting <strong>5 chart types</strong> (Bar, Line, Pie, Area, Bubble) with interactive viewport control (zoom/pan/auto-scale), performance optimization for datasets exceeding 10,000 points, real-time streaming, trackball with crosshair and multi-series tooltips, and 18 events with dedicated EventArgs classes. It is decomposed across <strong>5 partial files</strong> with ~20 helper classes organized into five subsystems.</p></section>
+
+<section class="section" id="partials"><h2>Partial File Layout (5 Files)</h2>
+<table><thead><tr><th>File</th><th>Lines</th><th>Content</th></tr></thead><tbody>
+<tr><td><strong>BeepChart.cs</strong></td><td>~80</td><td>Partial class declaration. Constructor calls <code>InitializeDefaultSettings()</code>, <code>InitializeDesignTimeSampleData()</code>, <code>InitializePainter()</code>. DefaultSize 400x300. Defines 4 enums: ChartSelectionMode, ChartVisualPreset, ChartSeriesFillPattern, ChartSurfaceStyle.</td></tr>
+<tr><td><strong>BeepChart.Properties.cs</strong></td><td>~250</td><td>80+ public properties across categories: Title (ShowTitle, ChartTitle, ChartValue, ChartSubtitle, title fonts/colors), Data (DataSeries, LegendLabels, ChartDefaultSeriesColors), Axis (BottomAxisType, LeftAxisType, X/YAxisTitle, X/YLabelAngle, X/YTimeGranularity), Viewport (ViewportXMin/Max, ViewportYMin/Max, CanResetViewport), Interaction (EnableMouseWheelZoom, MouseWheelZoomStepPercent, EnableMouseDragPan, EnableTrackball, TrackballShowCrosshair, EnablePointSelection, SelectionMode), Performance (EnablePerformanceMode, LargeDatasetThreshold, EnablePointCulling, EnableVertexSimplification, SimplificationTolerance), Appearance (ChartDrawingRect, ShowLegend, ChartType, LegendPlacement, SurfaceStyle, AccentColor, Stacked, SmoothLines, ShowMarkers), Theme colors (ChartBackColor, ChartLineColor, ChartFillColor, ChartAxisColor, ChartTitleColor, ChartTextColor, ChartLegendBackColor, ChartLegendTextColor, ChartLegendShapeColor, ChartGridLineColor), Streaming (EnableRealTimeStreaming, StreamRenderThrottleMs, MaxStreamPointsPerSeries).</td></tr>
+<tr><td><strong>BeepChart.Methods.cs</strong></td><td>~200</td><td>30+ methods: ResetViewport(), AutoScaleViewport(), StartAnimation(int durationMs), ApplyVisualPreset(ChartVisualPreset), FlushStreamingRender(), AppendDataPoint(int seriesIndex, ChartDataPoint, bool flush), AppendDataPoints(int seriesIndex, IEnumerable, bool flush), GetOptimizedPointsForSeries(int), GetCulledPointsForViewport(List), ClearSimplificationCache(), GetPerformanceReport(), GetTotalPointCount(), IsLargeDataset(), ConvertXValue(ChartDataPoint), ConvertYValue(ChartDataPoint).</td></tr>
+<tr><td><strong>BeepChart.Events.cs</strong></td><td>~250</td><td>18 events: CustomDrawSeries, InteractiveAreaHit, PointHit, AxisHit, LegendHit, PointHoverChanged, ViewportChanged, TrackballDataCollected, SeriesIsolationChanged, SelectionChanged, ContextMenuRequested, KeyboardFocusChanged, PerformanceOptimized, NonColorStateCommunicationChanged, LabelOptimizationApplied, StreamingDataAppended, IncrementalRenderCompleted. Plus 18 dedicated EventArgs classes (CustomDrawSeriesEventArgs, ChartPointHitEventArgs, ChartAxisHitEventArgs, ChartLegendHitEventArgs, ChartPointHoverChangedEventArgs, ChartViewportChangedEventArgs, ChartTrackballDataCollectedEventArgs with ChartTrackballDataPoint, ChartSelectionChangedEventArgs, etc.).</td></tr>
+<tr><td><strong>BeepChart.Drawing.cs</strong></td><td>~400</td><td>DrawContent override, Paint(Graphics, Rectangle) method, chart render orchestration, painter integration (IChartPainter), custom draw hooks, hit area registration, Dispose (DataPointToolTip, AnimTimer, StreamRenderTimer).</td></tr></tbody></table></section>
+
+<section class="section" id="helpers"><h2>Helper Subsystems (20 Classes)</h2>
+<table><thead><tr><th>Subsystem</th><th>Files</th><th>Role</th></tr></thead><tbody>
+<tr><td><strong>Painter Contracts</strong></td><td>IChartPainter.cs, IChartSeriesPainter.cs, IChartAxisPainter.cs, IChartLegendPainter.cs</td><td>4 internal interfaces defining swappable rendering components</td></tr>
+<tr><td><strong>Painter Implementations</strong></td><td>CardChartPainter.cs, CartesianAxisPainter.cs, RightSideLegendPainter.cs + 5 series painters</td><td>Concrete renderers implementing each interface</td></tr>
+<tr><td><strong>Series</strong></td><td>SeriesPainterFactory.cs + Bar/Line/Pie/Area/Bubble series painters</td><td>ChartType-to-painter resolution, 5 series rendering strategies</td></tr>
+<tr><td><strong>Data</strong></td><td>BeepChartDataHelper.cs</td><td>Auto-detect axis types (Numeric/Date/Text), convert X/Y values, category mapping</td></tr>
+<tr><td><strong>Viewport</strong></td><td>BeepChartViewportHelper.cs</td><td>Auto-scale from data, enforce limits, drawing rect calculation</td></tr>
+<tr><td><strong>Performance</strong></td><td>BeepChartPerformanceHelper.cs</td><td>Point culling, decimation, grid density optimization, label interval recommendation, rendering cost estimation</td></tr>
+<tr><td><strong>Input</strong></td><td>ChartInputHelper.cs, ChartPainterBase.cs</td><td>Mouse hit testing, trackball crosshair interaction</td></tr>
+<tr><td><strong>Metrics</strong></td><td>ChartPainterMetrics.cs, SeriesRenderOptions.cs</td><td>Shared constants, layout padding values, series render configuration class</td></tr></tbody></table></section>
+
+<section class="section" id="pipeline"><h2>Painting Pipeline</h2>
+<pre><code class="language-plaintext">DrawContent(Graphics g)
+  -> Paint(Graphics g, Rectangle bounds)
+       -> IChartPainter.Initialize(owner, theme)
+       -> IChartPainter.AdjustLayout(drawingRect, ctx) -> ChartLayout
+            |-- IChartAxisPainter.AdjustPlotRect(g, axisCtx) -> AxisLayout (48px margins)
+       -> IChartPainter.DrawBackground(g, ctx)
+            |-- CardChartPainter: rounded card background + border
+            |-- IChartAxisPainter.DrawAxes(g, axisCtx) -> X/Y axis lines + titles
+            |-- IChartAxisPainter.DrawTicks(g, axisCtx) -> numeric | date | text
+       -> [foreach DataSeries, palette index]:
+            IChartSeriesPainter.DrawSeries(g, plotRect, data, toX, toY,
+                xMin, xMax, yMin, yMax, palette, axisColor, textColor, options)
+       -> IChartLegendPainter.DrawLegend(g, chartRect, series, palette,
+            font, textColor, backColor, shapeColor, owner, onToggleSeries, ...)
+       -> IChartPainter.DrawForeground(g, ctx) -> title, subtitle, value
+       -> IChartPainter.UpdateHitAreas(owner, ctx, notifyAreaHit)</code></pre></section>
+
+<section class="section" id="painter-contracts"><h2>Painter Contracts (4 Interfaces)</h2>
+<h3>IChartPainter</h3>
+<p>Top-level chart painter. Handles layout adjustment, background/foreground, and hit area registration. Concrete implementation: <strong>CardChartPainter</strong> renders charts as cards with rounded corners, title bars, and value text areas.</p>
+<pre><code class="language-csharp">internal interface IChartPainter
+{
+    void Initialize(BaseControl owner, IBeepTheme theme);
+    ChartLayout AdjustLayout(Rectangle drawingRect, ChartLayout ctx);
+    void DrawBackground(Graphics g, ChartLayout ctx);
+    void DrawForeground(Graphics g, ChartLayout ctx);
+    void UpdateHitAreas(BaseControl owner, ChartLayout ctx,
+        Action&lt;string, Rectangle&gt; notifyAreaHit);
+}
+
+// ChartLayout data class:
+// DrawingRect, PlotRect, Radius, AccentColor, TitleBottom</code></pre>
+
+<h3>IChartSeriesPainter</h3>
+<p>Responsible for rendering individual chart series (bars, lines, pie slices, etc.). Five concrete implementations returned by SeriesPainterFactory.</p>
+<pre><code class="language-csharp">internal interface IChartSeriesPainter
+{
+    void Initialize(BaseControl owner);
+    void DrawSeries(Graphics g, Rectangle plotRect,
+        List&lt;ChartDataSeries&gt; data,
+        Func&lt;ChartDataPoint, object&gt; toX,
+        Func&lt;ChartDataPoint, object&gt; toY,
+        float xMin, float xMax, float yMin, float yMax,
+        List&lt;Color&gt; palette, Color axisColor, Color textColor,
+        SeriesRenderOptions options);
+    void UpdateHitAreas(BaseControl owner, Rectangle plotRect,
+        List&lt;ChartDataSeries&gt; data,
+        Func&lt;ChartDataPoint, PointF&gt; toScreen,
+        Action&lt;string, Rectangle&gt; notifyAreaHit);
+}</code></pre>
+
+<h3>IChartAxisPainter</h3>
+<p>Renders coordinate axes with intelligent tick calculation. Concrete implementation: <strong>CartesianAxisPainter</strong> (internal sealed). AxisLayout data class carries Bounds, PlotRect, BottomAxisType, LeftAxisType, XMin/XMax/YMin/YMax, XTitle/YTitle, XLabelAngle/YLabelAngle, AxisColor, GridLineColor, and category/date epoch data.</p>
+
+<h3>IChartLegendPainter</h3>
+<p>Renders a color-coded series reference panel. Concrete implementation: <strong>RightSideLegendPainter</strong>. Supports series toggle via <code>onToggleSeries(int)</code> callback and <code>LegendPlacement</code> (Right, Bottom, Top, Left). <code>EnableLegendIsolate</code> enables single-series isolation mode.</p></section>
+
+<section class="section" id="series"><h2>Series Painters (5 Types)</h2>
+<p><code>SeriesPainterFactory.Get(ChartType)</code> resolves the chart type to its painter. <code>LineSeriesPainter</code> is the default fallback.</p>
+<table><thead><tr><th>ChartType</th><th>Painter</th><th>Rendering Style</th></tr></thead><tbody>
+<tr><td><strong>Bar</strong></td><td>BarSeriesPainter</td><td>Vertical bars with configurable width (BarWidth=0.8) and padding (BarPadding=0.2). Supports stacked mode and data labels on top. Negative values extend downward.</td></tr>
+<tr><td><strong>Line</strong></td><td>LineSeriesPainter</td><td>Connected line segments with optional cubic Bezier smoothing (SmoothLines). Supports point markers: Circle, Square, Diamond, Triangle at configurable size (default 6px).</td></tr>
+<tr><td><strong>Pie</strong></td><td>PieSeriesPainter</td><td>Proportional pie/donut slices. Donut mode when InnerRadius > 0. Exploded slice on hover. Hit areas are pie-slice-shaped polygons.</td></tr>
+<tr><td><strong>Area</strong></td><td>AreaSeriesPainter</td><td>Filled polygon below each line to baseline. Semi-transparent (FillOpacity=0.3). Stacked mode accumulates vertically.</td></tr>
+<tr><td><strong>Bubble</strong></td><td>BubbleSeriesPainter</td><td>Proportional circles at XY coordinates. Circle area (not radius) proportional to Size value.</td></tr></tbody></table></section>
+
+<section class="section" id="axis"><h2>Axis &amp; Legend System</h2>
+<h3>CartesianAxisPainter</h3>
+<p>Implements IChartAxisPainter. Three-phase rendering:</p>
+<ul><li><strong>AdjustPlotRect</strong> -- Adds 48px margins on all sides of the chart area</li>
+<li><strong>DrawAxes</strong> -- Renders X/Y axis lines and titles (titles drawn rotated)</li>
+<li><strong>DrawTicks</strong> -- Dispatches to three sub-renderers based on axis type:
+  <ul><li><strong>NumericTicks</strong> -- "Nice" step sizes: 1, 2, 5, 10, 20, 50, 100, etc. No unnecessary decimal places.</li>
+  <li><strong>DateTicks</strong> -- Auto-granularity: < 1h -> minutes, < 24h -> hours, < 30d -> days, < 365d -> months, >= 1y -> years</li>
+  <li><strong>TextTicks</strong> -- Category-indexed labels from Dictionary&lt;string,int&gt; map, centered in each column</li></ul></li></ul>
+
+<h3>RightSideLegendPainter</h3>
+<p>Renders a compact color-coded legend on the right side. Shows colored square + series name per entry. Click toggles visibility. Hidden series crossed-out. Supports overflow scrolling. Colors from ChartDefaultSeriesColors palette.</p></section>
+
+<section class="section" id="viewport"><h2>Viewport &amp; Performance</h2>
+<h3>BeepChartViewportHelper (internal static)</h3>
+<table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td>AutoScaleViewport(chart)</td><td>Scans all DataSeries points, computes min/max X and Y, adds 10% padding</td></tr>
+<tr><td>EnforceViewportLimits(chart)</td><td>Clamps values, prevents inverted ranges (min > max)</td></tr>
+<tr><td>UpdateChartDrawingRectBase(chart)</td><td>Sets private drawing rect with 40px margins via reflection</td></tr></tbody></table>
+
+<h3>BeepChartPerformanceHelper (public static)</h3>
+<table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td>CullPointsOutsideViewport(...)</td><td>List&lt;ChartDataPoint&gt;</td><td>Filters to visible points only (always keeps first + last)</td></tr>
+<tr><td>DecimatePoints(points, factor)</td><td>List&lt;ChartDataPoint&gt;</td><td>Reduces by taking every Nth (always includes last)</td></tr>
+<tr><td>EstimateDecimationFactor(count, target=200)</td><td>int</td><td>Computes factor to reach target point count</td></tr>
+<tr><td>OptimizeGridDensity(size, zoom)</td><td>int</td><td>Recommended grid interval based on dataset + zoom</td></tr>
+<tr><td>RecommendLabelInterval(size, range%)</td><td>int</td><td>Skip factor to avoid label overcrowding</td></tr>
+<tr><td>EstimateRenderingCost(points, pixels)</td><td>float</td><td>0.0-1.0 cost estimate (points per pixel ratio)</td></tr>
+<tr><td>ShouldOptimizePerformance(count, threshold)</td><td>bool</td><td>True when count exceeds threshold (default 10,000)</td></tr></tbody></table></section>
+
+<section class="section" id="data"><h2>Data Pipeline</h2>
+<h3>BeepChartDataHelper (internal static)</h3>
+<pre><code class="language-csharp">// DetectAxisTypes(chart) -- reads first point of first series:
+//   float.TryParse -> AxisType.Numeric
+//   DateTime.TryParse -> AxisType.Date
+//   else -> AxisType.Text (with Dictionary category map)
+
+// ConvertXValue(chart, point) / ConvertYValue(chart, point):
+//   Numeric: float.TryParse(value)
+//   Date: (DateTime.Parse(value) - dateMin).TotalDays
+//   Text: categoryMap[value] index</code></pre>
+
+<h3>SeriesRenderOptions</h3>
+<table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Effect</th></tr></thead><tbody>
+<tr><td>BarWidth</td><td>float</td><td>0.8</td><td>Bar fraction of cell width</td></tr>
+<tr><td>BarPadding</td><td>float</td><td>0.2</td><td>Gap between bars</td></tr>
+<tr><td>ShowDataLabels</td><td>bool</td><td>false</td><td>Value text on bars/slices</td></tr>
+<tr><td>SmoothLines</td><td>bool</td><td>false</td><td>Cubic Bezier interpolation</td></tr>
+<tr><td>ShowMarkers</td><td>bool</td><td>true</td><td>Point markers on lines</td></tr>
+<tr><td>MarkerShape</td><td>MarkerStyle</td><td>Circle</td><td>Circle/Square/Diamond/Triangle</td></tr>
+<tr><td>MarkerSize</td><td>int</td><td>6</td><td>Marker radius in px</td></tr>
+<tr><td>FillOpacity</td><td>float</td><td>0.3</td><td>Area transparency (0-1)</td></tr>
+<tr><td>InnerRadius</td><td>float</td><td>0</td><td>Pie donut hole (0=full pie)</td></tr>
+<tr><td>Stacked</td><td>bool</td><td>false</td><td>Accumulate bars/areas vertically</td></tr></tbody></table></section>
+
+<section class="section" id="interaction"><h2>Interaction &amp; Trackball</h2>
+<p><strong>ChartInputHelper</strong> supports:</p>
+<ul><li><strong>Trackball</strong> -- Crosshair overlay with multi-series tooltip values. Configurable colors and width.</li>
+<li><strong>MouseWheelZoom</strong> -- Ctrl+Wheel zooms in/out (configurable step percent)</li>
+<li><strong>MouseDragPan</strong> -- Click-drag pans the viewport (configurable factor)</li>
+<li><strong>KeyboardNavigation</strong> -- Arrow keys for pan, +/- for zoom, configurable step percent</li>
+<li><strong>PointHover</strong> -- DataPointToolTip on hover with point details</li>
+<li><strong>PointSelection</strong> -- Click to select with visual highlight, configurable selection color/marker</li>
+<li><strong>LegendIsolate</strong> -- Click legend item to isolate single series. Click again to restore all.</li></ul>
+<p>18 dedicated events enable full integration: CustomDrawSeries, InteractiveAreaHit, PointHit, AxisHit, LegendHit, PointHoverChanged, ViewportChanged, TrackballDataCollected, SeriesIsolationChanged, SelectionChanged, ContextMenuRequested, KeyboardFocusChanged, PerformanceOptimized, NonColorStateCommunicationChanged, LabelOptimizationApplied, StreamingDataAppended, IncrementalRenderCompleted.</p></section>
+
+<section class="section" id="enums"><h2>Key Enums &amp; EventArgs</h2>
+<table><thead><tr><th>Enum</th><th>Values</th></tr></thead><tbody>
+<tr><td><strong>ChartSelectionMode</strong></td><td>Single, Multiple</td></tr>
+<tr><td><strong>ChartVisualPreset</strong></td><td>Dashboard (compact, embedded), Analytical (full, exploration), HighContrast (accessibility), Print (B&amp;W safe), Presentation (large fonts)</td></tr>
+<tr><td><strong>ChartSeriesFillPattern</strong></td><td>Solid, Horizontal, Vertical, Diagonal, BackDiagonal, Cross, DiagonalCross, Dots</td></tr>
+<tr><td><strong>ChartSurfaceStyle</strong></td><td>Classic (flat), Card (rounded, shadow), Outline (border-only), Glass (transparency)</td></tr></tbody></table>
+<p><strong>18 EventArgs classes</strong> in BeepChart.Events.cs: CustomDrawSeriesEventArgs (Graphics, series index), ChartPointHitEventArgs (series, index, point, screen location), ChartAxisHitEventArgs (axis, value, label), ChartLegendHitEventArgs (series index, toggle), ChartPointHoverChangedEventArgs (old/new point), ChartViewportChangedEventArgs (xMin/xMax/yMin/yMax), ChartTrackballDataCollectedEventArgs (screen point, data points list with ChartTrackballDataPoint), ChartSelectionChangedEventArgs (selected points list), ChartPerformanceOptimizedEventArgs (before/after point counts), ChartStreamingDataAppendedEventArgs (series index, new point count), ChartIncrementalRenderCompletedEventArgs (render time).</p></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<h3>Basic Bar Chart</h3>
+<pre><code class="language-csharp">var chart = new BeepChart();
+chart.ChartType = ChartType.Bar;
+chart.ChartTitle = "Quarterly Revenue";
+chart.ShowLegend = true;
+chart.LegendPlacement = LegendPlacement.Right;
+
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Q1 Revenue",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new ChartDataPoint { X = "Product A", Y = "1200" },
+        new ChartDataPoint { X = "Product B", Y = "800" },
+        new ChartDataPoint { X = "Product C", Y = "1500" }
+    }
+});</code></pre>
+
+<h3>Large Dataset with Performance Mode</h3>
+<pre><code class="language-csharp">chart.EnablePerformanceMode = true;
+chart.LargeDatasetThreshold = 50000;
+chart.EnablePointCulling = true;
+chart.EnableVertexSimplification = true;
+chart.ResetViewport();
+
+if (BeepChartPerformanceHelper.ShouldOptimizePerformance(
+    chart.GetTotalPointCount(), chart.LargeDatasetThreshold))
+{
+    float cost = BeepChartPerformanceHelper.EstimateRenderingCost(
+        chart.GetTotalPointCount(), chart.Width);
+    Console.WriteLine($"Rendering cost: {cost:P0}");
+}</code></pre>
+
+<h3>Real-Time Streaming</h3>
+<pre><code class="language-csharp">chart.EnableRealTimeStreaming = true;
+chart.StreamRenderThrottleMs = 50;   // render batch interval
+chart.MaxStreamPointsPerSeries = 1000; // rolling window
+
+chart.StreamingDataAppended += (s, e) =>
+    Console.WriteLine($"Stream: {e.NewPointCount} points");
+
+chart.AppendDataPoint(0, new ChartDataPoint
+    { X = DateTime.Now.ToString("o"), Y = sensorValue.ToString() });</code></pre>
+
+<h3>Interactive Zoom/Pan with Trackball</h3>
+<pre><code class="language-csharp">chart.EnableMouseWheelZoom = true;
+chart.EnableMouseDragPan = true;
+chart.EnableTrackball = true;
+chart.TrackballShowCrosshair = true;
+chart.TrackballShowMultiSeriesValues = true;
+
+chart.ViewportChanged += (s, e) =>
+    Console.WriteLine($"Viewport: {e.XMin}-{e.XMax}, {e.YMin}-{e.YMax}");</code></pre></section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

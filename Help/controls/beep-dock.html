@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDock - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#docking">Docking &amp; MDI</a><span>&rsaquo;</span>
+                    <span>BeepDock</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepDock</h1>
+                    <p class="page-subtitle">Enhanced docking control with painter-based rendering, smooth animations, drag-drop reordering, notification badges, and keyboard navigation</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDock</strong> is a modern, customizable dock control inspired by macOS-style docks.
+                        It renders items using pluggable <em>painters</em>, supports spring-animation effects on hover,
+                        drag-drop reordering, badge notifications, progress indicators, tooltips, keyboard navigation,
+                        and accessibility features. The control inherits from <code>BaseControl</code> and integrates
+                        with the Beep theming system.
+                    </p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BaseControl &rarr; BeepDock</code><br>
+                    <strong>Designer category:</strong> <code>"Beep Controls"</code> &mdash; DisplayName: <code>"Beep Dock"</code></p>
+                    <p>Organized as a partial class across 12 files: main, Properties, Events, Methods, Items, Drawing, Animation, Mouse, DragDrop, Keyboard, Notifications, and InteractionState.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Painter-Based Rendering</h3>
+                            <p>Pluggable painters via <code>IDockPainter</code> with factory support for multiple visual styles including AppleDock, Material, Fluent, and Classic</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Smooth Spring Animations</h3>
+                            <p>60 FPS spring-physics animation timer with configurable speed and max scale for hover magnification effects</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Drag-Drop Reordering</h3>
+                            <p>Built-in drag initiation with hysteresis, visual drag feedback, drop indicators, and complete item reordering support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Badge Notifications</h3>
+                            <p>Automatic badge rendering with color-coded notification types (Info, Success, Warning, Error) and count display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Progress Indicators</h3>
+                            <p>Determinate and indeterminate circular progress arcs painted around individual dock items</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Keyboard Navigation</h3>
+                            <p>Full arrow-key navigation, Home/End, Enter/Space activation, number-key quick access (1-9), Tab/Shift+Tab, and Escape to clear focus</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Overflow Handling</h3>
+                            <p>Automatic overflow affordance popup when items exceed available space, with ellipsis button and flyout menu</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Accessibility</h3>
+                            <p>UIAccessibility role set to ToolBar, descriptive accessible names, high-contrast mode support, and screen-reader announcements</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Data</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Items</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty list</td>
+                                <td>Collection of dock items. Supports designer serialization and collection editor</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem?</td>
+                                <td>null</td>
+                                <td>Currently selected dock item (non-browsable, hidden from serialization)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Zero-based index of the currently selected item (non-browsable)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout &amp; Dimensions</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DockStyleType</code></td>
+                                <td>DockStyle</td>
+                                <td>AppleDock</td>
+                                <td>Visual style of the dock. Changing this also updates ItemSize, DockHeight, Spacing, Padding, MaxScale, and painter</td>
+                            </tr>
+                            <tr>
+                                <td><code>DockPositionType</code></td>
+                                <td>DockPosition</td>
+                                <td>Bottom</td>
+                                <td>Position of the dock (Top, Bottom, Left, Right)</td>
+                            </tr>
+                            <tr>
+                                <td><code>DockOrientationType</code></td>
+                                <td>DockOrientation</td>
+                                <td>Horizontal</td>
+                                <td>Orientation of the dock (Horizontal or Vertical)</td>
+                            </tr>
+                            <tr>
+                                <td><code>DockAlignmentType</code></td>
+                                <td>DockAlignment</td>
+                                <td>Center</td>
+                                <td>Alignment of dock items within the control (Start, Center, End)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemSize</code></td>
+                                <td>int</td>
+                                <td>56</td>
+                                <td>Size of each dock item in pixels</td>
+                            </tr>
+                            <tr>
+                                <td><code>DockHeight</code></td>
+                                <td>int</td>
+                                <td>72</td>
+                                <td>Overall height of the dock container</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemSpacing</code></td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>Spacing in pixels between adjacent dock items</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxScale</code></td>
+                                <td>float</td>
+                                <td>1.5f</td>
+                                <td>Maximum scale factor applied to the hovered item during magnification animation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance &amp; Visual</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AnimationStyle</code></td>
+                                <td>DockAnimationStyle</td>
+                                <td>Spring</td>
+                                <td>Animation style used when the mouse hovers over items</td>
+                            </tr>
+                            <tr>
+                                <td><code>IconMode</code></td>
+                                <td>DockIconMode</td>
+                                <td>IconOnly</td>
+                                <td>Controls how dock icons are rendered (IconOnly, IconAndLabel, LabelOnly)</td>
+                            </tr>
+                            <tr>
+                                <td><code>IndicatorStyle</code></td>
+                                <td>DockIndicatorStyle</td>
+                                <td>Dot</td>
+                                <td>Visual style of the selected/running indicator (Dot, Line, Glow, None)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SeparatorStyle</code></td>
+                                <td>DockSeparatorStyle</td>
+                                <td>None</td>
+                                <td>Style of separators drawn between items (None, Line, Space)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SeparatorColor</code></td>
+                                <td>Color</td>
+                                <td>—</td>
+                                <td>Color used when separator style is active</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowTooltips</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether per-item tooltips are shown on hover delay</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowBadges</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether notification badges are painted on items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowBorder</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether the dock draws a border</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowShadow</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether the dock draws a shadow effect</td>
+                            </tr>
+                            <tr>
+                                <td><code>StyleProfile</code></td>
+                                <td>DockStyleConfig</td>
+                                <td>—</td>
+                                <td>Expandable style configuration with recommended metrics per dock style</td>
+                            </tr>
+                            <tr>
+                                <td><code>ColorProfile</code></td>
+                                <td>DockColorConfig</td>
+                                <td>—</td>
+                                <td>Expandable color configuration (Background, Foreground, Border, Hover, Selected, Indicator, Separator)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Behavior</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>EnableDrag</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether dock items can be dragged (external drag-drop)</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableReorder</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether items can be reordered via drag-drop within the dock</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoHide</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether the dock hides automatically when idle for the configured delay</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableOverflow</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether overflow affordance (ellipsis popup) is enabled when items exceed available space</td>
+                            </tr>
+                            <tr>
+                                <td><code>KeyboardNavigationEnabled</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether keyboard navigation is enabled (also sets TabStop)</td>
+                            </tr>
+                            <tr>
+                                <td><code>FocusedIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Zero-based index of the keyboard-focused item</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AddItem</code></td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Adds an item to the dock if not already present</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveItem</code></td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Removes an item from the dock; clears selection if it was the selected item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ClearItems</code></td>
+                                <td>—</td>
+                                <td>void</td>
+                                <td>Clears all items and resets the selection</td>
+                            </tr>
+                            <tr>
+                                <td><code>GetItemAtPoint</code></td>
+                                <td>Point point</td>
+                                <td>SimpleItem</td>
+                                <td>Returns the dock item at the given client coordinate using hit-testing</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>—</td>
+                                <td>void (override)</td>
+                                <td>Applies the current theme to background/foreground colors, font, and frameless appearance</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetBadgeCount</code></td>
+                                <td>SimpleItem item, int count</td>
+                                <td>void</td>
+                                <td>Sets a numeric badge count for an item (clamped to &ge; 0)</td>
+                            </tr>
+                            <tr>
+                                <td><code>GetBadgeCount</code></td>
+                                <td>SimpleItem item</td>
+                                <td>int</td>
+                                <td>Returns the current badge count for an item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetNotification</code></td>
+                                <td>SimpleItem item, string title, string message, NotificationType type</td>
+                                <td>void</td>
+                                <td>Sets a notification on an item, increments badge, triggers attention animation</td>
+                            </tr>
+                            <tr>
+                                <td><code>ClearNotification</code></td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Clears the notification and resets the badge count to zero</td>
+                            </tr>
+                            <tr>
+                                <td><code>GetNotification</code></td>
+                                <td>SimpleItem item</td>
+                                <td>DockItemNotification</td>
+                                <td>Returns the current notification (title, message, type, timestamp) for an item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetProgress</code></td>
+                                <td>SimpleItem item, float percentage, string status</td>
+                                <td>void</td>
+                                <td>Sets a determinate progress indicator (0-100%) painted as a circular arc around the item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetIndeterminateProgress</code></td>
+                                <td>SimpleItem item, string status</td>
+                                <td>void</td>
+                                <td>Sets an indeterminate (spinning) progress indicator on an item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ClearProgress</code></td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Removes the progress indicator from an item</td>
+                            </tr>
+                            <tr>
+                                <td><code>GetProgress</code></td>
+                                <td>SimpleItem item</td>
+                                <td>DockItemProgress</td>
+                                <td>Returns the current progress info (percentage, status, IsIndeterminate) for an item</td>
+                            </tr>
+                            <tr>
+                                <td><code>TriggerAttentionAnimation</code></td>
+                                <td>SimpleItem item, int bounceCount</td>
+                                <td>void</td>
+                                <td>Triggers a bounce attention animation for the specified item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowContextMenu</code></td>
+                                <td>SimpleItem item, Point location</td>
+                                <td>void (virtual)</td>
+                                <td>Shows a default context menu with Open, Move Up/Down, and Remove from Dock. Override for custom menus</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>EventArgs</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>SelectedItemChangedEventArgs</td>
+                                <td>Fired when the selected item changes; updates AccessibleDescription</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemClicked</code></td>
+                                <td>DockItemEventArgs</td>
+                                <td>Fired when a dock item is clicked with the left mouse button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemHovered</code></td>
+                                <td>DockItemEventArgs</td>
+                                <td>Fired when the mouse hovers over a dock item; also queues tooltip display</td>
+                            </tr>
+                            <tr>
+                                <td><code>DragStarted</code></td>
+                                <td>DockItemEventArgs</td>
+                                <td>Fired when an item drag operation begins (after hysteresis threshold)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemReordered</code></td>
+                                <td>DockItemReorderEventArgs</td>
+                                <td>Fired after an item is reordered via drag-drop</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilesDropped</code></td>
+                                <td>DockFilesDroppedEventArgs</td>
+                                <td>Fired when files are dropped onto the dock from the OS shell</td>
+                            </tr>
+                            <tr>
+                                <td><code>NotificationAdded</code></td>
+                                <td>DockNotificationEventArgs</td>
+                                <td>Fired when a notification is added via <code>SetNotification</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ProgressUpdated</code></td>
+                                <td>DockProgressEventArgs</td>
+                                <td>Fired when progress is updated via <code>SetProgress</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>EventArgs Classes</h3>
+                    <div class="code-example">
+                        <h4>DockItemEventArgs</h4>
+                        <pre><code class="language-csharp">public class DockItemEventArgs : EventArgs
+{
+    public SimpleItem Item { get; }      // The dock item
+    public int ItemIndex { get; }        // Index of the item (-1 if unknown)
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>DockItemReorderEventArgs</h4>
+                        <pre><code class="language-csharp">public class DockItemReorderEventArgs : EventArgs
+{
+    public SimpleItem Item { get; }      // The reordered item
+    public int OldIndex { get; }         // Original position
+    public int NewIndex { get; }         // New position after reorder
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>DockFilesDroppedEventArgs</h4>
+                        <pre><code class="language-csharp">public class DockFilesDroppedEventArgs : EventArgs
+{
+    public string[] Files { get; }       // Array of file paths
+    public Point Location { get; }       // Drop location in client coordinates
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>DockNotificationEventArgs</h4>
+                        <pre><code class="language-csharp">public class DockNotificationEventArgs : EventArgs
+{
+    public SimpleItem Item { get; }
+    public DockItemNotification Notification { get; }
+}
+
+public class DockItemNotification
+{
+    public string Title { get; set; }
+    public string Message { get; set; }
+    public NotificationType Type { get; set; }  // Info, Success, Warning, Error
+    public DateTime Timestamp { get; set; }
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>DockProgressEventArgs</h4>
+                        <pre><code class="language-csharp">public class DockProgressEventArgs : EventArgs
+{
+    public SimpleItem Item { get; }
+    public float Percentage { get; }     // 0-100
+}
+
+public class DockItemProgress
+{
+    public float Percentage { get; set; }
+    public string Status { get; set; }
+    public bool IsIndeterminate { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>
+                        BeepDock integrates with the Beep theming system through its <code>ApplyTheme()</code> override.
+                        Theme colors are applied via <code>DockThemeHelpers</code> and fonts via <code>DockFontHelpers</code>.
+                        The control maintains a frameless appearance (<code>IsFrameless = true</code>, <code>ShowAllBorders = false</code>,
+                        <code>IsBorderAffectedByTheme = false</code>) unless explicitly configured otherwise.
+                    </p>
+                    <p>
+                        Both <code>StyleProfile</code> (DockStyleConfig) and <code>ColorProfile</code> (DockColorConfig) are
+                        expandable designer properties that can override individual theme aspects for precise visual control.
+                        When no explicit background color is set, the dock falls back to the parent control's background color.
+                    </p>
+                    <div class="code-example">
+                        <h3>Applying a Style Profile</h3>
+                        <pre><code class="language-csharp">var dock = new BeepDock();
+dock.StyleProfile = new DockStyleConfig
+{
+    DockStyle = DockStyle.Material,
+    RecommendedItemSize = 48,
+    RecommendedDockHeight = 64,
+    RecommendedMaxScale = 1.3f,
+    ShowShadow = false
+};</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h3>Applying a Color Profile</h3>
+                        <pre><code class="language-csharp">dock.ColorProfile = new DockColorConfig
+{
+    BackgroundColor = Color.FromArgb(30, 30, 30),
+    ForegroundColor = Color.White,
+    ItemSelectedColor = Color.FromArgb(0, 122, 255),
+    IndicatorColor = Color.Cyan
+};</code></pre>
+                    </div>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Basic Dock Setup</h3>
+                        <pre><code class="language-csharp">var dock = new BeepDock
+{
+    Dock = DockStyle.Bottom,
+    Height = 72,
+    DockStyleType = DockStyle.AppleDock,
+    ItemSize = 56,
+    ItemSpacing = 8,
+    ShowTooltips = true,
+    ShowBadges = true,
+    EnableReorder = true,
+    EnableOverflow = true
+};
+
+dock.Items.Add(new SimpleItem { Text = "Home", ImagePath = "home.svg" });
+dock.Items.Add(new SimpleItem { Text = "Mail", ImagePath = "mail.svg" });
+dock.Items.Add(new SimpleItem { Text = "Calendar", ImagePath = "calendar.svg" });
+dock.Items.Add(new SimpleItem { Text = "Settings", ImagePath = "settings.svg" });
+
+dock.ItemClicked += (s, e) =>
+{
+    Console.WriteLine($"Clicked: {e.Item?.Text}");
+};
+
+this.Controls.Add(dock);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Notifications and Badges</h3>
+                        <pre><code class="language-csharp">// Enable badges
+dock.ShowBadges = true;
+
+// Set a simple badge count
+dock.SetBadgeCount(mailItem, 5);
+
+// Set a full notification with type
+dock.SetNotification(mailItem, "New Messages", "You have 3 unread messages", NotificationType.Info);
+dock.SetNotification(errorItem, "Build Failed", "Check error log", NotificationType.Error);
+
+// Handle notification events
+dock.NotificationAdded += (s, e) =>
+{
+    Console.WriteLine($"Notification for {e.Item.Text}: {e.Notification.Title}");
+};
+
+// Clear when viewed
+dock.ClearNotification(mailItem);
+
+// Progress indicators
+dock.SetProgress(downloadItem, 45.0f, "Downloading...");
+dock.SetIndeterminateProgress(uploadItem, "Uploading...");
+dock.ClearProgress(downloadItem);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Drag-Drop and Reordering</h3>
+                        <pre><code class="language-csharp">var dock = new BeepDock
+{
+    EnableDrag = true,       // Allow dragging items externally
+    EnableReorder = true     // Allow reordering within the dock
+};
+
+dock.DragStarted += (s, e) =>
+{
+    Console.WriteLine($"Drag started: {e.Item?.Text}");
+};
+
+dock.ItemReordered += (s, e) =>
+{
+    Console.WriteLine($"{e.Item?.Text} moved from {e.OldIndex} to {e.NewIndex}");
+};
+
+// External file drop support
+dock.FilesDropped += (s, e) =>
+{
+    foreach (var file in e.Files)
+    {
+        var item = new SimpleItem
+        {
+            Text = Path.GetFileName(file),
+            ImagePath = file,
+            GuidId = Guid.NewGuid().ToString()
+        };
+        dock.AddItem(item);
+    }
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Keyboard Navigation</h3>
+                        <pre><code class="language-csharp">// Keyboard navigation is enabled by default (TabStop = true)
+// Supported keys:
+//   Left/Up    — Navigate to previous item
+//   Right/Down — Navigate to next item
+//   Home       — Jump to first item
+//   End        — Jump to last item
+//   Enter/Space— Activate (click) focused item
+//   Escape     — Clear focus
+//   Tab/Shift+Tab — Navigate next/previous
+//   D1-D9      — Quick-select items 1-9
+//   Apps/F10+Shift — Context menu for focused item
+
+// Programmatic focus control
+dock.FocusedIndex = 2;          // Focus third item
+dock.KeyboardNavigationEnabled = false; // Disable keyboard nav
+
+// Override context menu
+// BeepDock provides a default context menu via the virtual ShowContextMenu method</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p>BeepDock is built on a painter-driven architecture with helpers for layout, hit-testing, animation, and theming:</p>
+                    <table class="property-table">
+                        <thead>
+                            <tr><th>Concern</th><th>Class / File</th><th>Responsibility</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Main control</td><td><code>BeepDock.cs</code></td><td>Constructor, fields, dual-timer setup (animation + hover intent), disposal</td></tr>
+                            <tr><td>Properties</td><td><code>BeepDock.Properties.cs</code></td><td>30+ public properties with Category("Beep Dock") attributes, designer integration</td></tr>
+                            <tr><td>Events</td><td><code>BeepDock.Events.cs</code></td><td>SelectedItemChanged and ItemClicked event declarations and raisers</td></tr>
+                            <tr><td>Methods</td><td><code>BeepDock.Methods.cs</code></td><td>AddItem, RemoveItem, ClearItems, GetItemAtPoint, ApplyTheme, profile application</td></tr>
+                            <tr><td>Items</td><td><code>BeepDock.Items.cs</code></td><td>Item state initialization, bounds calculation via DockLayoutHelper, overflow detection</td></tr>
+                            <tr><td>Drawing</td><td><code>BeepDock.Drawing.cs</code></td><td>DrawContent override delegating to IDockPainter for background, items, indicators, separators</td></tr>
+                            <tr><td>Animation</td><td><code>BeepDock.Animation.cs</code></td><td>60 FPS timer applying spring physics via DockAnimationHelper</td></tr>
+                            <tr><td>Mouse</td><td><code>BeepDock.Mouse.cs</code></td><td>OnMouseLeave (reset state), OnMouseClick (hit test + select + fire ItemClicked)</td></tr>
+                            <tr><td>DragDrop</td><td><code>BeepDock.DragDrop.cs</code></td><td>Full drag lifecycle: StartDrag, UpdateDropTarget, CompleteDrag, external OnDragEnter/Drop, visual feedback</td></tr>
+                            <tr><td>Keyboard</td><td><code>BeepDock.Keyboard.cs</code></td><td>ProcessCmdKey with arrow/Home/End/Enter/Space/Tab/number keys, context menu, accessibility</td></tr>
+                            <tr><td>Notifications</td><td><code>BeepDock.Notifications.cs</code></td><td>Badge painting, progress (determinate/indeterminate) arcs, attention animation, typed notification colors</td></tr>
+                            <tr><td>InteractionState</td><td><code>BeepDock.InteractionState.cs</code></td><td>Hover/press/focus state management, hover-intent timer for tooltips, disabled-state tracking</td></tr>
+                            <tr><td>Config</td><td><code>DockConfig.cs</code></td><td>40+ configurable properties (style, dimensions, animation, visual effects, icons, indicators, behavior)</td></tr>
+                            <tr><td>Item State</td><td><code>DockItemState</code></td><td>Per-item runtime state (scale, rotation, opacity, hover/press/focus/disabled/selected/dragging, bounds)</td></tr>
+                            <tr><td>Painters</td><td><code>IDockPainter</code></td><td>Pluggable interface — PaintDockBackground, PaintDockItem, PaintIndicator, PaintSeparator</td></tr>
+                            <tr><td>Layout</td><td><code>DockLayoutHelper</code></td><td>CalculateItemBounds and CalculateDockSize for all orientations and alignments</td></tr>
+                            <tr><td>Hit Test</td><td><code>DockHitTestHelper</code></td><td>HitTest and CalculateHitBounds with configurable padding</td></tr>
+                            <tr><td>Animation Help</td><td><code>DockAnimationHelper</code></td><td>ApplySpringEffect and UpdateAnimations interpolating towards target scale</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-dockingmanager.html"><i class="bi bi-arrow-left"></i> BeepDockingManager</a>
+                    <a href="beep-navbar.html">BeepNavBar <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

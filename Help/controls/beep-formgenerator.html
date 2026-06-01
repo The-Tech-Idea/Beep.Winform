@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFormGenerator - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#integrated-controls">Integrated Controls</a>
+                    <span>→</span>
+                    <span>BeepFormGenerator</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepFormGenerator</h1>
+                    <p class="page-subtitle">A static utility class that retrofits standard WinForms <code>Form</code> instances with modern Beep-style chrome: borderless window, rounded corners, theme support, drag-to-move, edge resizing, and state preservation.</p>
+                    <div class="header-badges">
+                        <span class="badge badge-stable">Stable</span>
+                        <span class="badge badge-version">v1.0</span>
+                        <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.Managers</span>
+                        <span class="badge badge-static">Static Class</span>
+                    </div>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#static-methods">Static Methods</a></li>
+                        <li><a href="#internal-state">FormState & State Management</a></li>
+                        <li><a href="#win32-interop">Win32 Interop</a></li>
+                        <li><a href="#resize-logic">Resize & Drag Logic</a></li>
+                        <li><a href="#theming">Theming via ApplyTheme</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepFormGenerator</strong> is a <code>public static</code> utility class that applies a modern, borderless chrome to any standard <strong>System.Windows.Forms.Form</strong>. It modifies the form's <code>FormBorderStyle</code> to <code>None</code>, applies 20px rounded corners via the Win32 GDI <code>CreateRoundRectRgn</code> API, sets a <code>BorderRadius</code>-sized padding, and attaches mouse event handlers for custom window dragging and bottom-right corner resizing.
+                    </p>
+                    <p>
+                        The class is designed to work alongside the full <strong>BeepiFormPro</strong> framework but can also be used independently. It saves the original form state before modification via the private <strong>FormState</strong> class, enabling clean restoration via <code>RemoveBeepForm</code>. Theme colors are applied through <code>ApplyTheme</code> using the <strong>IBeepTheme</strong> interface.
+                    </p>
+                    <p>
+                        Unlike the full <code>BeepiFormPro</code> which inherits from <code>Form</code> and provides its own caption bar and window controls, <strong>BeepFormGenerator</strong> is a lightweight transformation layer — it takes an existing <code>Form</code> and modifies its appearance in-place.
+                    </p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Borderless Chrome</h3>
+                            <p>Sets <code>FormBorderStyle = None</code> and applies 20px rounded corners using <code>CreateRoundRectRgn</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Rounded Corners</h3>
+                            <p>GDI <code>CreateRoundRectRgn</code> creates a round-rect window region. Re-applied on every <code>Resize</code> for consistent appearance.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Edge Resizing</h3>
+                            <p>Bottom-right corner resize via mouse handlers: <code>MouseDown</code>/<code>MouseMove</code>/<code>MouseUp</code>. Cursor changes to <code>SizeNWSE</code> in the resize zone (within <code>BorderRadius</code> pixels of the bottom/right edge).</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Drag-to-Move</h3>
+                            <p>The <code>AttachDragMove</code> method (placeholder for title-bar dragging via <code>ReleaseCapture</code>+<code>SendMessage</code>) is wired — the actual drag logic is provided by the caption bar in <code>BeepiFormPro</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Theme Application</h3>
+                            <p><code>ApplyTheme</code> sets <code>form.BackColor</code> from <code>theme.BackgroundColor</code>. Commented-out references show extension points for button, label, and title bar colors.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>State Save / Restore</h3>
+                            <p>Original form state (border style, padding, colors, controls) is saved in a static <code>Dictionary</code>. <code>RemoveBeepForm</code> fully restores it.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="static-methods" class="section">
+                    <h2>Static Methods</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyBeepForm</code></td>
+                                <td><code>public static void ApplyBeepForm(Form form, IBeepTheme theme = null)</code></td>
+                                <td>
+                                    Transforms <code>form</code> into a borderless, rounded-corner window. Execution order:<br>
+                                    1. Saves original state via <code>FormState</code> (if not already saved).<br>
+                                    2. Sets <code>FormBorderStyle = None</code>.<br>
+                                    3. Sets <code>Padding = new Padding(BorderRadius)</code> (20px).<br>
+                                    4. Calls <code>ApplyRoundedCorners(form)</code> to set the window region.<br>
+                                    5. Wires <code>Resize</code> to re-apply rounded corners.<br>
+                                    6. Calls <code>ApplyTheme(form, theme)</code> if theme is non-null.<br>
+                                    7. Calls <code>AttachDragMove(form)</code> (currently a no-op placeholder).<br>
+                                    8. Wires <code>MouseDown</code>, <code>MouseMove</code>, <code>MouseUp</code> for resize support.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveBeepForm</code></td>
+                                <td><code>public static void RemoveBeepForm(Form form)</code></td>
+                                <td>
+                                    Restores <code>form</code> to its original WinForms state. If the form was saved in <code>originalFormStates</code>:<br>
+                                    1. Restores <code>FormBorderStyle</code>, <code>Padding</code>, <code>BackColor</code>, <code>ForeColor</code>.<br>
+                                    2. Sets <code>form.Region = null</code> to remove rounded corners.<br>
+                                    3. Unhooks <code>MouseDown</code>, <code>MouseMove</code>, <code>MouseUp</code>, and the two <code>Resize</code> delegates.<br>
+                                    4. Resets cursor to <code>Cursors.Default</code>.<br>
+                                    5. Removes the entry from <code>originalFormStates</code>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td><code>public static void ApplyTheme(Form form, IBeepTheme theme)</code></td>
+                                <td>
+                                    Applies theme colors. Sets <code>form.BackColor = theme.BackgroundColor</code>. Also contains commented-out code for setting button, label, and title bar colors — these are handled by the full <code>BeepiFormPro</code> framework instead.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Private Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ApplyRoundedCorners(Form)</code></td><td>Calls <code>CreateRoundRectRgn(0, 0, form.Width, form.Height, 20, 20)</code> via <code>[DllImport("gdi32.dll")]</code> and assigns the result to <code>form.Region</code>. This creates a 20px elliptical corner clipping region.</td></tr>
+                            <tr><td><code>AttachDragMove(Form)</code></td><td>Placeholder — contains commented-out code that would wire <code>ReleaseCapture()</code> + <code>SendMessage(WM_SYSCOMMAND, SC_MOVE)</code> for title-bar drag. In practice, dragging is handled externally by <code>BeepiFormPro</code>.</td></tr>
+                            <tr><td><code>BeepForm_MouseDown(object, MouseEventArgs)</code></td><td>Checks if the click is within the bottom/right <code>BorderRadius</code> zone. If so, sets <code>isResizing = true</code> and records <code>lastMousePosition</code>.</td></tr>
+                            <tr><td><code>BeepForm_MouseMove(object, MouseEventArgs)</code></td><td>During resize: adds delta to <code>form.Width</code> and <code>form.Height</code>, clamped to <code>form.MinimumSize</code>. Otherwise: sets cursor to <code>SizeNWSE</code> in the resize zone, <code>Default</code> elsewhere.</td></tr>
+                            <tr><td><code>BeepForm_MouseUp(object, MouseEventArgs)</code></td><td>Sets <code>isResizing = false</code> to stop resize mode.</td></tr>
+                            <tr><td><code>RepositionControls(Form)</code></td><td>Currently a no-op — contains commented-out logic for repositioning close/maximize/minimize buttons within a title panel. Handled by <code>BeepiFormPro</code> instead.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="internal-state" class="section">
+                    <h2>FormState & State Management</h2>
+                    <p>
+                        Before modifying a form, <code>ApplyBeepForm</code> saves its original state in a private nested class:
+                    </p>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FormBorderStyle</code></td><td><code>FormBorderStyle</code></td><td>The original border style (e.g., <code>Sizable</code>, <code>FixedDialog</code>).</td></tr>
+                            <tr><td><code>Padding</code></td><td><code>Padding</code></td><td>The original form padding.</td></tr>
+                            <tr><td><code>BackColor</code></td><td><code>Color</code></td><td>The original background color.</td></tr>
+                            <tr><td><code>ForeColor</code></td><td><code>Color</code></td><td>The original foreground color.</td></tr>
+                            <tr><td><code>OriginalControls</code></td><td><code>Control[]</code></td><td>A snapshot copy of <code>form.Controls</code> at the time of application.</td></tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        States are stored in <code>private static readonly Dictionary&lt;Form, FormState&gt; originalFormStates</code>. The dictionary keyed by form reference ensures that calling <code>ApplyBeepForm</code> twice on the same form does not overwrite the original state. <code>RemoveBeepForm</code> restores all saved properties and removes the entry.
+                    </p>
+                </section>
+
+                <section id="win32-interop" class="section">
+                    <h2>Win32 Interop</h2>
+                    <p>The class uses three P/Invoke imports:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Function</th><th>DLL</th><th>Purpose</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ReleaseCapture()</code></td>
+                                <td><code>user32.dll</code></td>
+                                <td>Releases mouse capture from the current window. Used as a prerequisite for <code>SendMessage(SC_MOVE)</code> to enable window dragging.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SendMessage(hWnd, Msg, wParam, lParam)</code></td>
+                                <td><code>user32.dll</code></td>
+                                <td>Sends <code>0x112</code> (WM_SYSCOMMAND) with <code>0xf012</code> (SC_MOVE) to initiate window move via the title bar. Currently commented out in <code>AttachDragMove</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>CreateRoundRectRgn(nLeft, nTop, nRight, nBottom, nWidthEllipse, nHeightEllipse)</code></td>
+                                <td><code>gdi32.dll</code></td>
+                                <td>Creates a GDI region with rounded rectangular corners. The result is assigned to <code>form.Region</code> to clip the window to a rounded shape with 20px corner radius.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="resize-logic" class="section">
+                    <h2>Resize & Drag Logic</h2>
+                    <p>The resize behavior is custom-implemented through three mouse event handlers rather than relying on <code>WM_NCHITTEST</code> in WndProc:</p>
+                    <ul>
+                        <li><strong>Activation:</strong> In <code>BeepForm_MouseDown</code>, resize mode activates when the left mouse button is pressed within <code>BorderRadius</code> (20px) of the form's right or bottom edge (<code>e.Location.X &gt;= form.Width - BorderRadius || e.Location.Y &gt;= form.Height - BorderRadius</code>).</li>
+                        <li><strong>Resize:</strong> In <code>BeepForm_MouseMove</code>, while <code>isResizing</code>, the delta between the current and last mouse position is added to <code>form.Width</code> and <code>form.Height</code>, bounded by <code>form.MinimumSize</code>.</li>
+                        <li><strong>Deactivation:</strong> In <code>BeepForm_MouseUp</code>, <code>isResizing</code> is set to <code>false</code>.</li>
+                        <li><strong>Cursor Feedback:</strong> When not resizing, the cursor changes to <code>Cursors.SizeNWSE</code> when the mouse is in the resize zone, or <code>Cursors.Default</code> otherwise.</li>
+                    </ul>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming via ApplyTheme</h2>
+                    <p>
+                        <code>ApplyTheme(Form form, IBeepTheme theme)</code> applies a minimal theme:
+                    </p>
+                    <ul>
+                        <li>Sets <code>form.BackColor = theme.BackgroundColor</code>.</li>
+                    </ul>
+                    <p>
+                        The commented-out code shows the intended (but unused from <code>BeepFormGenerator</code>) pattern for theme propagation to window chrome controls: close button, maximize button, minimize button, and title label. These are handled by the <strong>BeepiFormPro</strong> class and its interaction manager instead.
+                    </p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Example 1: Apply BeepForm Chrome</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Transform a Standard Form</span></div>
+                        <pre><code class="language-csharp">public partial class MyForm : Form
+{
+    public MyForm()
+    {
+        InitializeComponent();
+
+        // Apply Beep-style chrome: rounded corners, borderless, resize
+        BeepFormGenerator.ApplyBeepForm(this);
+
+        // Optionally apply a theme
+        var theme = BeepThemesManager.GetTheme("Dark");
+        BeepFormGenerator.ApplyTheme(this, theme);
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Example 2: Restore Original Form State</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Undo BeepForm Transformations</span></div>
+                        <pre><code class="language-csharp">// Revert a form to its original WinForms appearance
+BeepFormGenerator.RemoveBeepForm(this);
+
+// After removal:
+// - FormBorderStyle is restored
+// - Padding, BackColor, ForeColor are restored
+// - Rounded corners are removed (Region = null)
+// - Mouse resize handlers are unhooked</code></pre>
+                    </div>
+
+                    <h3>Example 3: Toggle BeepForm Chrome</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Switch Between Native and Beep Chrome</span></div>
+                        <pre><code class="language-csharp">private bool _isBeepForm = false;
+
+private void ToggleBeepChrome()
+{
+    if (_isBeepForm)
+    {
+        BeepFormGenerator.RemoveBeepForm(this);
+        _isBeepForm = false;
+    }
+    else
+    {
+        BeepFormGenerator.ApplyBeepForm(this);
+        _isBeepForm = true;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BeepFormGenerator.cs</code></td>
+                                <td>
+                                    Contains two types:<br>
+                                    <strong>BeepFormGenerator</strong> — static class with transform/restore/theme logic<br>
+                                    <strong>FormState</strong> — private nested class storing original form properties
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepiFormPro</code> (Forms/ModernForm)</td>
+                                <td>The principled, full-featured modern form class. Uses <code>BeepFormGenerator</code> concepts internally but adds a complete caption bar, min/max/close buttons, resizing, and theming.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepiFormProInteractionManager</code></td>
+                                <td>Handles resize hit-testing and mouse interactions for <code>BeepiFormPro</code>, duplicating some of <code>BeepFormGenerator</code>'s resize logic in a more polished way.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepiFormProHitAreaManager</code></td>
+                                <td>Manages the caption bar hit areas for dragging, double-click maximize, and system menu in <code>BeepiFormPro</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Relationship to BeepiFormPro</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Usage Tiers</span></div>
+                        <pre><code class="language-text">┌────────────────────────────────────────────────────────┐
+│ BeepiFormPro  (Full Framework)                          │
+│   Built-in: caption bar, min/max/close, full theming,   │
+│   resizing, drag, hit-area management, form styles      │
+│                                                         │
+│ BeepFormGenerator  (Lightweight Utility)                 │
+│   Retro-fit: rounded corners, borderless, basic resize, │
+│   theme colors, state preservation                      │
+│                                                         │
+│ System.Windows.Forms.Form  (Native)                      │
+│   Untouched: standard WinForms chrome                   │
+└────────────────────────────────────────────────────────┘</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

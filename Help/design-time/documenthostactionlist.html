@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocumentHostActionList - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
+<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
+<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
+<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
+<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
+<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
+<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>documenthostactionlist</span></nav><div class="page-header"><h1>DocumentHostActionList</h1><p class="page-subtitle">The richest smart-tag in the Beep library — 40+ properties and 20+ action methods across 18 organized sections for comprehensive design-time document management</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#sections">Smart-Tag Sections</a></li><li><a href="#actions">Document Actions</a></li><li><a href="#style-presets">Style Presets</a></li><li><a href="#setup-wizard">Setup Wizard</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists</code><br><strong>Inheritance:</strong> <code>DesignerActionList</code></p><p><code>DocumentHostActionList</code> is the most comprehensive smart-tag in the Beep controls library. It provides the entire design-time surface for <strong>BeepDocumentHost</strong>, the MDI tabbed document container. With 40+ properties and 20+ action methods across 18 organized sections, it rivals the design-time experience of commercial controls like DevExpress DocumentManager.</p></section><section class="section" id="features"><h2>Key Features</h2><ul><li><strong>18 organized smart-tag sections</strong> — Status, Documents, Split View, Nested Splits, Tabs, Tab Sizing, Interaction, Style Presets, Appearance, Preview, History, Cross-Host Drag, Policies, Animation, Quick Actions, Session</li><li><strong>8 document CRUD actions</strong> — Add, Close Active, Close All, Reopen Last Closed, Float, Pin/Unpin, Split</li><li><strong>6 style preset shortcuts</strong> — Chrome, VSCode, Flat, Office, Pill, Underline</li><li><strong>LayoutTreeInfo</strong> — Read-only formatted layout tree text for debugging</li><li><strong>GroupTabPositions</strong> — Parsable string format for per-group tab position configuration</li><li><strong>Setup Wizard</strong> — Quick setup wizard registered as a designer verb</li></ul></section><section class="section" id="sections"><h2>Smart-Tag Sections (18)</h2><table><thead><tr><th>Section</th><th>Properties</th><th>Description</th></tr></thead><tbody><tr><td>Status</td><td>Status (read-only) + SetupWizard verb</td><td>Host state + quick setup launcher</td></tr><tr><td>Documents</td><td>ActiveDocumentTitle + 8 action methods</td><td>Document CRUD operations</td></tr><tr><td>Split View</td><td>MaxGroups, SplitHorizontal, SplitRatio + 4 actions</td><td>Split window management</td></tr><tr><td>Nested Splits</td><td>GroupTabPositions, LayoutTreeInfo</td><td>Per-group configuration</td></tr><tr><td>Tabs</td><td>TabStyle, TabPosition, CloseMode, ShowAddButton, TabColorMode, KeyboardShortcutsEnabled</td><td>Tab appearance and behavior</td></tr><tr><td>Tab Sizing</td><td>TabSizeMode, FixedTabWidth</td><td>Tab width behavior</td></tr><tr><td>Interaction</td><td>TabTooltipMode, AllowDragFloat</td><td>User interaction settings</td></tr><tr><td>Style Presets</td><td>6 preset methods</td><td>Quick style application</td></tr><tr><td>Appearance</td><td>ControlStyle, ThemeName + ChooseTheme()</td><td>Visual configuration</td></tr><tr><td>Preview</td><td>TabPreviewEnabled</td><td>Tab hover preview</td></tr><tr><td>History</td><td>MaxRecentHistory, MaxClosedHistory</td><td>Session history limits</td></tr><tr><td>Cross-Host Drag</td><td>AllowDragBetweenHosts</td><td>Multi-host drag support</td></tr><tr><td>Policies</td><td>AllowFloat, AllowSplit, AllowPin, AllowAutoHide, MaxSplitDepth</td><td>Feature gate flags</td></tr><tr><td>Animation</td><td>AutoHideHoverDelay</td><td>Auto-hide timing</td></tr><tr><td>Session</td><td>AutoSaveLayout, SessionFile, EnableRoutedCommands, EnableTransactionalDocking, EnableHostTelemetry</td><td>Persistence and telemetry</td></tr></tbody></table></section><section class="section" id="actions"><h2>Document Actions</h2><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td>AddNewDocument()</td><td>Adds a placeholder document at design time</td></tr><tr><td>CloseActiveDocument()</td><td>Closes the currently active document tab</td></tr><tr><td>CloseAllDocuments()</td><td>Closes all open documents</td></tr><tr><td>ReopenLastClosed()</td><td>Reopens the most recently closed document</td></tr><tr><td>FloatActiveDocument()</td><td>Detaches active document to its own floating window</td></tr><tr><td>PinActiveDocument() / UnpinActiveDocument()</td><td>Toggles pinned state</td></tr><tr><td>SplitActiveHorizontal() / SplitActiveVertical()</td><td>Creates new split document groups</td></tr><tr><td>MergeAllGroups()</td><td>Collapses all split groups into a single tab group</td></tr><tr><td>SaveLayoutSnapshot()</td><td>Copies layout JSON to clipboard</td></tr><tr><td>ClearAllDocuments()</td><td>Removes all documents, resets host</td></tr><tr><td>SetupWizard()</td><td>Opens quick DocumentHost setup wizard (designer verb)</td></tr><tr><td>ChooseTheme()</td><td>Opens ThemePickerDialog</td></tr><tr><td>OpenLayoutAssistant()</td><td>Opens guided layout assistant dialog</td></tr><tr><td>EditDesignTimeDocuments()</td><td>Opens document editor for design-time docs</td></tr><tr><td>ApplyLayoutPreset()</td><td>Opens layout preset picker dialog</td></tr></tbody></table></section><section class="section" id="style-presets"><h2>Style Presets</h2><pre><code class="language-csharp">// Six one-click style presets:
+public void UseChromStyle()     // Google Chrome style tabs
+public void UseVSCodeStyle()    // Visual Studio Code style
+public void UseFlatStyle()      // Clean flat design
+public void UseOfficeStyle()    // Microsoft Office style
+public void UsePillStyle()      // Rounded pill tabs
+public void UseUnderlineStyle()  // Underline indicator</code></pre></section><section class="section" id="setup-wizard"><h2>Setup Wizard</h2><p>The <strong>DocumentSetupWizardDialog</strong> is registered as a designer verb (star icon in the smart-tag). It provides a step-by-step wizard for configuring a new DocumentHost:</p><ol><li>Select tab style (Chrome, VSCode, Flat, Office, Pill, Underline)</li><li>Choose tab position (Top, Bottom, Left, Right)</li><li>Configure initial documents</li><li>Set split view preferences</li><li>Configure keyboard shortcuts and interaction policies</li></ol></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time, configure via smart-tag.
+// At runtime, equivalent API:
+var host = new BeepDocumentHost();
+
+// Tab configuration
+host.TabStyle = TabStyle.Chrome;
+host.TabPosition = TabPosition.Top;
+host.CloseMode = CloseMode.All;
+host.ShowAddButton = true;
+
+// Document management
+host.AddDocument("Main.cs", new RichTextBox());
+host.AddDocument("App.config", new TextBox());
+host.CloseAllDocuments();
+
+// Split views
+host.SplitActiveHorizontal();
+host.MaxGroups = 4;
+
+// Layout persistence
+host.AutoSaveLayout = true;
+host.SessionFile = "layout.json";
+var json = host.SaveLayout();
+host.LoadLayout(json);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

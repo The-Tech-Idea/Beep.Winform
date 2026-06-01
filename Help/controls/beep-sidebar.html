@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepSideBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&#8250;</span>
+                    <a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&#8250;</span>
+                    <span>BeepSideBar</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepSideBar</h1>
+                    <p class="page-subtitle">Modern painter-based sidebar control with collapsible navigation, expandable menu items, and accordion support</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepSideBar</strong> is a modern sidebar navigation control built on the painter architecture. It displays a vertical list of <code>SimpleItem</code> objects with icons and text, supports collapsing/expanding, and provides accordion-style expansion for items with child items. The control automatically adjusts item heights to prevent text clipping and supports theme-aware rendering with custom accent colors.</p>
+                    <p>The sidebar is organized with a painter-based rendering pipeline and partial class files for animations, hit testing, and design-mode menu item editing.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.SideBar</code> &nbsp;|&nbsp; <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component &#8594; Control &#8594; BaseControl &#8594; BeepSideBar</code></p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Collapsible sidebar</strong> — Toggle between expanded and collapsed widths with smooth animation transitions</li>
+                        <li><strong>Accordion expansion</strong> — Items with child <code>SimpleItem</code> collections display expand/collapse chevrons for hierarchical menus</li>
+                        <li><strong>Customizable expansion behavior</strong> — Control click-to-expand logic via <code>ClickTogglesExpansion</code> and <code>ClickTogglesExpansionMode</code></li>
+                        <li><strong>Theme-aware rendering</strong> — Automatically adapts to active Beep theme with accent highlights, hover colors, and selection indicators</li>
+                        <li><strong>Custom accent color</strong> — Overrideable accent color for selection highlight and expand/collapse icons when <code>UseThemeColors</code> is disabled</li>
+                        <li><strong>Auto-sizing items</strong> — <code>ItemHeight</code> is recalculated automatically based on text and icon content to prevent clipping</li>
+                        <li><strong>Playelist item support</strong> — Built-in SVG icon rendering with pre-warmed icon cache for responsive first paint</li>
+                        <li><strong>Collapsed-state icons</strong> — SVG icon paths for expand and collapse states that swap based on item expansion</li>
+                        <li><strong>Shadow effects</strong> — Optional rail shadow via <code>EnableRailShadow</code> for modern depth styling</li>
+                        <li><strong>Selection animation</strong> — Animated highlight indicator that transitions between items on click</li>
+                        <li><strong>Hover animations</strong> — Subtle hover effects over expand/collapse icons</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Items</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td><code>empty</code></td><td>The list of sidebar menu items with text, icon, and optional child items.</td></tr>
+                            <tr><td><code>SelectedItem</code></td><td><code>SimpleItem</code></td><td><code>null</code></td><td>Currently selected item. Triggers selection animation and <code>ItemClicked</code> event. Browsable(false).</td></tr>
+                            <tr><td><code>IsCollapsed</code></td><td><code>bool</code></td><td><code>false</code></td><td>Whether the sidebar is collapsed to its <code>CollapsedWidth</code>.</td></tr>
+                            <tr><td><code>ExpandedWidth</code></td><td><code>int</code></td><td><code>200</code></td><td>Width in pixels when the sidebar is fully expanded.</td></tr>
+                            <tr><td><code>CollapsedWidth</code></td><td><code>int</code></td><td><code>64</code></td><td>Width in pixels when the sidebar is collapsed.</td></tr>
+                            <tr><td><code>ItemHeight</code></td><td><code>int</code></td><td><code>44</code></td><td>Height of each menu item in pixels. Auto-calculated from content; minimum 24.</td></tr>
+                            <tr><td><code>AccentColor</code></td><td><code>Color</code></td><td><code>(0, 120, 215)</code></td><td>Accent color used for selection highlights, indicators, and expand/collapse icons.</td></tr>
+                            <tr><td><code>UseThemeColors</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, uses the active Beep theme's colors instead of <code>AccentColor</code>.</td></tr>
+                            <tr><td><code>EnableRailShadow</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables shadow effects along the sidebar edge for depth.</td></tr>
+                            <tr><td><code>ChromeCornerRadius</code></td><td><code>int</code></td><td><code>10</code></td><td>Corner radius for rounded elements like selection highlight and hover backgrounds.</td></tr>
+                            <tr><td><code>DefaultItemImagePath</code></td><td><code>string</code></td><td><code>Svgs.Menu</code></td><td>Fallback icon path for items that do not have an explicit <code>ImagePath</code>.</td></tr>
+                            <tr><td><code>UseExpandCollapseIcon</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, uses SVG icons instead of drawing plus/minus signs for expand/collapse arrows.</td></tr>
+                            <tr><td><code>ExpandIconPath</code></td><td><code>string</code></td><td><code>Svgs.AngleSmallRight</code></td><td>SVG path for the expand icon (shown when an item is collapsed).</td></tr>
+                            <tr><td><code>CollapseIconPath</code></td><td><code>string</code></td><td><code>Svgs.AngleSmallDown</code></td><td>SVG path for the collapse icon (shown when an item is expanded).</td></tr>
+                            <tr><td><code>MenuItemHeight</code></td><td><code>int</code></td><td>(same as <code>ItemHeight</code>)</td><td>Read-only alias for the current <code>ItemHeight</code>. Browsable(false).</td></tr>
+                            <tr><td><code>ClickTogglesExpansion</code></td><td><code>bool</code></td><td><code>false</code></td><td>If true, clicking an item with children toggles expand/collapse instead of selecting it.</td></tr>
+                            <tr><td><code>ClickTogglesExpansionMode</code></td><td><code>ClickTogglesExpansionMode</code></td><td><code>ToggleThenSelect</code></td><td>Controls click behavior order: <code>ToggleThenSelect</code>, <code>SelectThenToggle</code>, or <code>ToggleOnly</code>.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Toggle</code></td><td><code>void Toggle()</code></td><td>Toggles the <code>IsCollapsed</code> state, expanding or collapsing the sidebar.</td></tr>
+                            <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme()</code></td><td>Applies the active Beep theme tokens and refreshes the control.</td></tr>
+                            <tr><td><code>SelectMenuItemByIndex</code></td><td><code>void SelectMenuItemByIndex(int index)</code></td><td>Programmatically selects a menu item at the given index. Internal method used by painters.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ItemClicked</code></td><td>Raised when a menu item is clicked. Provides the <code>SimpleItem</code> that was clicked.</td></tr>
+                            <tr><td><code>ItemExpansionChanged</code></td><td>Raised after an item's expansion state changes, providing <code>ExpansionChangedEventArgs</code> with the item and its new expanded state.</td></tr>
+                            <tr><td><code>ItemExpansionChanging</code></td><td>Raised before an item's expansion state changes. Handlers can cancel the change by setting <code>Cancel = true</code> on the <code>ItemExpansionChangingEventArgs</code>.</td></tr>
+                            <tr><td><code>CollapseStateChanged</code></td><td>Raised when the sidebar's collapse state changes. Provides the new collapsed state as a <code>bool</code>.</td></tr>
+                            <tr><td><code>PropertyChanged</code></td><td>Standard <code>PropertyChangedEventHandler</code> for data binding support.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>BeepSideBar integrates with the Beep theme system. When <code>UseThemeColors</code> is <code>true</code> (default), the sidebar draws using the active theme's palette tokens for background, foreground, hover, and selection colors. When disabled, the custom <code>AccentColor</code> drives selection highlights and icon colors.</p>
+                    <p>Icons are processed through the <code>StyledImagePainter</code> pipeline, which recolors SVG icons to match the current accent or theme color. Common icons (hamburger menu, expand, collapse) are pre-rendered at multiple sizes on handle creation for responsive first paint.</p>
+                    <pre><code class="language-csharp">BeepThemesManager.ApplyTheme("MaterialDark"); // Sidebar updates automatically
+sidebar.ApplyTheme(); // Force manual refresh if needed</code></pre>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <h3>Basic Sidebar with Collapse Toggle</h3>
+                    <pre><code class="language-csharp">var sidebar = new BeepSideBar
+{
+    ExpandedWidth = 220,
+    CollapsedWidth = 54,
+    Dock = DockStyle.Left
+};
+
+sidebar.Items.Add(new SimpleItem { Text = "Home", ImagePath = Svgs.Home });
+sidebar.Items.Add(new SimpleItem { Text = "Settings", ImagePath = Svgs.Settings });
+
+cancelToggleButton.Click += (s, e) => sidebar.Toggle();</code></pre>
+
+                    <h3>Accordion Menu with Child Items</h3>
+                    <pre><code class="language-csharp">var reports = new SimpleItem
+{
+    Text = "Reports",
+    ImagePath = Svgs.Chart,
+    Children = new List&lt;SimpleItem&gt;
+    {
+        new SimpleItem { Text = "Sales", ImagePath = Svgs.Dollar },
+        new SimpleItem { Text = "Inventory", ImagePath = Svgs.Box }
+    }
+};
+sidebar.Items.Add(reports);
+
+sidebar.ItemExpansionChanged += (s, e) =>
+{
+    Console.WriteLine($"{e.Item.Text} expanded = {e.IsExpanded}");
+};</code></pre>
+
+                    <h3>Handling Item Clicks</h3>
+                    <pre><code class="language-csharp">sidebar.ItemClicked += item =>
+{
+    switch (item.Text)
+    {
+        case "Home": NavigateTo(new HomePage()); break;
+        case "Settings": NavigateTo(new SettingsPage()); break;
+    }
+};</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepSideBar.cs</code></td><td>Main control class: properties, events, core logic, and painter initialization</td></tr>
+                            <tr><td><code>BeepSideBar.Animation.cs</code></td><td>Smooth collapse/expand animation, selection indicator transitions, hover effects</td></tr>
+                            <tr><td><code>BeepSideBar.Hit.cs</code></td><td>Hit testing for mouse clicks on items, expand/collapse arrows, and icons</td></tr>
+                            <tr><td><code>BeepSideBar.Designer.cs</code></td><td>Design-mode menu item collection editor and Visual Studio integration</td></tr>
+                            <tr><td><code>MenuItemCollectionEditor.cs</code></td><td>Custom <code>UITypeEditor</code> for editing <code>SimpleItem</code> collections at design time</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-button.html"><i class="bi bi-arrow-left"></i> BeepButton</a>
+                    <a href="beep-bottomnav.html">BeepBottomBar <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

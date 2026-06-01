@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDatePickerView - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span><span>BeepDatePickerView</span></nav>
+            <div class="page-header"><h1>BeepDatePickerView</h1><p class="page-subtitle">Modern calendar view control with time spinner, hit-based navigation, and OK/Cancel API</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#layout">Layout Architecture</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Inheritance:</strong> <code>BaseControl</code></p>
+                <p><strong>Source:</strong> 925 lines in a single file (<code>Dates\BeepDatePickerView.cs</code>)</p>
+                <p>The <strong>BeepDatePickerView</strong> is a modern, self-contained calendar view control optimized for date selection with a clean, responsive design. It renders a full month calendar with a month/year header, day-of-week headers, a 6-row date grid, a selected-date display bar, and footer action links (Clear/Done). An optional time spinner allows minute-level adjustments. All interaction is handled via hit-test rectangles — there are no child controls. The control is designed for embedding in popups, dropdowns, BeepGridPro cells, and containers, offering both a <code>DrawContent</code> override (for BaseControl) and a public <code>Draw</code> method (for container hosting).</p>
+                <p>It fires explicit <code>OkClicked</code> and <code>CancelClicked</code> events (with <code>DateTimeDialogResultEventArgs</code> carrying the selected datetime, context, and confirmation flag) while maintaining backward-compatible <code>DateTimeSelected</code> and <code>Cancelled</code> events.</p>
+            </section>
+
+            <section id="features" class="section">
+                <h2>Key Features</h2>
+                <ul>
+                    <li>Self-contained rendering with zero child controls — all UI drawn and hit-tested via rectangles</li>
+                    <li>Month/year header with left/right chevron navigation and hover/press visual feedback</li>
+                    <li>Monday-start 7-column calendar grid with 6 rows, showing leading/trailing month days in dimmed colors</li>
+                    <li>Selected date highlight with rounded filled background and contrast-aware text color</li>
+                    <li>Today indicator with a bordered ring</li>
+                    <li>Selected date display bar with blue rounded background and optional time spinner</li>
+                    <li>Time spinner: up/down chevrons with 1-minute increments, hover and press states</li>
+                    <li>"Clear" and "Done" footer links with hover underline and background effects</li>
+                    <li>Explicit OK/Cancel API via <code>OkClicked</code> / <code>CancelClicked</code> events with context payload</li>
+                    <li>Backward-compatible <code>DateTimeSelected</code> / <code>Cancelled</code> events</li>
+                    <li>Enforced minimum size (280x420) via <code>SetBoundsCore</code> and <code>OnResize</code></li>
+                    <li>Responsive layout that scales cell sizes within MinCell (28px) and BaseCellSize (36px) constraints</li>
+                    <li>Theme integration via calendar-specific tokens with font auto-application</li>
+                    <li>Smoothing and ClearType text rendering for crisp visuals</li>
+                    <li>Double-buffered painting for flicker-free rendering</li>
+                    <li>Compatible with BeepGridPro cell hosting via public <code>Draw(Graphics, Rectangle)</code> overrides</li>
+                </ul>
+            </section>
+
+            <section id="layout" class="section">
+                <h2>Layout Architecture</h2>
+                <p>The control's visual layout is computed by <code>UpdateModernLayout()</code> and consists of distinct rectangular regions. No child controls are used — all hit detection is performed against these internal rectangles registered via the BaseControl <code>AddHitArea</code> helper:</p>
+                <table>
+                    <thead><tr><th>Region</th><th>Internal Field</th><th>Hit Action</th></tr></thead>
+                    <tbody>
+                        <tr><td>Month/Year Header</td><td><code>_headerRect</code></td><td>Contains PrevMonth/NextMonth chevron sub-rects</td></tr>
+                        <tr><td>Day-of-Week Headers</td><td><code>_daysHeaderRect</code></td><td>Non-interactive: "Mo Tu We Th Fr Sa Su"</td></tr>
+                        <tr><td>Date Grid (6 rows x 7 cols)</td><td><code>_datesGridRect</code></td><td>Date cell selection via <code>HandleDateSelection</code></td></tr>
+                        <tr><td>Selected Date Display</td><td><code>_selectedDateDisplayRect</code></td><td>Contains TimeUp/TimeDown spinner sub-rects</td></tr>
+                        <tr><td>Footer Button Bar</td><td><code>_buttonsRect</code></td><td>Contains Clear (left) and Done (right) link rects</td></tr>
+                        <tr><td>Prev Month Chevron</td><td><code>_prevMonthRect</code></td><td>Navigates display month -1</td></tr>
+                        <tr><td>Next Month Chevron</td><td><code>_nextMonthRect</code></td><td>Navigates display month +1</td></tr>
+                        <tr><td>Clear Link</td><td><code>_clearRect</code></td><td>Sets SelectedDateTime to null, fires CancelClicked</td></tr>
+                        <tr><td>Done Link</td><td><code>_doneRect</code></td><td>Fires OkClicked</td></tr>
+                        <tr><td>Time Spinner Up</td><td><code>_timeUpRect</code></td><td>Adds 1 minute to selected time</td></tr>
+                        <tr><td>Time Spinner Down</td><td><code>_timeDownRect</code></td><td>Subtracts 1 minute from selected time</td></tr>
+                    </tbody>
+                </table>
+                <p>The layout is fully responsive: cell width is computed as <code>Math.Max(MinCell, Math.Min(BaseCellSize, availableWidth / 7))</code> with the grid width snapped to <code>cellWidth * 7</code>. The control enforces a computed minimum height via <code>CalculateMinimumRequiredHeight()</code> that accounts for all regions plus padding.</p>
+            </section>
+
+            <section id="properties" class="section">
+                <h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>HeaderFont</code></td><td><code>Font</code></td><td><code>SystemFonts.DefaultFont</code></td><td>Font for the month/year header text</td></tr>
+                        <tr><td><code>DaysHeaderFont</code></td><td><code>Font</code></td><td><code>SystemFonts.DefaultFont</code></td><td>Font for the day-of-week headers</td></tr>
+                        <tr><td><code>DateFont</code></td><td><code>Font</code></td><td><code>SystemFonts.DefaultFont</code></td><td>Font for date numbers in the grid</td></tr>
+                        <tr><td><code>SelectedDateFont</code></td><td><code>Font</code></td><td><code>SystemFonts.DefaultFont</code></td><td>Font for the selected date display bar</td></tr>
+                        <tr><td><code>ButtonFont</code></td><td><code>Font</code></td><td><code>SystemFonts.DefaultFont</code></td><td>Font for the footer link buttons ("Clear" / "Done")</td></tr>
+                        <tr><td><code>SelectedDateTime</code></td><td><code>DateTime?</code></td><td><code>DateTime.Today</code></td><td>The selected date and time. Sets display month to the selected month on assignment</td></tr>
+                        <tr><td><code>ShowTime</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, shows time in the selected date display and enables the time spinner</td></tr>
+                        <tr><td><code>Context</code></td><td><code>string</code></td><td><code>"Date Selection"</code></td><td>Context/label passed back with OK/Cancel events for identifying the picker's purpose</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section">
+                <h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Draw</code></td><td><code>override void Draw(Graphics g, Rectangle r)</code></td><td>Public override for BeepGridPro and container hosting; delegates to internal Paint</td></tr>
+                        <tr><td><code>DrawContent</code></td><td><code>protected override void DrawContent(Graphics g)</code></td><td>BaseControl override; called during normal control painting</td></tr>
+                        <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies calendar theme tokens; sets all 5 fonts from theme via BeepThemesManager.ToFont</td></tr>
+                        <tr><td><code>OnResize</code></td><td><code>protected override void OnResize(EventArgs e)</code></td><td>Ensures minimum size and calls UpdateModernLayout</td></tr>
+                        <tr><td><code>SetBoundsCore</code></td><td><code>protected override void SetBoundsCore(...)</code></td><td>Enforces minimum width and height constraints</td></tr>
+                        <tr><td><code>OnMouseDown</code></td><td><code>protected override void OnMouseDown(MouseEventArgs e)</code></td><td>Handles left-click on chevrons, links, time spinner, and date cells</td></tr>
+                        <tr><td><code>OnMouseUp</code></td><td><code>protected override void OnMouseUp(MouseEventArgs e)</code></td><td>Releases hit state and triggers click evaluation</td></tr>
+                        <tr><td><code>OnMouseMove</code></td><td><code>protected override void OnMouseMove(MouseEventArgs e)</code></td><td>Updates hover state and cursor (hand cursor over time spinner)</td></tr>
+                        <tr><td><code>OnMouseLeave</code></td><td><code>protected override void OnMouseLeave(EventArgs e)</code></td><td>Clears hit state and invalidates</td></tr>
+                        <tr><td><code>Dispose</code></td><td><code>protected override void Dispose(bool disposing)</code></td><td>Calls base dispose (no managed resources to clean up)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section">
+                <h2>Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>DateTimeSelected</code></td><td><code>EventHandler&lt;DateTime?&gt;</code></td><td>Fired when a date is confirmed (Done click). Carries the nullable DateTime. Backward-compatible</td></tr>
+                        <tr><td><code>Cancelled</code></td><td><code>EventHandler</code></td><td>Fired when selection is cancelled (Clear click). Backward-compatible</td></tr>
+                        <tr><td><code>OkClicked</code></td><td><code>EventHandler&lt;DateTimeDialogResultEventArgs&gt;</code></td><td>Fired on Done click. Args carry SelectedDateTime, Context, and IsConfirmed=true. Also fires DateTimeSelected</td></tr>
+                        <tr><td><code>CancelClicked</code></td><td><code>EventHandler&lt;DateTimeDialogResultEventArgs&gt;</code></td><td>Fired on Clear click. Args carry SelectedDateTime, Context, and IsConfirmed=false. Also fires Cancelled</td></tr>
+                    </tbody>
+                </table>
+                <p><strong>DateTimeDialogResultEventArgs</strong> provides three properties:</p>
+                <ul>
+                    <li><code>SelectedDateTime</code> (DateTime?) — the current selected date/time value</li>
+                    <li><code>Context</code> (string) — the context label set on the control</li>
+                    <li><code>IsConfirmed</code> (bool) — true for OK, false for Cancel</li>
+                </ul>
+            </section>
+
+            <section id="theming" class="section">
+                <h2>Theming</h2>
+                <p>BeepDatePickerView uses the following theme tokens from <code>BeepTheme</code>:</p>
+                <table>
+                    <thead><tr><th>Theme Token</th><th>Applied To</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>CalendarBackColor</code></td><td>Control background</td></tr>
+                        <tr><td><code>CalendarForeColor</code></td><td>Regular date text, chevron color, footer link hover</td></tr>
+                        <tr><td><code>CalendarBorderColor</code></td><td>Control border</td></tr>
+                        <tr><td><code>CalendarTitleForColor</code></td><td>Month/year header text</td></tr>
+                        <tr><td><code>CalendarDaysHeaderForColor</code></td><td>Day name headers color</td></tr>
+                        <tr><td><code>CalendarSelectedDateBackColor</code></td><td>Selected date background, selected date display bar, footer link color</td></tr>
+                        <tr><td><code>CalendarSelectedDateForColor</code></td><td>Text color on selected date; falls back to contrast color of selected background</td></tr>
+                        <tr><td><code>CalendarTodayForeColor</code></td><td>Today indicator ring color</td></tr>
+                        <tr><td><code>CalendarTitleFont</code></td><td>→ HeaderFont</td></tr>
+                        <tr><td><code>DaysHeaderFont</code></td><td>→ DaysHeaderFont</td></tr>
+                        <tr><td><code>DateFont</code></td><td>→ DateFont</td></tr>
+                        <tr><td><code>CalendarSelectedFont</code></td><td>→ SelectedDateFont</td></tr>
+                        <tr><td><code>FooterFont</code></td><td>→ ButtonFont</td></tr>
+                    </tbody>
+                </table>
+                <p>All 5 fonts are only applied when <code>UseThemeFont</code> is true (default). The <code>ApplyTheme()</code> method then calls <code>UpdateModernLayout()</code> to recompute geometry and <code>InvalidateOnce()</code> for batched repaint. Contrast fallback is computed via <code>ColorUtils.GetContrastColor()</code> when a foreground color token is empty.</p>
+            </section>
+
+            <section id="examples" class="section">
+                <h2>Examples</h2>
+                <h3>Basic Dropdown Hosting</h3>
+                <pre><code class="language-csharp">var dateView = new BeepDatePickerView
+{
+    Context = "Due Date",
+    ShowTime = true,
+    SelectedDateTime = DateTime.Now
+};
+dateView.OkClicked += (s, e) =>
+{
+    Console.WriteLine($"Confirmed: {e.SelectedDateTime}, Context: {e.Context}");
+};
+dateView.CancelClicked += (s, e) =>
+{
+    Console.WriteLine($"Cancelled. Context: {e.Context}");
+};
+
+var form = new Form();
+dateView.Dock = DockStyle.Fill;
+form.Controls.Add(dateView);
+form.ShowDialog();</code></pre>
+
+                <h3>Embedding in a ToolStripDropDown (Popup)</h3>
+                <pre><code class="language-csharp">var dropDown = new ToolStripDropDown();
+var dateView = new BeepDatePickerView
+{
+    Context = "Start Date",
+    ShowTime = false,
+    AutoSize = false,
+    Size = new Size(320, 380)
+};
+dropDown.Items.Add(new ToolStripControlHost(dateView));
+dateView.OkClicked += (s, e) => dropDown.Close();
+dateView.CancelClicked += (s, e) => dropDown.Close();
+dropDown.Show(PointToScreen(new Point(btn.Left, btn.Bottom)));</code></pre>
+
+                <h3>Setting Initial Date and Time</h3>
+                <pre><code class="language-csharp">var dateView = new BeepDatePickerView
+{
+    Context = "Appointment",
+    ShowTime = true,
+    SelectedDateTime = new DateTime(2025, 12, 25, 14, 30, 0)
+};
+dateView.OkClicked += (s, e) =>
+{
+    MessageBox.Show($"Scheduled: {e.SelectedDateTime:g}");
+};
+this.Controls.Add(dateView);</code></pre>
+            </section>
+
+            <section id="architecture" class="section">
+                <h2>Architecture</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BeepDatePickerView.cs</code></td><td>Single-file implementation (925 lines) containing all logic: fields, properties, events, constructor, layout computation, painting (header/days/dates/selected-date/footer/time-spinner), mouse handling (OnMouseDown/Up/Move/Leave), size enforcement, theming, and HSL color utilities</td></tr>
+                    </tbody>
+                </table>
+                <p>The control follows a <strong>hit-test-driven</strong> pattern where all mouse interactions are routed through BaseControl's <code>AddHitArea</code> / <code>ClearHitList</code> helpers. The <code>_hitTest</code> object tracks hovered and pressed states for visual feedback. Fallback direct rectangle containment checks in <code>OnMouseDown</code> guarantee action execution even if the hit helper misses.</p>
+                <p>The painting pipeline supports <strong>dual rendering contexts</strong>: the <code>DrawContent</code> override paints within BaseControl's DrawingRect, while the public <code>Draw(Graphics, Rectangle)</code> override supports BeepGridPro cell rendering with an explicit bounds rectangle.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

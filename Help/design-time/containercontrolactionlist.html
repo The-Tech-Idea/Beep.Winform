@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ContainerControlActionList - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body><aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Action Lists</li><li style="padding:4px 1.5rem"><a href="containercontrolactionlist.html">ContainerControlActionList</a></li></ul></nav></aside><main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>ContainerControlActionList</span></nav>
+<div class="page-header"><h1>ContainerControlActionList</h1><p class="page-subtitle">Smart-tag for container controls -- Arrange Children and Clear All Children actions for design-time child management</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#actions">Container Actions</a></li><li><a href="#sections">Smart-Tag Sections</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.ActionLists</code><br><strong>Inheritance:</strong> <code>DesignerActionList</code> | <strong>Visibility:</strong> <code>public</code></p><p><code>ContainerControlActionList</code> provides a minimal smart-tag for parent/container controls via the <code>IBeepDesignerActionHost</code> interface. It has no properties -- only two action methods for arranging and clearing child controls at design time.</p></section>
+
+<section class="section" id="actions"><h2>Container Actions</h2><table><thead><tr><th>Action</th><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>Arrange Children</strong></td><td>ArrangeChildren()</td><td>Calls <code>PerformLayout()</code> on the <code>BaseControl</code>-derived component to arrange all child controls according to their layout rules.</td></tr><tr><td><strong>Clear All Children</strong></td><td>ClearAllChildren()</td><td>Clears the entire <code>Controls</code> collection of the component, removing all child controls.</td></tr></tbody></table></section>
+
+<section class="section" id="sections"><h2>Smart-Tag Sections</h2><table><thead><tr><th>Section</th><th>Items</th></tr></thead><tbody><tr><td><strong>Container Actions</strong></td><td>ArrangeChildren ("Arrange Children"), ClearAllChildren ("Clear All Children")</td></tr></tbody></table></section>
+
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time, container controls (Panels, GroupBoxes) show:
+// Smart-tag > Container Actions > "Arrange Children"
+//   -> Calls PerformLayout() to snap children into position
+
+// Smart-tag > Container Actions > "Clear All Children"
+//   -> Removes all child controls from the container
+
+// Implementation delegates to BaseControl:
+var control = (BaseControl)_designer.Component;
+control.PerformLayout();      // ArrangeChildren
+control.Controls.Clear();     // ClearAllChildren</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

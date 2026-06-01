@@ -195,6 +195,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 CurrentStepIndex = nextIndex;
                 Context.NavigationHistory.Push(CurrentStepIndex);
 
+                // Update UI FIRST so the control is parented before OnStepEnter fires
+                _formHost?.UpdateUI();
+
                 // Enter new step
                 var newStep = CurrentStep;
                 if (newStep != null)
@@ -206,9 +209,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 // Report progress
                 ReportProgress();
 
-                // Hide any previous validation errors and update UI
+                // Hide any previous validation errors
                 _formHost?.HideValidationError();
-                _formHost?.UpdateUI();
 
                 // Raise events
                 StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context));
@@ -269,6 +271,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                 // Navigate to previous step
                 CurrentStepIndex = Math.Max(0, prevIndex);
 
+                // Update UI FIRST so the control is parented before OnStepEnter fires
+                _formHost?.UpdateUI();
+
                 // Enter new step
                 var newStep = CurrentStep;
                 if (newStep != null)
@@ -276,12 +281,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     newStep.State = StepState.Current;
                     await EnterStepAsync(newStep);
                 }
-
-                // Report progress
-                ReportProgress();
-
-                // Update UI
-                _formHost?.UpdateUI();
 
                 // Raise events
                 StepChanged?.Invoke(this, new StepChangedEventArgs(CurrentStepIndex, Context));
@@ -501,9 +500,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         public async Task<DialogResult> ShowDialogAsync()
         {
-            await InitializeFirstStepAsync();
+            InitializeFirstStepState();
             var form = WizardFormFactory.CreateForm(Config.Style, this);
             _formHost = form;
+            _formHost.UpdateUI();              // Parents the control BEFORE OnStepEnter fires
+            await FinalizeFirstStepAsync();    // Fires OnStepEnter with control parented
             return form.ShowDialog();
         }
 
@@ -512,9 +513,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         /// </summary>
         public async Task<DialogResult> ShowDialogAsync(IWin32Window owner)
         {
-            await InitializeFirstStepAsync();
+            InitializeFirstStepState();
             var form = WizardFormFactory.CreateForm(Config.Style, this);
             _formHost = form;
+            _formHost.UpdateUI();              // Parents the control BEFORE OnStepEnter fires
+            await FinalizeFirstStepAsync();    // Fires OnStepEnter with control parented
             return form.ShowDialog(owner);
         }
 
@@ -534,7 +537,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
             return ShowDialogAsync(owner).GetAwaiter().GetResult();
         }
 
-        private async Task InitializeFirstStepAsync()
+        private void InitializeFirstStepState()
+        {
+            if (CurrentStepIndex == 0 && Config.Steps.Count > 0)
+            {
+                Config.Steps[0].State = StepState.Current;
+            }
+        }
+
+        private async Task FinalizeFirstStepAsync()
         {
             if (CurrentStepIndex == 0 && Config.Steps.Count > 0)
             {

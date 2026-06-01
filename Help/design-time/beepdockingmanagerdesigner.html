@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeepDockingManagerDesigner - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
+<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
+<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
+<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
+<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
+<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
+<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>beepdockingmanagerdesigner</span></nav><div class="page-header"><h1>BeepDockingManagerDesigner</h1><p class="page-subtitle">The non-visual component designer for BeepDockingManager — lives in the component tray, provides 15 designer verbs and smart-tag for panel management at design time</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#verbs">Designer Verbs</a></li><li><a href="#smart-tag">Smart-Tag</a></li><li><a href="#design-time-behavior">Design-Time Behavior</a></li><li><a href="#wiring">Wiring Architecture</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers</code><br><strong>Inheritance:</strong> <code>ComponentDesigner</code> (NOT a ControlDesigner — this is a tray component)<br><strong>Visibility:</strong> <code>internal sealed</code></p><p><code>BeepDockingManagerDesigner</code> is the design-time experience for <strong>BeepDockingManager</strong>. Since the manager is a non-visual component, it appears in the component tray below the form designer rather than on the form surface. This follows the same pattern as Krypton's KryptonDockingManager.</p><p>It provides <strong>15 designer verbs</strong> for adding, moving, stacking, and validating dock panels entirely from the Visual Studio designer.</p></section><section class="section" id="features"><h2>Key Features</h2><ul><li><strong>Tray component</strong> — Sits in the component tray, not on the form surface</li><li><strong>15 designer verbs</strong> — Context menu commands for panel management</li><li><strong>Smart-tag</strong> — BeepDockingManagerActionList for property configuration</li><li><strong>Auto host-form detection</strong> — On InitializeNewComponent, finds parent Form and assigns HostForm</li><li><strong>Panel validation</strong> — ValidatePanels() checks all associated panels for missing Keys</li><li><strong>IComponentChangeService integration</strong> — All mutations route through wiring for proper serialization</li><li><strong>Krypton parity</strong> — Follows KryptonDockingManager design-time pattern</li></ul></section><section class="section" id="verbs"><h2>Designer Verbs (15)</h2><table><thead><tr><th>Category</th><th>Verb</th><th>Description</th></tr></thead><tbody><tr><td>Add Panel</td><td>Add Panel Left</td><td>Creates a new DockPanel docked to the left edge</td></tr><tr><td></td><td>Add Panel Right</td><td>Creates a new DockPanel docked to the right edge</td></tr><tr><td></td><td>Add Panel Top</td><td>Creates a new DockPanel docked to the top edge</td></tr><tr><td></td><td>Add Panel Bottom</td><td>Creates a new DockPanel docked to the bottom edge</td></tr><tr><td></td><td>Add Panel Fill</td><td>Creates a new DockPanel filling remaining space</td></tr><tr><td>Move Panel</td><td>Move Selected Panel Left</td><td>Moves currently selected panel to left edge</td></tr><tr><td></td><td>Move Selected Panel Right</td><td>Moves currently selected panel to right edge</td></tr><tr><td></td><td>Move Selected Panel Top</td><td>Moves currently selected panel to top edge</td></tr><tr><td></td><td>Move Selected Panel Bottom</td><td>Moves currently selected panel to bottom edge</td></tr><tr><td></td><td>Move Selected Panel Fill</td><td>Moves currently selected panel to fill</td></tr><tr><td>Stack</td><td>Stack Selected with Previous Panel</td><td>Groups selected panel into tab stack with previous</td></tr><tr><td></td><td>Stack Selected with Next Panel</td><td>Groups selected panel into tab stack with next</td></tr><tr><td>Management</td><td>&amp;Validate Panels</td><td>Checks all panels for missing/duplicate Keys</td></tr><tr><td></td><td>Attach &amp;Host Form</td><td>Auto-detects and assigns Manager.HostForm</td></tr></tbody></table></section><section class="section" id="smart-tag"><h2>Smart-Tag</h2><p>The <code>BeepDockingManagerActionList</code> exposes these properties in the smart-tag panel:</p><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>HostForm</td><td>Form</td><td>The hosting form. Setting this calls ManageControl().</td></tr><tr><td>Theme</td><td>string</td><td>Theme name for docking chrome.</td></tr><tr><td>UseThemeColors</td><td>bool</td><td>When true, reads from Beep theme.</td></tr><tr><td>Style</td><td>BeepControlStyle</td><td>Control style for docking surfaces.</td></tr><tr><td>PanelCount</td><td>int (read-only)</td><td>Number of currently managed panels.</td></tr></tbody></table></section><section class="section" id="design-time-behavior"><h2>Design-Time Behavior</h2><h3>InitializeNewComponent</h3><p>When first dropped on a form, the designer detects the parent form via the designer host and assigns it as <code>Manager.HostForm</code>. This mimics the Krypton behavior where the manager automatically binds to its hosting form.</p><h3>Panel Operations</h3><p>All panel Add/Move/Stack/Remove operations delegate to <code>BeepDockingDesignerWiring</code> which handles:</p><ol><li>Creating new <code>DockPanel</code> components via <code>IDesignerHost.CreateComponent()</code></li><li>Setting panel properties (Key, Title, DockPosition)</li><li>Notifying <code>IComponentChangeService</code> for serialization</li><li>Refreshing the host layout</li></ol></section><section class="section" id="wiring"><h2>Wiring Architecture</h2><pre><code class="language-plaintext">BeepDockingManagerDesigner (ComponentDesigner)
+  │
+  ├── AddPanel(position)  ──┐
+  ├── RemovePanel(panel)  ──┤
+  ├── MoveSelectedPanel() ──┤
+  ├── StackSelectedWith() ──┤
+  └── ValidatePanels()   ──┤
+                              │
+                    ┌─────────▼────────────┐
+                    │ BeepDockingDesignerWiring │
+                    │ (static helper class)      │
+                    │                            │
+                    │ CreateComponent(DockPanel) │
+                    │ IComponentChangeService    │
+                    │ Designer.cs code-gen       │
+                    └────────────────────────────┘</code></pre></section><section class="section" id="examples"><h2>Examples</h2><h3>Using the Docking Manager at Design Time</h3><pre><code class="language-csharp">// 1. Drop BeepDockingManager from toolbox onto form
+//    → Appears in component tray
+//    → Auto-detects form as HostForm
+// 2. Right-click → "Add Panel Left"
+//    → Creates DockPanel with unique Key
+//    → Appears docked to left edge
+// 3. Right-click panel → "Dock Right"
+//    → Panel repositions to right edge
+// 4. Right-click manager → "Validate Panels"
+//    → Checks all panels for valid configuration</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

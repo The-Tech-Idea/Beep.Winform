@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
@@ -35,6 +36,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
 
         private readonly List<Timer> _activeAnimationTimers = new List<Timer>();
         private int _previousStepIndex = -1;
+
+        private readonly Dictionary<int, Control> _cachedPages = new Dictionary<int, Control>();
 
         #endregion
 
@@ -144,8 +147,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 Padding = new Padding(20, 15, 20, 15)
             };
 
-            // Content panel (fill)
-            _contentPanel = new Panel
+            // Content panel (fill) — uses BufferedPanel to eliminate flicker
+            _contentPanel = new BufferedPanel
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(30, 30, 30, 20)
@@ -264,58 +267,97 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 _btnSkip.Visible = currentStep?.IsOptional ?? false;
             }
 
-            // Get previous and new content controls
-            Control previousControl = _contentPanel.Controls.Count > 0 ? _contentPanel.Controls[0] : null;
-            Control newControl = currentStep?.Content;
+            // Get new content control — reuse cached if available
+            Control newControl = null;
             int currentIndex = _instance.CurrentStepIndex;
-
-            if (newControl != null)
+            if (currentIndex >= 0 && currentIndex < _instance.Config.Steps.Count)
             {
-                newControl.Dock = DockStyle.Fill;
+                if (!_cachedPages.TryGetValue(currentIndex, out newControl))
+                {
+                    newControl = currentStep?.Content;
+                    if (newControl != null)
+                        _cachedPages[currentIndex] = newControl;
+                }
+            }
 
+            if (newControl == null) return;
+
+            // Find currently visible page
+            Control previousControl = null;
+            for (int i = 0; i < _contentPanel.Controls.Count; i++)
+            {
+                var c = _contentPanel.Controls[i];
+                if (c.Visible)
+                {
+                    previousControl = c;
+                    break;
+                }
+            }
+
+            // Suspend layout to prevent cascading layout passes
+            _contentPanel.SuspendLayout();
+
+            try
+            {
+                // Subscribe to validation state changes first
                 if (newControl is IWizardStepContent stepContent)
                 {
                     stepContent.ValidationStateChanged -= StepContent_ValidationStateChanged;
                     stepContent.ValidationStateChanged += StepContent_ValidationStateChanged;
                 }
-            }
 
-            // Animate transition if enabled
-            bool shouldAnimate = WizardManager.EnableAnimations
-                && previousControl != null
-                && newControl != null
-                && previousControl != newControl
-                && _previousStepIndex >= 0;
-
-            if (shouldAnimate)
-            {
-                bool forward = currentIndex > _previousStepIndex;
-                previousControl.Dock = DockStyle.None;
-                previousControl.Size = _contentPanel.ClientSize;
-                newControl.Dock = DockStyle.None;
-                newControl.Size = _contentPanel.ClientSize;
-
-                _contentPanel.Controls.Clear();
-                _contentPanel.Controls.Add(previousControl);
-                _contentPanel.Controls.Add(newControl);
-
-                WizardHelpers.AnimateStepTransition(previousControl, newControl, forward, () =>
+                // Ensure the new control is parented
+                if (newControl.Parent != _contentPanel)
                 {
-                    _contentPanel.Controls.Clear();
-                    if (newControl != null)
-                    {
-                        newControl.Dock = DockStyle.Fill;
-                        _contentPanel.Controls.Add(newControl);
-                    }
-                }, _activeAnimationTimers);
-            }
-            else
-            {
-                _contentPanel.Controls.Clear();
-                if (newControl != null)
-                {
+                    newControl.Dock = DockStyle.Fill;
                     _contentPanel.Controls.Add(newControl);
                 }
+
+                // Animate transition if enabled
+                bool shouldAnimate = WizardManager.EnableAnimations
+                    && previousControl != null
+                    && newControl != null
+                    && previousControl != newControl
+                    && _previousStepIndex >= 0;
+
+                if (shouldAnimate)
+                {
+                    bool forward = currentIndex > _previousStepIndex;
+
+                    // Ensure both controls fill the panel and old one is DockStyle.None for bitmap capture
+                    previousControl.Dock = DockStyle.None;
+                    previousControl.Size = _contentPanel.ClientSize;
+                    previousControl.Visible = true;
+
+                    WizardHelpers.AnimateStepTransition(previousControl, newControl, forward, () =>
+                    {
+                        _contentPanel.SuspendLayout();
+                        try
+                        {
+                            // Hide all, show only the target
+                            for (int i = 0; i < _contentPanel.Controls.Count; i++)
+                                _contentPanel.Controls[i].Visible = false;
+                            newControl.Dock = DockStyle.Fill;
+                            newControl.Visible = true;
+                        }
+                        finally
+                        {
+                            _contentPanel.ResumeLayout(false);
+                        }
+                    }, _activeAnimationTimers);
+                }
+                else
+                {
+                    // Direct swap — toggle visibility
+                    for (int i = 0; i < _contentPanel.Controls.Count; i++)
+                        _contentPanel.Controls[i].Visible = false;
+                    newControl.Dock = DockStyle.Fill;
+                    newControl.Visible = true;
+                }
+            }
+            finally
+            {
+                _contentPanel.ResumeLayout(false);
             }
 
             _previousStepIndex = currentIndex;
@@ -346,7 +388,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
         public void ShowValidationError(WizardValidationResult result)
         {
             if (result == null || result.IsValid) return;
-            ShowValidationError(result.ErrorMessage ?? "Validation failed");
+
+            var msg = result.ErrorMessage ?? "Validation failed";
+            if (!string.IsNullOrEmpty(result.FieldName))
+                msg = result.FieldName + ": " + msg;
+            if (result.ErrorMessages?.Count > 1)
+                msg += " (+" + (result.ErrorMessages.Count - 1) + " more)";
+
+            ShowValidationError(msg);
         }
 
         public void HideValidationError()
@@ -533,6 +582,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Forms
                 timer?.Dispose();
             }
             _activeAnimationTimers.Clear();
+
+            // Clean up any animation overlay PictureBox left behind if form closed mid-animation
+            for (int i = _contentPanel.Controls.Count - 1; i >= 0; i--)
+            {
+                if (_contentPanel.Controls[i] is PictureBox pb)
+                {
+                    _contentPanel.Controls.RemoveAt(i);
+                    pb.Dispose();
+                }
+            }
+
+            // Unsubscribe from current step validation
+            for (int i = 0; i < _contentPanel.Controls.Count; i++)
+            {
+                if (_contentPanel.Controls[i] is IWizardStepContent stepContent)
+                    stepContent.ValidationStateChanged -= StepContent_ValidationStateChanged;
+            }
+
+            _cachedPages.Clear();
 
             WizardManager.UnregisterWizard(_instance.Config.Key);
             base.OnFormClosing(e);

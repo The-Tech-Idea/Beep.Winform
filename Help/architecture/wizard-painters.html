@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wizard Painters - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Wizard Painters</span></nav><div class="page-header"><h1>Wizard Painters</h1><p class="page-subtitle">Four wizard painters — VerticalStepper, HorizontalStepper, Minimal, Cards — each implementing IWizardPainter for rendering step indicators and navigation chrome</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#iwizardpainter">IWizardPainter Contract</a></li><li><a href="#verticalstepper">VerticalStepperPainter</a></li><li><a href="#horizontalstepper">HorizontalStepperPainter</a></li><li><a href="#minimal">MinimalPainter</a></li><li><a href="#cards">CardsPainter</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>Each wizard form type is paired with a corresponding painter class that handles all rendering concerns. Painters are obtained through the <code>WizardPainterFactory</code>, which maps <code>WizardStyle</code> enum values to painter implementations. Painters receive theme tokens, layout bounds, and step state data from their host form and render accordingly.</p><table><thead><tr><th>Painter</th><th>Style</th><th>Registration Key</th><th>Renders</th></tr></thead><tbody><tr><td><code>VerticalStepperPainter</code></td><td>VerticalStepper</td><td>"VerticalStepper"</td><td>Left sidebar, numbered circles with checkmarks, vertical connector lines, active/completed/upcoming step states</td></tr><tr><td><code>HorizontalStepperPainter</code></td><td>HorizontalStepper</td><td>"HorizontalStepper"</td><td>Top bar with connected step nodes, horizontal progress line, filled/outlined circle states</td></tr><tr><td><code>MinimalPainter</code></td><td>Minimal</td><td>"Minimal"</td><td>No step indicators — only navigation button bar with Back/Next/Cancel</td></tr><tr><td><code>CardsPainter</code></td><td>Cards</td><td>"Cards"</td><td>Card surface with drop shadow, step dot indicators, card enter/exit animation rendering</td></tr></tbody></table><pre><code class="language-csharp">public static class WizardPainterFactory
+{
+    private static readonly Dictionary&lt;WizardStyle, Func&lt;IWizardPainter&gt;&gt; _factories = new()
+    {
+        [WizardStyle.VerticalStepper] = () => new VerticalStepperPainter(),
+        [WizardStyle.HorizontalStepper] = () => new HorizontalStepperPainter(),
+        [WizardStyle.Minimal] = () => new MinimalPainter(),
+        [WizardStyle.Cards] = () => new CardsPainter()
+    };
+
+    public static IWizardPainter Create(WizardStyle style)
+    {
+        if (_factories.TryGetValue(style, out var factory))
+            return factory();
+        return new VerticalStepperPainter(); // fallback
+    }
+
+    public static void Register(WizardStyle style, Func&lt;IWizardPainter&gt; factory)
+    {
+        _factories[style] = factory;
+    }
+}</code></pre></section><section class="section" id="iwizardpainter"><h2>IWizardPainter Contract</h2><p>All wizard painters implement the <code>IWizardPainter</code> interface. The host form calls these methods in order: <code>Initialize</code> once at form creation, then <code>PaintStepIndicator</code>, <code>PaintConnector</code>, and <code>PaintNavigation</code> on each Paint cycle. The painter receives bounds and state data via properties set by the form before painting.</p><pre><code class="language-csharp">public interface IWizardPainter
+{
+    void Initialize(WizardForm form, IBeepTheme theme);
+    void PaintStepIndicator(Graphics g, int stepIndex, WizardStepState state, Rectangle bounds);
+    void PaintConnector(Graphics g, int fromStepIndex, int toStepIndex, WizardStepState fromState,
+        Rectangle bounds);
+    void PaintNavigation(Graphics g, WizardNavigationState navState, Rectangle bounds);
+    void PaintBackground(Graphics g, Rectangle bounds);
+}</code></pre><table><thead><tr><th>Method</th><th>When Called</th><th>Purpose</th></tr></thead><tbody><tr><td>Initialize(WizardForm, IBeepTheme)</td><td>Form constructor</td><td>Stores references to host form and theme. Prepares any reusable brushes, pens, fonts. Called once per form lifetime.</td></tr><tr><td>PaintStepIndicator(Graphics, int, WizardStepState, Rectangle)</td><td>OnPaint, per step</td><td>Renders a single step indicator: circle with number, checkmark if completed, highlighted if active, dimmed if upcoming. <code>stepIndex</code> is 0-based. <code>state</code> is Completed/Active/Upcoming/Error.</td></tr><tr><td>PaintConnector(Graphics, int, int, WizardStepState, Rectangle)</td><td>OnPaint, between steps</td><td>Renders the connector line between step indicators <code>fromStepIndex</code> and <code>toStepIndex</code>. The <code>fromState</code> determines if the line is solid (completed) or dashed (upcoming).</td></tr><tr><td>PaintNavigation(Graphics, WizardNavigationState, Rectangle)</td><td>OnPaint, nav bar</td><td>Renders navigation button bar with Back/Next/Cancel buttons respecting the current <code>WizardNavigationState</code> flags.</td></tr><tr><td>PaintBackground(Graphics, Rectangle)</td><td>OnPaint, first call</td><td>Renders the entire background of the indicator/step area. Called before individual step paints.</td></tr></tbody></table><p>The <code>WizardStepState</code> enum defines the visual state of each step indicator:</p><pre><code class="language-csharp">public enum WizardStepState
+{
+    Upcoming,    // Not yet reached — gray, dimmed
+    Active,      // Current step — theme accent color, bold
+    Completed,   // Completed successfully — green/checkmark
+    Error        // Completed with error — red/warning
+}</code></pre></section><section class="section" id="verticalstepper"><h2>VerticalStepperPainter</h2><p>Paints the left-side vertical stepper panel. Step indicators are rendered as numbered circles (stepIndex + 1) connected by vertical lines. Completed steps display a checkmark icon instead of the number. The active step uses the theme accent color with a bolder border stroke.</p><table><thead><tr><th>Aspect</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Circle radius</td><td>18px</td><td>VerticalStepperLayoutManager.StepCircleRadius</td></tr><tr><td>Vertical spacing</td><td>56px between centers</td><td>VerticalStepperLayoutManager.StepVerticalSpacing</td></tr><tr><td>Line width</td><td>3px</td><td>Constant</td></tr><tr><td>Completed circle fill</td><td>theme.StepperCompleteColor</td><td>IBeepTheme</td></tr><tr><td>Active circle border</td><td>theme.StepperActiveColor, 3px</td><td>IBeepTheme</td></tr><tr><td>Upcoming circle stroke</td><td>theme.StepperUpcomingColor, 2px</td><td>IBeepTheme</td></tr><tr><td>Completed line</td><td>Solid, theme.StepperCompleteColor</td><td>IBeepTheme</td></tr><tr><td>Upcoming line</td><td>Dashed, theme.StepperUpcomingColor</td><td>IBeepTheme</td></tr><tr><td>Font</td><td>theme.DefaultFont, 10pt, Bold for active</td><td>IBeepTheme</td></tr></tbody></table><pre><code class="language-csharp">public class VerticalStepperPainter : IWizardPainter
+{
+    private WizardForm _form;
+    private IBeepTheme _theme;
+
+    public void Initialize(WizardForm form, IBeepTheme theme)
+    {
+        _form = form;
+        _theme = theme;
+    }
+
+    public void PaintStepIndicator(Graphics g, int stepIndex, WizardStepState state, Rectangle bounds)
+    {
+        var center = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        int radius = 18;
+
+        using (var circleBrush = GetCircleBrush(state))
+        using (var circlePen = GetCirclePen(state))
+        using (var textBrush = GetTextBrush(state))
+        using (var font = GetStepFont(state))
+        {
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.FillEllipse(circleBrush, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+            g.DrawEllipse(circlePen, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+            if (state == WizardStepState.Completed)
+            {
+                DrawCheckmark(g, center, radius - 4);
+            }
+            else
+            {
+                string num = (stepIndex + 1).ToString();
+                var size = g.MeasureString(num, font);
+                g.DrawString(num, font, textBrush, center.X - size.Width / 2, center.Y - size.Height / 2);
+            }
+        }
+
+        // Draw step title label below the circle
+        if (stepIndex < _form.Config.Steps.Count)
+        {
+            var label = _form.Config.Steps[stepIndex].Title;
+            var labelBounds = new Rectangle(bounds.X, bounds.Y + radius * 2 + 8,
+                bounds.Width, bounds.Height - radius * 2 - 8);
+            using (var labelFont = state == WizardStepState.Active
+                ? new Font(_theme.DefaultFont, FontStyle.Bold) : new Font(_theme.DefaultFont, FontStyle.Regular))
+            {
+                var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
+                g.DrawString(label, labelFont, Brushes.Gray, labelBounds, sf);
+            }
+        }
+    }
+    // ...
+}</code></pre></section><section class="section" id="horizontalstepper"><h2>HorizontalStepperPainter</h2><p>Paints a top-bar horizontal step indicator. Steps are rendered as connected nodes: filled circles for completed, outlined with accent fill for active, and gray outlines for upcoming. A continuous horizontal line runs behind the circles. The line is solid and accent-colored up to the active step, then dashed and gray beyond it.</p><table><thead><tr><th>Aspect</th><th>Value</th><th>Description</th></tr></thead><tbody><tr><td>Circle radius</td><td>16px</td><td>Step node circle size</td></tr><tr><td>Line position</td><td>Center Y of step row</td><td>Runs through circle centers</td></tr><tr><td>Line thickness</td><td>4px</td><td>Horizontal progress bar</td></tr><tr><td>Node spacing</td><td>Equal distribution</td><td>Calculated as barWidth / (stepCount + 1)</td></tr><tr><td>Completed fill</td><td>theme.StepperCompleteColor</td><td>Solid filled circle</td></tr><tr><td>Active fill</td><td>theme.Background (white)</td><td>White circle with accent border</td></tr><tr><td>Active border</td><td>theme.StepperActiveColor, 3px</td><td>Thick accent stroke</td></tr><tr><td>Label position</td><td>Below each circle</td><td>Step title centered under node</td></tr><tr><td>Completed line</td><td>Solid, theme accent, 4px</td><td>From left edge to active step center</td></tr><tr><td>Upcoming line</td><td>Dashed, theme.StepperUpcomingColor, 2px</td><td>From active step center to right edge</td></tr></tbody></table><pre><code class="language-csharp">public class HorizontalStepperPainter : IWizardPainter
+{
+    public void PaintConnector(Graphics g, int fromStepIndex, int toStepIndex,
+        WizardStepState fromState, Rectangle bounds)
+    {
+        // The full horizontal line is painted once in PaintBackground,
+        // segmented by state: completed=solid/accent, upcoming=dashed/gray
+        var layout = (_form.LayoutManager as HorizontalStepperLayoutManager);
+        if (layout == null) return;
+
+        var centers = layout.StepNodeCenters;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        int lineY = centers[0].Y;
+        using (var completedPen = new Pen(_theme.StepperCompleteColor, 4))
+        using (var upcomingPen = new Pen(_theme.StepperUpcomingColor, 2)
+               { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash })
+        {
+            // Draw completed line up to active step
+            int activeIdx = _form.Config.CurrentStepIndex;
+            if (activeIdx > 0)
+                g.DrawLine(completedPen, centers[0].X, lineY, centers[activeIdx].X, lineY);
+
+            // Draw upcoming line from active step to end
+            if (activeIdx < centers.Length - 1)
+                g.DrawLine(upcomingPen, centers[activeIdx].X, lineY,
+                    centers[centers.Length - 1].X, lineY);
+        }
+    }
+
+    public void PaintStepIndicator(Graphics g, int stepIndex, WizardStepState state, Rectangle bounds)
+    {
+        var center = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        int radius = 16;
+
+        using (var fill = GetNodeBrush(state))
+        using (var border = GetNodePen(state))
+        {
+            if (state == WizardStepState.Completed)
+                g.FillEllipse(fill, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+            else
+                g.FillEllipse(Brushes.White, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+            g.DrawEllipse(border, center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+            if (state == WizardStepState.Completed)
+                DrawCheckmark(g, center, 8);
+            else
+            {
+                string num = (stepIndex + 1).ToString();
+                DrawCenteredText(g, num, state == WizardStepState.Active
+                    ? _theme.StepperActiveColor : _theme.StepperUpcomingColor, center);
+            }
+        }
+    }
+}</code></pre></section><section class="section" id="minimal"><h2>MinimalPainter</h2><p>The Minimal painter renders no step indicators — only the navigation button bar. It provides the cleanest possible wizard experience, suitable for simple 2-3 step flows where step indicators add unnecessary visual noise. The nav bar is painted with theme-consistent colors for Back, Next/Cancel buttons.</p><pre><code class="language-csharp">public class MinimalPainter : IWizardPainter
+{
+    public void PaintStepIndicator(Graphics g, int stepIndex, WizardStepState state, Rectangle bounds)
+    {
+        // No step indicators rendered — intentional no-op
+    }
+
+    public void PaintConnector(Graphics g, int fromStepIndex, int toStepIndex,
+        WizardStepState fromState, Rectangle bounds)
+    {
+        // No connectors — intentional no-op
+    }
+
+    public void PaintNavigation(Graphics g, WizardNavigationState navState, Rectangle bounds)
+    {
+        // Draw border separating nav bar from content
+        using (var borderPen = new Pen(_theme.BorderColor))
+            g.DrawLine(borderPen, bounds.X, bounds.Y, bounds.X + bounds.Width, bounds.Y);
+
+        // Navigation buttons are actual WinForms buttons positioned by the layout manager.
+        // The painter only renders the bar background and separator line.
+        using (var bgBrush = new SolidBrush(_theme.StatusBarBackColor))
+            g.FillRectangle(bgBrush, bounds);
+    }
+
+    public void PaintBackground(Graphics g, Rectangle bounds)
+    {
+        using (var bgBrush = new SolidBrush(_theme.BackgroundColor))
+            g.FillRectangle(bgBrush, bounds);
+    }
+}</code></pre><table><thead><tr><th>Painted Element</th><th>Color Source</th></tr></thead><tbody><tr><td>Form background</td><td>theme.BackgroundColor</td></tr><tr><td>Nav bar background</td><td>theme.StatusBarBackColor</td></tr><tr><td>Nav bar separator line</td><td>theme.BorderColor, 1px solid</td></tr><tr><td>Back button (WinForms)</td><td>theme.ButtonBackColor / theme.ButtonBorderColor</td></tr><tr><td>Next/Finish button (WinForms)</td><td>theme.ButtonBackColor / theme.ButtonBorderColor (PrimaryButton variant)</td></tr><tr><td>Cancel button (WinForms)</td><td>theme.ButtonBackColor (ghost/outline style)</td></tr></tbody></table></section><section class="section" id="cards"><h2>CardsPainter</h2><p>Paints card-based wizard transitions. The card surface is a rounded rectangle with a drop shadow. Step position is indicated by dot indicators below the card. The painter works with the animation engine to render enter/exit animations: slide, fade, or flip transitions.</p><table><thead><tr><th>Aspect</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Card corner radius</td><td>theme.BorderRadius (typically 8–12px)</td><td>IBeepTheme</td></tr><tr><td>Card background</td><td>theme.CardBackColor (or theme.BackgroundColor)</td><td>IBeepTheme</td></tr><tr><td>Card border</td><td>theme.CardBorderColor, 1px</td><td>IBeepTheme</td></tr><tr><td>Drop shadow</td><td>4px blur, 2px offset, 30% opacity black</td><td>Hard-coded graphics path</td></tr><tr><td>Dot size</td><td>10px diameter</td><td>Constant</td></tr><tr><td>Dot spacing</td><td>16px center-to-center</td><td>Constant</td></tr><tr><td>Active dot color</td><td>theme.StepperActiveColor</td><td>IBeepTheme</td></tr><tr><td>Completed dot color</td><td>theme.StepperCompleteColor</td><td>IBeepTheme</td></tr><tr><td>Upcoming dot color</td><td>theme.StepperUpcomingColor</td><td>IBeepTheme</td></tr><tr><td>Transition types</td><td>SlideRight, SlideLeft, Fade, FlipHorizontal, FlipVertical</td><td>WizardAnimationType enum</td></tr></tbody></table><pre><code class="language-csharp">public class CardsPainter : IWizardPainter
+{
+    private WizardForm _form;
+    private IBeepTheme _theme;
+    private GraphicsPath _cardPath;
+    private GraphicsPath _shadowPath;
+
+    public void PaintBackground(Graphics g, Rectangle bounds)
+    {
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        // Draw drop shadow (using shadow path offset by 2px)
+        using (var shadowBrush = new SolidBrush(Color.FromArgb(77, 0, 0, 0)))
+        {
+            var shadowBounds = new Rectangle(bounds.X + 2, bounds.Y + 2,
+                bounds.Width - 4, bounds.Height - 4);
+            _shadowPath = GetRoundedRect(shadowBounds, _theme.BorderRadius);
+            g.FillPath(shadowBrush, _shadowPath);
+        }
+
+        // Draw card surface
+        var cardBounds = new Rectangle(bounds.X, bounds.Y,
+            bounds.Width - 4, bounds.Height - 4);
+        _cardPath = GetRoundedRect(cardBounds, _theme.BorderRadius);
+
+        using (var cardBrush = new SolidBrush(_theme.CardBackColor))
+        using (var cardPen = new Pen(_theme.CardBorderColor))
+        {
+            g.FillPath(cardBrush, _cardPath);
+            g.DrawPath(cardPen, _cardPath);
+        }
+
+        // Draw step dots below card
+        DrawStepDots(g, cardBounds);
+    }
+
+    private void DrawStepDots(Graphics g, Rectangle cardBounds)
+    {
+        int dotY = cardBounds.Bottom + 24;
+        int totalSteps = _form.Config.Steps.Count;
+        int totalWidth = totalSteps * 10 + (totalSteps - 1) * 6;
+        int startX = cardBounds.X + (cardBounds.Width - totalWidth) / 2;
+
+        for (int i = 0; i < totalSteps; i++)
+        {
+            int x = startX + i * 16;
+            var state = GetStepState(i);
+            Color dotColor = state switch
+            {
+                WizardStepState.Completed => _theme.StepperCompleteColor,
+                WizardStepState.Active => _theme.StepperActiveColor,
+                _ => _theme.StepperUpcomingColor
+            };
+
+            using (var dotBrush = new SolidBrush(dotColor))
+                g.FillEllipse(dotBrush, x, dotY, 10, 10);
+        }
+    }
+
+    private GraphicsPath GetRoundedRect(Rectangle rect, int radius)
+    {
+        var path = new GraphicsPath();
+        int d = radius * 2;
+        path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+        path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+        path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+        return path;
+    }
+}</code></pre><p>Card transition animation types supported by the engine:</p><table><thead><tr><th>Animation Type</th><th>Enum Value</th><th>Visual Effect</th></tr></thead><tbody><tr><td>Slide to the right</td><td>SlideRight</td><td>New card slides in from right, old slides out left</td></tr><tr><td>Slide to the left</td><td>SlideLeft</td><td>New card slides in from left, old slides out right</td></tr><tr><td>Cross-fade</td><td>Fade</td><td>Old card fades out, new card fades in simultaneously (opacity lerp)</td></tr><tr><td>Flip horizontal</td><td>FlipHorizontal</td><td>Card rotates 180° on Y axis — back face shows old content, front face shows new</td></tr><tr><td>Flip vertical</td><td>FlipVertical</td><td>Card rotates 180° on X axis</td></tr></tbody></table></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Style selection — the factory creates the right painter automatically
+var config = new WizardConfig
+{
+    Style = WizardStyle.VerticalStepper,
+    // ...steps, etc.
+};
+// Internally: painter = WizardPainterFactory.Create(WizardStyle.VerticalStepper)
+// which returns new VerticalStepperPainter()
+
+// Change style programmatically
+config.Style = WizardStyle.HorizontalStepper;
+// Now uses HorizontalStepperPainter
+
+// Register a custom painter
+WizardPainterFactory.Register(WizardStyle.VerticalStepper, () => new CustomStepperPainter());
+// All VerticalStepper wizards now use CustomStepperPainter
+
+// Custom painter example — subclass and override rendering
+public class CustomStepperPainter : VerticalStepperPainter
+{
+    protected override void DrawCheckmark(Graphics g, Point center, int size)
+    {
+        // Custom checkmark with star instead
+        using (var pen = new Pen(Color.Gold, 3))
+        {
+            DrawStar(g, pen, center, size);
+        }
+    }
+}
+
+// Access painter for direct manipulation
+var form = WizardManager.GetWizard("my-wizard").FormHost as VerticalStepperWizardForm;
+var painter = form.Painter as VerticalStepperPainter;
+// painter now accessible for custom tweaks (rarely needed)</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

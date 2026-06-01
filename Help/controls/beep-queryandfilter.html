@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepQueryandFilter - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+<button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+<div class="container"><div id="sidebar-placeholder"></div>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#data-controls">Data Controls</a><span>&rsaquo;</span><span>BeepQueryandFilter</span></nav>
+<div class="page-header"><h1>BeepQueryandFilter</h1><p class="page-subtitle">Dynamic query builder that auto-generates filter controls from entity structure metadata</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+<li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li>
+<li><a href="#field-type-mapping">Field Type Mapping</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#architecture">Architecture</a></li>
+</ul></div>
+
+<section id="overview" class="section"><h2>Overview</h2>
+<p><strong>BeepQueryandFilter</strong> is a data-aware control that dynamically generates filter input fields from an <code>EntityStructure</code> definition. It creates appropriate input controls (<code>TextBox</code>, <code>NumericUpDown</code>, <code>DateTimePicker</code>, <code>CheckBox</code>) for each field, supports range queries for numeric and date types, and provides a submit button that returns a list of <code>AppFilter</code> objects.</p>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code> &nbsp;|&nbsp; <strong>Inheritance:</strong> <code>Component → Control → BaseControl → BeepQueryandFilter</code></p>
+<p><strong>Toolbox:</strong> <code>Category("Data")</code>, <code>DisplayName("Beep Query and Filter")</code></p>
+</section>
+
+<section id="features" class="section"><h2>Key Features</h2>
+<ul>
+<li><strong>Automatic control generation</strong> — Creates label + input pairs for every field in an <code>EntityStructure</code></li>
+<li><strong>Type-aware inputs</strong> — Generates <code>DateTimePicker</code> for dates, <code>NumericUpDown</code> for numbers, <code>CheckBox</code> for booleans, <code>TextBox</code> for everything else</li>
+<li><strong>Range query support</strong> — Numeric and date fields get both "from" and "to" inputs for range filtering</li>
+<li><strong>Submit event</strong> — Clicking the Submit button triggers <code>SubmitClicked</code> with the completed filter data</li>
+<li><strong>AppFilter extraction</strong> — <code>GetFilters()</code> reads all input values and returns typed <code>AppFilter</code> objects</li>
+<li><strong>Layout-managed</strong> — Uses a 3-column <code>TableLayoutPanel</code> (label, from-input, to-input) with auto-scroll</li>
+</ul></section>
+
+<section id="methods" class="section"><h2>Methods</h2>
+<table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>CreateQueryControls</code></td><td><code>void CreateQueryControls(EntityStructure entityStructure)</code></td><td>Clears all existing controls and generates a new set of label/input pairs from the entity structure fields.</td></tr>
+<tr><td><code>GetFilters</code></td><td><code>List&lt;AppFilter&gt; GetFilters()</code></td><td>Reads values from all input controls and returns a list of populated <code>AppFilter</code> objects with <code>FilterValue</code> (from) and <code>FilterValue1</code> (to) set.</td></tr>
+</tbody></table>
+</section>
+
+<section id="events" class="section"><h2>Events</h2>
+<table><thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>SubmitClicked</code></td><td>Raised when the user clicks the Submit button. Call <code>GetFilters()</code> in the handler to retrieve filter values.</td></tr>
+</tbody></table>
+</section>
+
+<section id="field-type-mapping" class="section"><h2>Field Type Mapping</h2>
+<table><thead><tr><th>EntityField Type</th><th>Input Control</th><th>Range Supported</th></tr></thead><tbody>
+<tr><td><code>DateTime</code></td><td><code>DateTimePicker</code> (Short format)</td><td>Yes</td></tr>
+<tr><td><code>int</code></td><td><code>NumericUpDown</code> (0 decimal places)</td><td>Yes</td></tr>
+<tr><td><code>decimal</code></td><td><code>NumericUpDown</code> (2 decimal places)</td><td>Yes</td></tr>
+<tr><td><code>double</code></td><td><code>NumericUpDown</code> (2 decimal places)</td><td>Yes</td></tr>
+<tr><td><code>float</code></td><td><code>NumericUpDown</code> (2 decimal places)</td><td>Yes</td></tr>
+<tr><td><code>bool</code></td><td><code>CheckBox</code></td><td>No</td></tr>
+<tr><td>All other types</td><td><code>TextBox</code> (150px wide)</td><td>No</td></tr>
+</tbody></table>
+</section>
+
+<section id="examples" class="section"><h2>Examples</h2>
+<h3>Generating Filter Controls</h3>
+<pre><code class="language-csharp">var queryFilter = new BeepQueryandFilter();
+
+var entity = new EntityStructure {
+    Fields = new List&lt;EntityField&gt; {
+        new EntityField { FieldName = "ProductName", Fieldtype = "System.String" },
+        new EntityField { FieldName = "Price", Fieldtype = "System.Decimal" },
+        new EntityField { FieldName = "OrderDate", Fieldtype = "System.DateTime" },
+        new EntityField { FieldName = "IsActive", Fieldtype = "System.Boolean" }
+    }
+};
+
+// Creates: TextBox for ProductName, NumericUpDown (from/to) for Price,
+// DateTimePicker (from/to) for OrderDate, CheckBox for IsActive
+queryFilter.CreateQueryControls(entity);</code></pre>
+
+<h3>Retrieving Filter Values</h3>
+<pre><code class="language-csharp">var queryFilter = new BeepQueryandFilter();
+queryFilter.CreateQueryControls(myEntityStructure);
+
+queryFilter.SubmitClicked += (s, e) =&gt; {
+    List&lt;AppFilter&gt; filters = queryFilter.GetFilters();
+    foreach (var filter in filters)
+    {
+        if (!string.IsNullOrEmpty(filter.FilterValue))
+            Console.WriteLine($"{filter.FieldName}: {filter.FilterValue} - {filter.FilterValue1}");
+    }
+    // Apply filters to data source
+    ExecuteFilteredQuery(filters);
+};</code></pre>
+
+<h3>Programmatic Layout Integration</h3>
+<pre><code class="language-csharp">// Dock in a panel for form integration
+var queryFilter = new BeepQueryandFilter {
+    Dock = DockStyle.Top,
+    AutoSize = true
+};
+queryFilter.CreateQueryControls(myEntityStructure);
+this.Controls.Add(queryFilter);</code></pre>
+</section>
+
+<section id="architecture" class="section"><h2>Architecture</h2>
+<p><code>BeepQueryandFilter</code> extends <code>BaseControl</code> and is lightweight with no public properties beyond base control theming. It maintains an internal <code>List&lt;AppFilter&gt; Filters</code> collection and a 3-column <code>TableLayoutPanel</code> that hosts dynamically created controls. The Submit button is added at the bottom of the layout with a column span of 2. Each input control's <code>Tag</code> property stores a tuple <code>(AppFilter, bool isFrom)</code> for later value extraction in <code>GetFilters()</code>.</p>
+<p>The control is declared at <code>TheTechIdea.Beep.Winform.Controls.BeepQueryandFilter</code> with <code>[ToolboxItem(true)]</code> and <code>[Category("Data")]</code> for discoverability in the Visual Studio toolbox.</p>
+</section>
+
+<footer class="documentation-footer"><p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p></footer>
+</div></main></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="../script.js"></script>
+</body></html>

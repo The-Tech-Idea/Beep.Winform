@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart Axis & Legend - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Chart Axis &amp; Legend</span></nav>
+<div class="page-header"><h1>Chart Axis &amp; Legend</h1><p class="page-subtitle">CartesianAxisPainter — numeric/date/text tick rendering with auto-granularity, plus RightSideLegendPainter for interactive series toggling</p></div>
+
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#contract">IChartAxisPainter Contract</a></li>
+<li><a href="#axislayout">AxisLayout Data Class</a></li>
+<li><a href="#cartesian">CartesianAxisPainter</a></li>
+<li><a href="#ticks">Tick Rendering</a></li>
+<li><a href="#date">Date Granularity</a></li>
+<li><a href="#rotation">Label Rotation &amp; Density</a></li>
+<li><a href="#legend">RightSideLegendPainter</a></li>
+<li><a href="#grid">Grid Lines</a></li>
+<li><a href="#examples">Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Charts</code><br>
+<strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code></p>
+<p>The chart axis and legend subsystem consists of two independent components that operate within the shared painting pipeline. <strong>CartesianAxisPainter</strong> handles X/Y axis line drawing, tick mark computation, label rendering, and grid line projection. <strong>RightSideLegendPainter</strong> renders a compact interactive legend that allows users to toggle series visibility and isolate individual series. Both implement internal interfaces (<code>IChartAxisPainter</code> and <code>IChartLegendPainter</code>) and receive configuration from the <code>AxisLayout</code> data class.</p></section>
+
+<section class="section" id="contract"><h2>IChartAxisPainter Contract</h2>
+<p>Defines three methods for the axis rendering lifecycle:</p>
+<pre><code class="language-csharp">internal interface IChartAxisPainter
+{
+    AxisLayout AdjustPlotRect(Graphics g, AxisLayout axisCtx);
+    void DrawAxes(Graphics g, AxisLayout axisCtx);
+    void DrawTicks(Graphics g, AxisLayout axisCtx);
+}</code></pre>
+<table><thead><tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>AdjustPlotRect</strong></td><td><code>Graphics g, AxisLayout axisCtx</code></td><td>Computes the <code>PlotRect</code> by subtracting margins (48px default on all sides) from the <code>Bounds</code> rectangle. Returns the modified <code>AxisLayout</code> with updated PlotRect. Called before any drawing to establish the coordinate space.</td></tr>
+<tr><td><strong>DrawAxes</strong></td><td><code>Graphics g, AxisLayout axisCtx</code></td><td>Renders the X and Y axis lines along the edges of the plot rectangle. Draws axis titles (rotated 90° for Y-axis) with theme-aware colors. Axis line width is 1px by default, color from <code>AxisColor</code>.</td></tr>
+<tr><td><strong>DrawTicks</strong></td><td><code>Graphics g, AxisLayout axisCtx</code></td><td>Computes tick positions and renders tick marks with labels. Dispatches to specialized renderers based on axis type: <code>DrawNumericTicks</code>, <code>DrawDateTicks</code>, or <code>DrawTextTicks</code>. Also renders grid lines if <code>ShowGrid = true</code>.</td></tr>
+</tbody></table>
+<h3>IChartLegendPainter Contract</h3>
+<pre><code class="language-csharp">internal interface IChartLegendPainter
+{
+    void DrawLegend(Graphics g, Rectangle chartRect,
+        List&lt;ChartDataSeries&gt; series, List&lt;Color&gt; palette,
+        Font font, Color textColor, Color backColor,
+        Color shapeColor, BaseControl owner,
+        Action&lt;int&gt; onToggleSeries, LegendPlacement placement,
+        bool showLegend, int hiddenCount);
+}</code></pre>
+<table><thead><tr><th>Parameter</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>onToggleSeries</code></td><td>Callback invoked with series index when a legend item is clicked. The chart handles visibility toggling.</td></tr>
+<tr><td><code>placement</code></td><td><code>LegendPlacement</code> enum: <code>Right</code> (default), <code>Bottom</code>, <code>Top</code>, or <code>Left</code>. Controls legend panel position relative to the chart.</td></tr>
+<tr><td><code>showLegend</code></td><td>Master visibility flag. When false, the legend is not rendered at all.</td></tr>
+<tr><td><code>hiddenCount</code></td><td>Number of currently hidden series, used to draw crossed-out indicators.</td></tr>
+</tbody></table></section>
+
+<section class="section" id="axislayout"><h2>AxisLayout Data Class</h2>
+<p>The <code>AxisLayout</code> class is the primary data transfer object between the chart control and the axis painter. It carries all axis-related configuration and computed state:</p>
+<table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Bounds</strong></td><td><code>Rectangle</code></td><td>Total available rectangle for the chart (including margins). Set from the chart's <code>ChartDrawingRect</code>.</td></tr>
+<tr><td><strong>PlotRect</strong></td><td><code>Rectangle</code></td><td>Inner rectangle where data is plotted (margins subtracted). Computed by <code>AdjustPlotRect</code>.</td></tr>
+<tr><td><strong>BottomAxisType</strong></td><td><code>AxisType</code></td><td>X-axis data type: <code>Numeric</code>, <code>Date</code>, or <code>Text</code>. Detected by <code>BeepChartDataHelper</code>.</td></tr>
+<tr><td><strong>LeftAxisType</strong></td><td><code>AxisType</code></td><td>Y-axis data type. Nearly always <code>Numeric</code> in practice.</td></tr>
+<tr><td><strong>XMin / XMax</strong></td><td><code>float</code></td><td>Current X-axis data range (may differ from data range due to viewport zoom).</td></tr>
+<tr><td><strong>YMin / YMax</strong></td><td><code>float</code></td><td>Current Y-axis data range.</td></tr>
+<tr><td><strong>XTitle / YTitle</strong></td><td><code>string</code></td><td>Axis title labels. Usually <code>XAxisTitle</code> / <code>YAxisTitle</code> chart properties.</td></tr>
+<tr><td><strong>XLabelAngle / YLabelAngle</strong></td><td><code>float</code></td><td>Rotation angle in degrees for tick labels (0 = horizontal, 90 = vertical, -45 = slanted).</td></tr>
+<tr><td><strong>AxisColor</strong></td><td><code>Color</code></td><td>Color for axis lines, tick marks, and title text. From <code>ChartAxisColor</code> theme token.</td></tr>
+<tr><td><strong>GridLineColor</strong></td><td><code>Color</code></td><td>Color for grid lines extending from tick marks throughout the plot area.</td></tr>
+<tr><td><strong>XAxisDateMin</strong></td><td><code>DateTime</code></td><td>Epoch/reference date for date axis calculations. Used as the zero-point for day-offset computation.</td></tr>
+<tr><td><strong>XCategories</strong></td><td><code>Dictionary&lt;string,int&gt;</code></td><td>Category-to-index mapping for <code>Text</code> axis types. Populated by <code>BeepChartDataHelper</code>.</td></tr>
+<tr><td><strong>ShowGrid</strong></td><td><code>bool</code></td><td>Master flag enabling grid line rendering. Tied to chart <code>ShowGrid</code> property.</td></tr>
+<tr><td><strong>MaxVisibleAxisLabels</strong></td><td><code>int</code></td><td>Maximum number of visible tick labels per axis (default 10). Exceeding this triggers label thinning.</td></tr>
+<tr><td><strong>DenseLabelOptimization</strong></td><td><code>bool</code></td><td>When true, the painter skips labels that would overlap with neighbors (pixel-based collision detection).</td></tr>
+</tbody></table></section>
+
+<section class="section" id="cartesian"><h2>CartesianAxisPainter</h2>
+<p>The sole concrete implementation of <code>IChartAxisPainter</code>. It performs a three-phase rendering pipeline on every paint:</p>
+<pre><code class="language-plaintext">Paint() cycle:
+  1. AdjustPlotRect(g, axisCtx)
+     - Compute 48px margins from Bounds
+     - Set PlotRect = Bounds with inset margins
+     - Account for Y-axis title width (rotated text)
+     - Return updated AxisLayout
+
+  2. DrawAxes(g, axisCtx)
+     - Draw X-axis line: (PlotRect.Left, PlotRect.Bottom) to (PlotRect.Right, PlotRect.Bottom)
+     - Draw Y-axis line: (PlotRect.Left, PlotRect.Top) to (PlotRect.Left, PlotRect.Bottom)
+     - Draw XTitle centered below bottom margin
+     - Draw YTitle rotated -90° left of left margin
+
+  3. DrawTicks(g, axisCtx)
+     - Dispatch to NumericTicks / DateTicks / TextTicks based on BottomAxisType
+     - Render tick marks (5px lines outward from axis)
+     - Render tick labels with rotation angle and density optimization
+     - Render grid lines if ShowGrid=true (faint lines across plot rect)</code></pre>
+<p>The <strong>48px margin</strong> is a shared constant from <code>ChartPainterMetrics</code> and provides room for axis titles (14px), tick labels (12px), tick marks (5px), and a small buffer. The Y-axis title is rotated -90° and drawn using <code>Graphics.Transform</code> with a <code>Matrix.RotateAt</code> call.</p></section>
+
+<section class="section" id="ticks"><h2>Tick Rendering</h2>
+<p>Tick computation and rendering is the most complex part of the axis system, with three distinct algorithms.</p>
+<h3>NumericTicks</h3>
+<p>The numeric tick renderer computes "nice" step sizes using a standard algorithm that selects from the sequence: <strong>1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, ...</strong> and their fractional equivalents (0.1, 0.01, etc.). The goal is to produce readable, round-numbered ticks without excessive decimal places.</p>
+<pre><code class="language-csharp">// Nice step size calculation:
+float range = yMax - yMin;
+float roughStep = range / (targetTicks - 1);
+float exponent = (float)Math.Floor(Math.Log10(roughStep));
+float fraction = roughStep / (float)Math.Pow(10, exponent);
+
+float niceFraction;
+if (fraction < 1.5) niceFraction = 1;
+else if (fraction < 3.5) niceFraction = 2;
+else if (fraction < 7.5) niceFraction = 5;
+else niceFraction = 10;
+
+float niceStep = niceFraction * (float)Math.Pow(10, exponent);
+
+// Generate ticks at niceStep intervals
+float tickMin = (float)Math.Ceiling(yMin / niceStep) * niceStep;
+float tickMax = (float)Math.Floor(yMax / niceStep) * niceStep;
+for (float v = tickMin; v <= tickMax; v += niceStep)
+    DrawTick(g, axisCtx, v, format: v >= 1000 ? $"{v/1000:F1}k" : $"{v:F0}");</code></pre>
+
+<h3>DateTicks</h3>
+<p>The date tick renderer selects a granularity level based on the total time span of the visible data range. Ticks are always drawn at logical calendar boundaries (start of hour, start of day, 1st of month, Jan 1st).</p>
+
+<h3>TextTicks</h3>
+<p>For categorical (text) axes, labels are drawn centered in each category column. Each entry in the <code>XCategories</code> dictionary is rendered at the X position corresponding to its integer index. The label text is the dictionary key (the category name).</p>
+<pre><code class="language-csharp">foreach (var kvp in axisCtx.XCategories.OrderBy(k => k.Value))
+{
+    float x = PlotRect.Left + (kvp.Value - xMin) / (xMax - xMin) * PlotRect.Width;
+    float colWidth = PlotRect.Width / (xMax - xMin + 1);
+    float labelX = x + colWidth / 2f;
+
+    // Draw tick mark
+    g.DrawLine(axisPen, labelX, PlotRect.Bottom, labelX, PlotRect.Bottom + 5);
+
+    // Draw label centered under column
+    SizeF size = g.MeasureString(kvp.Key, tickFont);
+    g.DrawString(kvp.Key, tickFont, axisBrush,
+        labelX - size.Width / 2f, PlotRect.Bottom + 6);
+}</code></pre></section>
+
+<section class="section" id="date"><h2>Date Granularity</h2>
+<p>The date granularity algorithm maps the total time span to an appropriate tick interval. Each span range selects a specific interval and display format:</p>
+<table><thead><tr><th>Time Range</th><th>Granularity</th><th>Interval</th><th>Label Format</th></tr></thead><tbody>
+<tr><td><strong>&lt; 1 hour</strong></td><td>Minutes</td><td>5-15 min</td><td><code>"HH:mm"</code></td></tr>
+<tr><td><strong>&lt; 24 hours</strong></td><td>Hours</td><td>1-3 hours</td><td><code>"HH:mm"</code> or <code>"h tt"</code></td></tr>
+<tr><td><strong>&lt; 7 days</strong></td><td>Hours</td><td>6 hours</td><td><code>"ddd HH:mm"</code></td></tr>
+<tr><td><strong>&lt; 30 days</strong></td><td>Days</td><td>2 days</td><td><code>"MMM dd"</code></td></tr>
+<tr><td><strong>&lt; 365 days</strong></td><td>Months</td><td>2 months</td><td><code>"MMM yyyy"</code></td></tr>
+<tr><td><strong>&gt;= 1 year</strong></td><td>Years</td><td>1 year</td><td><code>"yyyy"</code></td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Date granularity resolution in CartesianAxisPainter.DrawDateTicks:
+TimeSpan span = maxDate - minDate;
+string format;
+TimeSpan interval;
+
+if (span.TotalHours < 1)       { interval = TimeSpan.FromMinutes(10); format = "HH:mm"; }
+else if (span.TotalHours < 24) { interval = TimeSpan.FromHours(1);     format = "HH:mm"; }
+else if (span.TotalDays < 7)   { interval = TimeSpan.FromHours(6);     format = "ddd HH:mm"; }
+else if (span.TotalDays < 30)  { interval = TimeSpan.FromDays(2);      format = "MMM dd"; }
+else if (span.TotalDays < 365) { interval = TimeSpan.FromDays(30);     format = "MMM"; }
+else                           { interval = TimeSpan.FromDays(365);    format = "yyyy"; }
+
+DateTime current = CeilDateTime(minDate, interval);
+while (current <= maxDate)
+{
+    float xPos = PlotRect.Left +
+        (float)((current - minDate).TotalDays / span.TotalDays) * PlotRect.Width;
+    DrawTickAt(g, xPos, current.ToString(format));
+    current += interval;
+}</code></pre>
+<p>The <code>XTimeGranularity</code> property (Nullable&lt;TimeSpan&gt;) allows manual override of the automatic granularity. Set to override the computed <code>interval</code>. <code>YTimeGranularity</code> works identically for potential time-valued Y axes (rare).</p></section>
+
+<section class="section" id="rotation"><h2>Label Rotation &amp; Density</h2>
+<p>When tick labels are too dense to render without overlap, the painter applies optimization strategies:</p>
+<ul>
+<li><strong>XLabelAngle / YLabelAngle</strong> — Properties controlling label rotation. <code>XLabelAngle = -45</code> slants labels to save horizontal space (common for date axes). <code>YLabelAngle</code> defaults to 0. Rotation is applied via <code>Graphics.RotateTransform</code>.</li>
+<li><strong>DenseLabelOptimization</strong> — When enabled, the painter measures each label's width before drawing and skips labels whose bounding rectangle would overlap the previous label's rectangle. A 2px minimum gap is enforced.</li>
+<li><strong>MaxVisibleAxisLabels</strong> — Maximum labels on a single axis (default 10). When the tick count exceeds this, the painter skips every Nth tick using the formula: <code>skipFactor = Ceil(tickCount / maxLabels)</code>.</li>
+<li><strong>Label Size Caching</strong> — The painter caches measured <code>SizeF</code> values per string per font to avoid repeated <code>MeasureString</code> calls in dense tick scenarios.</li>
+</ul>
+<pre><code class="language-csharp">// Dense label collision avoidance:
+float lastLabelRight = float.MinValue;
+for (int i = 0; i < ticks.Count; i++)
+{
+    float xPos = ticks[i].Position;
+    SizeF labelSize = g.MeasureString(ticks[i].Label, tickFont);
+
+    if (xPos - labelSize.Width / 2f > lastLabelRight + 2f)
+    {
+        DrawRotatedLabel(g, ticks[i].Label, xPos, yPos, angle, tickFont, brush);
+        lastLabelRight = xPos + labelSize.Width / 2f;
+    }
+    // else: skip this label to avoid overlap
+}</code></pre></section>
+
+<section class="section" id="legend"><h2>RightSideLegendPainter</h2>
+<p>Implements <code>IChartLegendPainter</code>. Renders a compact, interactive legend panel:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Color Squares</strong></td><td>Each legend entry shows a 12x12px filled square in the series color, followed by the series name text. Colors cycle through <code>ChartDefaultSeriesColors</code> palette.</td></tr>
+<tr><td><strong>Series Toggle</strong></td><td>Clicking a legend entry fires the <code>onToggleSeries(int)</code> callback. The chart responds by toggling the corresponding series' visibility (<code>IsVisible</code> property). This triggers a repaint.</td></tr>
+<tr><td><strong>Hidden Crossed-Out</strong></td><td>Hidden series are rendered with a strikethrough line across the color square and faded text (50% alpha). This provides immediate visual feedback about which series are hidden.</td></tr>
+<tr><td><strong>EnableLegendIsolate</strong></td><td>When enabled, clicking a visible legend entry isolates that series (hides all others). Clicking again restores all series. This is a shortcut for toggling all-but-one series. The <code>SeriesIsolationChanged</code> event fires on isolation.</td></tr>
+<tr><td><strong>Overflow Scrolling</strong></td><td>If the number of series exceeds the available vertical space, a scroll offset is tracked and scroll indicators (arrows) are drawn at top/bottom.</td></tr>
+<tr><td><strong>Legend Placement</strong></td><td>Configured via <code>LegendPlacement</code> enum. <code>Right</code> (default): panel vertically on right side. <code>Bottom</code>: horizontal strip below chart. <code>Top</code>: horizontal strip above title. <code>Left</code>: vertical strip on left side.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Legend item rendering (simplified):
+float yOffset = startY;
+for (int i = 0; i < series.Count; i++)
+{
+    if (!series[i].IsVisible)
+    {
+        // Draw crossed-out, faded entry
+        g.DrawLine(strikethroughPen, startX, yOffset + 6, startX + 12, yOffset + 6);
+        g.DrawString(series[i].SeriesName, font, fadedBrush, startX + 16, yOffset);
+    }
+    else
+    {
+        g.FillRectangle(new SolidBrush(palette[i]), startX, yOffset, 12, 12);
+        g.DrawString(series[i].SeriesName, font, textBrush, startX + 16, yOffset);
+        seriesRects[i] = new Rectangle(startX, yOffset, itemWidth, itemHeight);
+    }
+    yOffset += itemHeight + 4;
+}
+
+// Hit test on click:
+for (int i = 0; i < seriesRects.Length; i++)
+    if (seriesRects[i].Contains(mousePoint))
+        onToggleSeries?.Invoke(i);</code></pre></section>
+
+<section class="section" id="grid"><h2>Grid Lines</h2>
+<p>Grid lines extend from each tick mark vertically or horizontally across the plot rectangle. They provide visual reference for data values against the axis scales.</p>
+<table><thead><tr><th>Property</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>ShowGrid</strong></td><td>Master toggle for grid lines. Default <code>true</code>. When false, only tick marks are drawn.</td></tr>
+<tr><td><strong>GridLineColor</strong></td><td>Color of grid lines, typically a very light gray (e.g. <code>#E0E0E0</code> or theme-derived). Tied to <code>ChartGridLineColor</code> property.</td></tr>
+<tr><td><strong>Optimized Density</strong></td><td>Grid line density is automatically reduced when the chart has many data points or a small plot area. <code>BeepChartPerformanceHelper.OptimizeGridDensity(size, zoom)</code> determines the skip count for grid lines. The painter then draws every Nth horizontal and vertical grid line.</td></tr>
+<tr><td><strong>Grid Style</strong></td><td>Grid lines use a 1px dashed style by default (<code>DashStyle.Dot</code>), rendered via <code>Pen.DashStyle</code>. The pen width is 1px.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Grid line rendering during DrawTicks:
+if (axisCtx.ShowGrid)
+{
+    using Pen gridPen = new(axisCtx.GridLineColor, 1f)
+        { DashStyle = DashStyle.Dot };
+
+    foreach (var tick in computedTicks)
+    {
+        // Vertical grid line from top to bottom of PlotRect at tick X
+        g.DrawLine(gridPen, tick.X, PlotRect.Top, tick.X, PlotRect.Bottom);
+    }
+}</code></pre></section>
+
+<section class="section" id="examples"><h2>Examples</h2>
+<h3>Date Axis with Monthly Ticks</h3>
+<pre><code class="language-csharp">var chart = new BeepChart();
+chart.ChartType = ChartType.Line;
+chart.ChartTitle = "Monthly Revenue";
+chart.BottomAxisType = AxisType.Date;
+chart.XLabelAngle = -45f;
+chart.ShowGrid = true;
+chart.GridLineColor = Color.FromArgb(220, 220, 220);
+
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Revenue",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "2024-01-01", Y = "45000" },
+        new() { X = "2024-02-01", Y = "52000" },
+        new() { X = "2024-03-01", Y = "48000" },
+        new() { X = "2024-04-01", Y = "61000" },
+        new() { X = "2024-05-01", Y = "55000" },
+        new() { X = "2024-06-01", Y = "67000" },
+        new() { X = "2024-07-01", Y = "72000" },
+        new() { X = "2024-08-01", Y = "70000" },
+        new() { X = "2024-09-01", Y = "78000" },
+        new() { X = "2024-10-01", Y = "82000" },
+        new() { X = "2024-11-01", Y = "79000" },
+        new() { X = "2024-12-01", Y = "95000" }
+    }
+});
+
+// Auto-scale to data after adding points
+chart.AutoScaleViewport();</code></pre>
+
+<h3>Numeric Axis with Custom Ticks</h3>
+<pre><code class="language-csharp">chart.BottomAxisType = AxisType.Numeric;
+chart.LeftAxisType = AxisType.Numeric;
+chart.XAxisTitle = "Concentration (mg/L)";
+chart.YAxisTitle = "Absorbance";
+chart.XLabelAngle = 0f;
+chart.YLabelAngle = 0f;
+chart.MaxVisibleAxisLabels = 8;
+chart.DenseLabelOptimization = true;
+
+// Force axis range if auto-scale is insufficient
+chart.ViewportXMin = 0f;
+chart.ViewportXMax = 100f;
+chart.ViewportYMin = 0f;
+chart.ViewportYMax = 1.0f;</code></pre>
+
+<h3>Legend Configuration with Isolation</h3>
+<pre><code class="language-csharp">chart.ShowLegend = true;
+chart.LegendPlacement = LegendPlacement.Right;
+chart.EnableLegendIsolate = true;
+
+// Multi-series chart
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "CPU",
+    DataPoints = GeneratePoints("CPU", 50)
+});
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Memory",
+    DataPoints = GeneratePoints("Memory", 50)
+});
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Disk IO",
+    DataPoints = GeneratePoints("DiskIO", 50)
+});
+
+// Handle legend interactions
+chart.SeriesIsolationChanged += (s, e) =>
+{
+    Console.WriteLine(e.IsolatedSeriesIndex >= 0
+        ? $"Series {e.IsolatedSeriesIndex} isolated"
+        : "All series restored");
+};</code></pre>
+
+<h3>Axis Hit Testing</h3>
+<pre><code class="language-csharp">chart.MouseClick += (s, e) =>
+{
+    // The chart internally registers axis hit areas during DrawAxes/DrawTicks
+    // AxisHit event provides axis type, value, and label string
+};
+
+chart.AxisHit += (s, e) =>
+{
+    string axis = e.Axis == AxisTarget.X ? "X" : "Y";
+    Console.WriteLine($"Clicked {axis}-axis at value {e.Value}, label: {e.Label}");
+};</code></pre>
+</section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

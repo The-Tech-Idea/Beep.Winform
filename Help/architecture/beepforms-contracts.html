@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeepForms Contracts - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>BeepForms Contracts</span></nav>
+<div class="page-header"><h1>BeepForms Contracts</h1><p class="page-subtitle">IBeepFormsHost and IBeepFormsBootstrapper interfaces -- the disciplined facade between BeepBlock and FormsManager with 40+ members for block registration, UoW queries, LOV operations, validation, and CRUD proxies</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li><li><a href="#host-identity">IBeepFormsHost: Identity &amp; State</a></li><li><a href="#host-events">IBeepFormsHost: Events</a></li><li><a href="#host-registration">IBeepFormsHost: Registration &amp; Routing</a></li><li><a href="#host-queries">IBeepFormsHost: Block/UoW Query Proxies</a></li><li><a href="#host-lov">IBeepFormsHost: LOV Proxies</a></li><li><a href="#host-validation">IBeepFormsHost: Validation &amp; Mutation</a></li><li><a href="#bootstrapper">IBeepFormsBootstrapper</a></li><li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Contracts</code><br>
+Two interfaces define the contract between <strong>BeepBlock</strong> and <strong>BeepForms</strong> (the Coordinator host). The architecture follows a strict discipline:</p>
+<ul><li><strong>IBeepFormsHost</strong> -- A facade that BeepBlock calls. Blocks must <strong>never</strong> dereference <code>FormsManager</code> directly; they must use only the proxy methods on this interface. This keeps the block-layer decoupled from the forms infrastructure.</li>
+<li><strong>IBeepFormsBootstrapper</strong> -- Initializes blocks with <code>EntityStructure</code> metadata from live datasources.</li></ul>
+<pre><code class="language-plaintext">BeepBlock -> IBeepFormsHost (BeepForms) -> IUnitofWorksManager (FormsManager) -> IDataSource
+   ^--- Block must ONLY call IBeepFormsHost, never dereference FormsManager</code></pre></section>
+
+<section class="section" id="host-identity"><h2>IBeepFormsHost: Identity &amp; State</h2>
+<table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>FormName</strong></td><td>string (get/set)</td><td>Forms host identifier</td></tr>
+<tr><td><strong>ActiveBlockName</strong></td><td>string? (get)</td><td>Currently active block's name</td></tr>
+<tr><td><strong>FormsManager</strong></td><td>IUnitofWorksManager? (get/set)</td><td>WARNING: BeepBlock must NOT call this. Use proxy methods only.</td></tr>
+<tr><td><strong>Definition</strong></td><td>BeepFormsDefinition? (get/set)</td><td>Configuration definition for the forms host</td></tr>
+<tr><td><strong>ViewState</strong></td><td>BeepFormsViewState (get)</td><td>Current display state of the forms host</td></tr>
+<tr><td><strong>Blocks</strong></td><td>IReadOnlyList&lt;IBeepBlockView&gt; (get)</td><td>All registered block views</td></tr></tbody></table></section>
+
+<section class="section" id="host-events"><h2>IBeepFormsHost: Events (11)</h2>
+<table><thead><tr><th>Event</th><th>Handler Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>ActiveBlockChanged</td><td>EventHandler?</td><td>Active block switched (tab change, navigation)</td></tr>
+<tr><td>FormsManagerChanged</td><td>EventHandler?</td><td>Manager reference replaced</td></tr>
+<tr><td>ViewStateChanged</td><td>EventHandler?</td><td>View state changed (query/insert/edit modes)</td></tr>
+<tr><td>BootstrapCompleted</td><td>EventHandler&lt;BeepFormsBootstrapEventArgs&gt;?</td><td>Phase 7D: async bootstrap finished. Args include success flag and error details.</td></tr>
+<tr><td>TriggerExecuting</td><td>EventHandler&lt;TriggerExecutingEventArgs&gt;?</td><td>Before trigger execution (cancelable)</td></tr>
+<tr><td>TriggerExecuted</td><td>EventHandler&lt;TriggerExecutedEventArgs&gt;?</td><td>After trigger execution completes</td></tr>
+<tr><td>TriggerRegistered</td><td>EventHandler&lt;TriggerRegisteredEventArgs&gt;?</td><td>Trigger was registered for a block/event</td></tr>
+<tr><td>TriggerUnregistered</td><td>EventHandler&lt;TriggerUnregisteredEventArgs&gt;?</td><td>Trigger was removed</td></tr>
+<tr><td>TriggerChainCompleted</td><td>EventHandler&lt;TriggerChainCompletedEventArgs&gt;?</td><td>Full trigger chain execution completed</td></tr>
+<tr><td>BlockUnitOfWorkActivity</td><td>EventHandler&lt;BeepFormsUnitOfWorkEventArgs&gt;?</td><td>UoW state change in a block (dirty, saved, rolled back)</td></tr></tbody></table></section>
+
+<section class="section" id="host-registration"><h2>IBeepFormsHost: Registration &amp; Routing</h2>
+<table><thead><tr><th>Method</th><th>Return</th><th>Description</th></tr></thead><tbody>
+<tr><td>RegisterBlock(IBeepBlockView)</td><td>bool</td><td>Register a block with the forms host</td></tr>
+<tr><td>UnregisterBlock(string name)</td><td>bool</td><td>Remove a block by name</td></tr>
+<tr><td>TrySetActiveBlock(string name)</td><td>bool</td><td>Switch active block by name</td></tr>
+<tr><td>SyncFromManager()</td><td>void</td><td>Sync block state from FormsManager</td></tr>
+<tr><td>InitializeAsync(CancellationToken)</td><td>Task&lt;bool&gt;</td><td>Phase 7D async bootstrap (true=success, false=some blocks failed)</td></tr></tbody></table></section>
+
+<section class="section" id="host-queries"><h2>IBeepFormsHost: Block/UoW Query Proxies</h2>
+<table><thead><tr><th>Method</th><th>Return</th><th>Description</th></tr></thead><tbody>
+<tr><td>IsBlockRegistered(string)</td><td>bool</td><td>Check if block name is registered</td></tr>
+<tr><td>GetBlockInfo(string)</td><td>DataBlockInfo?</td><td>Get block configuration info</td></tr>
+<tr><td>GetBlockUnitOfWork(string)</td><td>IUnitofWork?</td><td>Get the unit of work for a block</td></tr>
+<tr><td>GetCurrentBlockItem(string)</td><td>object?</td><td>Get current record from block's UoW</td></tr>
+<tr><td>GetDetailBlockNames(string)</td><td>IEnumerable&lt;string&gt;</td><td>Get names of detail (child) blocks</td></tr>
+<tr><td>SetBlockCurrentRecordIndex(string, int)</td><td>void</td><td>Navigate to a record index</td></tr>
+<tr><td>IsBlockQueryAllowed(string)</td><td>bool</td><td>Check if query mode is allowed for this block</td></tr>
+<tr><td>GetTriggerStatistics(string)</td><td>TriggerStatisticsInfo?</td><td>Get trigger execution stats for a block</td></tr>
+<tr><td>GetFormLevelTriggers(string)</td><td>IReadOnlyList&lt;TriggerDefinition&gt;</td><td>Form-level trigger definitions</td></tr>
+<tr><td>GetBlockLevelTriggers(string)</td><td>IReadOnlyList&lt;TriggerDefinition&gt;</td><td>Block-level trigger definitions</td></tr>
+<tr><td>GetRecordLevelTriggers(string)</td><td>IReadOnlyList&lt;TriggerDefinition&gt;</td><td>Record-level trigger definitions</td></tr>
+<tr><td>GetItemLevelTriggers(string)</td><td>IReadOnlyList&lt;TriggerDefinition&gt;</td><td>Item-level trigger definitions</td></tr>
+<tr><td>GetAvailableConnectionNames()</td><td>IEnumerable&lt;string&gt;</td><td>All available data connection name strings</td></tr></tbody></table></section>
+
+<section class="section" id="host-lov"><h2>IBeepFormsHost: LOV (List-of-Values) Proxies</h2>
+<table><thead><tr><th>Method</th><th>Return</th><th>Description</th></tr></thead><tbody>
+<tr><td>HasLov(string block, string field)</td><td>bool</td><td>Check if field has a LOV definition</td></tr>
+<tr><td>GetLov(string block, string field)</td><td>LOVDefinition?</td><td>Get LOV configuration</td></tr>
+<tr><td>LoadLovDataAsync(string block, string field, string? search)</td><td>Task&lt;LOVResult&gt;</td><td>Load LOV data (optional search filter)</td></tr>
+<tr><td>ValidateLovValueAsync(string block, string field, object? val)</td><td>Task&lt;LOVValidationResult&gt;</td><td>Validate en entry against LOV rules</td></tr>
+<tr><td>GetLovRelatedFieldValues(LOVDefinition, object?)</td><td>Dictionary&lt;string,object&gt;?</td><td>Get related field values for auto-fill</td></tr>
+<tr><td>ShowLovAsync(string block, string field, string? search, CancellationToken)</td><td>Task&lt;LOVResult&gt;</td><td>Show LOV picker dialog and return selection</td></tr></tbody></table></section>
+
+<section class="section" id="host-validation"><h2>IBeepFormsHost: Validation &amp; Mutation</h2>
+<table><thead><tr><th>Method</th><th>Return</th><th>Description</th></tr></thead><tbody>
+<tr><td>ValidateBlockRecord(string, IDictionary, ValidationTiming)</td><td>RecordValidationResult?</td><td>Validate a record against block rules at a specific timing (BeforeSave, BeforeNavigation)</td></tr>
+<tr><td>IsFieldQueryAllowed(string block, string field)</td><td>bool</td><td>Check if field can be queried</td></tr>
+<tr><td>SaveBlockAsync(string block)</td><td>Task&lt;bool&gt;</td><td>Save current block's UoW changes</td></tr>
+<tr><td>RollbackBlockAsync(string block)</td><td>Task&lt;bool&gt;</td><td>Rollback block's UoW changes</td></tr>
+<tr><td>InsertBlockRecordAsync(string block)</td><td>Task&lt;bool&gt;</td><td>Insert a new record into the block</td></tr>
+<tr><td>DeleteBlockCurrentRecordAsync(string block)</td><td>Task&lt;bool&gt;</td><td>Delete current record from the block</td></tr></tbody></table></section>
+
+<section class="section" id="bootstrapper"><h2>IBeepFormsBootstrapper</h2>
+<pre><code class="language-csharp">public interface IBeepFormsBootstrapper
+{
+    Task&lt;bool&gt; BootstrapAsync(BeepForms forms,
+        CancellationToken cancellationToken = default);
+    // Populates BeepBlock instances with EntityStructure metadata
+    // from a live datasource. Iterates all blocks in the
+    // BeepFormsDefinition with valid ConnectionName + EntityName.
+    //
+    // Returns: true = all blocks populated,
+    //          false = at least one block failed or was skipped.
+    // Implementations must not throw; swallow failures.
+}</code></pre></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<pre><code class="language-csharp">// Block registration
+var host = (IBeepFormsHost)myBeepForms;
+host.RegisterBlock(myBlockView);
+host.TrySetActiveBlock("CustomerBlock");
+
+// Query current state
+var uow = host.GetBlockUnitOfWork("CustomerBlock");
+var currentItem = host.GetCurrentBlockItem("CustomerBlock");
+
+// LOV interaction
+if (host.HasLov("CustomerBlock", "Country"))
+{
+    var result = await host.ShowLovAsync(
+        "CustomerBlock", "Country");
+    if (result.Selected)
+        Console.WriteLine($"Selected: {result.Value}");
+}
+
+// Save and validate
+var validation = host.ValidateBlockRecord("CustomerBlock",
+    myRecord, ValidationTiming.BeforeSave);
+if (validation.IsValid)
+    await host.SaveBlockAsync("CustomerBlock");
+
+// Bootstrap
+var bootstrapper = new MyBootstrapper();
+await bootstrapper.BootstrapAsync(myBeepForms);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDateTimePicker - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span><span>BeepDateTimePicker</span></nav>
+            <div class="page-header"><h1>BeepDateTimePicker</h1><p class="page-subtitle">Multi-mode date/time picker with 18 functional modes, painter-driven rendering, and full theme integration</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#modes">DatePickerMode</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul></div>
+
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Dates</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Inheritance:</strong> <code>BaseControl</code></p>
+                <p>The <strong>BeepDateTimePicker</strong> is a comprehensive, themeable date/time picker with no dropdown - all rendering is performed directly on the control surface using a <strong>painter/hit-handler</strong> architecture. It supports 18 distinct functional modes, each with dedicated painting and interaction logic. The control extends <code>BaseControl</code> and integrates with the Beep theming system for consistent visual styling.</p>
+                <p>The control is split across 7 partial files: Core (fields, events, constructor), Properties, Events (input handling), Methods (public API), Drawing (paint pipeline), Layout, and DateHandling. All calendar rendering is delegated to <code>IDateTimePickerPainter</code> implementations, while mouse/keyboard interaction is handled by <code>IDateTimePickerHitHandler</code> implementations.</p>
+            </section>
+
+            <section id="features" class="section">
+                <h2>Key Features</h2>
+                <ul>
+                    <li>18 functional modes: Single, SingleWithTime, Range, RangeWithTime, Multiple, Appointment, Timeline, Quarterly, Compact, ModernCard, DualCalendar, WeekView, MonthView, YearView, SidebarEvent, FlexibleRange, FilteredRange, and Header</li>
+                    <li>Direct-rendering design - no dropdown, all calendar UI painted on the control surface</li>
+                    <li>Pluggable painter architecture via <code>IDateTimePickerPainter</code> with 18 mode-specific painters</li>
+                    <li>Pluggable hit-handler architecture via <code>IDateTimePickerHitHandler</code> for mode-specific interaction</li>
+                    <li>Full theme support using calendar-specific theme tokens</li>
+                    <li>Keyboard navigation: arrow keys for day, page up/down for month, Home for today</li>
+                    <li>Quick selection buttons: Today, Tomorrow, Yesterday, This Week, This Month</li>
+                    <li>Time picker with configurable interval and min/max time constraints</li>
+                    <li>Range selection with auto-swapping of start/end</li>
+                    <li>Multiple date selection with toggle and limit support</li>
+                    <li>Min/Max date and time constraints</li>
+                    <li>DPI-aware font scaling (optional)</li>
+                    <li>Custom date format and first day of week</li>
+                    <li>Appointment mode with time slot scrolling</li>
+                    <li>Flexible range mode with tabs and quick date options</li>
+                    <li>Filtered range with holiday/date filter support</li>
+                    <li>Hosted in ToolStripDropDown for popup scenarios</li>
+                </ul>
+            </section>
+
+            <section id="modes" class="section">
+                <h2>DatePickerMode</h2>
+                <p>The <code>Mode</code> property (of type <code>DatePickerMode</code>) selects the functional behavior. Each mode has a dedicated painter and hit handler:</p>
+                <table>
+                    <thead><tr><th>Mode</th><th>Painter</th><th>Hit Handler</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Single</code></td><td>SingleDateTimePickerPainter</td><td>SingleDateTimePickerHitHandler</td><td>Standard single date calendar</td></tr>
+                        <tr><td><code>SingleWithTime</code></td><td>SingleWithTimeDateTimePickerPainter</td><td>SingleWithTimeDateTimePickerHitHandler</td><td>Single date with time spinner</td></tr>
+                        <tr><td><code>Range</code></td><td>RangeDateTimePickerPainter</td><td>RangeDateTimePickerHitHandler</td><td>Start/end date range selection</td></tr>
+                        <tr><td><code>RangeWithTime</code></td><td>RangeWithTimeDateTimePickerPainter</td><td>RangeWithTimeDateTimePickerHitHandler</td><td>Date range with time selection</td></tr>
+                        <tr><td><code>Multiple</code></td><td>MultipleDateTimePickerPainter</td><td>MultipleDateTimePickerHitHandler</td><td>Multiple date checkboxes</td></tr>
+                        <tr><td><code>Appointment</code></td><td>AppointmentDateTimePickerPainter</td><td>AppointmentDateTimePickerHitHandler</td><td>Calendar + time slot list</td></tr>
+                        <tr><td><code>Timeline</code></td><td>TimelineDateTimePickerPainter</td><td>TimelineDateTimePickerHitHandler</td><td>Visual timeline representation</td></tr>
+                        <tr><td><code>Quarterly</code></td><td>QuarterlyDateTimePickerPainter</td><td>QuarterlyDateTimePickerHitHandler</td><td>Quarter range with Q1-Q4 shortcuts</td></tr>
+                        <tr><td><code>Compact</code></td><td>CompactDateTimePickerPainter</td><td>CompactDateTimePickerHitHandler</td><td>Minimal chrome compact view</td></tr>
+                        <tr><td><code>ModernCard</code></td><td>ModernCardDateTimePickerPainter</td><td>ModernCardDateTimePickerHitHandler</td><td>Card with quick date buttons</td></tr>
+                        <tr><td><code>DualCalendar</code></td><td>DualCalendarDateTimePickerPainter</td><td>DualCalendarDateTimePickerHitHandler</td><td>Side-by-side month view</td></tr>
+                        <tr><td><code>WeekView</code></td><td>WeekViewDateTimePickerPainter</td><td>WeekViewDateTimePickerHitHandler</td><td>Week-based calendar</td></tr>
+                        <tr><td><code>MonthView</code></td><td>MonthViewDateTimePickerPainter</td><td>MonthViewDateTimePickerHitHandler</td><td>Month picker grid</td></tr>
+                        <tr><td><code>YearView</code></td><td>YearViewDateTimePickerPainter</td><td>YearViewDateTimePickerHitHandler</td><td>Year picker grid</td></tr>
+                        <tr><td><code>SidebarEvent</code></td><td>SidebarEventDateTimePickerPainter</td><td>SidebarEventDateTimePickerHitHandler</td><td>Sidebar with large date + events</td></tr>
+                        <tr><td><code>FlexibleRange</code></td><td>FlexibleRangeDateTimePickerPainter</td><td>FlexibleRangeDateTimePickerHitHandler</td><td>Flexible range with tabs</td></tr>
+                        <tr><td><code>FilteredRange</code></td><td>FilteredRangeDateTimePickerPainter</td><td>FilteredRangeDateTimePickerHitHandler</td><td>Filter sidebar + dual calendar</td></tr>
+                        <tr><td><code>Header</code></td><td>HeaderDateTimePickerPainter</td><td>HeaderDateTimePickerHitHandler</td><td>Prominent header with large date display</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="properties" class="section">
+                <h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Mode</code></td><td><code>DatePickerMode</code></td><td><code>Single</code></td><td>Functional mode of the date/time picker; setting this re-creates the painter and hit handler</td></tr>
+                        <tr><td><code>SelectedDate</code></td><td><code>DateTime?</code></td><td><code>null</code></td><td>The currently selected date value; raises <code>DateChanged</code></td></tr>
+                        <tr><td><code>SelectedTime</code></td><td><code>TimeSpan?</code></td><td><code>null</code></td><td>The currently selected time value; raises <code>TimeChanged</code></td></tr>
+                        <tr><td><code>SelectedDateTime</code></td><td><code>DateTime?</code></td><td><code>null</code></td><td>Combined date+time value (sets both SelectedDate and SelectedTime)</td></tr>
+                        <tr><td><code>SelectedDates</code></td><td><code>List&lt;DateTime&gt;</code></td><td>empty</td><td>Collection of selected dates for Multiple mode; auto-deduplicates and sorts</td></tr>
+                        <tr><td><code>RangeStartDate</code></td><td><code>DateTime?</code></td><td><code>null</code></td><td>Start date for range selection mode; raises <code>RangeChanged</code></td></tr>
+                        <tr><td><code>RangeEndDate</code></td><td><code>DateTime?</code></td><td><code>null</code></td><td>End date for range selection mode; raises <code>RangeChanged</code></td></tr>
+                        <tr><td><code>RangeStartTime</code></td><td><code>TimeSpan?</code></td><td><code>null</code></td><td>Start time for range-with-time mode</td></tr>
+                        <tr><td><code>RangeEndTime</code></td><td><code>TimeSpan?</code></td><td><code>null</code></td><td>End time for range-with-time mode</td></tr>
+                        <tr><td><code>MinDate</code></td><td><code>DateTime</code></td><td><code>1900-01-01</code></td><td>Minimum selectable date</td></tr>
+                        <tr><td><code>MaxDate</code></td><td><code>DateTime</code></td><td><code>2100-12-31</code></td><td>Maximum selectable date</td></tr>
+                        <tr><td><code>MinTime</code></td><td><code>TimeSpan</code></td><td><code>00:00:00</code></td><td>Minimum selectable time of day</td></tr>
+                        <tr><td><code>MaxTime</code></td><td><code>TimeSpan</code></td><td><code>23:59:59</code></td><td>Maximum selectable time of day</td></tr>
+                        <tr><td><code>Format</code></td><td><code>DatePickerFormat</code></td><td><code>ShortDate</code></td><td>Date display format (Long, Short, Time, Custom, ShortDate)</td></tr>
+                        <tr><td><code>FirstDayOfWeek</code></td><td><code>DatePickerFirstDayOfWeek</code></td><td><code>Monday</code></td><td>First day displayed in calendar grid</td></tr>
+                        <tr><td><code>ShowTime</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show time picker alongside date picker</td></tr>
+                        <tr><td><code>ShowQuickButtons</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show quick selection buttons (Today, Tomorrow, etc.)</td></tr>
+                        <tr><td><code>ShowWeekNumbers</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show week numbers in calendar</td></tr>
+                        <tr><td><code>AllowClear</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow clearing the selected date (via Delete/Escape keys or UI)</td></tr>
+                        <tr><td><code>TimeIntervalMinutes</code></td><td><code>int</code></td><td><code>30</code></td><td>Time selection interval in minutes (must be &gt; 0)</td></tr>
+                        <tr><td><code>TextFont</code></td><td><code>Font</code></td><td>Theme default</td><td>Custom text font for calendar rendering</td></tr>
+                        <tr><td><code>UseScaledFont</code></td><td><code>bool</code></td><td><code>false</code></td><td>Use DPI-scaled font for text rendering</td></tr>
+                        <tr><td><code>UseThemeFont</code></td><td><code>bool</code></td><td><code>true</code></td><td>Use theme-defined font settings</td></tr>
+                        <tr><td><code>MaxMultipleSelectionCount</code></td><td><code>int?</code></td><td><code>null</code></td><td>Maximum dates selectable in Multiple mode</td></tr>
+                        <tr><td><code>IsFlexibleRangeMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Activates flexible range behavior (FlexibleRange mode)</td></tr>
+                        <tr><td><code>FilteredDates</code></td><td><code>List&lt;DateTime&gt;</code></td><td>empty</td><td>List of disabled dates for FilteredRange mode</td></tr>
+                        <tr><td><code>ActiveDateFilters</code></td><td><code>List&lt;string&gt;</code></td><td>empty</td><td>Active date filter names (FilteredRange mode)</td></tr>
+                        <tr><td><code>Holidays</code></td><td><code>List&lt;DateTime&gt;</code></td><td>empty</td><td>Holiday dates for filtering (FilteredRange mode)</td></tr>
+                        <tr><td><code>TimeStartHour</code></td><td><code>int</code></td><td><code>0</code></td><td>Start hour for time slots in Appointment mode (0-23)</td></tr>
+                        <tr><td><code>DisplayMonth</code></td><td><code>DateTime</code></td><td>Today</td><td>Read-only. Currently displayed month in the calendar grid</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section">
+                <h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>SetDate</code></td><td><code>void SetDate(DateTime date)</code></td><td>Sets selected date, clamped to Min/Max constraints; updates display month</td></tr>
+                        <tr><td><code>SetTime</code></td><td><code>void SetTime(TimeSpan time)</code></td><td>Sets selected time, clamped to Min/Max time constraints</td></tr>
+                        <tr><td><code>SetRange</code></td><td><code>void SetRange(DateTime start, DateTime end)</code></td><td>Sets range start/end dates; auto-swaps if start &gt; end; clears time</td></tr>
+                        <tr><td><code>ClearSelection</code></td><td><code>void ClearSelection()</code></td><td>Clears all date, time, range, and multiple selection state; raises ClearClicked</td></tr>
+                        <tr><td><code>SetToday</code></td><td><code>void SetToday()</code></td><td>Selects today's date if within Min/Max constraints</td></tr>
+                        <tr><td><code>NavigateDate</code></td><td><code>void NavigateDate(int days)</code></td><td>Shifts selected date by +/- days (respects constraints)</td></tr>
+                        <tr><td><code>NavigateToPreviousMonth</code></td><td><code>void NavigateToPreviousMonth()</code></td><td>Shifts display month one month backward</td></tr>
+                        <tr><td><code>NavigateToNextMonth</code></td><td><code>void NavigateToNextMonth()</code></td><td>Shifts display month one month forward</td></tr>
+                        <tr><td><code>NavigateToMonth</code></td><td><code>void NavigateToMonth(int year, int month)</code></td><td>Sets display month to specified year/month if within constraints</td></tr>
+                        <tr><td><code>NavigateToPreviousYear</code></td><td><code>void NavigateToPreviousYear()</code></td><td>Shifts display month one year backward</td></tr>
+                        <tr><td><code>NavigateToNextYear</code></td><td><code>void NavigateToNextYear()</code></td><td>Shifts display month one year forward</td></tr>
+                        <tr><td><code>SelectToday</code></td><td><code>void SelectToday()</code></td><td>Sets today's date and raises QuickButtonClicked</td></tr>
+                        <tr><td><code>SelectTomorrow</code></td><td><code>void SelectTomorrow()</code></td><td>Sets tomorrow's date and raises QuickButtonClicked</td></tr>
+                        <tr><td><code>SelectYesterday</code></td><td><code>void SelectYesterday()</code></td><td>Sets yesterday's date and raises QuickButtonClicked</td></tr>
+                        <tr><td><code>SelectThisWeek</code></td><td><code>void SelectThisWeek()</code></td><td>Selects current week range or start (respects FirstDayOfWeek)</td></tr>
+                        <tr><td><code>SelectThisMonth</code></td><td><code>void SelectThisMonth()</code></td><td>Selects current month range or start date</td></tr>
+                        <tr><td><code>IsDateInRange</code></td><td><code>bool IsDateInRange(DateTime date)</code></td><td>Returns true if date is within Min/Max date constraints</td></tr>
+                        <tr><td><code>IsTimeInRange</code></td><td><code>bool IsTimeInRange(TimeSpan time)</code></td><td>Returns true if time is within Min/Max time constraints</td></tr>
+                        <tr><td><code>IsDateDisabled</code></td><td><code>bool IsDateDisabled(DateTime date)</code></td><td>Inverse of IsDateInRange</td></tr>
+                        <tr><td><code>ToggleMultipleDateSelection</code></td><td><code>void ToggleMultipleDateSelection(DateTime date)</code></td><td>Toggles date in the multiple selection list; auto-sorts</td></tr>
+                        <tr><td><code>HandleRangeDateSelection</code></td><td><code>void HandleRangeDateSelection(DateTime date)</code></td><td>Handles click-to-select logic for range mode (start, then end)</td></tr>
+                        <tr><td><code>ScrollTimeListUp</code></td><td><code>void ScrollTimeListUp()</code></td><td>Scrolls time slot list up (Appointment mode)</td></tr>
+                        <tr><td><code>ScrollTimeListDown</code></td><td><code>void ScrollTimeListDown()</code></td><td>Scrolls time slot list down (Appointment mode)</td></tr>
+                        <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies calendar theme tokens and updates painter's theme reference</td></tr>
+                        <tr><td><code>GetCurrentProperties</code></td><td><code>DateTimePickerProperties GetCurrentProperties()</code></td><td>Builds a snapshot of all current property values for painter/handler use</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section">
+                <h2>Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>DateChanged</code></td><td><code>DateTimePickerEventArgs</code></td><td>Fired when SelectedDate changes. Args contain date, time, range end, and mode</td></tr>
+                        <tr><td><code>TimeChanged</code></td><td><code>DateTimePickerEventArgs</code></td><td>Fired when SelectedTime changes</td></tr>
+                        <tr><td><code>RangeChanged</code></td><td><code>DateTimePickerEventArgs</code></td><td>Fired when RangeStartDate or RangeEndDate changes</td></tr>
+                        <tr><td><code>DateHovered</code></td><td><code>DateTimePickerEventArgs</code></td><td>Fired when mouse hovers over a specific date cell</td></tr>
+                        <tr><td><code>QuickButtonClicked</code></td><td><code>DateTimePickerEventArgs</code></td><td>Fired when a quick selection button (Today, Tomorrow, etc.) is clicked</td></tr>
+                        <tr><td><code>ClearClicked</code></td><td><code>EventArgs</code></td><td>Fired when the selection is cleared</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="theming" class="section">
+                <h2>Theming</h2>
+                <p>BeepDateTimePicker uses calendar-specific theme tokens from <code>BeepTheme</code>. The <code>ApplyTheme()</code> method reads these tokens:</p>
+                <table>
+                    <thead><tr><th>Theme Token</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>CalendarBackColor</code></td><td>Control background color</td></tr>
+                        <tr><td><code>CalendarForeColor</code></td><td>Regular (unselected) date text color</td></tr>
+                        <tr><td><code>CalendarTitleForColor</code></td><td>Header text and navigation button color</td></tr>
+                        <tr><td><code>CalendarDaysHeaderForColor</code></td><td>Day name header color (Mon, Tue, etc.)</td></tr>
+                        <tr><td><code>CalendarSelectedDateBackColor</code></td><td>Selected date highlight background</td></tr>
+                        <tr><td><code>CalendarSelectedDateForColor</code></td><td>Text color on selected date</td></tr>
+                        <tr><td><code>CalendarTodayForeColor</code></td><td>Today indicator ring/border color</td></tr>
+                        <tr><td><code>CalendarBorderColor</code></td><td>Border color around calendar elements</td></tr>
+                        <tr><td><code>CalendarHoverBackColor</code></td><td>Hover state background for date cells</td></tr>
+                        <tr><td><code>DateFont</code></td><td>Font for calendar date numbers</td></tr>
+                        <tr><td><code>CalendarTitleFont</code></td><td>Font for month/year header</td></tr>
+                        <tr><td><code>DaysHeaderFont</code></td><td>Font for day-of-week header</td></tr>
+                    </tbody>
+                </table>
+                <p>The font is set via <code>BeepFontManager.ToFont()</code> with a fallback chain: theme font → BeepFontManager default → Segoe UI 9.75pt. The <code>UseThemeFont</code> property controls whether theme fonts are applied.</p>
+            </section>
+
+            <section id="examples" class="section">
+                <h2>Examples</h2>
+                <h3>Basic Single Date Selection</h3>
+                <pre><code class="language-csharp">var picker = new BeepDateTimePicker();
+picker.Mode = DatePickerMode.Single;
+picker.SelectedDate = DateTime.Today;
+picker.DateChanged += (s, e) => {
+    Console.WriteLine($"Selected: {e.Date:d}");
+};
+this.Controls.Add(picker);</code></pre>
+
+                <h3>Date Range with Time</h3>
+                <pre><code class="language-csharp">var rangePicker = new BeepDateTimePicker();
+rangePicker.Mode = DatePickerMode.RangeWithTime;
+rangePicker.ShowTime = true;
+rangePicker.MinDate = DateTime.Today;
+rangePicker.MaxDate = DateTime.Today.AddMonths(3);
+rangePicker.RangeChanged += (s, e) => {
+    Console.WriteLine($"Range: {e.Date:d} - {e.RangeEnd:d}");
+    Console.WriteLine($"Times: {e.Time} - ...");
+};
+rangePicker.SetRange(DateTime.Today, DateTime.Today.AddDays(7));
+this.Controls.Add(rangePicker);</code></pre>
+
+                <h3>Multiple Date Selection</h3>
+                <pre><code class="language-csharp">var multiPicker = new BeepDateTimePicker();
+multiPicker.Mode = DatePickerMode.Multiple;
+multiPicker.MaxMultipleSelectionCount = 5;
+multiPicker.SelectedDates = new List&lt;DateTime&gt; {
+    DateTime.Today, DateTime.Today.AddDays(2), DateTime.Today.AddDays(5)
+};
+multiPicker.DateChanged += (s, e) => {
+    Console.WriteLine($"Total selected: {multiPicker.SelectedDates.Count}");
+};
+this.Controls.Add(multiPicker);</code></pre>
+
+                <h3>Appointment Mode with Time Slots</h3>
+                <pre><code class="language-csharp">var appointmentPicker = new BeepDateTimePicker();
+appointmentPicker.Mode = DatePickerMode.Appointment;
+appointmentPicker.TimeStartHour = 8;
+appointmentPicker.TimeIntervalMinutes = 15;
+appointmentPicker.SelectedDateTime = new DateTime(2025, 6, 15, 10, 30, 0);
+appointmentPicker.DateChanged += (s, e) => Console.WriteLine($"Date: {e.Date:d}");
+appointmentPicker.TimeChanged += (s, e) => Console.WriteLine($"Time: {e.Time}");
+this.Controls.Add(appointmentPicker);</code></pre>
+            </section>
+
+            <section id="architecture" class="section">
+                <h2>Architecture</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BeepDateTimePicker.cs</code></td><td>Partial class declaration and documentation header</td></tr>
+                        <tr><td><code>BeepDateTimePicker.Core.cs</code></td><td>Fields, events, constructor, painter management (<code>InitializePainter</code>, <code>UpdatePainter</code>, <code>InitializeHitHandler</code>), layout helper, <code>GetCurrentProperties</code>, <code>Dispose</code></td></tr>
+                        <tr><td><code>BeepDateTimePicker.Properties.cs</code></td><td>All public properties: Mode, SelectedDate, SelectedTime, RangeStartDate, RangeEndDate, MinDate, MaxDate, ShowTime, AllowClear, Format, FirstDayOfWeek, TextFont, and 18 additional properties</td></tr>
+                        <tr><td><code>BeepDateTimePicker.Events.cs</code></td><td>Mouse/Keyboard/Focus handlers: <code>OnMouseClick</code>, <code>OnMouseMove</code>, <code>OnKeyDown</code> (arrow keys, Delete, Escape, Enter, PageUp/Down, Home)</td></tr>
+                        <tr><td><code>BeepDateTimePicker.Methods.cs</code></td><td>Public API: <code>SetDate</code>, <code>SetTime</code>, <code>SetRange</code>, <code>ClearSelection</code>, <code>NavigateTo*</code> methods, <code>SelectToday/Tomorrow/Yesterday/ThisWeek/ThisMonth</code>, <code>IsDateInRange</code>, <code>ToggleMultipleDateSelection</code>, <code>HandleRangeDateSelection</code>, <code>ApplyTheme</code></td></tr>
+                        <tr><td><code>BeepDateTimePicker.Drawing.cs</code></td><td>Paint pipeline: <code>DrawContent</code>, <code>Draw</code>, <code>Paint</code> delegation to <code>IDateTimePickerPainter.PaintCalendar</code>, <code>OnResize</code></td></tr>
+                        <tr><td>Painters/ (19 files)</td><td>Mode-specific renderers implementing <code>IDateTimePickerPainter</code>: <code>CalculateLayout</code>, <code>PaintCalendar</code>, <code>GetPreferredSize</code>, <code>GetMinimumSize</code></td></tr>
+                        <tr><td>HitHandlers/ (19 files)</td><td>Mode-specific interaction handlers implementing <code>IDateTimePickerHitHandler</code>: <code>HitTest</code>, <code>HandleClick</code>, <code>UpdateHoverState</code>, <code>SyncFromControl</code>, <code>SyncToControl</code></td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

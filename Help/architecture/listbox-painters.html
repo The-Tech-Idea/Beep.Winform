@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listbox Painters - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Listbox Painters</span></nav><div class="page-header"><h1>ListBox Painters</h1><p class="page-subtitle">42 theme-aware list box painters — covering Standard, Material, Glassmorphism, Chat, Timeline, Notification, and many more styles</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#category-list">Painter Categories</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The BeepListBox supports <strong>42 visual painter styles</strong>, making it one of the most versatile controls in the library. Each painter handles background, item rendering, selection indication, hover effects, and accessibility contrast modes.</p><p>Painters implement <code>IListBoxPainter</code> or extend <code>BaseListBoxPainter</code>. Selection resolves via <code>ListBoxPainterFactory</code>.</p></section><section class="section" id="architecture"><h2>Architecture</h2><pre><code class="language-plaintext">IListBoxPainter
+  └── BaseListBoxPainter (abstract)
+       ├── StandardListBoxPainter
+       ├── FilledListBoxPainter
+       ├── OutlinedListBoxPainter
+       ├── CardListPainter
+       ├── CustomListPainter
+       └── ... (42 total)
+
+ListBoxPainterFactory.Get(ListBoxType)
+  → IListBoxPainter</code></pre></section><section class="section" id="category-list"><h2>Painter Categories (42 Total)</h2><h3>Standard Styles (10)</h3><p>StandardListBoxPainter, SimpleListPainter, OutlinedListBoxPainter, FilledListBoxPainter, FilledStylePainter, MinimalListBoxPainter, CompactListPainter, RoundedListBoxPainter, BorderlessListBoxPainter, MaterialOutlinedListBoxPainter</p><h3>Card & Content Styles (8)</h3><p>CardListPainter, GradientCardListBoxPainter, GlassmorphismListBoxPainter, HeroUIListBoxPainter, NeumorphicListBoxPainter, RekaUIListBoxPainter, ChakraUIListBoxPainter, CommandListBoxPainter</p><h3>Specialized Item Styles (10)</h3><p>AvatarListBoxPainter, ChatListBoxPainter, NotificationListBoxPainter, TimelineListBoxPainter, ThreeLineListBoxPainter, ProfileCardListBoxPainter, ContactListBoxPainter, TeamMembersPainter, WithIconsListBoxPainter, ChipStyleListBoxPainter</p><h3>Behavior Styles (6)</h3><p>SearchableListPainter, GroupedListPainter, CheckboxListPainter, RadioSelectionPainter, MultiSelectionTealPainter, InfiniteScrollListBoxPainter</p><h3>Selection & State Styles (5)</h3><p>ColoredSelectionPainter, LanguageSelectorPainter, CategoryChipsPainter, FilterStatusPainter, ErrorStatesPainter</p><h3>Checkbox Variants (3)</h3><p>CheckboxListPainter, RaisedCheckboxesPainter, OutlinedCheckboxesPainter</p><h3>Navigation</h3><p>NavigationRailListBoxPainter</p></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var listBox = new BeepListBox();
+
+// Set visual style
+listBox.ItemStyle = ListBoxType.CardList;
+// → CardListPainter renders each item as a card
+
+listBox.ItemStyle = ListBoxType.ChatList;
+// → ChatListBoxPainter adds avatar + message preview
+
+listBox.ItemStyle = ListBoxType.GroupedList;
+// → GroupedListPainter renders section headers
+
+// Add items
+listBox.Items.Add(new BeepListItem
+{
+    Text = "John Doe",
+    SubText = "Online",
+    ImagePath = "avatars/john.png"
+});</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

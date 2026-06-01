@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Painting Pipeline - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Calendar Painting Pipeline</span></nav>
+<div class="page-header"><h1>Calendar Painting Pipeline</h1><p class="page-subtitle">11 partial files for calendar rendering — centralized Paint() dispatcher, Month/Week/Day/List/Timeline views, design-time preview, sidebar, and LayoutTheme subsystem (9 files)</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#dispatcher">Paint Dispatcher</a></li>
+<li><a href="#views">View Renderers</a></li>
+<li><a href="#view-details">View Rendering Details</a></li>
+<li><a href="#designtime">Design-Time Preview</a></li>
+<li><a href="#sidebar">Sidebar Calendar</a></li>
+<li><a href="#layouttheme">LayoutTheme Subsystem (9 files)</a></li>
+<li><a href="#visual-updates">Visual Updates</a></li>
+<li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p>Calendar rendering is decomposed across <strong>11 partial files</strong> plus a <strong>9-file LayoutTheme</strong> subsystem. The architecture uses a centralized dispatcher method <code>Paint()</code> that chooses between a new style-based painter system (<code>_usePainterSystem</code>) and a legacy renderer fallback (<code>DrawWithLegacyRenderer</code>). At design time in Visual Studio, the calendar renders a simplified preview instead.</p></section>
+
+<section class="section" id="dispatcher"><h2>Paint Dispatcher</h2>
+<pre><code class="language-csharp">// Centralized entry point called from DrawContent and Draw:
+private void Paint(Graphics g, Rectangle bounds)
+{
+    if (IsDesignModeSafe)
+        DrawDesignTimePreview(g, bounds);       // VS designer placeholder
+    else if (_usePainterSystem && _stylePainter != null)
+        DrawWithPainter(g, contentRect);        // New style-based system
+    else
+        DrawWithLegacyRenderer(g, contentRect);  // Legacy fallback
+}
+
+// Entry points from BaseControl framework:
+protected override void DrawContent(Graphics g)
+    => Paint(g, DrawingRect);
+
+public override void Draw(Graphics graphics, Rectangle rectangle)
+    => Paint(graphics, rectangle);</code></pre></section>
+
+<section class="section" id="views"><h2>View Renderers</h2>
+<table><thead><tr><th>View</th><th>Files</th><th>Content Rendered</th></tr></thead><tbody>
+<tr><td><strong>Month View</strong></td><td>Painting.MonthView.cs, MonthView.Events.cs, MonthView.Headers.cs</td><td>7-column grid of day cells (Sun-Sat). Each cell: day number, up to <code>maxEventsPerCell</code> event blocks. Overflow shows "+N more". Selected day highlighted.</td></tr>
+<tr><td><strong>Week View</strong></td><td>Painting.WeekView.cs, WeekView.Events.cs</td><td>7-day week grid with hourly time slots on the left. Event bars span their time range vertically. Supports WorkWeek (Mon-Fri).</td></tr>
+<tr><td><strong>Day View</strong></td><td>Painting.DayView.cs</td><td>Single day with 24 one-hour slots (~60px each). Event blocks show title, time, location. All-day events in a header band.</td></tr>
+<tr><td><strong>List View / Agenda</strong></td><td>Painting.ListView.cs</td><td>Chronological event list with date headers. Each entry shows time, title, location, and category color indicator.</td></tr>
+<tr><td><strong>Timeline View</strong></td><td>Painting.Views.cs</td><td>Horizontal timeline with event spans. Time scale configurable. Supports resource grouping on the Y axis.</td></tr>
+<tr><td><strong>Pipeline</strong></td><td>Painting.Pipeline.cs (5 sub-files)</td><td>Rendering orchestration (Pipeline.cs), view dispatch (Pipeline.Views.cs), telemetry (Pipeline.Telemetry.cs), header formatting (Pipeline.HeaderFormatting.cs), legacy compatibility (Pipeline.Legacy.cs)</td></tr></tbody></table></section>
+
+<section class="section" id="view-details"><h2>View Rendering Details</h2>
+<h3>Month View</h3>
+<p>Renders a 7x5 or 7x6 grid of day cells. Each cell contains: day number (top-left), event blocks (colored by category), "+N more" indicator for overflow. Events that span multiple days are rendered across consecutive cells. The current cell's category colors come from <code>LayoutTheme.MonthCells.cs</code>.</p>
+<h3>Week / Day View</h3>
+<p>Time slots are rendered at 30 or 60 minute intervals depending on <code>DensityMode</code>. The current time line (red) is drawn when the view contains today. Event blocks are positioned absolutely within the time grid, with their top offset proportional to start time and height proportional to duration. Events that overlap share column width equally.</p>
+<h3>List View</h3>
+<p>Events displayed chronologically in a single scrollable list. Each row: date header (group separator), time column (left), event title (center), location and category badge (right). Multi-day events span multiple entries with a "continues" indicator.</p></section>
+
+<section class="section" id="designtime"><h2>Design-Time Preview</h2>
+<p>Controlled by <code>BeepCalendar.Painting.DesignTime.cs</code>. When <code>IsDesignModeSafe</code> returns true (hosted in Visual Studio designer):</p>
+<ul><li>Renders a simplified month grid for the current month</li>
+<li>2-3 sample events spanning multiple days with sample titles</li>
+<li>Today cell highlighted with accent color</li>
+<li>No interaction support — static preview only</li>
+<li>Uses placeholder data, no real event model required</li></ul></section>
+
+<section class="section" id="sidebar"><h2>Sidebar Calendar</h2>
+<p>When <code>ShowSidebar</code> is true, <code>BeepCalendar.Painting.Sidebar.cs</code> renders a compact mini-calendar in a narrow sidebar panel (~200px):</p>
+<ul><li>One month displayed at a time with abbreviated day-of-week headers (S M T W T F S)</li>
+<li>Navigation arrows (&lt;/&gt;) to scroll months forward/backward</li>
+<li>Dot indicator beneath days that have one or more events</li>
+<li>Today date highlighted with a colored circle</li>
+<li>Clicking a date in the sidebar navigates the main view to that date</li></ul></section>
+
+<section class="section" id="layouttheme"><h2>LayoutTheme Subsystem (9 Files)</h2>
+<table><thead><tr><th>File</th><th>Role</th></tr></thead><tbody>
+<tr><td><strong>LayoutTheme.cs</strong></td><td>Main theme coordinator, initializes all theme-related visual properties</td></tr>
+<tr><td><strong>LayoutTheme.ApplyTheme.cs</strong></td><td>Maps <code>IBeepTheme</code> tokens to calendar-specific visual properties (colors, fonts, borders, padding)</td></tr>
+<tr><td><strong>LayoutTheme.Layout.cs</strong></td><td>Cell positions, margins, padding, grid spacing calculations</td></tr>
+<tr><td><strong>LayoutTheme.MonthCells.cs</strong></td><td>Month view cell colors: today, selected, hovered, weekend, other-month, event-colors</td></tr>
+<tr><td><strong>LayoutTheme.HeaderText.cs</strong></td><td>Header text formatting, day-of-week label colors, month/year title rendering</td></tr>
+<tr><td><strong>LayoutTheme.ResponsiveLabels.cs</strong></td><td>Text truncation based on available cell size. Shrinks font or abbreviates text when cell is narrow</td></tr>
+<tr><td><strong>LayoutTheme.Controls.cs</strong></td><td>Control-level visual properties: navigation buttons, view selector, density toggle</td></tr>
+<tr><td><strong>LayoutTheme.Controls.Categories.cs</strong></td><td>Event category color mapping from theme. Resolves <code>EventCategory.Color</code> when category uses theme-defined colors</td></tr></tbody></table></section>
+
+<section class="section" id="visual-updates"><h2>Visual Updates</h2>
+<p>3 files manage rendering performance via scoped invalidation:</p>
+<ul><li><strong>VisualUpdates.Flush.cs</strong> — Full redraw of the entire calendar surface via <code>Invalidate()</code></li>
+<li><strong>VisualUpdates.Scope.cs</strong> — Partial invalidation: only redraws the area containing a changed event for better performance during drag operations</li>
+<li><strong>VisualUpdates.Strategy.cs</strong> — Dirty-rect tracking optimization: maintains a union of dirty rectangles to avoid redundant repaints</li></ul></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<pre><code class="language-csharp">// Switch view modes
+cal.ViewMode = CalendarViewMode.Month;    // 7-column grid
+cal.ViewMode = CalendarViewMode.Week;     // 7-day + hourly slots
+cal.ViewMode = CalendarViewMode.Day;      // Single day
+cal.ViewMode = CalendarViewMode.Agenda;   // Event list
+
+// Density modes
+cal.DensityMode = CalendarDensityMode.Compact;     // Smaller fonts, tight
+cal.DensityMode = CalendarDensityMode.Comfortable; // Larger fonts, spaced
+
+// Sidebar
+cal.ShowSidebar = true;  // Compact mini-calendar panel</code></pre></section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

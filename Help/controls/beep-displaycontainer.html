@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDisplayContainer - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a><span>&rsaquo;</span>
+                    <span>BeepDisplayContainer</span>
+                </nav>
+                <div class="page-header"><h1>BeepDisplayContainer</h1><p class="page-subtitle">A container control for hosting addins in tabbed or single-panel layouts with theme integration and event-driven lifecycle management</p></div>
+                <div class="toc"><h3>Table of Contents</h3><ul>
+                    <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#methods">Methods</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+                </ul></div>
+                <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepDisplayContainer</strong> is a container control that implements <code>IDisplayContainer</code> for hosting <code>IDM_Addin</code> components. It inherits from <code>BaseControl</code> and resides in <code>TheTechIdea.Beep.Winform.Controls</code>. The control supports two layout modes: <code>SinglePanel</code> (one addin at a time in a plain Panel) and <code>TabbedPanel</code> (multiple addins in <code>BeepTabs</code> pages). It manages addin lifecycle (initialize, resume, dispose), provides popup support for forms and controls, and handles keyboard shortcuts. Container rendering is intentionally skipped (PainterKind.None, empty OnPaint/OnPaintBackground) since child controls paint themselves, and WS_EX_COMPOSITED is enabled for smooth DPI-aware compositing.</p></section>
+                <section id="features" class="section"><h2>Key Features</h2><ul>
+                    <li>Dual container modes: SinglePanel (one addin) and TabbedPanel (multiple tabs via BeepTabs)</li>
+                    <li>Five tab visual styles: Classic, Underline, Capsule, Minimal, Segmented (plus Button, Card)</li>
+                    <li>Auto-mapping of <code>BeepControlStyle</code> to appropriate <code>TabStyle</code> via predefined rules</li>
+                    <li>Addin lifecycle management: initialize, resume, dispose</li>
+                    <li>Popup support for <code>Form</code> and <code>Control</code> addins (rendered in BeepiFormPro)</li>
+                    <li>Addin deduplication using <code>AddinScopeCreateType.Single</code> attribute check</li>
+                    <li>Event system for addin add/remove/move/change operations</li>
+                    <li>Key combination forwarding via <code>KeyPressed</code> event</li>
+                    <li>DPI-aware composited rendering with WS_EX_COMPOSITED</li>
+                    <li>Theme propagation to TabContainerPanel and ContainerPanel backgrounds</li>
+                </ul></section>
+                <section id="properties" class="section"><h2>Properties</h2><table>
+                <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ContainerType</code></td><td>ContainerTypeEnum</td><td>TabbedPanel</td><td>Determines whether the container uses a single panel or tabbed panel</td></tr>
+                    <tr><td><code>TabStyle</code></td><td>TabStyle</td><td>Capsule</td><td>Visual style of tab headers (Classic, Underline, Capsule, Minimal, Segmented, Button, Card)</td></tr>
+                    <tr><td><code>ControlStyle</code></td><td>BeepControlStyle</td><td>None</td><td>Visual style/painter; automatically maps to an appropriate TabStyle when changed</td></tr>
+                    <tr><td><code>currenttab</code></td><td>BeepTabPage?</td><td>—</td><td>Currently active tab page (read-only)</td></tr>
+                </tbody></table></section>
+                <section id="methods" class="section"><h2>Methods</h2><table>
+                <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>AddControl</code></td><td>public bool AddControl(string TitleText, IDM_Addin control, ContainerTypeEnum pcontainerType)</td><td>Adds an addin to the container; initializes it, checks Single scope, creates tab or replaces single panel</td></tr>
+                    <tr><td><code>ShowControl</code></td><td>public bool ShowControl(string TitleText, IDM_Addin control)</td><td>Shows/activates an addin by resuming it and selecting its tab or displaying in single panel</td></tr>
+                    <tr><td><code>RemoveControl</code></td><td>public bool RemoveControl(string TitleText, IDM_Addin control)</td><td>Disposes the addin and removes it from tabs or single panel</td></tr>
+                    <tr><td><code>RemoveControlByGuidTag</code></td><td>public bool RemoveControlByGuidTag(string guidid)</td><td>Removes an addin by its GUID identifier</td></tr>
+                    <tr><td><code>RemoveControlByName</code></td><td>public bool RemoveControlByName(string name)</td><td>Removes an addin by title text</td></tr>
+                    <tr><td><code>Clear</code></td><td>public void Clear()</td><td>Removes and disposes all addins from the container</td></tr>
+                    <tr><td><code>IsControlExit</code></td><td>public bool IsControlExit(IDM_Addin control)</td><td>Checks if an addin exists in the container</td></tr>
+                    <tr><td><code>ShowPopup</code></td><td>public async Task&lt;bool&gt; ShowPopup(IDM_Addin view)</td><td>Shows the addin as a popup (Form shown directly; Control wrapped in BeepiFormPro)</td></tr>
+                    <tr><td><code>PressKey</code></td><td>public IErrorsInfo PressKey(KeyCombination keyCombination)</td><td>Forwards a key combination to the <code>KeyPressed</code> event</td></tr>
+                    <tr><td><code>SetTabStylePreset</code></td><td>public void SetTabStylePreset(TabStyle style)</td><td>Applies a TabStyle preset using TabStylePresets</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td>public override void ApplyTheme()</td><td>Applies theme colors to container backgrounds and syncs TabStyle from ControlStyle</td></tr>
+                </tbody></table></section>
+                <section id="events" class="section"><h2>Events</h2><table>
+                <thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>AddinAdded</code></td><td>Fired when an addin is successfully added; carries ContainerEvents (TitleText, Control, ContainerType, Guidid)</td></tr>
+                    <tr><td><code>AddinRemoved</code></td><td>Fired when an addin is removed; carries ContainerEvents</td></tr>
+                    <tr><td><code>AddinMoved</code></td><td>Fired when an addin is repositioned; carries ContainerEvents</td></tr>
+                    <tr><td><code>AddinChanging</code></td><td>Fired before an addin change occurs; carries ContainerEvents</td></tr>
+                    <tr><td><code>AddinChanged</code></td><td>Fired after an addin change occurs; carries ContainerEvents</td></tr>
+                    <tr><td><code>PreCallModule</code></td><td>Fired before calling a module; carries IPassedArgs</td></tr>
+                    <tr><td><code>PreShowItem</code></td><td>Fired before showing an item; carries IPassedArgs with ParameterString1, Addin, EventType, Title, Timestamp, AddinName</td></tr>
+                    <tr><td><code>KeyPressed</code></td><td>Fired when a key combination is pressed; carries KeyCombination</td></tr>
+                </tbody></table></section>
+                <section id="theming" class="section"><h2>Theming</h2><p><code>ApplyTheme()</code> sets <code>ContainerPanel.BackColor</code> and <code>BackColor</code> from <code>_currentTheme.BackgroundColor</code>. It forwards <code>Theme</code> and <code>TabStyle</code> to <code>TabContainerPanel</code>. The <code>ControlStyle</code> setter triggers <code>UpdateTabStyleFromControlStyle()</code> which maps Beep control styles to tab styles: FigmaCard/TailwindCard/DiscordStyle/StripeDashboard/NeoBrutalist → Card; Minimal/NotionMinimal/VercelClean → Minimal; GlassAcrylic/Windows11Mica/Fluent2/Material3 → Underline; PillRail/ChakraUI → Capsule; iOS15/MacOSBigSur → Segmented; Bootstrap/AntDesign/Neumorphism → Button. Theme re-application checks if <code>ControlStyle</code> changed externally via <code>_lastControlStyle</code> tracking.</p></section>
+                <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Tabbed container with multiple addins
+var container = new BeepDisplayContainer
+{
+    ContainerType = ContainerTypeEnum.TabbedPanel,
+    TabStyle = TabStyle.Underline,
+    ControlStyle = BeepControlStyle.Material3,
+    Size = new Size(800, 600),
+    Dock = DockStyle.Fill
+};
+
+container.AddinAdded += (s, e) =>
+{
+    Console.WriteLine($"Addin added: {e.TitleText}");
+};
+
+container.AddinRemoved += (s, e) =>
+{
+    Console.WriteLine($"Addin removed: {e.TitleText}");
+};
+
+// Add addins
+container.AddControl("Dashboard", myDashboardAddin, ContainerTypeEnum.TabbedPanel);
+container.AddControl("Settings", mySettingsAddin, ContainerTypeEnum.TabbedPanel);
+container.AddControl("Reports", myReportsAddin, ContainerTypeEnum.TabbedPanel);
+
+// Show a specific addin
+container.ShowControl("Dashboard", myDashboardAddin);
+
+// Show addin as popup
+await container.ShowPopup(myQuickViewAddin);
+
+// Apply a tab style preset
+container.SetTabStylePreset(TabStyle.Segmented);
+
+// Single panel mode
+container.ContainerType = ContainerTypeEnum.SinglePanel;
+container.AddControl("MainView", myMainAddin, ContainerTypeEnum.SinglePanel);
+
+this.Controls.Add(container);</code></pre></section>
+                <section id="architecture" class="section"><h2>Architecture</h2><p><code>BeepDisplayContainer</code> implements <code>IDisplayContainer</code> and manages two internal hosting surfaces: <code>ContainerPanel</code> (Panel for SinglePanel mode) and <code>TabContainerPanel</code> (BeepTabs for TabbedPanel mode). Only one surface is visible at a time, controlled by <code>UpdateContainerLayout()</code> which also migrates controls between modes. An internal <code>Dictionary&lt;string, (IDM_Addin, BeepTabPage?)&gt;</code> tracks all hosted addins by title. <code>AddControl()</code> checks for <code>AddinAttribute.ScopeCreateType == Single</code> to prevent duplicate single-scope addins, calls <code>control.Initialize()</code>, and wraps controls in <code>BeepTabPage</code> for tabbed mode. <code>ShowPopup()</code> handles both Form-based and Control-based addins, wrapping the latter in a <code>BeepiFormPro</code> dialog. Mouse events are forwarded to <code>TabContainerPanel</code> for proper tab interaction. The control uses <code>PainterKind.None</code>, empty <code>OnPaint</code>/<code>OnPaintBackground</code>, and <code>WS_EX_COMPOSITED</code> for optimal child rendering performance.</p></section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

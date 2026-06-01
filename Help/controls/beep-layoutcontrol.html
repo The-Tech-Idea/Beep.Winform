@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepLayoutControl - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a><span>&rsaquo;</span>
+                    <span>BeepLayoutControl</span>
+                </nav>
+                <div class="page-header"><h1>BeepLayoutControl</h1><p class="page-subtitle">Container control for ready-made layout templates with Beep styling and theming support</p></div>
+                <div class="toc"><h3>Table of Contents</h3><ul>
+                    <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#methods">Methods</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+                </ul></div>
+                <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepLayoutControl</strong> is a container control that renders pre-built layout templates with Beep styling and theme support. It inherits from <code>BaseControl</code> and resides in <code>TheTechIdea.Beep.Winform.Controls.Layouts</code>. A <code>TemplateType</code> enum determines which layout to build: Invoice, Product, Profile, Report, VerticalStack, HorizontalStack, Grid, SplitContainer, or Dock. The control uses specialized <code>LayoutHelper</code> classes (e.g., <code>InvoiceLayoutHelper</code>, <code>GridLayoutHelper</code>) to construct the internal layout controls dynamically based on <code>LayoutOptions</code>.</p></section>
+                <section id="features" class="section"><h2>Key Features</h2><ul>
+                    <li>9 pre-built layout templates: Invoice, Product, Profile, Report, VerticalStack, HorizontalStack, Grid, SplitContainer, Dock</li>
+                    <li>Configurable Grid layout with Row and Column counts</li>
+                    <li><code>LayoutOptions</code> object for theming and styling configuration (auto-created from control settings)</li>
+                    <li>Event notifications on layout build and template change</li>
+                    <li>Builds layout automatically in non-design mode via <code>OnCreateControl</code></li>
+                    <li>Rounded border rendering with theme-aware color via <code>BeepStyling</code></li>
+                    <li>Exception-safe layout building with design-mode debug logging</li>
+                </ul></section>
+                <section id="properties" class="section"><h2>Properties</h2><table>
+                <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>Template</code></td><td>TemplateType</td><td>VerticalStack</td><td>Selects which predefined layout template to render (Invoice, Product, Profile, Report, VerticalStack, HorizontalStack, Grid, SplitContainer, Dock)</td></tr>
+                    <tr><td><code>GridRows</code></td><td>int</td><td>3</td><td>Number of rows for Grid template (must be &gt; 0; throws ArgumentException)</td></tr>
+                    <tr><td><code>GridColumns</code></td><td>int</td><td>3</td><td>Number of columns for Grid template (must be &gt; 0; throws ArgumentException)</td></tr>
+                    <tr><td><code>LayoutOptions</code></td><td>LayoutOptions</td><td>Auto from control</td><td>Configuration options for layout theming and styling (hidden from designer)</td></tr>
+                </tbody></table></section>
+                <section id="methods" class="section"><h2>Methods</h2><table>
+                <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>BuildLayout</code></td><td>public void BuildLayout()</td><td>Builds the layout template based on current Template property; clears and recreates child controls</td></tr>
+                    <tr><td><code>RebuildLayout</code></td><td>public void RebuildLayout()</td><td>Convenience wrapper that calls BuildLayout()</td></tr>
+                    <tr><td><code>OnCreateControl</code></td><td>protected override void OnCreateControl()</td><td>Automatically builds layout when not in DesignMode</td></tr>
+                    <tr><td><code>OnLayoutChanged</code></td><td>protected virtual void OnLayoutChanged()</td><td>Raises the LayoutChanged event</td></tr>
+                    <tr><td><code>OnLayoutBuilt</code></td><td>protected virtual void OnLayoutBuilt()</td><td>Raises the LayoutBuilt event</td></tr>
+                </tbody></table></section>
+                <section id="events" class="section"><h2>Events</h2><table>
+                <thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>LayoutBuilt</code></td><td>Occurs when a layout template has been built</td></tr>
+                    <tr><td><code>LayoutChanged</code></td><td>Occurs when the Template property changes</td></tr>
+                </tbody></table></section>
+                <section id="theming" class="section"><h2>Theming</h2><p>The control paints a background using <code>BeepStyling.PaintStyleBackground</code> with the current <code>ControlStyle</code> on each <code>OnPaint</code> call. A subtle border is drawn using a theme color from <code>BeepStyling.GetThemeColor("Border")</code>. The <code>LayoutOptions.FromControl(this)</code> factory method automatically captures theme and style settings from the control to pass to layout helper classes. The <code>ControlStyle</code> property is inherited from <code>BaseControl</code> and not explicitly redefined on this control.</p></section>
+                <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Grid layout with custom dimensions
+var gridLayout = new BeepLayoutControl
+{
+    Template = BeepLayoutControl.TemplateType.Grid,
+    GridRows = 4,
+    GridColumns = 3,
+    Size = new Size(800, 600),
+    ControlStyle = BeepControlStyle.Material3,
+    Dock = DockStyle.Fill
+};
+
+gridLayout.LayoutBuilt += (s, e) =>
+{
+    Console.WriteLine("Grid layout built successfully");
+};
+
+gridLayout.LayoutChanged += (s, e) =>
+{
+    Console.WriteLine("Template type changed");
+};
+
+this.Controls.Add(gridLayout);
+
+// Invoice layout
+var invoiceLayout = new BeepLayoutControl
+{
+    Template = BeepLayoutControl.TemplateType.Invoice,
+    Size = new Size(700, 900)
+};
+invoiceLayout.BuildLayout();
+this.Controls.Add(invoiceLayout);
+
+// Split container layout
+var splitLayout = new BeepLayoutControl
+{
+    Template = BeepLayoutControl.TemplateType.SplitContainer,
+    Size = new Size(600, 400)
+};
+this.Controls.Add(splitLayout);</code></pre></section>
+                <section id="architecture" class="section"><h2>Architecture</h2><p><code>BeepLayoutControl</code> uses a strategy pattern where <code>BuildLayout()</code> delegates to dedicated static helper classes (<code>InvoiceLayoutHelper</code>, <code>ProductLayoutHelper</code>, <code>ProfileLayoutHelper</code>, <code>ReportLayoutHelper</code>, <code>VerticalStackLayoutHelper</code>, <code>HorizontalStackLayoutHelper</code>, <code>GridLayoutHelper</code>, <code>SplitContainerLayoutHelper</code>, <code>DockLayoutHelper</code>) based on the <code>TemplateType</code> enum. Each helper's <code>Build()</code> method receives the control instance and <code>LayoutOptions</code>, constructing the internal control tree. On template change, existing controls are cleared via <code>Controls.Clear()</code> before rebuilding. <code>GridRows</code> and <code>GridColumns</code> only trigger rebuild when <code>Template == TemplateType.Grid</code>, optimizing for other templates. Layout-building is wrapped in <code>SuspendLayout</code>/<code>ResumeLayout</code> for performance and is exception-safe with design-mode debug output.</p></section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

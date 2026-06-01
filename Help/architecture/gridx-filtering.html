@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridX Filtering System - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>GridX Filtering</span></nav><div class="page-header"><h1>GridX Filtering System</h1><p class="page-subtitle">Three-tier filtering — BeepQuickFilterBar, BeepAdvancedFilterDialog (AND/OR logic, save/load configs), per-column filter popups, Excel-style filter helpers</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#advanced">BeepAdvancedFilterDialog</a></li><li><a href="#filterrow">FilterRowData Model</a></li><li><a href="#quick">BeepQuickFilterBar</a></li><li><a href="#percolumn">Per-Column Popups</a></li><li><a href="#helpers">Filter Dialogs &amp; Helpers</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>GridX provides a <strong>three-tier filtering architecture</strong> that scales from simple real-time text filtering up to complex multi-condition logic:</p><table><thead><tr><th>Tier</th><th>Component</th><th>Complexity</th><th>Use Case</th></tr></thead><tbody><tr><td>1. Quick Filter</td><td><code>BeepQuickFilterBar</code></td><td>Low</td><td>Real-time text filtering, one input per visible column</td></tr><tr><td>2. Per-Column</td><td><code>BeepGridFilterPopup</code> / <code>FilterFlyout</code></td><td>Medium</td><td>Checkbox list of distinct values, Search/Select All/Clear All</td></tr><tr><td>3. Advanced</td><td><code>BeepAdvancedFilterDialog</code></td><td>High</td><td>AND/OR logic, multi-column conditions, save/load filter configs</td></tr></tbody></table><p>Filtering is integrated with <code>GridSortFilterHelper</code> and supports operators: <strong>Contains, Equals, NotEquals, StartsWith, EndsWith, GreaterThan, LessThan, GreaterThanOrEqual, LessThanOrEqual, IsNull, IsNotNull, Between</strong>.</p></section>
+<section class="section" id="advanced"><h2>BeepAdvancedFilterDialog</h2><p><code>BeepAdvancedFilterDialog</code> inherits from <code>BeepiFormPro</code> and presents a 900x500 resizable dialog for building complex filter conditions. It uses an embedded <code>BeepGridPro</code> where each row defines one filter condition (Column, Operator, Value, optional Value2 for Between).</p><table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Result</code></td><td><code>DialogResult</code></td><td>Returns OK if user clicked Apply/OK, Cancel otherwise</td></tr><tr><td><code>LogicOperator</code></td><td><code>LogicOperator</code></td><td>AND or OR — determines how multiple conditions are combined</td></tr><tr><td><code>FilterRows</code></td><td><code>BindingList&lt;FilterRowData&gt;</code></td><td>Data-bound list of filter conditions</td></tr></tbody></table><p>The dialog layout:</p><ul><li><strong>Logic combo</strong>: Dropdown at the top selecting AND (all conditions must match) or OR (any condition matches)</li><li><strong>Filter grid</strong>: BeepGridPro with columns: Column (ComboBox of grid columns), Operator (ComboBox of operators), Value (TextBox), Value2 (TextBox, visible only for Between operator)</li><li><strong>Action buttons</strong>: Add Condition, Remove Condition, Clear All, Save Config, Load Config, OK, Cancel</li></ul><p>Constructor signature: <code>BeepAdvancedFilterDialog(BeepGridPro parentGrid, List&lt;FilterRowData&gt; existingRows = null, LogicOperator existingLogic = LogicOperator.AND)</code></p></section>
+<section class="section" id="filterrow"><h2>FilterRowData Model</h2><p><code>FilterRowData</code> implements <code>INotifyPropertyChanged</code> and represents a single filter condition.</p><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><code>ColumnName</code></td><td><code>string</code></td><td><code>""</code></td><td>Target column for this filter condition</td></tr><tr><td><code>Operator</code></td><td><code>FilterOperator</code></td><td><code>Contains</code></td><td>Comparison operator</td></tr><tr><td><code>Value</code></td><td><code>string</code></td><td><code>""</code></td><td>Primary filter value</td></tr><tr><td><code>Value2</code></td><td><code>string</code></td><td><code>""</code></td><td>Secondary value for Between operator (range end)</td></tr></tbody></table><p>The <code>FilterOperator</code> enum includes: <code>Contains</code>, <code>Equals</code>, <code>NotEquals</code>, <code>StartsWith</code>, <code>EndsWith</code>, <code>GreaterThan</code>, <code>LessThan</code>, <code>GreaterThanOrEqual</code>, <code>LessThanOrEqual</code>, <code>IsNull</code>, <code>IsNotNull</code>, <code>Between</code>.</p></section>
+<section class="section" id="quick"><h2>BeepQuickFilterBar</h2><p><code>BeepQuickFilterBar</code> renders a toolbar row above the grid column headers with one text input per visible column. Typing in any input instantly filters the grid's data source.</p><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><code>ShowTopFilterPanel</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables the quick filter bar</td></tr><tr><td><code>TopFilterPanelHeight</code></td><td><code>int</code></td><td><code>28</code></td><td>Pixel height of the filter bar row</td></tr></tbody></table><p>Filtering uses <strong>Contains</strong> operator (case-insensitive) by default. The filter is applied in real time as the user types — no Enter key or button press needed. The filter bar respects column visibility: only visible columns get filter inputs.</p></section>
+<section class="section" id="percolumn"><h2>Per-Column Popups</h2><p><code>BeepGridFilterPopup</code> (also referred to as <code>FilterFlyout</code>) provides an Excel-style dropdown of distinct values for a single column. It appears when the user clicks a filter icon in the column header.</p><p>Key UI elements:</p><ul><li><strong>Search box</strong> — filters the distinct value list itself</li><li><strong>Checkbox list</strong> — each distinct value with a checkbox; checked = included in results</li><li><strong>Select All / Clear All</strong> — bulk toggle buttons</li><li><strong>OK / Cancel</strong> — apply or discard filter</li></ul><p>The popup is populated by calling <code>GetDistinctValues(columnName)</code> on the data source. For large datasets, a configurable limit (default 1000) prevents excessive popup rendering. The popup auto-sizes based on content and positions relative to the column header.</p></section>
+<section class="section" id="helpers"><h2>Filter Dialogs &amp; Helpers</h2><table><thead><tr><th>Class</th><th>Description</th></tr></thead><tbody><tr><td><code>GridDialogHelper.FilteringDialogs</code></td><td>Static helper that launches filtering-related dialogs from toolbar/menu actions</td></tr><tr><td><code>BeepInlineCriterionMenu</code></td><td>Inline filter row rendered inside the grid between header and data rows; adds a filter criterion row with dropdowns</td></tr><tr><td><code>ExcelFilterHelper</code></td><td>Provides Excel-style distinct-value filtering: <code>GetDistinctValues()</code>, <code>HasActiveFilter()</code>, <code>ClearFilter()</code>, <code>ApplyChecklistFilter()</code></td></tr></tbody></table><p><code>ExcelFilterHelper</code> works directly with the grid's <code>DataView</code> or <code>IBindingListView</code> to apply row filters. It translates checkbox selections into a <code>DataView.RowFilter</code> string expression.</p></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Enable Quick Filter Bar</h3><pre><code class="language-csharp">grid.ShowTopFilterPanel = true;
+grid.TopFilterPanelHeight = 32;</code></pre><h3>Open Advanced Filter Dialog</h3><pre><code class="language-csharp">var dialog = new BeepAdvancedFilterDialog(grid)
+{
+    PreferredContentWidth = 900,
+    PreferredContentHeight = 500
+};
+
+if (dialog.ShowDialog() == DialogResult.OK)
+{
+    GridDialogHelper.FilteringDialogs.ApplyAdvancedFilter(
+        grid,
+        dialog.FilterRows.ToList(),
+        dialog.LogicOperator);
+}</code></pre><h3>Save &amp; Load Filter Configs</h3><pre><code class="language-csharp">var filterRows = new List&lt;FilterRowData&gt;
+{
+    new FilterRowData { ColumnName = "Status", Operator = FilterOperator.Equals, Value = "Active" },
+    new FilterRowData { ColumnName = "Amount", Operator = FilterOperator.GreaterThan, Value = "1000" }
+};
+
+string json = JsonConvert.SerializeObject(filterRows);
+File.WriteAllText(@"C:\configs\myfilter.json", json);
+
+var loaded = JsonConvert.DeserializeObject&lt;List&lt;FilterRowData&gt;&gt;(
+    File.ReadAllText(@"C:\configs\myfilter.json"));
+
+GridDialogHelper.FilteringDialogs.ApplyAdvancedFilter(
+    grid, loaded, LogicOperator.AND);</code></pre><h3>Programmatic Distinct-Value Filter</h3><pre><code class="language-csharp">var helper = new ExcelFilterHelper(grid);
+
+var distinctValues = helper.GetDistinctValues("Country");
+
+var selectedValues = new List&lt;string&gt; { "USA", "Canada", "UK" };
+helper.ApplyChecklistFilter("Country", selectedValues);
+
+bool hasFilter = helper.HasActiveFilter("Country");
+
+helper.ClearFilter("Country");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

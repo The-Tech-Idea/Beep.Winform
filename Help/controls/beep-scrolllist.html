@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepScrollList - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a><span>&rsaquo;</span>
+                    <span>BeepScrollList</span>
+                </nav>
+                <div class="page-header"><h1>BeepScrollList</h1><p class="page-subtitle">A carousel-style scrollable list control using virtual items, supporting vertical or horizontal orientation with smooth animation, drag scrolling, and keyboard navigation</p></div>
+                <div class="toc"><h3>Table of Contents</h3><ul>
+                    <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#methods">Methods</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li>
+                </ul></div>
+                <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepScrollList</strong> is a carousel-style scrollable list control that renders items as virtual hit-testable regions without creating actual child controls. It inherits from <code>BeepPanel</code> and resides in <code>TheTechIdea.Beep.Winform.Controls.Scolling</code>. The control supports both vertical and horizontal orientation, smooth scrolling via a 60fps animation timer, mouse wheel support, drag-to-scroll, keyboard navigation (arrow keys, PageUp/Down, Home/End), hover effects, checkbox display, and optional scrollbar-style position indicators.</p></section>
+                <section id="features" class="section"><h2>Key Features</h2><ul>
+                    <li>Virtual item rendering via hit-test areas (no child controls)</li>
+                    <li>Vertical and horizontal scroll orientation</li>
+                    <li>Smooth animation scrolling at ~60fps with configurable speed</li>
+                    <li>Mouse drag-to-scroll with inertia</li>
+                    <li>Mouse wheel support</li>
+                    <li>Scroll position indicators (mini scrollbar thumb)</li>
+                    <li>Item selection with visual state (selected/hover/normal)</li>
+                    <li>Keyboard navigation: Up/Down/Left/Right, PageUp/Down, Home/End</li>
+                    <li>Optional checkboxes per item</li>
+                    <li>Image support per item via BeepImage</li>
+                    <li>Auto-scroll to selected item</li>
+                    <li>Centering offset for items when total size is smaller than visible area</li>
+                </ul></section>
+                <section id="properties" class="section"><h2>Properties</h2><table>
+                <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ListItems</code></td><td>BindingList&lt;SimpleItem&gt;</td><td>empty</td><td>The list of items to display (Content serialization)</td></tr>
+                    <tr><td><code>SelectedIndex</code></td><td>int</td><td>-1</td><td>The index of the currently selected item; auto-scrolls to item</td></tr>
+                    <tr><td><code>SelectedItem</code></td><td>SimpleItem</td><td>null</td><td>The currently selected item (get/set by index lookup)</td></tr>
+                    <tr><td><code>ItemHeight</code></td><td>int</td><td>30</td><td>Height of each item (for vertical) or width (for horizontal)</td></tr>
+                    <tr><td><code>ItemWidth</code></td><td>int</td><td>100</td><td>Width of each item in vertical orientation (ignored in horizontal)</td></tr>
+                    <tr><td><code>Orientation</code></td><td>ScrollOrientation</td><td>VerticalScroll</td><td>The orientation of the scroll list (VerticalScroll or HorizontalScroll)</td></tr>
+                    <tr><td><code>ItemSpacing</code></td><td>int</td><td>2</td><td>Space between list items</td></tr>
+                    <tr><td><code>TextFont</code></td><td>Font</td><td>Arial 10pt</td><td>Text font displayed in the control (disables UseThemeFont when set)</td></tr>
+                    <tr><td><code>ItemTextAlign</code></td><td>ContentAlignment</td><td>MiddleLeft</td><td>Text alignment for list items</td></tr>
+                    <tr><td><code>ItemPadding</code></td><td>Padding</td><td>(8,0,8,0)</td><td>Padding for list items</td></tr>
+                    <tr><td><code>ShowCheckBox</code></td><td>bool</td><td>false</td><td>Shows checkboxes next to list items</td></tr>
+                    <tr><td><code>ShowScrollIndicators</code></td><td>bool</td><td>true</td><td>Show scroll position indicators</td></tr>
+                    <tr><td><code>ScrollIndicatorColor</code></td><td>Color</td><td>Gray</td><td>Color of the scroll indicators</td></tr>
+                    <tr><td><code>EnableKeyboardNavigation</code></td><td>bool</td><td>true</td><td>Enable keyboard navigation (arrow keys, page, home, end)</td></tr>
+                    <tr><td><code>EnableItemHoverEffects</code></td><td>bool</td><td>true</td><td>Enable hover effects for list items</td></tr>
+                </tbody></table></section>
+                <section id="methods" class="section"><h2>Methods</h2><table>
+                <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ScrollToItem</code></td><td>public void ScrollToItem(int index)</td><td>Scrolls to the specified item index with smooth animation (centers if possible)</td></tr>
+                    <tr><td><code>UpdateVirtualItems</code></td><td>public void UpdateVirtualItems()</td><td>Clears and recalculates all hit-test areas for visible items</td></tr>
+                    <tr><td><code>SetValue</code></td><td>public override void SetValue(object value)</td><td>Sets selected item by SimpleItem or by matching value string</td></tr>
+                    <tr><td><code>GetValue</code></td><td>public override object GetValue()</td><td>Returns the currently selected SimpleItem</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td>public override void ApplyTheme()</td><td>Applies theme to button/image/label helpers; sets theme fonts/colors for list items</td></tr>
+                    <tr><td><code>Draw</code></td><td>public override void Draw(Graphics graphics, Rectangle rectangle)</td><td>Custom draw method with anti-aliasing</td></tr>
+                </tbody></table></section>
+                <section id="events" class="section"><h2>Events</h2><table>
+                <thead><tr><th>Event</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ItemSelected</code></td><td>Fired when an item is selected (clicked); carries the selected SimpleItem</td></tr>
+                </tbody></table></section>
+                <section id="theming" class="section"><h2>Theming</h2><p><code>ApplyTheme()</code> propagates the theme to internal drawing helpers: <code>_button</code> gets theme-based <code>TextFont</code>, <code>BackColor</code>, <code>ForeColor</code>, <code>HoverBackColor</code>, <code>HoverForeColor</code>, <code>SelectedBackColor</code>, <code>SelectedForeColor</code> from theme properties (<code>ListUnSelectedFont</code>, <code>ListBackColor</code>, <code>ListItemForeColor</code>, <code>ListItemHoverBackColor</code>, <code>ListItemHoverForeColor</code>, <code>ListItemSelectedBackColor</code>, <code>ListItemSelectedForeColor</code>). <code>_image</code> gets <code>ApplyThemeOnImage</code> from <code>_currentTheme.ApplyThemeToIcons</code>. <code>_label</code> gets theme font and color settings. The control itself uses <code>SelectedBackColor</code>, <code>SelectedForeColor</code>, <code>HoverBackColor</code>, and <code>HoverForeColor</code> from <code>BeepPanel</code> base for item state rendering.</p></section>
+                <section id="examples" class="section"><h2>Examples</h2><pre><code class="language-csharp">// Vertical scroll list with images and checkboxes
+var scrollList = new BeepScrollList
+{
+    Size = new Size(250, 400),
+    Orientation = ScrollOrientation.VerticalScroll,
+    ItemHeight = 40,
+    ItemWidth = 230,
+    ItemSpacing = 4,
+    ShowCheckBox = true,
+    EnableKeyboardNavigation = true,
+    EnableItemHoverEffects = true
+};
+
+scrollList.ListItems.Add(new SimpleItem
+{
+    Text = "Dashboard",
+    Value = "dashboard",
+    ImagePath = Svgs.Home
+});
+scrollList.ListItems.Add(new SimpleItem
+{
+    Text = "Analytics",
+    Value = "analytics",
+    ImagePath = Svgs.Chart
+});
+scrollList.ListItems.Add(new SimpleItem
+{
+    Text = "Settings",
+    Value = "settings",
+    ImagePath = Svgs.Gear
+});
+
+scrollList.ItemSelected += (s, item) =>
+{
+    Console.WriteLine($"Selected: {item.Text}");
+};
+
+// Scroll to a specific item
+scrollList.ScrollToItem(5);
+
+// Horizontal carousel-style list
+var horizontalList = new BeepScrollList
+{
+    Size = new Size(600, 120),
+    Orientation = ScrollOrientation.HorizontalScroll,
+    ItemHeight = 100,
+    ItemWidth = 100,
+    ItemSpacing = 10,
+    EnableItemHoverEffects = true
+};
+
+this.Controls.Add(scrollList);</code></pre></section>
+                <section id="architecture" class="section"><h2>Architecture</h2><p><code>BeepScrollList</code> extends <code>BeepPanel</code> and renders items entirely through custom drawing in <code>DrawContent</code> without creating actual child controls. It uses hit-test areas (<code>AddHitArea</code> from the base HitArea system) to detect mouse interactions on virtual items. A single reusable <code>BeepButton</code>, <code>BeepImage</code>, and <code>BeepLabel</code> instance serve as drawing helpers (never added to Controls). A 60fps <code>Timer</code> drives smooth scroll animation by lerping <code>_scrollOffset</code> toward <code>_targetScrollOffset</code>. Dragging is handled through <code>OnMouseDown</code>/<code>OnMouseMove</code>/<code>OnMouseUp</code> state management. The control listens to <code>ListChanged</code> on the <code>BindingList&lt;SimpleItem&gt;</code> to auto-update virtual items. Scroll indicator thumb is drawn as a proportional rounded rectangle. <code>ScrollToItem</code> calculates the target position to center the item when possible, clamping to prevent overscroll.</p></section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

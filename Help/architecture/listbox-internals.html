@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ListBox Internals - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>ListBox Internals</span></nav><div class="page-header"><h1>ListBox Internals</h1><p class="page-subtitle">BeepListBox internal architecture — painter system, selection model, drag-drop, keyboard navigation, accessibility, and virtual scrolling</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#partial">Partial File Map</a></li><li><a href="#selection">Selection System</a></li><li><a href="#dragdrop">Drag-Drop</a></li><li><a href="#keyboard">Keyboard Navigation</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#virtual">Virtual Mode</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p><code>BeepListBox</code> is structured across <strong>multiple partial class files</strong>, each handling a distinct aspect of the control's behavior. The list box integrates with the 42-item painter system (see <code>listbox-painters.html</code>), supports single and multi selection with keyboard modifiers, drag-drop reordering, full keyboard navigation including type-to-search, UIA accessibility patterns, and virtual scrolling for large datasets.</p><p>The internal architecture separates concerns via a helper decomposition similar to GridX, but simpler: rendering delegates to <code>IListBoxPainter</code> implementations, selection state is tracked in a dedicated <code>SelectionManager</code>, and drag-drop uses WinForms standard drag operations with custom rendering of drop indicators.</p></section>
+<section class="section" id="partial"><h2>Partial File Map</h2><p><code>BeepListBox</code> is spread across multiple partial class files in the source tree:</p><table><thead><tr><th>File Group</th><th>Contains</th><th>Key Members</th></tr></thead><tbody><tr><td>Properties</td><td>Public properties</td><td><code>Items</code>, <code>ItemStyle</code>, <code>SelectionMode</code>, <code>MultiSelect</code>, <code>ItemHeight</code>, <code>DataSource</code>, <code>DisplayMember</code>, <code>ValueMember</code>, <code>VirtualMode</code>, <code>ItemCount</code>, <code>Sorted</code></td></tr><tr><td>Methods</td><td>Public methods</td><td><code>AddItem()</code>, <code>RemoveItem()</code>, <code>ClearItems()</code>, <code>GetItemAt()</code>, <code>ScrollToItem()</code>, <code>EnsureVisible()</code>, <code>BeginUpdate()</code>, <code>EndUpdate()</code>, <code>FindItem()</code></td></tr><tr><td>Events</td><td>Event declarations</td><td><code>SelectedIndexChanged</code>, <code>ItemClicked</code>, <code>ItemDoubleClicked</code>, <code>SelectionChanging</code>, <code>ItemDragStarted</code>, <code>ItemsReordered</code>, <code>DrawItem</code></td></tr><tr><td>Drawing</td><td>Paint logic</td><td><code>OnPaint()</code>, <code>OnPaintBackground()</code>, painter delegation to <code>IListBoxPainter</code>, item measuring via <code>BaseListBoxPainter.MeasureItem()</code></td></tr><tr><td>Selection</td><td>Selection state machine</td><td><code>SelectionManager</code> class, <code>SelectedIndices</code>, <code>SelectedItems</code>, <code>SelectAll()</code>, <code>ClearSelection()</code>, single/multi/extended modes</td></tr><tr><td>DragDrop</td><td>Drag-drop reorder</td><td><code>OnMouseDown()</code>, <code>OnDragOver()</code>, <code>OnDragDrop()</code>, <code>DoDragDrop()</code>, drop indicator rendering, <code>AllowDragReorder</code> property</td></tr><tr><td>Keyboard</td><td>Keyboard handling</td><td><code>OnKeyDown()</code>, arrow/PageUp/PageDown/Home/End navigation, type-to-search buffer, focus tracking, <code>FocusedItemIndex</code></td></tr><tr><td>Accessibility</td><td>UIA provider</td><td><code>BeepListBoxAccessibleObject</code>, <code>BeepListBoxItemAccessibleObject</code>, UIA patterns: Selection, Invoke, Scroll, role mapping</td></tr><tr><td>VirtualMode</td><td>Virtual scrolling</td><td><code>RetrieveVirtualItem</code> event, <code>CacheVirtualItems</code> event, item recycling pool, visible window management</td></tr><tr><td>Items</td><td>Item data model</td><td><code>BeepListItem</code> class: <code>Text</code>, <code>SubText</code>, <code>ImagePath</code>, <code>Tag</code>, <code>IsEnabled</code>, <code>IsSeparator</code>, custom data binding</td></tr></tbody></table></section>
+<section class="section" id="selection"><h2>Selection System</h2><p>The <code>SelectionManager</code> class (internal) manages all selection state with three modes:</p><table><thead><tr><th>Mode</th><th>Enum Value</th><th>Behavior</th></tr></thead><tbody><tr><td>None</td><td><code>SelectionMode.None</code></td><td>Items cannot be selected</td></tr><tr><td>Single</td><td><code>SelectionMode.One</code></td><td>Only one item can be selected at a time; clicking another deselects the previous</td></tr><tr><td>MultiSimple</td><td><code>SelectionMode.MultiSimple</code></td><td>Click toggles selection; Ctrl+click adds/removes from selection; no range selection</td></tr><tr><td>MultiExtended</td><td><code>SelectionMode.MultiExtended</code></td><td>Full multi-select: Ctrl+click toggles, Shift+click selects range, Ctrl+A selects all</td></tr></tbody></table><p>Selection events fire in order: <code>SelectionChanging</code> (cancelable) → selection changes → <code>SelectedIndexChanged</code>. The <code>SelectedItems</code> property returns a <code>List&lt;BeepListItem&gt;</code> of currently selected items. <code>SelectedIndices</code> returns <code>List&lt;int&gt;</code> index positions.</p><pre><code class="language-csharp">listBox.SelectionMode = SelectionMode.MultiExtended;
+
+listBox.SelectionChanging += (s, e) =>
+{
+    if (someCondition) e.Cancel = true;
+};
+
+listBox.SelectedIndexChanged += (s, e) =>
+{
+    Console.WriteLine($"Selected: {listBox.SelectedItems.Count} items");
+};</code></pre></section>
+<section class="section" id="dragdrop"><h2>Drag-Drop</h2><p>Drag-drop reordering is controlled by the <code>AllowDragReorder</code> property (default: <code>false</code>). When enabled, items can be dragged to reorder within the list.</p><table><thead><tr><th>Phase</th><th>Event / Method</th><th>Description</th></tr></thead><tbody><tr><td>Initiate</td><td><code>OnMouseDown</code> → <code>DoDragDrop</code></td><td>Mouse down on an item starts drag; movement beyond threshold begins drag operation</td></tr><tr><td>Drag Over</td><td><code>OnDragOver</code></td><td>Drop position is resolved: above item, below item, or onto item; drop indicator line is drawn</td></tr><tr><td>Drop</td><td><code>OnDragDrop</code></td><td>Item is removed from original position and inserted at drop position; <code>ItemsReordered</code> event fires</td></tr><tr><td>Visual</td><td>Drop indicator</td><td>A colored horizontal line painted between items at the drop insertion point; style follows active theme</td></tr></tbody></table><p>Drop position resolution checks the Y-coordinate of the mouse relative to each item's bounds. If the mouse is in the top third, the drop position is before that item; bottom third = after; middle = onto (insert after). During drag, the dragged item is rendered semi-transparent at the cursor position.</p></section>
+<section class="section" id="keyboard"><h2>Keyboard Navigation</h2><p><code>BeepListBox</code> implements full keyboard navigation in <code>OnKeyDown</code>:</p><table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Move focus up/down one item. In single-select mode, also changes selection. In multi-extended mode, when Shift is held, extends selection range.</td></tr><tr><td><kbd>Page Up</kbd> / <kbd>Page Down</kbd></td><td>Move focus by one visible page. Selection behavior matches arrow keys.</td></tr><tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>Move focus to first/last item.</td></tr><tr><td><kbd>Space</kbd></td><td>In multi-select mode: toggles selection of the focused item. In single-select: selects the focused item.</td></tr><tr><td><kbd>Ctrl+A</kbd></td><td>Selects all items (multi-extended mode only).</td></tr><tr><td>Character keys</td><td><strong>Type-to-search:</strong> typing characters selects the next item starting with those characters. A 1-second search buffer accumulates characters; after timeout, buffer resets.</td></tr></tbody></table><p>The type-to-search feature maintains a <code>StringBuilder</code> buffer and a <code>Timer</code>. Each character press appends to the buffer and restarts the timer. When the timer expires, the buffer is cleared. The search is case-insensitive and wraps from the current position.</p></section>
+<section class="section" id="accessibility"><h2>Accessibility</h2><p><code>BeepListBox</code> implements UI Automation (UIA) provider pattern via two custom accessible object classes:</p><table><thead><tr><th>Class</th><th>Purpose</th></tr></thead><tbody><tr><td><code>BeepListBoxAccessibleObject</code></td><td>UIA provider for the list box control itself. Supports the <strong>SelectionPattern</strong> (canSelectMultiple, getSelection, IsSelectionRequired) and <strong>ScrollPattern</strong> (VerticallyScrollable, VerticalViewSize, SetScrollPercent). Reports <code>ControlType.List</code> to screen readers.</td></tr><tr><td><code>BeepListBoxItemAccessibleObject</code></td><td>UIA provider for each item. Supports <strong>SelectionItemPattern</strong> (IsSelected, Select, AddToSelection, RemoveFromSelection) and <strong>InvokePattern</strong> (Invoke → triggers ItemClicked). Reports <code>ControlType.ListItem</code> with Name = item text.</td></tr></tbody></table><p>Accessible properties set: <code>Name</code> (control label), <code>Role</code> (AccessibleRole.List), <code>Description</code> (from tooltip if set). The control overrides <code>CreateAccessibilityInstance()</code> to return <code>BeepListBoxAccessibleObject</code>. Item runtime IDs are constructed from <code>Handle</code> + item index for stable UIA identification.</p></section>
+<section class="section" id="virtual"><h2>Virtual Mode</h2><p>Virtual mode is enabled via <code>VirtualMode = true</code> and <code>ItemCount</code>. Instead of storing items in memory, the list box fires <code>RetrieveVirtualItem</code> to fetch items on demand as they scroll into view.</p><table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>VirtualMode</code></td><td><code>bool</code></td><td>Enables virtual data mode; when true, <code>Items</code> collection is not used</td></tr><tr><td><code>ItemCount</code></td><td><code>int</code></td><td>Total number of virtual items (must be set when VirtualMode is true)</td></tr><tr><td><code>RetrieveVirtualItem</code></td><td>Event</td><td>Fired when a <code>BeepListItem</code> is needed for display; handler must populate and return it</td></tr><tr><td><code>CacheVirtualItems</code></td><td>Event</td><td>Fired to suggest caching a range of items (pre-fetch optimization)</td></tr><tr><td><code>ItemRecycling</code></td><td>Internal</td><td>A pool of ~50 item objects is recycled; items leaving the visible window are returned to the pool</td></tr></tbody></table><p>Virtual scrolling is efficient for lists with millions of items. Only ~20-50 visible items are materialized at a time. The scrollbar uses <code>ItemCount</code> to compute its range, and <code>RetrieveVirtualItem</code> is called with the index each time an item enters the viewport.</p></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Multi-Select with Drag Reorder</h3><pre><code class="language-csharp">var listBox = new BeepListBox
+{
+    SelectionMode = SelectionMode.MultiExtended,
+    AllowDragReorder = true,
+    ItemStyle = ListBoxType.CardList
+};
+
+for (int i = 0; i < 20; i++)
+    listBox.Items.Add(new BeepListItem { Text = $"Item {i + 1}" });
+
+listBox.ItemsReordered += (s, e) =>
+{
+    Console.WriteLine($"Item moved: {e.OldIndex} → {e.NewIndex}");
+};
+
+listBox.SelectAll();</code></pre><h3>Virtual Mode</h3><pre><code class="language-csharp">var listBox = new BeepListBox
+{
+    VirtualMode = true,
+    ItemCount = 1000000
+};
+
+listBox.RetrieveVirtualItem += (s, e) =>
+{
+    e.Item = new BeepListItem
+    {
+        Text = $"Virtual Row {e.Index}",
+        SubText = $"Index: {e.Index:N0}",
+        Tag = _data[e.Index]  // backing array
+    };
+};
+
+listBox.CacheVirtualItems += (s, e) =>
+{
+    for (int i = e.StartIndex; i <= e.EndIndex; i++)
+    {
+        if (!_cache.ContainsKey(i))
+            _cache[i] = _fetchData(i);
+    }
+};</code></pre><h3>Type-to-Search</h3><pre><code class="language-csharp">var listBox = new BeepListBox();
+
+listBox.Items.Add(new BeepListItem { Text = "Apple" });
+listBox.Items.Add(new BeepListItem { Text = "Application" });
+listBox.Items.Add(new BeepListItem { Text = "Apricot" });
+listBox.Items.Add(new BeepListItem { Text = "Banana" });
+listBox.Items.Add(new BeepListItem { Text = "Blackberry" });
+
+listBox.SetSelected(0, true);
+listBox.Focus();</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

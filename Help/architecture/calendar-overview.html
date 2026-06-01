@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Overview - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Calendar Overview</span></nav><div class="page-header"><h1>Calendar Architecture</h1><p class="page-subtitle">BeepCalendar internal architecture — 90+ partial file decomposition covering event operations, painting, interactions, commands, and layout theming</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#partial-design">Partial Class Design</a></li><li><a href="#event-ops">Event Operations</a></li><li><a href="#painting">Painting Pipeline</a></li><li><a href="#interactions">Interaction System</a></li><li><a href="#file-map">File Map</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><code>BeepCalendar</code> is the most decomposed control in the library, split across <strong>90+ partial files</strong> organized into 8 subsystems. This design keeps each file focused and manageable despite the control's complexity (~15,000+ lines total).</p></section><section class="section" id="partial-design"><h2>Partial Class Design</h2><table><thead><tr><th>Subsystem</th><th>Files</th><th>Responsibility</th></tr></thead><tbody><tr><td>Core</td><td>6 files</td><td>Constructor, public API, lifecycle, style, appearance</td></tr><tr><td>Commands</td><td>5 files</td><td>Public commands, execution core, helpers, duplicate detection</td></tr><tr><td>Event Operations</td><td>13 files</td><td>CRUD, history (undo/redo), navigation, queries, editor</td></tr><tr><td>Interactions</td><td>16 files</td><td>Pointer events, timing, proposals, hit testing, commitment</td></tr><tr><td>Painting</td><td>11 files</td><td>Pipeline, views (Month/Week/Day/List), design-time, sidebar</td></tr><tr><td>Layout Theme</td><td>9 files</td><td>Theme application, controls, categories, responsive labels</td></tr><tr><td>Visual Updates</td><td>3 files</td><td>Flush, scope, invalidation strategy</td></tr><tr><td>Types & Fields</td><td>5 files</td><td>Enums, EventArgs, command types, event model</td></tr></tbody></table></section><section class="section" id="event-ops"><h2>Event Operations</h2><pre><code class="language-plaintext">EventOperations/
+  ├── BeepCalendar.EventOperations.cs           — Main partial
+  ├── BeepCalendar.EventOperations.Public.cs     — Public API
+  ├── BeepCalendar.EventOperations.Navigation.cs  — Today/Next/Prev
+  ├── BeepCalendar.EventOperations.Queries.cs    — Filter/Search
+  ├── BeepCalendar.EventOperations.Crud.cs        — CRUD coordinator
+  │    ├── Crud.Add.cs      — Add event logic
+  │    ├── Crud.Remove.cs   — Remove event logic
+  │    └── Crud.Upsert.cs   — Upsert logic
+  ├── BeepCalendar.EventOperations.History.cs     — Undo/redo coordinator
+  │    ├── History.Internal.cs
+  │    └── History.Apply.cs  — Apply/Apply.Upsert/Apply.Remove
+  └── BeepCalendar.EventOperations.Editor.cs     — Event editor integration
+       └── Editor.Commit.cs</code></pre></section><section class="section" id="painting"><h2>Painting Pipeline</h2><pre><code class="language-plaintext">Painting/
+  ├── BeepCalendar.Painting.cs                    — Main partial
+  ├── BeepCalendar.Painting.Pipeline.cs           — Paint orchestration
+  │    ├── Pipeline.Views.cs     — View dispatch
+  │    ├── Pipeline.Telemetry.cs — Performance metrics
+  │    ├── Pipeline.Legacy.cs    — Backward compat
+  │    └── Pipeline.HeaderFormatting.cs
+  ├── BeepCalendar.Painting.Views.cs              — View-level paint
+  │    ├── Painting.MonthView.cs + MonthView.Events.cs + MonthView.Headers.cs
+  │    ├── Painting.WeekView.cs + WeekView.Events.cs
+  │    ├── Painting.DayView.cs
+  │    └── Painting.ListView.cs
+  ├── BeepCalendar.Painting.DesignTime.cs         — Designer preview
+  ├── BeepCalendar.Painting.Helpers.cs            — Paint utilities
+  └── BeepCalendar.Painting.Sidebar.cs            — Sidebar calendar</code></pre></section><section class="section" id="interactions"><h2>Interaction System</h2><p>The interaction system handles all pointer/touch/mouse events with hit testing that adapts to the current view mode:</p><ul><li><strong>Pointer</strong> — Mouse down/up/move/cancel with view-specific hit testing</li><li><strong>Timing</strong> — Start/end time selection with snap-to-grid (configurable interval)</li><li><strong>Proposals</strong> — Visual preview of event being created (ghost rectangle)</li><li><strong>Hit Testing</strong> — MonthView, WeekView, DayView, TimelineView, TimedView, ListView, AgendaView</li><li><strong>Commitment</strong> — New event creation, copy-on-drag, modification tracking</li></ul></section><section class="section" id="file-map"><h2>File Map</h2><p>Notable internal helpers:</p><ul><li><strong>CalendarEventEditor</strong> — Public sealed class implementing <code>ICalendarEventEditor</code>. Opens a dialog form with a UserControl for editing event details (title, start/end, all-day, location, status, organizer, description).</li><li><strong>CalendarLayoutManager</strong> — Calculates cell positions and dimensions for each view mode</li><li><strong>CalendarViewStateHelper</strong> — Tracks view state across mode switches</li><li><strong>CalendarPerformanceMetrics</strong> — Measures rendering performance</li><li><strong>CalendarEventService</strong> — Conflict detection and resolution</li></ul></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var cal = new BeepCalendar();
+
+// View modes
+cal.ViewMode = CalendarViewMode.Month;  // Month/Week/Day/Agenda/Timeline
+cal.CurrentDate = DateTime.Today;
+cal.ShowSidebar = true;
+
+// Events
+cal.Events.Add(new CalendarEvent
+{
+    Title = "Team Standup",
+    Start = DateTime.Today.AddHours(9),
+    End = DateTime.Today.AddHours(9.5),
+    Category = categories["Meeting"]
+});
+
+// Undo/redo
+if (cal.CanUndo) cal.Undo();
+if (cal.CanRedo) cal.Redo();
+
+// Conflict detection
+cal.ConflictDetected += (s, e) =>
+    Console.WriteLine($"Conflict: {e.Conflict.Description}");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

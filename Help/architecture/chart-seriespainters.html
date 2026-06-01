@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chart Series Painters - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Chart Series Painters</span></nav>
+<div class="page-header"><h1>Chart Series Painters</h1><p class="page-subtitle">Five concrete series painters — Bar, Line, Pie, Area, Bubble — with SeriesPainterFactory mapping, IChartSeriesPainter contract, and SeriesRenderOptions configuration</p></div>
+
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#factory">SeriesPainterFactory</a></li>
+<li><a href="#contract">IChartSeriesPainter Contract</a></li>
+<li><a href="#bar">BarSeriesPainter</a></li>
+<li><a href="#line">LineSeriesPainter</a></li>
+<li><a href="#pie">PieSeriesPainter</a></li>
+<li><a href="#area">AreaSeriesPainter</a></li>
+<li><a href="#bubble">BubbleSeriesPainter</a></li>
+<li><a href="#options">SeriesRenderOptions Reference</a></li>
+<li><a href="#examples">Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Charts</code><br>
+<strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code></p>
+<p>The charting system provides <strong>five concrete series painters</strong>, each responsible for rendering a distinct chart type. All painters implement the internal <code>IChartSeriesPainter</code> interface and are resolved at runtime via the <code>SeriesPainterFactory</code> static factory class. Each painter receives coordinate conversion delegates (<code>toX</code> / <code>toY</code>) that map data-space values to pixel-space positions within the computed plot rectangle. Series rendering is configured through the <code>SeriesRenderOptions</code> data class, which carries all style, layout, and behavior flags.</p>
+<table><thead><tr><th>ChartType</th><th>Painter Class</th><th>Rendering Style</th></tr></thead><tbody>
+<tr><td><strong>Bar</strong></td><td><code>BarSeriesPainter</code></td><td>Vertical bars with configurable width/padding, stacked mode, data labels, negative value support</td></tr>
+<tr><td><strong>Line</strong></td><td><code>LineSeriesPainter</code></td><td>Polyline segments with optional cubic Bezier smoothing, configurable point markers (Circle/Square/Diamond/Triangle)</td></tr>
+<tr><td><strong>Pie</strong></td><td><code>PieSeriesPainter</code></td><td>Proportional slices with optional donut mode (InnerRadius > 0), exploded slice on hover, pie-slice-shaped hit areas</td></tr>
+<tr><td><strong>Area</strong></td><td><code>AreaSeriesPainter</code></td><td>Filled polygon below line to baseline, semi-transparent fill, stacked accumulation mode</td></tr>
+<tr><td><strong>Bubble</strong></td><td><code>BubbleSeriesPainter</code></td><td>Proportional circles at XY coordinates, circle area (not radius) proportional to Size value</td></tr>
+</tbody></table></section>
+
+<section class="section" id="factory"><h2>SeriesPainterFactory</h2>
+<p>The static <code>SeriesPainterFactory</code> class maps <code>ChartType</code> enum values to concrete painter instances. <code>LineSeriesPainter</code> serves as the <strong>default fallback</strong> for any unrecognized or unspecified chart type.</p>
+<pre><code class="language-csharp">internal static class SeriesPainterFactory
+{
+    public static IChartSeriesPainter Get(ChartType type)
+    {
+        switch (type)
+        {
+            case ChartType.Bar:    return new BarSeriesPainter();
+            case ChartType.Line:   return new LineSeriesPainter();
+            case ChartType.Pie:    return new PieSeriesPainter();
+            case ChartType.Area:   return new AreaSeriesPainter();
+            case ChartType.Bubble: return new BubbleSeriesPainter();
+            default:               return new LineSeriesPainter();
+        }
+    }
+}</code></pre>
+<p>The factory is called once during chart initialization in <code>BeepChart.cs</code> and the resolved painter instance is cached for the lifetime of the chart control. If <code>ChartType</code> is changed at runtime, the painter is re-resolved and <code>Initialize()</code> is called again.</p></section>
+
+<section class="section" id="contract"><h2>IChartSeriesPainter Contract</h2>
+<p>Every series painter implements this internal interface. The two-method contract separates drawing from hit-test area registration:</p>
+<pre><code class="language-csharp">internal interface IChartSeriesPainter
+{
+    void Initialize(BaseControl owner);
+
+    void DrawSeries(Graphics g, Rectangle plotRect,
+        List&lt;ChartDataSeries&gt; data,
+        Func&lt;ChartDataPoint, object&gt; toX,
+        Func&lt;ChartDataPoint, object&gt; toY,
+        float xMin, float xMax, float yMin, float yMax,
+        List&lt;Color&gt; palette, Color axisColor, Color textColor,
+        SeriesRenderOptions options);
+
+    void UpdateHitAreas(BaseControl owner, Rectangle plotRect,
+        List&lt;ChartDataSeries&gt; data,
+        Func&lt;ChartDataPoint, PointF&gt; toScreen,
+        Action&lt;string, Rectangle&gt; notifyAreaHit);
+}</code></pre>
+<table><thead><tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>Initialize</strong></td><td><code>BaseControl owner</code></td><td>One-time setup when painter is first resolved. Stores owner reference for theme/color access.</td></tr>
+<tr><td><strong>DrawSeries</strong></td><td><code>Graphics g, Rectangle plotRect, List&lt;ChartDataSeries&gt; data, toX/toY delegates, float xMin/xMax/yMin/yMax, palette, axisColor, textColor, SeriesRenderOptions</code></td><td>Renders all data series onto the graphics surface within the specified plot rectangle. The <code>toX</code> and <code>toY</code> delegates convert each data point's X/Y values from string/object to a numeric pixel coordinate in the range [plotRect.Left..plotRect.Right] and [plotRect.Top..plotRect.Bottom].</td></tr>
+<tr><td><strong>UpdateHitAreas</strong></td><td><code>BaseControl owner, Rectangle plotRect, List&lt;ChartDataSeries&gt; data, toScreen delegate, notifyAreaHit callback</code></td><td>Registers per-data-point hit-test rectangles (or polygons for pie) via the <code>notifyAreaHit(string key, Rectangle bounds)</code> callback. These are used by <code>ChartInputHelper</code> for mouse hover, click, and trackball interaction.</td></tr>
+</tbody></table>
+<h3>Coordinate Conversion</h3>
+<p>The <code>toX</code> and <code>toY</code> delegates are closures created in <code>BeepChart.Drawing.cs</code> that encapsulate the axis type detection and value conversion logic:</p>
+<pre><code class="language-csharp">Func&lt;ChartDataPoint, object&gt; toX = point =&gt;
+    plotRect.Left + (BeepChartDataHelper.ConvertXValue(chart, point) - xMin)
+        / (xMax - xMin) * plotRect.Width;
+
+Func&lt;ChartDataPoint, object&gt; toY = point =&gt;
+    plotRect.Bottom - (BeepChartDataHelper.ConvertYValue(chart, point) - yMin)
+        / (yMax - yMin) * plotRect.Height;</code></pre></section>
+
+<section class="section" id="bar"><h2>BarSeriesPainter</h2>
+<p>Renders vertical bars for each data point in the series. Key features:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>BarWidth / BarPadding</strong></td><td>Control bar thickness as a fraction of the column width (default BarWidth=0.8) and the gap between adjacent bar groups (default BarPadding=0.2). For single-series charts, bars are centered in each X column. For multi-series, bars are grouped side-by-side within each X column.</td></tr>
+<tr><td><strong>Stacked Mode</strong></td><td>When <code>SeriesRenderOptions.Stacked = true</code>, bars from multiple series accumulate vertically within each X column. Each series draws on top of the previous one's rendered height. The bottom series starts at the baseline (yMin). Useful for part-to-whole compositions.</td></tr>
+<tr><td><strong>Data Labels</strong></td><td>When <code>SeriesRenderOptions.ShowDataLabels = true</code>, the Y value of each bar is drawn as text centered above the bar in the chart's text color. For stacked mode, labels appear at the top of each segment.</td></tr>
+<tr><td><strong>Negative Values</strong></td><td>Bars with negative Y values extend downward from the baseline. The baseline is y=0 when the range spans both positive and negative, otherwise it's the yMin of the plot rectangle.</td></tr>
+<tr><td><strong>Multi-Series Grouping</strong></td><td>For N series, each X category is divided into N sub-columns. The group width = BarWidth * columnWidth, and sub-bar width = groupWidth / N. Colors cycle through the palette.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// BarSeriesPainter core loop (simplified):
+int seriesCount = data.Count;
+float colWidth = plotRect.Width / (float)(xMax - xMin + 1);
+float groupWidth = colWidth * options.BarWidth;
+float barWidth = groupWidth / seriesCount;
+
+foreach (var series in data)
+{
+    int seriesIdx = data.IndexOf(series);
+    Color color = palette[seriesIdx % palette.Count];
+    float prevY = plotRect.Bottom; // baseline for stacked
+
+    foreach (var point in series.DataPoints)
+    {
+        float xVal = Convert.ToSingle(toX(point));
+        float yVal = Convert.ToSingle(toY(point));
+        float x = xVal - groupWidth / 2f + barWidth * seriesIdx;
+
+        float barHeight = options.Stacked
+            ? prevY - yVal
+            : plotRect.Bottom - yVal;
+
+        if (barHeight < 0) // negative values
+        {
+            y = plotRect.Bottom;
+            barHeight = plotRect.Bottom - yVal;
+        }
+
+        g.FillRectangle(new SolidBrush(color), x, yVal, barWidth, barHeight);
+
+        if (options.Stacked) prevY -= barHeight;
+    }
+}</code></pre></section>
+
+<section class="section" id="line"><h2>LineSeriesPainter</h2>
+<p>Renders connected line segments for each series' data points. Key features:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Polyline Segments</strong></td><td>Each series is drawn as a sequence of connected line segments using <code>Graphics.DrawLines()</code>. The line width is derived from the theme or set to 2px by default. A semi-transparent fill below the line can be enabled via FillOpacity.</td></tr>
+<tr><td><strong>Cubic Bezier Smoothing</strong></td><td>When <code>SeriesRenderOptions.SmoothLines = true</code>, the painter computes cubic Bezier control points between each pair of consecutive data points and renders using <code>Graphics.DrawBeziers()</code>. This produces a smooth curve through all data points. Control points are computed using the Catmull-Rom to Bezier conversion formula with a tension of 0.5.</td></tr>
+<tr><td><strong>Point Markers</strong></td><td>When <code>SeriesRenderOptions.ShowMarkers = true</code> (default), each data point is decorated with a small shape. Available shapes via the <code>MarkerStyle</code> enum: <strong>Circle</strong> (default) — filled ellipse, <strong>Square</strong> — filled rectangle, <strong>Diamond</strong> — rotated square (45°), <strong>Triangle</strong> — equilateral triangle pointing up. Marker size is controlled by <code>MarkerSize</code> (default 6px radius).</td></tr>
+<tr><td><strong>Multi-Series</strong></td><td>Each series is drawn with its own color from the palette. Series are rendered in order (first series = first color). Lines may overlap; legend toggling is used to declutter.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Bezier smoothing calculation (Catmull-Rom to Bezier):
+private PointF[] GetBezierControlPoints(PointF p0, PointF p1, PointF p2, PointF p3)
+{
+    float tension = 0.5f;
+    PointF cp1 = new PointF(
+        p1.X + (p2.X - p0.X) / (6f / tension),
+        p1.Y + (p2.Y - p0.Y) / (6f / tension));
+    PointF cp2 = new PointF(
+        p2.X - (p3.X - p1.X) / (6f / tension),
+        p2.Y - (p3.Y - p1.Y) / (6f / tension));
+    return new PointF[] { p1, cp1, cp2, p2 };
+}
+
+// Marker rendering dispatch:
+void DrawMarker(Graphics g, PointF pt, MarkerStyle style, int size, Color color)
+{
+    int half = size / 2;
+    switch (style)
+    {
+        case MarkerStyle.Circle:
+            g.FillEllipse(brush, pt.X - half, pt.Y - half, size, size); break;
+        case MarkerStyle.Square:
+            g.FillRectangle(brush, pt.X - half, pt.Y - half, size, size); break;
+        case MarkerStyle.Diamond:
+            PointF[] diamond = { new(pt.X, pt.Y-half), new(pt.X+half, pt.Y),
+                new(pt.X, pt.Y+half), new(pt.X-half, pt.Y) };
+            g.FillPolygon(brush, diamond); break;
+        case MarkerStyle.Triangle:
+            PointF[] tri = { new(pt.X, pt.Y-half), new(pt.X+half, pt.Y+half),
+                new(pt.X-half, pt.Y+half) };
+            g.FillPolygon(brush, tri); break;
+    }
+}</code></pre></section>
+
+<section class="section" id="pie"><h2>PieSeriesPainter</h2>
+<p>Renders proportional pie or donut slices. Key features:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Proportional Slices</strong></td><td>Each data point's angle is proportional to its Y value relative to the series total: <code>angle = (pointY / totalY) * 360°</code>. Slices are drawn counterclockwise starting from 12 o'clock. Each slice uses its series palette color.</td></tr>
+<tr><td><strong>Donut Mode</strong></td><td>When <code>InnerRadius > 0</code>, the center of the pie is hollow, creating a donut chart. InnerRadius is specified as a float (e.g. 0.4 = 40% of the pie radius). The donut hole is rendered as a filled circle in the chart background color to simulate transparency.</td></tr>
+<tr><td><strong>Exploded Slice</strong></td><td>On mouse hover (detected via hit-test), the hovered slice is drawn with an offset of ~10px radially outward from the center, creating an "exploded" visual effect. The original position of surrounding slices remains unchanged.</td></tr>
+<tr><td><strong>Sliver Protection</strong></td><td>Extremely small slices (angle < 1°) are merged into a combined "Other" slice to prevent rendering artifacts. The threshold is configurable.</td></tr>
+<tr><td><strong>Data Labels</strong></td><td>When <code>ShowDataLabels = true</code>, percentage values are drawn near the midpoint of each slice's arc. Labels use the text color and are positioned radially at 70% of the slice radius.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Pie slice rendering (simplified):
+float sweepAngle = (pointY / totalY) * 360f;
+float midAngle = startAngle + sweepAngle / 2f;
+float labelRad = (pieRadius * 0.7f);
+
+g.FillPie(brush, pieRect, startAngle, sweepAngle);
+g.DrawPie(pen, pieRect, startAngle, sweepAngle);
+
+if (options.ShowDataLabels)
+{
+    float pct = (pointY / totalY) * 100f;
+    float labelX = center.X + (float)Math.Cos(ToRadians(midAngle)) * labelRad;
+    float labelY = center.Y + (float)Math.Sin(ToRadians(midAngle)) * labelRad;
+    g.DrawString($"{pct:F1}%", font, textBrush, labelX, labelY, sf);
+}
+
+// Donut hole:
+if (options.InnerRadius > 0)
+{
+    float holeSize = pieRadius * options.InnerRadius;
+    RectangleF holeRect = new(center.X - holeSize, center.Y - holeSize, holeSize*2, holeSize*2);
+    g.FillEllipse(bgBrush, holeRect);
+}</code></pre></section>
+
+<section class="section" id="area"><h2>AreaSeriesPainter</h2>
+<p>Renders filled polygon areas below connected line segments. Key features:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Filled Polygon</strong></td><td>For each series, the painter constructs a polygon from the data points (top edge) plus the baseline (bottom edge), forming a closed shape. This polygon is filled with the series color at <code>FillOpacity</code> transparency and outlined with the line color at full opacity.</td></tr>
+<tr><td><strong>Semi-Transparent Fill</strong></td><td>Controlled via <code>FillOpacity</code> (default 0.3 = 30%). A value of 0 produces no fill (line-only), while 1.0 produces a fully opaque fill. Internally, <code>Color.FromArgb((int)(255*fillOpacity), seriesColor)</code> is used.</td></tr>
+<tr><td><strong>Stacked Mode</strong></td><td>When <code>Stacked = true</code>, areas accumulate vertically. Series 0 is filled from pixelZeroLine (bottom of plot rect) to its Y values. Series 1 is filled from Series 0's Y values to Series 1's Y values. This creates a stacked area chart similar to a stream graph layout. The baseline remains the bottom of the plot rectangle for the bottom series.</td></tr>
+<tr><td><strong>Smooth Lines</strong></td><td>When <code>SmoothLines = true</code>, the top edge uses Bezier curves (like LineSeriesPainter), and the fill polygon boundary follows the smoothed path.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Area fill construction (simplified):
+List&lt;PointF&gt; polygonPoints = new();
+foreach (var point in series.DataPoints)
+    polygonPoints.Add(new PointF(Single(toX(point)), Single(toY(point))));
+
+// Close the polygon at the baseline
+if (options.Stacked)
+    for (int i = series.DataPoints.Count - 1; i >= 0; i--)
+        polygonPoints.Add(new PointF(Single(toX(series.DataPoints[i])), baseY));
+
+g.FillPolygon(new SolidBrush(Color.FromArgb(fillAlpha, color)), polygonPoints.ToArray());
+g.DrawLines(pen, polygonPoints.Take(dataPoints.Count).ToArray());</code></pre></section>
+
+<section class="section" id="bubble"><h2>BubbleSeriesPainter</h2>
+<p>Renders proportional circles at XY coordinates. Key features:</p>
+<table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Proportional Circles</strong></td><td>Each data point is rendered as a filled circle at its (X, Y) position. The circle <strong>area</strong> (not radius) is proportional to the data point's Size value (Y-dimension). This ensures visual accuracy — a value of 200 produces a circle with twice the area of a value of 100. Circle area = <code>Math.PI * sizeScale * yValue</code>, so radius = <code>Math.Sqrt(yValue * sizeScale / Math.PI)</code>.</td></tr>
+<tr><td><strong>Size Scaling</strong></td><td>The <code>sizeScale</code> is computed automatically based on the plot rectangle dimensions and the data range: <code>sizeScale = (plotRect.Width * plotRect.Height) / (maxY * 20)</code>, ensuring bubbles are visible but not overwhelming.</td></tr>
+<tr><td><strong>Opacity & Border</strong></td><td>Bubbles are rendered with a semi-transparent fill (default alpha 180) and a solid 2px border in the same color. This allows overlapping bubbles to remain visible.</td></tr>
+<tr><td><strong>Hit Testing</strong></td><td>Hit test is a circular distance check: <code>(mouse.X - center.X)^2 + (mouse.Y - center.Y)^2 <= radius^2</code>. The hit rectangle registered is the bounding box of the circle.</td></tr>
+</tbody></table>
+<pre><code class="language-csharp">// Bubble rendering (simplified):
+float maxSize = data.SelectMany(s => s.DataPoints).Max(p => float.Parse(p.Y));
+float sizeScale = (plotRect.Width * plotRect.Height) / (maxSize * 20f);
+
+foreach (var series in data)
+{
+    Color color = palette[data.IndexOf(series) % palette.Count];
+    using var fillBrush = new SolidBrush(Color.FromArgb(180, color));
+    using var pen = new Pen(color, 2f);
+
+    foreach (var point in series.DataPoints)
+    {
+        float cx = Convert.ToSingle(toX(point));
+        float cy = Convert.ToSingle(toY(point));
+        float val = float.Parse(point.Y);
+        float radius = (float)Math.Sqrt(val * sizeScale / Math.PI);
+        float r = Math.Max(radius, 3f);
+
+        g.FillEllipse(fillBrush, cx - r, cy - r, r * 2f, r * 2f);
+        g.DrawEllipse(pen, cx - r, cy - r, r * 2f, r * 2f);
+    }
+}</code></pre></section>
+
+<section class="section" id="options"><h2>SeriesRenderOptions Reference</h2>
+<p>The <code>SeriesRenderOptions</code> data class encapsulates all configurable rendering parameters for series painters. Each painter reads the subset of options relevant to its chart type and ignores others (e.g., <code>BarSeriesPainter</code> uses <code>BarWidth</code> and <code>BarPadding</code> but ignores <code>MarkerShape</code>).</p>
+<table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Used By</th><th>Effect</th></tr></thead><tbody>
+<tr><td><strong>BarWidth</strong></td><td><code>float</code></td><td>0.8</td><td>Bar</td><td>Fraction of column width occupied by bar group (0.1-1.0). Lower values create thinner bars with more gap.</td></tr>
+<tr><td><strong>BarPadding</strong></td><td><code>float</code></td><td>0.2</td><td>Bar</td><td>Fraction of column width used as gap between bar groups. Total column usage = BarWidth + BarPadding.</td></tr>
+<tr><td><strong>ShowDataLabels</strong></td><td><code>bool</code></td><td>false</td><td>Bar, Pie</td><td>Display Y values (or percentages for pie) as text labels on or near each visual element.</td></tr>
+<tr><td><strong>SmoothLines</strong></td><td><code>bool</code></td><td>false</td><td>Line, Area</td><td>Apply cubic Bezier interpolation between consecutive points for a smooth curve instead of straight line segments.</td></tr>
+<tr><td><strong>ShowMarkers</strong></td><td><code>bool</code></td><td>true</td><td>Line</td><td>Draw a shape marker at each data point on the line.</td></tr>
+<tr><td><strong>MarkerShape</strong></td><td><code>MarkerStyle</code></td><td>Circle</td><td>Line</td><td>Shape drawn at each data point: <code>Circle</code>, <code>Square</code>, <code>Diamond</code>, or <code>Triangle</code>.</td></tr>
+<tr><td><strong>MarkerSize</strong></td><td><code>int</code></td><td>6</td><td>Line</td><td>Radius (or half-size) of markers in pixels. Affects both visual size and hit-test area.</td></tr>
+<tr><td><strong>FillOpacity</strong></td><td><code>float</code></td><td>0.3</td><td>Area</td><td>Transparency of the area fill (0.0 = fully transparent / line-only, 1.0 = fully opaque).</td></tr>
+<tr><td><strong>InnerRadius</strong></td><td><code>float</code></td><td>0</td><td>Pie</td><td>Hole size for donut mode. 0 = full pie, 0.4 = donut with 40% radius hole, 0.8 = thin ring.</td></tr>
+<tr><td><strong>Stacked</strong></td><td><code>bool</code></td><td>false</td><td>Bar, Area</td><td>Accumulate bars or areas vertically across series instead of drawing them side-by-side (bar) or independently (area).</td></tr>
+</tbody></table>
+<p>Additional internal fields: <code>SeriesColor</code> (nullable override color), <code>EnableAnimation</code> (future), <code>AnimationDurationMs</code> (future, default 400).</p></section>
+
+<section class="section" id="examples"><h2>Examples</h2>
+<h3>Pie Donut Chart</h3>
+<pre><code class="language-csharp">var chart = new BeepChart();
+chart.ChartType = ChartType.Pie;
+chart.ChartTitle = "Market Share";
+
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Browser Share",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "Chrome", Y = "65" },
+        new() { X = "Edge", Y = "12" },
+        new() { X = "Firefox", Y = "8" },
+        new() { X = "Safari", Y = "10" },
+        new() { X = "Other", Y = "5" }
+    }
+});
+
+// Enable donut mode with 50% inner radius
+chart.InnerRadius = 0.5f;
+chart.ShowDataLabels = true;</code></pre>
+
+<h3>Stacked Bar Chart</h3>
+<pre><code class="language-csharp">chart.ChartType = ChartType.Bar;
+chart.Stacked = true;
+chart.BarWidth = 0.7f;
+chart.BarPadding = 0.3f;
+chart.ChartTitle = "Quarterly Revenue by Product";
+
+chart.DataSeries.Clear();
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Product A",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "Q1", Y = "1200" },
+        new() { X = "Q2", Y = "1400" },
+        new() { X = "Q3", Y = "1100" },
+        new() { X = "Q4", Y = "1600" }
+    }
+});
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Product B",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "Q1", Y = "800" },
+        new() { X = "Q2", Y = "700" },
+        new() { X = "Q3", Y = "900" },
+        new() { X = "Q4", Y = "600" }
+    }
+});
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Product C",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "Q1", Y = "500" },
+        new() { X = "Q2", Y = "600" },
+        new() { X = "Q3", Y = "400" },
+        new() { X = "Q4", Y = "700" }
+    }
+});</code></pre>
+
+<h3>Smooth Line Chart with Markers</h3>
+<pre><code class="language-csharp">chart.ChartType = ChartType.Line;
+chart.SmoothLines = true;
+chart.ShowMarkers = true;
+chart.MarkerShape = MarkerStyle.Diamond;
+chart.MarkerSize = 8;
+chart.ChartTitle = "Temperature Trend";
+
+chart.DataSeries.Clear();
+chart.DataSeries.Add(new ChartDataSeries
+{
+    SeriesName = "Sensor A",
+    DataPoints = new List&lt;ChartDataPoint&gt;
+    {
+        new() { X = "Jan", Y = "22" },
+        new() { X = "Feb", Y = "24" },
+        new() { X = "Mar", Y = "28" },
+        new() { X = "Apr", Y = "32" },
+        new() { X = "May", Y = "35" },
+        new() { X = "Jun", Y = "38" }
+    }
+});
+
+// Custom draw hook for additional styling
+chart.CustomDrawSeries += (s, e) =>
+{
+    if (e.SeriesIndex == 0)
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+};</code></pre>
+
+<h3>Programmatic Painter Selection</h3>
+<pre><code class="language-csharp">// Direct factory usage (internal, for testing/extension):
+IChartSeriesPainter painter = SeriesPainterFactory.Get(ChartType.Bubble);
+painter.Initialize(chart);
+painter.DrawSeries(g, plotRect, chart.DataSeries,
+    toX, toY, xMin, xMax, yMin, yMax,
+    palette, axisColor, textColor, options);
+painter.UpdateHitAreas(chart, plotRect, chart.DataSeries,
+    toScreen, (key, rect) => chart.HitAreas[key] = rect);</code></pre>
+</section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

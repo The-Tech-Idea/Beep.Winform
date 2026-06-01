@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design-Time Helpers - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
+<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
+<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
+<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
+<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
+<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
+<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
+<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
+<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
+<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
+<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>designtimehelpers</span></nav><div class="page-header"><h1>Design-Time Helpers</h1><p class="page-subtitle">Supporting infrastructure classes for the Design.Server project — service management, theme preview, validation, project integration, and resource embedding</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#classes">Helper Classes</a></li><li><a href="#design-time-services">DesignTimeBeepServiceManager</a></li><li><a href="#theme-preview">ThemePreviewHelper</a></li><li><a href="#validation">ControlValidationHelper</a></li><li><a href="#project">Project Helpers</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers</code><br><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.dll</code></p><p>The Helpers namespace contains supporting infrastructure for the design-time experience:</p></section><section class="section" id="classes"><h2>Helper Classes</h2><table><thead><tr><th>Class</th><th>Type</th><th>Purpose</th></tr></thead><tbody><tr><td>DesignTimeBeepServiceManager</td><td>Static</td><td>Manages design-time service resolution and DI container</td></tr><tr><td>ThemePreviewHelper</td><td>Static</td><td>Generates theme preview thumbnails for theme picker</td></tr><tr><td>ControlValidationHelper</td><td>Static</td><td>Validates control configurations at design time</td></tr><tr><td>ControlPresetHelper</td><td>Static</td><td>Applies preset configurations to controls</td></tr><tr><td>DesignTimeDataHelper</td><td>Static</td><td>Generates sample data for design-time previews</td></tr><tr><td>ProjectHelper</td><td>Static</td><td>Integration with Visual Studio project system</td></tr><tr><td>ProjectFileHelper</td><td>Static</td><td>File operations within the VS project</td></tr><tr><td>ResxResourceHelper</td><td>Static</td><td>Manages embedded resources in .resx files</td></tr><tr><td>ResourceValidationHelper</td><td>Static</td><td>Validates resource references</td></tr><tr><td>ProjectResourceEmbedder</td><td>Static</td><td>Embeds files as project resources</td></tr><tr><td>FileOperationHelper</td><td>Static</td><td>Safe file operations with VS integration</td></tr></tbody></table></section><section class="section" id="design-time-services"><h2>DesignTimeBeepServiceManager</h2><p>Manages the design-time dependency injection container. When controls need services at design time (e.g., data access for sample data), this class provides mock implementations that work in the Visual Studio process.</p><pre><code class="language-csharp">// At design time, controls use mock services
+var dataService = DesignTimeBeepServiceManager.GetService&lt;IDataService&gt;();
+// Returns a design-time mock that generates sample data
+// instead of connecting to a real database</code></pre></section><section class="section" id="theme-preview"><h2>ThemePreviewHelper</h2><p>Generates small preview thumbnails for the theme picker dialog. Each thumbnail shows a mini rendering of key controls (button, textbox, grid) with the theme applied.</p></section><section class="section" id="validation"><h2>ControlValidationHelper</h2><p>Validates control configurations at design time, providing warnings and errors in the Visual Studio Error List:</p><ul><li>Missing required properties</li><li>Invalid property combinations</li><li>Resource path validation</li><li>Data binding configuration issues</li></ul></section><section class="section" id="project"><h2>Project Helpers</h2><h3>ProjectHelper</h3><p>Provides integration with the Visual Studio project system: resolves project paths, manages assembly references, handles NuGet package detection.</p><h3>ResxResourceHelper &amp; ProjectResourceEmbedder</h3><p>When a control uses embedded resources (images, icons, SVG files), these helpers manage adding the resources to the project's .resx file and setting appropriate build actions.</p></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Theme preview generation
+var preview = ThemePreviewHelper.GeneratePreview("DarkTheme", 120, 80);
+// Returns a 120x80 Bitmap showing theme preview
+
+// Control validation
+var issues = ControlValidationHelper.Validate(new BeepGridPro());
+foreach (var issue in issues)
+    Console.WriteLine($"[{issue.Severity}] {issue.Message}");
+
+// Project resource embedding
+ProjectResourceEmbedder.EmbedResource(project, "icon.svg",
+    ResourceTypes.SvgImage);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

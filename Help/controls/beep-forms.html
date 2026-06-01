@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepForms - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span>
+                    <span>BeepForms</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepForms</h1>
+                    <p class="page-subtitle">Non-visual BeepForms coordinator that hosts block views over a FormsManager instance</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepForms</strong> is a non-visual <code>Control</code>-derived coordinator that implements <code>IBeepFormsHost</code>. It manages a collection of <code>IBeepBlockView</code> instances (typically <code>BeepBlock</code> controls) and orchestrates them over a <code>FormsManager</code> (<code>IUnitofWorksManager</code>). It supports definition-driven form configuration, automatic block creation from definitions, active block tracking, and async bootstrap operations.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.Forms</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+                    <strong>Inheritance:</strong> <code>System.Windows.Forms.Control &#x2192; BeepForms</code><br>
+                    <strong>Implements:</strong> <code>IBeepFormsHost</code><br>
+                    <strong>Designer:</strong> <code>BeepFormsHostDesigner</code></p>
+                    <p>Defined as a <code>partial class</code> spanning multiple files. It manages the full block lifecycle from registration through sync, including master-detail shell context updates and unit-of-work event subscriptions.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Block host coordinator</strong> &mdash; Registers, unregisters, and manages a collection of <code>IBeepBlockView</code> instances</li>
+                        <li><strong>Definition-driven configuration</strong> &mdash; <code>BeepFormsDefinition</code> drives automatic block materialization and form layout</li>
+                        <li><strong>Auto-create blocks</strong> &mdash; When <code>AutoCreateBlocksFromDefinition</code> is <code>true</code>, hosted <code>BeepBlock</code> controls are created automatically from the definition</li>
+                        <li><strong>Async bootstrap</strong> &mdash; <code>InitializeAsync()</code> bootstraps all blocks via <code>IUnitofWorksManager.SetupBlockAsync()</code></li>
+                        <li><strong>Active block tracking</strong> &mdash; Maintains <code>ActiveBlockName</code> and raises <code>ActiveBlockChanged</code> events</li>
+                        <li><strong>FormsManager integration</strong> &mdash; Attaches/detaches from <code>IUnitofWorksManager</code> with full event subscription management</li>
+                        <li><strong>View state</strong> &mdash; Exposes <code>BeepFormsViewState</code> including <code>BootstrapState</code> (Running/Succeeded/PartialSuccess)</li>
+                        <li><strong>Design-time support</strong> &mdash; <code>BeepFormsHostDesigner</code> with custom <code>BeepFormsDefinitionEditor</code> for the <code>Definition</code> property</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>FormName</code></td><td><code>string</code></td><td><code>""</code></td><td>Logical form name used for FormsManager coordination. Auto-set from <code>Definition.FormName</code>.</td></tr>
+                            <tr><td><code>ActiveBlockName</code></td><td><code>string?</code></td><td><code>null</code></td><td>Name of the currently active block (read-only).</td></tr>
+                            <tr><td><code>AutoCreateBlocksFromDefinition</code></td><td><code>bool</code></td><td><code>true</code></td><td>Automatically creates hosted BeepBlock controls from the assigned definition.</td></tr>
+                            <tr><td><code>FormsManager</code></td><td><code>IUnitofWorksManager?</code></td><td><code>null</code></td><td>The FormsManager instance. Setting this attaches/detaches and synchronizes all blocks.</td></tr>
+                            <tr><td><code>Definition</code></td><td><code>BeepFormsDefinition?</code></td><td><code>null</code></td><td>Definition-driven form configuration used to materialize BeepBlock surfaces. Sets <code>FormName</code> and triggers <code>RebuildBlocksFromDefinition()</code>.</td></tr>
+                            <tr><td><code>ViewState</code></td><td><code>BeepFormsViewState</code></td><td>-</td><td>Current view state including <code>ActiveBlockName</code> and <code>BootstrapState</code> (read-only).</td></tr>
+                            <tr><td><code>Blocks</code></td><td><code>IReadOnlyList&lt;IBeepBlockView&gt;</code></td><td>-</td><td>Read-only collection of all registered block views.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>RegisterBlock</code></td><td><code>bool RegisterBlock(IBeepBlockView blockView)</code></td><td>Registers a block view. Returns <code>false</code> if null, empty block name, or duplicate. Adds the control to the internal host panel.</td></tr>
+                            <tr><td><code>UnregisterBlock</code></td><td><code>bool UnregisterBlock(string blockName)</code></td><td>Unregisters a block by name. Unbinds, removes from host panel, clears active block if needed, and refreshes event subscriptions.</td></tr>
+                            <tr><td><code>TrySetActiveBlock</code></td><td><code>bool TrySetActiveBlock(string blockName)</code></td><td>Sets the active block and updates master-detail shell context. Fires <code>ActiveBlockChanged</code>.</td></tr>
+                            <tr><td><code>SyncFromManager</code></td><td><code>void SyncFromManager()</code></td><td>Synchronizes all blocks and view state from the FormsManager adapter.</td></tr>
+                            <tr><td><code>InitializeAsync</code></td><td><code>Task&lt;bool&gt; InitializeAsync(CancellationToken)</code></td><td>Asynchronously bootstraps all blocks defined in <code>Definition</code> via <code>FormsManager.SetupBlockAsync()</code>. Updates <code>BootstrapState</code> and raises <code>BootstrapCompleted</code>.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Event</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>ActiveBlockChanged</code></td><td>Raised when the active block changes.</td></tr>
+                            <tr><td><code>FormsManagerChanged</code></td><td>Raised when the <code>FormsManager</code> property is changed.</td></tr>
+                            <tr><td><code>ViewStateChanged</code></td><td>Raised when the view state changes.</td></tr>
+                            <tr><td><code>BootstrapCompleted</code></td><td>Raised when all blocks have been bootstrapped (or failed). Provides <code>BeepFormsBootstrapEventArgs</code> with the final <code>BootstrapState</code>.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><strong>BeepForms</strong> is a non-visual coordinator and does not participate directly in theming. It uses double-buffered painting with a transparent background. The hosted <code>BeepBlock</code> controls handle their own theming through <code>BaseControl</code>.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <pre><code class="language-csharp">// Create and configure BeepForms coordinator
+var beepForms = new BeepForms
+{
+    FormName = "CustomerForm",
+    AutoCreateBlocksFromDefinition = true,
+    Definition = new BeepFormsDefinition
+    {
+        FormName = "CustomerForm",
+        Blocks = new List&lt;BeepBlockDefinition&gt;
+        {
+            new BeepBlockDefinition
+            {
+                BlockName = "CustomerList",
+                Caption = "Customers",
+                Entity = new BeepBlockEntityDefinition
+                {
+                    ConnectionName = "MainDB",
+                    EntityName = "Customers",
+                    IsMasterBlock = true
+                }
+            },
+            new BeepBlockDefinition
+            {
+                BlockName = "CustomerOrders",
+                Caption = "Orders",
+                Entity = new BeepBlockEntityDefinition
+                {
+                    ConnectionName = "MainDB",
+                    EntityName = "Orders"
+                }
+            }
+        }
+    },
+    Dock = DockStyle.Fill
+};
+
+// Set the FormsManager
+beepForms.FormsManager = myUnitOfWorkManager;
+
+// Bootstrap all blocks asynchronously
+bool success = await beepForms.InitializeAsync();
+
+// Handle events
+beepForms.ActiveBlockChanged += (s, e) =>
+    Console.WriteLine($"Active block: {beepForms.ActiveBlockName}");
+
+beepForms.BootstrapCompleted += (s, e) =>
+    Console.WriteLine($"Bootstrap result: {e.State}");
+
+// Add to form
+this.Controls.Add(beepForms);</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>BeepForms</strong> is a <code>partial class</code> implementing <code>IBeepFormsHost</code>. It uses a <code>BeepFormsManagerAdapter</code> to bridge the <code>IUnitofWorksManager</code> with the block views. The <code>BeepFormsViewState</code> tracks active block name, bootstrap state, and navigation context. The <code>BeepFormsCommandRouter</code> handles cross-block command routing. A <code>BeepFormsMessageService</code> provides inter-block notification services.</p>
+                    <p>When <code>Definition</code> is set, <code>RebuildBlocksFromDefinition()</code> creates <code>BeepBlock</code> controls via <code>IDesignerHost.CreateComponent()</code> at design time, or programmatically at runtime. The partial class pattern separates the public API facade from the internal layout, management, and design-time logic across multiple partial files.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

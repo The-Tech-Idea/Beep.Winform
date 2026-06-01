@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Events System - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>Calendar Events System</span></nav>
+<div class="page-header"><h1>Calendar Events System</h1><p class="page-subtitle">Complete event lifecycle across 13 partial files — CRUD operations, mutation pipeline (EventMutating/Mutated), undo/redo history stack, conflict detection, and CalendarEventEditor dialog</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#files">Partial File Map (13 files)</a></li>
+<li><a href="#crud">CRUD Operations</a></li>
+<li><a href="#mutations">Mutation Pipeline</a></li>
+<li><a href="#undo">Undo/Redo History</a></li>
+<li><a href="#conflict">Conflict Detection</a></li>
+<li><a href="#editor">CalendarEventEditor</a></li>
+<li><a href="#categories">Categories &amp; Resources</a></li>
+<li><a href="#commands">Public Commands</a></li>
+<li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>13 partial files</strong> under <code>Calendar/BeepCalendar.EventOperations.*.cs</code> handle the complete event lifecycle plus the standalone <code>CalendarEventEditor</code> class. Every event mutation (add, update, delete) follows a <strong>three-phase pipeline</strong>: Pre-mutation (EventMutating with cancel support) → Execution (data change) → Post-mutation (EventMutated + history recording). An integrated undo/redo system records mutations on two stacks, and the conflict detection system checks scheduling overlap using configurable <code>CalendarConflictPolicyMode</code>.</p></section>
+
+<section class="section" id="files"><h2>Partial File Map (13 Files)</h2>
+<table><thead><tr><th>File</th><th>Responsibility</th><th>Key Members</th></tr></thead><tbody>
+<tr><td><strong>EventOperations.cs</strong></td><td>Mutation raising + conflict</td><td>RaiseMutating(), RaiseMutated(), GetConflicts(), CanApplyEventChange()</td></tr>
+<tr><td><strong>EventOperations.Public.cs</strong></td><td>Public API surface</td><td>Events: EventSelected, DateSelected, CreateEventRequested, ConflictDetected, EventMutating, EventMutated. Properties: EventEditor, CanUndo, CanRedo</td></tr>
+<tr><td><strong>EventOperations.Crud.cs</strong></td><td>CRUD coordinator stub</td><td>Empty partial — dispatches to .Add / .Remove / .Upsert</td></tr>
+<tr><td><strong>EventOperations.Crud.Add.cs</strong></td><td>Add event logic</td><td>Adds CalendarEvent, validates, fires mutation events</td></tr>
+<tr><td><strong>EventOperations.Crud.Remove.cs</strong></td><td>Remove event logic</td><td>Removes by reference or ID, validates, fires mutations</td></tr>
+<tr><td><strong>EventOperations.Crud.Upsert.cs</strong></td><td>Upsert event logic</td><td>Insert-or-update — replaces if same ID exists</td></tr>
+<tr><td><strong>EventOperations.History.cs</strong></td><td>Undo/Redo dispatcher</td><td>UndoLastMutation(), RedoLastMutation()</td></tr>
+<tr><td><strong>EventOperations.History.Internal.cs</strong></td><td>Stack management</td><td>_undoStack, _redoStack, push/pop logic</td></tr>
+<tr><td><strong>EventOperations.History.Apply.cs</strong></td><td>Reverse mutation application</td><td>ApplyMutationRecord(record, undo), reverse add=remove, reverse remove=add</td></tr>
+<tr><td><strong>EventOperations.Navigation.cs</strong></td><td>Date navigation</td><td>Today(), Next(), Previous()</td></tr>
+<tr><td><strong>EventOperations.Queries.cs</strong></td><td>Event queries</td><td>GetEventsForDate(), GetEventsForRange(), FindById()</td></tr>
+<tr><td><strong>EventOperations.Commands.cs</strong></td><td>Command execution</td><td>Command helpers + duplicate detection</td></tr>
+<tr><td><strong>EventOperations.Editor.cs</strong></td><td>Editor integration</td><td>Editor.Commit.cs — commits edited event back to model</td></tr></tbody></table></section>
+
+<section class="section" id="crud"><h2>CRUD Operations</h2>
+<p>All event mutations follow a strict three-phase pipeline:</p>
+<ol><li><strong>Pre-mutation</strong> — <code>RaiseMutating(kind, source, proposed, original, isNew, out canceled)</code>
+  <ul><li>Fires <code>EventMutating</code> event with <code>CalendarEventMutationEventArgs</code></li>
+  <li>Handlers may cancel by setting <code>e.Cancel = true</code> (validation, permissions, business rules)</li></ul></li>
+<li><strong>Execution</strong> — The actual data change: add to <code>Events</code> list, update properties, or remove from list</li>
+<li><strong>Post-mutation</strong> — <code>RaiseMutated(kind, source, result, original, isNew, conflicts)</code>
+  <ul><li>Records mutation in undo/redo history with full state snapshot</li>
+  <li>Fires <code>EventMutated</code> event for UI refresh</li>
+  <li>Updates view button states (undo/redo enabled)</li></ul></li></ol></section>
+
+<section class="section" id="mutations"><h2>Mutation Pipeline</h2>
+<pre><code class="language-csharp">// Cancel a delete based on business rules
+cal.EventMutating += (s, e) =>
+{
+    if (e.Kind == CalendarEventMutationKind.Delete
+        && e.Original.Category == "Locked")
+    {
+        e.Cancel = true;  // Prevent deletion of locked events
+    }
+};
+
+// React to completed mutations
+cal.EventMutated += (s, e) =>
+    Console.WriteLine($"{e.Kind}: {e.Result.Title}");
+
+// Create event request
+cal.CreateEventRequested += (s, e) =>
+{
+    e.CreatedEvent = CalendarEventEditor.ShowNewEventDialog(
+        e.RequestedDate, e.RequestedStart);
+};</code></pre></section>
+
+<section class="section" id="undo"><h2>Undo/Redo History</h2>
+<p>Two stacks manage the complete history:</p>
+<ul><li><strong>_undoStack</strong> — Stack of mutation records, each containing the full before/after state of the event</li>
+<li><strong>_redoStack</strong> — Stack of undone mutations for redo capability</li></ul>
+<pre><code class="language-csharp">public bool UndoLastMutation()
+{
+    // Pop _undoStack, apply record in reverse, push to _redoStack
+    // Returns false if stack is empty
+}
+
+public bool RedoLastMutation()
+{
+    // Pop _redoStack, reapply forward, push back to _undoStack
+}
+
+// Convenience API
+if (cal.CanUndo) cal.Undo();
+if (cal.CanRedo) cal.Redo();</code></pre>
+<p>History is implemented across 5 files: <code>History.cs</code> (dispatcher), <code>History.Internal.cs</code> (stack management), <code>History.Apply.cs</code> / <code>Apply.Upsert.cs</code> / <code>Apply.Remove.cs</code> (reverse mutation logic). Each mutation record stores the complete event state before and after the change.</p></section>
+
+<section class="section" id="conflict"><h2>Conflict Detection</h2>
+<pre><code class="language-csharp">// Three policy modes
+cal.ConflictPolicyMode = CalendarConflictPolicyMode.Strict;
+// None:   No conflict checking
+// Warn:   Detect and fire ConflictDetected, but don't block
+// Strict: Detect and block overlapping events
+
+cal.ConflictDetected += (s, e) =>
+{
+    Console.WriteLine($"Conflict: {e.Description}");
+    foreach (var conflict in e.ConflictingEvents)
+        Console.WriteLine($"  {conflict.Title} ({conflict.Start}-{conflict.End})");
+};</code></pre>
+<p>The conflict detection system uses a <code>CalendarConflictPolicy</code> object (lazy-created from <code>_conflictPolicyMode</code>) to check scheduling overlap before commit. Overlapping events are returned as <code>CalendarConflictEventArgs</code>.</p></section>
+
+<section class="section" id="editor"><h2>CalendarEventEditor</h2>
+<p><strong>Implements:</strong> <code>ICalendarEventEditor</code> | <strong>Visibility:</strong> <code>public sealed</code></p>
+<pre><code class="language-csharp">public sealed class CalendarEventEditor : ICalendarEventEditor
+{
+    public CalendarEventEditorMode Mode { get; set; }
+    // QuickEdit:  compact 560x420 panel
+    // DialogEdit: full 720x620 dialog
+
+    public bool TryEdit(CalendarEventEditorRequest request,
+        out CalendarEvent editedEvent);
+    // Opens BeepDialogForm with CalendarEventEditorContent UserControl
+    // Fields: Title TextBox, Start DateTimePicker, End DateTimePicker,
+    //         AllDay CheckBox, Location TextBox, Status ComboBox
+    // Advanced panel: Organizer TextBox, Description TextBox
+}</code></pre>
+<p><code>CalendarEventEditorContent</code> (internal sealed, extends <code>UserControl</code>) builds the editing UI with a <code>TableLayoutPanel</code> (4 rows, AutoScroll). Methods: <code>LoadFromRequest()</code> and <code>BuildEditedEvent()</code>.</p></section>
+
+<section class="section" id="categories"><h2>Categories &amp; Resources</h2>
+<ul><li><strong>Categories</strong> — <code>List&lt;EventCategory&gt;</code>. Each category has Name, Color (for visual indicators), Icon path, and optional parent category for hierarchy. Events reference a category via <code>CalendarEvent.Category</code>.</li>
+<li><strong>Resources</strong> — <code>List&lt;CalendarResource&gt;</code> for room/equipment/person scheduling. Each resource has Name, Type, Capacity, Color, and optional Location.</li>
+<li><strong>PerformanceMetrics</strong> — <code>CalendarPerformanceMetrics</code> object (browsable=false) for tracking rendering time, interaction latency, and event operation timing.</li></ul></section>
+
+<section class="section" id="commands"><h2>Public Commands</h2>
+<p>5 command files expose the public command API: <code>BeepCalendar.Commands.cs</code> (main command definitions), <code>Commands.Core.cs</code> (execution engine), <code>Commands.Helpers.cs</code> (mutation context creation), <code>Commands.DuplicateDetection.cs</code> (dedup logic for command batching), <code>Commands.MutationTracking.cs</code> (mutation identity generation for auditing). Commands drive the public API indirectly — the calendar exposes user-facing methods that internally route through the command system for consistency.</p></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<h3>Add Event with Validation</h3>
+<pre><code class="language-csharp">cal.EventMutating += (s, e) =>
+{
+    if (e.Proposed.End - e.Proposed.Start > TimeSpan.FromHours(8))
+        e.Cancel = true;  // Reject events longer than 8 hours
+};
+
+cal.Events.Add(new CalendarEvent
+{
+    Title = "Design Review",
+    Start = DateTime.Today.AddHours(10),
+    End = DateTime.Today.AddHours(11),
+    Location = "Room 204",
+    Category = categories["Meeting"]
+});
+
+if (cal.CanUndo) cal.Undo();  // Revert if needed</code></pre>
+<h3>Conflict Detection in Strict Mode</h3>
+<pre><code class="language-csharp">cal.ConflictPolicyMode = CalendarConflictPolicyMode.Strict;
+cal.ConflictDetected += (s, e) =>
+    MessageBox.Show($"Cannot schedule: {e.Description}");
+
+cal.CreateEventRequested += (s, e) =>
+{
+    e.CreatedEvent = cal.EventEditor.TryEdit(
+        new CalendarEventEditorRequest
+        {
+            ProposedDate = e.RequestedDate,
+            Mode = CalendarEventEditorMode.QuickEdit
+        }, out var result) ? result : null;
+};</code></pre></section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

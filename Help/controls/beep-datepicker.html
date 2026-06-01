@@ -1,947 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeepDatePicker - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="_sidebar.js"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-    </button>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span><span>BeepDatePicker</span></nav>
+            <div class="page-header"><h1>BeepDatePicker</h1><p class="page-subtitle">A comprehensive date and time picker control with format masking, calendar popup, business validation, and companion time/date components</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#theming">Theming</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#companion-controls">Companion Controls</a></li><li><a href="#enums">Enumerations</a></li></ul></div>
 
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="bi bi-sun-fill" id="theme-icon"></i>
-    </button>
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code></p>
+                <p><strong>Inheritance:</strong> <code>BeepDatePicker</code> &rarr; <code>BaseControl</code> &rarr; <code>Control</code></p>
+                <p><strong>Implements:</strong> <code>IBeepComponent</code> (via BaseControl), <code>IBeepUIComponent</code> (via BaseControl)</p>
+                <p><strong>Toolbox:</strong> <code>Beep Controls</code> category, display name "Beep Date Picker"</p>
+                <p>BeepDatePicker is a feature-rich date/time input control that provides a clean, headerless design where the entire control surface is rendered directly via owner-draw GDI+. There are no child TextBox or Button controls; instead, text, calendar icon, and dropdown button are all painted directly. It supports 15 predefined date format styles, custom format strings, culture-aware parsing/formatting, a calendar popup via <code>BeepDatePickerView</code>, business application features (min/max dates, weekends, excluded dates, auto-adjust to business days), validation with visual error feedback, keyboard navigation (F4/Alt+Down for popup), and auto-submit behavior.</p>
+                <p>The control is defined in a single source file: <code>BeepDatePicker.cs</code> (1082 lines). Related companion controls (<code>BeepDatePickerView</code>, <code>BeepTimePicker</code>, <code>BeepDateDropDown</code>, <code>BeepDateTimePicker</code>) live in the same <code>Dates\</code> directory and provide extended calendar/time selection capabilities.</p>
+            </section>
 
-    <div class="container">
-        <!-- Sidebar -->
-                                                                        <div id="sidebar-placeholder"></div>
+            <section id="features" class="section"><h2>Key Features</h2>
+                <ul>
+                    <li><strong>Owner-draw rendering:</strong> No child controls; all text, borders, and icon painted directly for maximum performance and theme integration</li>
+                    <li><strong>15 date format styles:</strong> ShortDate, LongDate, YearMonth, Custom, FullDateTime, ShortDateTime, DayMonthYear, ISODate, ISODateTime, TimeOnly, ShortTime, MonthDay, DayOfWeek, RFC1123, UniversalSortable</li>
+                    <li><strong>Culture-aware:</strong> Respects the assigned <code>CultureInfo</code> for both formatting and parsing</li>
+                    <li><strong>Inline keyboard editing:</strong> Type dates directly with character-level validation; press Enter to commit, Escape to cancel editing</li>
+                    <li><strong>Calendar popup:</strong> Opens <code>BeepDatePickerView</code> inside a <code>BeepPopupForm</code> positioned below the control</li>
+                    <li><strong>Popup time spinner:</strong> The calendar view includes an inline time spinner (up/down chevrons) for adjusting hours/minutes</li>
+                    <li><strong>Date constraining:</strong> MinDate, MaxDate, ExcludedDates, Weekends</li>
+                    <li><strong>Business context methods:</strong> Pre-built configurations for Due Date, Creation Date, Event Scheduling, Birth Date, Appointment</li>
+                    <li><strong>Auto-adjust to business days:</strong> Skips weekends automatically when enabled</li>
+                    <li><strong>Validation:</strong> Visual error highlighting (error backcolor, tooltip), <code>DateValidationFailed</code> event</li>
+                    <li><strong>AutoSubmit:</strong> Fires <code>DateSubmitted</code> immediately when a date is selected from the popup</li>
+                    <li><strong>Theme integration:</strong> Uses <code>CalendarBackColor</code>, <code>CalendarForeColor</code>, <code>CalendarBorderColor</code>, <code>CalendarTitleForColor</code>, <code>DateFont</code> / <code>BodyMedium</code> tokens</li>
+                    <li><strong>Keyboard shortcuts:</strong> F4 or Alt+Down toggles popup; Escape cancels editing; F4 handled in KeyDown</li>
+                    <li><strong>Placeholder text:</strong> Auto-generated from the format string (e.g., "DD/MM/YYYY" replaces format codes with placeholder letters)</li>
+                    <li><strong>AutoHeight / AutoSize:</strong> Optional auto-sizing modes for height and width</li>
+                    <li><strong>Material Design integration:</strong> Convenience property aliases (DatePickerLabel, DatePickerHelperText, DatePickerErrorText)</li>
+                    <li><strong>Value binding:</strong> Implements <code>SetValue</code>/<code>GetValue</code> for data-binding; BoundProperty defaults to "SelectedDateTime"</li>
+                    <li><strong>Highlighted dates list:</strong> Custom dates can be visually highlighted in the calendar</li>
+                </ul>
+            </section>
 
-        <!-- Main Content -->
-        <main class="content">
-            <div class="content-wrapper">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-nav">
-                    <a href="../index.html">Home</a>
-                    <span>›</span>
-                    <a href="../index.html#input-controls">Input Controls</a>
-                    <span>›</span>
-                    <span>BeepDatePicker</span>
-                </nav>
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>SelectedDateTime</td><td>DateTime</td><td>DateTime.Now</td><td>Gets or sets selected date/time. Fires SelectedDateTimeChanged and DateChanged events on change.</td></tr>
+                    <tr><td>Value</td><td>DateTime</td><td>(alias)</td><td>Alias for SelectedDateTime for compatibility with existing code. [Browsable(false)]</td></tr>
+                    <tr><td>SelectedDate</td><td>string</td><td>""</td><td>Gets or sets selected date as formatted string. Parses via culture; applies validation.</td></tr>
+                    <tr><td>DateFormatStyle</td><td>DateFormatStyle</td><td>ShortDateTime</td><td>Predefined date format style from the 15-value DateFormatStyle enum.</td></tr>
+                    <tr><td>DateFormat</td><td>string</td><td>"d"</td><td>Custom format string, used when DateFormatStyle = Custom. Falls back to culture short date if empty.</td></tr>
+                    <tr><td>Culture</td><td>CultureInfo</td><td>CurrentCulture</td><td>Culture for date formatting and parsing. Defaults to current culture.</td></tr>
+                    <tr><td>MinDate</td><td>DateTime?</td><td>null</td><td>Minimum allowed date for selection.</td></tr>
+                    <tr><td>MaxDate</td><td>DateTime?</td><td>null</td><td>Maximum allowed date for selection.</td></tr>
+                    <tr><td>AllowEmpty</td><td>bool</td><td>true</td><td>Whether empty/null dates are allowed.</td></tr>
+                    <tr><td>ShowDropDown</td><td>bool</td><td>true</td><td>Whether to show the calendar dropdown button icon.</td></tr>
+                    <tr><td>ReadOnly</td><td>bool</td><td>false</td><td>Makes the date picker read-only (display only).</td></tr>
+                    <tr><td>DateContext</td><td>string</td><td>"Date Selection"</td><td>Context description for this picker (e.g., "Due Date", "Start Date").</td></tr>
+                    <tr><td>AutoAdjustToBusinessDays</td><td>bool</td><td>false</td><td>Automatically adjust selected dates to skip weekends (business days only).</td></tr>
+                    <tr><td>HighlightToday</td><td>bool</td><td>true</td><td>Highlight today's date in the calendar popup.</td></tr>
+                    <tr><td>Weekends</td><td>string[]</td><td>["Saturday","Sunday"]</td><td>Days of the week considered as weekends (culture-independent).</td></tr>
+                    <tr><td>ExcludedDates</td><td>List&lt;DateTime&gt;</td><td>empty list</td><td>Specific dates to exclude from selection.</td></tr>
+                    <tr><td>HighlightedDates</td><td>List&lt;DateTime&gt;</td><td>empty list</td><td>Dates to highlight in the calendar popup.</td></tr>
+                    <tr><td>ShowValidationIcon</td><td>bool</td><td>true</td><td>Show validation error visual (tooltip + error backcolor) when date is invalid.</td></tr>
+                    <tr><td>AutoSubmit</td><td>bool</td><td>false</td><td>Automatically submit date when selected from calendar popup (fires DateSubmitted).</td></tr>
+                    <tr><td>ValidationErrorMessage</td><td>string</td><td>""</td><td>Current validation error message (read-only, private setter).</td></tr>
+                    <tr><td>AutoHeight</td><td>bool</td><td>true</td><td>Automatically calculates height based on font and padding.</td></tr>
+                    <tr><td>AutoSize</td><td>bool</td><td>false</td><td>Auto-sizes width to fit formatted date text. Height governed by AutoHeight.</td></tr>
+                    <tr><td>DatePickerLabel</td><td>string</td><td>(base LabelText)</td><td>Material Design convenience binding to LabelText.</td></tr>
+                    <tr><td>DatePickerHelperText</td><td>string</td><td>(base HelperText)</td><td>Material Design convenience binding to HelperText.</td></tr>
+                    <tr><td>DatePickerErrorText</td><td>string</td><td>(base ErrorText)</td><td>Material Design convenience binding to ErrorText.</td></tr>
+                    <tr><td>DatePickerHasError</td><td>bool</td><td>(base HasError)</td><td>Material Design convenience binding to HasError.</td></tr>
+                    <tr><td>DatePickerAutoSizeForMaterial</td><td>bool</td><td>true</td><td>Whether material sizing compensation is applied.</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1>BeepDatePicker</h1>
-                    <p class="page-subtitle">Advanced date and time picker control with multiple formats, cultures, and calendar popup</p>
-                </div>
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>ConfigureForDueDate</td><td>void ConfigureForDueDate()</td><td>Sets ShortDateTime, context "Due Date", MinDate=today, business days, validation on.</td></tr>
+                    <tr><td>ConfigureForCreationDate</td><td>void ConfigureForCreationDate()</td><td>Sets ShortDate, context "Creation Date", MaxDate=today, read-only, no dropdown.</td></tr>
+                    <tr><td>ConfigureForEventScheduling</td><td>void ConfigureForEventScheduling()</td><td>Sets FullDateTime, context "Event Date", MinDate=today, AutoSubmit.</td></tr>
+                    <tr><td>ConfigureForBirthDate</td><td>void ConfigureForBirthDate()</td><td>Sets ShortDate, context "Birth Date", MaxDate=today, MinDate=120 years ago.</td></tr>
+                    <tr><td>ConfigureForAppointment</td><td>void ConfigureForAppointment()</td><td>Sets ShortDateTime, context "Appointment Date", MinDate=today, MaxDate=6 months out, AutoSubmit.</td></tr>
+                    <tr><td>AddBusinessHolidays</td><td>void AddBusinessHolidays(int year)</td><td>Adds New Year's Day, Christmas Day, Boxing Day to ExcludedDates for given year.</td></tr>
+                    <tr><td>SetBusinessDateRange</td><td>void SetBusinessDateRange(DateTime start, DateTime end)</td><td>Sets MinDate/MaxDate; clamps current selection into range.</td></tr>
+                    <tr><td>GetNextBusinessDay</td><td>DateTime GetNextBusinessDay(DateTime date)</td><td>Returns the next date that is not a weekend and not in ExcludedDates.</td></tr>
+                    <tr><td>IsDateValid</td><td>bool IsDateValid(DateTime date)</td><td>Checks against MinDate, MaxDate, ExcludedDates, Weekends (if auto-adjust enabled).</td></tr>
+                    <tr><td>GetCurrentFormat</td><td>string GetCurrentFormat()</td><td>Returns the resolved .NET format string based on DateFormatStyle, Culture, and DateFormat.</td></tr>
+                    <tr><td>SetValue</td><td>override void SetValue(object value)</td><td>Accepts DateTime, string, or object. Parses if needed. Sets SelectedDateTime.</td></tr>
+                    <tr><td>GetValue</td><td>override object GetValue()</td><td>Returns SelectedDateTime if not MinValue, otherwise null.</td></tr>
+                    <tr><td>Reset</td><td>void Reset()</td><td>Resets SelectedDateTime to DateTime.Now.</td></tr>
+                    <tr><td>Clear</td><td>void Clear()</td><td>Clears to DateTime.MinValue if AllowEmpty; clears validation error.</td></tr>
+                    <tr><td>ApplyTheme</td><td>override void ApplyTheme()</td><td>Applies CalendarBackColor/ForeColor/BorderColor, DateFont token, icon pre-rendering in background.</td></tr>
+                    <tr><td>Draw</td><td>override void Draw(Graphics g, Rectangle rect)</td><td>Container draw override for use by BeepGridPro and hosting controls.</td></tr>
+                    <tr><td>DrawContent</td><td>protected override void DrawContent(Graphics g)</td><td>Called by BaseControl. Delegates to PaintCore for actual rendering.</td></tr>
+                    <tr><td>GetPreferredSize</td><td>override Size GetPreferredSize(Size proposedSize)</td><td>Delegates to base. Used by layout engine.</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Table of Contents -->
-                <div class="toc">
-                    <h3>📑 Table of Contents</h3>
-                    <ul>
-                        <li><a href="#overview">Overview</a></li>
-                        <li><a href="#features">Key Features</a></li>
-                        <li><a href="#basic-usage">Basic Usage</a></li>
-                        <li><a href="#format-styles">Date Format Styles</a></li>
-                        <li><a href="#properties">Properties</a></li>
-                        <li><a href="#events">Events</a></li>
-                        <li><a href="#examples">Examples</a></li>
-                        <li><a href="#calendar">Calendar Popup</a></li>
-                        <li><a href="#localization">Localization</a></li>
-                        <li><a href="#theming">Theming</a></li>
-                        <li><a href="#best-practices">Best Practices</a></li>
-                    </ul>
-                </div>
+            <section id="events" class="section"><h2>Events</h2>
+                <table><thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>SelectedDateTimeChanged</td><td>EventArgs</td><td>Fired whenever SelectedDateTime changes (direct assignment or popup selection).</td></tr>
+                    <tr><td>DateChanged</td><td>DateChangedEventArgs</td><td>Fired with old and new DateTime values on change (OldDate, NewDate).</td></tr>
+                    <tr><td>DateSubmitted</td><td>DateSubmittedEventArgs</td><td>Fired when date is auto-submitted (AutoSubmit=true) or committed via popup OK.</td></tr>
+                    <tr><td>DateValidationFailed</td><td>DateValidationEventArgs</td><td>Fired when a date fails business rule validation (range, weekends, excluded).</td></tr>
+                    <tr><td>CalendarOpened</td><td>EventArgs</td><td>Fired when the calendar popup opens.</td></tr>
+                    <tr><td>CalendarClosed</td><td>EventArgs</td><td>Fired when the calendar popup closes.</td></tr>
+                    <tr><td>CalendarOkClicked</td><td>DateTimeDialogResultEventArgs</td><td>Bubbles up the OK button click from the calendar view with the selected DateTime.</td></tr>
+                    <tr><td>CalendarCancelClicked</td><td>DateTimeDialogResultEventArgs</td><td>Bubbles up the Cancel button click from the calendar view.</td></tr>
+                </tbody></table>
+                <h3>Event Args Classes (defined in BeepDatePicker.cs)</h3>
+                <table><thead><tr><th>Class</th><th>Properties</th><th>Description</th></tr></thead><tbody>
+                    <tr><td>DateChangedEventArgs</td><td>DateTime OldDate, DateTime NewDate</td><td>Carries the old and new date values for change tracking.</td></tr>
+                    <tr><td>DateSubmittedEventArgs</td><td>DateTime SelectedDate, string Context</td><td>Carries the submitted date and its context string.</td></tr>
+                    <tr><td>DateValidationEventArgs</td><td>DateTime InvalidDate, string ErrorMessage</td><td>Carries the rejected date and the reason for rejection.</td></tr>
+                    <tr><td>DateTimeDialogResultEventArgs</td><td>DateTime? SelectedDateTime, string Context, bool IsConfirmed</td><td>Carries the dialog result with confirmation flag, selected date/time, and context.</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Overview -->
-                <section id="overview" class="section">
-                    <h2>Overview</h2>
-                    <p>
-                        <strong>BeepDatePicker</strong> is a sophisticated date and time picker control that combines text input 
-                        with a dropdown calendar interface. It provides extensive formatting options, culture-aware date handling, 
-                        input masking, validation, and an integrated calendar view for date selection.
-                    </p>
-                    <p>
-                        Built on the <code>BeepControl</code> foundation, BeepDatePicker features multiple date format styles, 
-                        real-time input validation, customizable date masks, and seamless integration with the Beep theming system. 
-                        The control includes a custom <code>BeepCalendarView</code> for visual date selection.
-                    </p>
-                </section>
+            <section id="theming" class="section"><h2>Theming</h2>
+                <p>BeepDatePicker integrates with the BeepThemesManager through the <code>ApplyTheme()</code> override. It reads from the following <code>IBeepTheme</code> tokens:</p>
+                <table><thead><tr><th>Theme Token</th><th>Purpose</th><th>Fallback</th></tr></thead><tbody>
+                    <tr><td>CalendarBackColor</td><td>Control background color (BackColor)</td><td>None (uses base)</td></tr>
+                    <tr><td>CalendarForeColor</td><td>Text color for the date display</td><td>ForeColor (base)</td></tr>
+                    <tr><td>CalendarBorderColor</td><td>Border and divider color</td><td>BorderColor</td></tr>
+                    <tr><td>CalendarTitleForColor</td><td>Icon tint color for the calendar SVG icon</td><td>ForeColor</td></tr>
+                    <tr><td>DateFont</td><td>Primary text font (via BeepThemesManager.ToFont)</td><td>BodyMedium token</td></tr>
+                    <tr><td>BodyMedium</td><td>Fallback font token when DateFont is not set</td><td>SystemFonts.DefaultFont</td></tr>
+                    <tr><td>TextBoxErrorBackColor</td><td>Background when validation fails</td><td>Color.Empty</td></tr>
+                </tbody></table>
+                <p>The calendar icon SVG is pre-rendered in multiple sizes (8, 12, 14, 16, 18, 20, 24, 28, 32 px) via <code>Task.Run</code> for smooth scaling. The <code>ApplyTheme</code> method also propagates themes to child objects (<code>calendarIcon</code>, <code>_calendarView</code>) and calls <code>InvalidateOnce()</code> for batched repaint. The <code>_textFont</code> is resolved with a safe fallback chain: <code>DateFont</code> token &rarr; <code>BodyMedium</code> token &rarr; <code>SystemFonts.DefaultFont</code>.</p>
+            </section>
 
-                <!-- Key Features -->
-                <section id="features" class="section">
-                    <h2>Key Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>📅 Multiple Date Formats</h3>
-                            <p>15+ predefined date format styles plus custom format support</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🌐 Culture Support</h3>
-                            <p>Full localization support with culture-specific date formatting</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>⏰ Date and Time</h3>
-                            <p>Support for both date-only and date-time selections</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎯 Input Masking</h3>
-                            <p>Smart input masking that adapts to the selected date format</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>✅ Real-time Validation</h3>
-                            <p>Immediate validation with visual feedback and error messages</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>📆 Calendar Popup</h3>
-                            <p>Integrated BeepCalendarView with visual date selection</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>💬 Placeholder Text</h3>
-                            <p>Dynamic placeholder text that matches the current format</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎨 Theme Integration</h3>
-                            <p>Complete integration with Beep theming system</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Basic Usage -->
-                <section id="basic-usage" class="section">
-                    <h2>Basic Usage</h2>
-                    
-                    <div class="code-example">
-                        <h3>Simple Date Picker</h3>
-                        <pre><code class="language-csharp">// Create a basic BeepDatePicker
-var datePicker = new BeepDatePicker
+            <section id="examples" class="section"><h2>Examples</h2>
+                <h3>Example 1: Basic Usage with Due Date Configuration</h3>
+                <pre><code class="language-csharp">var datePicker = new BeepDatePicker
 {
-    Size = new Size(200, 36),
-    Location = new Point(10, 10),
-    DateFormatStyle = DateFormatStyle.ShortDate
+    Location = new Point(20, 20),
+    Width = 250,
+    Theme = myTheme // Optional IBeepTheme instance
 };
-
-// Set initial date
-datePicker.SelectedDateTime = DateTime.Today;
-
-// Add to form
+datePicker.ConfigureForDueDate();
 this.Controls.Add(datePicker);
 
-// Handle date changes
-datePicker.SelectedDateTimeChanged += (sender, e) => {
-  //  Console.WriteLine($"Date selected: {datePicker.SelectedDateTime}");
-};</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Date and Time Picker</h3>
-                        <pre><code class="language-csharp">var dateTimePicker = new BeepDatePicker
+datePicker.DateSubmitted += (s, e) =>
 {
+    Console.WriteLine($"Due date submitted: {e.SelectedDate} ({e.Context})");
+};</code></pre>
+
+                <h3>Example 2: Custom Format with Validation</h3>
+                <pre><code class="language-csharp">var datePicker = new BeepDatePicker
+{
+    DateFormatStyle = DateFormatStyle.ISODateTime,  // "yyyy-MM-dd HH:mm:ss"
+    MinDate = DateTime.Today.AddYears(-1),
+    MaxDate = DateTime.Today.AddYears(1),
+    AutoAdjustToBusinessDays = true,
+    Weekends = new[] { "Friday", "Saturday" }, // Custom weekend
+    ShowValidationIcon = true
+};
+
+datePicker.DateValidationFailed += (s, e) =>
+{
+    MessageBox.Show(e.ErrorMessage, "Invalid Date",
+        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+};</code></pre>
+
+                <h3>Example 3: Data-Binding and Value Integration</h3>
+                <pre><code class="language-csharp">datePicker.SetValue(DateTime.Today.AddDays(7));
+datePicker.SelectedDate = "2025-12-31";
+
+var value = datePicker.GetValue(); // DateTime? (null if empty/cleared)
+
+datePicker.Reset(); // Set to DateTime.Now
+datePicker.Clear(); // Set to DateTime.MinValue (if AllowEmpty)
+
+datePicker.AddBusinessHolidays(DateTime.Now.Year);
+var nextBiz = datePicker.GetNextBusinessDay(DateTime.Today);</code></pre>
+
+                <h3>Example 4: Read-Only Display Mode</h3>
+                <pre><code class="language-csharp">var displayPicker = new BeepDatePicker
+{
+    SelectedDateTime = new DateTime(2025, 6, 15, 14, 30, 0),
     DateFormatStyle = DateFormatStyle.ShortDateTime,
-    SelectedDateTime = DateTime.Now,
-    Size = new Size(250, 36),
-    Location = new Point(10, 60)
-};</code></pre>
-                    </div>
+    ReadOnly = true,
+    ShowDropDown = false,
+    AllowEmpty = false
+};
+// User cannot edit or open the calendar popup</code></pre>
 
-                    <div class="code-example">
-                        <h3>Custom Format</h3>
-                        <pre><code class="language-csharp">var customDatePicker = new BeepDatePicker
+                <h3>Example 5: Material Design Integration</h3>
+                <pre><code class="language-csharp">var materialPicker = new BeepDatePicker
 {
-    DateFormatStyle = DateFormatStyle.Custom,
-    DateFormat = "dd/MM/yyyy HH:mm",
-    SelectedDateTime = DateTime.Now,
-    Size = new Size(180, 36),
-    Location = new Point(10, 110)
-};</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>💡 Usage Tip</strong>
-                        <p>The placeholder text automatically adapts to match the selected date format style, helping users understand the expected input format.</p>
-                    </div>
-                </section>
-
-                <!-- Date Format Styles -->
-                <section id="format-styles" class="section">
-                    <h2>Date Format Styles</h2>
-                    <p>BeepDatePicker supports multiple predefined date format styles:</p>
-
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>ShortDate</h4>
-                            <p>MM/dd/yyyy</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>LongDate</h4>
-                            <p>dddd, MMMM dd, yyyy</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>ShortDateTime</h4>
-                            <p>MM/dd/yyyy HH:mm</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>FullDateTime</h4>
-                            <p>dddd, MMMM dd, yyyy HH:mm:ss</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>ISODate</h4>
-                            <p>yyyy-MM-dd</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>ISODateTime</h4>
-                            <p>yyyy-MM-dd HH:mm:ss</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>TimeOnly</h4>
-                            <p>HH:mm:ss</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>Custom</h4>
-                            <p>User-defined format</p>
-                        </div>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Format Style Examples</h3>
-                        <pre><code class="language-csharp">// Short date format (MM/dd/yyyy)
-var shortDate = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.ShortDate
+    PainterKind = BaseControlPainterKind.Material,
+    DatePickerLabel = "Appointment Date",
+    DatePickerHelperText = "Select a future date and time",
+    DatePickerAutoSizeForMaterial = true
 };
 
-// Long date format (dddd, MMMM dd, yyyy)
-var longDate = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.LongDate
-};
+materialPicker.DatePickerHasError = true;
+materialPicker.DatePickerErrorText = "Date is in the past";</code></pre>
 
-// ISO date format (yyyy-MM-dd)
-var isoDate = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.ISODate
-};
+                <h3>Example 6: Business Date Range and Appointment Configuration</h3>
+                <pre><code class="language-csharp">datePicker.ConfigureForAppointment();
+datePicker.SetBusinessDateRange(
+    DateTime.Today.AddDays(1),
+    DateTime.Today.AddMonths(3));
+datePicker.AddBusinessHolidays(DateTime.Now.Year);</code></pre>
+            </section>
 
-// Time only format (HH:mm:ss)
-var timeOnly = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.TimeOnly
-};
+            <section id="architecture" class="section"><h2>Architecture</h2>
+                <p>BeepDatePicker uses a headerless, owner-draw design with no child controls. The layout is computed in <code>PaintCore</code> using three layout constants: <code>ButtonWidth=24</code>, <code>Padding=3</code>. The right side of the control contains the dropdown area with a dividing line and a calendar SVG icon.</p>
+                <p>When the user clicks the dropdown area or presses F4/Alt+Down, a <code>BeepPopupForm</code> is created hosting a <code>BeepDatePickerView</code> which provides a full calendar grid with navigation, time spinner, and OK/Cancel footer links. The popup closes on OK (validates date, fires events) or Cancel (fires CancelClicked only).</p>
+                <p><strong>File breakdown (Dates directory):</strong></p>
+                <table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td>BeepDatePicker.cs (1082 lines)</td><td>Main date picker: rendering (PaintCore), keyboard input, business logic, popup management, event args classes</td></tr>
+                    <tr><td>BeepDatePickerView.cs (926 lines)</td><td>Calendar popup view: month grid, day selection, time spinner, OK/Cancel footer, header with nav chevrons</td></tr>
+                    <tr><td>BeepTimePicker.cs (1278 lines)</td><td>Standalone time picker with TextBox, spin buttons, dropdown, 6 time formats, business features</td></tr>
+                    <tr><td>BeepDateTimePicker.cs (37 lines)</td><td>Full-featured date/time picker stub (multi-mode: Single, Range, Multiple, Appointment, etc.)</td></tr>
+                    <tr><td>BeepDateTimePicker.Core.cs</td><td>Core fields, events, initialization, constructor for BeepDateTimePicker</td></tr>
+                    <tr><td>BeepDateTimePicker.Properties.cs</td><td>All properties for BeepDateTimePicker</td></tr>
+                    <tr><td>BeepDateTimePicker.Events.cs</td><td>Event handlers (mouse, keyboard, context menu)</td></tr>
+                    <tr><td>BeepDateTimePicker.Methods.cs</td><td>Public methods (node operations, search)</td></tr>
+                    <tr><td>BeepDateTimePicker.Drawing.cs</td><td>DrawContent override and painting delegation</td></tr>
+                    <tr><td>BeepDateDropDown.cs (47 lines)</td><td>Inline-editing date dropdown inheriting from BeepTextBox</td></tr>
+                    <tr><td>BeepDateDropDown.Core.cs</td><td>Core fields, events, initialization</td></tr>
+                    <tr><td>BeepDateDropDown.Properties.cs</td><td>All properties (Mode, SelectedDateTime, constraints)</td></tr>
+                    <tr><td>BeepDateDropDown.Events.cs</td><td>Event handlers</td></tr>
+                    <tr><td>BeepDateDropDown.Methods.cs</td><td>Date parsing, formatting, validation</td></tr>
+                    <tr><td>BeepDateDropDown.Drawing.cs</td><td>DrawContent override</td></tr>
+                    <tr><td>BeepDateDropDown.SegmentEditing.cs</td><td>Segment-level editing for masked input</td></tr>
+                    <tr><td>BeepDateDropDown.Sync.cs</td><td>Synchronization between text and calendar</td></tr>
+                    <tr><td>Models/enums.cs</td><td>All date/time enumerations (17 enums: DatePickerMode, ReturnDateTimeType, etc.)</td></tr>
+                    <tr><td>Models/DateTimePickerModels.cs</td><td>DateTimePickerEventArgs class</td></tr>
+                    <tr><td>Models/DateTimePickerProperties.cs</td><td>DateTimePicker property model class</td></tr>
+                    <tr><td>Models/DatePickerModeMapping.cs</td><td>Maps DatePickerMode to view mode enumerations</td></tr>
+                    <tr><td>Internal/DaysGrid.cs</td><td>Internal days grid layout helper</td></tr>
+                    <tr><td>ShadowPainterFactory.cs</td><td>Factory for shadow painting</td></tr>
+                    <tr><td>Painters/ (20 files)</td><td>Per-mode painting strategies (Single, Range, Appointment, Compact, MonthView, YearView, etc.)</td></tr>
+                    <tr><td>HitHandlers/ (20 files)</td><td>Per-mode hit test handlers for mouse/keyboard interaction</td></tr>
+                    <tr><td>Helpers/ (5 files)</td><td>ComboBox helper, QuickButton helper, HitTest helper, Layout helper, Input helper</td></tr>
+                </tbody></table>
+            </section>
 
-// Custom format
-var customFormat = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.Custom,
-    DateFormat = "MMM dd, yyyy 'at' HH:mm"
-};</code></pre>
-                    </div>
-                </section>
+            <section id="companion-controls" class="section"><h2>Companion Controls</h2>
+                <h3>BeepDatePickerView</h3>
+                <p>A modern calendar view control (<code>BaseControl</code>) that displays a month calendar with navigation chevrons, responsive cell sizing, time spinner (up/down chevrons), and OK/Cancel action buttons. Used internally by <code>BeepDatePicker</code> as the popup calendar. Features responsive layout with minimum size enforcement (320x420 default, MinSize calculated from layout constants), theme-aware color tokens (<code>CalendarSelectedDateBackColor</code>, <code>CalendarSelectedDateForColor</code>, <code>CalendarTodayForeColor</code>, <code>CalendarDaysHeaderForColor</code>, <code>CalendarTitleForColor</code>), and font tokens (<code>CalendarTitleFont</code>, <code>DaysHeaderFont</code>, <code>DateFont</code>, <code>CalendarSelectedFont</code>, <code>FooterFont</code>). Properties: <code>SelectedDateTime</code> (DateTime?), <code>ShowTime</code> (bool, default true), <code>Context</code> (string). Events: <code>DateTimeSelected</code>, <code>Cancelled</code>, <code>OkClicked</code>, <code>CancelClicked</code> (both with <code>DateTimeDialogResultEventArgs</code>).</p>
+                <h3>BeepTimePicker</h3>
+                <p>A standalone time picker with a borderless <code>TextBox</code> child for inline editing, a dropdown button (clock SVG icon) that opens a <code>BeepPopupForm</code> with hour/minute/AM-PM ListBoxes, and optional spin up/down <code>BeepButton</code> children. Supports 6 time format styles (TwelveHour, TwentyFourHour, TwelveHourWithSeconds, TwentyFourHourWithSeconds, HoursOnly, Custom), minute interval/snapping (1-60), business hours validation (BusinessStartTime 9:00, BusinessEndTime 17:00), 24-hour toggle, seconds editing toggle, and context configurations with pre-built methods: <code>ConfigureForMeetingTime()</code>, <code>ConfigureForAppointment()</code>, <code>ConfigureForShiftTime()</code>, <code>ConfigureForDeadline()</code>. Events: <code>SelectedTimeChanged</code>, <code>TimeChanged</code> (TimeChangedEventArgs), <code>TimeSubmitted</code> (TimeSubmittedEventArgs), <code>TimeValidationFailed</code> (TimeValidationEventArgs), <code>TimePickerOpened</code>, <code>TimePickerClosed</code>.</p>
+                <h3>BeepDateDropDown</h3>
+                <p>An inline-editing date dropdown inheriting from <code>BeepTextBox</code> for full text editing capabilities (input masking, AutoComplete, Undo/Redo, selection/caret management). Supports single dates, date ranges ("MM/dd/yyyy - MM/dd/yyyy"), and date-time ranges with proper formatting. The dropdown calendar is a <code>BeepDateTimePicker</code> shown in a popup. 7 partial files: Core, Properties, Events, Methods, Drawing, SegmentEditing, Sync. Features: inline masking, F4 dropdown shortcut, culture-specific formatting, min/max date constraints, theme integration, validation feedback.</p>
+                <h3>BeepDateTimePicker</h3>
+                <p>A full-featured date/time picker control supporting 18 functional modes (Single, SingleWithTime, Range, RangeWithTime, Multiple, Appointment, Timeline, Quarterly, Compact, ModernCard, DualCalendar, WeekView, MonthView, YearView, SidebarEvent, FlexibleRange, FilteredRange, Header). Uses a pluggable painter/hit-handler architecture with 20 painter strategies per mode and 20 hit handler strategies per mode. Incomplete implementation (stub state with 8 partial files).</p>
+            </section>
 
-                <!-- Properties -->
-                <section id="properties" class="section">
-                    <h2>Properties</h2>
+            <section id="enums" class="section"><h2>Enumerations</h2>
+                <h3>DateFormatStyle (from Beep.Vis.Modules2.0)</h3>
+                <table><thead><tr><th>Value</th><th>Format String</th><th>Example Output</th></tr></thead><tbody>
+                    <tr><td>ShortDate</td><td>Culture ShortDatePattern</td><td>"6/15/2025"</td></tr>
+                    <tr><td>LongDate</td><td>Culture LongDatePattern</td><td>"Sunday, June 15, 2025"</td></tr>
+                    <tr><td>YearMonth</td><td>"MMMM yyyy"</td><td>"June 2025"</td></tr>
+                    <tr><td>Custom</td><td>DateFormat property</td><td>User-defined</td></tr>
+                    <tr><td>FullDateTime</td><td>LongDatePattern + LongTimePattern</td><td>"Sunday, June 15, 2025 2:30:00 PM"</td></tr>
+                    <tr><td>ShortDateTime</td><td>ShortDatePattern + " HH:mm"</td><td>"6/15/2025 14:30"</td></tr>
+                    <tr><td>DayMonthYear</td><td>"dd MMMM yyyy"</td><td>"15 June 2025"</td></tr>
+                    <tr><td>ISODate</td><td>"yyyy-MM-dd"</td><td>"2025-06-15"</td></tr>
+                    <tr><td>ISODateTime</td><td>"yyyy-MM-dd HH:mm:ss"</td><td>"2025-06-15 14:30:00"</td></tr>
+                    <tr><td>TimeOnly</td><td>"HH:mm:ss"</td><td>"14:30:00"</td></tr>
+                    <tr><td>ShortTime</td><td>"HH:mm"</td><td>"14:30"</td></tr>
+                    <tr><td>MonthDay</td><td>"MMMM dd"</td><td>"June 15"</td></tr>
+                    <tr><td>DayOfWeek</td><td>"dddd"</td><td>"Sunday"</td></tr>
+                    <tr><td>RFC1123</td><td>"ddd, dd MMM yyyy HH:mm:ss 'GMT'"</td><td>"Sun, 15 Jun 2025 14:30:00 GMT"</td></tr>
+                    <tr><td>UniversalSortable</td><td>"yyyy-MM-dd HH:mm:ss'Z'"</td><td>"2025-06-15 14:30:00Z"</td></tr>
+                </tbody></table>
 
-                    <h3>Date and Time Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>SelectedDateTime</code></td>
-                                <td>DateTime</td>
-                                <td>The selected date and time as a DateTime object</td>
-                            </tr>
-                            <tr>
-                                <td><code>SelectedDate</code></td>
-                                <td>string</td>
-                                <td>The selected date as a formatted string</td>
-                            </tr>
-                            <tr>
-                                <td><code>DateFormatStyle</code></td>
-                                <td>DateFormatStyle</td>
-                                <td>Predefined date format style</td>
-                            </tr>
-                            <tr>
-                                <td><code>DateFormat</code></td>
-                                <td>string</td>
-                                <td>Custom date format string (when DateFormatStyle is Custom)</td>
-                            </tr>
-                            <tr>
-                                <td><code>Culture</code></td>
-                                <td>CultureInfo</td>
-                                <td>Culture for date formatting and parsing</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <h3>TimeFormatStyle (from BeepTimePicker.cs)</h3>
+                <table><thead><tr><th>Value</th><th>Format</th><th>Example</th></tr></thead><tbody>
+                    <tr><td>TwelveHour</td><td>"h:mm tt"</td><td>"2:30 PM"</td></tr>
+                    <tr><td>TwentyFourHour</td><td>"HH:mm"</td><td>"14:30"</td></tr>
+                    <tr><td>TwelveHourWithSeconds</td><td>"h:mm:ss tt"</td><td>"2:30:45 PM"</td></tr>
+                    <tr><td>TwentyFourHourWithSeconds</td><td>"HH:mm:ss"</td><td>"14:30:45"</td></tr>
+                    <tr><td>HoursOnly</td><td>"HH" or "h tt"</td><td>"14" or "2 PM"</td></tr>
+                    <tr><td>Custom</td><td>TimeFormat property</td><td>User-defined</td></tr>
+                </tbody></table>
 
-                    <h3>DateFormatStyle Enumeration</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Value</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>ShortDate</code></td>
-                                <td>Short date pattern</td>
-                                <td>12/25/2023</td>
-                            </tr>
-                            <tr>
-                                <td><code>LongDate</code></td>
-                                <td>Long date pattern</td>
-                                <td>Monday, December 25, 2023</td>
-                            </tr>
-                            <tr>
-                                <td><code>ShortDateTime</code></td>
-                                <td>Short date with time</td>
-                                <td>12/25/2023 14:30</td>
-                            </tr>
-                            <tr>
-                                <td><code>FullDateTime</code></td>
-                                <td>Full date and time</td>
-                                <td>Monday, December 25, 2023 2:30:00 PM</td>
-                            </tr>
-                            <tr>
-                                <td><code>ISODate</code></td>
-                                <td>ISO 8601 date</td>
-                                <td>2023-12-25</td>
-                            </tr>
-                            <tr>
-                                <td><code>Custom</code></td>
-                                <td>Custom format string</td>
-                                <td>User-defined</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <h3>DatePickerMode (from Models/enums.cs)</h3>
+                <p>Defines functional mode for BeepDateTimePicker/BeepDateDropDown. 18 values: <code>Single</code>, <code>SingleWithTime</code>, <code>Range</code>, <code>RangeWithTime</code>, <code>Multiple</code>, <code>Appointment</code>, <code>Timeline</code>, <code>Quarterly</code>, <code>Compact</code>, <code>ModernCard</code>, <code>DualCalendar</code>, <code>WeekView</code>, <code>MonthView</code>, <code>YearView</code>, <code>SidebarEvent</code>, <code>FlexibleRange</code>, <code>FilteredRange</code>, <code>Header</code>.</p>
 
-                    <h3>Validation Properties</h3>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>MinDate <code>DateTime?</code></h4>
-                            <p>Minimum allowed date for validation</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>MaxDate <code>DateTime?</code></h4>
-                            <p>Maximum allowed date for validation</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>AllowEmpty <code>bool</code></h4>
-                            <p>Whether empty/null dates are allowed</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>ShowDropDown <code>bool</code></h4>
-                            <p>Whether to show the calendar dropdown button</p>
-                        </div>
-                    </div>
-                </section>
+                <h3>ReturnDateTimeType (from Models/enums.cs)</h3>
+                <p>Defines return value type: <code>Date</code>, <code>DateTime</code>, <code>DateRange</code>, <code>DateTimeRange</code>, <code>MultipleDates</code>, <code>TimeOnly</code>.</p>
 
-                <!-- Events -->
-                <section id="events" class="section">
-                    <h2>Events</h2>
-                    
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>SelectedDateTimeChanged</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the selected date/time changes</td>
-                            </tr>
-                            <tr>
-                                <td><code>CalendarOpened</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the calendar popup opens</td>
-                            </tr>
-                            <tr>
-                                <td><code>CalendarClosed</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the calendar popup closes</td>
-                            </tr>
-                            <tr>
-                                <td><code>ValidationFailed</code></td>
-                                <td>EventHandler&lt;ValidationEventArgs&gt;</td>
-                                <td>Triggered when date validation fails</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="code-example">
-                        <h3>Event Handling Examples</h3>
-                        <pre><code class="language-csharp">var datePicker = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.ShortDateTime
-};
-
-// Handle date selection changes
-datePicker.SelectedDateTimeChanged += (sender, e) => {
-    DateTime selectedDate = datePicker.SelectedDateTime;
-  //  Console.WriteLine($"Date selected: {selectedDate:yyyy-MM-dd HH:mm}");
-    
-    // Update related controls
-    UpdateDependentFields(selectedDate);
-    
-    // Validate business rules
-    ValidateDateSelection(selectedDate);
-};
-
-// Handle calendar popup events
-datePicker.CalendarOpened += (sender, e) => {
-  //  Console.WriteLine("Calendar popup opened");
-    // Could pause other validations while user selects
-};
-
-// Handle validation failures
-datePicker.ValidationFailed += (sender, e) => {
-  //  Console.WriteLine($"Date validation failed: {e.ErrorMessage}");
-    ShowValidationError(e.ErrorMessage);
-};</code></pre>
-                    </div>
-                </section>
-
-                <!-- Examples -->
-                <section id="examples" class="section">
-                    <h2>Examples</h2>
-
-                    <div class="code-example">
-                        <h3>Event Registration Form</h3>
-                        <pre><code class="language-csharp">public void CreateEventRegistrationForm()
-{
-    var panel = new BeepPanel
-    {
-        TitleText = "Event Registration",
-        ShowTitle = true,
-        Size = new Size(400, 300),
-        IsRounded = true
-    };
-
-    // Event date picker
-    var eventDatePicker = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.LongDate,
-        SelectedDateTime = DateTime.Today.AddDays(7), // Default to next week
-        MinDate = DateTime.Today, // Can't select past dates
-        Size = new Size(350, 40),
-        Location = new Point(25, 60)
-    };
-
-    // Registration deadline
-    var deadlinePicker = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.ShortDateTime,
-        SelectedDateTime = DateTime.Today.AddDays(3),
-        MinDate = DateTime.Today,
-        Size = new Size(250, 40),
-        Location = new Point(25, 120)
-    };
-
-    // Birth date (for age verification)
-    var birthDatePicker = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.ShortDate,
-        SelectedDateTime = DateTime.Today.AddYears(-25),
-        MaxDate = DateTime.Today.AddYears(-18), // Must be 18+
-        Size = new Size(200, 40),
-        Location = new Point(25, 180)
-    };
-
-    // Validation
-    eventDatePicker.SelectedDateTimeChanged += (s, e) => {
-        // Update deadline max date to be before event date
-        deadlinePicker.MaxDate = eventDatePicker.SelectedDateTime.AddDays(-1);
-        
-        if (deadlinePicker.SelectedDateTime >= eventDatePicker.SelectedDateTime)
-        {
-            deadlinePicker.SelectedDateTime = eventDatePicker.SelectedDateTime.AddDays(-1);
-        }
-    };
-
-    panel.Controls.AddRange(new Control[] 
-    {
-        new BeepLabel { Text = "Event Date:", Location = new Point(25, 40) },
-        eventDatePicker,
-        new BeepLabel { Text = "Registration Deadline:", Location = new Point(25, 100) },
-        deadlinePicker,
-        new BeepLabel { Text = "Birth Date:", Location = new Point(25, 160) },
-        birthDatePicker
-    });
-
-    this.Controls.Add(panel);
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Multi-Culture Date Pickers</h3>
-                        <pre><code class="language-csharp">public void CreateMultiCultureDatePickers()
-{
-    var cultures = new[]
-    {
-        new { Culture = new CultureInfo("en-US"), Name = "US Format" },
-        new { Culture = new CultureInfo("en-GB"), Name = "UK Format" },
-        new { Culture = new CultureInfo("de-DE"), Name = "German Format" },
-        new { Culture = new CultureInfo("ja-JP"), Name = "Japanese Format" }
-    };
-
-    int yPosition = 20;
-    foreach (var cultureInfo in cultures)
-    {
-        var label = new BeepLabel
-        {
-            Text = cultureInfo.Name,
-            Location = new Point(20, yPosition),
-            Size = new Size(120, 25)
-        };
-
-        var picker = new BeepDatePicker
-        {
-            Culture = cultureInfo.Culture,
-            DateFormatStyle = DateFormatStyle.ShortDate,
-            SelectedDateTime = DateTime.Today,
-            Location = new Point(150, yPosition),
-            Size = new Size(200, 35)
-        };
-
-        this.Controls.AddRange(new Control[] { label, picker });
-        yPosition += 45;
-    }
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Appointment Scheduler</h3>
-                        <pre><code class="language-csharp">public void CreateAppointmentScheduler()
-{
-    // Date picker for appointment date
-    var appointmentDate = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.LongDate,
-        SelectedDateTime = DateTime.Today.AddDays(1),
-        MinDate = DateTime.Today,
-        MaxDate = DateTime.Today.AddMonths(3),
-        Size = new Size(350, 40),
-        Location = new Point(20, 60)
-    };
-
-    // Time picker for start time
-    var startTime = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.ShortTime,
-        SelectedDateTime = DateTime.Today.AddHours(9), // 9 AM default
-        Size = new Size(150, 40),
-        Location = new Point(20, 120)
-    };
-
-    // Time picker for end time
-    var endTime = new BeepDatePicker
-    {
-        DateFormatStyle = DateFormatStyle.ShortTime,
-        SelectedDateTime = DateTime.Today.AddHours(10), // 10 AM default
-        Size = new Size(150, 40),
-        Location = new Point(200, 120)
-    };
-
-    // Validation for business hours
-    startTime.SelectedDateTimeChanged += (s, e) => {
-        var time = startTime.SelectedDateTime.TimeOfDay;
-        if (time < TimeSpan.FromHours(8) || time > TimeSpan.FromHours(17))
-        {
-            MessageBox.Show("Please select a time between 8 AM and 5 PM");
-            startTime.SelectedDateTime = DateTime.Today.AddHours(9);
-        }
-        
-        // Update end time to be 1 hour later
-        endTime.SelectedDateTime = startTime.SelectedDateTime.AddHours(1);
-    };
-
-    // Prevent weekend appointments
-    appointmentDate.SelectedDateTimeChanged += (s, e) => {
-        var date = appointmentDate.SelectedDateTime;
-        if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-        {
-            MessageBox.Show("Appointments are not available on weekends");
-            // Move to next Monday
-            while (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-            {
-                date = date.AddDays(1);
-            }
-            appointmentDate.SelectedDateTime = date;
-        }
-    };
-
-    this.Controls.AddRange(new Control[] 
-    {
-        new BeepLabel { Text = "Appointment Date:", Location = new Point(20, 40) },
-        appointmentDate,
-        new BeepLabel { Text = "Start Time:", Location = new Point(20, 100) },
-        startTime,
-        new BeepLabel { Text = "End Time:", Location = new Point(200, 100) },
-        endTime
-    });
-}</code></pre>
-                    </div>
-                </section>
-
-                <!-- Calendar Popup -->
-                <section id="calendar" class="section">
-                    <h2>Calendar Popup</h2>
-                    <p>BeepDatePicker includes an integrated BeepCalendarView that appears when the dropdown button is clicked.</p>
-
-                    <div class="code-example">
-                        <h3>Calendar Customization</h3>
-                        <pre><code class="language-csharp">var datePicker = new BeepDatePicker();
-
-// The calendar popup is automatically themed to match the DatePicker
-// You can handle calendar events through the DatePicker events
-
-datePicker.CalendarOpened += (s, e) => {
-  //  Console.WriteLine("Calendar is now visible");
-    // Could implement custom logic when calendar opens
-};
-
-datePicker.CalendarClosed += (s, e) => {
-  //  Console.WriteLine("Calendar closed");
-    // Validate the selected date
-    ValidateSelectedDate();
-};
-
-// Calendar inherits min/max date restrictions from DatePicker
-datePicker.MinDate = DateTime.Today;
-datePicker.MaxDate = DateTime.Today.AddYears(1);</code></pre>
-                    </div>
-
-                    <div class="success">
-                        <strong>✅ Calendar Features</strong>
-                        <ul>
-                            <li>Month navigation with arrow buttons</li>
-                            <li>Today button for quick selection</li>
-                            <li>Time selection when using date-time formats</li>
-                            <li>Automatic theme application</li>
-                            <li>Keyboard navigation support</li>
-                            <li>Weekend and holiday highlighting</li>
-                            <li>Min/max date validation integration</li>
-                        </ul>
-                    </div>
-                </section>
-
-                <!-- Localization -->
-                <section id="localization" class="section">
-                    <h2>Localization</h2>
-                    <p>BeepDatePicker provides comprehensive localization support through the .NET CultureInfo system.</p>
-
-                    <div class="code-example">
-                        <h3>Culture-Specific Formatting</h3>
-                        <pre><code class="language-csharp">// Create date pickers for different cultures
-var cultures = new[]
-{
-    new CultureInfo("en-US"), // MM/dd/yyyy
-    new CultureInfo("en-GB"), // dd/MM/yyyy
-    new CultureInfo("de-DE"), // dd.MM.yyyy
-    new CultureInfo("fr-FR"), // dd/MM/yyyy
-    new CultureInfo("ja-JP"), // yyyy/MM/dd
-    new CultureInfo("ar-SA")  // dd/MM/yyyy (RTL)
-};
-
-foreach (var culture in cultures)
-{
-    var picker = new BeepDatePicker
-    {
-        Culture = culture,
-        DateFormatStyle = DateFormatStyle.ShortDate,
-        SelectedDateTime = DateTime.Today,
-        Size = new Size(200, 40)
-    };
-    
-    // The placeholder text automatically adjusts to the culture
-  //  Console.WriteLine($"{culture.Name}: {picker.GetPlaceholderText()}");
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Dynamic Culture Switching</h3>
-                        <pre><code class="language-csharp">var datePicker = new BeepDatePicker
-{
-    DateFormatStyle = DateFormatStyle.ShortDate,
-    SelectedDateTime = DateTime.Today
-};
-
-// Culture selector
-var cultureCombo = new BeepComboBox
-{
-    PlaceholderText = "Select culture..."
-};
-
-var supportedCultures = new[]
-{
-    new { Name = "English (US)", Code = "en-US" },
-    new { Name = "English (UK)", Code = "en-GB" },
-    new { Name = "German", Code = "de-DE" },
-    new { Name = "French", Code = "fr-FR" },
-    new { Name = "Japanese", Code = "ja-JP" }
-};
-
-foreach (var culture in supportedCultures)
-{
-    cultureCombo.ListItems.Add(new SimpleItem 
-    { 
-        Text = culture.Name, 
-        Value = culture.Code 
-    });
-}
-
-cultureCombo.SelectedItemChanged += (s, e) => {
-    if (e.SelectedItem?.Value is string cultureCode)
-    {
-        datePicker.Culture = new CultureInfo(cultureCode);
-        // Date format and placeholder automatically update
-    }
-};</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>🌐 Localization Tip</strong>
-                        <p>The control automatically handles right-to-left (RTL) cultures, adjusting text direction and calendar layout appropriately.</p>
-                    </div>
-                </section>
-
-                <!-- Theming -->
-                <section id="theming" class="section">
-                    <h2>Theming</h2>
-                    
-                    <p>BeepDatePicker integrates seamlessly with the Beep theming system, automatically styling the text input, dropdown button, and calendar popup.</p>
-
-                    <div class="code-example">
-                        <h3>Theme Application</h3>
-                        <pre><code class="language-csharp">var datePicker = new BeepDatePicker
-{
-    Theme = "DarkTheme",
-    DateFormatStyle = DateFormatStyle.ShortDateTime
-};
-
-// Theme automatically applies to:
-// - Text input background and foreground
-// - Dropdown button styling
-// - Calendar popup appearance
-// - Border colors and styles
-// - Validation indicators
-
-// Apply theme manually if needed
-datePicker.ApplyTheme();</code></pre>
-                    </div>
-
-                    <h3>Theme-Responsive Features</h3>
-                    <ul>
-                        <li><strong>Input Field</strong> - Background, foreground, and border colors from theme</li>
-                        <li><strong>Dropdown Button</strong> - Hover and active states with theme colors</li>
-                        <li><strong>Calendar Popup</strong> - Complete theme integration for calendar view</li>
-                        <li><strong>Validation States</strong> - Error and success colors adapt to theme</li>
-                        <li><strong>Focus Indicators</strong> - Focus colors and styles from theme</li>
-                    </ul>
-
-                    <div class="tip">
-                        <strong>🎨 Theming Tip</strong>
-                        <p>The calendar popup automatically inherits the theme from the parent DatePicker, ensuring visual consistency across all components.</p>
-                    </div>
-                </section>
-
-                <!-- Best Practices -->
-                <section id="best-practices" class="section">
-                    <h2>Best Practices</h2>
-
-                    <h3>🎨 User Experience</h3>
-                    <ul>
-                        <li><strong>Choose appropriate formats:</strong> Use date-only for birth dates, date-time for appointments</li>
-                        <li><strong>Provide clear labels:</strong> Always label date pickers with their purpose</li>
-                        <li><strong>Set sensible defaults:</strong> Pre-populate with logical default dates</li>
-                        <li><strong>Validate ranges:</strong> Implement min/max date validation for business rules</li>
-                        <li><strong>Culture awareness:</strong> Use appropriate culture settings for your user base</li>
-                    </ul>
-
-                    <h3>📅 Date Handling</h3>
-                    <ul>
-                        <li><strong>Handle edge cases:</strong> Account for leap years, month boundaries, and time zones</li>
-                        <li><strong>Consistent formatting:</strong> Use the same date format throughout your application</li>
-                        <li><strong>Validation feedback:</strong> Provide clear error messages for invalid dates</li>
-                        <li><strong>Future vs. past:</strong> Restrict date ranges based on business logic</li>
-                    </ul>
-
-                    <h3>♿ Accessibility</h3>
-                    <ul>
-                        <li><strong>Keyboard navigation:</strong> Ensure full keyboard accessibility</li>
-                        <li><strong>Screen readers:</strong> Use meaningful labels and descriptions</li>
-                        <li><strong>High contrast:</strong> Ensure sufficient contrast for date display</li>
-                        <li><strong>Touch targets:</strong> Make dropdown buttons large enough for touch input</li>
-                    </ul>
-
-                    <h3>⚡ Performance</h3>
-                    <ul>
-                        <li><strong>Event handling:</strong> Avoid excessive validation on every keystroke</li>
-                        <li><strong>Calendar popup:</strong> Cache calendar instances for better performance</li>
-                        <li><strong>Culture objects:</strong> Reuse CultureInfo instances when possible</li>
-                    </ul>
-
-                    <div class="warning">
-                        <strong>⚠️ Culture Warning</strong>
-                        <p>When working with different cultures, be aware of date parsing ambiguities. Always specify the culture explicitly for consistency.</p>
-                    </div>
-
-                    <div class="success">
-                        <strong>✅ Success Pattern</strong>
-                        <p>Always validate both the format and business logic of selected dates, providing clear feedback to users about any issues.</p>
-                    </div>
-                </section>
-
-                <!-- Navigation -->
-                <div class="nav-links">
-                    <a href="beep-radiobutton.html"><i class="bi bi-arrow-left"></i> BeepRadioButton</a>
-                    <a href="beep-numericupdown.html">BeepNumericUpDown <i class="bi bi-arrow-right"></i></a>
-                </div>
-
-                <!-- Footer -->
-                <footer class="documentation-footer">
-                    <div class="footer-content">
-                        <div class="footer-copyright">
-                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
-                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
-                        </div>
-                        <div class="footer-links">
-                            <a href="../index.html">Home</a>
-                            <a href="../getting-started/installation.html">Getting Started</a>
-                            <a href="../api/beep-control-base.html">API Reference</a>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-        </main>
+                <h3>Additional Date Enums (from Models/enums.cs)</h3>
+                <p><code>DateDropDownStyle</code>: Default, Modern, Classic, Custom &mdash; <code>DatePickerFormat</code>: Long, Short, Time, Custom, ShortDate &mdash; <code>DatePickerView</code>: Days, Months, Years &mdash; <code>DatePickerSelectionMode</code>: Single, Multiple, Range &mdash; <code>DatePickerCalendarType</code>: Gregorian, Julian, Hebrew, Hijri, ThaiBuddhist, UmAlQura &mdash; <code>DatePickerFirstDayOfWeek</code>: Sunday through Saturday &mdash; <code>DatePickerWeekNumbers</code>: None, FirstDay, FirstFullWeek, FirstFourDayWeek, Left &mdash; <code>DatePickerMonthDisplay</code>: Full, Abbreviated, Numeric &mdash; <code>DatePickerYearDisplay</code>: Full, Abbreviated, TwoDigit &mdash; <code>DatePickerHighlightCurrentDate</code>: None, Background, Border, Both &mdash; <code>DatePickerHighlightSelectedDate</code>: None, Background, Border, Both &mdash; <code>DatePickerDisabledDateStyle</code>: GrayedOut, Hidden, Custom &mdash; <code>DatePickerAnimationType</code>: None, Fade, Slide, Zoom &mdash; <code>DateTimePickerHitArea</code>: 40+ hit areas covering all interactive zones (Header, DayCell, QuickButton, TimeSpinner, etc.).</p>
+            </section>
+        </div></main>
     </div>
-
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const submenus = document.querySelectorAll('.has-submenu > a');
-            
-            submenus.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.parentElement;
-                    parent.classList.toggle('open');
-                });
-            });
-        });
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            const currentTheme = body.getAttribute('data-theme');
-            
-            if (currentTheme === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'bi bi-moon-fill';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
-            }
-        });
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function searchDocs(query) {
-            const links = document.querySelectorAll('.nav-menu a');
-            const lowerQuery = query.toLowerCase();
-            
-            links.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                const listItem = link.closest('li');
-                
-                if (text.includes(lowerQuery) || lowerQuery === '') {
-                    listItem.style.display = '';
-                } else {
-                    listItem.style.display = 'none';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeBlocks = document.querySelectorAll('pre code');
-            
-            codeBlocks.forEach(block => {
-                const button = document.createElement('button');
-                button.textContent = 'Copy';
-                button.style.cssText = `
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    background: var(--color-brand-primary);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    padding: 4px 8px;
-                    font-size: 12px;
-                    cursor: pointer;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-                
-                const pre = block.parentElement;
-                pre.style.position = 'relative';
-                pre.appendChild(button);
-                
-                pre.addEventListener('mouseenter', () => {
-                    button.style.opacity = '1';
-                });
-                
-                pre.addEventListener('mouseleave', () => {
-                    button.style.opacity = '0';
-                });
-                
-                button.addEventListener('click', () => {
-                    navigator.clipboard.writeText(block.textContent).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    });
-                });
-            });
-        });
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')=='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
     </script>
 </body>
 </html>

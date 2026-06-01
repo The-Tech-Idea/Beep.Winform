@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MenuBar Internals - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>MenuBar Internals</span></nav>
+<div class="page-header"><h1>MenuBar Internals</h1><p class="page-subtitle">BeepMenuBar internal architecture -- 13 partial files, SubmenuTriangleTracker drift heuristic, popup management, keyboard navigation, theme/font/icon helpers, and high contrast support</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li><li><a href="#partials">Partial File Layout (13)</a></li><li><a href="#tracker">SubmenuTriangleTracker</a></li><li><a href="#popup">Popup Management</a></li><li><a href="#keyboard">Keyboard Navigation</a></li><li><a href="#helpers">Helper Classes</a></li><li><a href="#highcontrast">High Contrast</a></li><li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Menus</code><br>
+<code>BeepMenuBar</code> is a full-featured menu bar control decomposed across <strong>13 partial files</strong>. It handles menu bar layout, popup submenus with drift-corrected hover persistence (via the <strong>SubmenuTriangleTracker</strong>), theming, accessibility, keyboard navigation with mnemonics, and high-contrast rendering. The <strong>SubmenuTriangleTracker</strong> is a classic Amazon-style drift heuristic based on Bret Victor's "Pull-Down Menus, Faster" (2005) research.</p></section>
+
+<section class="section" id="partials"><h2>Partial File Layout (13 Files)</h2>
+<table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td><strong>.cs</strong></td><td>Main control definition: constructor, internal fields (items list, popup tracking, timer state)</td></tr>
+<tr><td><strong>.Theming.cs</strong></td><td>Theme token application, style resolution, color mapping from IBeepTheme to menu elements</td></tr>
+<tr><td><strong>.Properties.cs</strong></td><td>Items collection, Orientation (Horizontal/Vertical), Style, ShowIcons, background appearance</td></tr>
+<tr><td><strong>.Layout.cs</strong></td><td>Menu item position calculation, bar sizing, overflow handling, item width measurement</td></tr>
+<tr><td><strong>.Popup.cs</strong></td><td>Submenu popup lifecycle: create, open with delay, close with delay, position anchoring, z-order</td></tr>
+<tr><td><strong>.Keyboard.cs</strong></td><td>Arrow key navigation (up/down/left/right), Enter key activation, Escape dismiss, mnemonics (Alt+letter)</td></tr>
+<tr><td><strong>.Input.cs</strong></td><td>Mouse hover/click handling, hit testing for item detection, hover-open timer management</td></tr>
+<tr><td><strong>.Drawing.cs</strong></td><td>Paint overrides: background, item text/icon/shortcut rendering, selection highlight, separator lines</td></tr>
+<tr><td><strong>.Activation.cs</strong></td><td>Menu activation/deactivation, focus management, dismissal on outside click</td></tr>
+<tr><td><strong>.HighContrast.cs</strong></td><td>High contrast mode detection and palette override, system contrast colors for borders and focus</td></tr>
+<tr><td><strong>.Lifecycle.cs</strong></td><td>Control lifecycle: initialization, Dispose, resource cleanup, event unsubscription</td></tr>
+<tr><td><strong>.Utility.cs</strong></td><td>Shared utilities: color blending, rectangle calculations, text measurement helpers</td></tr>
+<tr><td><strong>.Accessibility.cs</strong></td><td>UIAutomation provider pattern, screen reader support, role/name/value properties per item</td></tr></tbody></table></section>
+
+<section class="section" id="tracker"><h2>SubmenuTriangleTracker</h2>
+<p><strong>Visibility:</strong> <code>internal static</code> in <code>Menus/Helpers/SubmenuTriangleTracker.cs</code>. A stateless geometry helper that solves the classic "submenu flicker" problem. When the cursor moves diagonally from a parent menu item toward an open submenu, this tracker determines whether the cursor is "heading toward" the submenu.</p>
+<pre><code class="language-csharp">internal static class SubmenuTriangleTracker
+{
+    public static bool IsHeadingTowardSubmenu(
+        Point lastPos,          // previous cursor position (screen coords)
+        Point currentPos,       // current cursor position (screen coords)
+        Point submenuTopLeft,   // submenu window top-left corner
+        Point submenuBottomLeft // submenu window bottom-left corner
+    );
+    // Returns true when currentPos is inside the triangle formed by
+    // lastPos, submenuTopLeft, and submenuBottomLeft
+    // -> cursor is plausibly moving toward the submenu
+    // -> should NOT dismiss the submenu
+}</code></pre>
+<p>This is based on the same research used in WPF's <code>MenuItem.IsSubmenuOpen</code> heuristic and Amazon's retail mega-menu analysis. The tracker allows users to move the cursor diagonally to a submenu without the timer closing it prematurely.</p>
+<pre><code class="language-plaintext">  Menu Item        Submenu
+  [File]----------+
+  [Edit]       +--+  Open Recent
+  [View]       |     +--------------+
+               +---->| LastFile1.cs |
+  cursor moves        | LastFile2.cs |
+  diagonally ->       +--------------+
+  Tracker keeps
+  submenu open</code></pre></section>
+
+<section class="section" id="popup"><h2>Popup Management</h2>
+<p><code>BeepMenuBar.Popup.cs</code> handles the complete submenu popup lifecycle:</p>
+<ul><li><strong>Hover to open</strong> -- After a configurable hover delay, the submenu form is created, positioned anchored to the parent item, and shown</li><li><strong>Leave to close</strong> -- On mouse-leave, a brief timeout starts before closing. The SubmenuTriangleTracker extends this timeout when the cursor plausibly heads toward the submenu</li><li><strong>Z-order</strong> -- Submenus are created as owned Forms with <code>ShowWithoutActivation</code> to avoid stealing focus</li><li><strong>Position anchoring</strong> -- Submenu position is calculated relative to the parent item's rectangle, adjusting to stay within screen bounds</li></ul></section>
+
+<section class="section" id="keyboard"><h2>Keyboard Navigation</h2>
+<p><code>BeepMenuBar.Keyboard.cs</code> routes all keyboard input:</p>
+<ul><li><strong>Arrow keys</strong> -- Left/Right navigate between top-level items. Up/Down navigate within submenu items. Right on a parent item opens the submenu. Left on a submenu item closes it and returns to parent.</li>
+<li><strong>Enter</strong> -- Invokes the active menu item command or opens its submenu</li>
+<li><strong>Escape</strong> -- Closes the current submenu level, or dismisses the entire menu bar</li>
+<li><strong>Mnemonics</strong> -- Alt+letter activates the menu item with matching mnemonic character</li>
+<li><strong>Tab</strong> -- Cycles focus away from the menu bar</li></ul></section>
+
+<section class="section" id="helpers"><h2>Helper Classes</h2>
+<table><thead><tr><th>Class</th><th>Namespace</th><th>Role</th></tr></thead><tbody>
+<tr><td><strong>SubmenuTriangleTracker</strong></td><td>Helpers</td><td>Drift heuristic for submenu persistence during diagonal cursor transit</td></tr>
+<tr><td><strong>MenuThemeHelpers</strong></td><td>Helpers</td><td>Theme token resolution for menu items: resolves active/inactive/hover/disabled colors, font, icon colors from IBeepTheme</td></tr>
+<tr><td><strong>MenuIconHelpers</strong></td><td>Helpers</td><td>Icon loading with caching, sizing (16, 20, 24px), SVG rendering via StyledImagePainter, fallback placeholder generation</td></tr>
+<tr><td><strong>MenuFontHelpers</strong></td><td>Helpers</td><td>Font resolution from theme, measurement for layout (text width, height), mnemonic underline positioning</td></tr></tbody></table></section>
+
+<section class="section" id="highcontrast"><h2>High Contrast</h2>
+<p><code>BeepMenuBar.HighContrast.cs</code> detects system high contrast mode via <code>SystemInformation.HighContrast</code>. When active:</p>
+<ul><li>All theme colors are overridden with system-defined contrast colors</li><li>Borders use <code>SystemColors.ControlDark</code> (2px thickness)</li><li>Focus rectangles use <code>SystemColors.Highlight</code></li><li>Selection uses <code>SystemColors.Highlight</code> / <code>SystemColors.HighlightText</code></li><li>Icons are rendered in high-contrast-compatible mode (outline style)</li></ul></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<pre><code class="language-csharp">var menu = new BeepMenuBar();
+menu.Items.Add(new BeepMenuItem("File", null,
+    new List&lt;BeepMenuItem&gt;
+    {
+        new BeepMenuItem("New", Icons.NewFile, () => NewFile()),
+        new BeepMenuItem("Open", Icons.OpenFolder, () => OpenFile()),
+        new BeepMenuSeparator(),
+        new BeepMenuItem("Save", Icons.Save, () => SaveFile())
+            { Shortcut = "Ctrl+S" },
+        new BeepMenuItem("Exit", null, () => Application.Exit())
+    }));
+menu.Items.Add(new BeepMenuItem("Help", null,
+    new List&lt;BeepMenuItem&gt;
+    {
+        new BeepMenuItem("About", Icons.Info, () => ShowAbout())
+    }));</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

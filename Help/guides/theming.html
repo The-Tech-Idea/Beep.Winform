@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beep Theming System - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>.content{margin-left:0!important}</style>
+</head>
+<body>
+    <div class="container">
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>&rsaquo;</span>
+                    <a href="../index.html#guides">Guides</a>
+                    <span>&rsaquo;</span>
+                    <span>Beep Theming System</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1><i class="bi bi-palette2"></i> Beep Theming System</h1>
+                    <p class="page-subtitle">Understanding the Beep theme architecture, cascading rules, runtime switching, and creating custom themes</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#theme-cascade">How Themes Cascade</a></li>
+                        <li><a href="#managing-themes">BeepThemesManager</a></li>
+                        <li><a href="#switching-at-runtime">Switching Themes at Runtime</a></li>
+                        <li><a href="#custom-themes">Creating a Custom IBeepTheme</a></li>
+                        <li><a href="#apply-control-style">BaseControl.ApplyControlStyle</a></li>
+                        <li><a href="#formstyle-vs-theme">FormStyle vs Theme</a></li>
+                        <li><a href="#theme-changed-events">Theme Change Notification</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        The Beep theming system provides a unified way to style every control in your application.
+                        All <code>BaseControl</code> descendants automatically subscribe to the active theme and repaint
+                        themselves when the theme changes. You do not need to manually set colors on individual controls;
+                        instead, controls derive their appearance from the theme they belong to.
+                    </p>
+                    <p>
+                        The theming stack has three layers:
+                    </p>
+                    <ul>
+                        <li><strong>IBeepTheme</strong> — the contract that defines all color and style tokens</li>
+                        <li><strong>BeepThemesManager</strong> — the singleton that holds the active theme and broadcasts changes</li>
+                        <li><strong>BaseControl</strong> — the base class that reads from the active theme and paints itself</li>
+                    </ul>
+                </section>
+
+                <section id="theme-cascade" class="section">
+                    <h2>How Themes Cascade</h2>
+                    <p>
+                        When a control paints itself, it does <strong>not</strong> hard-code colors. Instead, it follows a
+                        resolution chain that determines the final color or style value:
+                    </p>
+                    <ol>
+                        <li><strong>Control-level override</strong> — if a property like <code>CustomBackColor</code> is set directly on the control, it wins.</li>
+                        <li><strong>Parent container override</strong> — if a parent <code>BeepPanel</code> or <code>BeepCard</code> has a local style, it propagates to children.</li>
+                        <li><strong>Active theme</strong> — the global theme registered in <code>BeepThemesManager</code>.</li>
+                        <li><strong>Fallback defaults</strong> — hard-coded sensible defaults if no theme is set.</li>
+                    </ol>
+                    <pre><code class="language-csharp">// Control-level override — takes precedence over the theme
+myButton.CustomBackColor = Color.LightBlue;
+myButton.CustomForeColor = Color.DarkBlue;
+
+// Theme-level styling — applies to all controls NOT overridden
+BeepThemesManager.ActiveTheme.BackColor = Color.WhiteSmoke;</code></pre>
+                </section>
+
+                <section id="managing-themes" class="section">
+                    <h2>BeepThemesManager</h2>
+                    <p>
+                        <code>BeepThemesManager</code> is the central registry. You can register themes by name,
+                        switch between them, and query the current theme. Apply a theme before any form is created:
+                    </p>
+                    <pre><code class="language-csharp">static void Main()
+{
+    ApplicationConfiguration.Initialize();
+
+    // Register built-in themes
+    BeepThemesManager.RegisterTheme("MaterialBlue", new MaterialBlueTheme());
+    BeepThemesManager.RegisterTheme("MaterialDark", new MaterialDarkTheme());
+    BeepThemesManager.RegisterTheme("HighContrast", new HighContrastTheme());
+
+    // Activate one
+    BeepThemesManager.ApplyTheme("MaterialBlue");
+
+    Application.Run(new MainForm());
+}</code></pre>
+                    <p>Access the active theme from anywhere:</p>
+                    <pre><code class="language-csharp">var theme = BeepThemesManager.ActiveTheme;
+Color primaryColor = theme.PrimaryColor;
+Color successColor = theme.SuccessColor;
+Font defaultFont = theme.GetFont(BeepFontKind.Body);</code></pre>
+                </section>
+
+                <section id="switching-at-runtime" class="section">
+                    <h2>Switching Themes at Runtime</h2>
+                    <p>
+                        Changing the active theme triggers an automatic repaint cascade across all open forms.
+                        Every <code>BaseControl</code> receives an <code>OnThemeChanged</code> notification.
+                    </p>
+                    <pre><code class="language-csharp">private void LightModeButton_Click(object sender, EventArgs e)
+{
+    BeepThemesManager.ApplyTheme("MaterialBlue");
+}
+
+private void DarkModeButton_Click(object sender, EventArgs e)
+{
+    BeepThemesManager.ApplyTheme("MaterialDark");
+}</code></pre>
+                    <div class="info-box">
+                        <strong>Performance note:</strong> Switching themes invalidates every control. Avoid switching
+                        in a tight loop or on a timer. Only switch in response to deliberate user action.
+                    </div>
+                </section>
+
+                <section id="custom-themes" class="section">
+                    <h2>Creating a Custom IBeepTheme</h2>
+                    <p>
+                        Implement <code>IBeepTheme</code> to define your own color palette and style tokens.
+                        The interface exposes semantic colors so controls can remain agnostic about the visual look.
+                    </p>
+                    <pre><code class="language-csharp">public class OceanTheme : IBeepTheme
+{
+    public string ThemeName => "Ocean";
+    public Color PrimaryColor => Color.FromArgb(0, 105, 148);
+    public Color SecondaryColor => Color.FromArgb(0, 151, 178);
+    public Color AccentColor => Color.FromArgb(0, 200, 200);
+    public Color SuccessColor => Color.FromArgb(46, 139, 87);
+    public Color WarningColor => Color.FromArgb(255, 165, 0);
+    public Color DangerColor => Color.FromArgb(220, 53, 69);
+    public Color BackColor => Color.FromArgb(240, 248, 255);
+    public Color ForeColor => Color.FromArgb(25, 25, 35);
+    public Color SurfaceColor => Color.White;
+    public Color BorderColor => Color.FromArgb(173, 216, 230);
+    public Color DisabledBackColor => Color.FromArgb(224, 224, 224);
+    public Color DisabledForeColor => Color.Gray;
+    public Color FocusBorderColor => Color.FromArgb(0, 120, 215);
+    public Color ShadowColor => Color.FromArgb(40, 0, 50, 80);
+
+    public Font GetFont(BeepFontKind kind) => kind switch
+    {
+        BeepFontKind.Heading => new Font("Segoe UI", 18f, FontStyle.Bold),
+        BeepFontKind.Subheading => new Font("Segoe UI", 14f, FontStyle.Bold),
+        BeepFontKind.Body => new Font("Segoe UI", 10f),
+        BeepFontKind.Caption => new Font("Segoe UI", 8f),
+        _ => new Font("Segoe UI", 10f)
+    };
+
+    public int BorderRadius => 6;
+    public int ControlHeight => 32;
+    public Padding ControlPadding => new Padding(8, 4, 8, 4);
+}</code></pre>
+                    <p>Register and apply:</p>
+                    <pre><code class="language-csharp">BeepThemesManager.RegisterTheme("Ocean", new OceanTheme());
+BeepThemesManager.ApplyTheme("Ocean");</code></pre>
+                </section>
+
+                <section id="apply-control-style" class="section">
+                    <h2>BaseControl.ApplyControlStyle</h2>
+                    <p>
+                        Every <code>BaseControl</code> calls <code>ApplyControlStyle()</code> during initialization
+                        and after theme changes. This is where the control reads the active theme and maps tokens
+                        to WinForms properties:
+                    </p>
+                    <pre><code class="language-csharp">protected override void ApplyControlStyle()
+{
+    var theme = BeepThemesManager.ActiveTheme ?? BeepThemesManager.DefaultTheme;
+
+    BackColor = theme.BackColor;
+    ForeColor = theme.ForeColor;
+    Font = theme.GetFont(BeepFontKind.Body);
+
+    // For controls with borders
+    _borderPen?.Dispose();
+    _borderPen = new Pen(theme.BorderColor, 1f);
+
+    // For controls with backgrounds
+    _backBrush?.Dispose();
+    _backBrush = new SolidBrush(theme.SurfaceColor);
+
+    Invalidate();
+}</code></pre>
+                    <p>
+                        This method is the hook for any custom painting logic. Always call <code>base.ApplyControlStyle()</code>
+                        first to pick up the standard token mappings, then add your control-specific styles.
+                    </p>
+                </section>
+
+                <section id="formstyle-vs-theme" class="section">
+                    <h2>FormStyle vs Theme</h2>
+                    <p>
+                        <code>FormStyle</code> is a per-form property that governs <strong>chrome</strong> — the title bar,
+                        border, min/max/close buttons, and window-level appearance. The <strong>theme</strong> governs
+                        the <strong>content area</strong> — control colors, fonts, and interior styling.
+                    </p>
+                    <table class="props-table">
+                        <thead><tr><th>Aspect</th><th>FormStyle</th><th>IBeepTheme</th></tr></thead>
+                        <tbody>
+                            <tr><td>Scope</td><td>Per-form (chrome)</td><td>Application-wide (content)</td></tr>
+                            <tr><td>Defines</td><td>Title bar, borders, shadow</td><td>Control colors, fonts, radii</td></tr>
+                            <tr><td>Examples</td><td>Material, Modern, Classic</td><td>MaterialBlue, Dark, HighContrast</td></tr>
+                            <tr><td>Set via</td><td><code>form.FormStyle = FormStyle.Material</code></td><td><code>BeepThemesManager.ApplyTheme(...)</code></td></tr>
+                        </tbody>
+                    </table>
+                    <pre><code class="language-csharp">public class DashboardForm : BeepiFormPro
+{
+    public DashboardForm()
+    {
+        FormStyle = FormStyle.Material;           // Chrome: Material-style title bar
+        // Content colors come from BeepThemesManager.ActiveTheme
+    }
+}</code></pre>
+                </section>
+
+                <section id="theme-changed-events" class="section">
+                    <h2>Theme Change Notification</h2>
+                    <p>
+                        If your control caches GDI+ resources (brushes, pens, fonts), you <strong>must</strong>
+                        recreate them when the theme changes. Override <code>OnThemeChanged</code>:
+                    </p>
+                    <pre><code class="language-csharp">private SolidBrush _headerBrush;
+private Pen _dividerPen;
+
+protected override void OnThemeChanged()
+{
+    base.OnThemeChanged();
+
+    _headerBrush?.Dispose();
+    _dividerPen?.Dispose();
+
+    var theme = BeepThemesManager.ActiveTheme;
+    _headerBrush = new SolidBrush(theme.PrimaryColor);
+    _dividerPen = new Pen(theme.BorderColor, 1f);
+
+    Invalidate();
+}</code></pre>
+                    <p>
+                        Access the theme change event directly if you have non-UI components that need to react:
+                    </p>
+                    <pre><code class="language-csharp">BeepThemesManager.ThemeChanged += (s, e) =>
+{
+    // e.OldTheme, e.NewTheme
+    logger.Info($"Theme changed to {e.NewTheme.ThemeName}");
+    RebuildImageCache();
+};</code></pre>
+                </section>
+
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+                    <ul>
+                        <li><strong>Set the theme early</strong> — in <code>Program.Main()</code> before any form is created.</li>
+                        <li><strong>Never hard-code colors</strong> in controls — read from <code>BeepThemesManager.ActiveTheme</code> or override <code>ApplyControlStyle</code>.</li>
+                        <li><strong>Cache GDI+ resources</strong> and recreate on <code>OnThemeChanged</code> — never create brushes in <code>OnPaint</code>.</li>
+                        <li><strong>Use <code>ImagePath</code></strong> instead of <code>Image</code> — the theming system can tint and style images consistently.</li>
+                        <li><strong>Test with both light and dark themes</strong> — ensure every control is legible in both modes.</li>
+                        <li><strong>Provide a high-contrast theme</strong> for accessibility compliance.</li>
+                        <li><strong>Do not switch themes rapidly</strong> — each switch triggers a full repaint cascade.</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

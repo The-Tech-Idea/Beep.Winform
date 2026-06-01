@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepAdvancedFilterDialog - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>→</span>
+                    <span>BeepAdvancedFilterDialog</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepAdvancedFilterDialog</h1>
+                    <p class="page-subtitle">A modern, full-featured advanced filter dialog that uses a grid-based interface for composing multi-criteria filter configurations with AND/OR logic, import/export, and full theming support.</p>
+                    <div class="header-badges">
+                        <span class="badge badge-stable">Stable</span>
+                        <span class="badge badge-version">v1.0</span>
+                        <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.GridX.Filtering</span>
+                        <span class="badge badge-base">BeepiFormPro</span>
+                    </div>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#internal-model">FilterRowData Model</a></li>
+                        <li><a href="#construction">Construction & Lifecycle</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#user-interface">User Interface Layout</a></li>
+                        <li><a href="#configuration">Filter Configuration Flow</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepAdvancedFilterDialog</strong> is a modal dialog built on <strong>BeepiFormPro</strong> that provides a grid-based interface for creating complex, multi-row filter conditions. Each row represents one <code>FilterCriteria</code> — the user selects a column, an operator (from 17 supported operators), and one or two values. Multiple rows can be combined with AND or OR logic to form a complete <code>FilterConfiguration</code>.
+                    </p>
+                    <p>
+                        The dialog is designed to be invoked from a parent grid context (typically <strong>BeepGridPro</strong>). It receives the grid's column metadata, renders an interactive <strong>BeepGridPro</strong> for filter editing, and returns a fully populated <code>FilterConfiguration</code> via the <code>Result</code> property when the user clicks Apply. Saved configurations can be persisted to JSON and reloaded later.
+                    </p>
+                    <p>
+                        This control lives in the <code>TheTechIdea.Beep.Winform.Controls.GridX.Filtering</code> namespace. It shares the filtering model layer with <strong>BeepFilter</strong>, <strong>BeepQuickFilterBar</strong>, and <strong>BeepDateRangePicker</strong>.
+                    </p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Grid-Based Filter Editor</h3>
+                            <p>Uses a <strong>BeepGridPro</strong> to display filter rows — each row is a <code>FilterRowData</code> instance bound via <code>BindingList&lt;T&gt;</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>17 Filter Operators</h3>
+                            <p>All operators from the <code>FilterOperator</code> enum: Equals, Contains, GreaterThan, Between, IsNull, Regex, In, and more.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>AND / OR Logic</h3>
+                            <p>A top-level combo box lets users choose <code>FilterLogic.And</code> (all criteria must match) or <code>FilterLogic.Or</code> (any criterion matches).</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Pre-load Existing Configurations</h3>
+                            <p>Accepts an optional <code>existingConfig</code> parameter to pre-populate the grid with a previously saved filter set.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>JSON Persistence</h3>
+                            <p>Save and Load buttons serialize/deserialize the <code>FilterConfiguration</code> to/from <code>.json</code> files on disk.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Full Theme Integration</h3>
+                            <p>Inherits <code>BeepiFormPro</code> theming. Deep-propagates theme to all child controls including the embedded <strong>BeepGridPro</strong>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Between / NotBetween Support</h3>
+                            <p>Two value columns — the second column (<strong>Value 2</strong>) is used when the operator is <code>Between</code> or <code>NotBetween</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Dynamic Add / Remove Rows</h3>
+                            <p>Buttons to add new filter rows or remove selected rows. Clear All resets to a single empty row.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="internal-model" class="section">
+                    <h2>FilterRowData Model</h2>
+                    <p>
+                        <strong>FilterRowData</strong> is an internal <code>INotifyPropertyChanged</code> class that represents one row in the filter grid. It bridges the UI row to the <code>FilterCriteria</code> domain model.
+                    </p>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>ColumnName</code></td><td><code>string</code></td><td><code>""</code></td><td>The name of the column to filter on. Bound to a <code>BeepComboBox</code> with all visible grid columns.</td></tr>
+                            <tr><td><code>Operator</code></td><td><code>string</code></td><td><code>"Contains"</code></td><td>The string name of the <code>FilterOperator</code>. Bound to a <code>BeepComboBox</code> showing all 17 operators with symbols.</td></tr>
+                            <tr><td><code>Value</code></td><td><code>string</code></td><td><code>""</code></td><td>The primary filter value. Bound to a <code>BeepColumnType.Text</code> cell editor.</td></tr>
+                            <tr><td><code>Value2</code></td><td><code>string</code></td><td><code>""</code></td><td>The secondary filter value used with Between/NotBetween operators. Bound to a text editor column labeled "Value 2 (Between)".</td></tr>
+                        </tbody>
+                    </table>
+                    <p>All four properties raise <code>PropertyChanged</code> on set, allowing the grid to reflect live edits.</p>
+                </section>
+
+                <section id="construction" class="section">
+                    <h2>Construction & Lifecycle</h2>
+                    <h3>Constructor</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Constructor Signature</span></div>
+                        <pre><code class="language-csharp">public BeepAdvancedFilterDialog(
+    BeepGridColumnConfigCollection columns,
+    FilterConfiguration? existingConfig = null,
+    string? themeName = null)</code></pre>
+                    </div>
+                    <table class="props-table">
+                        <thead><tr><th>Parameter</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>columns</code></td><td>The column definitions from the host grid. Non-visible, checkbox, row-ID, and row-number columns are filtered out. Used to populate the ColumnName combo and for type-based operator availability.</td></tr>
+                            <tr><td><code>existingConfig</code></td><td>Optional. An existing <code>FilterConfiguration</code> to pre-load into the editor. If null, one empty filter row is added.</td></tr>
+                            <tr><td><code>themeName</code></td><td>Optional theme name string. If provided, set as the <code>Theme</code> property before initialization.</td></tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        The constructor flow is: set theme → call <code>InitializeDialog()</code> → call <code>LoadColumns()</code> to extract visible columns → call <code>ConfigureFilterGrid()</code> to bind data and configure grid columns → optionally load an existing configuration → call <code>ApplyTheme()</code>.
+                    </p>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Access</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Result</code></td>
+                                <td><code>FilterConfiguration?</code></td>
+                                <td>Read</td>
+                                <td>Returns the filter configuration built by the dialog after the user clicks Apply. Set to <code>null</code> until <code>ApplyFilters()</code> is called, at which point <code>DialogResult</code> is set to <code>OK</code> and the dialog closes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Inherited Properties:</strong> Being derived from <strong>BeepiFormPro</strong>, this dialog inherits <code>Theme</code>, <code>CurrentTheme</code>, <code>UseThemeColors</code>, <code>FormStyle</code>, <code>ShowCaptionBar</code>, <code>ShowMinMaxButtons</code>, <code>ShowCloseButton</code>, and all standard <code>Form</code> properties.
+                    </div>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <h3>Public Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td><code>public override void ApplyTheme()</code></td>
+                                <td>Applies the current theme to all UI elements. Resolves the theme from <code>CurrentTheme</code> or <code>BeepThemesManager</code>. Sets <code>BackColor</code>, <code>ForeColor</code>, panel colors, then propagates the theme to <code>_filterGrid</code> and all child <code>BaseControl</code> / <code>IBeepUIComponent</code> descendants.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Private Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InitializeDialog()</code></td><td>Sets window dimensions (900×500), startup position, form style, and builds the three-panel layout: logic panel (top), filter grid (fill), button panel (bottom).</td></tr>
+                            <tr><td><code>CreateButton(string, ref int)</code></td><td>Factory for <code>BeepButton</code> — auto-positions buttons horizontally with 100px spacing.</td></tr>
+                            <tr><td><code>LoadColumns(BeepGridColumnConfigCollection)</code></td><td>Extracts visible column names and their <code>DataType</code> into a <code>Dictionary&lt;string, Type&gt;</code>. Excludes selection, row-ID, and row-number columns.</td></tr>
+                            <tr><td><code>ConfigureFilterGrid()</code></td><td>Binds <code>_filterData</code> as the <code>DataSource</code> of <code>_filterGrid</code>, then schedules <code>ConfigureGridColumns</code> on the UI thread via <code>BeginInvoke</code>.</td></tr>
+                            <tr><td><code>ConfigureGridColumns(FilterOperator[])</code></td><td>Post-binding: maps <strong>ColumnName</strong> to a combo box of available columns, <strong>Operator</strong> to a combo box of all 17 operators (with symbol + display name), <strong>Value</strong> and <strong>Value2</strong> to text editors. Sets column captions and widths.</td></tr>
+                            <tr><td><code>AddFilterRow()</code></td><td>Adds one new <code>FilterRowData</code> to the binding list with default operator <code>Contains</code> and the first available column pre-selected.</td></tr>
+                            <tr><td><code>RemoveSelectedFilterRow()</code></td><td>Removes rows selected in the grid (highest index first to avoid shift issues). If nothing is selected, removes the last row.</td></tr>
+                            <tr><td><code>ClearAllFilters()</code></td><td>Clears all filter rows and adds one empty row.</td></tr>
+                            <tr><td><code>ApplyFilters()</code></td><td>Constructs a <code>FilterConfiguration</code> from the current grid data. Parses operator strings to <code>FilterOperator</code> values. Creates <code>FilterCriteria</code> objects — for Between/NotBetween, both <code>Value</code> and <code>Value2</code> are passed. Sets <code>DialogResult.OK</code> and closes the dialog.</td></tr>
+                            <tr><td><code>LoadConfiguration(FilterConfiguration)</code></td><td>Clears existing rows and populates the grid from a <code>FilterConfiguration</code>. Sets the AND/OR logic combo accordingly. If the config has no criteria, adds a blank row.</td></tr>
+                            <tr><td><code>SaveConfiguration()</code></td><td>Opens a <strong>SaveFileDialog</strong> (filter: <code>*.json</code>), serializes the current filter state to JSON via <code>System.Text.Json</code>, and shows a success notification through <code>BeepDialogManager</code>.</td></tr>
+                            <tr><td><code>LoadConfigurationFromFile()</code></td><td>Opens an <strong>OpenFileDialog</strong>, reads and deserializes a JSON <code>FilterConfiguration</code>, loads it into the grid via <code>LoadConfiguration</code>, and shows success/failure notifications.</td></tr>
+                            <tr><td><code>PropagateThemeToChildren(Control)</code></td><td>Recursive helper — sets <code>Theme</code> and calls <code>ApplyTheme()</code> on every <code>BaseControl</code> or <code>IBeepUIComponent</code> in the control tree.</td></tr>
+                            <tr><td><code>Dispose(bool)</code></td><td>Disposes all 11 child controls (grid, buttons, combo, label, panels).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="user-interface" class="section">
+                    <h2>User Interface Layout</h2>
+                    <p>The dialog is composed of three docked panels:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Panel</th><th>Dock</th><th>Height</th><th>Content</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Logic Panel</strong><br><code>_logicPanel</code></td>
+                                <td>Top</td>
+                                <td>40px</td>
+                                <td>A <code>BeepLabel</code> ("Combine filters using:") and a <code>BeepComboBox</code> with "AND" and "OR" items. Controls how multiple criteria are combined.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Filter Grid</strong><br><code>_filterGrid</code></td>
+                                <td>Fill</td>
+                                <td>Auto</td>
+                                <td>A <strong>BeepGridPro</strong> backed by <code>BindingList&lt;FilterRowData&gt;</code>. Four columns: Column (combo), Operator (combo with symbols), Value (text), Value 2 / Between (text). Read-only mode is off; navigator and filters are hidden.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Button Panel</strong><br><code>_buttonPanel</code></td>
+                                <td>Bottom</td>
+                                <td>50px</td>
+                                <td>Seven <code>BeepButton</code> controls: <strong>+ Add</strong>, <strong>- Remove</strong>, <strong>Clear All</strong>, <strong>Save</strong>, <strong>Load</strong>, <strong>Apply</strong>, and <strong>Cancel</strong>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>The dialog window itself is 900×500px, styled as <code>FormStyle.Modern</code>, centered on parent, with caption bar visible and min/max buttons hidden (maximize is enabled).</p>
+                </section>
+
+                <section id="configuration" class="section">
+                    <h2>Filter Configuration Flow</h2>
+                    <p>The dialog interacts with the following types from the <code>TheTechIdea.Beep.Winform.Controls.Filtering</code> namespace:</p>
+                    <table class="props-table">
+                        <thead><tr><th>Type</th><th>Role in Dialog</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FilterConfiguration</code></td><td>The output container. Holds <code>Name</code>, <code>Logic</code>, <code>IsActive</code>, and a <code>List&lt;FilterCriteria&gt;</code>. Serialized to JSON on save.</td></tr>
+                            <tr><td><code>FilterCriteria</code></td><td>A single filter condition: <code>ColumnName</code>, <code>Operator</code> (enum), <code>Value</code>, optional <code>Value2</code>, <code>CaseSensitive</code>, <code>IsEnabled</code>.</td></tr>
+                            <tr><td><code>FilterOperator</code></td><td>Enum with 17 values: Equals, NotEquals, Contains, NotContains, StartsWith, EndsWith, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual, Between, NotBetween, IsNull, IsNotNull, Regex, In, NotIn.</td></tr>
+                            <tr><td><code>FilterLogic</code></td><td>Enum: And, Or.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>
+                        The dialog inherits theming from <strong>BeepiFormPro</strong>. <code>ApplyTheme()</code> resolves the active theme from <code>CurrentTheme</code> or <code>BeepThemesManager.CurrentTheme</code> or <code>BeepThemesManager.GetDefaultTheme()</code>. It then applies colors:
+                    </p>
+                    <ul>
+                        <li><strong>BackColor / ForeColor</strong> — mapped from <code>theme.BackColor</code> / <code>theme.ForeColor</code> with <code>SystemColors</code> fallback.</li>
+                        <li><strong>Panel Backgrounds</strong> — both <code>_logicPanel</code> and <code>_buttonPanel</code> use <code>theme.PanelBackColor</code> with fallback to <code>theme.BackColor</code>.</li>
+                        <li><strong>Embedded Grid</strong> — <code>_filterGrid.Theme</code> is set to the dialog's <code>Theme</code>, then <code>_filterGrid.ApplyTheme()</code> is called.</li>
+                        <li><strong>Child Controls</strong> — <code>PropagateThemeToChildren(this)</code> recurses the control tree and sets <code>Theme</code> on every <code>BaseControl</code> or <code>IBeepUIComponent</code>.</li>
+                    </ul>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Example 1: Basic Invocation</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Open Advanced Filter from a Grid</span></div>
+                        <pre><code class="language-csharp">// In the parent form or grid toolbar handler:
+var dialog = new BeepAdvancedFilterDialog(
+    grid.ColumnConfigs,
+    existingConfig: null,
+    themeName: "Dark"
+);
+
+if (dialog.ShowDialog() == DialogResult.OK
+    && dialog.Result != null)
+{
+    grid.ApplyFilterConfiguration(dialog.Result);
+}
+dialog.Dispose();</code></pre>
+                    </div>
+
+                    <h3>Example 2: Pre-loading an Existing Filter</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Edit an Existing Filter</span></div>
+                        <pre><code class="language-csharp">// _currentFilter is a previously created FilterConfiguration
+var dialog = new BeepAdvancedFilterDialog(
+    grid.ColumnConfigs,
+    existingConfig: _currentFilter
+);
+
+if (dialog.ShowDialog() == DialogResult.OK
+    && dialog.Result != null)
+{
+    _currentFilter = dialog.Result;
+    RefreshGrid();
+}
+dialog.Dispose();</code></pre>
+                    </div>
+
+                    <h3>Example 3: Build OR-based Date Range Filter</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>OR Logic with Multiple Criteria</span></div>
+                        <pre><code class="language-csharp">// The user would:
+// 1. Set "Combine filters using:" to "OR"
+// 2. Row 1: Column=OrderDate, Operator=Between, Value=2023-01-01, Value2=2023-06-30
+// 3. Click [+ Add] for row 2
+// 4. Row 2: Column=Status, Operator=Equals, Value=Pending
+// 5. Click [Apply]
+
+// Result:
+// FilterConfiguration with Logic=Or and two FilterCriteria:
+//   (OrderDate Between) and (Status Equals)
+// Effectively: OrderDate in H1 OR Status is Pending</code></pre>
+                    </div>
+
+                    <h3>Example 4: Preserving Filter State</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Serialize / Deserialize Filter</span></div>
+                        <pre><code class="language-csharp">// Save current filter to JSON (user clicks Save button)
+// Internally:
+var json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+{
+    WriteIndented = true
+});
+File.WriteAllText(dialog.FileName, json);
+BeepDialogManager.Instance.NotifyExportSuccess(fileName, criteriaCount);
+
+// Load from JSON (user clicks Load button)
+// Internally:
+var json = File.ReadAllText(dialog.FileName);
+var config = JsonSerializer.Deserialize&lt;FilterConfiguration&gt;(json);
+LoadConfiguration(config);
+BeepDialogManager.Instance.NotifyImportSuccess(fileName, criteriaCount);</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BeepAdvancedFilterDialog.cs</code></td>
+                                <td>
+                                    Contains two classes:<br>
+                                    <strong>FilterRowData</strong> — INotifyPropertyChanged model for grid rows<br>
+                                    <strong>BeepAdvancedFilterDialog</strong> — the dialog form with grid editor, logic selector, toolbar, and serialization
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterConfiguration</code> (Filtering)</td>
+                                <td>Domain model: collection of <code>FilterCriteria</code> with logical operator, name, timestamps, and serialization support.</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterCriteria</code> (Filtering)</td>
+                                <td>Single filtered condition: column, operator, value(s), case-sensitivity, enabled state.</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterOperator</code> (Filtering)</td>
+                                <td>Enum of 17 comparison operators with <code>GetDisplayName()</code> and <code>GetSymbol()</code> extension methods.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepiFormPro</code> (Forms/ModernForm)</td>
+                                <td>Base class providing modern form chrome, caption bar, theming, and resizing.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepGridPro</code> (GridX)</td>
+                                <td>Embedded data grid used as the filter row editor surface.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Internal Control Tree</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Private Field Map</span></div>
+                        <pre><code class="language-text">BeepAdvancedFilterDialog : BeepiFormPro
+├── _logicPanel (Panel, Dock=Top, H=40)
+│   ├── _logicLabel (BeepLabel: "Combine filters using:")
+│   └── _logicCombo (BeepComboBox: ["AND", "OR"])
+│
+├── _filterGrid (BeepGridPro, Dock=Fill)
+│   └── _filterData (BindingList&lt;FilterRowData&gt;)
+│       ├── ColumnName → BeepComboBox (visible columns)
+│       ├── Operator   → BeepComboBox (17 ops with symbols)
+│       ├── Value      → BeepColumnType.Text
+│       └── Value2     → BeepColumnType.Text
+│
+└── _buttonPanel (Panel, Dock=Bottom, H=50)
+    ├── _addFilterButton    ("+ Add")
+    ├── _removeFilterButton ("- Remove")
+    ├── _clearButton        ("Clear All")
+    ├── _saveConfigButton   ("Save")
+    ├── _loadConfigButton   ("Load")
+    ├── _applyButton        ("Apply")
+    └── _cancelButton       ("Cancel")</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

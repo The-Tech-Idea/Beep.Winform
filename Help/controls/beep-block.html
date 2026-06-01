@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepBlock - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span>
+                    <span>BeepBlock</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepBlock</h1>
+                    <p class="page-subtitle">Block-level UI surface bound to one logical FormsManager block with full CRUD form capabilities</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepBlock</strong> is a <code>BaseControl</code>-derived block-level UI surface that implements <code>IBeepBlockView</code>. Each BeepBlock is bound to one logical FormsManager block and provides a complete CRUD form with field definitions, record binding, validation, presenter delegates, and query mode support. It integrates with the <code>BeepForms</code> host for coordinated data operations.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.Blocks</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BaseControl &#x2192; BeepBlock</code><br>
+                    <strong>Implements:</strong> <code>IBeepBlockView</code><br>
+                    <strong>Designer:</strong> <code>BeepBlockDesigner</code></p>
+                    <p>Defined as a <code>partial class</code>, the control manages a complete UI lifecycle: binding to a FormsHost, syncing from the manager, resolving entity metadata, reconciling designer-generated field bindings, and refreshing presentation layouts.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Full CRUD surface</strong> &mdash; Provides a Block-level UI surface for viewing, creating, editing, and deleting records</li>
+                        <li><strong>Manager-bound</strong> &mdash; Connects to one logical FormsManager block via <code>ManagerBlockName</code> for data operations</li>
+                        <li><strong>Definition-driven layout</strong> &mdash; <code>BeepBlockDefinition</code> controls field layout, presentation, captions, and editor options</li>
+                        <li><strong>Entity metadata</strong> &mdash; Exposes <code>BeepBlockEntityDefinition</code> with connection, entity, and field structure</li>
+                        <li><strong>Presenter registry</strong> &mdash; <code>BeepBlockPresenterRegistry</code> manages custom field presenters with default registrations</li>
+                        <li><strong>Record binding</strong> &mdash; Syncs current record, record count, dirty state, and query mode from the manager</li>
+                        <li><strong>Validation-aware</strong> &mdash; Subscribes to manager validation events and resets validation state on unbind</li>
+                        <li><strong>Trigger state</strong> &mdash; Manages trigger/rule state derived from the manager and block definition</li>
+                        <li><strong>Grid integration</strong> &mdash; Syncs grid state from the FormsManager for multi-record views</li>
+                        <li><strong>Design-time support</strong> &mdash; <code>BeepBlockDesigner</code> with custom editors for <code>Definition</code>, <code>Entity</code>, and <code>BlockName</code></li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>BlockName</code></td><td><code>string</code></td><td><code>""</code></td><td>Logical UI block name. Auto-set from <code>Definition.BlockName</code>. Supports <code>BeepFormsBlockNameTypeConverter</code>.</td></tr>
+                            <tr><td><code>ManagerBlockName</code></td><td><code>string</code></td><td>-</td><td>Resolved manager block name (falls back to <code>BlockName</code>). Read-only.</td></tr>
+                            <tr><td><code>IsBound</code></td><td><code>bool</code></td><td><code>false</code></td><td>Whether the block is bound to a <code>BeepForms</code> host. Read-only.</td></tr>
+                            <tr><td><code>FormsHost</code></td><td><code>IBeepFormsHost?</code></td><td><code>null</code></td><td>The hosting <code>BeepForms</code> coordinator. Set via <code>Bind()</code>. Read-only.</td></tr>
+                            <tr><td><code>Definition</code></td><td><code>BeepBlockDefinition?</code></td><td><code>null</code></td><td>Definition-driven block configuration for presentation, fields, and editor options. Triggers <code>RefreshPresentation()</code> on set.</td></tr>
+                            <tr><td><code>Entity</code></td><td><code>BeepBlockEntityDefinition</code></td><td>-</td><td>Typed UI-side entity metadata. Provides a default shell if null. Editor: <code>BeepBlockEntityDefinitionEditor</code>.</td></tr>
+                            <tr><td><code>ResolvedEntity</code></td><td><code>BeepBlockEntityDefinition</code></td><td>-</td><td>Resolved entity definition from runtime definition or design definition. Read-only.</td></tr>
+                            <tr><td><code>ViewState</code></td><td><code>BeepBlockViewState</code></td><td>-</td><td>Current block view state (IsBound, IsDirty, IsQueryMode, Mode, CurrentRecordIndex, RecordCount). Read-only.</td></tr>
+                            <tr><td><code>PresenterRegistry</code></td><td><code>BeepBlockPresenterRegistry</code></td><td>-</td><td>Registry of custom field presenters. Defaults are registered in the constructor.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Bind</code></td><td><code>void Bind(IBeepFormsHost formsHost)</code></td><td>Binds the block to a FormsHost. Detaches from any previous host, attaches to the new one, and syncs manager state.</td></tr>
+                            <tr><td><code>Unbind</code></td><td><code>void Unbind()</code></td><td>Unbinds the block from its FormsHost. Resets record binding, validation, triggers, grid, and view state.</td></tr>
+                            <tr><td><code>ApplyDefinition</code></td><td><code>void ApplyDefinition(BeepBlockDefinition definition)</code></td><td>Applies a new block definition by setting the <code>Definition</code> property.</td></tr>
+                            <tr><td><code>SyncFromManager</code></td><td><code>void SyncFromManager()</code></td><td>Synchronizes block state from the FormsManager: validation, runtime definition, record binding, dirty state, query mode, grid.</td></tr>
+                            <tr><td><code>CreateEntitySnapshotFromManager</code></td><td><code>BeepBlockEntityDefinition?</code></td><td>Creates an entity snapshot from the current manager block info. Returns null if entity name and fields are empty.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Event</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>ViewStateChanged</code></td><td>Raised when the block view state changes (IsBound, IsDirty, IsQueryMode, Mode, CurrentRecordIndex, RecordCount).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><strong>BeepBlock</strong> inherits theming from <code>BaseControl</code>. It initializes with double-buffering, user paint, resize-redraw, and transparent background support via <code>SetStyle()</code> in <code>InitializeComponent()</code>. The control supports auto-scrolling for overflow content. Presentation is refreshed through <code>RefreshPresentation()</code> which is called on definition changes, binding/unbinding, and manager sync.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <pre><code class="language-csharp">// Create a BeepBlock for customer data
+var customerBlock = new BeepBlock
+{
+    BlockName = "CustomerDetails",
+    Definition = new BeepBlockDefinition
+    {
+        BlockName = "CustomerDetails",
+        Caption = "Customer Details",
+        ManagerBlockName = "CustomerDetails",
+        Entity = new BeepBlockEntityDefinition
+        {
+            ConnectionName = "MainDB",
+            EntityName = "Customers",
+            IsMasterBlock = true,
+            Fields = new List&lt;BeepBlockFieldDefinition&gt;
+            {
+                new BeepBlockFieldDefinition
+                {
+                    FieldName = "CustomerName",
+                    Caption = "Customer Name",
+                    EditorType = FieldEditorType.TextBox,
+                    IsRequired = true
+                },
+                new BeepBlockFieldDefinition
+                {
+                    FieldName = "Email",
+                    Caption = "Email Address",
+                    EditorType = FieldEditorType.TextBox
+                },
+                new BeepBlockFieldDefinition
+                {
+                    FieldName = "Status",
+                    Caption = "Status",
+                    EditorType = FieldEditorType.ComboBox
+                }
+            }
+        }
+    }
+};
+
+// Bind to a BeepForms host
+customerBlock.Bind(beepForms);
+
+// Handle view state changes
+customerBlock.ViewStateChanged += (s, e) =>
+{
+    var vs = customerBlock.ViewState;
+    Console.WriteLine($"IsDirty: {vs.IsDirty}, Mode: {vs.Mode}, " +
+                      $"Record: {vs.CurrentRecordIndex + 1}/{vs.RecordCount}");
+};
+
+// Sync from manager
+customerBlock.SyncFromManager();
+
+// Create entity snapshot for introspection
+var snapshot = customerBlock.CreateEntitySnapshotFromManager();
+
+// Customize the presenter registry
+customerBlock.PresenterRegistry.RegisterDefaults();</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>BeepBlock</strong> is a <code>partial class</code> implementing <code>IBeepBlockView</code>. It extends <code>BaseControl</code> for theming and rendering. The control uses a <code>BeepBlockViewState</code> for tracking bound state, dirty flags, query mode, record index, and record count. A <code>BeepBlockPresenterRegistry</code> manages field-level custom presenters.</p>
+                    <p>The <code>Bind()</code>/<code>Unbind()</code> methods manage the full lifecycle: attaching to a <code>BeepForms</code> host, subscribing to manager events for validation and triggers, syncing record binding from the <code>IUnitOfWork</code>, and reconciling designer-generated field bindings with the effective definition. The <code>SyncFromManager()</code> method refreshes runtime definition from block info, validates the current unit of work, updates the view state, and refreshes the presentation layout.</p>
+                    <p>The partial class pattern separates the public IBeepBlockView implementation from internal layout, record binding, trigger management, grid synchronization, validation, and presentation logic across multiple partial files.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

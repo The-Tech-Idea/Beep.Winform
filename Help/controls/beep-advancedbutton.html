@@ -1,546 +1,557 @@
-<!--
-    BeepAdvancedButton Control Documentation
-    Professional-grade documentation for the BeepAdvancedButton WinForms control.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeepAdvancedButton - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="_sidebar.js"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-    </button>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#button-variants">Button Variants</a><span>&rsaquo;</span><span>BeepAdvancedButton</span></nav>
+            <div class="page-header"><h1>BeepAdvancedButton</h1><p class="page-subtitle">Advanced button control with 30+ pluggable style painters, shape customization, semantic intents, rich animations, and split-area interaction</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#inheritance">Inheritance &amp; Architecture</a></li>
+                <li><a href="#styles">Styles &amp; Sub-variants</a></li>
+                <li><a href="#enums">Enumerations</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Public Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming &amp; Color Tokens</a></li>
+                <li><a href="#animation">Animation Pipeline</a></li>
+                <li><a href="#rendering">Rendering Pipeline</a></li>
+                <li><a href="#accessibility">Accessibility &amp; Keyboard</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#architecture">File Architecture</a></li>
+                <li><a href="#painter-directory">Complete Painter Directory</a></li>
+            </ul></div>
 
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="bi bi-sun-fill" id="theme-icon"></i>
-    </button>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepAdvancedButton</strong> is the flagship button control in the Beep WinForms library. It supports <strong>30+ distinct visual styles</strong> through a pluggable painter system, each implemented as a separate class extending <code>BaseButtonPainter</code>. The control is organized as a <strong>partial class</strong> split across two files, with supporting enumerations, models, helpers, and painter classes in dedicated subdirectories.</p>
+                <table class="info-table">
+                    <tr><td><strong>Namespace</strong></td><td><code>TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton</code></td></tr>
+                    <tr><td><strong>Assembly</strong></td><td><code>TheTechIdea.Beep.Winform.Controls</code></td></tr>
+                    <tr><td><strong>Inheritance</strong></td><td><code>BeepAdvancedButton</code> : <code>BaseControl</code> : <code>Control</code></td></tr>
+                    <tr><td><strong>Implements</strong></td><td>Uses <code>IAdvancedButtonPainter</code> interface for all painters</td></tr>
+                    <tr><td><strong>Partial files</strong></td><td><code>BeepAdvancedButton.cs</code> (1583 lines), <code>BeepAdvancedButton.Layout.cs</code> (143 lines)</td></tr>
+                    <tr><td><strong>Painter count</strong></td><td>30 individual painter classes + 4 NewsBanner sub-painters</td></tr>
+                    <tr><td><strong>Designer support</strong></td><td><code>[ToolboxItem(true)]</code>, <code>[ToolboxBitmap(typeof(Button))]</code>, <code>[Category("Beep Controls")]</code></td></tr>
+                </table>
+            </section>
 
-    <div class="container">
-        <!-- Sidebar -->
-                                                                                        <div id="sidebar-placeholder"></div>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="features" class="section"><h2>Key Features</h2>
+                <ul>
+                    <li><strong>30+ painted visual styles</strong> &mdash; Solid, Icon, Text, Toggle, FAB, Ghost, Outlined, Link, Gradient, IconText, Chip, Contact, NavigationChevron, NeonGlow, NewsBanner, FlatWeb, LowerThird, StickerLabel, OutlinePill, AccentEdge, SpeechBubble, GradientSubButton, MiniGradientPill, GradientSpeechBubble, SplitGradient, IconCircleRight, SplitIconLeft, and more.</li>
+                    <li><strong>Pluggable painter architecture</strong> &mdash; Each style is a standalone class implementing <code>IAdvancedButtonPainter</code>. The <code>ButtonPainterFactory</code> maps styles to painters at runtime.</li>
+                    <li><strong>Semantic intent system</strong> &mdash; Six intents (<code>Primary</code>, <code>Secondary</code>, <code>Tertiary</code>, <code>Destructive</code>, <code>Success</code>, <code>Neutral</code>) provide automatic tokenized color mapping for consistent UX.</li>
+                    <li><strong>Customizable shapes</strong> &mdash; 7 shape options: <code>RoundedRectangle</code>, <code>Circle</code>, <code>Pill</code>, <code>Rectangle</code>, <code>Square</code>, <code>Split</code>, <code>Custom</code>. Each style has a sensible default shape.</li>
+                    <li><strong>Rich sub-variant selectors</strong> &mdash; NewsBanner (21 variants), Contact (16 variants), Chevron (4 variants), FlatWeb (7 variants), LowerThird (8 variants), StickerLabel (4 variants).</li>
+                    <li><strong>Smooth animation pipeline</strong> &mdash; 16ms animation timer drives hover/press transitions, ripple effect on click, and continuous loading spinner rotation.</li>
+                    <li><strong>Loading state</strong> &mdash; Rotating spinner replaces content; optional click suppression while loading.</li>
+                    <li><strong>Toggle behavior</strong> &mdash; Full on/off toggle with <code>ToggleChanged</code> event. Split shape provides independently clickable left/right areas with dedicated events.</li>
+                    <li><strong>Focus ring rendering</strong> &mdash; Keyboard-only focus ring with configurable thickness, offset, and radius delta.</li>
+                    <li><strong>Accessible keyboard navigation</strong> &mdash; Full Space/Enter activation, Left/Right for split buttons, Tab support.</li>
+                    <li><strong>Reduced motion support</strong> &mdash; <code>ReduceMotion</code> property disables all animation transitions for accessibility.</li>
+                    <li><strong>DPI-aware sizing</strong> &mdash; Small (32px), Medium (40px), Large (48px) presets with automatic DPI scaling via <code>DpiScalingHelper</code>.</li>
+                    <li><strong>Dual icon support</strong> &mdash; <code>IconLeft</code> and <code>IconRight</code> properties for left/right icon placement, plus <code>ImagePath</code> for main/leading icon.</li>
+                    <li><strong>Complete theme integration</strong> &mdash; Extends <code>BaseControl.ApplyTheme()</code> to apply button-specific colors from the active <code>IBeepTheme</code>.</li>
+                    <li><strong>Design-time safety</strong> &mdash; Fallback rendering with <code>DrawDesignTimeFallback</code> when theme is unavailable; error display with <code>DrawDesignTimeError</code>.</li>
+                </ul>
+            </section>
 
-        <!-- Main Content -->
-        <main class="content">
-            <div class="content-wrapper">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-nav">
-                    <a href="../index.html">Home</a>
-                    <span>›</span>
-                    <a href="#">Button Variants</a>
-                    <span>›</span>
-                    <span>BeepAdvancedButton</span>
-                </nav>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="inheritance" class="section"><h2>Inheritance &amp; Architecture</h2>
+                <pre><code class="language-plaintext">Control
+  └── BaseControl                         (TheTechIdea.Beep.Winform.Controls.Base)
+        └── BeepAdvancedButton            (TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton)
+              ├── partial: BeepAdvancedButton.cs          (1583 lines — core control, properties, events, overrides)
+              └── partial: BeepAdvancedButton.Layout.cs   (143 lines — layout, shape logic, size helpers)</code></pre>
+                <p><code>BaseControl</code> provides double-buffering, classic painter fallback, border/shadow rendering, splash effects, hit-test infrastructure, and the full theme application pipeline. <strong>BeepAdvancedButton</strong> extends this with a custom painter system that bypasses traditional <code>OnPaint</code> in favor of <code>DrawContent(Graphics g)</code> where it assembles an <code>AdvancedButtonPaintContext</code> and delegates to the active <code>IAdvancedButtonPainter</code>.</p>
+                <p>The painter interface is intentionally minimal &mdash; a single <code>void Paint(AdvancedButtonPaintContext context)</code> method &mdash; allowing each style to have complete control over its rendering while consuming the same standardized context object that carries state, colors, bounds, shape, and animation data.</p>
+            </section>
 
-                <!-- Page Header -->
-                <div class="page-header">
-                    <div class="header-content">
-                        <h1>BeepAdvancedButton</h1>
-                        <p class="subtitle">Multi-style button with loading states, toggle mode, intent semantics, split layout, and FAB support.</p>
-                        <div class="header-badges">
-                            <span class="badge badge-stable">Stable</span>
-                            <span class="badge badge-version">v1.0.164</span>
-                            <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="styles" class="section"><h2>Styles &amp; Sub-variants</h2>
+                <p>The <code>AdvancedButtonStyle</code> enum defines 30 distinct visual styles. Each maps to a concrete painter class via <code>ButtonPainterFactory</code>. Changing <code>ButtonStyle</code> at runtime recreates the painter and resets the default shape for that style.</p>
+                <table>
+                    <thead><tr><th>Enum Value</th><th>Painter Class</th><th>Default Shape</th><th>Sub-variant Enum</th><th>Typical Use</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Solid</code></td><td><code>SolidButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Primary action, CTA</td></tr>
+                        <tr><td><code>Outlined</code></td><td><code>OutlinedButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Secondary action</td></tr>
+                        <tr><td><code>OutlinePill</code></td><td><code>OutlinePillButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Thick colored outline with white fill</td></tr>
+                        <tr><td><code>Ghost</code></td><td><code>GhostButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Subtle hover reveal</td></tr>
+                        <tr><td><code>Text</code></td><td><code>TextButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Minimal text-only</td></tr>
+                        <tr><td><code>Link</code></td><td><code>LinkButtonPainter</code></td><td>Rectangle</td><td>&mdash;</td><td>Hyperlink-style</td></tr>
+                        <tr><td><code>FAB</code></td><td><code>FABButtonPainter</code></td><td>Circle</td><td>&mdash;</td><td>Floating Action Button (40&ndash;72px)</td></tr>
+                        <tr><td><code>Chip</code></td><td><code>ChipButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Filter/tag chips</td></tr>
+                        <tr><td><code>Icon</code></td><td><code>IconButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Icon-only button</td></tr>
+                        <tr><td><code>IconText</code></td><td><code>SplitColorButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Icon + text split color</td></tr>
+                        <tr><td><code>Toggle</code></td><td><code>ToggleButtonPainter</code></td><td>Split</td><td>&mdash;</td><td>On/off toggle states</td></tr>
+                        <tr><td><code>Gradient</code></td><td><code>GradientButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Gradient-filled button</td></tr>
+                        <tr><td><code>NeonGlow</code></td><td><code>NeonGlowButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Glowing neon borders</td></tr>
+                        <tr><td><code>AccentEdge</code></td><td><code>AccentEdgeButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>White pill with colored edge strip</td></tr>
+                        <tr><td><code>Contact</code></td><td><code>ContactButtonPainter</code></td><td>Pill</td><td><code>ContactVariant</code> (16 values)</td><td>Contact/CTA with icon sections</td></tr>
+                        <tr><td><code>LowerThird</code></td><td><code>LowerThirdButtonPainter</code></td><td>Rectangle</td><td><code>LowerThirdVariant</code> (8 values)</td><td>Broadcast lower-third bars</td></tr>
+                        <tr><td><code>SpeechBubble</code></td><td><code>SpeechBubbleButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Speech bubble with colored tail</td></tr>
+                        <tr><td><code>SplitIconLeft</code></td><td><code>SplitIconLeftButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Icon left + text right with arrow tail</td></tr>
+                        <tr><td><code>SplitGradient</code></td><td><code>SplitGradientButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Half-gradient half-white split</td></tr>
+                        <tr><td><code>IconCircleRight</code></td><td><code>IconCircleRightButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Colored block with white icon circle on right</td></tr>
+                        <tr><td><code>FlatWeb</code></td><td><code>FlatWebButtonPainter</code></td><td>Rectangle</td><td><code>FlatWebVariant</code> (7 values)</td><td>Flat web UI: badges, search bars, segments</td></tr>
+                        <tr><td><code>StickerLabel</code></td><td><code>StickerLabelButtonPainter</code></td><td>RoundedRectangle</td><td><code>StickerLabelVariant</code> (4 values)</td><td>Comic/sticker style labels</td></tr>
+                        <tr><td><code>NewsBanner</code></td><td><code>NewsBannerButtonPainter</code></td><td>Pill</td><td><code>NewsBannerVariant</code> (21 values)</td><td>News broadcast banners</td></tr>
+                        <tr><td><code>NavigationChevron</code></td><td><code>NavigationChevronButtonPainter</code></td><td>Pill</td><td><code>ChevronVariant</code> (4 values)</td><td>Navigation with chevrons</td></tr>
+                        <tr><td><code>GradientSubButton</code></td><td><code>GradientSubButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Large gradient with overlapping white sub-button</td></tr>
+                        <tr><td><code>MiniGradientPill</code></td><td><code>MiniGradientPillButtonPainter</code></td><td>Pill</td><td>&mdash;</td><td>Small gradient pill with icon</td></tr>
+                        <tr><td><code>GradientSpeechBubble</code></td><td><code>GradientSpeechBubblePainter</code></td><td>Pill</td><td>&mdash;</td><td>Gradient speech bubble with white accent line</td></tr>
+                    </tbody>
+                </table>
+            </section>
 
-                <!-- Overview -->
-                <section id="overview" class="section">
-                    <h2>Overview</h2>
-                    <p>
-                        <strong>BeepAdvancedButton</strong> is a versatile button control that unifies six distinct visual
-                        styles — Solid, Icon, Text, Toggle, FAB, and Ghost — in a single component. Each style adapts
-                        its rendering automatically while sharing a common API for colors, size, shape, icons,
-                        loading state, and semantic intent.
-                    </p>
-                    <p>
-                        Built on <strong>BaseControl</strong>, it supports an optional <em>loading spinner</em> overlay
-                        that blocks re-clicks during async operations, a <em>toggle mode</em> that tracks pressed/depressed
-                        state, a <em>Split shape</em> that fires separate left and right click events, and a focus ring
-                        for keyboard accessibility.
-                    </p>
-                    <div class="info-box">
-                        <strong>Inheritance:</strong> Control → BaseControl → BeepAdvancedButton<br>
-                        <strong>Default size:</strong> 100 × 40 pixels (Medium)<br>
-                        <strong>Namespace:</strong> TheTechIdea.Beep.Winform.Controls
-                    </div>
-                </section>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="enums" class="section"><h2>Enumerations</h2>
 
-                <!-- Key Features -->
-                <section id="features" class="section">
-                    <h2>Key Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>🎨 Six Button Styles</h3>
-                            <p>Solid, Icon-only, Text-only, Toggle, Floating Action Button (FAB), and Ghost styles.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>⏳ Loading State</h3>
-                            <p>Built-in spinner overlay; optionally suppresses clicks while loading to prevent duplicate submissions.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🔀 Toggle Mode</h3>
-                            <p>Toggle style tracks pressed/unpressed state and fires <code>ToggleChanged</code> with the new value.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>📐 Shape Options</h3>
-                            <p>RoundedRectangle, Circle, Pill, and Split shapes — Split fires left/right area click events.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🎯 Semantic Intent</h3>
-                            <p>Intent enum (Primary, Secondary, Tertiary, Destructive, Success, Neutral) for consistent theming.</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>♿ Focus Ring</h3>
-                            <p>Configurable focus ring with custom thickness and offset for keyboard-accessible UIs.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Visual Preview -->
-                <section id="visual-preview" class="section">
-                    <h2>Visual Preview</h2>
-                    <div class="preview-container">
-                        <div class="preview-demo" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:24px;">
-                            <button style="background:#1976D2;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">Solid</button>
-                            <button style="background:transparent;color:#1976D2;border:2px solid #1976D2;border-radius:6px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">Ghost</button>
-                            <button style="background:transparent;color:#1976D2;border:none;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;">Text</button>
-                            <button style="background:#1976D2;color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;">+</button>
-                            <button style="background:#4CAF50;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;">● Pill</button>
-                            <button style="background:#f44336;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">Destructive</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Basic Usage -->
-                <section id="basic-usage" class="section">
-                    <h2>Basic Usage</h2>
-
-                    <h3>Solid Button (Primary Action)</h3>
-                    <pre><code class="language-csharp">var saveBtn = new BeepAdvancedButton
+                <h3>AdvancedButtonStyle</h3>
+                <p>The primary visual variant selector. Has 30 values and determines which painter class renders the button.</p>
+                <pre><code class="language-csharp">public enum AdvancedButtonStyle
 {
-    Text        = "Save",
+    Solid, Outlined, OutlinePill, Ghost, Text, Link,
+    FAB, Chip, Icon, IconText, Toggle,
+    Gradient, NeonGlow, AccentEdge,
+    Contact, LowerThird, SpeechBubble,
+    SplitIconLeft, SplitGradient, IconCircleRight,
+    FlatWeb, StickerLabel, NewsBanner, NavigationChevron,
+    GradientSubButton, MiniGradientPill, GradientSpeechBubble,
+    SplitColor, // alias for IconText
+    IconTextButton, // value unused but reserved
+    GradientBadge // value unused but reserved
+}</code></pre>
+
+                <h3>AdvancedButtonSize</h3>
+                <p>Controls the DPI-scaled size preset. FAB buttons get special square sizing (40px, 56px, 72px).</p>
+                <pre><code class="language-csharp">public enum AdvancedButtonSize { Small, Medium, Large }
+// Small  = 80&times;32 (FAB: 40&times;40)
+// Medium = 100&times;40 (FAB: 56&times;56) [default]
+// Large  = 120&times;48 (FAB: 72&times;72)</code></pre>
+
+                <h3>AdvancedButtonState</h3>
+                <p>State machine for painter rendering. Determines color selection in <code>GetBackgroundColor()</code> and <code>GetForegroundColor()</code>.</p>
+                <pre><code class="language-csharp">public enum AdvancedButtonState { Normal, Hover, Pressed, Disabled, Focused }</code></pre>
+
+                <h3>ButtonIntent</h3>
+                <p>Semantic intent drives automatic color token mapping for consistent UX. Colors are derived from the active theme.</p>
+                <pre><code class="language-csharp">public enum ButtonIntent
+{
+    Primary,      // Accent color + lightened/darkened variants
+    Secondary,    // Theme secondary color
+    Tertiary,     // Theme default color
+    Destructive,  // Red (220,53,69) palette
+    Success,      // Green (25,135,84) palette
+    Neutral       // Gray (108,117,125) palette
+}</code></pre>
+
+                <h3>ButtonShape</h3>
+                <p>Determines how the <code>ButtonShapeHelper</code> creates the <code>GraphicsPath</code> for clipping and border rendering.</p>
+                <pre><code class="language-csharp">public enum ButtonShape { RoundedRectangle, Circle, Pill, Rectangle, Square, Split, Custom }</code></pre>
+
+                <h3>NewsBannerVariant</h3>
+                <p>21 explicit layout variants for news broadcast banners. When set to <code>Auto</code>, the painter uses heuristics to select a layout based on content and size.</p>
+                <pre><code class="language-csharp">public enum NewsBannerVariant
+{
+    Auto,
+    CircleBadgeLeft, RectangleBadgeLeft, AngledBadgeLeft,
+    ChevronRight, ChevronBoth, FlagLeft,
+    AngledTwoTone, SlantedEdges, PillWithIcon,
+    BNLiveCircleBanner, BNSquareGreenBanner,
+    BreakingNewsGlobe, LightningBreakingNews, LightningBreakingNewsLive,
+    LiveWorldNewsPill, MorningLiveYellowBanner,
+    NewsLiveCirclePink, SportNewsCirclePill,
+    TwentyFourTVNews, TwentyFourWorldNewsHexagon,
+    WorldNewsGlobePill
+}</code></pre>
+
+                <h3>ContactVariant</h3>
+                <p>16 layout variants for contact/CTA buttons with icon-centric layouts. Auto heuristics select based on available icon paths and text length.</p>
+                <pre><code class="language-csharp">public enum ContactVariant
+{
+    Auto, Standard, Outlined,
+    IconLeftSplit, IconRightSplit,
+    IconLeftCircle, IconRightCircle,
+    IconLeftAngled, IconLeftArrow,
+    IconCircleLeft1, IconSquareLeft2, IconCirclesLeftPill3,
+    IconCircleRightPill4, IconDiagonalLeft5, IconSquareLeft6,
+    IconArrowLeftPill7, IconInsidePillBorder8
+}</code></pre>
+
+                <h3>ChevronVariant</h3>
+                <pre><code class="language-csharp">public enum ChevronVariant { Auto, LeftIconRightChevron, LeftChevronRightIcon, BothChevrons, LeftIconCenterChevron }</code></pre>
+
+                <h3>FlatWebVariant</h3>
+                <pre><code class="language-csharp">public enum FlatWebVariant
+{
+    Auto, LeftBadgeAction, RightNotchSearch, SegmentedIconAction,
+    SearchPillNotch, ToolbarSegment, RightArrowTagSearch,
+    LeftPointTagSearch, MagnifierBubbleLeft
+}</code></pre>
+
+                <h3>LowerThirdVariant</h3>
+                <pre><code class="language-csharp">public enum LowerThirdVariant
+{
+    Auto, HeadlineBar, LiveTagHeadline, ReportSplit,
+    TickerStrip, TickerChevron, LocationHeadlineBlock,
+    CompactLiveTag, ReportStacked
+}</code></pre>
+
+                <h3>StickerLabelVariant</h3>
+                <pre><code class="language-csharp">public enum StickerLabelVariant { Auto, SpeechBubble, CloudTag, BurstBadge, ComicRibbon }</code></pre>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="properties" class="section"><h2>Properties</h2>
+                <p>All browsable properties are organized into <strong>Appearance</strong>, <strong>Behavior</strong>, and <strong>Variants</strong> categories in the Visual Studio property grid. Properties marked with <code>[DefaultValue]</code> have their defaults shown.</p>
+
+                <h3>Style &amp; Variant Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ButtonStyle</code></td><td><code>AdvancedButtonStyle</code></td><td><code>Solid</code></td><td>Appearance</td><td>The style of the button (Solid, Icon, Text, Toggle, FAB, Ghost, etc.)</td></tr>
+                    <tr><td><code>NewsBannerVariant</code></td><td><code>NewsBannerVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit news banner layout variant. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>ContactVariant</code></td><td><code>ContactVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit contact button layout variant. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>ChevronVariant</code></td><td><code>ChevronVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit navigation chevron layout variant. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>FlatWebVariant</code></td><td><code>FlatWebVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit flat web layout variant selector. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>LowerThirdVariant</code></td><td><code>LowerThirdVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit lower-third layout variant selector. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>StickerLabelVariant</code></td><td><code>StickerLabelVariant</code></td><td><code>Auto</code></td><td>Variants</td><td>Explicit sticker label layout variant selector. Auto keeps heuristic layout selection.</td></tr>
+                    <tr><td><code>Intent</code></td><td><code>ButtonIntent</code></td><td><code>Primary</code></td><td>Behavior</td><td>Semantic intent used for tokenized color mapping (Primary, Secondary, Tertiary, Destructive, Success, Neutral).</td></tr>
+                </tbody></table>
+
+                <h3>Shape &amp; Size Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ButtonSize</code></td><td><code>AdvancedButtonSize</code></td><td><code>Medium</code></td><td>Appearance</td><td>The size preset (Small=80&times;32, Medium=100&times;40, Large=120&times;48). FAB buttons use square sizing.</td></tr>
+                    <tr><td><code>Shape</code></td><td><code>ButtonShape</code></td><td><code>RoundedRectangle</code></td><td>Appearance</td><td>The shape of the button. Each style has a default shape that auto-applies on style change.</td></tr>
+                </tbody></table>
+
+                <h3>Content Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>Text</code></td><td><code>string</code> (override)</td><td><code>"Button"</code></td><td>Appearance</td><td>The text displayed on the button. Overrides <code>BaseControl.Text</code>.</td></tr>
+                    <tr><td><code>ImagePath</code></td><td><code>string</code></td><td><code>""</code></td><td>Appearance</td><td>Path to the main image/icon. Uses <code>BeepImagePathEditor</code> in the designer. Maps to <code>LeadingImagePath</code>.</td></tr>
+                    <tr><td><code>IconLeft</code></td><td><code>string</code></td><td><code>""</code></td><td>Appearance</td><td>Icon path for left side of button (for buttons with dual icons).</td></tr>
+                    <tr><td><code>IconRight</code></td><td><code>string</code></td><td><code>""</code></td><td>Appearance</td><td>Icon path for right side of button.</td></tr>
+                </tbody></table>
+
+                <h3>State Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>IsToggled</code></td><td><code>bool</code></td><td><code>false</code></td><td>Behavior</td><td>For toggle buttons, indicates if the button is toggled on.</td></tr>
+                    <tr><td><code>IsLoading</code></td><td><code>bool</code></td><td><code>false</code></td><td>Appearance</td><td>Shows a loading spinner animation. Rotation angle increments at 14&deg;/tick.</td></tr>
+                </tbody></table>
+
+                <h3>Animation &amp; Behavior Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ReduceMotion</code></td><td><code>bool</code></td><td><code>false</code></td><td>Behavior</td><td>When true, disables motion-heavy transitions and ripple animation. Snaps hover/press progress to target instantly.</td></tr>
+                    <tr><td><code>SuppressClickWhileLoading</code></td><td><code>bool</code></td><td><code>true</code></td><td>Behavior</td><td>When true, click activation is suppressed while loading is active.</td></tr>
+                </tbody></table>
+
+                <h3>Focus Ring Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ShowFocusRing</code></td><td><code>bool</code></td><td><code>true</code></td><td>Appearance</td><td>Displays a keyboard-only focus ring when focus-visible is active.</td></tr>
+                    <tr><td><code>FocusRingThickness</code></td><td><code>int</code></td><td><code>2</code></td><td>Appearance</td><td>Focus ring stroke thickness in pixels. Sanitized to minimum 1.</td></tr>
+                    <tr><td><code>FocusRingOffset</code></td><td><code>int</code></td><td><code>2</code></td><td>Appearance</td><td>Inset offset for focus ring rendering in pixels. Sanitized to minimum 0.</td></tr>
+                    <tr><td><code>FocusRingRadiusDelta</code></td><td><code>int</code></td><td><code>2</code></td><td>Appearance</td><td>Additional radius applied to focus ring over button border radius. Sanitized to minimum 0.</td></tr>
+                </tbody></table>
+
+                <h3>Color Override Properties</h3>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>SolidBackground</code></td><td><code>Color</code></td><td><code>Color.Empty</code></td><td>Appearance</td><td>Background color for solid buttons. Overrides theme/intent-derived color when set.</td></tr>
+                    <tr><td><code>SolidForeground</code></td><td><code>Color</code></td><td><code>Color.White</code></td><td>Appearance</td><td>Foreground/text color for solid buttons. Overrides theme/intent-derived color when set.</td></tr>
+                </tbody></table>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="methods" class="section"><h2>Public Methods</h2>
+                <table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>PerformClick</code></td><td><code>void PerformClick()</code></td><td>Programmatically triggers a click event. Calls <code>OnClick(EventArgs.Empty)</code>.</td></tr>
+                    <tr><td><code>Toggle</code></td><td><code>void Toggle()</code></td><td>Toggles the button state by flipping <code>IsToggled</code>. Does NOT fire <code>ToggleChanged</code> directly (setter does not invoke).</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td><code>override void ApplyTheme()</code></td><td>Applies all theme colors, fonts, and styling from <code>IBeepTheme</code>. Sets button-specific properties (<code>ButtonBackColor</code>, <code>ButtonForeColor</code>, hover/press/disabled states) and triggers repaint.</td></tr>
+                </tbody></table>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="events" class="section"><h2>Events</h2>
+                <table><thead><tr><th>Event</th><th>EventArgs Type</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ToggleChanged</code></td><td><code>ToggleChangedEventArgs</code></td><td>Raised when toggle state changes (for Toggle buttons). Provides <code>bool IsToggled</code> and <code>string? AreaClicked</code> (&quot;Left&quot;, &quot;Right&quot;, or null).</td></tr>
+                    <tr><td><code>LeftAreaClicked</code></td><td><code>EventArgs</code></td><td>Raised when the left half is clicked (for Split shape Toggle buttons).</td></tr>
+                    <tr><td><code>RightAreaClicked</code></td><td><code>EventArgs</code></td><td>Raised when the right half is clicked (for Split shape Toggle buttons).</td></tr>
+                </tbody></table>
+                <h3>ToggleChangedEventArgs</h3>
+                <pre><code class="language-csharp">public class ToggleChangedEventArgs : EventArgs
+{
+    public bool IsToggled { get; set; }
+    public string? AreaClicked { get; set; }  // "Left", "Right", or null
+
+    public ToggleChangedEventArgs(bool isToggled, string? areaClicked = null)
+    {
+        IsToggled = isToggled;
+        AreaClicked = areaClicked;
+    }
+}</code></pre>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="theming" class="section"><h2>Theming &amp; Color Tokens</h2>
+                <p><code>BeepAdvancedButton</code> integrates deeply with the Beep theming system. The <code>ApplyTheme()</code> override reads these theme tokens and applies them to corresponding control properties:</p>
+                <table><thead><tr><th>Theme Token</th><th>Applied To</th><th>Used When</th></tr></thead><tbody>
+                    <tr><td><code>ButtonBackColor</code></td><td><code>_solidBackground</code></td><td>Default background for painters</td></tr>
+                    <tr><td><code>ButtonForeColor</code></td><td><code>_solidForeground</code></td><td>Default foreground/text color</td></tr>
+                    <tr><td><code>ButtonHoverBackColor</code></td><td><code>HoverBackColor</code></td><td>Mouse hover background</td></tr>
+                    <tr><td><code>ButtonHoverForeColor</code></td><td><code>HoverForeColor</code></td><td>Mouse hover text color</td></tr>
+                    <tr><td><code>ButtonPressedBackColor</code></td><td><code>PressedBackColor</code></td><td>Mouse press background</td></tr>
+                    <tr><td><code>ButtonPressedForeColor</code></td><td><code>PressedForeColor</code></td><td>Mouse press text color</td></tr>
+                    <tr><td><code>ButtonSelectedBackColor</code></td><td><code>SelectedBackColor</code>, <code>FocusBackColor</code></td><td>Toggle-on background, focus indicator</td></tr>
+                    <tr><td><code>ButtonSelectedForeColor</code></td><td><code>SelectedForeColor</code>, <code>FocusForeColor</code></td><td>Toggle-on text, focus text</td></tr>
+                    <tr><td><code>DisabledBackColor</code></td><td><code>DisabledBackColor</code></td><td>Disabled state background</td></tr>
+                    <tr><td><code>DisabledForeColor</code></td><td><code>DisabledForeColor</code></td><td>Disabled state text</td></tr>
+                    <tr><td><code>ButtonBorderColor</code></td><td><code>BorderColor</code></td><td>Toggle border and border rendering</td></tr>
+                    <tr><td><code>ButtonFont</code></td><td><code>_textFont</code></td><td>Font used when <code>UseThemeFont</code> is true</td></tr>
+                    <tr><td><code>PrimaryColor</code></td><td><code>FocusRingColor</code></td><td>Focus ring stroke</td></tr>
+                    <tr><td><code>AccentColor</code></td><td><code>GlowColor</code>, <code>RippleColor</code>, <code>LoadingIndicatorColor</code></td><td>Special effects</td></tr>
+                    <tr><td><code>SecondaryColor</code></td><td><code>SecondaryColor</code></td><td>Paint context secondary color</td></tr>
+                    <tr><td><code>BadgeBackColor</code></td><td><code>BadgeColor</code></td><td>Badge background in painters</td></tr>
+                </tbody></table>
+
+                <h3>Intent Color Resolution</h3>
+                <p>The <code>ResolveIntentColors()</code> method maps each <code>ButtonIntent</code> to a set of colors. For <code>Primary</code>, it uses the theme's accent color; for <code>Secondary</code>, the secondary color. <code>Destructive</code>, <code>Success</code>, and <code>Neutral</code> use hardcoded industry-standard palettes. The method returns an internal <code>IntentColors</code> struct containing <code>Background</code>, <code>Foreground</code>, <code>HoverBackground</code>, and <code>PressedBackground</code>.</p>
+                <pre><code class="language-csharp">// Intent color mapping (simplified)
+ButtonIntent.Primary:      Accent color palette (theme-driven)
+ButtonIntent.Secondary:    Theme secondary color palette
+ButtonIntent.Tertiary:     Theme default button color palette
+ButtonIntent.Destructive:  RGB(220,53,69) red palette
+ButtonIntent.Success:      RGB(25,135,84) green palette
+ButtonIntent.Neutral:      RGB(108,117,125) gray palette</code></pre>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="animation" class="section"><h2>Animation Pipeline</h2>
+                <p>The control uses a single <code>System.Windows.Forms.Timer</code> running at ~60 FPS (16ms interval). The <code>OnAnimationTick</code> handler updates four animation variables that feed into the painter via <code>AdvancedButtonPaintContext</code>:</p>
+                <table><thead><tr><th>Animation Variable</th><th>Target</th><th>Speed</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>_hoverProgress</code> (float 0&ndash;1)</td><td>IsHovered ? 1 : 0</td><td>Lerp factor 0.22</td><td>Controls hover transition blending for background/foreground</td></tr>
+                    <tr><td><code>_pressProgress</code> (float 0&ndash;1)</td><td>IsPressed ? 1 : 0</td><td>Lerp factor 0.30</td><td>Controls press transition blending. Overrides hover in <code>GetBackgroundColor</code></td></tr>
+                    <tr><td><code>_rippleProgress</code> (float 0&ndash;1)</td><td>expands from 0 to 1</td><td>+0.08 per tick</td><td>Ripple circle expansion from click point. Clamped to shape path.</td></tr>
+                    <tr><td><code>_loadingRotationAngle</code> (float)</td><td>continuous rotation</td><td>+14&deg; per tick</td><td>Loading spinner arc start angle. Resets to 0 when loading stops.</td></tr>
+                </tbody></table>
+                <p>The timer is automatically started/stopped via <code>UpdateAnimationTimerState()</code> which checks if any animation is in progress. When <code>ReduceMotion</code> is <code>true</code>, all animations snap to their target instantly and ripple is disabled.</p>
+                <p>The <code>BaseButtonPainter</code> class provides a <code>Blend(Color from, Color to, float amount)</code> utility used by <code>GetBackgroundColor()</code> and <code>GetForegroundColor()</code> to smoothly interpolate between state colors during hover and press transitions.</p>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="rendering" class="section"><h2>Rendering Pipeline</h2>
+                <ol>
+                    <li><strong><code>OnPaint</code></strong> &rarr; BaseControl draws background/border via classic painter, then calls <code>DrawContent(g)</code>.</li>
+                    <li><strong><code>DrawContent</code></strong> (override) &rarr; Ensures painter is initialized, creates <code>AdvancedButtonPaintContext</code> with all current state, colors, shape, and animation data. Resolves intent colors. Delegates to <code>_currentPainter.Paint(context)</code>.</li>
+                    <li><strong>After painter completes</strong> &rarr; <code>DrawFocusRing(g, context)</code> is called if <code>ShowFocusRing</code> is enabled and the control has keyboard focus.</li>
+                    <li><strong>Error fallback</strong> &rarr; If painter is null or throws, <code>DrawDesignTimeFallback(g)</code> renders a simple bordered rectangle with centered text and a dashed design-time indicator.</li>
+                </ol>
+                <p>The <code>AdvancedButtonPaintContext</code> object (26+ properties) carries everything the painter needs: bounds, state, text, icon paths, toggle/loading flags, shape, border/thickness, all color states, shadow config, animation progress values, focus ring parameters, font, intent, and size.</p>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="accessibility" class="section"><h2>Accessibility &amp; Keyboard</h2>
+                <ul>
+                    <li><strong>Tab stop</strong> &mdash; <code>TabStop = true</code> by default. <code>CanBeFocused = true</code>.</li>
+                    <li><strong>Space / Enter</strong> &mdash; Activate the button. Triggers ripple animation at center. For Toggle+Split, Space/Enter activates the currently focused side (Left or Right).</li>
+                    <li><strong>Arrow keys</strong> &mdash; For Split toggle buttons: Left selects left area, Right selects right area. <code>_keyboardSplitSelectRight</code> tracks the selection.</li>
+                    <li><strong>Focus ring</strong> &mdash; Keyboard-only (visible when <code>_keyboardFocusVisible = true</code>). Hidden on mouse click. Uses configurable thickness/offset/radius-delta.</li>
+                    <li><strong>Tab/ArrowKeys</strong> &mdash; Set <code>_keyboardFocusVisible = true</code> to show the focus ring.</li>
+                    <li><strong>Reduce motion</strong> &mdash; Disables all animation for users with motion sensitivity. Snaps hover/press states to target and disables ripple.</li>
+                    <li><strong>Cursor</strong> &mdash; <code>Hand</code> on hover; <code>Default</code> on leave; <code>No</code> when disabled (via helper).</li>
+                </ul>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="examples" class="section"><h2>Examples</h2>
+
+                <h3>Example 1: Solid Primary CTA Button</h3>
+                <p>A standard call-to-action button with a primary intent, medium size, and pill shape. The colors are automatically derived from the active theme's accent color via the intent system.</p>
+                <pre><code class="language-csharp">var saveButton = new BeepAdvancedButton
+{
+    Text = "Save Changes",
     ButtonStyle = AdvancedButtonStyle.Solid,
-    ButtonSize  = ButtonSize.Medium,
-    Shape       = ButtonShape.RoundedRectangle,
-    Intent      = ButtonIntent.Primary,
-    ImagePath   = "icons/save.png"  // optional left icon
+    ButtonSize = AdvancedButtonSize.Large,
+    Shape = ButtonShape.Pill,
+    Intent = ButtonIntent.Primary,
+    ImagePath = "/icons/save.svg"
+};
+saveButton.Click += (s, e) =&gt; SaveDocument();</code></pre>
+
+                <h3>Example 2: Loading State with Click Suppression</h3>
+                <p>Shows a spinning loader while an async operation runs. Click events are suppressed during loading by default via <code>SuppressClickWhileLoading</code>. The button's <code>Text</code> is hidden when loading and a rotating arc is displayed in its place.</p>
+                <pre><code class="language-csharp">var submitBtn = new BeepAdvancedButton
+{
+    Text = "Submit Order",
+    ButtonStyle = AdvancedButtonStyle.Gradient,
+    Intent = ButtonIntent.Success,
+    SuppressClickWhileLoading = true
 };
 
-saveBtn.Click += async (s, e) =>
+submitBtn.Click += async (s, e) =&gt;
 {
-    saveBtn.IsLoading = true;
-    await SaveDataAsync();
-    saveBtn.IsLoading = false;
-};</code></pre>
-
-                    <h3>Toggle Button</h3>
-                    <pre><code class="language-csharp">var boldBtn = new BeepAdvancedButton
-{
-    Text        = "B",
-    ButtonStyle = AdvancedButtonStyle.Toggle,
-    Shape       = ButtonShape.RoundedRectangle,
-    intent      = ButtonIntent.Secondary
-};
-
-boldBtn.ToggleChanged += (s, e) =>
-{
-    richTextBox1.SelectionFont = new Font(
-        richTextBox1.SelectionFont,
-        e.IsToggled ? FontStyle.Bold : FontStyle.Regular
-    );
-};</code></pre>
-
-                    <h3>Floating Action Button (FAB)</h3>
-                    <pre><code class="language-csharp">var fab = new BeepAdvancedButton
-{
-    ButtonStyle = AdvancedButtonStyle.FAB,
-    Shape       = ButtonShape.Circle,
-    ImagePath   = "icons/add.svg",
-    Intent      = ButtonIntent.Primary,
-    Size        = new Size(56, 56)
-};
-
-fab.Click += (s, e) => ShowNewItemDialog();</code></pre>
-
-                    <h3>Split Button (left action + dropdown)</h3>
-                    <pre><code class="language-csharp">var splitBtn = new BeepAdvancedButton
-{
-    Text        = "Export",
-    ButtonStyle = AdvancedButtonStyle.Solid,
-    Shape       = ButtonShape.Split,
-    IconRight   = "bi-chevron-down"
-};
-
-splitBtn.LeftAreaClicked  += (s, e) => ExportDefault();
-splitBtn.RightAreaClicked += (s, e) => ShowExportMenu();</code></pre>
-                </section>
-
-                <!-- Properties -->
-                <section id="properties" class="section">
-                    <h2>Properties</h2>
-                    <table class="props-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Default</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>ButtonStyle</code></td>
-                                <td>AdvancedButtonStyle</td>
-                                <td>Solid</td>
-                                <td>Visual rendering style: <code>Solid</code>, <code>Icon</code>, <code>Text</code>, <code>Toggle</code>, <code>FAB</code>, <code>Ghost</code>.</td>
-                            </tr>
-                            <tr>
-                                <td><code>ButtonSize</code></td>
-                                <td>ButtonSize</td>
-                                <td>Medium</td>
-                                <td>Preset size — Small (80×32), Medium (100×40), Large (120×48). Can be overridden by setting <code>Size</code> directly.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Shape</code></td>
-                                <td>ButtonShape</td>
-                                <td>RoundedRectangle</td>
-                                <td>Outer shape: <code>RoundedRectangle</code>, <code>Circle</code>, <code>Pill</code>, <code>Split</code>.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text</code></td>
-                                <td>string</td>
-                                <td>""</td>
-                                <td>Button label. Not shown in Icon or FAB styles.</td>
-                            </tr>
-                            <tr>
-                                <td><code>ImagePath</code></td>
-                                <td>string</td>
-                                <td>""</td>
-                                <td>Path to an image file rendered to the left of the text.</td>
-                            </tr>
-                            <tr>
-                                <td><code>IconLeft</code></td>
-                                <td>string</td>
-                                <td>""</td>
-                                <td>Bootstrap Icon class name rendered to the left of the text (e.g., <code>"bi-save"</code>).</td>
-                            </tr>
-                            <tr>
-                                <td><code>IconRight</code></td>
-                                <td>string</td>
-                                <td>""</td>
-                                <td>Bootstrap Icon class name rendered to the right of the text. Used in Split shape for the dropdown caret.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Intent</code></td>
-                                <td>ButtonIntent</td>
-                                <td>Primary</td>
-                                <td>Semantic colour intent: <code>Primary</code>, <code>Secondary</code>, <code>Tertiary</code>, <code>Destructive</code>, <code>Success</code>, <code>Neutral</code>.</td>
-                            </tr>
-                            <tr>
-                                <td><code>SolidBackground</code></td>
-                                <td>Color</td>
-                                <td>(theme)</td>
-                                <td>Explicit fill color for Solid / FAB styles. Overrides theme intent color.</td>
-                            </tr>
-                            <tr>
-                                <td><code>SolidForeground</code></td>
-                                <td>Color</td>
-                                <td>(theme)</td>
-                                <td>Explicit text/icon color. Overrides theme intent color.</td>
-                            </tr>
-                            <tr>
-                                <td><code>IsToggled</code></td>
-                                <td>bool</td>
-                                <td>false</td>
-                                <td>Current pressed state for Toggle style buttons. Setting this fires <code>ToggleChanged</code>.</td>
-                            </tr>
-                            <tr>
-                                <td><code>IsLoading</code></td>
-                                <td>bool</td>
-                                <td>false</td>
-                                <td>When true, shows a spinner overlay. If <code>SuppressClickWhileLoading</code> is true, Click events are blocked.</td>
-                            </tr>
-                            <tr>
-                                <td><code>SuppressClickWhileLoading</code></td>
-                                <td>bool</td>
-                                <td>true</td>
-                                <td>Prevents Click, LeftAreaClicked, and RightAreaClicked from firing while <code>IsLoading</code> is true.</td>
-                            </tr>
-                            <tr>
-                                <td><code>ShowFocusRing</code></td>
-                                <td>bool</td>
-                                <td>true</td>
-                                <td>Whether to draw a focus ring when the button has keyboard focus.</td>
-                            </tr>
-                            <tr>
-                                <td><code>FocusRingThickness</code></td>
-                                <td>int</td>
-                                <td>2</td>
-                                <td>Stroke width in pixels of the focus ring.</td>
-                            </tr>
-                            <tr>
-                                <td><code>FocusRingOffset</code></td>
-                                <td>int</td>
-                                <td>3</td>
-                                <td>Gap in pixels between the button edge and the focus ring.</td>
-                            </tr>
-                            <tr>
-                                <td><code>ReduceMotion</code></td>
-                                <td>bool</td>
-                                <td>false</td>
-                                <td>When true, suppresses hover/press animations for accessibility (respects OS reduce-motion preference).</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="note">
-                        Inherited properties from BaseControl (Theme, BorderStyle, BorderThickness, etc.) are also available.
-                        See the <a href="../api/beep-control-base.html">BaseControl API reference</a>.
-                    </p>
-                </section>
-
-                <!-- Events -->
-                <section id="events" class="section">
-                    <h2>Events</h2>
-                    <table class="props-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Signature</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Click</code></td>
-                                <td>EventHandler</td>
-                                <td>Standard WinForms click. Not fired while <code>IsLoading</code> if <code>SuppressClickWhileLoading</code> is true.</td>
-                            </tr>
-                            <tr>
-                                <td><code>ToggleChanged</code></td>
-                                <td>EventHandler&lt;ToggleChangedEventArgs&gt;</td>
-                                <td>Fired when <code>IsToggled</code> changes. <code>ToggleChangedEventArgs.IsToggled</code> holds the new state.</td>
-                            </tr>
-                            <tr>
-                                <td><code>LeftAreaClicked</code></td>
-                                <td>EventHandler</td>
-                                <td>Fired when the left region of a <code>Split</code> shape button is clicked.</td>
-                            </tr>
-                            <tr>
-                                <td><code>RightAreaClicked</code></td>
-                                <td>EventHandler</td>
-                                <td>Fired when the right region of a <code>Split</code> shape button is clicked (typically the dropdown arrow).</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Style Reference -->
-                <section id="styles" class="section">
-                    <h2>Button Style Reference</h2>
-                    <table class="props-table">
-                        <thead>
-                            <tr>
-                                <th>Style</th>
-                                <th>Typical Use</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Solid</code></td>
-                                <td>Primary/default action</td>
-                                <td>Filled background, contrasting text. Responds to Intent color.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Ghost</code></td>
-                                <td>Secondary action, less visual weight</td>
-                                <td>Transparent fill, colored border and text.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Text</code></td>
-                                <td>Tertiary action, link-like buttons</td>
-                                <td>No background or border; text only, underline on hover.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Icon</code></td>
-                                <td>Toolbar, compact action buttons</td>
-                                <td>Square aspect ratio, icon centered; text is hidden.</td>
-                            </tr>
-                            <tr>
-                                <td><code>Toggle</code></td>
-                                <td>Formatting (Bold/Italic), feature on/off</td>
-                                <td>Tracks <code>IsToggled</code> state with visual depressed feedback.</td>
-                            </tr>
-                            <tr>
-                                <td><code>FAB</code></td>
-                                <td>Floating action button (Material Design)</td>
-                                <td>Circle shape with drop shadow; usually docked bottom-right.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Code Examples -->
-                <section id="examples" class="section">
-                    <h2>Code Examples</h2>
-
-                    <h3>Async Operation with Loading Guard</h3>
-                    <pre><code class="language-csharp">btn.Click += async (s, e) =>
-{
-    btn.IsLoading = true;
+    submitBtn.IsLoading = true;
     try
     {
-        await UploadFileAsync(selectedPath);
-        ShowSuccess("File uploaded successfully.");
-    }
-    catch (Exception ex)
-    {
-        ShowError(ex.Message);
+        await SubmitOrderAsync();
+        submitBtn.Text = "Order Placed!";
     }
     finally
     {
-        btn.IsLoading = false;
+        submitBtn.IsLoading = false;
     }
 };</code></pre>
 
-                    <h3>Intent-Driven Delete Button</h3>
-                    <pre><code class="language-csharp">var deleteBtn = new BeepAdvancedButton
+                <h3>Example 3: Split Toggle Button with Left/Right Areas</h3>
+                <p>A Toggle-style button with a Split shape that divides the button into independently clickable left and right halves. Left click sets <code>IsToggled = true</code>, right click sets <code>IsToggled = false</code>. Each side fires its own event, and <code>ToggleChanged</code> provides which area was clicked.</p>
+                <pre><code class="language-csharp">var modeToggle = new BeepAdvancedButton
 {
-    Text        = "Delete",
-    ButtonStyle = AdvancedButtonStyle.Solid,
-    Shape       = ButtonShape.RoundedRectangle,
-    Intent      = ButtonIntent.Destructive,
-    IconLeft    = "bi-trash"
+    Text = "Edit / Preview",
+    ButtonStyle = AdvancedButtonStyle.Toggle,
+    Shape = ButtonShape.Split,
+    ButtonSize = AdvancedButtonSize.Medium,
+    IsToggled = false
 };
 
-deleteBtn.Click += (s, e) =>
+modeToggle.ToggleChanged += (s, e) =&gt;
 {
-    if (ConfirmDelete())
-        DeleteSelectedRecord();
-};</code></pre>
+    if (e.IsToggled)
+        SwitchToEditMode();
+    else
+        SwitchToPreviewMode();
+};
 
-                    <h3>Toolbar Icon Row</h3>
-                    <pre><code class="language-csharp">string[] icons = { "bi-bold", "bi-italic", "bi-underline" };
-foreach (var icon in icons)
+modeToggle.LeftAreaClicked += (s, e) =&gt;
+    Console.WriteLine("Left (Edit) area clicked");
+
+modeToggle.RightAreaClicked += (s, e) =&gt;
+    Console.WriteLine("Right (Preview) area clicked");</code></pre>
+
+                <h3>Example 4: FAB (Floating Action Button) with Reduced Motion</h3>
+                <p>A circular floating action button. FAB automatically uses <code>Circle</code> shape and DPI-scaled square dimensions. Motion is disabled for accessibility, so hover/press transitions snap instantly and ripple is suppressed.</p>
+                <pre><code class="language-csharp">var fab = new BeepAdvancedButton
 {
-    var btn = new BeepAdvancedButton
-    {
-        ButtonStyle = AdvancedButtonStyle.Toggle,
-        Shape       = ButtonShape.RoundedRectangle,
-        IconLeft    = icon,
-        ButtonSize  = ButtonSize.Small,
-        Intent      = ButtonIntent.Secondary
-    };
-    btn.ToggleChanged += (s, e) => ApplyFormatting(icon, e.IsToggled);
-    toolbarPanel.Controls.Add(btn);
-}</code></pre>
-                </section>
+    ButtonStyle = AdvancedButtonStyle.FAB,
+    ButtonSize = AdvancedButtonSize.Medium,  // 56&times;56 at 96 DPI
+    ImagePath = "/icons/plus.svg",
+    Intent = ButtonIntent.Primary,
+    ReduceMotion = true,
+    ShowFocusRing = true,
+    FocusRingThickness = 3,
+    FocusRingOffset = 4
+};
+fab.Click += (s, e) =&gt; CreateNewProject();
+Controls.Add(fab);
+fab.Location = new Point(ClientSize.Width - 80, ClientSize.Height - 80);
+fab.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;</code></pre>
 
-                <!-- Theming -->
-                <section id="theming" class="section">
-                    <h2>Theming</h2>
-                    <p>
-                        BeepAdvancedButton maps its <code>Intent</code> to theme color tokens automatically.
-                        For example, <code>ButtonIntent.Primary</code> uses the theme's primary accent color,
-                        while <code>ButtonIntent.Destructive</code> uses the theme's error/danger color.
-                    </p>
-                    <pre><code class="language-csharp">// Apply a theme — Intent colors update automatically
-BeepThemesManager.ApplyTheme(btn, "Ocean");
+                <h3>Example 5: News Banner with Explicit Variant</h3>
+                <p>A news/broadcast-style banner button with a breaking news globe icon, LIVE badge, and red-themed destructive intent for visual urgency.</p>
+                <pre><code class="language-csharp">var breakingNews = new BeepAdvancedButton
+{
+    Text = "Markets Surge on Policy Shift",
+    ButtonStyle = AdvancedButtonStyle.NewsBanner,
+    NewsBannerVariant = NewsBannerVariant.BreakingNewsGlobe,
+    Intent = ButtonIntent.Destructive,
+    ButtonSize = AdvancedButtonSize.Large
+};
+breakingNews.Click += (s, e) =&gt; NavigateToNewsArticle();</code></pre>
 
-// Or explicit override (ignores Intent-based theming)
-btn.SolidBackground = Color.FromArgb(0, 120, 215);
-btn.SolidForeground = Color.White;</code></pre>
-                </section>
+                <h3>Example 6: Contact Button with Right Circle Icon</h3>
+                <p>A contact-styled CTA button with a circular icon container on the right side, useful for messaging or contact actions.</p>
+                <pre><code class="language-csharp">var contactBtn = new BeepAdvancedButton
+{
+    Text = "Chat with Support",
+    ButtonStyle = AdvancedButtonStyle.Contact,
+    ContactVariant = ContactVariant.IconCircleRightPill4,
+    IconRight = "/icons/chat.svg",
+    Intent = ButtonIntent.Success,
+    ButtonSize = AdvancedButtonSize.Medium
+};
+contactBtn.Click += (s, e) =&gt; OpenChatWindow();</code></pre>
+            </section>
 
-                <!-- Best Practices -->
-                <section id="best-practices" class="section">
-                    <h2>Best Practices</h2>
-                    <ul>
-                        <li><strong>One primary action per area</strong> — Use <code>Intent.Primary</code> for the single most important action; use Secondary/Ghost for supporting actions.</li>
-                        <li><strong>Always guard async operations</strong> — Set <code>IsLoading = true</code> before awaiting and <code>false</code> in a <code>finally</code> block to prevent double-submission.</li>
-                        <li><strong>Use Split sparingly</strong> — The Split shape is powerful but unexpected; reserve it for actions where there is a natural primary + options pattern (e.g., Export + format picker).</li>
-                        <li><strong>Destructive intent requires confirmation</strong> — Always show a confirmation dialog before executing irreversible actions triggered by a <code>ButtonIntent.Destructive</code> button.</li>
-                        <li><strong>Icon-only buttons need tooltips</strong> — When using <code>Icon</code> style without text, set the inherited <code>ToolTip</code> property so screen readers and mouse-hover users understand the action.</li>
-                        <li><strong>ReduceMotion for accessibility</strong> — Check <code>SystemInformation.HighContrast</code> or expose a setting in your app and set <code>ReduceMotion = true</code> accordingly.</li>
-                    </ul>
-                </section>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="architecture" class="section"><h2>File Architecture</h2>
+                <p>The <code>BeepAdvancedButton</code> control is spread across 42 files organized into a clean directory structure:</p>
+                <table><thead><tr><th>File / Directory</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td><code>BeepAdvancedButton.cs</code></td><td>Main partial class (1583 lines): properties, events, constructor, <code>DrawContent</code> override, mouse/keyboard handlers, animation pipeline, theme application, intent color resolution, focus ring drawing, design-time fallback rendering.</td></tr>
+                    <tr><td><code>BeepAdvancedButton.Layout.cs</code></td><td>Layout partial class (143 lines): split-area hit registration, left/right area click handling, area hover state tracking, default shape mapping per style, size calculation (DPI-scaled).</td></tr>
+                    <tr><td><code>Enums/AdvancedButtonEnums.cs</code></td><td>All public enumerations (286 lines): <code>AdvancedButtonStyle</code> (30 values), <code>AdvancedButtonSize</code>, <code>AdvancedButtonState</code>, <code>ButtonIntent</code>, <code>ButtonShape</code>, <code>NewsBannerVariant</code> (21 values), <code>ContactVariant</code> (16 values), <code>ChevronVariant</code>, <code>FlatWebVariant</code>, <code>LowerThirdVariant</code>, <code>StickerLabelVariant</code>.</td></tr>
+                    <tr><td><code>Models/AdvancedButtonModels.cs</code></td><td>Data models (216 lines): <code>ToggleChangedEventArgs</code>, <code>AdvancedButtonPaintContext</code> (40+ properties), <code>AdvancedButtonMetrics</code> (DPI-aware sizing for Small/Medium/Large).</td></tr>
+                    <tr><td><code>Models/AdvancedButtonPaintContract.cs</code></td><td>Layout contract (122 lines): <code>AdvancedButtonPaintTokens</code>, <code>AdvancedButtonLayoutSlices</code>, <code>AdvancedButtonPaintContract</code> (static factory for tokens/slices with radius resolution).</td></tr>
+                    <tr><td><code>Painters/IAdvancedButtonPainter.cs</code></td><td>Interface (16 lines): Single <code>void Paint(AdvancedButtonPaintContext context)</code> method.</td></tr>
+                    <tr><td><code>Painters/BaseButtonPainter.cs</code></td><td>Abstract base painter (613 lines): Common rendering helpers (rounded rect paths, shadow, ripple, icon drawing, text drawing, loading spinner, color blending, shape-aware fill/draw, focus ring primitive, fallback icon methods for globe/lightning/sport/alert, LIVE badge drawing).</td></tr>
+                    <tr><td><code>Painters/ButtonPainterFactory.cs</code></td><td>Factory (108 lines): Maps <code>AdvancedButtonStyle</code> to concrete painters. Specialized factory method for <code>NewsBannerVariant</code> &rarr; sub-painter routing.</td></tr>
+                    <tr><td><code>Helpers/BeepAdvancedButtonHelper.cs</code></td><td>Layout helper (213 lines): Calculates ideal width, content bounds (icon+text), rounded-corner hit testing, cursor selection, shadow offset by state, text measurement.</td></tr>
+                    <tr><td><code>Helpers/ButtonShapeHelper.cs</code></td><td>Shape utility (224 lines): Static methods for <code>GetCornerRadiusForShape</code>, <code>CreateShapePath</code> (handles Circle/Ellipse, Pill, RoundedRectangle, Rectangle, Split, Square), <code>CreatePartialRoundedRectangle</code> (selective corner rounding), <code>FillShape</code>, <code>DrawShape</code>, <code>GetAdjustedBoundsForShape</code>.</td></tr>
+                    <tr><td><code>Painters/</code> (30 individual files)</td><td>One painter class per button style, each extending <code>BaseButtonPainter</code> and overriding <code>Paint(AdvancedButtonPaintContext)</code>. Subdirectory <code>Painters/NewsBanner/</code> contains 4 specialized sub-painters (CircleBadge, Bar, Arrow, Angled, IconBadge).</td></tr>
+                </tbody></table>
+            </section>
 
-                <!-- Related Controls -->
-                <section id="related" class="section">
-                    <h2>Related Controls</h2>
-                    <div class="related-grid">
-                        <a href="beep-button.html" class="related-card">
-                            <h4>BeepButton</h4>
-                            <p>Standard themed button for straightforward single-style use.</p>
-                        </a>
-                        <a href="beep-circularbutton.html" class="related-card">
-                            <h4>BeepCircularButton</h4>
-                            <p>Circular icon button, simpler alternative to FAB style.</p>
-                        </a>
-                        <a href="beep-toggle.html" class="related-card">
-                            <h4>BeepToggle</h4>
-                            <p>Dedicated toggle switch — better for settings-panel on/off controls.</p>
-                        </a>
-                    </div>
-                </section>
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <section id="painter-directory" class="section"><h2>Complete Painter Directory</h2>
+                <table><thead><tr><th>Painter Class</th><th>Style(s) Served</th><th>Key Rendering Features</th></tr></thead><tbody>
+                    <tr><td><code>SolidButtonPainter</code></td><td>Solid</td><td>Filled background with intent-derived color, rounded path</td></tr>
+                    <tr><td><code>OutlinedButtonPainter</code></td><td>Outlined</td><td>Transparent fill with colored border</td></tr>
+                    <tr><td><code>OutlinePillButtonPainter</code></td><td>OutlinePill</td><td>Thick colored outline, white fill, pill shape</td></tr>
+                    <tr><td><code>GhostButtonPainter</code></td><td>Ghost</td><td>Transparent, subtle hover background reveal</td></tr>
+                    <tr><td><code>TextButtonPainter</code></td><td>Text</td><td>No background/border, text-only with hover color change</td></tr>
+                    <tr><td><code>LinkButtonPainter</code></td><td>Link</td><td>Underline-style hyperlink appearance</td></tr>
+                    <tr><td><code>FABButtonPainter</code></td><td>FAB</td><td>Circular with elevation shadow, icon-centered</td></tr>
+                    <tr><td><code>ChipButtonPainter</code></td><td>Chip</td><td>Pill-shaped tag, optional close icon, badge support</td></tr>
+                    <tr><td><code>IconButtonPainter</code></td><td>Icon</td><td>Icon-only rendering, centered</td></tr>
+                    <tr><td><code>IconTextButtonPainter</code></td><td>IconText</td><td>Icon + text with gap</td></tr>
+                    <tr><td><code>SplitColorButtonPainter</code></td><td>IconText (factory alias)</td><td>Split color rendering for icon+text</td></tr>
+                    <tr><td><code>ToggleButtonPainter</code></td><td>Toggle</td><td>On/off visual states, split left/right rendering</td></tr>
+                    <tr><td><code>GradientButtonPainter</code></td><td>Gradient</td><td>Linear gradient background fill</td></tr>
+                    <tr><td><code>NeonGlowButtonPainter</code></td><td>NeonGlow</td><td>Glow effect with neon-colored borders</td></tr>
+                    <tr><td><code>AccentEdgeButtonPainter</code></td><td>AccentEdge</td><td>White pill with colored edge strip on one side</td></tr>
+                    <tr><td><code>ContactButtonPainter</code></td><td>Contact</td><td>16 layout variants with icon circle/square/arrow backgrounds</td></tr>
+                    <tr><td><code>LowerThirdButtonPainter</code></td><td>LowerThird</td><td>8 variants: headline bars, LIVE tags, ticker strips, report splits</td></tr>
+                    <tr><td><code>SpeechBubbleButtonPainter</code></td><td>SpeechBubble</td><td>Speech bubble shape with colored tail</td></tr>
+                    <tr><td><code>SplitIconLeftButtonPainter</code></td><td>SplitIconLeft</td><td>Icon left block with text right and arrow tail</td></tr>
+                    <tr><td><code>SplitGradientButtonPainter</code></td><td>SplitGradient</td><td>Half gradient, half white split rendering</td></tr>
+                    <tr><td><code>IconCircleRightButtonPainter</code></td><td>IconCircleRight</td><td>Colored block with white icon circle on right</td></tr>
+                    <tr><td><code>StickerLabelButtonPainter</code></td><td>StickerLabel</td><td>4 variants: speech bubble, cloud tag, burst badge, comic ribbon</td></tr>
+                    <tr><td><code>FlatWebButtonPainter</code></td><td>FlatWeb</td><td>7 variants: badge actions, search notch, segmented toolbar, etc.</td></tr>
+                    <tr><td><code>NavigationChevronButtonPainter</code></td><td>NavigationChevron</td><td>4 variants with chevron placement relative to icon</td></tr>
+                    <tr><td><code>NewsBannerButtonPainter</code></td><td>NewsBanner</td><td>Routes to sub-painters; defines <code>NewsBannerStyle</code> enum</td></tr>
+                    <tr><td><code>NewsCircleBadgePainter</code></td><td>NewsBanner (5 variants)</td><td>Circle badge styles: Live, Sport, 24TV, Pink news</td></tr>
+                    <tr><td><code>NewsBarPainter</code></td><td>NewsBanner (5 variants)</td><td>Bar/badge styles: Breaking News, Live, Flag, Morning</td></tr>
+                    <tr><td><code>NewsArrowPainter</code></td><td>NewsBanner (3 variants)</td><td>Arrow/chevron styles: Hexagon, single/double chevron</td></tr>
+                    <tr><td><code>NewsAngledPainter</code></td><td>NewsBanner (3 variants)</td><td>Angled/slanted edge styles: two-tone, slanted</td></tr>
+                    <tr><td><code>NewsIconBadgePainter</code></td><td>NewsBanner (5 variants)</td><td>Icon badge styles: Globe, Lightning, World News pill</td></tr>
+                    <tr><td><code>GradientSubButtonPainter</code></td><td>GradientSubButton</td><td>Large gradient background with overlapping white sub-button</td></tr>
+                    <tr><td><code>MiniGradientPillButtonPainter</code></td><td>MiniGradientPill</td><td>Small gradient pill with centered icon</td></tr>
+                    <tr><td><code>GradientSpeechBubblePainter</code></td><td>GradientSpeechBubble</td><td>Gradient speech bubble with white accent line</td></tr>
+                    <tr><td><code>GradientBadgeButtonPainter</code></td><td>GradientBadge (reserved)</td><td>Gradient badge button rendering</td></tr>
+                </tbody></table>
+            </section>
 
-            </div><!-- /.content-wrapper -->
-        </main>
-    </div><!-- /.container -->
+            <!-- ═══════════════════════════════════════════════════════════════ -->
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+            <div class="nav-links"><a href="beep-chevronbutton.html"><i class="bi bi-arrow-left"></i> BeepChevronButton</a><a href="beep-label.html">BeepLabel <i class="bi bi-arrow-right"></i></a></div>
+            <footer><p>&copy; 2024 TheTechIdea</p></footer>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script>
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-icon').className = 'bi bi-moon-fill';
-        }
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'bi bi-moon-fill';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function searchDocs(query) {
-            const links = document.querySelectorAll('.nav-menu a');
-            const lowerQuery = query.toLowerCase();
-            links.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                const listItem = link.closest('li');
-                if (text.includes(lowerQuery) || lowerQuery === '') {
-                    listItem.style.display = '';
-                } else {
-                    listItem.style.display = 'none';
-                }
-            });
-        }
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')=='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
     </script>
 </body>
 </html>

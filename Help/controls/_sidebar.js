@@ -132,6 +132,7 @@
         + '<li><a href="' + C + 'beep-dropdownmenu.html">BeepDropDownMenu</a></li>'
         + '<li><a href="' + C + 'beep-flyoutmenu.html">BeepFlyoutMenu</a></li>'
         + '<li><a href="' + C + 'beep-contextmenustrip.html">BeepContextMenu</a></li>'
+        + '<li><a href="' + C + 'beep-notificationgroup.html">BeepNotificationGroup</a></li>'
         + '</ul></li>'
 
         // ── Dialogs & Popups ──────────────────────────────────────────────────
@@ -154,6 +155,14 @@
         + '<li><a href="' + C + 'beep-styling.html">Styling System</a></li>'
         + '<li><a href="' + C + 'beep-filter.html">Filtering System</a></li>'
         + '<li><a href="' + C + 'beep-font-management.html">Font Management</a></li>'
+        + '</ul></li>'
+
+        // ── Integrated Controls ───────────────────────────────────────────────
+        + '<li class="has-submenu"><a href="#"><i class="bi bi-puzzle"></i> Integrated Controls</a><ul class="submenu">'
+        + '<li><a href="' + C + 'beep-forms.html">BeepForms</a></li>'
+        + '<li><a href="' + C + 'beep-block.html">BeepBlock</a></li>'
+        + '<li><a href="' + C + 'beep-apptree.html">BeepAppTree</a></li>'
+        + '<li><a href="' + C + 'beep-menuappbar.html">BeepMenuAppBar</a></li>'
         + '</ul></li>'
 
         // ── Widgets ───────────────────────────────────────────────────────────

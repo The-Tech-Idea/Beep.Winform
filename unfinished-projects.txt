@@ -1,0 +1,9 @@
+# Unfinished/utility projects - excluded from publishing
+# Format: one relative directory path per line
+# Lines starting with # are comments
+
+# Test project (IsPackable=false, IsTestProject=true)
+TheTechIdea.Beep.Winform.Controls.Tests
+
+# Tool / preview harness (WinExe app, not a library)
+Tools\BeepBlockWizardPreviewHarness

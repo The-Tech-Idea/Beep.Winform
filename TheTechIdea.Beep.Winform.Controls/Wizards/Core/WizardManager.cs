@@ -69,6 +69,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
         }
 
         /// <summary>
+        /// Show wizard as modal dialog (async)
+        /// </summary>
+        public static async Task<DialogResult> ShowWizardAsync(WizardConfig config)
+        {
+            var instance = CreateWizard(config);
+            return await instance.ShowDialogAsync();
+        }
+
+        /// <summary>
+        /// Show wizard as modal dialog with owner (async)
+        /// </summary>
+        public static async Task<DialogResult> ShowWizardAsync(WizardConfig config, IWin32Window owner)
+        {
+            var instance = CreateWizard(config);
+            return await instance.ShowDialogAsync(owner);
+        }
+
+        /// <summary>
         /// Get active wizard by key
         /// </summary>
         public static WizardInstance GetWizard(string key)

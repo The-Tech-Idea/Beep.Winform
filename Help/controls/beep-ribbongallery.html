@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepRibbonGallery - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&rsaquo;</span><span>BeepRibbonGallery</span></nav>
+            <div class="page-header"><h1>BeepRibbonGallery</h1><p class="page-subtitle">Interactive tile-based gallery control with pinning, recent tracking, category headers, keyboard navigation, and large preview popup support</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                <li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li>
+                <li><a href="#theming">Theming</a></li><li><a href="#ordering">Item Ordering</a></li>
+                <li><a href="#keyboard">Keyboard Navigation</a></li>
+                <li><a href="#popup">More Popup &amp; Preview</a></li>
+                <li><a href="#state">State Management</a></li>
+                <li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li></ul></div>
+
+            <section id="overview" class="section"><h2>Overview</h2>
+                <table>
+                    <tr><td><strong>Namespace</strong></td><td><code>TheTechIdea.Beep.Winform.Controls.Gallery</code></td></tr>
+                    <tr><td><strong>Assembly</strong></td><td><code>TheTechIdea.Beep.Winform.Controls.dll</code></td></tr>
+                    <tr><td><strong>Inheritance</strong></td><td><code>System.Windows.Forms.UserControl</code></td></tr>
+                    <tr><td><strong>Event Args</strong></td><td><code>RibbonGalleryItemSelectedEventArgs</code>, <code>RibbonGalleryStateChangedEventArgs</code></td></tr>
+                    <tr><td><strong>Renderer</strong></td><td><code>RibbonGalleryRenderer</code> (internal) for tile size computation and button styling</td></tr>
+                </table>
+                <p><strong>BeepRibbonGallery</strong> is a <code>UserControl</code> that renders a collection of <code>SimpleItem</code> items as interactive tile buttons within a scrolling <code>FlowLayoutPanel</code>. It serves as the visual component behind ribbon gallery commands&mdash;collections of related options such as document styles, color palettes, shapes, or chart types. The gallery supports compact/small and expanded/large display modes, pinning of frequently-used items, tracking of recently selected items, category-based grouping, full keyboard navigation, and an optional large preview popup dialog.</p>
+                <p>Galleries are automatically created by <code>BeepRibbonControl</code> during command tree building when a command node's text, display field, or name contains the word "gallery" and it has at least 2 child items. They are hosted inside a <code>ToolStripControlHost</code> within the ribbon group. The gallery can also be used standalone outside of a ribbon context.</p>
+                <p>The control is <code>sealed</code>, meaning it cannot be subclassed. Extension is achieved through configuration properties and the <code>ItemSelected</code>/<code>StateChanged</code> events.</p>
+            </section>
+
+            <section id="features" class="section"><h2>Key Features</h2>
+                <ul>
+                    <li><strong>Tile-Based Layout</strong> &mdash; Items render as themed <code>Button</code> tiles in a wrapping <code>FlowLayoutPanel</code> with tile sizes computed by <code>RibbonGalleryRenderer.GetTileSize()</code> per density and compact mode.</li>
+                    <li><strong>Compact and Large Modes</strong> &mdash; <code>Compact</code> mode shows 4 tiles with smaller dimensions; expanded mode shows 6 tiles and optional item images. Toggle via the <code>Compact</code> property.</li>
+                    <li><strong>Automatic Overflow</strong> &mdash; When items exceed the visible tile count, a "..." button appears. Clicking it opens a <code>ContextMenuStrip</code> popup with pinned, recent, and category-organized sections.</li>
+                    <li><strong>Pinning System</strong> &mdash; Items can be pinned/unpinned via right-click context menu or via the <code>SetPinned()</code> method. Pinned items sort first in the tile order and display with a "*" prefix. State persisted in a <code>HashSet&lt;string&gt;</code> for O(1) lookups.</li>
+                    <li><strong>Recent Tracking</strong> &mdash; Automatically records the most recently selected items (up to <code>MaxRecentItems</code>, default 8). Recent items sort after pinned items but before remaining items in the item order.</li>
+                    <li><strong>Category Headers</strong> &mdash; Groups items in the "More" popup by <code>GroupName</code> or <code>Category</code> property when <code>EnableCategoryHeaders</code> is true. Falls back to "Items" category for items without explicit grouping.</li>
+                    <li><strong>Large Preview Dialog</strong> &mdash; Opens a resizable modal dialog (720x460 default) containing a full gallery with all items visible, complete pinning support, selection synchronization, and dedicated focus handling.</li>
+                    <li><strong>Full Keyboard Navigation</strong> &mdash; Arrow keys (Up/Down/Left/Right) navigate selection, Enter activates, Escape closes popups/dialogs, Tab moves focus with configurable <code>TabNavigatesOutOfGallery</code> behavior.</li>
+                    <li><strong>Selection Persistence</strong> &mdash; Selected item key is tracked in <code>_selectedKey</code> and styled with the <code>SelectionBack</code> color via <code>RibbonGalleryRenderer.StyleButton()</code>.</li>
+                    <li><strong>Accessibility-First Design</strong> &mdash; Each tile has computed <code>AccessibleName</code>, <code>AccessibleDescription</code> (category, tooltip, shortcut, pinned/selected state), and <code>AccessibleRole.PushButton</code>. The gallery itself declares <code>AccessibleRole.List</code>.</li>
+                    <li><strong>State Change Propagation</strong> &mdash; Fires <code>StateChanged</code> whenever pinned or recent keys are modified, enabling the parent ribbon to persist gallery state in its <code>_galleryPinnedKeys</code> and <code>_galleryRecentKeys</code> dictionaries.</li>
+                </ul>
+            </section>
+
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>Compact</code></td><td><code>bool</code></td><td><code>true</code></td><td>Controls tile display density. When <code>true</code>: 4 smaller tiles are shown, text-only, with a compact tile size from the renderer. When <code>false</code>: 6 larger tiles with optional image display and larger tile dimensions. Changing triggers a full <code>RefreshTiles()</code> rebuild.</td></tr>
+                    <tr><td><code>EnableCategoryHeaders</code></td><td><code>bool</code></td><td><code>true</code></td><td>When <code>true</code>, the "More" popup groups items by category using <code>GetItemCategory()</code> (resolved from <code>GroupName</code> or <code>Category</code>). When <code>false</code>, all items appear under a single "Items" section. Changing triggers <code>RefreshTiles()</code>.</td></tr>
+                    <tr><td><code>EnableLargePreviewPopup</code></td><td><code>bool</code></td><td><code>true</code></td><td>When <code>true</code>, a "Open Gallery Preview..." menu item appears in both the "More" popup and the per-item right-click context menu. Clicking opens a modal dialog with a full expanded gallery showing all items.</td></tr>
+                    <tr><td><code>ShowAllItemsInPopup</code></td><td><code>bool</code></td><td><code>false</code></td><td>When <code>true</code>, all items are rendered in the tile area (bypassing the 4/6 tile visibility limit). The "..." overflow button is hidden since all items are already visible. Changing triggers <code>RefreshTiles()</code>.</td></tr>
+                    <tr><td><code>MaxRecentItems</code></td><td><code>int</code></td><td><code>8</code></td><td>Maximum number of recent items to track. When a new selection pushes the count over the limit, the oldest item is evicted. Minimum value is 1 (clamped).</td></tr>
+                    <tr><td><code>TabNavigatesOutOfGallery</code></td><td><code>bool</code></td><td><code>true</code></td><td>Controls Tab key behavior. When <code>true</code>: Tab moves focus to the next/previous control outside the gallery (via <code>MoveFocusOutOfGallery()</code>, which walks the parent control tree). When <code>false</code>: Tab cycles within gallery tiles. Shift+Tab works symmetrically.</td></tr>
+                    <tr><td><code>ChildTileTabStops</code></td><td><code>bool</code></td><td><code>false</code></td><td>When <code>true</code>, individual tile buttons have <code>TabStop = true</code>, allowing keyboard focus to move between tiles as separate tab stops. When <code>false</code>, the gallery itself receives focus as a single unit and navigation is driven by the gallery's own <code>KeyDown</code> handler. Changing triggers <code>RefreshTiles()</code>.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>SetItems</code></td><td><code>void SetItems(IEnumerable&lt;SimpleItem&gt; items)</code></td><td>Replaces the gallery's item collection. Filters to visible, non-separator items. Calls <code>TrimStateToCurrentItems()</code> to remove stale pinned/recent keys, then calls <code>RefreshTiles()</code> to rebuild the UI.</td></tr>
+                    <tr><td><code>SetPinnedKeys</code></td><td><code>void SetPinnedKeys(IEnumerable&lt;string&gt;? keys)</code></td><td>Replaces the set of pinned item keys. Only non-whitespace keys are added. Calls <code>TrimStateToCurrentItems()</code> then <code>RefreshTiles()</code> to re-sort tiles with pinned items first.</td></tr>
+                    <tr><td><code>SetRecentKeys</code></td><td><code>void SetRecentKeys(IEnumerable&lt;string&gt;? keys)</code></td><td>Replaces the list of recently used item keys. Keys are added in order (most recent first), deduplicated, and capped at <code>MaxRecentItems</code>. Calls <code>TrimStateToCurrentItems()</code> then <code>RefreshTiles()</code>.</td></tr>
+                    <tr><td><code>GetPinnedKeys</code></td><td><code>IReadOnlyList&lt;string&gt; GetPinnedKeys()</code></td><td>Returns a defensive copy of the current pinned key set as a new <code>List&lt;string&gt;</code>.</td></tr>
+                    <tr><td><code>GetRecentKeys</code></td><td><code>IReadOnlyList&lt;string&gt; GetRecentKeys()</code></td><td>Returns a defensive copy of the current recent keys list.</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme(RibbonTheme theme, RibbonDensity density)</code></td><td>Applies a theme and density profile. Stores both values, passes them to <code>_renderer.ApplyTheme()</code>, sets <code>BackColor</code> and <code>_tilesPanel.BackColor</code> to <code>theme.GroupBack</code>, then calls <code>RefreshTiles()</code> to restyle all tile buttons.</td></tr>
+                    <tr><td><code>SetSelected</code></td><td><code>void SetSelected(SimpleItem? item)</code></td><td>Sets the selected item by key (resolved from the item via <code>GetItemKey()</code>). Updates <code>_selectedKey</code>, calls <code>UpdateTileStyles()</code> to visually mark the selected tile, updates keyboard selection index, and focuses the selected tile. Does NOT raise <code>ItemSelected</code> or register as recent.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="events" class="section"><h2>Events</h2>
+                <table><thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>ItemSelected</code></td><td><code>RibbonGalleryItemSelectedEventArgs</code></td><td>Raised when a gallery item is selected via tile click, Enter key on keyboard navigation, selection from the "More" popup, or selection from the large preview dialog. The event provides the <code>SimpleItem</code> that was chosen via the <code>Item</code> property. The parent ribbon subscribes to this to persist the selection in <code>_galleryLastSelection</code> and raise its own <code>CommandInvoked</code> event.</td></tr>
+                    <tr><td><code>StateChanged</code></td><td><code>RibbonGalleryStateChangedEventArgs</code></td><td>Raised whenever pinned or recent keys change. This includes: pin toggling (via context menu or large preview), item selection that registers a new recent entry, and <code>SetPinnedKeys()</code>/<code>SetRecentKeys()</code> calls. Provides <code>PinnedKeys</code> and <code>RecentKeys</code> as read-only lists. The parent ribbon caches these values for persistence across ribbon rebuilds.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="theming" class="section"><h2>Theming</h2>
+                <p>Calling <code>ApplyTheme(RibbonTheme theme, RibbonDensity density)</code> configures the gallery's visual appearance comprehensively:</p>
+                <h4>Color Assignment</h4>
+                <ul>
+                    <li><strong>Background</strong>: Both <code>BackColor</code> and the internal <code>_tilesPanel.BackColor</code> are set to <code>theme.GroupBack</code>, ensuring the gallery blends seamlessly with its parent ribbon group.</li>
+                    <li><strong>Renderer Colors</strong>: The <code>RibbonGalleryRenderer</code> receives the full theme for per-tile button styling: <code>HoverBack</code> for mouse hover, <code>PressedBack</code> for pressed state, <code>SelectionBack</code> for selected items, <code>Text</code> for foreground, <code>GroupBorder</code> for flat button borders, and <code>DisabledBack</code>/<code>DisabledText</code> for disabled tiles.</li>
+                </ul>
+                <h4>Tile Sizing</h4>
+                <p>Tile dimensions are computed by <code>_renderer.GetTileSize(_compact)</code>, which varies by both density and compact mode. The renderer determines the pixel dimensions for each tile button based on these settings.</p>
+                <h4>Image Rendering</h4>
+                <p>When not in <code>Compact</code> mode, gallery tiles display images next to text. Images are created at density-appropriate sizes: 14px (Compact), 16px (Comfortable), or 20px (Touch). Each image is rendered to a transparent <code>Bitmap</code> using <code>StyledImagePainter.PaintWithTint()</code> with <code>theme.IconColor</code> as the recolor tint. All generated images are tracked in <code>_images</code> and disposed when tiles are cleared or the gallery is disposed.</p>
+                <h4>Button Styling</h4>
+                <p>Each tile button's visual style is applied by <code>_renderer.StyleButton(button, selected)</code> which sets <code>BackColor</code>, <code>ForeColor</code>, <code>FlatStyle = Flat</code>, <code>FlatAppearance.BorderColor</code>, <code>FlatAppearance.MouseDownBackColor</code>, and <code>FlatAppearance.MouseOverBackColor</code> based on the item's selection state and the theme colors.</p>
+            </section>
+
+            <section id="ordering" class="section"><h2>Item Ordering</h2>
+                <p>The <code>GetOrderedItems()</code> method determines the display order of gallery tiles using a three-tier sorting strategy:</p>
+                <ol>
+                    <li><strong>Pinned Items</strong>: Items whose keys are in the <code>_pinnedKeys</code> set appear first, in their natural order from the item collection.</li>
+                    <li><strong>Recent Items</strong>: Items that are NOT pinned but appear in the <code>_recentKeys</code> list appear next, sorted by their recency index (0 = most recent). Items with no recent index (<code>-1</code> from <code>GetRecentIndex()</code>) are excluded from this tier.</li>
+                    <li><strong>Remaining Items</strong>: All items not already placed in the pinned or recent tiers appear last, in their original order from the item collection.</li>
+                </ol>
+                <p>A <code>HashSet&lt;string&gt;</code> (<code>skipKeys</code>) accumulates keys already placed in pinned and recent tiers to avoid duplicates in the remaining items set. The final concatenation is <code>pinned.Concat(recent).Concat(remaining)</code>.</p>
+                <p>The tile button text is augmented with a "*" prefix for pinned items via <code>GetTileButtonText()</code>: <code>return _pinnedKeys.Contains(key) ? $"* {text}" : text;</code></p>
+            </section>
+
+            <section id="keyboard" class="section"><h2>Keyboard Navigation</h2>
+                <p>The gallery implements a complete keyboard navigation system via the <code>HandleKeyboardInput()</code> method, which is wired to both the gallery's own <code>KeyDown</code> event and each tile button's <code>KeyDown</code> event:</p>
+                <table><thead><tr><th>Key</th><th>Behavior</th><th>Implementation</th></tr></thead><tbody>
+                    <tr><td><strong>Right / Down</strong></td><td>Move selection forward by 1 (wraps to first from last)</td><td><code>MoveKeyboardSelection(1)</code></td></tr>
+                    <tr><td><strong>Left / Up</strong></td><td>Move selection backward by 1 (wraps to last from first)</td><td><code>MoveKeyboardSelection(-1)</code></td></tr>
+                    <tr><td><strong>Enter</strong></td><td>Activate the currently selected item</td><td><code>ActivateKeyboardSelection()</code> &rarr; <code>SelectItem(item, true)</code>. Fires <code>ItemSelected</code>, registers recent, updates styles.</td></tr>
+                    <tr><td><strong>Escape</strong></td><td>Close "More" popup if open; close large preview dialog if in modal gallery mode</td><td>Checks <code>_moreMenu.Visible</code>, then checks if parent form is modal and contains "Gallery" in title.</td></tr>
+                    <tr><td><strong>Tab</strong></td><td>When <code>TabNavigatesOutOfGallery</code>: call <code>MoveFocusOutOfGallery(backward)</code></td><td>Uses <code>SelectNextControl()</code> on parent and form to find the next valid control in tab order. Both forward and backward (Shift+Tab) supported.</td></tr>
+                </tbody></table>
+                <p>The <code>MoveKeyboardSelection()</code> method operates on the ordered item list, decrements/increments the <code>_keyboardSelectionIndex</code> with wrapping, updates <code>_selectedKey</code>, calls <code>UpdateTileStyles()</code> to visually highlight the selected tile, and calls <code>FocusSelectedTileControl()</code> to move input focus to the selected tile button or the tile panel.</p>
+                <p>The <code>IsInputKey()</code> override ensures that Arrow keys, Enter, Escape, and Tab are all processed by the gallery rather than being consumed by the parent form's default navigation.</p>
+            </section>
+
+            <section id="popup" class="section"><h2>More Popup &amp; Large Preview</h2>
+                <h4>"More" Popup</h4>
+                <p>When the item count exceeds the visible tile count (4 in compact, 6 in expanded), a "..." button is appended to the tile panel. Clicking it calls <code>ShowMoreMenu()</code>, which:</p>
+                <ol>
+                    <li>Clears and rebuilds the <code>_moreMenu</code> <code>ContextMenuStrip</code>.</li>
+                    <li>Computes <code>pinned</code>, <code>recent</code>, and <code>others</code> subsets of the remaining items.</li>
+                    <li>Adds sections via <code>AddMoreMenuSection()</code>: "Pinned" (if any), "Recent" (if any), then category-grouped sections (if <code>EnableCategoryHeaders</code>) or a single "Items" section.</li>
+                    <li>Each section header is a disabled <code>ToolStripMenuItem</code> using the group typography font.</li>
+                    <li>Each item is a clickable <code>ToolStripMenuItem</code> with right-click context menu support for pin/unpin and preview.</li>
+                    <li>If <code>EnableLargePreviewPopup</code> is true, appends a separator and "Open Gallery Preview..." item.</li>
+                    <li>Auto-focuses the first enabled item and shows the popup at the anchor button location.</li>
+                </ol>
+                <h4>Large Preview Dialog</h4>
+                <p>The <code>ShowLargePreviewDialog()</code> method creates a modal form (720x460, sizable tool window) containing a child <code>BeepRibbonGallery</code> configured in expanded mode with all items visible:</p>
+                <pre><code class="language-csharp">var preview = new BeepRibbonGallery
+{
+    Dock = DockStyle.Fill,
+    Compact = false,
+    ShowAllItemsInPopup = true,
+    EnableCategoryHeaders = _enableCategoryHeaders,
+    EnableLargePreviewPopup = false,
+    MaxRecentItems = _maxRecentItems
+};
+preview.SetItems(_items);
+preview.SetPinnedKeys(_pinnedKeys);
+preview.SetRecentKeys(_recentKeys);
+preview.ApplyTheme(_theme, _density);
+preview.SetSelected(GetSelectedItem());
+
+// Selection in the preview syncs back to the parent gallery
+preview.ItemSelected += (_, e) => {
+    _selectedKey = GetItemKey(e.Item);
+    SetPinnedKeys(preview.GetPinnedKeys());
+    SetRecentKeys(preview.GetRecentKeys());
+    UpdateTileStyles();
+    ItemSelected?.Invoke(this, new RibbonGalleryItemSelectedEventArgs(e.Item));
+    dialog.Close();
+};
+
+// State changes during preview pin/unpin sync back immediately
+preview.StateChanged += (_, __) => {
+    SetPinnedKeys(preview.GetPinnedKeys());
+    SetRecentKeys(preview.GetRecentKeys());
+};</code></pre>
+            </section>
+
+            <section id="state" class="section"><h2>State Management</h2>
+                <p>The gallery maintains several pieces of state that can be externally persisted and restored:</p>
+                <h4>Pin/Recent State Trimming</h4>
+                <p>The <code>TrimStateToCurrentItems()</code> method ensures pinned and recent keys are always a subset of the current items. When <code>SetItems()</code>, <code>SetPinnedKeys()</code>, or <code>SetRecentKeys()</code> is called, this method removes any pinned or recent keys that no longer correspond to an item in the collection.</p>
+                <h4>Selection Key Tracking</h4>
+                <p>The <code>_selectedKey</code> field stores the key of the currently selected item. It is updated by <code>SelectItem()</code>, <code>SetSelected()</code>, and <code>MoveKeyboardSelection()</code>. The <code>_buttonMap</code> dictionary maps tile buttons to their <code>SimpleItem</code> data, enabling O(1) lookup for selection styling.</p>
+                <h4>Image Resource Management</h4>
+                <p>All tile images are tracked in <code>_images</code> and disposed in <code>ClearTiles()</code> and <code>Dispose()</code>. The <code>DisposeImages()</code> method iterates and disposes each <code>Bitmap</code>, then clears the list. This prevents GDI+ resource leaks during ribbon rebuilds.</p>
+                <h4>Event Handler Cleanup</h4>
+                <p>Before clearing tiles, <code>ClearTiles()</code> unsubscribes all <code>Click</code>, <code>MouseUp</code>, <code>KeyDown</code>, and <code>PreviewKeyDown</code> handlers from each tracked button to prevent event handler leaks.</p>
+            </section>
+
+            <section id="examples" class="section"><h2>Examples</h2>
+                <h3>Example 1: Standalone Gallery with Pinning</h3>
+                <pre><code class="language-csharp">var gallery = new BeepRibbonGallery
+{
+    Compact = false,
+    EnableCategoryHeaders = true,
+    EnableLargePreviewPopup = true,
+    Width = 360,
+    Height = 52
+};
+gallery.ApplyTheme(myTheme, RibbonDensity.Comfortable);
+
+var styles = new List&lt;SimpleItem&gt;
+{
+    new() { Text = "Normal", ActionID = "normal", GroupName = "Paragraph" },
+    new() { Text = "Heading 1", ActionID = "h1", GroupName = "Headings" },
+    new() { Text = "Heading 2", ActionID = "h2", GroupName = "Headings" },
+    new() { Text = "Heading 3", ActionID = "h3", GroupName = "Headings" },
+    new() { Text = "Title", ActionID = "title", GroupName = "Titles" },
+    new() { Text = "Subtitle", ActionID = "subtitle", GroupName = "Titles" },
+    new() { Text = "Quote", ActionID = "quote", GroupName = "Special" },
+    new() { Text = "Code Block", ActionID = "code", GroupName = "Special" },
+    new() { Text = "Bullet List", ActionID = "bullet", GroupName = "Lists" },
+    new() { Text = "Numbered List", ActionID = "numbered", GroupName = "Lists" },
+};
+gallery.SetItems(styles);
+
+// Restore previously saved state
+gallery.SetPinnedKeys(savedPinnedStyleKeys);
+gallery.SetRecentKeys(savedRecentStyleKeys);
+gallery.SetSelected(styles.FirstOrDefault(s => s.ActionID == lastSelected));
+
+gallery.ItemSelected += (s, e) =>
+{
+    ApplyDocumentStyle(e.Item); // Your application logic
+};
+
+gallery.StateChanged += (s, e) =>
+{
+    PersistKeys("pinned_styles.dat", e.PinnedKeys);
+    PersistKeys("recent_styles.dat", e.RecentKeys);
+};</code></pre>
+
+                <h3>Example 2: Gallery Inside a Ribbon (Data-Driven)</h3>
+                <pre><code class="language-csharp">// The ribbon automatically detects and creates a BeepRibbonGallery
+// when a command text contains "gallery" and has 2+ children
+var stylesGroup = new SimpleItem { Text = "Styles Gallery", Name = "styles_group" };
+stylesGroup.Children.Add(new SimpleItem {
+    Text = "Normal", ActionID = "style_normal",
+    ImagePath = "normal_preview.png", GroupName = "Basic"
+});
+stylesGroup.Children.Add(new SimpleItem {
+    Text = "Heading 1", ActionID = "style_h1",
+    ImagePath = "h1_preview.png", GroupName = "Headings"
+});
+stylesGroup.Children.Add(new SimpleItem {
+    Text = "Heading 2", ActionID = "style_h2",
+    ImagePath = "h2_preview.png", GroupName = "Headings"
+});
+stylesGroup.Children.Add(new SimpleItem {
+    Text = "Title", ActionID = "style_title",
+    GroupName = "Titles", BadgeText = "pin"
+});
+
+// "pin" badge text on Title marks it as a pinned default
+// "recent" subtext2 marks items as initially recent
+
+var homeTab = new SimpleItem { Text = "Home" };
+homeTab.Children.Add(stylesGroup);
+ribbon.CommandItems.Add(homeTab);
+
+// Commands from gallery items fire through ribbon's CommandInvoked
+ribbon.CommandInvoked += (s, e) =>
+{
+    Debug.WriteLine($"Gallery item selected: {e.Command.ActionID}");
+    ApplyStyle(e.Command);
+};</code></pre>
+
+                <h3>Example 3: Color Palette Gallery</h3>
+                <pre><code class="language-csharp">var palette = new BeepRibbonGallery
+{
+    Compact = false,
+    Width = 400,
+    Height = 56,
+    ChildTileTabStops = true // Allow Tab-based tile navigation
+};
+palette.ApplyTheme(theme, RibbonDensity.Comfortable);
+
+var colors = new List&lt;SimpleItem&gt;
+{
+    new() { Text = "Office", ActionID = "clr_office", GroupName = "Theme Colors",
+            ImagePath = "color_office.png" },
+    new() { Text = "Grayscale", ActionID = "clr_gray", GroupName = "Theme Colors",
+            ImagePath = "color_gray.png" },
+    new() { Text = "Blue Warm", ActionID = "clr_bluewarm", GroupName = "Theme Colors",
+            ImagePath = "color_bluewarm.png" },
+    new() { Text = "Red", ActionID = "clr_red", GroupName = "Standard Colors",
+            ImagePath = "color_red.png" },
+    new() { Text = "Green", ActionID = "clr_green", GroupName = "Standard Colors",
+            ImagePath = "color_green.png" },
+    new() { Text = "Blue", ActionID = "clr_blue", GroupName = "Standard Colors",
+            ImagePath = "color_blue.png" },
+    new() { Text = "Yellow", ActionID = "clr_yellow", GroupName = "Standard Colors",
+            ImagePath = "color_yellow.png" },
+};
+palette.SetItems(colors);
+palette.ItemSelected += (s, e) =>
+{
+    currentColor = Color.FromName(e.Item.ActionID.Replace("clr_", ""));
+    Invalidate();
+};</code></pre>
+
+                <h3>Example 4: Programmatic Pin/Recent Management</h3>
+                <pre><code class="language-csharp">// Read current state
+var pinned = gallery.GetPinnedKeys();
+var recent = gallery.GetRecentKeys();
+
+// Programmatically pin an item
+gallery.SetPinnedKeys(pinned.Append("style_h1").Distinct());
+
+// Programmatically mark as recent (insert at position 0)
+var updatedRecent = new List&lt;string&gt; { "style_h1" };
+updatedRecent.AddRange(recent.Where(k => k != "style_h1"));
+gallery.SetRecentKeys(updatedRecent);
+
+// Persist to file (example with JSON)
+var state = new { Pinned = gallery.GetPinnedKeys(), Recent = gallery.GetRecentKeys() };
+File.WriteAllText("gallery-state.json",
+    JsonSerializer.Serialize(state));
+
+// Restore from file
+var saved = JsonSerializer.Deserialize&lt;SavedState&gt;(
+    File.ReadAllText("gallery-state.json"));
+gallery.SetPinnedKeys(saved?.Pinned);
+gallery.SetRecentKeys(saved?.Recent);</code></pre>
+
+                <h3>Example 5: Accessibility and Focus Management</h3>
+                <pre><code class="language-csharp">// Configure for keyboard-driven workflows
+gallery.TabNavigatesOutOfGallery = false; // Keep focus inside gallery
+gallery.ChildTileTabStops = true;          // Let user Tab between tiles
+gallery.TabStop = true;                    // Gallery is in the form's tab order
+
+// Manually focus the gallery programmatically
+void ShowStylePicker()
+{
+    gallery.Focus();
+    // The gallery's Enter handler auto-focuses the selected tile
+}
+
+// Prevent the gallery from consuming Tab if in a dialog context
+gallery.PreviewKeyDown += (s, e) =>
+{
+    if (e.KeyCode == Keys.Tab)
+    {
+        e.IsInputKey = true; // Allow Tab to be processed by gallery
+    }
+};</code></pre>
+            </section>
+
+            <section id="architecture" class="section"><h2>Architecture</h2>
+                <table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td><code>Gallery/BeepRibbonGallery.cs</code><br>(1031 lines)</td><td>Complete <code>sealed</code> gallery implementation. Core data structures: <code>_items</code> (List&lt;SimpleItem&gt;), <code>_buttonMap</code> (Dictionary&lt;Button, SimpleItem&gt;), <code>_pinnedKeys</code> (HashSet&lt;string&gt;), <code>_recentKeys</code> (List&lt;string&gt;). Contains: constructor with <code>SetStyle</code> for double-buffering; <code>RefreshTiles()</code> for full UI rebuild; <code>GetOrderedItems()</code> for pinned &gt; recent &gt; remaining sort; <code>ShowMoreMenu()</code> with category-organized <code>ContextMenuStrip</code>; <code>ShowLargePreviewDialog()</code> with modal <code>Form</code> containing child <code>BeepRibbonGallery</code>; <code>HandleKeyboardInput()</code> for arrow/enter/escape/tab handling with <code>IsInputKey()</code> override; <code>MoveFocusOutOfGallery()</code> for Tab-based focus transfer; <code>CreateTileButton()</code> for per-tile button creation with image, text, accessibility, and event wiring; <code>ClearTiles()</code> with proper event unsubscription and <code>DisposeImages()</code> cleanup; <code>TrimStateToCurrentItems()</code> for stale key removal; and <code>Dispose()</code> override for final cleanup. Event arg classes <code>RibbonGalleryItemSelectedEventArgs</code> and <code>RibbonGalleryStateChangedEventArgs</code> are defined in the same file.</td></tr>
+                    <tr><td><code>Gallery/RibbonGalleryRenderer.cs</code></td><td>Visual rendering engine for gallery tiles. Provides <code>GetTileSize(bool compact)</code> returning tile dimensions based on density and compact mode, and <code>StyleButton(Button button, bool selected)</code> which applies theme colors (background, foreground, border, hover, pressed, selected, disabled) to tile buttons. Exposes a <code>Theme</code> property for font access via <code>BeepThemesManager.ToFont()</code>. Used by the gallery's <code>CreateTileButton()</code> and <code>UpdateTileStyles()</code> methods.</td></tr>
+                </tbody></table>
+                <p>The gallery's internal rendering surface is a <code>FlowLayoutPanel</code> (<code>_tilesPanel</code>) with <code>DockStyle.Fill</code>, <code>WrapContents = true</code>, and <code>AutoScroll = true</code> for overflow scrolling. Each tile is a fully styled <code>Button</code> with <code>FlatStyle.Flat</code>, custom colors via renderer, and accessibility attributes set on creation. The gallery is typically hosted inside a <code>ToolStripControlHost</code> within a <code>BeepRibbonGroup</code> in the ribbon. When used standalone, it can be placed directly on any <code>Form</code> or <code>Panel</code>.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

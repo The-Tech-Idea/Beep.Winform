@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Types - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Theme Types</span></nav><div class="page-header"><h1>Theme Types</h1><p class="page-subtitle">Six concrete theme implementations — Ubuntu (26 files), GNOME (30 files), Cyberpunk (30 files), Candy, Zen, CyberpunkNeon — plus BeepThemesManager singleton</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#structure">Theme Structure</a></li><li><a href="#ubuntu">UbuntuTheme</a></li><li><a href="#gnome">GNOMETheme</a></li><li><a href="#cyberpunk">CyberpunkTheme</a></li><li><a href="#candy">CandyTheme</a></li><li><a href="#zen">ZenTheme</a></li><li><a href="#cyberpunkneon">CyberpunkNeonTheme</a></li><li><a href="#manager">BeepThemesManager</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>Six concrete theme implementations are available, each extending <code>BeepTheme</code> and overriding approximately 200 token properties. Themes provide cohesive visual language: button colors, fonts, border radii, surface colors, chart palettes, and more. Each theme is composed of multiple partial class files, totaling over 120 files across all themes. The <code>BeepThemesManager</code> singleton manages registration, lookup, and active theme switching.</p></section><section class="section" id="structure"><h2>Theme Structure</h2><table><thead><tr><th>Theme Class</th><th>Partial Files</th><th>Primary Accent</th><th>Style Inspiration</th><th>Variants</th></tr></thead><tbody><tr><td><code>UbuntuTheme</code></td><td>26</td><td>Orange (#E95420)</td><td>Ubuntu Linux, warm warm-gray surfaces, dark sidebar</td><td>Light, Dark</td></tr><tr><td><code>GNOMETheme</code></td><td>30</td><td>Blue (#3584e4)</td><td>GNOME Adwaita, flat panels, 8px corners, gray/blue</td><td>Light, Dark</td></tr><tr><td><code>CyberpunkTheme</code></td><td>30</td><td>Magenta (#FF00FF)</td><td>Neon-drenched tech noir, near-black, glow effects</td><td>Dark only</td></tr><tr><td><code>CandyTheme</code></td><td>1 (single file)</td><td>Pink (#FF6B9D)</td><td>Soft pastels, 12px+ rounded corners, bubble shapes</td><td>Light</td></tr><tr><td><code>ZenTheme</code></td><td>1 (single file)</td><td>Sage Green (#7C9A6E)</td><td>Earth tones, serif-like typography, minimal chrome</td><td>Light</td></tr><tr><td><code>CyberpunkNeonTheme</code></td><td>5</td><td>Hot Magenta (#FF1493)</td><td>Brighter cyberpunk variant, electric cyan, neon green</td><td>Dark only</td></tr></tbody></table><pre><code class="language-csharp">public abstract class BeepTheme : IBeepTheme
+{
+    public string ThemeName { get; set; }
+    public Color BackgroundColor { get; set; }
+    public Color ForegroundColor { get; set; }
+    // ... ~200 overridable token properties
+}
+// Each concrete theme overrides the tokens it changes from default</code></pre></section><section class="section" id="ubuntu"><h2>UbuntuTheme</h2><p>Inspired by Ubuntu Linux's Yaru theme. Uses a warm palette with orange accents, dark sidebar, and light content surfaces. Two variants: Light (white surfaces, dark sidebar) and Dark (charcoal surfaces, dark sidebar). Composed of 26 partial files covering all control types.</p><table><thead><tr><th>Token Category</th><th>Light Value</th><th>Dark Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#E95420 (Ubuntu orange)</td><td>#E95420 (same accent)</td></tr><tr><td>Background</td><td>#F5F5F5 (warm light gray)</td><td>#1E1E1E (near black)</td></tr><tr><td>Surface color</td><td>#FFFFFF (white)</td><td>#2D2D2D (dark gray)</td></tr><tr><td>Sidebar background</td><td>#2C001E (deep aubergine)</td><td>#1A0012 (darker aubergine)</td></tr><tr><td>Sidebar text</td><td>#FFFFFF (white)</td><td>#E0E0E0 (light gray)</td></tr><tr><td>Button background</td><td>#E95420 (orange)</td><td>#E95420</td></tr><tr><td>Button hover</td><td>#D44715 (darker orange)</td><td>#CC491A</td></tr><tr><td>Button text</td><td>#FFFFFF</td><td>#FFFFFF</td></tr><tr><td>Border radius</td><td>6px</td><td>6px</td></tr><tr><td>Font (default)</td><td>Ubuntu, 9pt</td><td>Ubuntu, 9pt</td></tr><tr><td>Font (title)</td><td>Ubuntu, Bold, 12pt</td><td>Ubuntu, Bold, 12pt</td></tr><tr><td>Grid header</td><td>#E95420 / #FFFFFF text</td><td>#E95420 / #FFFFFF text</td></tr><tr><td>Grid cell</td><td>#FFFFFF / #333333 text</td><td>#2D2D2D / #E0E0E0 text</td></tr><tr><td>Grid selection</td><td>#FFD4BE (light orange tint)</td><td>#5C2D1A (dark orange tint)</td></tr><tr><td>Chart palette</td><td>Orange, Teal, Purple, Gold, Blue, Green, Red, Gray</td><td>Orange, Teal, Purple, Gold, Blue, Green, Red, Gray</td></tr></tbody></table><p>The 26 partial files for UbuntuTheme mirror the BeepTheme structure: Core, Button, TextBox, ComboBox, CheckBox, RadioButton, Grid, Chart, Calendar, Tab, Stepper, Tree, Menu, Navigation, Wizard, Card, Dialog, Login, Dashboard, StatusBar, ToolTip, Gradient, ColorPalette, FontAndTypography, ScrollBar, ProgressBar.</p></section><section class="section" id="gnome"><h2>GNOMETheme</h2><p>Follows GNOME's Adwaita design language. Flat surfaces, 8px rounded corners, gray and blue as primary tones. Clean, modern, and consistent with GNOME desktop applications. Supports light and dark variants through the same partial file override structure.</p><table><thead><tr><th>Token Category</th><th>Light Value</th><th>Dark Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#3584e4 (Adwaita blue)</td><td>#3584e4</td></tr><tr><td>Background</td><td>#FAFAFA (near-white)</td><td>#242424 (dark gray)</td></tr><tr><td>Surface color</td><td>#FFFFFF</td><td>#303030</td></tr><tr><td>Sidebar background</td><td>#EBEBEB (light gray)</td><td>#1E1E1E</td></tr><tr><td>Sidebar text</td><td>#2E3436 (dark gray)</td><td>#EEEEEE</td></tr><tr><td>Button background</td><td>#E0E0E0 (light gray)</td><td>#3D3D3D</td></tr><tr><td>Button hover</td><td>#D0D0D0 (darker hover)</td><td>#4D4D4D (lighter hover)</td></tr><tr><td>Button primary accent</td><td>#3584e4</td><td>#3584e4</td></tr><tr><td>Button text</td><td>#2E3436</td><td>#EEEEEE</td></tr><tr><td>Border radius</td><td>8px</td><td>8px</td></tr><tr><td>Font (default)</td><td>Cantarell, 10pt</td><td>Cantarell, 10pt</td></tr><tr><td>Font (title)</td><td>Cantarell, Bold, 11pt</td><td>Cantarell, Bold, 11pt</td></tr><tr><td>Grid header</td><td>#E8E8E8 / #2E3436 text</td><td>#323232 / #EEEEEE text</td></tr><tr><td>Grid cell</td><td>#FFFFFF / #2E3436 text</td><td>#303030 / #EEEEEE text</td></tr><tr><td>Grid selection</td><td>#D0E4FA (light blue tint)</td><td>#1A3A5C (dark blue tint)</td></tr><tr><td>Chart palette</td><td>Blue, Green, Orange, Purple, Teal, Red, Yellow, Gray</td><td>Blue, Green, Orange, Purple, Teal, Red, Yellow, Gray</td></tr></tbody></table></section><section class="section" id="cyberpunk"><h2>CyberpunkTheme</h2><p>Neon-drenched dark theme inspired by cyberpunk aesthetics. Magenta (#FF00FF) primary accent with cyan (#00FFFF) secondary. Near-black backgrounds (#0D0D0D, #1A1A1A), glow effects on hover states, and high-contrast neon text. Dark-only; no light variant.</p><table><thead><tr><th>Token Category</th><th>Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#FF00FF (magenta)</td></tr><tr><td>Secondary accent</td><td>#00FFFF (cyan)</td></tr><tr><td>Background</td><td>#0D0D0D (void black)</td></tr><tr><td>Surface color</td><td>#1A1A1A (dark gray)</td></tr><tr><td>Sidebar background</td><td>#0D0D0D</td></tr><tr><td>Sidebar text</td><td>#FF00FF (magenta, active items)</td></tr><tr><td>Button background</td><td>#FF00FF</td></tr><tr><td>Button hover</td><td>#FF33FF (lighter magenta) + glow effect (10px blur, magenta)</td></tr><tr><td>Button text</td><td>#000000 (black on magenta)</td></tr><tr><td>Button border</td><td>#FF00FF, 2px, glow neon</td></tr><tr><td>Border radius</td><td>4px (sharp edges)</td></tr><tr><td>Font (default)</td><td>Consolas, 9pt (monospace)</td></tr><tr><td>Font (title)</td><td>Consolas, Bold, 14pt, cyan (#00FFFF)</td></tr><tr><td>Grid header</td><td>#FF00FF / #000000 text</td></tr><tr><td>Grid cell</td><td>#1A1A1A / #00FFFF (cyan text)</td></tr><tr><td>Grid selection</td><td>#FF00FF at 30% opacity / #FFFFFF text</td></tr><tr><td>Grid alternating row</td><td>#141414</td></tr><tr><td>Chart palette</td><td>#FF00FF, #00FFFF, #FF6600, #00FF00, #FFFF00, #FF0080, #0080FF, #FF8000</td></tr><tr><td>Glow effect</td><td>Enabled on hover for buttons, tabs, selection; 8-12px blur</td></tr><tr><td>Status bar</td><td>#FF00FF / #000000 text</td></tr></tbody></table><pre><code class="language-csharp">public partial class CyberpunkTheme : BeepTheme
+{
+    public CyberpunkTheme()
+    {
+        ThemeName = "Cyberpunk";
+        BackgroundColor = Color.FromArgb(13, 13, 13);
+        ForegroundColor = Color.FromArgb(0, 255, 255); // cyan
+
+        // Buttons
+        ButtonBackColor = Color.FromArgb(255, 0, 255);       // magenta
+        ButtonForeColor = Color.Black;
+        ButtonBorderColor = Color.FromArgb(255, 0, 255);
+        ButtonHoverColor = Color.FromArgb(255, 51, 255);     // lighter magenta
+        ButtonPressedColor = Color.FromArgb(200, 0, 200);
+
+        // Glow
+        EnableGlowEffects = true;
+        GlowColor = Color.FromArgb(255, 0, 255);
+        GlowBlurRadius = 10;
+
+        // Font
+        DefaultFont = new Font("Consolas", 9f, FontStyle.Regular);
+        TitleFont = new Font("Consolas", 14f, FontStyle.Bold);
+
+        // Border
+        BorderRadius = 4;
+    }
+}</code></pre></section><section class="section" id="candy"><h2>CandyTheme</h2><p>Soft pastel palette with large rounded corners (12px+) and playful bubble shapes. Single-file theme targeting light backgrounds. Pinks, lavenders, mint greens, and sky blues dominate. Rounded buttons, pill-shaped badges, and generous padding create a friendly, approachable UI.</p><table><thead><tr><th>Token Category</th><th>Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#FF6B9D (candy pink)</td></tr><tr><td>Secondary accent</td><td>#C084FC (lavender purple)</td></tr><tr><td>Background</td><td>#FFF5F9 (pale pink-white)</td></tr><tr><td>Surface color</td><td>#FFFFFF with #FFF0F5 tint</td></tr><tr><td>Sidebar background</td><td>#FF6B9D (solid pink)</td></tr><tr><td>Sidebar text</td><td>#FFFFFF</td></tr><tr><td>Button background</td><td>#FF6B9D (pink)</td></tr><tr><td>Button hover</td><td>#FF85B3 (lighter pink)</td></tr><tr><td>Button text</td><td>#FFFFFF</td></tr><tr><td>Button border</td><td>None (flat, rounded)</td></tr><tr><td>Border radius</td><td>14px (very rounded)</td></tr><tr><td>Font (default)</td><td>Segoe UI, 9.5pt</td></tr><tr><td>Font (title)</td><td>Segoe UI, Bold, 12pt</td></tr><tr><td>Grid header</td><td>#FFB6D9 / #4A2C3A text</td></tr><tr><td>Grid cell</td><td>#FFFFFF / #4A2C3A text</td></tr><tr><td>Grid selection</td><td>#FFE0EC (pale pink)</td></tr><tr><td>Chart palette</td><td>#FF6B9D, #C084FC, #6BCB9D, #84C8FC, #FCD484, #FC8B84, #B4EBCA, #D4B8FC</td></tr></tbody></table><pre><code class="language-csharp">public class CandyTheme : BeepTheme
+{
+    public CandyTheme()
+    {
+        ThemeName = "Candy";
+        BackgroundColor = Color.FromArgb(255, 245, 249);
+        ForegroundColor = Color.FromArgb(74, 44, 58);
+        BorderRadius = 14;
+        Opacity = 1.0f;
+
+        ButtonBackColor = Color.FromArgb(255, 107, 157);
+        ButtonForeColor = Color.White;
+        ButtonBorderColor = Color.Transparent;
+        ButtonHoverColor = Color.FromArgb(255, 133, 179);
+
+        DefaultFont = new Font("Segoe UI", 9.5f);
+        TitleFont = new Font("Segoe UI", 12f, FontStyle.Bold);
+    }
+}</code></pre></section><section class="section" id="zen"><h2>ZenTheme</h2><p>Earth-tone palette inspired by Japanese zen aesthetics and nature. Sage greens, warm beiges, terracotta accents, and soft browns. Serif-like typography feel with Georgia or similar fonts. Minimal chrome — borders are subtle, drop shadows are light, and the overall feel is calm and deliberate.</p><table><thead><tr><th>Token Category</th><th>Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#7C9A6E (sage green)</td></tr><tr><td>Secondary accent</td><td>#C4A882 (warm sand/beige)</td></tr><tr><td>Background</td><td>#F5F0E8 (cream/warm white)</td></tr><tr><td>Surface color</td><td>#FFFFFF</td></tr><tr><td>Sidebar background</td><td>#4A5D3F (dark olive)</td></tr><tr><td>Sidebar text</td><td>#E8DCC8 (parchment)</td></tr><tr><td>Button background</td><td>#7C9A6E</td></tr><tr><td>Button hover</td><td>#8DB07D (lighter sage)</td></tr><tr><td>Button text</td><td>#FFFFFF</td></tr><tr><td>Button border</td><td>#6B8A5E, 1px</td></tr><tr><td>Border radius</td><td>4px (subtle, clean)</td></tr><tr><td>Font (default)</td><td>Georgia, 10pt (serif-like digital)</td></tr><tr><td>Font (title)</td><td>Georgia, Bold, 13pt</td></tr><tr><td>Grid header</td><td>#7C9A6E / #FFFFFF text</td></tr><tr><td>Grid cell</td><td>#FFFFFF / #4A3B2F text</td></tr><tr><td>Grid selection</td><td>#D4E8CC (pale sage)</td></tr><tr><td>Chart palette</td><td>#7C9A6E, #C4A882, #D4956A, #6A9AAD, #AD8C6A, #8AAD7E, #A8C4A0, #D4C4A8</td></tr></tbody></table><pre><code class="language-csharp">public class ZenTheme : BeepTheme
+{
+    public ZenTheme()
+    {
+        ThemeName = "Zen";
+        BackgroundColor = Color.FromArgb(245, 240, 232);
+        ForegroundColor = Color.FromArgb(74, 59, 47);
+        BorderRadius = 4;
+        Opacity = 0.98f;
+
+        ButtonBackColor = Color.FromArgb(124, 154, 110);
+        ButtonForeColor = Color.White;
+        ButtonBorderColor = Color.FromArgb(107, 138, 94);
+        ButtonHoverColor = Color.FromArgb(141, 176, 125);
+
+        DefaultFont = new Font("Georgia", 10f);
+        TitleFont = new Font("Georgia", 13f, FontStyle.Bold);
+    }
+}</code></pre></section><section class="section" id="cyberpunkneon"><h2>CyberpunkNeonTheme</h2><p>A brighter, more saturated variant of CyberpunkTheme. Hot magenta (#FF1493), electric cyan (#00E5FF), and neon green (#39FF14) accents. 5 partial files for the core overrides (Core, Button, Menu, Grid, Gradient). Designed for applications that want the cyberpunk aesthetic but with higher luminance and more aggressive color contrast.</p><table><thead><tr><th>Token Category</th><th>Value</th></tr></thead><tbody><tr><td>Primary accent</td><td>#FF1493 (deep pink / hot magenta)</td></tr><tr><td>Secondary accent</td><td>#00E5FF (electric cyan)</td></tr><tr><td>Tertiary accent</td><td>#39FF14 (neon green)</td></tr><tr><td>Background</td><td>#0A0A0A (deeper black than Cyberpunk)</td></tr><tr><td>Surface color</td><td>#151515</td></tr><tr><td>Button background</td><td>#FF1493</td></tr><tr><td>Button hover</td><td>#FF3399 + intense glow (16px blur)</td></tr><tr><td>Button text</td><td>#FFFFFF</td></tr><tr><td>Grid text</td><td>#00E5FF (cyan)</td></tr><tr><td>Grid selection</td><td>#FF1493, 40% opacity</td></tr><tr><td>Border radius</td><td>0px (razor sharp, brutal edges)</td></tr><tr><td>Font (default)</td><td>Consolas, 9.5pt</td></tr><tr><td>Font (title)</td><td>Consolas, Bold, 16pt, #00E5FF</td></tr></tbody></table></section><section class="section" id="manager"><h2>BeepThemesManager</h2><p>The <code>BeepThemesManager</code> is a singleton that manages all theme registration, lookup, and active theme switching. Controls query it for the current active theme during painting. When the theme changes, all controls subscribing to the <code>ThemeChanged</code> event invalidate and repaint themselves.</p><pre><code class="language-csharp">public sealed class BeepThemesManager
+{
+    private static readonly Lazy&lt;BeepThemesManager&gt; _instance =
+        new Lazy&lt;BeepThemesManager&gt;(() => new BeepThemesManager());
+
+    public static BeepThemesManager Instance => _instance.Value;
+
+    public IBeepTheme CurrentTheme { get; private set; }
+    public string CurrentThemeName => CurrentTheme?.ThemeName ?? "Default";
+
+    public event EventHandler ThemeChanged;
+
+    private readonly Dictionary&lt;string, IBeepTheme&gt; _themes = new(StringComparer.OrdinalIgnoreCase);
+
+    public void RegisterTheme(IBeepTheme theme)
+    {
+        if (theme == null) throw new ArgumentNullException(nameof(theme));
+        _themes[theme.ThemeName] = theme;
+    }
+
+    public bool SetTheme(string themeName)
+    {
+        if (!_themes.TryGetValue(themeName, out var theme))
+            return false;
+
+        var previous = CurrentTheme;
+        CurrentTheme = theme;
+
+        if (previous != CurrentTheme)
+            ThemeChanged?.Invoke(this, EventArgs.Empty);
+
+        return true;
+    }
+
+    public IBeepTheme GetTheme(string themeName)
+    {
+        return _themes.TryGetValue(themeName, out var theme) ? theme : null;
+    }
+
+    public IEnumerable&lt;string&gt; GetThemeNames() => _themes.Keys;
+
+    public void InitializeDefaultThemes()
+    {
+        RegisterTheme(new UbuntuTheme());
+        RegisterTheme(new GNOMETheme());
+        RegisterTheme(new CyberpunkTheme());
+        RegisterTheme(new CandyTheme());
+        RegisterTheme(new ZenTheme());
+        RegisterTheme(new CyberpunkNeonTheme());
+        SetTheme("Ubuntu"); // default
+    }
+}</code></pre><table><thead><tr><th>Member</th><th>Description</th></tr></thead><tbody><tr><td>Instance</td><td>Thread-safe singleton accessor (Lazy&lt;T&gt;)</td></tr><tr><td>CurrentTheme</td><td>The currently active IBeepTheme. All controls read from this.</td></tr><tr><td>CurrentThemeName</td><td>Convenience property returning CurrentTheme.ThemeName or "Default"</td></tr><tr><td>ThemeChanged</td><td>Event raised when the active theme changes. Controls handle by invalidating/repainting.</td></tr><tr><td>RegisterTheme(IBeepTheme)</td><td>Adds a theme to the registry by its ThemeName. Overwrites if name exists.</td></tr><tr><td>SetTheme(string)</td><td>Activates a theme by name. Returns true if successful. Fires ThemeChanged.</td></tr><tr><td>GetTheme(string)</td><td>Retrieves a registered theme by name. Returns null if not found.</td></tr><tr><td>GetThemeNames()</td><td>Enumerates all registered theme names for UI dropdown/list display.</td></tr><tr><td>InitializeDefaultThemes()</td><td>Registers all 6 built-in themes and sets Ubuntu as default. Called at app startup.</td></tr></tbody></table></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Global theme switching
+BeepThemesManager.Instance.InitializeDefaultThemes(); // register all 6 themes
+BeepThemesManager.Instance.SetTheme("Cyberpunk");
+
+// Check current theme
+string currentTheme = BeepThemesManager.Instance.CurrentThemeName;
+Console.WriteLine($"Active theme: {currentTheme}"); // "Cyberpunk"
+
+// Register a custom theme
+var customTheme = new BeepTheme
+{
+    ThemeName = "CorporateBlue",
+    ButtonBackColor = Color.FromArgb(0, 82, 204),
+    ButtonForeColor = Color.White,
+    ButtonBorderColor = Color.FromArgb(0, 70, 180),
+    ButtonHoverColor = Color.FromArgb(0, 100, 230),
+    BackgroundColor = Color.FromArgb(244, 245, 247),
+    ForegroundColor = Color.FromArgb(23, 43, 77),
+    BorderRadius = 4,
+    DefaultFont = new Font("Segoe UI", 9f),
+    TitleFont = new Font("Segoe UI", 12f, FontStyle.SemiBold),
+    // ... override all needed tokens
+};
+BeepThemesManager.Instance.RegisterTheme(customTheme);
+BeepThemesManager.Instance.SetTheme("CorporateBlue");
+
+// Subscribe to theme changes
+BeepThemesManager.Instance.ThemeChanged += (s, e) =>
+{
+    Console.WriteLine($"Theme switched to: {BeepThemesManager.Instance.CurrentThemeName}");
+    // Re-apply any custom overrides that got wiped
+};
+
+// Theme selection UI
+var themeNames = BeepThemesManager.Instance.GetThemeNames().ToList(); // [Ubuntu, GNOME, Cyberpunk, Candy, Zen, CyberpunkNeon]
+comboBoxTheme.Items.AddRange(themeNames);
+comboBoxTheme.SelectedValueChanged += (s, e) =>
+{
+    BeepThemesManager.Instance.SetTheme(comboBoxTheme.SelectedItem.ToString());
+};
+
+// Per-control theme inspection
+var theme = BeepThemesManager.Instance.CurrentTheme;
+Console.WriteLine($"Button color: {theme.ButtonBackColor}");
+Console.WriteLine($"Grid header: {theme.GridHeaderBackColor}");
+Console.WriteLine($"Chart palette[0]: {theme.ChartPalette[0]}");</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

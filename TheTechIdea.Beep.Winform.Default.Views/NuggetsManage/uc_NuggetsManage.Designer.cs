@@ -370,10 +370,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
 
             _tlpSourceEdit.Dock = DockStyle.Bottom;
             _tlpSourceEdit.Height = 50;
-            _tlpSourceEdit.ColumnCount = 4;
+            _tlpSourceEdit.ColumnCount = 5;
             _tlpSourceEdit.RowCount = 1;
             _tlpSourceEdit.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
             _tlpSourceEdit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            _tlpSourceEdit.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             _tlpSourceEdit.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             _tlpSourceEdit.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             _tlpSourceEdit.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -414,6 +415,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             _tlpSourceEdit.Controls.Add(_txtSourceUrl, 1, 0);
             _tlpSourceEdit.Controls.Add(_chkSourceEnabled, 2, 0);
             _tlpSourceEdit.Controls.Add(_btnSourceSave, 3, 0);
+            _tlpSourceEdit.Controls.Add(_btnSourceCancel, 4, 0);
 
             _pnlSourceStatus.Dock = DockStyle.Bottom;
             _pnlSourceStatus.Height = 28;

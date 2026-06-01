@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wizard Overview - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Wizard Overview</span></nav><div class="page-header"><h1>Wizard Architecture</h1><p class="page-subtitle">The wizard system architecture — WizardManager, WizardInstance, form types, painters, step validation, and animation engine</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#manager">WizardManager</a></li><li><a href="#instance">WizardInstance</a></li><li><a href="#forms">Wizard Forms</a></li><li><a href="#painters">Wizard Painters</a></li><li><a href="#config">WizardConfig</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p>The wizard system provides a complete multi-step wizard framework with 4 form styles, 4 painter styles, step validation, and animation:</p><ul><li><strong>WizardManager</strong> — Static facade. CreateWizard(), ShowWizard(), wizard registry</li><li><strong>WizardInstance</strong> — Stateful instance. Navigate, validate, complete, cancel</li><li><strong>WizardForms</strong> — 4 form types: VerticalStepper, HorizontalStepper, Minimal, Cards</li><li><strong>WizardPainters</strong> — Corresponding painters for each form style</li></ul></section><section class="section" id="manager"><h2>WizardManager</h2><pre><code class="language-csharp">public static class WizardManager
+{
+    public static WizardStyle DefaultStyle { get; set; } = WizardStyle.HorizontalStepper;
+    public static bool EnableAnimations { get; set; } = true;
+
+    public static WizardInstance CreateWizard(WizardConfig config);
+    public static DialogResult ShowWizard(WizardConfig config);
+    public static DialogResult ShowWizard(WizardConfig config, IWin32Window owner);
+    public static WizardInstance GetWizard(string key);
+    public static void CloseWizard(string key);
+    public static void CloseAllWizards();
+}</code></pre></section><section class="section" id="instance"><h2>WizardInstance</h2><pre><code class="language-csharp">public class WizardInstance
+{
+    public WizardConfig Config { get; }
+    public WizardContext Context { get; }
+    public int CurrentStepIndex { get; }
+    public WizardStep CurrentStep { get; }
+    public bool IsFirstStep { get; }
+    public bool IsLastStep { get; }
+
+    public async Task&lt;bool&gt; NavigateNextAsync();
+    public async Task&lt;bool&gt; NavigateBackAsync();
+    public async Task&lt;bool&gt; CompleteAsync();
+    public void Cancel();
+    public Task&lt;DialogResult&gt; ShowDialogAsync();
+
+    public event EventHandler&lt;StepChangingEventArgs&gt; StepChanging;
+    public event EventHandler&lt;StepChangedEventArgs&gt; StepChanged;
+    public event EventHandler&lt;WizardCompletedEventArgs&gt; Completed;
+    public event EventHandler&lt;WizardCancelledEventArgs&gt; Cancelled;
+}</code></pre></section><section class="section" id="forms"><h2>Wizard Forms</h2><table><thead><tr><th>Form</th><th>Style</th><th>Description</th></tr></thead><tbody><tr><td>VerticalStepperWizardForm</td><td>Vertical stepper</td><td>Left sidebar with vertical step indicators</td></tr><tr><td>HorizontalStepperWizardForm</td><td>Horizontal stepper</td><td>Top horizontal step bar with progress</td></tr><tr><td>MinimalWizardForm</td><td>Minimal</td><td>Clean simple navigation without step indicators</td></tr><tr><td>CardsWizardForm</td><td>Cards</td><td>Card-based wizard with flip animation</td></tr></tbody></table></section><section class="section" id="painters"><h2>Wizard Painters</h2><ul><li><strong>VerticalStepperPainter</strong> — Paints left-side stepper with numbered circles and connector lines</li><li><strong>HorizontalStepperPainter</strong> — Paints top bar with connected step nodes</li><li><strong>MinimalPainter</strong> — Paints simple navigation bar</li><li><strong>CardsPainter</strong> — Paints card transitions</li></ul></section><section class="section" id="config"><h2>WizardConfig & Models</h2><pre><code class="language-csharp">public class WizardConfig
+{
+    public string Key { get; set; }
+    public string Title { get; set; }
+    public WizardStyle Style { get; set; }
+    public List&lt;WizardStep&gt; Steps { get; set; }
+    public bool ShowCancelButton { get; set; }
+    public bool AllowBackNavigation { get; set; }
+    public IWizardFormHost FormHost { get; set; }
+}
+
+public class WizardStep
+{
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public Control Content { get; set; }
+    public Func&lt;bool&gt; ValidateFn { get; set; }
+    public Action SaveFn { get; set; }
+    public string IconPath { get; set; }
+}</code></pre></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var config = new WizardConfig
+{
+    Key = "setup",
+    Title = "Application Setup",
+    Style = WizardStyle.VerticalStepper,
+    Steps = new List&lt;WizardStep&gt;
+    {
+        new WizardStep
+        {
+            Title = "Welcome",
+            Description = "Get started with setup",
+            Content = new WelcomeControl()
+        },
+        new WizardStep
+        {
+            Title = "Configuration",
+            Description = "Configure settings",
+            Content = new ConfigControl(),
+            ValidateFn = () => ValidateConfig()
+        }
+    }
+};
+
+var result = WizardManager.ShowWizard(config);
+if (result == DialogResult.OK)
+    ApplyConfiguration(config.Context);</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

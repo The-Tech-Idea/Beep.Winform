@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepAppTree - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#integrated-controls">Integrated Controls</a><span>&rsaquo;</span>
+                    <span>BeepAppTree</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepAppTree</h1>
+                    <p class="page-subtitle">A control that displays App hierarchical data in a tree format with dynamic branch management, drag-drop, and context menus</p>
+                </div>
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepAppTree</strong> extends <code>BeepTree</code> and implements <code>ITree</code> to provide an application-level hierarchical tree view. It supports dynamic branch creation from configuration-driven assembly classes, drag-and-drop reordering, right-click context menus with dynamic method invocation, checkbox toggling, runtime icon and text updates, and recursive branch search/retrieval. The control integrates with the Beep service infrastructure (<code>IBeepService</code>, <code>IDMEEditor</code>, <code>IAppManager</code>) for configuration-driven UI generation.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.Integrated.dll</code><br>
+                    <strong>Inheritance:</strong> <code>BeepTree &#x2192; BeepAppTree</code><br>
+                    <strong>Implements:</strong> <code>ITree</code><br>
+                    <strong>Designer:</strong> <code>BeepControlDesigner</code> (inherited from <code>BeepTree</code>)</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Configuration-driven branches</strong> &mdash; Creates branch nodes dynamically from <code>DMEEditor.ConfigEditor.BranchesClasses</code> using reflection-based activation</li>
+                        <li><strong>Genre and Root branches</strong> &mdash; Supports Genre-type grouping branches and Root-type entity branches with automatic hierarchy</li>
+                        <li><strong>Drag-and-drop</strong> &mdash; Built-in <code>BeepTreeNodeDragandDropHandler</code> for reordering tree nodes</li>
+                        <li><strong>Context menus</strong> &mdash; Dynamic menu methods created via <code>DynamicMenuManager</code> for each branch, with click and double-click invocation</li>
+                        <li><strong>Runtime icon/text updates</strong> &mdash; <code>ChangeBranchIcon()</code> and <code>ChangeBranchText()</code> with 3 overloads each (by ID, name, or branch)</li>
+                        <li><strong>Checkbox support</strong> &mdash; <code>TurnonOffCheckBox()</code> toggles visibility of checkboxes across all nodes</li>
+                        <li><strong>Recursive branch search</strong> &mdash; <code>GetBranch()</code> with 4 overloads (by text, ID, text+parent, text+branchtype) plus GUID and entity ID lookups</li>
+                        <li><strong>Tree refresh</strong> &mdash; <code>RefreshTree()</code> with 4 overloads to rebuild the entire tree or update individual branches</li>
+                        <li><strong>Node removal</strong> &mdash; <code>RemoveNode()</code> with 4 overloads (by ID, branch, name, GUID) with recursive cleanup from Nodes and Branches</li>
+                        <li><strong>Filtering</strong> &mdash; <code>PreShowItem</code> event allows canceling branch visibility before rendering</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>IsCheckBoxon</code></td><td><code>bool</code></td><td><code>false</code></td><td>Whether checkboxes are visible on tree nodes.</td></tr>
+                            <tr><td><code>Treebranchhandler</code></td><td><code>ITreeBranchHandler</code></td><td>-</td><td>Branch handler for creating and managing branch nodes.</td></tr>
+                            <tr><td><code>DropHandler</code></td><td><code>BeepTreeNodeDragandDropHandler</code></td><td>-</td><td>Drag-and-drop handler for reordering nodes.</td></tr>
+                            <tr><td><code>SelectedBranch</code></td><td><code>IBranch</code></td><td><code>null</code></td><td>The currently selected branch. Resolved from <code>SelectedNodes[0]</code>. Sets <code>DMEEditor</code> and <code>VisManager</code> on the branch.</td></tr>
+                            <tr><td><code>ObjectType</code></td><td><code>string</code></td><td><code>"Beep"</code></td><td>Object type identifier for the tree.</td></tr>
+                            <tr><td><code>CategoryIcon</code></td><td><code>string</code></td><td><code>"Category.svg"</code></td><td>Default category icon path.</td></tr>
+                            <tr><td><code>SelectIcon</code></td><td><code>string</code></td><td><code>"Select.svg"</code></td><td>Default selection icon path.</td></tr>
+                            <tr><td><code>TreeType</code></td><td><code>string</code></td><td><code>"Beep"</code></td><td>Tree type identifier used to filter branches by <code>ObjectType</code>.</td></tr>
+                            <tr><td><code>CurrentBranch</code></td><td><code>IBranch</code></td><td><code>null</code></td><td>The current branch (for context interactions).</td></tr>
+                            <tr><td><code>BeepService</code></td><td><code>IBeepService</code></td><td>-</td><td>The Beep service instance providing configuration and runtime services.</td></tr>
+                            <tr><td><code>DMEEditor</code></td><td><code>IDMEEditor</code></td><td>-</td><td>The DME Editor used for configuration, logging, and assembly resolution.</td></tr>
+                            <tr><td><code>SelectedBranchs</code></td><td><code>List&lt;int&gt;</code></td><td>-</td><td>List of selected branch IDs (derived from <code>SelectedNodes</code>).</td></tr>
+                            <tr><td><code>SeqID</code></td><td><code>int</code></td><td>-</td><td>Auto-incrementing sequence ID for new branches.</td></tr>
+                            <tr><td><code>Branches</code></td><td><code>List&lt;IBranch&gt;</code></td><td>-</td><td>Flat list of all root-level branches.</td></tr>
+                            <tr><td><code>SelectedBranchID</code></td><td><code>int</code></td><td>0</td><td>The ID of the selected branch.</td></tr>
+                            <tr><td><code>Filterstring</code></td><td><code>string</code></td><td><code>null</code></td><td>Filter string for branch visibility.</td></tr>
+                            <tr><td><code>VisManager</code></td><td><code>IAppManager</code></td><td>-</td><td>The App Manager instance. Its <code>Tree</code> property is set to <code>this</code> on init.</td></tr>
+                            <tr><td><code>GenerBranchs</code></td><td><code>List&lt;Tuple&lt;IBranch, string&gt;&gt;</code></td><td>-</td><td>Genre branches with their associated menu identifiers.</td></tr>
+                            <tr><td><code>Menus</code></td><td><code>List&lt;MenuList&gt;</code></td><td>-</td><td>List of menu definitions for the tree.</td></tr>
+                            <tr><td><code>ExtensionsHelpers</code></td><td><code>IFunctionandExtensionsHelpers</code></td><td>-</td><td>Helper for running function extensions and dynamic method invocations.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Signature</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>init</code></td><td><code>void init(IBeepService, IAppManager)</code></td><td>Initializes the tree with a Beep service and App Manager. Sets up branch handler, drop handler, and event subscriptions.</td></tr>
+                            <tr><td><code>RunMethod</code></td><td><code>IErrorsInfo RunMethod(object branch, string MethodName)</code></td><td>Runs a method from a branch's associated assembly class.</td></tr>
+                            <tr><td><code>RunMethodFromGlobalFunctions</code></td><td><code>IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem branch, string MethodName)</code></td><td>Runs a method from global functions configuration.</td></tr>
+                            <tr><td><code>ChangeBranchIcon</code></td><td><code>void ChangeBranchIcon(int branchId, string iconName)<br/>void ChangeBranchIcon(string branchName, string iconName)<br/>void ChangeBranchIcon(IBranch branch, string iconName)</code></td><td>Changes the icon of a branch (3 overloads by ID, name, or branch reference). Updates both branch metadata and node.</td></tr>
+                            <tr><td><code>ChangeBranchText</code></td><td><code>void ChangeBranchText(int branchId, string text)<br/>void ChangeBranchText(string branchName, string text)<br/>void ChangeBranchText(IBranch branch, string text)</code></td><td>Changes the text of a branch (3 overloads). Updates both branch metadata and node.</td></tr>
+                            <tr><td><code>TurnonOffCheckBox</code></td><td><code>void TurnonOffCheckBox(bool val)</code></td><td>Toggles checkbox visibility on all nodes.</td></tr>
+                            <tr><td><code>CreateFunctionExtensions</code></td><td><code>IErrorsInfo CreateFunctionExtensions(MethodsClass item)</code></td><td>Creates function extension nodes from a method configuration.</td></tr>
+                            <tr><td><code>CreateRootTree</code></td><td><code>IErrorsInfo CreateRootTree()</code></td><td>Creates the entire root tree from configuration. Iterates <code>BranchesClasses</code> for Genre and Root branches, activates them via reflection, and builds the hierarchy.</td></tr>
+                            <tr><td><code>AddBranch</code></td><td><code>void AddBranch(IBranch br)<br/>IErrorsInfo AddBranch(IBranch ParentBranch, IBranch br)</code></td><td>Adds a branch to the tree (root level or as child of a parent). Creates child nodes recursively.</td></tr>
+                            <tr><td><code>AddBranchToParentInBranchsOnly</code></td><td><code>bool AddBranchToParentInBranchsOnly(IBranch ParentBranch, IBranch br)</code></td><td>Adds a branch to a parent's <code>ChildBranchs</code> collection without creating nodes. Returns false on duplicate.</td></tr>
+                            <tr><td><code>CreateNode</code></td><td><code>void CreateNode(int id, IBranch br)</code></td><td>Creates a tree node from a branch, assigns GUID, creates menus, registers object types, and adds to Nodes collection.</td></tr>
+                            <tr><td><code>GetBranch</code></td><td><code>IBranch GetBranch(string text)<br/>IBranch GetBranch(int id)<br/>IBranch GetBranch(string text, EnumPointType branchtype)<br/>IBranch GetBranch(string text, string parent)</code></td><td>Retrieves a branch by text, ID, text+branchtype, or text+parent (4 overloads).</td></tr>
+                            <tr><td><code>GetBranchByEntityGuidID</code></td><td><code>IBranch GetBranchByEntityGuidID(string guidid)</code></td><td>Retrieves a branch by entity GUID.</td></tr>
+                            <tr><td><code>GetBranchByGuidID</code></td><td><code>IBranch GetBranchByGuidID(string guidid)</code></td><td>Retrieves a branch by branch GUID.</td></tr>
+                            <tr><td><code>GetBranchByMiscGuidID</code></td><td><code>IBranch GetBranchByMiscGuidID(string guidid)</code></td><td>Retrieves a branch by miscellaneous string ID.</td></tr>
+                            <tr><td><code>GetTreeNodeByID</code></td><td><code>object GetTreeNodeByID(int id)</code></td><td>Retrieves a tree node by numeric ID.</td></tr>
+                            <tr><td><code>RefreshTree</code></td><td><code>void RefreshTree()<br/>void RefreshTree(IBranch branch)<br/>void RefreshTree(int branchid)<br/>void RefreshTree(string branchname)</code></td><td>Refreshes the entire tree or a specific branch's icon/text (4 overloads). Root refresh calls <code>CreateRootTree()</code>.</td></tr>
+                            <tr><td><code>RemoveNode</code></td><td><code>void RemoveNode(int id)<br/>void RemoveNode(IBranch br)<br/>void RemoveNode(string branchName)<br/>void RemoveNodeByGuidID(string guidID)</code></td><td>Removes a node by ID, branch reference, name, or GUID (4 overloads). Cleans child nodes and Branches collection.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Event</th><th>Description</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>PreCallModule</code></td><td>Raised before a module is called on a branch. Provides <code>IPassedArgs</code>.</td></tr>
+                            <tr><td><code>PreShowItem</code></td><td>Raised before a branch is displayed. Cancelable via <code>PassedArgs.Cancel</code> to hide the branch.</td></tr>
+                            <tr><td><code>RefreshBranch</code></td><td>Raised when a branch should be refreshed.</td></tr>
+                            <tr><td><code>RefreshChildBranchs</code></td><td>Raised when child branches should be refreshed.</td></tr>
+                            <tr><td><code>RefreshParentBranch</code></td><td>Raised when a parent branch should be refreshed.</td></tr>
+                            <tr><td><code>RefreshBranchIcon</code></td><td>Raised when a branch's icon should be refreshed.</td></tr>
+                            <tr><td><code>RefreshBranchText</code></td><td>Raised when a branch's text should be refreshed.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p><strong>BeepAppTree</strong> inherits theming from <code>BeepTree</code>, which extends <code>BaseControl</code>. In design mode, it defaults to <code>TreeStyle.AntDesign</code>. The base <code>BeepTree</code> provides full theming support including node colors, selection highlighting, expand/collapse icons, checkbox styling, and scrollbar theming. All colors are resolved through the Beep theme system.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <pre><code class="language-csharp">// Create and initialize BeepAppTree
+var appTree = new BeepAppTree();
+appTree.init(beepService, appManager);
+
+// The tree is now fully configured:
+// - Treebranchhandler set up
+// - Drag-and-drop handler attached
+// - Node click and menu selection events wired
+// - ExtensionsHelpers created
+
+// Create the root tree from configuration
+var result = appTree.CreateRootTree();
+
+// Wait for completion (CreateRootTree creates all Genre and Root branches)
+if (result.Flag == Errors.Ok)
+{
+    Console.WriteLine($"Created {appTree.Nodes.Count} root nodes, " +
+                      $"{appTree.Branches.Count} branches");
+}
+
+// Change a branch icon at runtime
+appTree.ChangeBranchIcon("Customers", "customer-active.svg");
+
+// Change branch text
+appTree.ChangeBranchText(42, "Updated Branch Name");
+
+// Toggle checkboxes
+appTree.TurnonOffCheckBox(true);
+
+// Find a branch by various criteria
+var branch1 = appTree.GetBranch("Customers");
+var branch2 = appTree.GetBranch(42);
+var branch3 = appTree.GetBranchByGuidID("abc-123-def");
+
+// Handle events
+appTree.PreShowItem += (s, e) =>
+{
+    // Optionally cancel showing a branch
+    if (e.ObjectType.Contains("Hidden"))
+        e.Cancel = true;
+};
+
+appTree.RefreshBranch += (s, branch) =>
+{
+    Console.WriteLine($"Refresh requested for branch: {branch.Name}");
+};
+
+// Refresh specific branches
+appTree.RefreshTree(branch1);       // by branch reference
+appTree.RefreshTree(42);            // by ID
+appTree.RefreshTree("Customers");   // by name
+
+// Remove a branch
+appTree.RemoveNode("OldBranch");
+appTree.RemoveNodeByGuidID("guid-to-remove");</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>BeepAppTree</strong> extends <code>BeepTree</code> and implements <code>ITree</code>. It integrates deeply with the Beep configuration system: <code>IDMEEditor.ConfigEditor.BranchesClasses</code> provides assembly class definitions that are activated via reflection (<code>ObjectActivator&lt;IBranch&gt;</code>) to create branch instances. Genre branches act as grouping containers, while Root branches represent entity-level nodes.</p>
+                    <p>The control uses <code>DynamicMenuManager</code> to create context menu methods and global menus for each branch. <code>DynamicFunctionCallingManager</code> handles dynamic method invocation with applicability checks (<code>IsMethodApplicabletoNode()</code>). Branch retrieval uses recursive search through <code>FindBranchRecursive()</code> which traverses the full <code>ChildBranchs</code> hierarchy.</p>
+                    <p>The <code>PreShowItem</code> event allows consumer code to conditionally hide branches through a cancel mechanism, enabling dynamic visibility filtering based on permissions, user roles, or runtime state. The partial class structure supports designer-sample nodes in design mode and full production behavior at runtime.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s){var n=s.closest('.has-submenu');if(n)n.classList.add('open')}}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}}
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var li=a.closest('li');li.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})}
+    </script>
+</body>
+</html>

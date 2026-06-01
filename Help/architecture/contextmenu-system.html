@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContextMenu System - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">Menus</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>ContextMenu System</span></nav>
+<div class="page-header"><h1>ContextMenu System</h1><p class="page-subtitle">BeepContextMenu architecture -- Form-based modern context menu with 10 partial files, list substrate layout, submenu tracking, WinForms integration, and singleton ContextMenuManager</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li><li><a href="#arch">Architecture</a></li><li><a href="#partials">Partial File Layout (10)</a></li><li><a href="#manager">ContextMenuManager</a></li><li><a href="#helpers">Helper Classes</a></li><li><a href="#winforms">WinForms Integration</a></li><li><a href="#lifecycle">Menu Lifecycle</a></li><li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.ContextMenus</code><br>
+<strong>Inheritance:</strong> <code>System.Windows.Forms.Form</code> (directly, not from any Beep form base)<br>
+<code>BeepContextMenu</code> is a modern replacement for the standard <code>ContextMenuStrip</code>. It inherits directly from <code>Form</code> and handles all its own painting using the BeepStyling system, providing rounded corners, drop shadows, icon support, and nested submenus. The class is organized across <strong>10 partial files</strong> plus a <strong>singleton ContextMenuManager</strong> that ensures only one context menu is visible at a time.</p></section>
+
+<section class="section" id="arch"><h2>Architecture</h2>
+<pre><code class="language-plaintext">BeepContextMenu : Form
+  +-- Core.cs              -- Constructor, initialization, show/hide sequences
+  +-- Properties.cs        -- Items collection, Style, Theme, Font, RoundedCorners, ShowIcons, DropShadow
+  +-- Methods.cs           -- ShowAt(point), ShowBelow(control), Dismiss(), AddItem/RemoveItem
+  +-- Events.cs            -- ItemClicked, Opening (cancelable), Closing (cancelable), Closed
+  +-- Drawing.cs           -- Custom painting: rounded corners, drop shadows, icon + text + shortcut render
+  +-- Designer.cs          -- Design-time item editor, property visibility filtering
+  +-- ListSubstrate.cs     -- List-based layout engine: item positions, scroll overflow handling
+  +-- SubmenuTracking.cs   -- Nested submenu hover-open with delay, close-on-leave, keyboard traversal
+  +-- WinFormsIntegration.cs -- Compatibility bridge with native ContextMenuStrip API and Win32 messages
+  +-- KeyboardNavigation.cs -- Arrow keys, Enter to select, Escape to close, mnemonics
+  + ContextMenuManager.cs  -- Singleton lifecycle manager (separate file, same namespace)</code></pre></section>
+
+<section class="section" id="partials"><h2>Partial File Layout (10)</h2>
+<table><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><strong>Core.cs</strong></td><td>Constructor, ShowAt(Point screenPoint), ShowBelow(Control control), Dismiss sequences, initialization of internal state (items list, style, theme)</td></tr>
+<tr><td><strong>Properties.cs</strong></td><td>Items collection (List&lt;BeepMenuItem&gt;), Style (BeepControlStyle), Theme (string), RoundedCorners (int), ShowIcons (bool), DropShadow (bool), MinimumWidth</td></tr>
+<tr><td><strong>Methods.cs</strong></td><td>Show(ContextMenuStrip compat), ShowAt(Point), ShowBelow(Control), Hide(), AddItem(BeepMenuItem), RemoveItem(int/BeepMenuItem), Clear()</td></tr>
+<tr><td><strong>Events.cs</strong></td><td>ItemClicked (with clicked item and index), Opening (cancelable, before show), Closing (after dismiss started), Closed (after fully hidden)</td></tr>
+<tr><td><strong>Drawing.cs</strong></td><td>OnPaint override: rounded rectangle background, drop shadow (optional), item rendering (hover/selected states, icons, text, shortcut text, submenu arrows, separators)</td></tr>
+<tr><td><strong>Designer.cs</strong></td><td>Design-time item editor (context menu opens in designer for configuration), property visibility control</td></tr>
+<tr><td><strong>ListSubstrate.cs</strong></td><td>List-based layout: calculates item positions (y offset), handles scroll overflow (max menu height, scroll buttons), item height from fonts</td></tr>
+<tr><td><strong>SubmenuTracking.cs</strong></td><td>Nested submenu management: hover-open with delay (open submenu after hover timeout), close on mouse-leave, arrow key navigation between submenus</td></tr>
+<tr><td><strong>WinFormsIntegration.cs</strong></td><td>Compatibility with native ContextMenuStrip patterns: allows assigning BeepContextMenu as ContextMenuStrip of any control, wraps native API</td></tr>
+<tr><td><strong>KeyboardNavigation.cs</strong></td><td>Arrow keys up/down to navigate, Enter to select item, Escape to close current level or entire menu, mnemonics (Alt+letter shortcuts)</td></tr></tbody></table></section>
+
+<section class="section" id="manager"><h2>ContextMenuManager</h2>
+<p><strong>Singleton</strong> in <code>ContextMenuManager.cs</code>. Responsibilities:</p>
+<ul><li><strong>One menu at a time</strong> -- Tracks which context menu is currently visible. Opening a new menu dismisses the previous one.</li>
+<li><strong>Outside click dismissal</strong> -- Hooks into the form's deactivation/mouse-click events to dismiss when the user clicks outside the menu bounds.</li>
+<li><strong>Focus restoration</strong> -- After the menu closes, restores focus to the control that originally opened it.</li>
+<li><strong>Global tracking</strong> -- The manager is a single point of reference for any code that needs to check if a context menu is open.</li></ul></section>
+
+<section class="section" id="helpers"><h2>Helper Classes</h2>
+<table><thead><tr><th>Class</th><th>Role</th></tr></thead><tbody>
+<tr><td><strong>BeepContextMenuInputHelper</strong></td><td>Mouse hit testing: resolves which item is under the cursor. Keyboard input processing.</td></tr>
+<tr><td><strong>BeepContextMenuLayoutHelper</strong></td><td>Item positioning with scroll support. Calculates total height, determines if scrolling is needed, positions scroll indicators.</td></tr>
+<tr><td><strong>ContextMenuMetrics</strong></td><td>Constants: ItemPadding (8,4), ItemHeight (28), IconSize (16), CornerRadius (8), SeparatorHeight (5), MaxMenuHeight (screen 80%), MinMenuWidth (150)</td></tr>
+<tr><td><strong>BeepContextMenuCloseReason</strong></td><td>Enum: ItemClicked (user selected an item), ClickedOutside (user clicked elsewhere), Escape (keyboard dismiss), FocusLost (form deactivated), SubmenuOpened (parent dismissed when submenu opened)</td></tr>
+<tr><td><strong>MenuDismissedEventArgs</strong></td><td>Event args with CloseReason when the menu is dismissed</td></tr></tbody></table></section>
+
+<section class="section" id="winforms"><h2>WinForms Integration</h2>
+<p><code>BeepContextMenu.WinFormsIntegration.cs</code> provides compatibility with the native <code>ContextMenuStrip</code> API pattern:</p>
+<ul><li>Implements an adapter that bridges <code>ContextMenuStrip</code> events to BeepContextMenu events</li><li>Handles Win32 menu messages for interop with native controls</li><li>Allows assigning a BeepContextMenu instance as the <code>ContextMenuStrip</code> property of any control:<br>
+<code>myControl.ContextMenuStrip = myBeepContextMenu;</code></li><li>Handles the <code>Control.MouseClick</code> event to detect right-clicks and show the menu</li></ul></section>
+
+<section class="section" id="lifecycle"><h2>Menu Lifecycle</h2>
+<ol><li><strong>Show trigger</strong> -- User right-clicks a control, or code calls <code>ShowAt(screenPoint)</code> or <code>ShowBelow(control)</code></li>
+<li><strong>Opening event</strong> -- <code>Opening</code> fires. Applications can modify items or set <code>e.Cancel = true</code> to prevent display</li>
+<li><strong>Display</strong> -- Form is positioned, sized to items, and shown with <code>ShowWithoutActivation</code></li>
+<li><strong>Interaction</strong> -- User hovers/clicks items, opens submenus</li>
+<li><strong>Selection</strong> -- User clicks an item: <code>ItemClicked</code> fires, <code>Closing</code> fires, <code>Closed</code> fires, form hides</li>
+<li><strong>Dismissal</strong> -- User clicks outside, presses Escape, or form loses focus: <code>Closing</code> fires, <code>Closed</code> fires, form hides</li></ol></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<pre><code class="language-csharp">var menu = new BeepContextMenu();
+menu.Style = BeepControlStyle.Material3;
+menu.ShowIcons = true;
+menu.RoundedCorners = 8;
+
+menu.Items.Add(new BeepMenuItem("Cut", Icons.Cut, () => Cut()));
+menu.Items.Add(new BeepMenuItem("Copy", Icons.Copy, () => Copy()));
+menu.Items.Add(new BeepMenuItem("Paste", Icons.Paste, () => Paste()));
+menu.Items.Add(new BeepMenuSeparator());
+menu.Items.Add(new BeepMenuItem("Delete", Icons.Delete, () => Delete()));
+
+// Show at mouse position
+menu.ShowAt(Cursor.Position);
+
+// Show below a control
+menu.ShowBelow(myButton);
+
+// Assign as permanent context menu
+myTextBox.ContextMenuStrip = menu;  // WinFormsIntegration bridges this</code></pre></section>
+</div></main>
+<script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepiFormPro - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>&rsaquo;</span>
+                    <a href="../index.html#application-structure">Application Structure</a><span>&rsaquo;</span>
+                    <span>BeepiFormPro</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepiFormPro</h1>
+                    <p class="page-subtitle">Modern, themeable application shell form with custom chrome, painter pipeline, and design-time support</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#caption-bar">Caption Bar Customization</a></li>
+                        <li><a href="#backdrops">Backdrops</a></li>
+                        <li><a href="#accessibility">Accessibility</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepiFormPro</strong> is the Beep framework's flagship application shell form, replacing <code>System.Windows.Forms.Form</code>. It renders a fully custom chrome (title bar, borders, caption buttons) via a painter pipeline and supports 26+ visual styles.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Forms.ModernForm</code><br>
+                    <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component &rarr; Control &rarr; ScrollableControl &rarr; ContainerControl &rarr; Form &rarr; BeepiFormPro</code><br>
+                    <strong>Implements:</strong> <code>IFormStyle</code></p>
+                    <p>The class is organized across 11 partial files: <code>Core</code>, <code>Drawing</code>, <code>Theme</code>, <code>Win32</code>, <code>Backdrop</code>, <code>Painters</code>, <code>Managers</code>, <code>Events</code>, <code>ExternalDrawing</code>, <code>Models</code>, and the main entry file.</p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Custom window chrome</strong> — Fully owner-drawn caption bar, borders, and caption buttons (close, min, max, theme, style, profile, search)</li>
+                        <li><strong>Painter pipeline</strong> — 26+ form painters covering Material, Fluent, Office, Dark, and more styles via <code>FormStyle</code> enum</li>
+                        <li><strong>DPI-aware</strong> — <code>AutoScaleMode.Dpi</code> with proper scaling across 100-200% displays</li>
+                        <li><strong>Hit-test region system</strong> — Custom caption and border hit areas via <code>BeepiFormProHitAreaManager</code></li>
+                        <li><strong>Caption customization</strong> — Toggleable search box, theme/style/profile buttons, custom action button</li>
+                        <li><strong>Backdrop effects</strong> — Acrylic and Mica backdrop support on Windows 11</li>
+                        <li><strong>Accessibility</strong> — High contrast mode, screen reader support, caption keyboard navigation</li>
+                        <li><strong>Animation system</strong> — Smooth resize, hover, focus, and window-state transitions</li>
+                        <li><strong>Design-time safe</strong> — Detects <code>DesignMode</code> and switches to simplified painting for VS designer</li>
+                        <li><strong>Auto-theme cascade</strong> — Child <code>BaseControl</code> descendants automatically receive the form&rsquo;s <code>FormStyle</code></li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>FormStyle</code></td><td><code>FormStyle</code></td><td><code>Material3</code></td><td>Visual style applied to the form chrome. Drives the active painter.</td></tr>
+                            <tr><td><code>Theme</code></td><td><code>string</code></td><td><code>"DefaultTheme"</code></td><td>Name of the Beep theme to apply. Set from <code>BeepThemesManager</code>.</td></tr>
+                            <tr><td><code>CurrentTheme</code></td><td><code>IBeepTheme</code></td><td>Default theme</td><td>Read-only. The resolved theme object currently in use.</td></tr>
+                            <tr><td><code>ThemeName</code></td><td><code>string</code></td><td><code>"DefaultTheme"</code></td><td>Read-only alias for the active theme name.</td></tr>
+                            <tr><td><code>UseThemeColors</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, reads colors from the selected theme. When false, uses fallback palette.</td></tr>
+                            <tr><td><code>BorderColor</code></td><td><code>Color</code></td><td>Theme-derived</td><td>Color of the custom window border when <code>DrawCustomWindowBorder</code> is true.</td></tr>
+                            <tr><td><code>DrawCustomWindowBorder</code></td><td><code>bool</code></td><td>—</td><td>When true, the form paints its own border instead of relying on the OS.</td></tr>
+                            <tr><td><code>CustomBorderThickness</code></td><td><code>int</code></td><td>—</td><td>Thickness in pixels of the custom window border.</td></tr>
+                            <tr><td><code>ShowCaptionBar</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows or hides the custom title bar.</td></tr>
+                            <tr><td><code>CaptionHeight</code></td><td><code>int</code></td><td>Theme-derived</td><td>Height of the caption bar in pixels.</td></tr>
+                            <tr><td><code>ShowThemeButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows a theme-switcher button in the caption bar.</td></tr>
+                            <tr><td><code>ShowStyleButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows a style-switcher button in the caption bar.</td></tr>
+                            <tr><td><code>ShowProfileButton</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a user-profile button in the caption bar.</td></tr>
+                            <tr><td><code>ShowSearchBox</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a built-in search text box in the caption bar.</td></tr>
+                            <tr><td><code>SearchText</code></td><td><code>string</code></td><td><code>""</code></td><td>Current text in the caption bar search box.</td></tr>
+                            <tr><td><code>ShowCloseButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows or hides the close button.</td></tr>
+                            <tr><td><code>ShowMinMaxButtons</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows or hides the minimize/maximize buttons.</td></tr>
+                            <tr><td><code>ShowCustomActionButton</code></td><td><code>bool</code></td><td><code>false</code></td><td>Shows a custom action button in the caption bar.</td></tr>
+                            <tr><td><code>EnableAnimations</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables or disables UI animations.</td></tr>
+                            <tr><td><code>AnimationDuration</code></td><td><code>int</code></td><td>—</td><td>Duration of animations in milliseconds.</td></tr>
+                            <tr><td><code>HoverAnimationDuration</code></td><td><code>int</code></td><td><code>150</code></td><td>Duration of hover animations in ms.</td></tr>
+                            <tr><td><code>FocusTransitionDuration</code></td><td><code>int</code></td><td><code>200</code></td><td>Duration of focus transitions in ms.</td></tr>
+                            <tr><td><code>WindowStateTransitionDuration</code></td><td><code>int</code></td><td><code>300</code></td><td>Duration of window-state transitions in ms.</td></tr>
+                            <tr><td><code>EnableSmoothResize</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables smooth resizing animations.</td></tr>
+                            <tr><td><code>EnableMicroInteractions</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables micro-interaction animations.</td></tr>
+                            <tr><td><code>EnableSmartInvalidation</code></td><td><code>bool</code></td><td><code>true</code></td><td>Uses debounced invalidation at ~60 FPS to reduce flicker.</td></tr>
+                            <tr><td><code>PaintOverContentArea</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, the shared background is painted over the content area.</td></tr>
+                            <tr><td><code>EnableAcrylicForGlass</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables Windows Acrylic backdrop on supported Windows 10/11 builds.</td></tr>
+                            <tr><td><code>EnableMicaBackdrop</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables Windows 11 Mica backdrop.</td></tr>
+                            <tr><td><code>HighContrastMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables high-contrast rendering for accessibility.</td></tr>
+                            <tr><td><code>ScreenReaderSupport</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enables screen-reader-friendly caption and region metadata.</td></tr>
+                            <tr><td><code>FormPainterMetrics</code></td><td><code>FormPainterMetrics</code></td><td>Lazy-loaded</td><td>Internal metrics object driving layout and painting. Not serialized.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InvalidateLayout</code></td><td><code>void InvalidateLayout()</code></td><td>Triggers a full layout recalculation and repaint.</td></tr>
+                            <tr><td><code>AddRegion</code></td><td><code>void AddRegion(FormRegion region)</code></td><td>Adds a custom interactive region to the caption bar for hit testing.</td></tr>
+                            <tr><td><code>ClearRegions</code></td><td><code>void ClearRegions()</code></td><td>Removes all custom interactive regions.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>RegionHover</code></td><td><code>RegionEventArgs</code></td><td>Raised when the mouse hovers over a registered caption region.</td></tr>
+                            <tr><td><code>RegionClick</code></td><td><code>RegionEventArgs</code></td><td>Raised when a registered caption region is clicked.</td></tr>
+                            <tr><td><code>ThemeButtonClicked</code></td><td><code>EventArgs</code></td><td>Raised when the theme button in the caption bar is clicked.</td></tr>
+                            <tr><td><code>StyleButtonClicked</code></td><td><code>EventArgs</code></td><td>Raised when the style button in the caption bar is clicked.</td></tr>
+                            <tr><td><code>ProfileButtonClicked</code></td><td><code>EventArgs</code></td><td>Raised when the profile button in the caption bar is clicked.</td></tr>
+                            <tr><td><code>SearchBoxTextChanged</code></td><td><code>EventHandler&lt;string&gt;</code></td><td>Raised when the text in the caption bar search box changes.</td></tr>
+                            <tr><td><code>OnFormLoad</code></td><td><code>EventArgs</code></td><td>Raised when the form loads.</td></tr>
+                            <tr><td><code>OnFormShown</code></td><td><code>EventArgs</code></td><td>Raised when the form is first shown.</td></tr>
+                            <tr><td><code>OnFormClose</code></td><td><code>EventArgs</code></td><td>Raised when the form is closing.</td></tr>
+                            <tr><td><code>PreClose</code></td><td><code>FormClosingEventArgs</code></td><td>Raised before the form closes; cancel to prevent.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="caption-bar" class="section">
+                    <h2>Caption Bar Customization</h2>
+                    <p>The caption bar is fully owner-drawn and can host toggleable widgets:</p>
+                    <ul>
+                        <li><strong>Theme button</strong> — cycles through available themes</li>
+                        <li><strong>Style button</strong> — cycles through <code>FormStyle</code> options</li>
+                        <li><strong>Profile button</strong> — for user-menu integration</li>
+                        <li><strong>Search box</strong> — inline text input</li>
+                        <li><strong>Custom action button</strong> — application-specific action</li>
+                        <li><strong>Custom regions</strong> — registered via <code>AddRegion()</code> for toolbar-like overlays</li>
+                    </ul>
+                    <pre><code class="language-csharp">// Configure caption bar widgets
+myForm.ShowCaptionBar = true;
+myForm.ShowThemeButton = true;
+myForm.ShowStyleButton = true;
+myForm.ShowSearchBox = true;
+
+// Add a custom interactive region (e.g., a toolbar icon)
+var region = new FormRegion
+{
+    Id = "custom-tool",
+    IsInteractive = true,
+    Dock = RegionDock.Caption,
+    Bounds = new Rectangle(10, 4, 32, 32)
+};
+myForm.AddRegion(region);</code></pre>
+                </section>
+
+                <section id="backdrops" class="section">
+                    <h2>Backdrops</h2>
+                    <p>On supported Windows 10 (build 1903+) and Windows 11, BeepiFormPro can enable system backdrop effects:</p>
+                    <ul>
+                        <li><strong>Acrylic</strong> — Semi-transparent blur effect (<code>EnableAcrylicForGlass = true</code>)</li>
+                        <li><strong>Mica</strong> — Windows 11&rsquo;s desktop-tinted material (<code>EnableMicaBackdrop = true</code>)</li>
+                    </ul>
+                    <p>These require <code>FormBorderStyle.None</code> and the custom rendering pipeline to function correctly. The backdrop is applied automatically during <code>OnHandleCreated</code>.</p>
+                </section>
+
+                <section id="accessibility" class="section">
+                    <h2>Accessibility</h2>
+                    <ul>
+                        <li><strong>High contrast</strong> — Set <code>HighContrastMode = true</code> to render using system high-contrast colors</li>
+                        <li><strong>Screen reader</strong> — Set <code>ScreenReaderSupport = true</code> to expose caption regions and buttons via UIA properties</li>
+                        <li><strong>Keyboard navigation</strong> — Caption buttons are focusable and operable via keyboard when the caption bar has focus</li>
+                    </ul>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>The <code>FormStyle</code> property drives the active painter. Built-in styles include:</p>
+                    <pre><code class="language-csharp">// Set a specific form style
+myForm.FormStyle = FormStyle.Material3;      // Material Design 3
+myForm.FormStyle = FormStyle.FluentDark;      // Fluent dark
+myForm.FormStyle = FormStyle.Office365;       // Office 365
+myForm.FormStyle = FormStyle.ModernDark;      // Modern dark
+myForm.FormStyle = FormStyle.VSCode;          // VS Code-inspired
+
+// Apply a named theme from the theme manager
+myForm.Theme = "HighContrastTheme";           // Switch to a registered theme</code></pre>
+                    <p>When <code>UseThemeColors</code> is true, the active theme&rsquo;s tokens drive background, border, text, button, and shadow colors. When false, a built-in fallback palette is used.</p>
+                    <p>Child controls that inherit from <code>BaseControl</code> automatically receive the form&rsquo;s style during <code>ControlAdded</code>, ensuring visual consistency across the form.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Basic Usage</h3>
+                    <pre><code class="language-csharp">// Create a themed form with custom chrome
+var form = new BeepiFormPro
+{
+    Text = "My Application",
+    FormStyle = FormStyle.Material3,
+    Theme = "DefaultTheme",
+    ShowSearchBox = true,
+    ShowThemeButton = true,
+    Size = new Size(1024, 768)
+};
+
+form.SearchBoxTextChanged += (s, query) =>
+{
+    Console.WriteLine($&quot;Search: {query}&quot;);
+};
+
+Application.Run(form);</code></pre>
+
+                    <h3>Design-Time Setup</h3>
+                    <pre><code class="language-csharp">// Partial class for designer.cs integration
+partial class MainForm
+{
+    private void InitializeComponent()
+    {
+        this.beepiFormPro1 = new BeepiFormPro();
+        this.SuspendLayout();
+
+        // beepiFormPro1
+        this.beepiFormPro1.FormStyle = FormStyle.FluentLight;
+        this.beepiFormPro1.ShowSearchBox = true;
+        this.beepiFormPro1.ShowThemeButton = true;
+        // ...
+
+        this.ResumeLayout(false);
+    }
+}</code></pre>
+
+                    <h3>Child Control Auto-Styling</h3>
+                    <pre><code class="language-csharp">form.FormStyle = FormStyle.VSCode;
+
+// When you add any BaseControl descendant, it auto-receives the form's style:
+var textBox = new BeepTextBox { Text = "Hello" };
+var button = new BeepButton { Text = "Submit" };
+form.Controls.Add(textBox);
+form.Controls.Add(button);
+// Both controls now render in VSCode style automatically</code></pre>
+
+                    <h3>Mica Backdrop (Windows 11)</h3>
+                    <pre><code class="language-csharp">var form = new BeepiFormPro
+{
+    Text = "Mica Demo",
+    FormStyle = FormStyle.Material3,
+    EnableMicaBackdrop = true,        // Windows 11 only
+    BackColor = Color.Transparent      // Required for Mica
+};</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <p><strong>Partial class layout:</strong></p>
+                    <table>
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>BeepiFormPro.cs</code></td><td>Constructor, control hooks, designer-safe invalidation pipeline</td></tr>
+                            <tr><td><code>BeepiFormPro.Core.cs</code></td><td>Properties, hit-test regions, layout recalculation, event wiring</td></tr>
+                            <tr><td><code>BeepiFormPro.Theme.cs</code></td><td>Theme resolution, <code>Theme</code> property, theme-change propagation</td></tr>
+                            <tr><td><code>BeepiFormPro.Drawing.cs</code></td><td>Paint overrides, caption/metric rendering via the active <code>IFormPainter</code></td></tr>
+                            <tr><td><code>BeepiFormPro.Win32.cs</code></td><td>WndProc interop, DWM attributes, Win32 border management</td></tr>
+                            <tr><td><code>BeepiFormPro.Backdrop.cs</code></td><td>Acrylic and Mica backdrop enable/disable logic</td></tr>
+                            <tr><td><code>BeepiFormPro.Painters.cs</code></td><td>Painter registry and <code>ApplyFormStyle()</code></td></tr>
+                            <tr><td><code>BeepiFormPro.Managers.cs</code></td><td>Hit-test and interaction manager wiring</td></tr>
+                            <tr><td><code>BeepiFormPro.Events.cs</code></td><td>EventHandler overrides, lifecycle hooks</td></tr>
+                            <tr><td><code>BeepiFormPro.ExternalDrawing.cs</code></td><td>Interop drawing helpers</td></tr>
+                            <tr><td><code>BeepiFormPro.Models.cs</code></td><td><code>FormRegion</code>, <code>RegionDock</code>, and <code>RegionEventArgs</code> types</td></tr>
+                        </tbody>
+                    </table>
+
+                    <p><strong>Designer:</strong> <code>BeepiFormProDesigner</code> provides smart-tag actions for toggling caption widgets and selecting the form style at design time. In design mode the form uses a simplified paint path (no double buffering) to ensure reliable designer rendering.</p>
+
+                    <p><strong>DPI scaling:</strong> The form uses <code>AutoScaleMode.Dpi</code> with an explicit <code>AutoScaleDimensions</code> of 96&times;96. All painter metrics are generated at the current DPI scale via <code>FormPainterMetrics.DefaultForCached()</code>.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.parentElement.classList.toggle('open');
+                });
+            });
+            var currentPage = window.location.pathname.split('/').pop();
+            var activeLink = document.querySelector('a[href="' + currentPage + '"]');
+            if (activeLink) {
+                activeLink.classList.add('active');
+                var submenu = activeLink.closest('.submenu');
+                if (submenu) {
+                    var parentNav = submenu.closest('.has-submenu');
+                    if (parentNav) parentNav.classList.add('open');
+                }
+            }
+            var savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+        function toggleTheme() {
+            var body = document.body;
+            var themeIcon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        function searchDocs(query) {
+            var links = document.querySelectorAll('.nav-menu a');
+            var q = query.toLowerCase();
+            links.forEach(function(l) {
+                var li = l.closest('li');
+                li.style.display = l.textContent.toLowerCase().indexOf(q) >= 0 || q === '' ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

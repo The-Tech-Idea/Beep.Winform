@@ -119,4 +119,5 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
         public const string InstallPath       = "InstallPath";
         public const string InstallResult     = "InstallResult";
     }
+
 }

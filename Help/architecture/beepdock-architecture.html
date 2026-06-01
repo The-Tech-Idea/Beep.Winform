@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beepdock Architecture - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>Beepdock Architecture</span></nav><div class="page-header"><h1>BeepDock Architecture</h1><p class="page-subtitle">The macOS-style application dock — 22 theme-aware painters, easing animations, hit testing, keyboard navigation, and drag-drop reordering</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#painters">22 Dock Painters</a></li><li><a href="#features">Key Features</a></li><li><a href="#interaction">Interaction System</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><code>BeepDock</code> provides a macOS-style application dock for WinForms. It supports <strong>22 visual styles</strong> through a painter system, each with unique rendering for icons, backgrounds, indicators, badges, and tooltips.</p><p>Organized across 12 partial files: Properties, Events, Methods, Drawing, Animation, Mouse, DragDrop, Keyboard, Items, Notifications, InteractionState.</p></section><section class="section" id="painters"><h2>22 Dock Painters</h2><table><thead><tr><th>Painter</th><th>Style</th><th>Key Visual</th></tr></thead><tbody><tr><td>ClassicTaskbarDockPainter</td><td>Windows Classic</td><td>Flat toolbar with labels</td></tr><tr><td>Windows11DockPainter</td><td>Windows 11</td><td>Centered icons, rounded corners, acrylic</td></tr><tr><td>AppleDockPainter</td><td>macOS</td><td>Glass shelf, magnification, reflection</td></tr><tr><td>iOSDockPainter</td><td>iOS</td><td>Frosted glass, rounded icon containers</td></tr><tr><td>Material3DockPainter</td><td>Material Design 3</td><td>Pill-shaped container, dynamic color</td></tr><tr><td>GNOMEDockPainter</td><td>GNOME</td><td>Dark strip, subtle indicators</td></tr><tr><td>PlankDockPainter</td><td>Plank</td><td>Flat bar, simple active dots</td></tr><tr><td>NeumorphicDockPainter</td><td>Neumorphic</td><td>Soft shadows, embossed effect</td></tr><tr><td>GlassmorphismDockPainter</td><td>Glassmorphism</td><td>Blurred glass, border glow</td></tr><tr><td>CyberpunkDockPainter</td><td>Cyberpunk</td><td>Neon borders, glitch effects</td></tr><tr><td>DraculaDockPainter</td><td>Dracula</td><td>Purple/cyan dark theme</td></tr><tr><td>NordDockPainter</td><td>Nord</td><td>Arctic blue-gray palette</td></tr><tr><td>NeonDockPainter</td><td>Neon</td><td>Bright glowing indicators</td></tr><tr><td>MinimalDockPainter</td><td>Minimal</td><td>Clean, no chrome</td></tr><tr><td>FloatingDockPainter</td><td>Floating</td><td>Detached pill, drop shadow</td></tr><tr><td>BubbleDockPainter</td><td>Bubble</td><td>Round bubble containers</td></tr><tr><td>ArcDockPainter</td><td>Arc</td><td>Curved arc shelf</td></tr><tr><td>PlasmaPanelPainter</td><td>Plasma</td><td>KDE-style panel</td></tr><tr><td>TerminalDockPainter</td><td>Terminal</td><td>Hacker terminal aesthetic</td></tr></tbody></table><p>All painters implement <code>IDockPainter</code> and extend <code>DockPainterBase</code>. The <code>DockPainterFactory</code> resolves <code>DockStyle</code> to the appropriate painter.</p></section><section class="section" id="features"><h2>Key Features</h2><ul><li><strong>22 visual styles</strong> — From macOS to Cyberpunk</li><li><strong>Icon magnification</strong> — Apple-dock-style hover magnification with configurable max scale</li><li><strong>Easing animations</strong> — Configurable easing curves via DockEasingHelper</li><li><strong>Drag-drop reordering</strong> — Items can be reordered by dragging</li><li><strong>Badge support</strong> — Notification badges on dock items</li><li><strong>Tooltips</strong> — Hover tooltips with configurable styles</li><li><strong>Keyboard navigation</strong> — Arrow keys, Enter to activate</li><li><strong>4 positions</strong> — Bottom, Top, Left, Right with auto-orientation</li></ul></section><section class="section" id="interaction"><h2>Interaction System</h2><ul><li><strong>DockHitTestHelper</strong> — Resolves which item is under the cursor</li><li><strong>DockAnimationHelper</strong> — Manages hover scale animation with easing</li><li><strong>DockLayoutHelper</strong> — Calculates item positions with magnification spread</li><li><strong>DockThemeHelpers</strong> — Resolves theme tokens for the active painter</li><li><strong>DockIconHelpers</strong> — Icon resolution and sizing</li></ul></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var dock = new BeepDock();
+
+// Style
+dock.DockStyleType = DockStyle.AppleDock;
+dock.PositionAtBottom();
+dock.ItemSize = 56;
+dock.MaxScale = 1.5f;  // Magnification
+
+// Items
+dock.AddItem("Finder", Icons.Finder, () => OpenFinder());
+dock.AddItem("Editor", Icons.Editor, () => OpenEditor());
+dock.AddItem("Terminal", Icons.Terminal, () => OpenTerminal());
+
+// Badges
+dock.SetBadge("Editor", "3");  // Show "3" badge
+
+// Animation
+dock.AnimationStyle = DockAnimationStyle.EaseInOut;
+dock.ShowTooltips = true;</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

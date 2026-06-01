@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridX Export Engine - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>GridX Export Engine</span></nav><div class="page-header"><h1>GridX Export Engine</h1><p class="page-subtitle">Pluggable export — CSV/JSON/HTML built-in, Excel/PDF plugins via assembly scanning, IGridExporter contract, file/stream/string output</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#engine">GridExportEngine</a></li><li><a href="#formats">Export Formats</a></li><li><a href="#interface">IGridExporter Interface</a></li><li><a href="#builtin">Built-in Exporters</a></li><li><a href="#plugins">Plugin Discovery</a></li><li><a href="#options">ExportOptions</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The GridX Export Engine provides a <strong>pluggable, extensible export architecture</strong> that supports multiple output formats from any <code>BeepGridPro</code> instance. Three formats are built-in (CSV, JSON, HTML), while Excel and PDF are provided as stubs that can be replaced by external plugins discovered at runtime via assembly scanning.</p><p>The engine is accessible via <code>grid.ExportEngine</code> (an instance of <code>GridExportEngine</code>). It supports output to file, <code>Stream</code>, or <code>string</code>, and respects grouping, filtering, column visibility, and selection state.</p></section>
+<section class="section" id="engine"><h2>GridExportEngine</h2><p>The <code>GridExportEngine</code> class manages the registry of exporters and coordinates the export pipeline. It provides methods for registration, querying available formats, and performing exports.</p><table><thead><tr><th>Member</th><th>Signature / Type</th><th>Description</th></tr></thead><tbody><tr><td><code>RegisteredFormats</code></td><td>Property: <code>IReadOnlyList&lt;string&gt;</code></td><td>List of currently registered format names (e.g., "Csv", "Json")</td></tr><tr><td><code>RegisteredExporters</code></td><td>Property: <code>IReadOnlyDictionary&lt;string, IGridExporter&gt;</code></td><td>Format name to exporter instance mapping</td></tr><tr><td><code>Register</code></td><td><code>void Register(string format, IGridExporter exporter)</code></td><td>Registers a new exporter; overrides any existing exporter for the same format</td></tr><tr><td><code>Unregister</code></td><td><code>void Unregister(string format)</code></td><td>Removes an exporter by format name</td></tr><tr><td><code>IsRegistered</code></td><td><code>bool IsRegistered(string format)</code></td><td>Checks if an exporter is registered for the given format</td></tr><tr><td><code>IsAvailable</code></td><td><code>bool IsAvailable(string format)</code></td><td>Returns true if registered AND the exporter's <code>IsAvailable</code> property is true</td></tr><tr><td><code>GetExporter</code></td><td><code>IGridExporter GetExporter(string format)</code></td><td>Retrieves the exporter instance for a format; returns null if not registered</td></tr><tr><td><code>ExportToFile</code></td><td><code>void ExportToFile(string format, string filePath, ExportOptions options = null)</code></td><td>Exports grid data to a file on disk</td></tr><tr><td><code>ExportToStream</code></td><td><code>void ExportToStream(string format, Stream stream, ExportOptions options = null)</code></td><td>Exports grid data to a writable Stream</td></tr><tr><td><code>ExportToString</code></td><td><code>string ExportToString(string format, ExportOptions options = null)</code></td><td>Exports grid data and returns it as a string</td></tr><tr><td><code>DiscoverPlugins</code></td><td><code>void DiscoverPlugins()</code></td><td>Scans all loaded assemblies for <code>IGridExporter</code> implementations and replaces stubs</td></tr></tbody></table></section>
+<section class="section" id="formats"><h2>Export Formats</h2><table><thead><tr><th>Format</th><th>Extension</th><th>Type</th><th>Exporter Class</th><th>Description</th></tr></thead><tbody><tr><td>CSV</td><td><code>.csv</code></td><td>Built-in</td><td><code>GridCsvExporter</code></td><td>Comma-separated values with configurable delimiter and quoting</td></tr><tr><td>Json</td><td><code>.json</code></td><td>Built-in</td><td><code>GridJsonExporter</code></td><td>Indented JSON array of objects with property-name keys</td></tr><tr><td>Html</td><td><code>.html</code></td><td>Built-in</td><td><code>GridHtmlExporter</code></td><td>Full HTML document with styled table and embedded CSS</td></tr><tr><td>Excel</td><td><code>.xlsx</code></td><td>Stub / Plugin</td><td><code>GridExcelStubExporter</code></td><td>Stub throws NotSupportedException; replace with plugin (e.g., EPPlus/ClosedXML)</td></tr><tr><td>Pdf</td><td><code>.pdf</code></td><td>Stub / Plugin</td><td><code>GridPdfStubExporter</code></td><td>Stub throws NotSupportedException; replace with plugin (e.g., iTextSharp/QuestPDF)</td></tr></tbody></table></section>
+<section class="section" id="interface"><h2>IGridExporter Interface</h2><p>All exporters implement <code>IGridExporter</code>. Custom exporters can be created by implementing this contract and registering via <code>Register()</code>.</p><pre><code class="language-csharp">public interface IGridExporter
+{
+    string Format { get; }
+    string Description { get; }
+    string FileExtension { get; }
+    bool IsAvailable { get; }
+
+    void Export(BeepGridPro grid, Stream stream, ExportOptions options);
+}</code></pre><table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td><code>Format</code></td><td><code>string</code></td><td>Unique format name (e.g., "Csv", "Json", "Excel")</td></tr><tr><td><code>Description</code></td><td><code>string</code></td><td>Human-readable description shown in UI dialogs</td></tr><tr><td><code>FileExtension</code></td><td><code>string</code></td><td>Default file extension including dot (e.g., ".csv")</td></tr><tr><td><code>IsAvailable</code></td><td><code>bool</code></td><td>True if the exporter is ready; stub exporters return false</td></tr><tr><td><code>Export</code></td><td>Method</td><td>Core export logic: reads grid data and writes formatted output to the stream</td></tr></tbody></table></section>
+<section class="section" id="builtin"><h2>Built-in Exporters</h2><h3>GridCsvExporter</h3><p>Produces RFC 4180-compliant CSV. Honors <code>ExportOptions.Delimiter</code> (default comma), <code>ExportOptions.IncludeHeaders</code> (first row = column names), and <code>ExportOptions.QuoteAllStrings</code>. Uses double-quote escaping for values containing the delimiter, quotes, or newlines.</p><h3>GridJsonExporter</h3><p>Produces a valid JSON array of objects. Uses <code>Newtonsoft.Json</code> internally. Each row becomes a JSON object with column names as property names. Honors <code>ExportOptions.IndentSpaces</code> for pretty-printing (default 2). Supports <code>ExportOptions.IncludeHiddenColumns</code> and <code>ExportOptions.NullValueRepresentation</code>.</p><h3>GridHtmlExporter</h3><p>Produces a complete self-contained HTML document with embedded CSS styling. The table inherits the grid's visual theme colors. Includes a <code>&lt;thead&gt;</code> section, striped rows, and responsive styling. Honors <code>ExportOptions.IncludeGroupHeaders</code> to render group header rows as <code>&lt;tr class="group-header"&gt;</code>.</p></section>
+<section class="section" id="plugins"><h2>Plugin Discovery</h2><p><code>DiscoverPlugins()</code> scans all assemblies loaded in the current <code>AppDomain</code> for types implementing <code>IGridExporter</code>. When a matching exporter is found, it replaces the corresponding stub in the registry. This enables drop-in Excel/PDF support:</p><pre><code class="language-csharp">grid.ExportEngine.DiscoverPlugins();
+
+bool excelReady = grid.ExportEngine.IsAvailable("Excel");
+if (excelReady)
+{
+    grid.ExportEngine.ExportToFile("Excel", @"C:\reports\data.xlsx");
+}</code></pre><p>The discovery method uses <code>Assembly.GetTypes()</code> wrapped in <code>try/catch</code> to handle <code>ReflectionTypeLoadException</code> — if an assembly fails to load its types (e.g., missing dependencies), it is silently skipped. This ensures that plugin discovery never crashes the host application.</p></section>
+<section class="section" id="options"><h2>ExportOptions</h2><p><code>ExportOptions</code> provides fine-grained control over export output. An instance is passed to each <code>Export*</code> method; if null, sensible defaults are used.</p><table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><code>Delimiter</code></td><td><code>string</code></td><td><code>","</code></td><td>Field separator for CSV (e.g., <code>";"</code> for semicolon, <code>"\t"</code> for TSV)</td></tr><tr><td><code>IndentSpaces</code></td><td><code>int</code></td><td><code>2</code></td><td>Indentation spaces for JSON pretty-printing</td></tr><tr><td><code>IncludeHiddenColumns</code></td><td><code>bool</code></td><td><code>false</code></td><td>When false, hidden columns are excluded from output</td></tr><tr><td><code>VisibleOnly</code></td><td><code>bool</code></td><td><code>false</code></td><td>When true, only currently visible rows (post-filter) are exported</td></tr><tr><td><code>IncludeGroupHeaders</code></td><td><code>bool</code></td><td><code>true</code></td><td>Includes group header rows in CSV/HTML output</td></tr><tr><td><code>DateFormat</code></td><td><code>string</code></td><td><code>"yyyy-MM-dd"</code></td><td>Format string for DateTime values</td></tr><tr><td><code>NullValueRepresentation</code></td><td><code>string</code></td><td><code>""</code></td><td>String to emit for null/DBNull values</td></tr><tr><td><code>IncludeHeaders</code></td><td><code>bool</code></td><td><code>true</code></td><td>Whether column headers are included as the first row/entry</td></tr><tr><td><code>QuoteAllStrings</code></td><td><code>bool</code></td><td><code>false</code></td><td>CSV only: wraps all string values in double quotes</td></tr></tbody></table></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Export to CSV File</h3><pre><code class="language-csharp">var engine = grid.ExportEngine;
+
+engine.ExportToFile("Csv", @"C:\exports\data.csv", new ExportOptions
+{
+    Delimiter = ",",
+    IncludeHeaders = true,
+    NullValueRepresentation = "N/A"
+});</code></pre><h3>Export to JSON String</h3><pre><code class="language-csharp">var engine = grid.ExportEngine;
+
+string json = engine.ExportToString("Json", new ExportOptions
+{
+    IndentSpaces = 4,
+    IncludeHiddenColumns = false,
+    DateFormat = "yyyy-MM-ddTHH:mm:ss"
+});
+
+File.WriteAllText(@"C:\exports\data.json", json);</code></pre><h3>Stream Export for Web Response</h3><pre><code class="language-csharp">using (var ms = new MemoryStream())
+{
+    grid.ExportEngine.ExportToStream("Csv", ms);
+    ms.Position = 0;
+
+    var response = HttpContext.Current.Response;
+    response.ContentType = "text/csv";
+    response.AddHeader("Content-Disposition", "attachment; filename=data.csv");
+    ms.CopyTo(response.OutputStream);
+}</code></pre><h3>Plugin Discovery + Excel Export</h3><pre><code class="language-csharp">var engine = grid.ExportEngine;
+engine.DiscoverPlugins();
+
+if (engine.IsRegistered("Excel") && engine.IsAvailable("Excel"))
+{
+    engine.ExportToFile("Excel", @"C:\reports\summary.xlsx", new ExportOptions
+    {
+        DateFormat = "MM/dd/yyyy",
+        NullValueRepresentation = "-"
+    });
+}
+else
+{
+    engine.ExportToFile("Csv", @"C:\reports\summary.csv");
+}</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

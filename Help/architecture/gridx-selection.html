@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridX Selection System - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <span>GridX Selection System</span></nav>
+<div class="page-header"><h1>GridX Selection System</h1><p class="page-subtitle">Pluggable ISelectionStrategy with 6 strategies — Cell, Row, MultiCell, MultiRow, Column — Ctrl/Shift modifier handling, SelectionContext state bag, and keyboard navigation</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#interface">ISelectionStrategy Interface</a></li>
+<li><a href="#context">SelectionContext</a></li>
+<li><a href="#cell">CellSelectionStrategy</a></li>
+<li><a href="#row">RowSelectionStrategy</a></li>
+<li><a href="#multicell">MultiCellSelectionStrategy</a></li>
+<li><a href="#multirow">MultiRowSelectionStrategy</a></li>
+<li><a href="#column">ColumnSelectionStrategy</a></li>
+<li><a href="#table">Comparison Table</a></li>
+<li><a href="#examples">Code Examples</a></li>
+</ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2>
+<p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.GridX.Selection</code><br>
+The grid selection system uses the <strong>Strategy pattern</strong> with 6 implementations of <code>ISelectionStrategy</code> (all <code>internal sealed</code>, all singletons via <code>public static readonly ... Instance</code>). Each strategy handles cell clicks, column-header clicks, keyboard navigation, and selection clearing independently. The active strategy is selected by the grid's <code>SelectionMode</code> property.</p>
+<p>All strategies receive a <strong>SelectionContext</strong> object that provides grid state access and a <code>StrategyState</code> dictionary for storing strategy-specific data (e.g., anchor position for range selection in MultiCellStrategy).</p></section>
+
+<section class="section" id="interface"><h2>ISelectionStrategy Interface</h2>
+<pre><code class="language-csharp">internal interface ISelectionStrategy
+{
+    void HandleCellClick(SelectionContext context,
+        int row, int col, bool ctrlPressed, bool shiftPressed);
+
+    void HandleColumnHeaderClick(SelectionContext context,
+        int col, bool ctrlPressed, bool shiftPressed);
+
+    void HandleKeyboardNavigation(SelectionContext context,
+        int deltaRow, int deltaCol);
+
+    void ClearSelection(SelectionContext context);
+}</code></pre></section>
+
+<section class="section" id="context"><h2>SelectionContext</h2>
+<p>Lightweight context object passed to every strategy method. Thread-unsafe — designed for single UI thread use only.</p>
+<table><thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Grid</strong></td><td>BeepGridPro</td><td>The grid instance</td></tr>
+<tr><td><strong>Selection</strong></td><td>GridSelectionHelper</td><td>Helper for state manipulation (SelectCell, SelectRow)</td></tr>
+<tr><td><strong>StrategyState</strong></td><td>Dictionary&lt;string,object&gt;</td><td>Bag for strategy-specific data (anchors, ranges, last-selected)</td></tr>
+<tr><td><strong>RowCount</strong></td><td>int</td><td>Current rows from <code>Grid.Data.Rows.Count</code></td></tr>
+<tr><td><strong>ColumnCount</strong></td><td>int</td><td>Current columns from <code>Grid.Data.Columns.Count</code></td></tr>
+<tr><td><strong>IsValidCell(r,c)</strong></td><td>bool</td><td>Boundary check: 0 &le; row &lt; RowCount, 0 &le; col &lt; ColumnCount</td></tr>
+<tr><td><strong>SetActiveCell(r,c)</strong></td><td>void</td><td>Sets active cell via <code>Selection.SelectCell(row, col)</code></td></tr>
+<tr><td><strong>SetRowSelected(r, bool)</strong></td><td>void</td><td>Sets <code>Data.Rows[row].IsSelected</code></td></tr>
+<tr><td><strong>SetCellSelected(r,c, bool)</strong></td><td>void</td><td>Sets per-cell <code>IsSelected</code> on the data cell</td></tr>
+<tr><td><strong>ClearAllRowSelection()</strong></td><td>void</td><td>Iterates all rows: <code>IsSelected = false</code></td></tr>
+<tr><td><strong>ClearAllCellSelection()</strong></td><td>void</td><td>Iterates all cells: <code>IsSelected = false</code></td></tr>
+<tr><td><strong>RaiseRowSelectionChanged(r)</strong></td><td>void</td><td>Fires the grid's row selection changed event</td></tr>
+<tr><td><strong>EnsureVisible()</strong></td><td>void</td><td>Scrolls to active cell's row/column</td></tr></tbody></table></section>
+
+<section class="section" id="cell"><h2>CellSelectionStrategy</h2>
+<p>Single cell selection. <code>public static readonly CellSelectionStrategy Instance</code>.</p>
+<ul><li><strong>HandleCellClick</strong>: Clears all cell AND row selection, then selects only the clicked cell via SetActiveCell</li>
+<li><strong>HandleColumnHeaderClick</strong>: No-op (column headers ignored)</li>
+<li><strong>HandleKeyboardNavigation</strong>: Moves single cell by (deltaRow, deltaCol), clamped to grid bounds via IsValidCell</li>
+<li><strong>ClearSelection</strong>: Clears all row and cell selection state</li></ul></section>
+
+<section class="section" id="row"><h2>RowSelectionStrategy</h2>
+<p>Full row selection. <code>public static readonly RowSelectionStrategy Instance</code>.</p>
+<ul><li><strong>HandleCellClick</strong>: When Ctrl is pressed AND <code>Grid.MultiSelect</code> is true, toggles the clicked row's selection (additive). Otherwise clears all and selects the entire row (all columns marked selected).</li>
+<li><strong>HandleColumnHeaderClick</strong>: No-op</li>
+<li><strong>HandleKeyboardNavigation</strong>: Moves to next/previous row (deltaRow). Keeps the column index from <code>Selection.ColumnIndex</code> so the active cell stays in the same column.</li>
+<li><strong>ClearSelection</strong>: Clears all row and cell selection</li></ul></section>
+
+<section class="section" id="multicell"><h2>MultiCellSelectionStrategy</h2>
+<p>Excel-style multi-cell with range selection. <code>public static readonly MultiCellSelectionStrategy Instance</code>. Uses <code>StrategyState["MultiCellAnchor"]</code> to store anchor (int Row, int Col).</p>
+<ul><li><strong>HandleCellClick (Ctrl)</strong>: Toggles the individual cell selection without clearing existing selection. Updates anchor.</li>
+<li><strong>HandleCellClick (Shift)</strong>: Selects a rectangular range from the anchor (row1,col1) to the clicked cell (row2,col2). All cells in the rectangle are selected.</li>
+<li><strong>HandleCellClick (normal)</strong>: Clears all, selects only the clicked cell, sets anchor.</li>
+<li><strong>HandleColumnHeaderClick (normal)</strong>: Clears all, selects all cells in the target column.</li>
+<li><strong>HandleColumnHeaderClick (Ctrl/Shift)</strong>: Adds the column's cells to existing selection.</li>
+<li><strong>HandleKeyboardNavigation</strong>: Moves single-cell selection, clears others, updates anchor.</li>
+<li>Private helpers: <code>ClearAndSelect</code>, <code>SetAnchor(row,col)</code> stores tuple in StrategyState, <code>GetAnchor</code> retrieves <code>(int Row, int Col)?</code>.</li></ul></section>
+
+<section class="section" id="multirow"><h2>MultiRowSelectionStrategy</h2>
+<p>Multi-row with Shift+range expansion from anchor. Same structure as RowSelectionStrategy but Shift+click selects a continuous row range from anchor to clicked row. Ctrl+click toggles individual rows.</p></section>
+
+<section class="section" id="column"><h2>ColumnSelectionStrategy</h2>
+<p>Column-level selection. Clicking a column header selects all cells in that column. Shift+click expands to a contiguous column range. Ctrl+click modifies the column selection (adds/removes column).</p></section>
+
+<section class="section" id="table"><h2>Comparison Table</h2>
+<table><thead><tr><th>Strategy</th><th>Normal Click</th><th>Ctrl+Click</th><th>Shift+Click</th><th>Column Click</th><th>Keyboard</th></tr></thead><tbody>
+<tr><td>Cell</td><td>Select cell</td><td>Select cell</td><td>Select cell</td><td>None</td><td>Move cell</td></tr>
+<tr><td>Row</td><td>Select row</td><td>Toggle row</td><td>Select row</td><td>None</td><td>Move row</td></tr>
+<tr><td>MultiCell</td><td>Select cell</td><td>Toggle cell</td><td>Range from anchor</td><td>Select column</td><td>Move cell</td></tr>
+<tr><td>MultiRow</td><td>Select row</td><td>Toggle row</td><td>Row range</td><td>None</td><td>Move row</td></tr>
+<tr><td>Column</td><td>Select cell</td><td>Select cell</td><td>Select cell</td><td>Select column</td><td>Move cell</td></tr></tbody></table></section>
+
+<section class="section" id="examples"><h2>Code Examples</h2>
+<pre><code class="language-csharp">// Cell selection (default)
+grid.SelectionMode = BeepGridSelectionMode.Cell;   // CellSelectionStrategy
+
+// Full row selection
+grid.SelectionMode = BeepGridSelectionMode.FullRow; // RowSelectionStrategy
+grid.MultiSelect = true;  // Ctrl+click toggles rows
+
+// Excel-style multi-cell
+grid.SelectionMode = BeepGridSelectionMode.MultiCell; // MultiCellSelectionStrategy
+// Now: Shift+drag for rectangular range, Ctrl+click for individual cells</code></pre></section>
+
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

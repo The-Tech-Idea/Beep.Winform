@@ -7,25 +7,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
 {
     partial class uc_NuggetsInstall_Step_Run
     {
-        private IContainer? components = null;
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing) components?.Dispose();
-            base.Dispose(disposing);
-        }
-
         private void InitializeComponent()
         {
-            _tlpRoot      = new TableLayoutPanel();
-            _lblSummary   = new BeepLabel();
-            _progressBar  = new BeepProgressBar();
-            _lblStatus    = new BeepLabel();
+            _tlpRoot = new TableLayoutPanel();
+            _lblSummary = new BeepLabel();
+            _progressBar = new BeepProgressBar();
+            _lblStatus = new BeepLabel();
 
             _tlpRoot.SuspendLayout();
             SuspendLayout();
 
-            // _tlpRoot – 1 col / 3 rows: summary | progress | status
             _tlpRoot.Dock = DockStyle.Fill;
             _tlpRoot.ColumnCount = 1;
             _tlpRoot.RowCount = 3;
@@ -34,29 +25,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views.NuggetsManage
             _tlpRoot.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
             _tlpRoot.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             _tlpRoot.Padding = new Padding(12);
-            _tlpRoot.Name = "_tlpRoot";
 
             _lblSummary.AutoSize = true;
             _lblSummary.Anchor = AnchorStyles.Left;
             _lblSummary.Margin = new Padding(0, 0, 0, 12);
-            _lblSummary.Name = "_lblSummary";
 
             _progressBar.Dock = DockStyle.Fill;
             _progressBar.Visible = false;
-            _progressBar.Name = "_progressBar";
 
             _lblStatus.Dock = DockStyle.Fill;
             _lblStatus.Text = string.Empty;
             _lblStatus.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-            _lblStatus.AutoSize = false;
-            _lblStatus.Name = "_lblStatus";
 
-            _tlpRoot.Controls.Add(_lblSummary,  0, 0);
+            _tlpRoot.Controls.Add(_lblSummary, 0, 0);
             _tlpRoot.Controls.Add(_progressBar, 0, 1);
-            _tlpRoot.Controls.Add(_lblStatus,   0, 2);
+            _tlpRoot.Controls.Add(_lblStatus, 0, 2);
 
-            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(_tlpRoot);
             Name = "uc_NuggetsInstall_Step_Run";
 

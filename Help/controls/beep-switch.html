@@ -1,942 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeepSwitch - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="_sidebar.js"></script>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-    </button>
-
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="bi bi-sun-fill" id="theme-icon"></i>
-    </button>
-
-    <div class="container">
-        <!-- Sidebar -->
-                                                                        <div id="sidebar-placeholder"></div>
-
-        <!-- Main Content -->
-        <main class="content">
-            <div class="content-wrapper">
-                <!-- Breadcrumb -->
-                <nav class="breadcrumb-nav">
-                    <a href="../index.html">Home</a>
-                    <span>�</span>
-                    <a href="../index.html#input-controls">Input Controls</a>
-                    <span>�</span>
-                    <span>BeepSwitch</span>
-                </nav>
-
-                <!-- Page Header -->
-                <div class="page-header">
-                    <h1>BeepSwitch</h1>
-                    <p class="page-subtitle">Modern toggle switch control with capsule design, labels, images, and data binding</p>
-                </div>
-
-                <!-- Table of Contents -->
-                <div class="toc">
-                    <h3>?? Table of Contents</h3>
-                    <ul>
-                        <li><a href="#overview">Overview</a></li>
-                        <li><a href="#features">Key Features</a></li>
-                        <li><a href="#orientations">Orientations</a></li>
-                        <li><a href="#basic-usage">Basic Usage</a></li>
-                        <li><a href="#properties">Properties</a></li>
-                        <li><a href="#events">Events</a></li>
-                        <li><a href="#examples">Examples</a></li>
-                        <li><a href="#data-binding">Data Binding</a></li>
-                        <li><a href="#theming">Theming</a></li>
-                        <li><a href="#best-practices">Best Practices</a></li>
-                    </ul>
-                </div>
-
-                <!-- Overview -->
-                <section id="overview" class="section">
-                    <h2>Overview</h2>
-                    <p>
-                        <strong>BeepSwitch</strong> is a modern toggle switch control that provides an elegant alternative 
-                        to traditional checkboxes. It features a cylindrical (capsule) design with a sliding toggle knob, 
-                        customizable On/Off labels, background images, and support for both horizontal and vertical orientations.
-                    </p>
-                    <p>
-                        Built on top of the <code>BeepControl</code> base class, BeepSwitch includes theme integration, 
-                        data binding capabilities, smooth animations, and gradient backgrounds for a polished, modern appearance 
-                        suitable for settings panels, preferences dialogs, and interactive dashboards.
-                    </p>
-                </section>
-
-                <!-- Key Features -->
-                <section id="features" class="section">
-                    <h2>Key Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>?? Capsule Design</h3>
-                            <p>Modern cylindrical toggle with smooth rounded edges and gradient backgrounds</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>?? Dual Orientation</h3>
-                            <p>Support for both horizontal and vertical switch orientations</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>??? Custom Labels</h3>
-                            <p>Configurable On/Off labels positioned around the switch</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>??? Background Images</h3>
-                            <p>Optional background images for On and Off states with clipping support</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>?? Data Binding</h3>
-                            <p>Full data binding support with automatic property synchronization</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>?? Theme Integration</h3>
-                            <p>Automatic theme color application and gradient support</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>? Smooth Interaction</h3>
-                            <p>Responsive click interaction with visual feedback</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>?? State Management</h3>
-                            <p>Reliable state tracking with change event notifications</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Orientations -->
-                <section id="orientations" class="section">
-                    <h2>Orientations</h2>
-                    <p>BeepSwitch supports two orientation modes for different layout requirements:</p>
-                    
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>?? Horizontal Orientation</h4>
-                            <p>?? Off label on left<br>
-                            ?? Switch in center<br>
-                            ?? On label on right<br>
-                            ?? Knob slides left/right</p>
-                            <p><strong>Best for:</strong> Settings rows, preference lists</p>
-                        </div>
-                        
-                        <div class="feature-card">
-                            <h4>?? Vertical Orientation</h4>
-                            <p>?? On label on top<br>
-                            ?? Switch in center<br>
-                            ?? Off label on bottom<br>
-                            ?? Knob slides up/down</p>
-                            <p><strong>Best for:</strong> Side panels, compact layouts</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Basic Usage -->
-                <section id="basic-usage" class="section">
-                    <h2>Basic Usage</h2>
-                    
-                    <div class="code-example">
-                        <h3>Simple Toggle Switch</h3>
-                        <pre><code class="language-csharp">// Create a basic BeepSwitch
-var toggleSwitch = new BeepSwitch
-{
-    OnLabel = "On",
-    OffLabel = "Off",
-    Checked = false,
-    Size = new Size(120, 50),
-    Location = new Point(10, 10)
-};
-
-// Handle state changes
-toggleSwitch.CheckedChanged += (s, e) => {
-    MessageBox.Show($"Switch is now: {(toggleSwitch.Checked ? "On" : "Off")}");
-};
-
-// Add to form
-this.Controls.Add(toggleSwitch);</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Vertical Switch with Custom Labels</h3>
-                        <pre><code class="language-csharp">var verticalSwitch = new BeepSwitch
-{
-    OnLabel = "Enable",
-    OffLabel = "Disable",
-    Orientation = SwitchOrientation.Vertical,
-    Checked = true,
-    Size = new Size(80, 120),
-    Location = new Point(150, 10)
-};</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Switch with Background Images</h3>
-                        <pre><code class="language-csharp">var imageSwitch = new BeepSwitch
-{
-    OnLabel = "Day",
-    OffLabel = "Night",
-    OnImagePath = "images/day-bg.jpg",
-    OffImagePath = "images/night-bg.jpg",
-    Size = new Size(140, 60),
-    Checked = false
-};</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>?? Interaction Tip</strong>
-                        <p>BeepSwitch provides immediate visual feedback when toggled, making it perfect for settings panels and real-time feature toggles.</p>
-                    </div>
-                </section>
-
-                <!-- Properties -->
-                <section id="properties" class="section">
-                    <h2>Properties</h2>
-
-                    <h3>State Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>Checked</code></td>
-                                <td>bool</td>
-                                <td>Gets or sets whether the switch is in the On position</td>
-                            </tr>
-                            <tr>
-                                <td><code>Orientation</code></td>
-                                <td>SwitchOrientation</td>
-                                <td>Layout orientation (Horizontal or Vertical)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Label Properties</h3>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4>OnLabel <code>string</code></h4>
-                            <p>Text displayed for the On state</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4>OffLabel <code>string</code></h4>
-                            <p>Text displayed for the Off state</p>
-                        </div>
-                    </div>
-
-                    <h3>Image Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>OnImagePath</code></td>
-                                <td>string</td>
-                                <td>Background image for the On state</td>
-                            </tr>
-                            <tr>
-                                <td><code>OffImagePath</code></td>
-                                <td>string</td>
-                                <td>Background image for the Off state</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Data Binding Properties</h3>
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Property</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>BoundProperty</code></td>
-                                <td>string</td>
-                                <td>Property in the control to bind to data source</td>
-                            </tr>
-                            <tr>
-                                <td><code>DataSourceProperty</code></td>
-                                <td>string</td>
-                                <td>Property in the data source to bind to</td>
-                            </tr>
-                            <tr>
-                                <td><code>LinkedProperty</code></td>
-                                <td>string</td>
-                                <td>Linked property name for advanced binding</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Events -->
-                <section id="events" class="section">
-                    <h2>Events</h2>
-                    
-                    <table class="property-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>CheckedChanged</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the Checked property value changes</td>
-                            </tr>
-                            <tr>
-                                <td><code>Click</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when the switch is clicked</td>
-                            </tr>
-                            <tr>
-                                <td><code>MouseEnter</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when mouse enters the switch area</td>
-                            </tr>
-                            <tr>
-                                <td><code>MouseLeave</code></td>
-                                <td>EventHandler</td>
-                                <td>Triggered when mouse leaves the switch area</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="code-example">
-                        <h3>Event Handling Examples</h3>
-                        <pre><code class="language-csharp">var notificationSwitch = new BeepSwitch
-{
-    OnLabel = "Enabled",
-    OffLabel = "Disabled",
-    Checked = true
-};
-
-// Primary event - state change
-notificationSwitch.CheckedChanged += (s, e) => {
-    var enabled = notificationSwitch.Checked;
-  //  Console.WriteLine($"Notifications {(enabled ? "enabled" : "disabled")}");
-    
-    // Update application settings
-    Settings.NotificationsEnabled = enabled;
-    Settings.Save();
-    
-    // Update UI state
-    UpdateNotificationUI(enabled);
-};
-
-// Visual feedback
-notificationSwitch.MouseEnter += (s, e) => {
-    notificationSwitch.Cursor = Cursors.Hand;
-};
-
-notificationSwitch.MouseLeave += (s, e) => {
-    notificationSwitch.Cursor = Cursors.Default;
-};</code></pre>
-                    </div>
-                </section>
-
-                <!-- Examples -->
-                <section id="examples" class="section">
-                    <h2>Examples</h2>
-
-                    <div class="code-example">
-                        <h3>Settings Panel Switches</h3>
-                        <pre><code class="language-csharp">public void CreateSettingsPanel()
-{
-    var settingsPanel = new Panel 
-    { 
-        Dock = DockStyle.Fill, 
-        Padding = new Padding(20) 
-    };
-
-    var settings = new[]
-    {
-        new { Label = "Dark Mode", Property = "DarkModeEnabled", Value = true },
-        new { Label = "Auto Save", Property = "AutoSaveEnabled", Value = false },
-        new { Label = "Sound Effects", Property = "SoundEnabled", Value = true },
-        new { Label = "Animations", Property = "AnimationsEnabled", Value = true }
-    };
-
-    int yPosition = 20;
-    foreach (var setting in settings)
-    {
-        // Create label
-        var label = new Label
-        {
-            Text = setting.Label,
-            Location = new Point(20, yPosition + 15),
-            Size = new Size(150, 20),
-            TextAlign = ContentAlignment.MiddleLeft
-        };
-
-        // Create switch
-        var toggle = new BeepSwitch
-        {
-            OnLabel = "On",
-            OffLabel = "Off",
-            Checked = setting.Value,
-            Location = new Point(180, yPosition),
-            Size = new Size(100, 40),
-            Tag = setting.Property
-        };
-
-        toggle.CheckedChanged += (s, e) => {
-            var propertyName = toggle.Tag.ToString();
-            var value = toggle.Checked;
-            
-            // Save setting
-            SaveUserSetting(propertyName, value);
-            
-            // Apply immediately
-            ApplySetting(propertyName, value);
-        };
-
-        settingsPanel.Controls.AddRange(new Control[] { label, toggle });
-        yPosition += 60;
-    }
-
-    this.Controls.Add(settingsPanel);
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Feature Toggle Dashboard</h3>
-                        <pre><code class="language-csharp">public class FeatureToggleDashboard : UserControl
-{
-    private Dictionary<string, BeepSwitch> featureSwitches;
-
-    public FeatureToggleDashboard()
-    {
-        InitializeFeatureToggles();
-    }
-
-    private void InitializeFeatureToggles()
-    {
-        featureSwitches = new Dictionary<string, BeepSwitch>();
-        
-        var features = new[]
-        {
-            new { Name = "Beta Features", Key = "beta_features", Enabled = false },
-            new { Name = "Advanced Analytics", Key = "analytics", Enabled = true },
-            new { Name = "Real-time Sync", Key = "realtime_sync", Enabled = false },
-            new { Name = "Experimental UI", Key = "experimental_ui", Enabled = false }
-        };
-
-        var tableLayout = new TableLayoutPanel
-        {
-            ColumnCount = 3,
-            RowCount = features.Length + 1,
-            Dock = DockStyle.Fill,
-            CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
-        };
-
-        // Add headers
-        tableLayout.Controls.Add(new Label { Text = "Feature", Font = new Font("Arial", 10, FontStyle.Bold) }, 0, 0);
-        tableLayout.Controls.Add(new Label { Text = "Status", Font = new Font("Arial", 10, FontStyle.Bold) }, 1, 0);
-        tableLayout.Controls.Add(new Label { Text = "Toggle", Font = new Font("Arial", 10, FontStyle.Bold) }, 2, 0);
-
-        for (int i = 0; i < features.Length; i++)
-        {
-            var feature = features[i];
-            
-            // Feature name
-            var nameLabel = new Label
-            {
-                Text = feature.Name,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
-            };
-
-            // Status label
-            var statusLabel = new Label
-            {
-                Text = feature.Enabled ? "Enabled" : "Disabled",
-                TextAlign = ContentAlignment.MiddleCenter,
-                ForeColor = feature.Enabled ? Color.Green : Color.Red,
-                Dock = DockStyle.Fill
-            };
-
-            // Toggle switch
-            var toggle = new BeepSwitch
-            {
-                OnLabel = "On",
-                OffLabel = "Off",
-                Checked = feature.Enabled,
-                Dock = DockStyle.Fill,
-                Tag = feature.Key
-            };
-
-            toggle.CheckedChanged += (s, e) => {
-                var key = toggle.Tag.ToString();
-                var enabled = toggle.Checked;
-                
-                // Update status label
-                statusLabel.Text = enabled ? "Enabled" : "Disabled";
-                statusLabel.ForeColor = enabled ? Color.Green : Color.Red;
-                
-                // Update feature flag
-                FeatureFlags.SetEnabled(key, enabled);
-                
-                // Log change
-                Logger.Info($"Feature '{feature.Name}' {(enabled ? "enabled" : "disabled")}");
-            };
-
-            featureSwitches[feature.Key] = toggle;
-
-            tableLayout.Controls.Add(nameLabel, 0, i + 1);
-            tableLayout.Controls.Add(statusLabel, 1, i + 1);
-            tableLayout.Controls.Add(toggle, 2, i + 1);
-        }
-
-        Controls.Add(tableLayout);
-    }
-
-    public void SetFeatureState(string featureKey, bool enabled)
-    {
-        if (featureSwitches.TryGetValue(featureKey, out var toggle))
-        {
-            toggle.Checked = enabled;
-        }
-    }
-}</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Vertical Switch Array</h3>
-                        <pre><code class="language-csharp">public void CreateVerticalSwitchArray()
-{
-    var switchPanel = new Panel
-    {
-        Size = new Size(350, 400),
-        Location = new Point(20, 20),
-        BorderStyle = BorderStyle.FixedSingle
-    };
-
-    var categories = new[]
-    {
-        "Notifications",
-        "Location",
-        "Camera", 
-        "Microphone",
-        "Bluetooth",
-        "WiFi"
-    };
-
-    int xPosition = 20;
-    foreach (var category in categories)
-    {
-        var titleLabel = new Label
-        {
-            Text = category,
-            Location = new Point(xPosition + 15, 20),
-            Size = new Size(50, 15),
-            Font = new Font("Arial", 8),
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-
-        var verticalSwitch = new BeepSwitch
-        {
-            OnLabel = "?",
-            OffLabel = "?",
-            Orientation = SwitchOrientation.Vertical,
-            Location = new Point(xPosition, 40),
-            Size = new Size(50, 120),
-            Checked = Random.Shared.NextDouble() > 0.5
-        };
-
-        verticalSwitch.CheckedChanged += (s, e) => {
-          //  Console.WriteLine($"{category}: {(verticalSwitch.Checked ? "Enabled" : "Disabled")}");
-            
-            // Update system permission
-            UpdateSystemPermission(category, verticalSwitch.Checked);
-        };
-
-        switchPanel.Controls.AddRange(new Control[] { titleLabel, verticalSwitch });
-        xPosition += 55;
-    }
-
-    this.Controls.Add(switchPanel);
-}</code></pre>
-                    </div>
-                </section>
-
-                <!-- Data Binding -->
-                <section id="data-binding" class="section">
-                    <h2>Data Binding</h2>
-                    
-                    <p>BeepSwitch supports comprehensive data binding for seamless integration with data models:</p>
-
-                    <div class="code-example">
-                        <h3>Simple Data Binding</h3>
-                        <pre><code class="language-csharp">public class UserSettings
-{
-    public bool NotificationsEnabled { get; set; } = true;
-    public bool DarkModeEnabled { get; set; } = false;
-    public bool AutoSaveEnabled { get; set; } = true;
-}
-
-// Create bound switches
-var settings = new UserSettings();
-
-var notificationSwitch = new BeepSwitch
-{
-    OnLabel = "On",
-    OffLabel = "Off",
-    DataContext = settings,
-    DataSourceProperty = nameof(UserSettings.NotificationsEnabled)
-};
-
-// Refresh binding to load initial value
-notificationSwitch.RefreshBinding();
-
-// Changes to switch automatically update data context
-notificationSwitch.CheckedChanged += (s, e) => {
-    // Update the data model
-    var propInfo = settings.GetType().GetProperty("NotificationsEnabled");
-    propInfo?.SetValue(settings, notificationSwitch.Checked);
-    
-  //  Console.WriteLine($"Settings updated: Notifications = {settings.NotificationsEnabled}");
-};</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Filter Creation</h3>
-                        <pre><code class="language-csharp">// BeepSwitch can create filters for data queries
-var activeOnlySwitch = new BeepSwitch
-{
-    OnLabel = "Active Only",
-    OffLabel = "All Items",
-    BoundProperty = "IsActive",
-    Checked = true
-};
-
-// Create filter from switch state
-var filter = activeOnlySwitch.ToFilter();
-// Result: AppFilter {FieldName = "IsActive", FilterValue = "True", Operator = "=" }
-
-// Use in data queries
-var filteredData = dataSource.Where(filter.ToExpression());</code></pre>
-                    </div>
-
-                    <div class="code-example">
-                        <h3>Advanced Binding with Validation</h3>
-                        <pre><code class="language-csharp">public class ConfigurationViewModel : INotifyPropertyChanged
-{
-    private bool _advancedMode;
-    
-    public bool AdvancedMode
-    {
-        get => _advancedMode;
-        set
-        {
-            if (_advancedMode != value)
-            {
-                _advancedMode = value;
-                OnPropertyChanged();
-                ValidateConfiguration();
-            }
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-    
-    private void ValidateConfiguration()
-    {
-        // Validation logic
-        if (AdvancedMode && !HasAdvancedLicense())
-        {
-            MessageBox.Show("Advanced features require a premium license.");
-            AdvancedMode = false;
-        }
-    }
-    
-    private bool HasAdvancedLicense()
-    {
-        // License validation logic
-        return LicenseManager.CurrentLicense?.Type == LicenseType.Premium;
-    }
-}
-
-// Bind switch to view model
-var viewModel = new ConfigurationViewModel();
-var advancedSwitch = new BeepSwitch
-{
-    OnLabel = "Advanced",
-    OffLabel = "Basic",
-    DataContext = viewModel,
-    DataSourceProperty = nameof(ConfigurationViewModel.AdvancedMode)
-};
-
-// Two-way binding with validation
-viewModel.PropertyChanged += (s, e) => {
-    if (e.PropertyName == nameof(ConfigurationViewModel.AdvancedMode))
-    {
-        advancedSwitch.Checked = viewModel.AdvancedMode;
-    }
-};</code></pre>
-                    </div>
-                </section>
-
-                <!-- Theming -->
-                <section id="theming" class="section">
-                    <h2>Theming</h2>
-                    
-                    <p>BeepSwitch integrates with the theme system for consistent styling:</p>
-
-                    <div class="code-example">
-                        <h3>Automatic Theme Application</h3>
-                        <pre><code class="language-csharp">var themedSwitch = new BeepSwitch
-{
-    OnLabel = "Light",
-    OffLabel = "Dark",
-    Theme = "ModernDark"
-};
-
-// Automatically applies:
-// - CheckBoxForeColor for text and borders
-// - CheckBoxBackColor for base colors
-// - GradientStartColor/GradientEndColor for backgrounds
-// - Theme-specific gradient directions</code></pre>
-                    </div>
-
-                    <h3>Theme-Responsive Features</h3>
-                    <ul>
-                        <li><strong>Gradient Backgrounds</strong> - On/Off states use theme gradient colors</li>
-                        <li><strong>Text Colors</strong> - Labels inherit theme foreground colors</li>
-                        <li><strong>Border Styling</strong> - Switch outline adapts to theme border colors</li>
-                        <li><strong>Toggle Knob</strong> - Knob colors and effects follow theme settings</li>
-                    </ul>
-
-                    <div class="code-example">
-                        <h3>Custom Theme Colors</h3>
-                        <pre><code class="language-csharp">// Override theme colors for specific switches
-var customSwitch = new BeepSwitch
-{
-    OnLabel = "Premium",
-    OffLabel = "Basic",
-    ForeColor = Color.Gold,
-    BackColor = Color.DarkBlue
-};
-
-// Apply custom theme after setting properties
-customSwitch.ApplyTheme();</code></pre>
-                    </div>
-
-                    <div class="tip">
-                        <strong>?? Theming Tip</strong>
-                        <p>Use background images for On/Off states to create rich, branded switch experiences that complement your application's visual design.</p>
-                    </div>
-                </section>
-
-                <!-- Best Practices -->
-                <section id="best-practices" class="section">
-                    <h2>Best Practices</h2>
-
-                    <h3>?? UI/UX Guidelines</h3>
-                    <ul>
-                        <li><strong>Label clarity:</strong> Use clear, concise labels that describe the action or state</li>
-                        <li><strong>Orientation choice:</strong> Use horizontal for lists, vertical for compact sidebars</li>
-                        <li><strong>State indication:</strong> Ensure On/Off states are visually distinct</li>
-                        <li><strong>Feedback:</strong> Provide immediate visual feedback when toggled</li>
-                        <li><strong>Consistency:</strong> Maintain consistent switch styles throughout your application</li>
-                    </ul>
-
-                    <h3>? Performance</h3>
-                    <ul>
-                        <li><strong>Image optimization:</strong> Use appropriately sized background images</li>
-                        <li><strong>Event handling:</strong> Avoid heavy operations in CheckedChanged handlers</li>
-                        <li><strong>Batch updates:</strong> Group multiple setting changes to avoid excessive events</li>
-                        <li><strong>Memory management:</strong> Dispose of switches properly when removing from forms</li>
-                        <li><strong>Animation efficiency:</strong> Let the control handle its own smooth toggle animations</li>
-                    </ul>
-
-                    <h3>? Accessibility</h3>
-                    <ul>
-                        <li><strong>Keyboard support:</strong> Ensure switches can be toggled via keyboard (Space key)</li>
-                        <li><strong>Screen readers:</strong> Provide meaningful labels and state descriptions</li>
-                        <li><strong>Color contrast:</strong> Maintain sufficient contrast for text and backgrounds</li>
-                        <li><strong>Size considerations:</strong> Make switches large enough for easy interaction</li>
-                        <li><strong>Focus indicators:</strong> Ensure clear visual focus indicators for keyboard navigation</li>
-                    </ul>
-
-                    <h3>?? Technical Considerations</h3>
-                    <ul>
-                        <li><strong>Data binding:</strong> Use proper data binding for automatic model synchronization</li>
-                        <li><strong>State persistence:</strong> Save switch states to user preferences or configuration</li>
-                        <li><strong>Validation:</strong> Implement proper validation for critical toggle actions</li>
-                        <li><strong>Error handling:</strong> Handle exceptions gracefully in event handlers</li>
-                        <li><strong>Thread safety:</strong> Ensure UI updates happen on the main thread</li>
-                    </ul>
-
-                    <div class="warning">
-                        <strong>?? Critical Operations Warning</strong>
-                        <p>Be cautious with switches that trigger irreversible actions. Consider confirmation dialogs or undo mechanisms for critical operations.</p>
-                    </div>
-
-                    <div class="success">
-                        <strong>? Reliable State Management</strong>
-                        <p>BeepSwitch automatically handles state management and visual updates, making it reliable for settings and preferences with proper event notifications.</p>
-                    </div>
-                </section>
-
-                <!-- Navigation -->
-                <div class="nav-links">
-                    <a href="beep-numericupdown.html"><i class="bi bi-arrow-left"></i> BeepNumericUpDown</a>
-                    <a href="beep-label.html">BeepLabel <i class="bi bi-arrow-right"></i></a>
-                </div>
-
-                <!-- Footer -->
-                <footer class="documentation-footer">
-                    <div class="footer-content">
-                        <div class="footer-copyright">
-                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
-                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
-                        </div>
-                        <div class="footer-links">
-                            <a href="../index.html">Home</a>
-                            <a href="../getting-started/installation.html">Getting Started</a>
-                            <a href="../api/beep-control-base.html">API Reference</a>
-                        </div>
-                    </div>
-                </footer>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav">
+                <a href="../index.html">Home</a><span>&rsaquo;</span>
+                <a href="../index.html#input-controls">Input Controls</a><span>&rsaquo;</span>
+                <span>BeepSwitch</span>
+            </nav>
+            <div class="page-header">
+                <h1>BeepSwitch</h1>
+                <p class="page-subtitle">Animated toggle switch with painter-based rendering, drag-to-toggle, icon library integration, and data binding</p>
             </div>
-        </main>
-    </div>
+            <div class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#features">Key Features</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#methods">Methods</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#animation">Animation System</a></li>
+                    <li><a href="#painter-styles">Painter Styles</a></li>
+                    <li><a href="#drag-toggle">Drag-to-Toggle</a></li>
+                    <li><a href="#theming">Theming</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                </ul>
+            </div>
 
-    <!-- Scripts -->
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls</code></p>
+                <p><strong>Inheritance:</strong> <code>BeepSwitch</code> &rarr; <code>BaseControl</code> &rarr; <code>System.Windows.Forms.UserControl</code></p>
+                <p><strong>Implements:</strong> <code>IBeepComponent</code> (via <code>IBeepUIComponent</code> methods)</p>
+                <p><code>BeepSwitch</code> is a capsule-shaped toggle switch control with a pluggable painter system
+                for rendering styles (iOS, Material3, Fluent2, Minimal). It supports smooth spring and cubic
+                easing animations, drag-to-toggle thumb interaction, keyboard control (Space/Enter/Arrow keys),
+                both horizontal and vertical orientations, icon library integration, custom image support, and
+                full data-binding through <code>IBeepComponent</code> with boolean, string, and int coercion.</p>
+                <p>The control is implemented as a partial class split across nine files, with the core fields
+                residing in <code>BeepSwitch.Core.cs</code> and the painter system delegating all visual
+                rendering through <code>ISwitchPainter</code> implementations selected by <code>BeepControlStyle</code>.</p>
+            </section>
+
+            <section id="features" class="section">
+                <h2>Key Features</h2>
+                <ul>
+                    <li><strong>Pluggable Painter System:</strong> <code>ISwitchPainter</code> (iOSSwitchPainter,
+                    Material3SwitchPainter, Fluent2SwitchPainter, MinimalSwitchPainter) via
+                    <code>SwitchPainterFactory.CreatePainter(ControlStyle)</code>.</li>
+                    <li><strong>Spring &amp; Cubic Animations:</strong> Spring easing for Apple-style control styles
+                    (iOS15, MacOSBigSur, Apple) and cubic ease-out for others. 16ms timer at painter-specified frame rate.</li>
+                    <li><strong>Drag-to-Toggle:</strong> Drag the thumb along the track; progress is computed from
+                    mouse delta / total track distance. Snaps to nearest state on release.</li>
+                    <li><strong>Dual Orientation:</strong> Horizontal (L&rarr;R thumb travel) and Vertical (T&rarr;B)
+                    via <code>SwitchOrientation</code> enum. Track path generation adapts automatically.</li>
+                    <li><strong>Custom Labels:</strong> Separate <code>OnLabel</code> / <code>OffLabel</code> strings
+                    drawn at opposite ends by the active painter.</li>
+                    <li><strong>Icon Library:</strong> <code>OnIconName</code> / <code>OffIconName</code> resolve from
+                    <code>IconsManagement.SvgsUI</code>. Convenience presets: <code>UseCheckmarkIcons()</code>,
+                    <code>UsePowerIcons()</code>, <code>UseLightIcons()</code>.</li>
+                    <li><strong>Legacy Images:</strong> <code>OnImagePath</code> / <code>OffImagePath</code> via
+                    <code>BeepImage</code> for track-background images with <code>FileNameEditor</code> support.</li>
+                    <li><strong>Keyboard:</strong> Space/Enter toggle, Left/Right set false/true, Up/Down set
+                    true/false. <code>IsInputKey</code> override enables focus and processing.</li>
+                    <li><strong>Focus Ring:</strong> Drawn around the track when <code>Focused &amp;&amp; ShowFocusCues</code>.
+                    Colour from <code>SwitchThemeHelpers.GetFocusRingColor</code>.</li>
+                    <li><strong>Hit Areas:</strong> Track, thumb, OnLabel, and OffLabel click regions registered
+                    via BaseControl hit-area system for structural navigation.</li>
+                    <li><strong>Data Binding:</strong> <code>SetValue</code> (bool/string/int), <code>GetValue</code>,
+                    <code>ClearValue</code>, <code>HasFilterValue</code>, <code>ToFilter</code>,
+                    <code>RefreshBinding</code>, <code>Oldvalue</code> tracking.</li>
+                </ul>
+            </section>
+
+            <section id="properties" class="section">
+                <h2>Properties (13 total)</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Category</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Checked</code></td><td><code>bool</code></td><td><code>false</code></td><td>Behavior</td><td>Switch state: On (true) or Off (false). Triggers animation + CheckedChanged event.</td></tr>
+                        <tr><td><code>Orientation</code></td><td><code>SwitchOrientation</code></td><td><code>Horizontal</code></td><td>Appearance</td><td>Layout direction: Horizontal or Vertical. Invalidates on change.</td></tr>
+                        <tr><td><code>OnLabel</code></td><td><code>string</code></td><td><code>"On"</code></td><td>Appearance</td><td>Label text displayed on the ON side of the track. Invalidates on change.</td></tr>
+                        <tr><td><code>OffLabel</code></td><td><code>string</code></td><td><code>"Off"</code></td><td>Appearance</td><td>Label text displayed on the OFF side of the track. Invalidates on change.</td></tr>
+                        <tr><td><code>OnImagePath</code></td><td><code>string?</code></td><td><code>null</code></td><td>Appearance</td><td>File path (SVG/PNG/JPG) for ON-state track image. FileNameEditor at design time.</td></tr>
+                        <tr><td><code>OffImagePath</code></td><td><code>string?</code></td><td><code>null</code></td><td>Appearance</td><td>File path for OFF-state track image. FileNameEditor at design time.</td></tr>
+                        <tr><td><code>OnIconName</code></td><td><code>string</code></td><td><code>""</code></td><td>Appearance</td><td>Icon library name for ON state (e.g. "check", "power", "lightbulb"). Resolved via IconsManagement.SvgsUI.</td></tr>
+                        <tr><td><code>OffIconName</code></td><td><code>string</code></td><td><code>""</code></td><td>Appearance</td><td>Icon library name for OFF state (e.g. "close", "power_off", "lightbulb_outline").</td></tr>
+                        <tr><td><code>DragToToggleEnabled</code></td><td><code>bool</code></td><td><code>true</code></td><td>Behavior</td><td>Enable drag-to-toggle. When true, thumb can be dragged along the track to change state.</td></tr>
+                        <tr><td><code>BoundProperty</code></td><td><code>string</code></td><td><code>"Checked"</code></td><td>Data</td><td>Property name for data-binding resolution (IBeepComponent).</td></tr>
+                        <tr><td><code>DataSourceProperty</code></td><td><code>string</code></td><td><code>null</code></td><td>Data</td><td>Property name on DataContext to bind to. Used by RefreshBinding().</td></tr>
+                        <tr><td><code>LinkedProperty</code></td><td><code>string</code></td><td><code>null</code></td><td>Data</td><td>Linked property name for advanced binding scenarios.</td></tr>
+                        <tr><td><code>Oldvalue</code></td><td><code>object</code></td><td><code>null</code></td><td>Data</td><td>Previous Checked value before the last SetValue call. Read-only. Tracks state transitions.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section">
+                <h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Visibility</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>UseCheckmarkIcons</code></td><td>public</td><td><code>void UseCheckmarkIcons()</code></td><td>Sets OnIconName="check", OffIconName="close". Convenience preset.</td></tr>
+                        <tr><td><code>UsePowerIcons</code></td><td>public</td><td><code>void UsePowerIcons()</code></td><td>Sets OnIconName="power", OffIconName="power_off".</td></tr>
+                        <tr><td><code>UseLightIcons</code></td><td>public</td><td><code>void UseLightIcons()</code></td><td>Sets OnIconName="lightbulb", OffIconName="lightbulb_outline".</td></tr>
+                        <tr><td><code>SetValue</code></td><td>public</td><td><code>void SetValue(object value)</code></td><td>Sets Checked from bool, string ("true"/"1"/"on"/"yes"), or int (&ne;0). Tracks Oldvalue. IBeepComponent.</td></tr>
+                        <tr><td><code>GetValue</code></td><td>public</td><td><code>object GetValue()</code></td><td>Returns current bool Checked value as object. IBeepComponent.</td></tr>
+                        <tr><td><code>ClearValue</code></td><td>public</td><td><code>void ClearValue()</code></td><td>Sets Checked=false, tracks Oldvalue. IBeepComponent.</td></tr>
+                        <tr><td><code>HasFilterValue</code></td><td>public</td><td><code>bool HasFilterValue()</code></td><td>Always returns true (switch has a definitive boolean value).</td></tr>
+                        <tr><td><code>ToFilter</code></td><td>public</td><td><code>AppFilter ToFilter()</code></td><td>Creates equality AppFilter: FieldName=BoundProperty, FilterValue=Checked.ToString(), Operator="=".</td></tr>
+                        <tr><td><code>RefreshBinding</code></td><td>public</td><td><code>void RefreshBinding()</code></td><td>Reads DataSourceProperty from DataContext via reflection and calls SetValue.</td></tr>
+                        <tr><td><code>ApplyTheme</code></td><td>public</td><td><code>void ApplyTheme()</code></td><td>Applies SwitchFontHelpers font theme, reinitialises painter, updates metrics, invalidates.</td></tr>
+                        <tr><td><code>AnimateToggle</code></td><td>private</td><td><code>void AnimateToggle(bool newState)</code></td><td>Starts spring or cubic animation: sets up 16ms timer, computes steps from painter.GetAnimationDuration(), interpolates _animProgress (0.0-1.0).</td></tr>
+                        <tr><td><code>UpdateMetrics</code></td><td>private</td><td><code>void UpdateMetrics()</code></td><td>Sets _metrics.AnimationProgress, calls painter.CalculateLayout(this, _metrics). Called before every paint.</td></tr>
+                        <tr><td><code>Toggle</code></td><td>private</td><td><code>void Toggle()</code></td><td>Checked = !Checked. Called from hit-area callbacks.</td></tr>
+                        <tr><td><code>SetChecked</code></td><td>private</td><td><code>void SetChecked(bool)</code></td><td>Checked = value. Called from hit-area label click callbacks.</td></tr>
+                        <tr><td><code>InitializePainter</code></td><td>private</td><td><code>void InitializePainter()</code></td><td>_painter = SwitchPainterFactory.CreatePainter(ControlStyle, this).</td></tr>
+                        <tr><td><code>GetCurrentState</code></td><td>private</td><td><code>SwitchState GetCurrentState()</code></td><td>Resolves SwitchState (On/Off &times; Normal/Hover/Pressed/Disabled/Focused) from Checked, animProgress, Enabled, IsPressed, IsHovered, Focused.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section">
+                <h2>Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Args Type</th><th>Fire Point</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>CheckedChanged</code></td><td><code>EventHandler</code></td><td>Checked setter, after value change detected</td><td>Raised whenever the Checked property value changes. Fired before animation completes (animation starts first).</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="animation" class="section">
+                <h2>Animation System</h2>
+                <p>The <code>AnimateToggle(bool newState)</code> method manages smooth transitions:</p>
+                <ul>
+                    <li><strong>Duration:</strong> Retrieved from <code>_painter.GetAnimationDuration()</code> (typically ~250ms).</li>
+                    <li><strong>Steps:</strong> <code>Math.Max(1, duration / 16)</code> — one step per ~16ms frame.</li>
+                    <li><strong>Easing:</strong> Spring easing (<code>EaseOutSpring</code>) for Apple styles (iOS15, MacOSBigSur, Apple);
+                    cubic ease-out (<code>EaseOutCubic</code>) for all other styles.</li>
+                    <li><strong>Interpolation:</strong> <code>_animProgress</code> ranges 0.0 (Off thumb position)
+                    to 1.0 (On thumb position). For newState=false, <code>_animProgress = 1.0f - easedT</code>.</li>
+                    <li><strong>Fallback:</strong> When <code>_painter == null</code>, skips animation entirely —
+                    sets <code>_checked = newState</code> and <code>_animProgress = targetProgress</code> instantly.</li>
+                    <li><strong>Cancellation:</strong> Starting a new animation stops any current one via timer
+                    disposal before creating a new timer.</li>
+                    <li><strong>Spring Formula:</strong> <code>Math.Pow(2, -10*t) * Math.Sin((t - s) * (2*PI) / p) + 1</code>
+                    with p=0.4, s=p/4. Produces an overshoot-and-settle effect.</li>
+                    <li><strong>Cubic Formula:</strong> <code>1 - Math.Pow(1 - t, 3)</code>. Smooth deceleration.</li>
+                </ul>
+            </section>
+
+            <section id="painter-styles" class="section">
+                <h2>Painter Styles</h2>
+                <table><thead><tr><th>ControlStyle</th><th>Painter</th><th>Animation</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>iOS15</code></td><td>iOSSwitchPainter</td><td>Spring</td><td>iOS-style pill switch with flat thumb, rounded track caps, subtle shadow.</td></tr>
+                    <tr><td><code>MacOSBigSur</code></td><td>iOSSwitchPainter</td><td>Spring</td><td>macOS Big Sur style — similar to iOS but with larger proportions.</td></tr>
+                    <tr><td><code>Apple</code></td><td>iOSSwitchPainter</td><td>Spring</td><td>Generic Apple-style switch appearance.</td></tr>
+                    <tr><td><code>Material3</code></td><td>Material3SwitchPainter</td><td>Cubic</td><td>Material Design 3: state-layer colour, circular thumb, track with opacity states.</td></tr>
+                    <tr><td><code>Fluent2</code></td><td>Fluent2SwitchPainter</td><td>Cubic</td><td>Microsoft Fluent 2: rounded rectangle thumb, precise colour transitions.</td></tr>
+                    <tr><td>(default)</td><td>MinimalSwitchPainter</td><td>Cubic</td><td>Clean minimal style with flat colours and simple capsule shape.</td></tr>
+                </tbody></table>
+                <p>The factory is in <code>SwitchPainterFactory.CreatePainter(BeepControlStyle style, BeepSwitch owner)</code>.
+                Painters implement <code>ISwitchPainter</code> with five methods: <code>CalculateLayout</code>,
+                <code>PaintTrack</code>, <code>PaintThumb</code>, <code>PaintLabels</code>, and <code>GetAnimationDuration</code>.</p>
+            </section>
+
+            <section id="drag-toggle" class="section">
+                <h2>Drag-to-Toggle</h2>
+                <p>When <code>DragToToggleEnabled = true</code>, the user can drag the thumb to change state:</p>
+                <ol>
+                    <li><strong>OnMouseDown:</strong> If the click is within <code>_metrics.ThumbCurrentRect</code>,
+                    sets <code>_dragging = true</code> and records <code>_dragStartX</code>.</li>
+                    <li><strong>OnMouseMove:</strong> While dragging, computes <code>currentDistance = e.X - _dragStartX</code>,
+                    then <code>progress = currentDistance / totalDistance</code> (totalDistance = ThumbOnRect.X - ThumbOffRect.X).
+                    Adjusts <code>_animProgress</code> by adding/subtracting progress from the current state.
+                    Clamps <code>_animProgress</code> to [0.0, 1.0]. Calls <code>UpdateMetrics()</code> and
+                    <code>Invalidate()</code> on every mouse move for real-time visual feedback.</li>
+                    <li><strong>OnMouseUp:</strong> If <code>_animProgress &gt; 0.5f</code>, sets <code>Checked = true</code>;
+                    otherwise <code>Checked = false</code>. If the state didn't change, calls
+                    <code>AnimateToggle(_checked)</code> to snap the thumb back into place with animation.</li>
+                </ol>
+                <p>This provides smooth, physics-feel dragging on a linear track, similar to mobile OS toggle switches.</p>
+            </section>
+
+            <section id="theming" class="section">
+                <h2>Theming</h2>
+                <p><code>BeepSwitch</code> theme integration is handled through:</p>
+                <ul>
+                    <li><code>SwitchFontHelpers.ApplyFontTheme(ControlStyle)</code> — applies the correct font
+                    for the current BeepControlStyle from the active theme.</li>
+                    <li><code>SwitchPainterFactory.CreatePainter(ControlStyle, this)</code> — re-creates the painter
+                    to match the current ControlStyle, which reflects the theme.</li>
+                    <li><code>SwitchThemeHelpers.GetFocusRingColor(theme, useThemeColors)</code> — resolves the
+                    focus ring colour from the current theme. Returns <code>Color.Transparent</code> if no
+                    focus ring should be drawn.</li>
+                    <li><code>UpdateMetrics()</code> — recalculates all layout rectangles (track, thumb positions,
+                    label rects) from the new painter and control dimensions.</li>
+                    <li><code>Invalidate()</code> — forces a complete repaint after theme changes.</li>
+                </ul>
+                <p>The track path is generated by <code>CreateTrackPath()</code> which adapts to the current
+                <code>Orientation</code>. In Horizontal mode, arc radii equal <code>TrackHeight / 2</code>
+                (horizontal pill shape). In Vertical mode, arc radii equal <code>TrackWidth / 2</code>
+                (vertical pill shape).</p>
+                <p>The <code>SwitchMetrics</code> model (in <code>Models/SwitchMetrics.cs</code>) stores:
+                <code>TrackRect</code>, <code>ThumbOnRect</code>, <code>ThumbOffRect</code>,
+                <code>ThumbCurrentRect</code>, <code>OnLabelRect</code>, <code>OffLabelRect</code>,
+                <code>AnimationProgress</code>, <code>TrackHeight</code>, <code>TrackWidth</code>.</p>
+            </section>
+
+            <section id="examples" class="section">
+                <h2>Examples</h2>
+                <h3>Basic Toggle Switch</h3>
+                <pre><code class="language-csharp">var toggle = new BeepSwitch
+{
+    Checked = false, OnLabel = "Enabled", OffLabel = "Disabled",
+    Width = 120, Height = 50
+};
+toggle.CheckedChanged += (s, e) =>
+    Console.WriteLine($"Switch: {toggle.Checked}");</code></pre>
+
+                <h3>Vertical Orientation</h3>
+                <pre><code class="language-csharp">var vert = new BeepSwitch
+{
+    Orientation = SwitchOrientation.Vertical,
+    OnLabel = "ON", OffLabel = "OFF",
+    Width = 50, Height = 120
+};</code></pre>
+
+                <h3>Icon Library Presets</h3>
+                <pre><code class="language-csharp">var iconSwitch = new BeepSwitch { Width = 60, Height = 40 };
+iconSwitch.UseCheckmarkIcons(); // check + close
+iconSwitch.UsePowerIcons();     // power + power_off
+iconSwitch.UseLightIcons();     // lightbulb + lightbulb_outline</code></pre>
+
+                <h3>Custom Icons from Library</h3>
+                <pre><code class="language-csharp">var custom = new BeepSwitch
+{
+    OnIconName = "volume_up", OffIconName = "volume_mute",
+    Width = 60, Height = 40
+};</code></pre>
+
+                <h3>Data Binding</h3>
+                <pre><code class="language-csharp">var bound = new BeepSwitch { BoundProperty = "Checked", DataSourceProperty = "IsActive" };
+bound.SetValue(true);
+bool val = (bool)bound.GetValue();
+bound.ClearValue();
+bound.RefreshBinding();</code></pre>
+
+                <h3>Drag-to-Toggle</h3>
+                <pre><code class="language-csharp">var drag = new BeepSwitch
+{
+    DragToToggleEnabled = true, // default
+    OnLabel = "Slide", OffLabel = "Slide",
+    Width = 150, Height = 50
+};</code></pre>
+
+                <h3>Custom Image as Track Background</h3>
+                <pre><code class="language-csharp">var img = new BeepSwitch
+{
+    OnImagePath = @"C:\img\on_bg.png",
+    OffImagePath = @"C:\img\off_bg.png",
+    Width = 120, Height = 50
+};</code></pre>
+
+                <h3>Setting from String Values</h3>
+                <pre><code class="language-csharp">var switch2 = new BeepSwitch();
+switch2.SetValue("true");  // checked
+switch2.SetValue("1");     // checked
+switch2.SetValue("yes");   // checked
+switch2.SetValue("on");    // checked
+switch2.SetValue(0);       // unchecked
+switch2.SetValue(1);       // checked</code></pre>
+            </section>
+
+            <section id="layout-details" class="section">
+                <h2>Layout Metrics System</h2>
+                <p>The <code>SwitchMetrics</code> model stores all calculated layout rectangles and
+                is updated before every paint via <code>UpdateMetrics()</code>:</p>
+                <ul>
+                    <li><code>TrackRect</code> — the capsule track area, inset by padding from the client rectangle.</li>
+                    <li><code>ThumbOffRect</code> — the thumb's position when the switch is off (0.0 progress).</li>
+                    <li><code>ThumbOnRect</code> — the thumb's position when the switch is on (1.0 progress).</li>
+                    <li><code>ThumbCurrentRect</code> — linearly interpolated between Off and On based on
+                    <code>AnimationProgress</code>. Used for hit-testing and rendering.</li>
+                    <li><code>OnLabelRect</code> / <code>OffLabelRect</code> — label bounding boxes at the track ends.</li>
+                    <li><code>AnimationProgress</code> — current 0.0-1.0 float, set by animation or drag.</li>
+                    <li><code>TrackHeight</code> / <code>TrackWidth</code> — dimension helpers for path generation.</li>
+                </ul>
+                <p>The track path (<code>CreateTrackPath()</code>) generates a horizontal pill (arc radius =
+                TrackHeight/2) or vertical pill (arc radius = TrackWidth/2) depending on Orientation.</p>
+            </section>
+
+            <section id="architecture" class="section">
+                <h2>Architecture</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Lines</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BeepSwitch.cs</code></td><td>~252</td><td>Main class (partial), legacy drawing methods (DrawHorizontalSwitch_Legacy, DrawVerticalSwitch_Legacy, GetCapsulePath_Legacy), Dispose (disposes _onBeepImage, _offBeepImage). Note: all modern fields/properties/methods are in the partial files below.</td></tr>
+                        <tr><td><code>BeepSwitch.Core.cs</code></td><td>~101</td><td>Core: all private fields (_checked, _orientation, _onLabel, _offLabel, image paths, BeepImage instances, _onIconName, _offIconName, SwitchMetrics _metrics, ISwitchPainter _painter, Timer _animTimer, _animProgress, _animating, _dragging, _dragStartX, _dragToToggleEnabled), constructor (sets ControlStyles, default size 120x50, initialises BeepImage instances, calls InitializePainter, defaults to iOS15 style), InitializePainter.</td></tr>
+                        <tr><td><code>BeepSwitch.Properties.cs</code></td><td>~233</td><td>Properties: Checked (triggers AnimateToggle + OnCheckedChanged), Orientation, OnLabel, OffLabel, OnImagePath, OffImagePath, OnIconName, OffIconName, DragToToggleEnabled, BoundProperty, DataSourceProperty, LinkedProperty. Icon convenience methods (UseCheckmarkIcons, UsePowerIcons, UseLightIcons). Event raiser OnCheckedChanged.</td></tr>
+                        <tr><td><code>BeepSwitch.Drawing.cs</code></td><td>~138</td><td>Drawing: DrawContent, Draw, Paint (central: UpdateMetrics, CreateTrackPath, painter.PaintTrack/PaintThumb/PaintLabels, DrawFocusRing), CreateTrackPath (horizontal/vertical pill path generation), GetCurrentState (SwitchState resolution), DrawFocusRing.</td></tr>
+                        <tr><td><code>BeepSwitch.Interaction.cs</code></td><td>~149</td><td>Input: OnMouseClick, OnMouseDown (drag start), OnMouseMove (drag tracking or cursor change), OnMouseUp (commit drag or snap-back), OnMouseLeave (reset cursor), IsInputKey (Space/Enter/Left/Right), OnKeyDown (Space/Enter toggle, arrows directional set), OnEnabledChanged, OnGotFocus, OnLostFocus.</td></tr>
+                        <tr><td><code>BeepSwitch.DataBinding.cs</code></td><td>~111</td><td>Data: SetValue (bool/string/int coercion, tracks Oldvalue), GetValue, ClearValue, HasFilterValue (always true), ToFilter (AppFilter), RefreshBinding (reflection from DataContext), Oldvalue property.</td></tr>
+                        <tr><td><code>BeepSwitch.Layout.cs</code></td><td>~58</td><td>Layout: OnSizeChanged, UpdateMetricsAndHitAreas, RegisterHitAreas (track, thumb, onLabel, offLabel), Toggle, SetChecked.</td></tr>
+                        <tr><td><code>BeepSwitch.Animation.cs</code></td><td>~94</td><td>Animation: AnimateToggle, EaseOutCubic, EaseOutSpring, UpdateMetrics.</td></tr>
+                        <tr><td><code>BeepSwitch.Theme.cs</code></td><td>~26</td><td>Theme: ApplyTheme (SwitchFontHelpers, reinitialise painter, update metrics, invalidate).</td></tr>
+                        <tr><td><code>Helpers/ISwitchPainter.cs</code></td><td>~30</td><td>Interface: CalculateLayout, PaintTrack, PaintThumb, PaintLabels, GetAnimationDuration.</td></tr>
+                        <tr><td><code>Helpers/SwitchPainterFactory.cs</code></td><td>~40</td><td>Factory: static CreatePainter(BeepControlStyle, BeepSwitch).</td></tr>
+                        <tr><td><code>Helpers/Painters/iOSSwitchPainter.cs</code></td><td>~100</td><td>iOS style: pill track, flat thumb, spring animation.</td></tr>
+                        <tr><td><code>Helpers/Painters/Material3SwitchPainter.cs</code></td><td>~80</td><td>Material3: state-layer colour, opacity transitions.</td></tr>
+                        <tr><td><code>Helpers/Painters/Fluent2SwitchPainter.cs</code></td><td>~80</td><td>Fluent2: rounded-rect thumb, precise colours.</td></tr>
+                        <tr><td><code>Helpers/Painters/MinimalSwitchPainter.cs</code></td><td>~80</td><td>Minimal: clean, flat colours.</td></tr>
+                        <tr><td><code>Helpers/SwitchThemeHelpers.cs</code></td><td>~30</td><td>Focus ring colour resolution.</td></tr>
+                        <tr><td><code>Helpers/SwitchFontHelpers.cs</code></td><td>~30</td><td>Font theme application.</td></tr>
+                        <tr><td><code>Helpers/SwitchStyleHelpers.cs</code></td><td>~30</td><td>Style metrics.</td></tr>
+                        <tr><td><code>Helpers/SwitchIconHelpers.cs</code></td><td>~30</td><td>Default icon paths.</td></tr>
+                        <tr><td><code>Models/SwitchState.cs</code></td><td>~20</td><td>Enum: Off_Normal, Off_Hover, Off_Pressed, Off_Disabled, Off_Focused, On_* equivalents (10 values).</td></tr>
+                        <tr><td><code>Models/SwitchMetrics.cs</code></td><td>~30</td><td>Model: TrackRect, ThumbOn/Off/CurrentRect, On/OffLabelRect, AnimationProgress, TrackHeight/Width.</td></tr>
+                        <tr><td><code>Models/SwitchOrientation.cs</code></td><td>~15</td><td>Enum: Horizontal, Vertical.</td></tr>
+                        <tr><td><code>Models/SwitchStyleConfig.cs</code></td><td>~30</td><td>Style configuration presets.</td></tr>
+                        <tr><td><code>Models/SwitchColorConfig.cs</code></td><td>~30</td><td>Colour config per style per state.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div></main>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const submenus = document.querySelectorAll('.has-submenu > a');
-            
-            submenus.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.parentElement;
-                    parent.classList.toggle('open');
-                });
-            });
-        });
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            const currentTheme = body.getAttribute('data-theme');
-            
-            if (currentTheme === 'dark') {
-                body.removeAttribute('data-theme');
-                themeIcon.className = 'bi bi-sun-fill';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'bi bi-moon-fill';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
-            }
-        });
-
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        function searchDocs(query) {
-            const links = document.querySelectorAll('.nav-menu a');
-            const lowerQuery = query.toLowerCase();
-            
-            links.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                const listItem = link.closest('li');
-                
-                if (text.includes(lowerQuery) || lowerQuery === '') {
-                    listItem.style.display = '';
-                } else {
-                    listItem.style.display = 'none';
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeBlocks = document.querySelectorAll('pre code');
-            
-            codeBlocks.forEach(block => {
-                const button = document.createElement('button');
-                button.textContent = 'Copy';
-                button.style.cssText = `
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    background: var(--color-brand-primary);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    padding: 4px 8px;
-                    font-size: 12px;
-                    cursor: pointer;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-                
-                const pre = block.parentElement;
-                pre.style.position = 'relative';
-                pre.appendChild(button);
-                
-                pre.addEventListener('mouseenter', () => {
-                    button.style.opacity = '1';
-                });
-                
-                pre.addEventListener('mouseleave', () => {
-                    button.style.opacity = '0';
-                });
-                
-                button.addEventListener('click', () => {
-                    navigator.clipboard.writeText(block.textContent).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    });
-                });
-            });
-        });
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
     </script>
 </body>
 </html>

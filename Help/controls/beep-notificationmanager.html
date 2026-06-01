@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepNotificationManager - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&rsaquo;</span><span>BeepNotificationManager</span></nav>
+            <div class="page-header"><h1>BeepNotificationManager</h1><p class="page-subtitle">A singleton notification/toast manager with 6 animation styles, 13 layout variants, 16 visual themes, auto-grouping, scheduling, DND mode, history tracking, sound support, and action buttons.</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Key Features</a></li>
+                <li><a href="#enums">Enumerations &amp; Models</a></li>
+                <li><a href="#properties">Properties</a></li>
+                <li><a href="#methods">Methods</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#show-methods">Show Methods &amp; Convenience APIs</a></li>
+                <li><a href="#management">Management Methods</a></li>
+                <li><a href="#notification-data">NotificationData Model</a></li>
+                <li><a href="#templates">Notification Templates</a></li>
+                <li><a href="#scheduling">Notification Scheduling</a></li>
+                <li><a href="#supporting-controls">Supporting Controls</a></li>
+                <li><a href="#theming">Theming &amp; Painters</a></li>
+                <li><a href="#examples">Code Examples</a></li>
+                <li><a href="#architecture">Architecture &amp; File Map</a></li>
+            </ul></div>
+
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><code>BeepNotificationManager</code> is a thread-safe singleton that manages the full lifecycle of toast-style notifications. It controls creation, display, animation, positioning, grouping, queuing, scheduling, and dismissal. Inspired by commercial notification managers (DevExpress, Telerik), it provides a comprehensive API for showing rich toast messages with action buttons, progress bars, icons, and custom sounds.</p>
+                <p>Notifications are rendered as borderless <code>BeepiFormPro</code> windows positioned relative to a target screen with smart multi-monitor detection. A pluggable painter system routes each notification&#39;s <code>NotificationLayout</code> and <code>NotificationVisualStyle</code> to one of 16 painter implementations, each offering a distinct design-system aesthetic (Material3, iOS15, Fluent2, etc.).</p>
+                <table>
+                    <tr><th>Namespace</th><td><code>TheTechIdea.Beep.Winform.Controls.Notifications</code></td></tr>
+                    <tr><th>Pattern</th><td>Singleton (<code>BeepNotificationManager.Instance</code>)</td></tr>
+                    <tr><th>Thread Safety</th><td><code>Lazy&lt;T&gt;</code> initialization; internal collections not thread-safe (UI-thread use expected)</td></tr>
+                    <tr><th>Notification Control</th><td><code>BeepNotification</code> (extends <code>BeepiFormPro</code>, partial class across 4 files)</td></tr>
+                    <tr><th>Painter System</th><td><code>INotificationPainter</code> with <code>NotificationPainterFactory</code> routing 16 visual styles</td></tr>
+                    <tr><th>Total Files</th><td>8 source files in the Notifications directory plus 1 designer file</td></tr>
+                </table>
+            </section>
+
+            <section id="features" class="section"><h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card"><h4>Singleton Manager</h4><p>Access via <code>BeepNotificationManager.Instance</code>. Manages all notification lifecycle: show, animate, queue, group, schedule, dismiss, and cleanup.</p></div>
+                    <div class="feature-card"><h4>6 Animation Styles</h4><p>Slide, Fade, SlideAndFade, Bounce, Scale, and None. Each uses a cubic ease-out easing function at 60 FPS. Bounce uses Robert Penner&#39;s bounce-out formula.</p></div>
+                    <div class="feature-card"><h4>13 Layout Variants</h4><p>Standard, Compact, Prominent, Banner, Toast, Elevated, Snackbar, InlineAlert, Callout, Chip, Timeline, MediaRich, ActionSheet, StatusBar, Overlay, FullWidth.</p></div>
+                    <div class="feature-card"><h4>16 Visual Painter Styles</h4><p>Material3, iOS15, AntDesign, Fluent2, MaterialYou, Windows11Mica, MacOSBigSur, ChakraUI, TailwindCard, NotionMinimal, Minimal, VercelClean, StripeDashboard, DarkGlow, DiscordStyle, GradientModern.</p></div>
+                    <div class="feature-card"><h4>7 Screen Positions</h4><p>TopLeft, TopCenter, TopRight, BottomLeft, BottomCenter, BottomRight, Center. Each stack notifications with configurable spacing and margin.</p></div>
+                    <div class="feature-card"><h4>Smart Positioning</h4><p>Auto-detects active monitor via cursor position or anchor form. Clamps notifications within screen working-area bounds to prevent off-screen placement.</p></div>
+                    <div class="feature-card"><h4>Notification Grouping</h4><p>Auto-groups similar notifications (same GroupKey or Source) when count exceeds threshold. Groups display as an expandable card with count badge.</p></div>
+                    <div class="feature-card"><h4>Do Not Disturb Mode</h4><p>When enabled, only notifications meeting the configured minimum priority are shown; others are queued. Configurable minimum priority threshold.</p></div>
+                    <div class="feature-card"><h4>Scheduling &amp; Recurring</h4><p>Schedule notifications for future display via <code>ScheduleNotification</code> or create recurring notifications with <code>ScheduleRecurringNotification</code>. Runs on a 1-second tick timer.</p></div>
+                    <div class="feature-card"><h4>Templates</h4><p>Register reusable <code>NotificationData</code> templates by name. Show via <code>ShowFromTemplate</code> with optional customization lambda.</p></div>
+                    <div class="feature-card"><h4>Rich Action Buttons</h4><p>Each notification can carry <code>NotificationAction[]</code> with support for primary/secondary styling, custom colors, and per-action click handlers.</p></div>
+                    <div class="feature-card"><h4>Sound System</h4><p>Optional type-based system sounds (Info=Asterisk, Warning=Exclamation, Error=Hand) or custom WAV file playback via <code>BeepNotificationSound</code>.</p></div>
+                    <div class="feature-card"><h4>History Panel</h4><p>Dismissed notifications are tracked in <code>BeepNotificationHistory</code>, a scrollable panel with search, type filtering, read/unread status, and time-ago display.</p></div>
+                    <div class="feature-card"><h4>Bulk Operations</h4><p>DismissAll, DismissAllByType, DismissAllByPriority, DismissAllExceptPriority, DismissAllRead, DismissAllUnread, MarkAllRead, MarkAllUnread, PinAll, UnpinAll, Clear.</p></div>
+                </div>
+            </section>
+
+            <section id="enums" class="section"><h2>Enumerations &amp; Models</h2>
+                <h3>Core Enums</h3>
+                <table>
+                    <thead><tr><th>Enum</th><th>Values</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>NotificationType</code></td><td><code>Info</code>, <code>Success</code>, <code>Warning</code>, <code>Error</code>, <code>System</code>, <code>Custom</code></td><td>Determines default icon, color palette, and system sound per notification.</td></tr>
+                        <tr><td><code>NotificationPriority</code></td><td><code>Low</code>, <code>Normal</code>, <code>High</code>, <code>Critical</code></td><td>Controls display order, default duration (3s/5s/8s/0=persistent), and DND filtering.</td></tr>
+                        <tr><td><code>NotificationPosition</code></td><td><code>TopLeft</code>, <code>TopCenter</code>, <code>TopRight</code>, <code>BottomLeft</code>, <code>BottomCenter</code>, <code>BottomRight</code>, <code>Center</code></td><td>Screen anchor point for the notification stack.</td></tr>
+                        <tr><td><code>NotificationAnimation</code></td><td><code>None</code>, <code>Slide</code>, <code>Fade</code>, <code>SlideAndFade</code>, <code>Bounce</code>, <code>Scale</code></td><td>Show/hide animation applied via <code>BeepNotificationAnimator</code>.</td></tr>
+                        <tr><td><code>NotificationLayout</code></td><td><code>Standard</code>, <code>Compact</code>, <code>Prominent</code>, <code>Banner</code>, <code>Toast</code>, <code>Elevated</code>, <code>Snackbar</code>, <code>InlineAlert</code>, <code>Callout</code>, <code>Chip</code>, <code>Timeline</code>, <code>MediaRich</code>, <code>ActionSheet</code>, <code>StatusBar</code>, <code>Overlay</code>, <code>FullWidth</code></td><td>Geometric template used by the painter; controls icon placement, text flow, and overall shape.</td></tr>
+                        <tr><td><code>NotificationVisualStyle</code></td><td><code>Material3</code>, <code>iOS15</code>, <code>AntDesign</code>, <code>Fluent2</code>, <code>MaterialYou</code>, <code>Windows11Mica</code>, <code>MacOSBigSur</code>, <code>ChakraUI</code>, <code>TailwindCard</code>, <code>NotionMinimal</code>, <code>Minimal</code>, <code>VercelClean</code>, <code>StripeDashboard</code>, <code>DarkGlow</code>, <code>DiscordStyle</code>, <code>GradientModern</code></td><td>Maps to a concrete <code>INotificationPainter</code> implementation via <code>NotificationPainterFactory</code>.</td></tr>
+                    </tbody>
+                </table>
+                <h3>Data Models</h3>
+                <table>
+                    <thead><tr><th>Class</th><th>Key Members</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>NotificationData</code></td><td>Id, Title, Message, Type, Priority, Layout, VisualStyle, GroupKey, Source, IconPath, IconTint, EmbeddedImagePath, ShowAccentStripe, AccentStripeColor, CornerRadiusOverride, AnchorControl, EnableRichText, ProgressValue, ProgressText, CustomBackColor, CustomForeColor, Duration, ShowCloseButton, ShowProgressBar, PauseOnHover, PlaySound, CustomSoundPath, Actions, Tag, Timestamp, IsRead, ReadTimestamp, IsPinned, Persistent, ShowCount</td><td>Full data model for a single notification. Static helpers: <code>GetDefaultDuration</code>, <code>GetDefaultIconForType</code>.</td></tr>
+                        <tr><td><code>NotificationAction</code></td><td>Id, Text, IsPrimary, OnClick (Action&lt;NotificationData&gt;), CustomColor? </td><td>Action button displayed inside the notification.</td></tr>
+                        <tr><td><code>NotificationEventArgs</code></td><td>Notification, Action, Cancel</td><td>Event args for all notification events. Setting <code>Cancel = true</code> prevents auto-dismiss after action click.</td></tr>
+                        <tr><td><code>NotificationHistoryItem</code></td><td>Data, DismissedAt, WasActioned</td><td>Represents a notification stored in history after dismissal.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>DefaultPosition</code></td><td><code>NotificationPosition</code></td><td><code>BottomRight</code></td><td>Default screen anchor point for the notification stack.</td></tr>
+                        <tr><td><code>MaxVisibleNotifications</code></td><td><code>int</code></td><td><code>5</code></td><td>Maximum number of notifications visible at once. Additional notifications are queued. Clamped to minimum 1.</td></tr>
+                        <tr><td><code>NotificationSpacing</code></td><td><code>int</code></td><td><code>10</code></td><td>Vertical spacing between stacked notifications in pixels. Clamped to minimum 0.</td></tr>
+                        <tr><td><code>ScreenMargin</code></td><td><code>int</code></td><td><code>20</code></td><td>Distance from screen edge in pixels. Clamped to minimum 0.</td></tr>
+                        <tr><td><code>TargetScreen</code></td><td><code>Screen</code></td><td><code>Screen.PrimaryScreen</code></td><td>Target screen for notification display. Overridden by smart positioning and anchor form.</td></tr>
+                        <tr><td><code>DefaultAnimation</code></td><td><code>NotificationAnimation</code></td><td><code>SlideAndFade</code></td><td>Default animation style applied to all notifications.</td></tr>
+                        <tr><td><code>SoundEnabled</code></td><td><code>bool</code></td><td><code>true</code></td><td>Global toggle for notification sounds. Proxies to <code>BeepNotificationSound.SoundEnabled</code>.</td></tr>
+                        <tr><td><code>TrackHistory</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, dismissed notifications are added to the history panel.</td></tr>
+                        <tr><td><code>EnableGrouping</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable automatic grouping of notifications with the same GroupKey or Source.</td></tr>
+                        <tr><td><code>GroupingThreshold</code></td><td><code>int</code></td><td><code>3</code></td><td>Minimum number of similar notifications to form a group. Clamped to minimum 2.</td></tr>
+                        <tr><td><code>DoNotDisturbMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>When enabled, only notifications meeting <code>MinimumPriorityInDND</code> are shown; the rest are queued.</td></tr>
+                        <tr><td><code>MinimumPriorityInDND</code></td><td><code>NotificationPriority</code></td><td><code>Critical</code></td><td>Minimum priority threshold for showing notifications while DND is active.</td></tr>
+                        <tr><td><code>SmartPositioning</code></td><td><code>bool</code></td><td><code>true</code></td><td>Auto-detect active monitor via cursor position or anchor form. Clamps notifications within working-area bounds.</td></tr>
+                        <tr><td><code>AnchorForm</code></td><td><code>Form?</code></td><td><code>null</code></td><td>When set, notifications appear on the same monitor as this form and <code>TargetScreen</code> is updated automatically.</td></tr>
+                        <tr><td><code>HistoryPanel</code></td><td><code>BeepNotificationHistory</code></td><td>Lazy-created</td><td>Access the notification history panel. Created on first access; auto-recreated if disposed.</td></tr>
+                        <tr><td><code>ActiveCount</code></td><td><code>int</code> (get)</td><td>&mdash;</td><td>Number of currently visible (active) notifications.</td></tr>
+                        <tr><td><code>QueuedCount</code></td><td><code>int</code> (get)</td><td>&mdash;</td><td>Number of notifications waiting in the queue.</td></tr>
+                        <tr><td><code>UnreadCount</code></td><td><code>int</code> (get)</td><td>&mdash;</td><td>Count of active notifications where <code>IsRead != true</code>.</td></tr>
+                        <tr><td><code>PinnedCount</code></td><td><code>int</code> (get)</td><td>&mdash;</td><td>Count of active notifications where <code>IsPinned == true</code>.</td></tr>
+                        <tr><td><code>ScheduledCount</code></td><td><code>int</code> (get)</td><td>&mdash;</td><td>Count of pending scheduled notifications.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table>
+                    <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Show</strong></td><td><code>void Show(string title, string message, NotificationType type = Info)</code></td><td>Show a simple notification using default duration for Normal priority.</td></tr>
+                        <tr><td><strong>Show</strong></td><td><code>void Show(NotificationData data)</code></td><td>Show a fully-configured notification. Handles DND check, capacity queuing, grouping, animation, and sound.</td></tr>
+                        <tr><td><strong>ShowSuccess</strong></td><td><code>void ShowSuccess(string title, string message, int duration = 5000)</code></td><td>Show a success-typed notification with a green check icon.</td></tr>
+                        <tr><td><strong>ShowError</strong></td><td><code>void ShowError(string title, string message, int duration = 0)</code></td><td>Show an error-typed notification. Default duration 0 (no auto-dismiss). Sets High priority.</td></tr>
+                        <tr><td><strong>ShowWarning</strong></td><td><code>void ShowWarning(string title, string message, int duration = 8000)</code></td><td>Show a warning-typed notification. Sets High priority.</td></tr>
+                        <tr><td><strong>ShowInfo</strong></td><td><code>void ShowInfo(string title, string message, int duration = 5000)</code></td><td>Show an info-typed notification.</td></tr>
+                        <tr><td><strong>ShowWithActions</strong></td><td><code>void ShowWithActions(string title, string message, NotificationType type, params NotificationAction[] actions)</code></td><td>Show a notification with action buttons. Duration is set to 0 (no auto-dismiss).</td></tr>
+                        <tr><td><strong>Dismiss</strong></td><td><code>void Dismiss(BeepNotification notification)</code></td><td>Dismiss a specific active notification with animation, then cleanup and reposition.</td></tr>
+                        <tr><td><strong>DismissAll</strong></td><td><code>void DismissAll()</code></td><td>Dismiss all active notifications.</td></tr>
+                        <tr><td><strong>DismissAllByType</strong></td><td><code>void DismissAllByType(NotificationType type)</code></td><td>Dismiss all active notifications matching a specific type.</td></tr>
+                        <tr><td><strong>DismissAllByPriority</strong></td><td><code>void DismissAllByPriority(NotificationPriority priority)</code></td><td>Dismiss all active notifications matching a specific priority.</td></tr>
+                        <tr><td><strong>DismissAllExceptPriority</strong></td><td><code>void DismissAllExceptPriority(NotificationPriority priority)</code></td><td>Dismiss all active notifications except those matching a priority. Useful to keep critical alerts.</td></tr>
+                        <tr><td><strong>DismissAllRead</strong></td><td><code>void DismissAllRead()</code></td><td>Dismiss all notifications marked as read.</td></tr>
+                        <tr><td><strong>DismissAllUnread</strong></td><td><code>void DismissAllUnread()</code></td><td>Dismiss all notifications not marked as read.</td></tr>
+                        <tr><td><strong>ClearQueue</strong></td><td><code>void ClearQueue()</code></td><td>Clear all queued notifications without showing them.</td></tr>
+                        <tr><td><strong>Clear</strong></td><td><code>void Clear()</code></td><td>Shortcut for <code>DismissAll()</code> + <code>ClearQueue()</code>.</td></tr>
+                        <tr><td><strong>MarkAllRead</strong></td><td><code>void MarkAllRead()</code></td><td>Mark all active notifications as read, setting <code>ReadTimestamp = DateTime.Now</code>.</td></tr>
+                        <tr><td><strong>MarkAllUnread</strong></td><td><code>void MarkAllUnread()</code></td><td>Mark all active notifications as unread, clearing <code>ReadTimestamp</code>.</td></tr>
+                        <tr><td><strong>PinAll</strong></td><td><code>void PinAll()</code></td><td>Pin all active notifications (prevent auto-dismiss).</td></tr>
+                        <tr><td><strong>UnpinAll</strong></td><td><code>void UnpinAll()</code></td><td>Unpin all active notifications.</td></tr>
+                        <tr><td><strong>RegisterTemplate</strong></td><td><code>void RegisterTemplate(string name, NotificationData template)</code></td><td>Save a notification template for reuse by name.</td></tr>
+                        <tr><td><strong>ShowFromTemplate</strong></td><td><code>void ShowFromTemplate(string name, Action&lt;NotificationData&gt; customize = null)</code></td><td>Clone and show a registered template, optionally customizing before display.</td></tr>
+                        <tr><td><strong>RemoveTemplate</strong></td><td><code>void RemoveTemplate(string name)</code></td><td>Unregister a notification template.</td></tr>
+                        <tr><td><strong>GetTemplateNames</strong></td><td><code>IEnumerable&lt;string&gt; GetTemplateNames()</code></td><td>Enumerate all registered template names.</td></tr>
+                        <tr><td><strong>ScheduleNotification</strong></td><td><code>void ScheduleNotification(NotificationData data, DateTime showTime)</code></td><td>Schedule a one-time notification.</td></tr>
+                        <tr><td><strong>ScheduleRecurringNotification</strong></td><td><code>void ScheduleRecurringNotification(NotificationData data, TimeSpan interval)</code></td><td>Schedule a recurring notification with the specified interval.</td></tr>
+                        <tr><td><strong>CancelScheduledNotification</strong></td><td><code>void CancelScheduledNotification(NotificationData data)</code></td><td>Cancel a specific scheduled notification by reference.</td></tr>
+                        <tr><td><strong>CancelAllScheduledNotifications</strong></td><td><code>void CancelAllScheduledNotifications()</code></td><td>Cancel all pending scheduled notifications.</td></tr>
+                        <tr><td><strong>Dispose</strong></td><td><code>void Dispose()</code></td><td>Dismiss all, clear queue, stop scheduler, dispose history panel, dispose all animators. Does not implement <code>IDisposable</code> formally (manual call).</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="events" class="section"><h2>Events</h2>
+                <table>
+                    <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>NotificationShown</code></td><td><code>EventHandler&lt;NotificationEventArgs&gt;?</code></td><td>Raised after a notification&#39;s show animation completes and it is brought to front.</td></tr>
+                        <tr><td><code>NotificationDismissed</code></td><td><code>EventHandler&lt;NotificationEventArgs&gt;?</code></td><td>Raised when a notification is dismissed (either by timer, user click, or programmatic call).</td></tr>
+                        <tr><td><code>NotificationActionClicked</code></td><td><code>EventHandler&lt;NotificationEventArgs&gt;?</code></td><td>Raised when an action button is clicked. The <code>Cancel</code> property on the args prevents auto-dismiss if set to true.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="notification-data" class="section"><h2>NotificationData Model</h2>
+                <p><code>NotificationData</code> is the complete data model for a notification. Every field is a public get/set property with sensible defaults:</p>
+                <table>
+                    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Id</code></td><td><code>string</code></td><td><code>Guid.NewGuid()</code></td><td>Unique identifier.</td></tr>
+                        <tr><td><code>Title</code></td><td><code>string</code></td><td><code>null</code></td><td>Bold notification title.</td></tr>
+                        <tr><td><code>Message</code></td><td><code>string</code></td><td><code>null</code></td><td>Body text.</td></tr>
+                        <tr><td><code>Type</code></td><td><code>NotificationType</code></td><td><code>Info</code></td><td>Notification category.</td></tr>
+                        <tr><td><code>Priority</code></td><td><code>NotificationPriority</code></td><td><code>Normal</code></td><td>Priority level.</td></tr>
+                        <tr><td><code>Layout</code></td><td><code>NotificationLayout</code></td><td><code>Standard</code></td><td>Layout template.</td></tr>
+                        <tr><td><code>VisualStyle</code></td><td><code>NotificationVisualStyle</code></td><td><code>Material3</code></td><td>Painter style (16 options).</td></tr>
+                        <tr><td><code>GroupKey</code></td><td><code>string</code></td><td><code>null</code></td><td>Group identifier for stacking.</td></tr>
+                        <tr><td><code>Source</code></td><td><code>string</code></td><td><code>null</code></td><td>Source identifier (e.g. &quot;EmailClient&quot;).</td></tr>
+                        <tr><td><code>IconPath</code></td><td><code>string</code></td><td><code>null</code></td><td>Custom icon image path. Null = default SVG per type.</td></tr>
+                        <tr><td><code>IconTint</code></td><td><code>Color?</code></td><td><code>null</code></td><td>Custom icon tint. Null = auto from type color.</td></tr>
+                        <tr><td><code>EmbeddedImagePath</code></td><td><code>string</code></td><td><code>null</code></td><td>Body image path for MediaRich layout.</td></tr>
+                        <tr><td><code>ShowAccentStripe</code></td><td><code>bool</code></td><td><code>false</code></td><td>Show left accent stripe.</td></tr>
+                        <tr><td><code>AccentStripeColor</code></td><td><code>Color?</code></td><td><code>null</code></td><td>Accent stripe color override.</td></tr>
+                        <tr><td><code>CornerRadiusOverride</code></td><td><code>int</code></td><td><code>0</code></td><td>Corner radius override; 0 = use style default.</td></tr>
+                        <tr><td><code>EnableRichText</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable HTML-like formatting in Message.</td></tr>
+                        <tr><td><code>ProgressValue</code></td><td><code>int?</code></td><td><code>null</code></td><td>0-100 progress indicator value.</td></tr>
+                        <tr><td><code>ProgressText</code></td><td><code>string</code></td><td><code>null</code></td><td>Label for progress indicator.</td></tr>
+                        <tr><td><code>CustomBackColor</code></td><td><code>Color?</code></td><td><code>null</code></td><td>Custom background color override.</td></tr>
+                        <tr><td><code>CustomForeColor</code></td><td><code>Color?</code></td><td><code>null</code></td><td>Custom foreground color override.</td></tr>
+                        <tr><td><code>Duration</code></td><td><code>int</code></td><td><code>5000</code></td><td>Auto-dismiss delay in ms. 0 = no auto-dismiss.</td></tr>
+                        <tr><td><code>ShowCloseButton</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show X close button.</td></tr>
+                        <tr><td><code>ShowProgressBar</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show countdown progress bar.</td></tr>
+                        <tr><td><code>PauseOnHover</code></td><td><code>bool</code></td><td><code>true</code></td><td>Pause auto-dismiss on mouse hover.</td></tr>
+                        <tr><td><code>PlaySound</code></td><td><code>bool</code></td><td><code>false</code></td><td>Play sound on notification.</td></tr>
+                        <tr><td><code>CustomSoundPath</code></td><td><code>string</code></td><td><code>null</code></td><td>WAV file path for custom sound.</td></tr>
+                        <tr><td><code>Actions</code></td><td><code>NotificationAction[]</code></td><td><code>null</code></td><td>Action button array.</td></tr>
+                        <tr><td><code>Tag</code></td><td><code>object</code></td><td><code>null</code></td><td>Arbitrary tag for custom handling.</td></tr>
+                        <tr><td><code>Timestamp</code></td><td><code>DateTime</code></td><td><code>DateTime.UtcNow</code></td><td>UTC creation time.</td></tr>
+                        <tr><td><code>IsRead</code></td><td><code>bool</code></td><td><code>false</code></td><td>Read flag.</td></tr>
+                        <tr><td><code>ReadTimestamp</code></td><td><code>DateTime?</code></td><td><code>null</code></td><td>When marked read.</td></tr>
+                        <tr><td><code>IsPinned</code></td><td><code>bool</code></td><td><code>false</code></td><td>Prevent auto-dismiss.</td></tr>
+                        <tr><td><code>Persistent</code></td><td><code>bool</code></td><td><code>false</code></td><td>Persist after duration expires.</td></tr>
+                        <tr><td><code>ShowCount</code></td><td><code>int</code></td><td><code>1</code></td><td>Times shown (for grouped/repeated).</td></tr>
+                    </tbody>
+                </table>
+                <h3>Static Helpers</h3>
+                <pre><code class="language-csharp">// Priority-based default duration
+int duration = NotificationData.GetDefaultDuration(NotificationPriority.High); // 8000
+int critical = NotificationData.GetDefaultDuration(NotificationPriority.Critical); // 0 (persistent)
+
+// Default SVG icons per type
+string icon = NotificationData.GetDefaultIconForType(NotificationType.Success);
+// Returns SvgsUI.CircleCheck (check-circle.svg)
+string errorIcon = NotificationData.GetDefaultIconForType(NotificationType.Error);
+// Returns SvgsUI.CircleX (x-circle.svg)</code></pre>
+            </section>
+
+            <section id="show-methods" class="section"><h2>Show Methods &amp; Convenience APIs</h2>
+                <p>All <code>Show*</code> methods ultimately route through <code>Show(NotificationData)</code>, which handles:</p>
+                <ol>
+                    <li><strong>DND Check</strong>: If DND is active and priority is below threshold, the notification is queued.</li>
+                    <li><strong>Capacity Check</strong>: If active count exceeds <code>MaxVisibleNotifications</code>, the notification is queued.</li>
+                    <li><strong>Grouping Check</strong>: If grouping is enabled and a matching group key exists, it&#39;s added to the group. If similarity count reaches the threshold, a new group is created.</li>
+                    <li><strong>Notification Creation</strong>: A new <code>BeepNotification</code> form is instantiated with the data.</li>
+                    <li><strong>Sound Playback</strong>: If <code>PlaySound</code> is true, the appropriate sound is played via <code>BeepNotificationSound</code>.</li>
+                    <li><strong>Positioning</strong>: Target location is calculated based on position, screen, existing notifications, and groups.</li>
+                    <li><strong>Animation</strong>: The notification is animated in via <code>BeepNotificationAnimator</code>.</li>
+                </ol>
+            </section>
+
+            <section id="management" class="section"><h2>Management Methods</h2>
+                <p>The manager provides a full bulk-operation API. Each dismiss method removes the notification from active state, adds it to history (if tracking is on), disposes its animator, repositions remaining notifications, and dequeues the next pending notification if any exist.</p>
+                <p>Pin/Unpin and MarkRead/MarkUnread operations call <code>Invalidate()</code> on each affected notification to trigger a visual refresh. The <code>RepositionNotificationsAnimated</code> method uses <code>SuspendLayout</code>/<code>ResumeLayout</code> across all active notifications to eliminate flicker during repositioning.</p>
+            </section>
+
+            <section id="templates" class="section"><h2>Notification Templates</h2>
+                <p>The template system allows pre-defining notification configurations for reuse. Templates are stored in a <code>Dictionary&lt;string, NotificationData&gt;</code>. When showing from a template, the data is deep-cloned via <code>CloneNotificationData</code>, which copies all primitive/string properties and shallow-copies arrays. An optional <code>customize</code> lambda receives the clone before display.</p>
+                <pre><code class="language-csharp">var errorTemplate = new NotificationData
+{
+    Type = NotificationType.Error,
+    Priority = NotificationPriority.Critical,
+    ShowCloseButton = true,
+    PlaySound = true,
+    Duration = 0 // persistent
+};
+BeepNotificationManager.Instance.RegisterTemplate("app-error", errorTemplate);
+
+// Later, show with customization
+BeepNotificationManager.Instance.ShowFromTemplate("app-error", data =>
+{
+    data.Title = "Database Error";
+    data.Message = "Connection to database 'Orders' failed.";
+});</code></pre>
+            </section>
+
+            <section id="scheduling" class="section"><h2>Notification Scheduling</h2>
+                <p>Scheduling uses an internal <code>List&lt;ScheduledNotification&gt;</code> and a 1-second <code>Timer</code>. The timer starts when the first notification is scheduled and stops when all scheduled notifications are processed. Recurring notifications automatically re-schedule themselves by adding their interval to <code>ShowTime</code>.</p>
+                <p>Each <code>ScheduledNotification</code> contains the <code>NotificationData</code>, the <code>ShowTime</code> (DateTime), an optional <code>Interval</code> (TimeSpan), and an <code>IsRecurring</code> flag.</p>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+// Schedule one-time notification
+manager.ScheduleNotification(
+    new NotificationData { Title = "Meeting", Message = "Starts in 5 minutes", Type = NotificationType.Warning },
+    DateTime.Now.AddMinutes(5)
+);
+
+// Schedule recurring notification
+manager.ScheduleRecurringNotification(
+    new NotificationData { Title = "Backup", Message = "Completed", Type = NotificationType.Success },
+    TimeSpan.FromHours(24)
+);
+
+// Cancel all
+manager.CancelAllScheduledNotifications();</code></pre>
+            </section>
+
+            <section id="supporting-controls" class="section"><h2>Supporting Controls</h2>
+                <h3>BeepNotification (partial class: 4 files)</h3>
+                <p>A borderless <code>BeepiFormPro</code> window that renders the notification visually. Configured with <code>FormBorderStyle.None</code>, <code>ShowInTaskbar = false</code>, <code>TopMost = true</code>, and <code>ShowCaptionBar = false</code>. Features:</p>
+                <ul>
+                    <li><strong>Core</strong> (<code>BeepNotification.Core.cs</code>): Properties (NotificationData, Title, Message, NotificationType, LayoutStyle, Duration, ShowCloseButton, ShowProgressBar), constructor, form configuration, painter initialization, DPI scaling.</li>
+                    <li><strong>Events</strong> (<code>BeepNotification.Events.cs</code>): Mouse click routing for close button, action buttons, and general click zones. Keyboard navigation (Esc to dismiss, Enter/Space for primary action, 1-3 for action indices, Ctrl+M to mark read, Ctrl+P to toggle pin).</li>
+                    <li><strong>Methods</strong> (<code>BeepNotification.Methods.cs</code>): Show (starts auto-dismiss timer), Dismiss, Pause (on hover), Resume, timer ticks, mouse enter/leave for pause-on-hover.</li>
+                    <li><strong>Drawing</strong> (<code>BeepNotification.Drawing.cs</code>): UpdateNotificationVisuals (colors), RecalculateLayout (layout helpers), OnPaint (delegates to painter for background, icon, close button, title, message, actions, progress bar).</li>
+                </ul>
+
+                <h3>BeepNotificationHistory</h3>
+                <p>A <code>BaseControl</code> that displays dismissed notifications in a scrollable list with search filtering, type combobox filter, read/unread status combobox filter, &quot;Clear&quot; and &quot;Mark All Read&quot; buttons. Items are drawn with type-colored backgrounds, bold titles, message previews, and time-ago timestamps. Limited to <code>MaxHistorySize</code> (default 100).</p>
+
+                <h3>BeepNotificationGroup</h3>
+                <p>A <code>BaseControl</code> that aggregates similar notifications into an expandable stacked card. Displays a header with group type-colored background, icon, title, most-recent message preview, a chevron toggle button, and a count badge. When expanded, individual notification items are rendered with hover effects and separators. Has keyboard support (Enter/Space to toggle). Designer support via <code>BeepNotificationGroupDesigner</code> with action lists and verb commands.</p>
+
+                <h3>BeepNotificationAnimator</h3>
+                <p>An internal class handling 6 animation types at 60 FPS with a 300ms duration. Uses cubic ease-out easing. Bounce animation implements Robert Penner&#39;s bounce-out formula. Supports AnimateShow, AnimateHide, and Stop. Manages a <code>Timer</code> with <code>1000 / 60</code> interval. Applies <code>Lerp</code> (linear interpolation) for position and opacity.</p>
+
+                <h3>BeepNotificationSound</h3>
+                <p>Internal static class for sound management. Plays <code>SystemSounds.Asterisk</code> for Info, <code>SystemSounds.Exclamation</code> for Success/Warning, <code>SystemSounds.Hand</code> for Error, and <code>SystemSounds.Beep</code> for System. Custom WAV files are played asynchronously on a background task via <code>SoundPlayer</code>.</p>
+            </section>
+
+            <section id="theming" class="section"><h2>Theming &amp; Painters</h2>
+                <p>The notification system uses a two-axis painter factory:</p>
+                <ol>
+                    <li><strong>Layout (geometric template)</strong>: Determined by <code>NotificationLayout</code> &mdash; icon size, text placement, action button positioning, padding, spacing.</li>
+                    <li><strong>Visual Style (rendering engine)</strong>: Determined by <code>NotificationVisualStyle</code> &mdash; colors, shapes, shadows, border treatment, font choices.</li>
+                </ol>
+                <p>The <code>NotificationPainterFactory.CreatePainter(layout, visualStyle, owner, theme)</code> method returns the appropriate <code>INotificationPainter</code> implementation. Layout helpers (<code>NotificationStyleHelpers</code>, <code>NotificationLayoutHelpers</code>) provide recommended padding, spacing, and icon sizes per layout. Color helpers (<code>NotificationThemeHelpers</code>) provide type-based color palettes, contrast color calculation, and luminance shifting.</p>
+                <p>Theme fonts are pushed via <code>BeepFontManager.ToFont</code> and piped through <code>_painter.RefreshFonts(theme)</code> which sets TitleFont, MessageFont, ButtonFont, and CaptionFont on the painter base class.</p>
+            </section>
+
+            <section id="examples" class="section"><h2>Code Examples</h2>
+                <h3>Example 1: Basic Usage</h3>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+// Simple info notification
+manager.Show("Welcome", "You have successfully logged in.");
+
+// Success
+manager.ShowSuccess("File Saved", "Report has been saved to Downloads.");
+
+// Error (persistent, requires user dismissal)
+manager.ShowError("Connection Failed", "Unable to reach server at 192.168.1.100.");
+
+// Warning
+manager.ShowWarning("Low Disk Space", "Drive C: has less than 1 GB remaining.");</code></pre>
+
+                <h3>Example 2: Rich Notification with Actions</h3>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+manager.Show(new NotificationData
+{
+    Title = "New Message",
+    Message = "John Smith sent you a file: report-q4.xlsx",
+    Type = NotificationType.Info,
+    Priority = NotificationPriority.High,
+    Layout = NotificationLayout.MediaRich,
+    VisualStyle = NotificationVisualStyle.Windows11Mica,
+    PlaySound = true,
+    ShowProgressBar = true,
+    Duration = 10000,
+    Actions = new NotificationAction[]
+    {
+        new NotificationAction
+        {
+            Id = "open",
+            Text = "Open",
+            IsPrimary = true,
+            OnClick = (data) => Console.WriteLine($"Opening: {data.Message}")
+        },
+        new NotificationAction
+        {
+            Id = "dismiss",
+            Text = "Dismiss",
+            OnClick = (data) => { /* dismissed */ }
+        }
+    }
+});</code></pre>
+
+                <h3>Example 3: Configure Manager &amp; DND</h3>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+manager.DefaultPosition = NotificationPosition.TopRight;
+manager.MaxVisibleNotifications = 3;
+manager.NotificationSpacing = 8;
+manager.ScreenMargin = 16;
+manager.DefaultAnimation = NotificationAnimation.Bounce;
+manager.SoundEnabled = true;
+manager.TrackHistory = true;
+manager.EnableGrouping = true;
+manager.GroupingThreshold = 3;
+
+// Anchor to a specific form
+manager.AnchorForm = this; // 'this' = your MainForm
+manager.SmartPositioning = true;
+
+// Enable Do Not Disturb (only Critical passes through)
+manager.DoNotDisturbMode = true;
+manager.MinimumPriorityInDND = NotificationPriority.Critical;
+
+// Disable DND
+manager.DoNotDisturbMode = false;</code></pre>
+
+                <h3>Example 4: History Panel &amp; Cleanup</h3>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+// Show history panel on your form
+var historyPanel = manager.HistoryPanel;
+historyPanel.Dock = DockStyle.Fill;
+this.Controls.Add(historyPanel);
+
+// Query stats
+int unread = manager.UnreadCount;
+int pinned = manager.PinnedCount;
+int active = manager.ActiveCount;
+int queued = manager.QueuedCount;
+
+Console.WriteLine($"{unread} unread, {pinned} pinned, {active} active, {queued} queued");
+
+// Bulk operations
+manager.MarkAllRead();
+manager.PinAll();
+manager.DismissAllRead();
+manager.Clear(); // DismissAll + ClearQueue
+
+// Cleanup on application exit
+manager.Dispose();</code></pre>
+
+                <h3>Example 5: Full Customization with All Layouts</h3>
+                <pre><code class="language-csharp">var manager = BeepNotificationManager.Instance;
+
+// Material Snackbar
+manager.Show(new NotificationData
+{
+    Title = "Item Deleted",
+    Message = "File 'notes.txt' was moved to trash.",
+    Type = NotificationType.Info,
+    Layout = NotificationLayout.Snackbar,
+    VisualStyle = NotificationVisualStyle.Material3,
+    Duration = 4000,
+    Actions = new[] { new NotificationAction { Id = "undo", Text = "Undo", IsPrimary = true } }
+});
+
+// Elevated card with accent stripe (StripeDashboard style)
+manager.Show(new NotificationData
+{
+    Title = "Payment Received",
+    Message = "Customer #4521 paid $149.99. Invoice: INV-2024-0891.",
+    Type = NotificationType.Success,
+    Layout = NotificationLayout.Elevated,
+    VisualStyle = NotificationVisualStyle.StripeDashboard,
+    ShowAccentStripe = true,
+    AccentStripeColor = Color.FromArgb(0, 200, 83),
+    Duration = 6000
+});
+
+// Full-width banner (error)
+manager.Show(new NotificationData
+{
+    Title = "Deployment Failed",
+    Message = "Build #1427 encountered a runtime error during stage 3/5. Please check logs.",
+    Type = NotificationType.Error,
+    Layout = NotificationLayout.FullWidth,
+    VisualStyle = NotificationVisualStyle.DiscordStyle,
+    PlaySound = true,
+    Duration = 0 // persistent
+});</code></pre>
+            </section>
+
+            <section id="architecture" class="section"><h2>Architecture &amp; File Map</h2>
+                <table>
+                    <thead><tr><th>File</th><th>Type</th><th>Responsibility</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>BeepNotificationManager.cs</code></td><td>Class (1248 lines)</td><td>Singleton manager: singleton pattern, all public properties/events/methods, Show/Dismiss/Template/Scheduling APIs, internal notification lifecycle (<code>ShowNotificationInternal</code>, <code>DismissNotificationInternal</code>, <code>CleanupNotification</code>), positioning calculations (<code>CalculateNotificationPosition</code>, <code>CalculateSmartPosition</code>, <code>CalculateGroupPosition</code>), repositioning, grouping logic (<code>TryAddToGroup</code>, <code>CreateGroup</code>), event handlers, scheduler timer.</td></tr>
+                        <tr><td><code>NotificationModels.cs</code></td><td>Enums + Models (254 lines)</td><td>6 enums (<code>NotificationType</code>, <code>NotificationPriority</code>, <code>NotificationPosition</code>, <code>NotificationAnimation</code>, <code>NotificationLayout</code>, <code>NotificationVisualStyle</code>) and 3 data classes (<code>NotificationData</code>, <code>NotificationAction</code>, <code>NotificationEventArgs</code>).</td></tr>
+                        <tr><td><code>BeepNotification.Core.cs</code></td><td>Partial class (317 lines)</td><td>Core constructor, properties (<code>NotificationData</code>, <code>Title</code>, <code>Message</code>, <code>NotificationType</code>, <code>LayoutStyle</code>, <code>Duration</code>, <code>ShowCloseButton</code>, <code>ShowProgressBar</code>), painter initialization, form configuration, DPI scaling, <code>ApplyTheme</code>.</td></tr>
+                        <tr><td><code>BeepNotification.Events.cs</code></td><td>Partial class (185 lines)</td><td>Mouse click handling (close button, action buttons, general click), mouse move for hover redraw, keyboard navigation (Esc, Enter, Space, 1-3, Ctrl+M, Ctrl+P), <code>TogglePin</code>, <code>MarkAsRead</code>, <code>Dispose</code>.</td></tr>
+                        <tr><td><code>BeepNotification.Methods.cs</code></td><td>Partial class (135 lines)</td><td><code>Show</code> (starts timers), <code>Dismiss</code>, <code>Pause</code>/<code>Resume</code> (hover support), <code>AutoDismissTimer_Tick</code>, <code>ProgressTimer_Tick</code>, <code>StopTimers</code>, mouse enter/leave handlers.</td></tr>
+                        <tr><td><code>BeepNotification.Drawing.cs</code></td><td>Partial class (163 lines)</td><td><code>UpdateNotificationVisuals</code> (color mapping), <code>RecalculateLayout</code> (layout helper integration), <code>OnSizeChanged</code>, <code>OnPaint</code> (delegates to painter for all draw regions).</td></tr>
+                        <tr><td><code>BeepNotificationHistory.cs</code></td><td>Class (605 lines)</td><td>Scrollable history panel with search + filter UI, custom item drawing, time-ago formatting, DPI scaling, theme application.</td></tr>
+                        <tr><td><code>BeepNotificationGroup.cs</code></td><td>Class (713 lines)</td><td>Expandable group card with auto-UI: header, chevron, count badge, expanded item list with hover states, separator lines, keyboard support, popup open/close events.</td></tr>
+                        <tr><td><code>BeepNotificationAnimator.cs</code></td><td>Internal class (395 lines)</td><td>60 FPS animation engine: 6 animation types, cubic ease-out, bounce easing, linear interpolation, setup methods for show/hide per animation type.</td></tr>
+                        <tr><td><code>BeepNotificationSound.cs</code></td><td>Internal static class (139 lines)</td><td>System sound mapping per notification type, custom WAV playback on background thread, global enable/disable, Stop/Dispose cleanup.</td></tr>
+                        <tr><td><code>BeepNotificationGroupDesigner.cs</code></td><td>Designer (174 lines)</td><td>Visual Studio design-time support: toggle expand, add sample, clear actions, action lists with type presets (Info/Success/Warning/Error).</td></tr>
+                    </tbody>
+                </table>
+                <p>The notification pipeline flows as: <code>BeepNotificationManager.Show(data)</code> &rarr; <code>ShowNotificationInternal</code> &rarr; creates <code>BeepNotification</code> form + wires events &rarr; plays sound via <code>BeepNotificationSound</code> &rarr; calculates position &rarr; creates <code>BeepNotificationAnimator</code> &rarr; animates show &rarr; <code>BeepNotification.Show()</code> starts timers. On dismiss: <code>NotificationDismissed</code> event &rarr; <code>DismissNotificationInternal</code> &rarr; animates hide &rarr; <code>CleanupNotification</code> adds to history, removes from active list, disposes animator, repositions remaining, dequeues next.</p>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')=='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDateRangePicker - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>→</span>
+                    <span>BeepDateRangePicker</span>
+                </nav>
+                <div class="page-header">
+                    <h1>BeepDateRangePicker</h1>
+                    <p class="page-subtitle">A modern date range control with calendar popups, preset date ranges, and real-time validation — built on BeepControls.</p>
+                    <div class="header-badges">
+                        <span class="badge badge-stable">Stable</span>
+                        <span class="badge badge-version">v1.0</span>
+                        <span class="badge badge-namespace">TheTechIdea.Beep.Winform.Controls.GridX.Filtering</span>
+                        <span class="badge badge-base">BaseControl</span>
+                    </div>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#date-range-presets">DateRangePreset Enum</a></li>
+                        <li><a href="#layout">Layout & Internal Structure</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDateRangePicker</strong> is a composite control built on <strong>BaseControl</strong> that provides a compact start-to-end date range selector. It features two <code>BeepTextBox</code> inputs for manual date entry (<code>yyyy-MM-dd</code> format), two calendar trigger buttons that open a <code>MonthCalendar</code> popup, and a "to" label separator. The control exposes <code>StartDate</code> and <code>EndDate</code> as <code>DateTime?</code> properties, a read-only <code>IsValidRange</code> check, and a <code>DateRangeChanged</code> event.
+                    </p>
+                    <p>
+                        Designed primarily for use in <strong>BeepGridPro</strong> filtering scenarios (e.g., a Between date filter), <code>BeepDateRangePicker</code> is a lightweight, self-contained control that supports preset ranges (Today, Last7Days, ThisMonth, etc.) via the <code>SetPresetRange</code> method and the <code>DateRangePreset</code> enum. The calendar popup positions itself beneath the appropriate calendar button and closes on date selection or lost focus.
+                    </p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>Dual Date Inputs</h3>
+                            <p>Two <strong>BeepTextBox</strong> fields with placeholder text ("Start date", "End date") accept dates in <code>yyyy-MM-dd</code> format. Dates are parsed with <code>DateTime.TryParse</code> for flexibility.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Calendar Popup</h3>
+                            <p>Dedicated calendar buttons (📅) open a <code>MonthCalendar</code> in a borderless popup form, positioned below the triggering button. Selecting a date auto-fills the corresponding text box.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>8 Preset Ranges</h3>
+                            <p>The <code>DateRangePreset</code> enum provides quick-set ranges: Today, Yesterday, Last7Days, Last30Days, ThisMonth, LastMonth, ThisYear, LastYear.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Range Validation</h3>
+                            <p>The read-only <code>IsValidRange</code> property verifies both dates are set and <code>StartDate &lt;= EndDate</code>.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Real-Time Events</h3>
+                            <p><code>DateRangeChanged</code> event fires whenever either text box value changes or a calendar selection is made.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Theming</h3>
+                            <p>Inherits <strong>BaseControl</strong> theming. All child BeepControls (<code>BeepTextBox</code>, <code>BeepButton</code>, <code>BeepLabel</code>) are marked <code>IsChild = true</code> for theme propagation.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Property</th><th>Type</th><th>Access</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>StartDate</code></td>
+                                <td><code>DateTime?</code></td>
+                                <td>Get / Set</td>
+                                <td><code>null</code></td>
+                                <td>The start date of the range. On get, parses <code>_startDateTextBox.Text</code> using <code>DateTime.TryParse</code> — returns <code>null</code> if the text is not a valid date. On set, writes the date as <code>yyyy-MM-dd</code> format (empty string for null).</td>
+                            </tr>
+                            <tr>
+                                <td><code>EndDate</code></td>
+                                <td><code>DateTime?</code></td>
+                                <td>Get / Set</td>
+                                <td><code>null</code></td>
+                                <td>The end date of the range. Same parse/set semantics as <code>StartDate</code> using <code>_endDateTextBox</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsValidRange</code></td>
+                                <td><code>bool</code></td>
+                                <td>Read</td>
+                                <td><code>false</code></td>
+                                <td>Returns <code>true</code> only if both start and end dates have values <em>and</em> <code>StartDate &lt;= EndDate</code>. Returns <code>false</code> if either date is null or if start is after end.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Inherited Properties:</strong> As a <strong>BaseControl</strong>, this control inherits <code>Theme</code>, <code>CurrentTheme</code>, <code>UseThemeColors</code>, <code>IsFrameless</code>, <code>ShowAllBorders</code>, <code>ShowShadow</code>, and all standard <code>UserControl</code> properties.
+                    </div>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table class="props-table">
+                        <thead><tr><th>Event</th><th>Args Type</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DateRangeChanged</code></td>
+                                <td><code>EventArgs</code></td>
+                                <td>Fires when either the start or end date text changes (<code>TextChanged</code> on either <code>BeepTextBox</code>) or when a date is selected from the calendar popup (which programmatically sets the text box value). Use this to reactively enable/disable date-range-dependent UI elements.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <h3>Public Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Clear</code></td>
+                                <td><code>public void Clear()</code></td>
+                                <td>Sets both <code>_startDateTextBox.Text</code> and <code>_endDateTextBox.Text</code> to <code>string.Empty</code>. Does not explicitly fire <code>DateRangeChanged</code> but the <code>TextChanged</code> handlers will trigger.</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetPresetRange</code></td>
+                                <td><code>public void SetPresetRange(DateRangePreset preset)</code></td>
+                                <td>Calculates and sets <code>StartDate</code> and <code>EndDate</code> based on the selected <code>DateRangePreset</code> value. The end date is always <code>DateTime.Today</code> (except yesterday/last month/last year where it is adjusted). See <a href="#date-range-presets">DateRangePreset Enum</a> for all presets.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Private Methods</h3>
+                    <table class="props-table">
+                        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>InitializeControls()</code></td><td>Creates all five child controls: <code>_startDateTextBox</code> (120px, placeholder "Start date"), <code>_startCalendarButton</code> (30×30, text "📅"), <code>_toLabel</code> (30×30, "to", center-aligned), <code>_endDateTextBox</code> (120px, placeholder "End date"), <code>_endCalendarButton</code> (30×30). All are marked <code>IsChild = true</code> and added to <code>Controls</code>.</td></tr>
+                            <tr><td><code>LayoutControls()</code></td><td>Positions controls horizontally with 5px margins: <code>_startDateTextBox</code> → <code>_startCalendarButton</code> → <code>_toLabel</code> → <code>_endDateTextBox</code> → <code>_endCalendarButton</code>. Sets the control's <code>Height</code> and <code>Width</code> based on the accumulated positions.</td></tr>
+                            <tr><td><code>HookEvents()</code></td><td>Wires <code>TextChanged</code> on both text boxes to <code>OnDateRangeChanged()</code>, and <code>Click</code> on both calendar buttons to <code>ShowCalendar(bool)</code>.</td></tr>
+                            <tr><td><code>ShowCalendar(bool isStartDate)</code></td><td>Creates a <code>MonthCalendar</code> with <code>MaxSelectionCount = 1</code>, wraps it in a borderless, top-most, manually-positioned popup <code>Form</code>. Positions the popup below the appropriate calendar button. On <code>DateSelected</code>, updates the corresponding text box. On <code>Deactivate</code>, closes the popup. Calls <code>ShowDialog(this)</code>.</td></tr>
+                            <tr><td><code>OnDateRangeChanged()</code></td><td>Invokes the <code>DateRangeChanged</code> event.</td></tr>
+                            <tr><td><code>Dispose(bool)</code></td><td>Disposes the calendar popup form and all child controls (buttons, text boxes, label).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="date-range-presets" class="section">
+                    <h2>DateRangePreset Enum</h2>
+                    <p>Defined in the same file and namespace. Used with <code>SetPresetRange</code> for quick date selection.</p>
+                    <table class="props-table">
+                        <thead><tr><th>Value</th><th>Integer</th><th>Start Date</th><th>End Date</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Today</code></td><td>0</td><td>Today</td><td>Today</td></tr>
+                            <tr><td><code>Yesterday</code></td><td>1</td><td>Yesterday</td><td>Yesterday</td></tr>
+                            <tr><td><code>Last7Days</code></td><td>2</td><td>6 days ago</td><td>Today</td></tr>
+                            <tr><td><code>Last30Days</code></td><td>3</td><td>29 days ago</td><td>Today</td></tr>
+                            <tr><td><code>ThisMonth</code></td><td>4</td><td>1st of current month</td><td>Today</td></tr>
+                            <tr><td><code>LastMonth</code></td><td>5</td><td>1st of previous month</td><td>Last day of previous month</td></tr>
+                            <tr><td><code>ThisYear</code></td><td>6</td><td>January 1 of current year</td><td>Today</td></tr>
+                            <tr><td><code>LastYear</code></td><td>7</td><td>January 1 of previous year</td><td>December 31 of previous year</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="layout" class="section">
+                    <h2>Layout & Internal Structure</h2>
+                    <p>The control is built in the default constructor (<code>BeepDateRangePicker()</code>), which sets <code>IsFrameless = true</code>, <code>ShowAllBorders = false</code>, <code>ShowShadow = false</code>, then calls <code>InitializeControls()</code>, <code>LayoutControls()</code>, and <code>HookEvents()</code>.</p>
+                    <p>Five child controls are created and positioned in a single horizontal row:</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>Visual Layout</span></div>
+                        <pre><code class="language-text">┌───────────────────────────────────────────────────────────────────────┐
+│ BeepDateRangePicker (BaseControl)                                      │
+│                                                                        │
+│ ┌──────────────┐ ┌────┐ ┌────┐ ┌──────────────┐ ┌────┐                │
+│ │ StartDate    │ │ 📅 │ │ to │ │ EndDate      │ │ 📅 │                │
+│ │ (BeepTextBox)│ │Btn │ │Lbl │ │ (BeepTextBox)│ │Btn │                │
+│ │ 120×30       │ │30×30│ │30×30│ │ 120×30      │ │30×30│               │
+│ └──────────────┘ └────┘ └────┘ └──────────────┘ └────┘                │
+│  5px margin between each element                                       │
+└───────────────────────────────────────────────────────────────────────┘</code></pre>
+                    </div>
+                    <p>The calendar popup is a standalone <code>Form</code> (not a child control) created on demand and destroyed when closed. It uses <code>FormBorderStyle.None</code>, <code>TopMost = true</code>, and is positioned at the screen coordinates below the clicked 📅 button using <code>button.PointToScreen()</code>.</p>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <h3>Example 1: Basic Usage</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Create and Use the Date Range Picker</span></div>
+                        <pre><code class="language-csharp">var dateRange = new BeepDateRangePicker
+{
+    Location = new Point(12, 12)
+};
+
+// React to changes
+dateRange.DateRangeChanged += (s, e) =>
+{
+    if (dateRange.IsValidRange)
+    {
+        Console.WriteLine(
+            $"Valid range: {dateRange.StartDate:yyyy-MM-dd}"
+            + $" → {dateRange.EndDate:yyyy-MM-dd}");
+        LoadDataForRange(dateRange.StartDate.Value,
+                         dateRange.EndDate.Value);
+    }
+};
+
+this.Controls.Add(dateRange);</code></pre>
+                    </div>
+
+                    <h3>Example 2: Preset Buttons</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Quick Filter Presets</span></div>
+                        <pre><code class="language-csharp">var dateRange = new BeepDateRangePicker();
+
+// Button: "Last 7 Days"
+btnLast7Days.Click += (s, e) =>
+    dateRange.SetPresetRange(DateRangePreset.Last7Days);
+
+// Button: "This Month"
+btnThisMonth.Click += (s, e) =>
+    dateRange.SetPresetRange(DateRangePreset.ThisMonth);
+
+// Check validity before applying
+btnApply.Click += (s, e) =>
+{
+    if (dateRange.IsValidRange)
+        ApplyFilter(dateRange.StartDate, dateRange.EndDate);
+    else
+        MessageBox.Show("Please set a valid date range.");
+};</code></pre>
+                    </div>
+
+                    <h3>Example 3: Integration with BeepGridPro Filter Row</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Using in a Grid Filter Row</span></div>
+                        <pre><code class="language-csharp">// In a BeepFilterRow, when the operator is "Between"
+// for a DateTime column:
+var datePicker = new BeepDateRangePicker
+{
+    IsChild = true,
+    IsFrameless = true
+};
+
+// When both dates are valid, construct the filter criteria
+datePicker.DateRangeChanged += (s, e) =>
+{
+    if (datePicker.IsValidRange)
+    {
+        var criteria = new FilterCriteria(
+            columnName: "OrderDate",
+            op: FilterOperator.Between,
+            value: datePicker.StartDate,
+            value2: datePicker.EndDate
+        );
+        OnFilterCriteriaChanged(criteria);
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table class="props-table">
+                        <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BeepDateRangePicker.cs</code></td>
+                                <td>Contains two types:<br>
+                                <strong>BeepDateRangePicker</strong> — the composite date range control<br>
+                                <strong>DateRangePreset</strong> — enum of 8 preset period options</td>
+                            </tr>
+                            <tr>
+                                <td><code>BaseControl</code> (Base)</td>
+                                <td>Base class providing theming infrastructure, border styling, and shadow support.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepTextBox</code> (TextFields)</td>
+                                <td>Themed text input with placeholder text support.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepButton</code> (Buttons)</td>
+                                <td>Themed button used for calendar trigger icons.</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeepLabel</code></td>
+                                <td>Themed label used for the "to" separator.</td>
+                            </tr>
+                            <tr>
+                                <td><code>System.Windows.Forms.MonthCalendar</code></td>
+                                <td>Standard WinForms calendar control, hosted in a temporary popup form. Set to single-selection mode via <code>MaxSelectionCount = 1</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Date Flow</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>Date value propagation</span></div>
+                        <pre><code class="language-text">User types/selects date
+    │
+    ├── _startDateTextBox.TextChanged
+    │       │
+    │       ├── Wired via HookEvents()
+    │       └── OnDateRangeChanged()
+    │               └── DateRangeChanged event → consumer code
+    │
+    ├── _endDateTextBox.TextChanged  (same flow)
+    │
+    └── Calendar popup DateSelected
+            └── Sets text box .Text = e.Start.ToString("yyyy-MM-dd")
+                    └── Triggers TextChanged → DateRangeChanged</code></pre>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjscloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

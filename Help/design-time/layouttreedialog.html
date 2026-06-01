@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>LayoutTreeDialog - Beep Controls Documentation</title><link rel="stylesheet" href="../sphinx-style.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></head><body><aside class="sidebar" id="sidebar"><div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time v1.0.164</span></div><nav><ul style="list-style:none;padding:0;font-size:.9rem"><li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li><li style="padding:4px 1.5rem"><a href="overview.html">Design-Time Overview</a></li><li style="padding:4px 1.5rem;margin-top:.75rem;font-weight:700">Dialogs &amp; Editors</li><li style="padding:4px 1.5rem"><a href="layouttreedialog.html">LayoutTreeDialog</a></li></ul></nav></aside><main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time</a><span>&rsaquo;</span> <span>LayoutTreeDialog</span></nav>
+<div class="page-header"><h1>LayoutTreeDialog</h1><p class="page-subtitle">Read-only diagnostics dialog for BeepDocumentHost layout tree -- renders GroupLayoutNode/SplitLayoutNode pairs as an indented text tree</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#format">Tree Format</a></li><li><a href="#examples">Examples</a></li></ul></div>
+
+<section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Dialogs</code><br><strong>Inheritance:</strong> <code>System.Windows.Forms.Form</code> | <strong>Visibility:</strong> <code>internal sealed</code></p><p><code>LayoutTreeDialog(BeepDocumentHost host)</code> builds a read-only dialog window with a title showing the group count, a multi-line read-only TextBox with scroll bars, and a Close button. The TextBox displays the indented tree representation of <code>host.LayoutRoot</code>. Useful after layout preset picking or programmatic <code>SplitDocument</code> calls to verify the resulting structure.</p><p>The rendering is done by <code>FormatLayoutTree(ILayoutNode node, int depth)</code>, a static recursive method: for <strong>GroupLayoutNode</strong>, outputs document count and optionally the active document ID; for <strong>SplitLayoutNode</strong>, outputs orientation (Horizontal/Vertical), ratio, and recurses into First and Second children.</p></section>
+
+<section class="section" id="format"><h2>Tree Format</h2><pre><code class="language-plaintext">Root (4 groups)
+  Group "main" (2 documents, active: "editor1.cs")
+    Split H (0.6)
+      Group (1 document, active: "editor1.cs")
+        editor1.cs
+      Group (1 document, active: "output")
+        Output
+  Group "left" (2 documents, active: "explorer")
+    Solution Explorer
+    Toolbox</code></pre></section>
+
+<section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Open from BeepDocumentHostDesigner verb or smart-tag:
+// Right-click host > "View Layout Tree..."
+// Smart-tag > Nested Splits > LayoutTreeInfo (read-only)
+
+// Programmatic use:
+var dialog = new LayoutTreeDialog(host);
+dialog.ShowDialog();
+// Shows read-only tree of all groups, splits, and documents</code></pre></section>
+</div></main><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script></body></html>

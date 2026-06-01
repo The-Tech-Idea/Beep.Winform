@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepRadioListBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+
+    <div class="container">
+        <div id="sidebar-placeholder"></div>
+        <main class="content">
+            <div class="content-wrapper">
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a><span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a><span>›</span>
+                    <span>BeepRadioListBox</span>
+                </nav>
+
+                <div class="page-header">
+                    <h1>BeepRadioListBox</h1>
+                    <p class="page-subtitle">A combined control integrating BeepRadioGroup and BeepListBox with bidirectional selection synchronization and search</p>
+                </div>
+
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#layouts">Layout Options</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#architecture">Architecture</a></li>
+                    </ul>
+                </div>
+
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p><strong>BeepRadioListBox</strong> combines a <code>BeepRadioGroup</code> (chip-style radio buttons) with a <code>BeepListBox</code> (detailed list view) in a single composite control. Both views share a single <code>BindingList&lt;SimpleItem&gt;</code> data source and maintain bidirectional selection synchronization — clicking an item in one view instantly selects it in the other.</p>
+                    <p>An optional search box at the top filters the list in real time. The control's layout is configurable: radio above list, list above radio, radio-only, list-only, or compact mode.</p>
+                    <p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.CombinedControls</code> &nbsp;|&nbsp; <strong>Assembly:</strong> <code>TheTechIdea.Beep.Winform.Controls.dll</code><br>
+                    <strong>Inheritance:</strong> <code>Component → Control → BaseControl → BeepRadioListBox</code></p>
+                </section>
+
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <ul>
+                        <li><strong>Dual-view selection</strong> — Chip-style radio group above a scrollable list box, both driven by the same item collection</li>
+                        <li><strong>Bidirectional sync</strong> — Selecting in the radio group updates the list box and vice versa, with infinite-loop prevention</li>
+                        <li><strong>Search/filter</strong> — <code>BeepTextBox</code> with search icon filters the list box as you type</li>
+                        <li><strong>Five layout modes</strong> — <code>RadioAboveList</code>, <code>RadioBelowList</code>, <code>RadioOnly</code>, <code>ListOnly</code>, <code>Compact</code></li>
+                        <li><strong>Component visibility toggles</strong> — <code>ShowSearch</code>, <code>ShowRadioGroup</code>, <code>ShowListBox</code>, and <code>ShowDivider</code> control which parts render</li>
+                        <li><strong>Radio group styling</strong> — <code>RadioStyle</code> (Flat/Chip/Card/etc.) and <code>RadioOrientation</code> (Horizontal/Vertical)</li>
+                        <li><strong>List box styling</strong> — <code>ListStyle</code> delegates to <code>BeepListBox.ListBoxType</code></li>
+                        <li><strong>Collection editor support</strong> — <code>Items</code> property is editable in the Visual Studio designer</li>
+                        <li><strong>Selection tracking</strong> — <code>RadioListBoxSelectionChangedEventArgs</code> reports the selected item and which control originated the change</li>
+                    </ul>
+                </section>
+
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+                    <table>
+                        <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>Items</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>Empty list</td><td>Shared data source for both radio group and list box. Editable via CollectionEditor.</td></tr>
+                            <tr><td><code>SelectedItem</code></td><td><code>SimpleItem</code></td><td><code>null</code></td><td>Currently selected <code>SimpleItem</code>. Browsable(false).</td></tr>
+                            <tr><td><code>SelectedValue</code></td><td><code>string</code></td><td><code>null</code></td><td>Text value of the currently selected item.</td></tr>
+                            <tr><td><code>SearchText</code></td><td><code>string</code></td><td><code>""</code></td><td>Current search filter text (gets/sets the search box content).</td></tr>
+                            <tr><td><code>Layout</code></td><td><code>RadioListBoxLayout</code></td><td><code>RadioAboveList</code></td><td>Arrangement of radio group and list: <code>RadioAboveList</code>, <code>RadioBelowList</code>, <code>RadioOnly</code>, <code>ListOnly</code>, <code>Compact</code>.</td></tr>
+                            <tr><td><code>ShowSearch</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows the search text box at the top.</td></tr>
+                            <tr><td><code>ShowRadioGroup</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows the radio group panel.</td></tr>
+                            <tr><td><code>ShowListBox</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows the list box panel.</td></tr>
+                            <tr><td><code>ShowDivider</code></td><td><code>bool</code></td><td><code>true</code></td><td>Shows the divider between radio group and list.</td></tr>
+                            <tr><td><code>SearchBoxHeight</code></td><td><code>int</code></td><td><code>40</code></td><td>Height of the search panel area.</td></tr>
+                            <tr><td><code>RadioAreaHeight</code></td><td><code>int</code></td><td><code>60</code></td><td>Height of the radio group panel area.</td></tr>
+                            <tr><td><code>Spacing</code></td><td><code>int</code></td><td><code>8</code></td><td>Padding/spacing between internal components.</td></tr>
+                            <tr><td><code>DividerColor</code></td><td><code>Color</code></td><td><code>(230,230,230)</code></td><td>Color of the divider line. Auto-updated from theme.</td></tr>
+                            <tr><td><code>Style</code></td><td><code>BeepControlStyle</code></td><td><code>Material3</code></td><td>Delegates to the radio group's <code>Style</code> property.</td></tr>
+                            <tr><td><code>RadioStyle</code></td><td><code>RadioGroupRenderStyle</code></td><td><code>Chip</code></td><td>Render style for radio group items.</td></tr>
+                            <tr><td><code>RadioOrientation</code></td><td><code>RadioGroupOrientation</code></td><td><code>Horizontal</code></td><td>Orientation of radio group items.</td></tr>
+                            <tr><td><code>ListStyle</code></td><td><code>ListBoxType</code></td><td><code>Standard</code></td><td>Type/style of the list box (Standard, Detailed, etc.).</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    <table>
+                        <thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>AddItem</code></td><td><code>void AddItem(SimpleItem item)</code></td><td>Adds an item to the shared collection and syncs both views.</td></tr>
+                            <tr><td><code>AddItem</code></td><td><code>void AddItem(string text, string imagePath, string subText)</code></td><td>Convenience overload that creates a <code>SimpleItem</code> with text, image, and subtitle.</td></tr>
+                            <tr><td><code>RemoveItem</code></td><td><code>bool RemoveItem(SimpleItem item)</code></td><td>Removes an item; returns false if not found.</td></tr>
+                            <tr><td><code>ClearItems</code></td><td><code>void ClearItems()</code></td><td>Removes all items from both views.</td></tr>
+                            <tr><td><code>SelectItemByText</code></td><td><code>bool SelectItemByText(string text)</code></td><td>Finds an item by its <code>Text</code> value and selects it in both views.</td></tr>
+                            <tr><td><code>ClearSelection</code></td><td><code>void ClearSelection()</code></td><td>Deselects the current item in both the radio group and list box.</td></tr>
+                            <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme()</code></td><td>Propagates the current theme to search box, radio group, list box, divider, and panel backgrounds.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    <table>
+                        <thead><tr><th>Event</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>SelectionChanged</code></td><td>Raised when the selection changes in either view. <code>RadioListBoxSelectionChangedEventArgs</code> carries the <code>SelectedItem</code> and <code>Source</code> (RadioGroup/ListBox/Programmatic).</td></tr>
+                            <tr><td><code>SearchTextChanged</code></td><td>Raised when the search box text changes. <code>RadioListBoxSearchEventArgs</code> carries the current search string.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="layouts" class="section">
+                    <h2>Layout Options</h2>
+                    <table>
+                        <thead><tr><th>Layout</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>RadioAboveList</code></td><td>Default. Search bar top, chip radio group, divider, then scrollable list.</td></tr>
+                            <tr><td><code>RadioBelowList</code></td><td>Search bar top, list above divider, radio group at bottom.</td></tr>
+                            <tr><td><code>RadioOnly</code></td><td>Search bar + radio group only (list and divider hidden).</td></tr>
+                            <tr><td><code>ListOnly</code></td><td>Search bar + list only (radio and divider hidden).</td></tr>
+                            <tr><td><code>Compact</code></td><td>Radio-only mode with list available as future popup enhancement.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    <p>The control fully respects the Beep theme system. Panel backgrounds use <code>PanelBackColor</code>, the divider color auto-syncs to <code>BorderColor</code>, and all child controls (search box, radio group, list box) receive theme propagation via their own <code>ApplyTheme()</code> methods.</p>
+                    <pre><code class="language-csharp">radioListBox.Theme = "MaterialDark";
+radioListBox.ApplyTheme(); // Entire composite updates</code></pre>
+                </section>
+
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+                    <h3>Basic Usage with Items</h3>
+                    <pre><code class="language-csharp">var rlb = new BeepRadioListBox
+{
+    Layout = RadioListBoxLayout.RadioAboveList,
+    RadioStyle = RadioGroupRenderStyle.Chip,
+    RadioOrientation = RadioGroupOrientation.Horizontal,
+    ShowSearch = true
+};
+
+rlb.AddItem("Option A", "icons/a.svg", "Description A");
+rlb.AddItem("Option B", "icons/b.svg", "Description B");
+rlb.AddItem("Option C", "icons/c.svg", "Description C");
+
+rlb.SelectionChanged += (s, e) =>
+    Console.WriteLine($"Selected: {e.SelectedItem.Text} via {e.Source}");</code></pre>
+
+                    <h3>List-Only Mode with Search</h3>
+                    <pre><code class="language-csharp">var rlb = new BeepRadioListBox
+{
+    Layout = RadioListBoxLayout.ListOnly,
+    ListStyle = ListBoxType.Detailed,
+    ShowSearch = true
+};
+
+rlb.Items = new BindingList&lt;SimpleItem&gt;(
+    myData.Select(d => new SimpleItem { Text = d.Name, SubText = d.Info }));
+rlb.SearchTextChanged += (s, e) => {
+    Console.WriteLine($"Filtering for: {e.SearchText}");
+};</code></pre>
+
+                    <h3>Layout Switching at Runtime</h3>
+                    <pre><code class="language-csharp">// Switch between radio-only and full dual view
+void ToggleView(BeepRadioListBox rlb)
+{
+    rlb.Layout = rlb.Layout == RadioListBoxLayout.RadioAboveList
+        ? RadioListBoxLayout.RadioOnly
+        : RadioListBoxLayout.RadioAboveList;
+}</code></pre>
+                </section>
+
+                <section id="architecture" class="section">
+                    <h2>Architecture</h2>
+                    <table>
+                        <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>_searchBox</code> (BeepTextBox)</td><td>Search input with magnifying glass icon; filters the list box</td></tr>
+                            <tr><td><code>_radioGroup</code> (BeepRadioGroup)</td><td>Chip-style radio group for quick single-selection</td></tr>
+                            <tr><td><code>_listBox</code> (BeepListBox)</td><td>Detailed list view with scrolling; mirrors radio group selection</td></tr>
+                            <tr><td><code>_searchPanel</code> / <code>_radioPanel</code> / <code>_listPanel</code></td><td>Container panels with adaptive heights for layout flexibility</td></tr>
+                            <tr><td><code>_dividerPanel</code></td><td>1px separator between radio and list; color sourced from theme</td></tr>
+                            <tr><td><code>_isSyncing</code></td><td>Boolean flag preventing recursive event loops during cross-view sync</td></tr>
+                            <tr><td><code>SyncDataToControls()</code></td><td>Rebuilds both the list box's <code>ListItems</code> and radio group's items from <code>_items</code></td></tr>
+                            <tr><td><code>ApplySearchFilter()</code></td><td>Delegates search text to <code>_listBox.SearchText</code> for built-in filtering</td></tr>
+                            <tr><td><code>UpdateLayout()</code></td><td>Reorders docked panels based on <code>Layout</code> enum and visibility flags</td></tr>
+                        </tbody>
+                    </table>
+                    <p>The control is split across three partial class files: <code>BeepRadioListBox.cs</code> (class declaration), <code>BeepRadioListBox.Core.cs</code> (fields, constructor, initialization, sync logic, layout, theme, disposal), and <code>BeepRadioListBox.Properties.cs</code> (all public properties, methods, and event declarations).</p>
+                </section>
+
+                <div class="nav-links">
+                    <a href="beep-timepicker.html"><i class="bi bi-arrow-left"></i> BeepTimePicker</a>
+                    <a href="beep-combobox.html">BeepComboBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>

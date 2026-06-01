@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AppBar Painters (16 Styles) - Beep Controls Documentation</title>
+<link rel="stylesheet" href="../sphinx-style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Architecture v1.0.164</span></div>
+<nav><ul style="list-style:none;padding:0;font-size:.9rem">
+<li style="padding:4px 1.5rem"><a href="../index.html">&#x2190; Main Docs</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking</li>
+<li style="padding:4px 1.5rem"><a href="docking-overview.html">Docking Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dockpanel-system.html">DockPanel System</a></li>
+<li style="padding:4px 1.5rem"><a href="docklayoutdefinition.html">DockLayoutDefinition</a></li>
+<li style="padding:4px 1.5rem"><a href="floatwindow-autohide.html">FloatWindow &amp; AutoHide</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-painters.html">Docking Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="docking-dragdrop.html">Docking Drag-Drop</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">GridX</li>
+<li style="padding:4px 1.5rem"><a href="gridx-overview.html">GridX Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-virtualization.html">Virtualization</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-selection.html">Selection System</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-grouping.html">Grouping Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-export.html">Export Engine</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-editors.html">Grid Editors</a></li>
+<li style="padding:4px 1.5rem"><a href="gridx-filtering.html">Grid Filtering</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Chart</li>
+<li style="padding:4px 1.5rem"><a href="chart-overview.html">Chart Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-seriespainters.html">Series Painters</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-axislegend.html">Axis &amp; Legend</a></li>
+<li style="padding:4px 1.5rem"><a href="chart-viewportperf.html">Viewport &amp; Performance</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Calendar</li>
+<li style="padding:4px 1.5rem"><a href="calendar-overview.html">Calendar Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-events.html">Calendar Events</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-painting.html">Calendar Painting</a></li>
+<li style="padding:4px 1.5rem"><a href="calendar-interactions.html">Calendar Interactions</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wizard</li>
+<li style="padding:4px 1.5rem"><a href="wizard-overview.html">Wizard Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-forms.html">Wizard Forms</a></li>
+<li style="padding:4px 1.5rem"><a href="wizard-painters.html">Wizard Painters</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Theme System</li>
+<li style="padding:4px 1.5rem"><a href="theme-overview.html">Theme Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-types.html">Theme Types</a></li>
+<li style="padding:4px 1.5rem"><a href="theme-tokens.html">Theme Tokens</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docks &amp; Painters</li>
+<li style="padding:4px 1.5rem"><a href="beepdock-architecture.html">BeepDock Architecture</a></li>
+<li style="padding:4px 1.5rem"><a href="dock-painters.html">Dock Painters (22)</a></li>
+<li style="padding:4px 1.5rem"><a href="listbox-painters.html">ListBox Painters (42)</a></li>
+<li style="padding:4px 1.5rem"><a href="appbar-painters.html">AppBar Painters (16)</a></li>
+<li style="padding:4px 1.5rem"><a href="stepper-painters.html">Stepper Painters (15)</a></li>
+<li style="padding:4px 1.5rem"><a href="marquee-painters.html">Marquee Painters (8)</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Menus &amp; Integrated</li>
+<li style="padding:4px 1.5rem"><a href="menubar-internals.html">MenuBar Internals</a></li>
+<li style="padding:4px 1.5rem"><a href="contextmenu-system.html">ContextMenu System</a></li>
+<li style="padding:4px 1.5rem"><a href="dataconnection.html">DataConnection System</a></li>
+<li style="padding:4px 1.5rem"><a href="beepforms-contracts.html">BeepForms Contracts</a></li>
+<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Deep Internals</li>
+<li style="padding:4px 1.5rem"><a href="listbox-internals.html">ListBox Internals</a></li>
+</ul></nav>
+</aside>
+<main class="content"><div class="content-wrapper">
+<nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="docking-overview.html">Architecture</a><span>&rsaquo;</span> <span>AppBar Painters</span></nav><div class="page-header"><h1>AppBar Painters (16 Styles)</h1><p class="page-subtitle">16 web header style painters for BeepWebHeaderAppBar — IWebHeaderStylePainter contract, WebHeaderStylePainterBase helpers, plus 8 coordination classes</p></div>
+<div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#contract">IWebHeaderStylePainter Contract</a></li><li><a href="#base">WebHeaderStylePainterBase</a></li><li><a href="#catalog">Painter Catalog (16)</a></li><li><a href="#helpers">Helper Classes (8)</a></li><li><a href="#examples">Examples</a></li></ul></div>
+<section class="section" id="overview"><h2>Overview</h2><p>The <code>BeepWebHeaderAppBar</code> control provides a web-style application header bar with <strong>16 distinct visual styles</strong>, each implemented as a painter class conforming to <code>IWebHeaderStylePainter</code>. Every painter extends <code>WebHeaderStylePainterBase</code>, which provides shared drawing primitives for logos, search boxes, tabs, and buttons.</p><p>The styles range from startup hero headers to SaaS professional, ecommerce, material design, multi-row compact, and mobile-first layouts. Each style controls header background, logo rendering, tab/breadcrumb rendering, search bar, action buttons, and responsive layout behavior.</p></section>
+<section class="section" id="contract"><h2>IWebHeaderStylePainter Contract</h2><pre><code class="language-csharp">public interface IWebHeaderStylePainter
+{
+    void PaintHeader(Graphics g, Rectangle bounds, WebHeaderAppBarConfig config);
+    Rectangle GetTabBounds(int index, Rectangle headerBounds, WebHeaderAppBarConfig config);
+    Rectangle GetButtonBounds(string buttonKey, Rectangle headerBounds, WebHeaderAppBarConfig config);
+    string GetHitElement(Point point, Rectangle headerBounds, WebHeaderAppBarConfig config);
+}</code></pre><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>PaintHeader</code></td><td>Renders the entire header: background, logo, tabs, search box, action buttons, notifications</td></tr><tr><td><code>GetTabBounds</code></td><td>Returns the bounding rectangle for a tab at the given index (used for click hit-testing)</td></tr><tr><td><code>GetButtonBounds</code></td><td>Returns the bounding rectangle for a named action button (e.g., "Search", "Cart", "Profile")</td></tr><tr><td><code>GetHitElement</code></td><td>Returns a string identifying which UI element is at the given point: "Logo", "Tab:0", "Search", "Cart", etc.</td></tr></tbody></table></section>
+<section class="section" id="base"><h2>WebHeaderStylePainterBase</h2><p>All 16 painters extend <code>WebHeaderStylePainterBase</code>, which provides 5 shared helper methods:</p><table><thead><tr><th>Helper</th><th>Signature</th><th>Description</th></tr></thead><tbody><tr><td><code>DrawLogo</code></td><td><code>void DrawLogo(Graphics g, Rectangle bounds, ...)</code></td><td>Renders logo text with optional icon, font styling, and alignment</td></tr><tr><td><code>DrawLogoCircle</code></td><td><code>void DrawLogoCircle(Graphics g, Rectangle bounds, ...)</code></td><td>Draws logo inside a circular background with gradient</td></tr><tr><td><code>DrawLogoPill</code></td><td><code>void DrawLogoPill(Graphics g, Rectangle bounds, ...)</code></td><td>Draws logo inside a pill/capsule shape with rounded corners</td></tr><tr><td><code>DrawLogoBadge</code></td><td><code>void DrawLogoBadge(Graphics g, Rectangle bounds, ...)</code></td><td>Draws logo with a small notification/count badge overlay</td></tr><tr><td><code>DrawSearchBox</code></td><td><code>void DrawSearchBox(Graphics g, Rectangle bounds, ...)</code></td><td>Renders a styled search input with placeholder text, icon, and border</td></tr></tbody></table></section>
+<section class="section" id="catalog"><h2>Painter Catalog (16 Total)</h2><table><thead><tr><th>#</th><th>Painter Class</th><th>Visual Style</th><th>Key Features</th></tr></thead><tbody>
+<tr><td>1</td><td><code>StartupHeroPainter</code></td><td>Startup Hero Header</td><td>Bold gradient background, centered logo, CTA button, hero tagline, animated background shapes</td></tr>
+<tr><td>2</td><td><code>SaaSProfessionalPainter</code></td><td>SaaS Professional</td><td>Clean white/navy theme, left logo + horizontal nav, outlined CTA button, subtle bottom shadow</td></tr>
+<tr><td>3</td><td><code>EcommerceModernPainter</code></td><td>Ecommerce Modern</td><td>Full-width banner, prominent search bar, cart icon with badge, category mega-menu dropdowns, sale badge</td></tr>
+<tr><td>4</td><td><code>EcommerceDarkPainter</code></td><td>Ecommerce Dark</td><td>Dark theme variant, gold/amber accents, neon cart badge, gradient separator, product category icons</td></tr>
+<tr><td>5</td><td><code>MaterialDesign3Painter</code></td><td>Material Design 3</td><td>Dynamic color from seed, elevated surface with subtle shadow, material ripple on tabs, pill-shaped search field</td></tr>
+<tr><td>6</td><td><code>CorporateMinimalPainter</code></td><td>Corporate Minimal</td><td>Single-line header, left logo + right actions, thin bottom border, professional typography, compact layout</td></tr>
+<tr><td>7</td><td><code>CreativeAgencyPainter</code></td><td>Creative Agency</td><td>Bold colors, oversized logo, animated hamburger menu, creative typography, diagonal background accent</td></tr>
+<tr><td>8</td><td><code>PortfolioMinimalPainter</code></td><td>Portfolio Minimal</td><td>Ultra-minimal with subtle background, centered logo, thin separator, monochrome with accent color hover</td></tr>
+<tr><td>9</td><td><code>MultiRowCompactPainter</code></td><td>Multi-Row Compact</td><td>Two-row header: top row = logo + search, bottom row = tabs + actions, compact vertical spacing</td></tr>
+<tr><td>10</td><td><code>MobileFirstPainter</code></td><td>Mobile-First Responsive</td><td>Hamburger menu drawer, collapsible search, bottom sticky bar, adaptive tab wrapping, touch-friendly hit targets</td></tr>
+<tr><td>11</td><td><code>MinimalCleanPainter</code></td><td>Minimal Clean</td><td>White background, hairline separator, simple logo + nav links, hover underline animation, no shadows</td></tr>
+<tr><td>12</td><td><code>ShoppyStore1Painter</code></td><td>Shoppy Store v1</td><td>Vibrant marketplace header, category grid, promotional banner strip, wishlist heart icon, currency selector</td></tr>
+<tr><td>13</td><td><code>ShoppyStore2Painter</code></td><td>Shoppy Store v2</td><td>Alternate marketplace layout, top promo bar, mega-menu with images, sticky search on scroll, Recently Viewed</td></tr>
+<tr><td>14</td><td><code>StudiofokMinimalPainter</code></td><td>Studiofok Minimal</td><td>Art-gallery minimalist style, thin typography, left-aligned logo, minimal navigation, subtle hover reveals</td></tr>
+<tr><td>15</td><td><code>TrendModernPainter</code></td><td>Trend Modern</td><td>Gradient glass header, frosted background, modern sans-serif fonts, rounded avatar, notification bell with dot</td></tr>
+<tr><td>16</td><td><code>LegacyHeaderPainter</code></td><td>Legacy Classic</td><td>Traditional 2D header with gradient, raised tab buttons, classic Windows Forms look, beveled edges</td></tr></tbody></table></section>
+<section class="section" id="helpers"><h2>Helper Classes (8)</h2><p>The AppBar system is supported by 8 coordination and utility classes:</p><table><thead><tr><th>Class</th><th>Responsibility</th></tr></thead><tbody><tr><td><code>BeepAppBarMasterHelper</code></td><td>Central orchestrator that coordinates layout, events, drawing, and state management across all sub-helpers</td></tr><tr><td><code>LayoutHelper</code></td><td>Computes responsive layout: logo position, tab spacing, button alignment, search bar sizing, overflow handling</td></tr><tr><td><code>EventHelper</code></td><td>Routes mouse clicks, hover, and keyboard events to the appropriate header element (tab, button, search)</td></tr><tr><td><code>DrawingHelper</code></td><td>Low-level GDI+ drawing utilities: gradient fills, rounded rectangles, text measurement, icon rendering</td></tr><tr><td><code>DragHelper</code></td><td>Handles drag-drop reordering of tabs within the header bar</td></tr><tr><td><code>ComponentFactory</code></td><td>Creates and configures child controls (dropdowns, textboxes, buttons) that overlay the painted header</td></tr><tr><td><code>StateStore</code></td><td>Persists per-header state: active tab index, search text, notification count, collapsed/expanded state</td></tr><tr><td><code>IBeepAppBarHost</code></td><td>Interface that the parent form implements to receive header events (tab clicks, search submit, button clicks)</td></tr></tbody></table></section>
+<section class="section" id="examples"><h2>Examples</h2><h3>Header Style Switching</h3><pre><code class="language-csharp">var appBar = new BeepWebHeaderAppBar();
+
+appBar.LogoText = "MyApp";
+appBar.Pages = new[] { "Dashboard", "Reports", "Settings", "Admin" };
+
+appBar.HeaderStyle = HeaderStyle.SaaSProfessional;
+
+appBar.HeaderStyle = HeaderStyle.EcommerceModern;
+appBar.ShowSearchBox = true;
+appBar.NotificationCount = 5;
+
+appBar.HeaderStyle = HeaderStyle.MaterialDesign3;
+
+appBar.HeaderStyle = HeaderStyle.StartupHero;
+
+appBar.HeaderStyle = HeaderStyle.MultiRowCompact;
+appBar.SearchPlaceholder = "Search everything...";
+
+appBar.Host = this;
+appBar.TabClicked += (s, e) =>
+{
+    var pageName = appBar.Pages[e.TabIndex];
+    NavigateToPage(pageName);
+};</code></pre></section>
+</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body></html>

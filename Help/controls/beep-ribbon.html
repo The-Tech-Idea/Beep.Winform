@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepRibbonControl - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="_sidebar.js"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="bi bi-sun-fill" id="theme-icon"></i></button>
+    <div class="container"><div id="sidebar-placeholder"></div>
+        <main class="content"><div class="content-wrapper">
+            <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span><a href="../index.html#menus-navigation">Menus &amp; Navigation</a><span>&rsaquo;</span><span>BeepRibbonControl</span></nav>
+            <div class="page-header"><h1>BeepRibbonControl</h1><p class="page-subtitle">Full-featured ribbon toolbar with tabs, groups, galleries, search, backstage, customization, key tips, and contextual tab support</p></div>
+            <div class="toc"><h3>Table of Contents</h3><ul>
+                <li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li>
+                <li><a href="#properties">Properties</a></li><li><a href="#methods">Methods</a></li><li><a href="#events">Events</a></li><li><a href="#theming">Theming</a></li><li><a href="#search">Search System</a></li><li><a href="#backstage">Backstage View</a></li><li><a href="#customization">Customization</a></li><li><a href="#examples">Examples</a></li><li><a href="#architecture">Architecture</a></li></ul></div>
+
+            <section id="overview" class="section"><h2>Overview</h2>
+                <p><strong>BeepRibbonControl</strong> is a comprehensive ribbon toolbar control for Windows Forms, inspired by Microsoft Office and Fluent design paradigms. It replaces traditional menus and toolbars with a tabbed command surface organized into tabs, groups, and commands.</p>
+                <table>
+                    <tr><td><strong>Namespace</strong></td><td><code>TheTechIdea.Beep.Winform.Controls</code></td></tr>
+                    <tr><td><strong>Assembly</strong></td><td><code>TheTechIdea.Beep.Winform.Controls.dll</code></td></tr>
+                    <tr><td><strong>Inheritance</strong></td><td><code>System.Windows.Forms.Control</code></td></tr>
+                    <tr><td><strong>Designer</strong></td><td>Visual Studio toolbox-compatible at design time</td></tr>
+                </table>
+                <p>The control follows a data-driven model: commands are defined as <code>SimpleItem</code> nodes organized in a tree (tabs &rarr; groups &rarr; commands). The ribbon automatically renders them into a responsive toolbar that adapts to available width via overflow handling, large/small button sizing, and density profiles.</p>
+            </section>
+
+            <section id="features" class="section"><h2>Key Features</h2>
+                <ul>
+                    <li><strong>Tabbed Ribbon Layout</strong> &mdash; Classic (grouped) and Simplified (flat) layout modes</li>
+                    <li><strong>Three Density Profiles</strong> &mdash; Comfortable, Compact, and Touch-optimized sizing</li>
+                    <li><strong>Automatic Responsive Overflow</strong> &mdash; Commands that don't fit group into "More" dropdowns</li>
+                    <li><strong>Command Galleries</strong> &mdash; Inline <code>BeepRibbonGallery</code> controls with pinning, recent items, and large preview popups</li>
+                    <li><strong>Quick Access Toolbar</strong> &mdash; Customizable toolbar above or below the ribbon with persistable command set</li>
+                    <li><strong>Backstage View</strong> &mdash; Full File-menu replacement with navigation, pinned/recent items, footer actions, and animated transitions</li>
+                    <li><strong>Built-in Search</strong> &mdash; Local fuzzy text search with ranking, history, SmartService provider support, and benchmarking</li>
+                    <li><strong>Key Tips</strong> &mdash; Alt-key keyboard navigation with auto-assigned alphabetical shortcuts</li>
+                    <li><strong>Contextual Tabs</strong> &mdash; Tabs that appear based on selection context with colored header bands and animated transitions</li>
+                    <li><strong>Super Tooltips</strong> &mdash; Rich F1-style tooltips with description, shortcut, and action buttons</li>
+                    <li><strong>Full Theme Integration</strong> &mdash; Maps from <code>BeepThemesManager</code> or custom <code>RibbonTheme</code> objects; supports token file import/export</li>
+                    <li><strong>Five Visual Presets</strong> &mdash; Office Light/Dark, Fluent Light/Dark, High Contrast</li>
+                    <li><strong>Ribbon Minimization</strong> &mdash; Collapse ribbon to tab headers with popup-on-click command menus</li>
+                    <li><strong>Customization Dialog</strong> &mdash; Built-in dialog to reorder/hide tabs, groups, and Quick Access commands</li>
+                    <li><strong>Merge Support</strong> &mdash; Append tabs, merge by name, or replace from another ribbon for MDI scenarios</li>
+                    <li><strong>Right-to-Left</strong> &mdash; Full RTL layout support for Arabic and Hebrew</li>
+                    <li><strong>Accessibility</strong> &mdash; ARIA roles, screen-reader descriptions, F6 pane cycling, and audit reports</li>
+                </ul>
+            </section>
+
+            <section id="properties" class="section"><h2>Properties</h2>
+                <table><thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>Tabs</code></td><td><code>TabControl</code></td><td>&mdash;</td><td>The internal TabControl hosting ribbon tabs. Serialized to designer via <code>DesignerSerializationVisibility.Content</code>.</td></tr>
+                    <tr><td><code>QuickAccess</code></td><td><code>ToolStrip</code></td><td>&mdash;</td><td>The Quick Access Toolbar strip. Position controlled by <code>QuickAccessAboveRibbon</code>.</td></tr>
+                    <tr><td><code>CommandItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>&mdash;</td><td>The tree of command definitions (tabs &gt; groups &gt; commands). Changes auto-rebuild the ribbon UI.</td></tr>
+                    <tr><td><code>Theme</code></td><td><code>RibbonTheme</code></td><td>new RibbonTheme()</td><td>The visual theme controlling colors, spacing, typography, and elevation.</td></tr>
+                    <tr><td><code>DarkMode</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enables dark color palette. Re-resolves the style preset automatically.</td></tr>
+                    <tr><td><code>FollowGlobalFormStyle</code></td><td><code>bool</code></td><td><code>true</code></td><td>When true, automatically syncs ribbon theme with <code>BeepThemesManager</code> global theme changes.</td></tr>
+                    <tr><td><code>RibbonFormStyle</code></td><td><code>FormStyle</code></td><td><code>Modern</code></td><td>The desired form style used when <code>FollowGlobalFormStyle</code> is false or for explicit theme resolution.</td></tr>
+                    <tr><td><code>ResolvedStylePreset</code></td><td><code>RibbonStylePreset</code></td><td><code>OfficeLight</code></td><td>Read-only. The resolved visual preset based on current style and dark mode.</td></tr>
+                    <tr><td><code>LayoutMode</code></td><td><code>RibbonLayoutMode</code></td><td><code>Classic</code></td><td>Ribbon layout: <code>Classic</code> (groups with large/small buttons) or <code>Simplified</code> (flat merged command list).</td></tr>
+                    <tr><td><code>Density</code></td><td><code>RibbonDensity</code></td><td><code>Comfortable</code></td><td>Sizing profile: <code>Comfortable</code> (48px), <code>Compact</code> (40px), or <code>Touch</code> (56px).</td></tr>
+                    <tr><td><code>SearchMode</code></td><td><code>RibbonSearchMode</code></td><td><code>Off</code></td><td>Search behavior: <code>Off</code>, <code>Local</code> (fuzzy text matching), or <code>SmartService</code> (delegates to <code>SearchProvider</code>).</td></tr>
+                    <tr><td><code>SearchIncludeBackstage</code></td><td><code>bool</code></td><td><code>false</code></td><td>Include backstage items in search results.</td></tr>
+                    <tr><td><code>ShowSearchHistorySuggestions</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show recent search queries as suggestions when search box is empty.</td></tr>
+                    <tr><td><code>UseSuperToolTips</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable rich super tooltips on ribbon commands with description and action buttons.</td></tr>
+                    <tr><td><code>SuperTooltipDurationMs</code></td><td><code>int</code></td><td><code>9000</code></td><td>Display duration in milliseconds for super tooltips (minimum 1200).</td></tr>
+                    <tr><td><code>SearchHistoryLimit</code></td><td><code>int</code></td><td><code>20</code></td><td>Maximum number of saved search history entries (minimum 1).</td></tr>
+                    <tr><td><code>SearchMaxResults</code></td><td><code>int</code></td><td><code>12</code></td><td>Maximum number of search results shown (clamped 4-64).</td></tr>
+                    <tr><td><code>PersonalizationOptions</code></td><td><code>RibbonPersonalizationOptions</code></td><td><code>All</code></td><td>Flags controlling which customization features are enabled (QuickAccess, RibbonTabs, RibbonGroups, CommandOrder).</td></tr>
+                    <tr><td><code>QuickAccessAboveRibbon</code></td><td><code>bool</code></td><td><code>true</code></td><td>Place Quick Access Toolbar above the ribbon (true) or below (false).</td></tr>
+                    <tr><td><code>EnableKeyTips</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable Alt-key keyboard navigation key tips. Hides displayed tips when disabled.</td></tr>
+                    <tr><td><code>AllowMinimize</code></td><td><code>bool</code></td><td><code>true</code></td><td>Allow the ribbon to be minimized. If turned off while minimized, the ribbon expands.</td></tr>
+                    <tr><td><code>IsMinimized</code></td><td><code>bool</code></td><td><code>false</code></td><td>Gets or sets minimized state. When minimized, only tab headers are visible; clicking a tab shows a popup.</td></tr>
+                    <tr><td><code>ShowMinimizedPopupOnTabClick</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show command popup when clicking a tab in minimized mode.</td></tr>
+                    <tr><td><code>BackstageRecentLimit</code></td><td><code>int</code></td><td><code>12</code></td><td>Maximum number of recent items shown in backstage view (minimum 1).</td></tr>
+                    <tr><td><code>BackstageShowTimestamps</code></td><td><code>bool</code></td><td><code>true</code></td><td>Show timestamps next to backstage recent items.</td></tr>
+                    <tr><td><code>BackstageUseRelativeTimestamps</code></td><td><code>bool</code></td><td><code>true</code></td><td>Use relative time format (e.g., "5m", "2h", "3d") instead of absolute dates.</td></tr>
+                    <tr><td><code>BackstageTimestampFormatter</code></td><td><code>Func&lt;SimpleItem, DateTime, string&gt;?</code></td><td><code>null</code></td><td>Custom formatter for backstage timestamps.</td></tr>
+                    <tr><td><code>EnableBackstageTransitions</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable smooth animated transitions when opening the backstage view.</td></tr>
+                    <tr><td><code>BackstageTransitionDurationMs</code></td><td><code>int</code></td><td><code>180</code></td><td>Duration in ms for backstage open transition (minimum 50).</td></tr>
+                    <tr><td><code>EnableContextTransitions</code></td><td><code>bool</code></td><td><code>true</code></td><td>Enable animated fade-in when contextual tabs appear/disappear.</td></tr>
+                    <tr><td><code>ContextTransitionDurationMs</code></td><td><code>int</code></td><td><code>180</code></td><td>Duration in ms for contextual tab transitions (minimum 50).</td></tr>
+                    <tr><td><code>AdaptiveTransitionTiming</code></td><td><code>bool</code></td><td><code>true</code></td><td>Adjust transition duration based on density and visual preset for optimal feel.</td></tr>
+                    <tr><td><code>RespectSystemReducedMotion</code></td><td><code>bool</code></td><td><code>true</code></td><td>Respect the OS "reduce motion" accessibility setting.</td></tr>
+                    <tr><td><code>ReducedMotion</code></td><td><code>bool</code></td><td><code>false</code></td><td>Disable all animated transitions (backstage and contextual).</td></tr>
+                    <tr><td><code>RibbonRightToLeft</code></td><td><code>bool</code></td><td><code>false</code></td><td>Enable right-to-left layout for the entire ribbon and its sub-controls.</td></tr>
+                    <tr><td><code>SearchProvider</code></td><td><code>IRibbonSearchProvider?</code></td><td><code>null</code></td><td>External search provider used when <code>SearchMode</code> is <code>SmartService</code>.</td></tr>
+                    <tr><td><code>SearchTelemetry</code></td><td><code>IRibbonSearchTelemetry?</code></td><td><code>null</code></td><td>Telemetry sink for search events (query, result count, provider status).</td></tr>
+                    <tr><td><code>SearchScoreBoostProvider</code></td><td><code>Func&lt;SimpleItem, int&gt;?</code></td><td><code>null</code></td><td>Custom score boost function applied during search ranking.</td></tr>
+                    <tr><td><code>SuperTooltipModelProvider</code></td><td><code>Func&lt;SimpleItem, RibbonSuperTooltipModel&gt;?</code></td><td><code>null</code></td><td>Custom factory for super tooltip models from command items.</td></tr>
+                    <tr><td><code>SearchHistory</code></td><td><code>IReadOnlyList&lt;string&gt;</code></td><td>&mdash;</td><td>Read-only list of saved search queries.</td></tr>
+                    <tr><td><code>KeyboardMap</code></td><td><code>RibbonKeyboardMap</code></td><td>&mdash;</td><td>Keyboard shortcut registry. F6/Shift+F6 pre-registered for pane cycling.</td></tr>
+                    <tr><td><code>VariantMatrix</code></td><td><code>RibbonVariantMatrix</code></td><td>Default</td><td>Token variant matrix for theme customization.</td></tr>
+                    <tr><td><code>LastTokenImportDiagnostics</code></td><td><code>IReadOnlyList&lt;string&gt;</code></td><td>&mdash;</td><td>Diagnostics from the last theme token file import.</td></tr>
+                    <tr><td><code>QuickAccessCommandKeys</code></td><td><code>IReadOnlyList&lt;string&gt;</code></td><td>&mdash;</td><td>Read-only list of command keys in the Quick Access Toolbar.</td></tr>
+                    <tr><td><code>ActiveContextKey</code></td><td><code>string</code></td><td>&mdash;</td><td>Currently active contextual group key.</td></tr>
+                    <tr><td><code>IsMerged</code></td><td><code>bool</code></td><td>&mdash;</td><td>True if the ribbon is currently in a merged state.</td></tr>
+                    <tr><td><code>HasCustomizationDefaults</code></td><td><code>bool</code></td><td>&mdash;</td><td>True if a default customization snapshot has been captured.</td></tr>
+                    <tr><td><code>BackstageItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>&mdash;</td><td>Backstage navigation section definitions.</td></tr>
+                    <tr><td><code>BackstageRecentItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>&mdash;</td><td>Recent backstage items, shown under Open/Recent sections.</td></tr>
+                    <tr><td><code>BackstagePinnedItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>&mdash;</td><td>Pinned backstage items.</td></tr>
+                    <tr><td><code>BackstageFooterItems</code></td><td><code>BindingList&lt;SimpleItem&gt;</code></td><td>&mdash;</td><td>Footer action items (e.g., Options, Account).</td></tr>
+                    <tr><td><code>BackstageContent</code></td><td><code>Panel</code></td><td>&mdash;</td><td>The panel hosting backstage action content (right side of the split view).</td></tr>
+                    <tr><td><code>BackstageSurface</code></td><td><code>Panel</code></td><td>&mdash;</td><td>The full backstage host panel (navigation + content).</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="methods" class="section"><h2>Methods</h2>
+                <table><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>BuildFromSimpleItems</code></td><td><code>void BuildFromSimpleItems()</code></td><td>Rebuilds the entire ribbon UI from <code>CommandItems</code>. Called automatically when items change.</td></tr>
+                    <tr><td><code>BuildFromSimpleItems</code></td><td><code>void BuildFromSimpleItems(IEnumerable&lt;SimpleItem&gt;? tabNodes)</code></td><td>Rebuilds the ribbon from a provided tab list.</td></tr>
+                    <tr><td><code>AddPage</code></td><td><code>TabPage AddPage(string title)</code></td><td>Creates and adds a new tab page to the ribbon.</td></tr>
+                    <tr><td><code>AddGroup</code></td><td><code>BeepRibbonGroup AddGroup(TabPage page, string title)</code></td><td>Creates and adds a new command group to a tab page.</td></tr>
+                    <tr><td><code>ApplyTheme</code></td><td><code>void ApplyTheme()</code></td><td>Applies the current <code>RibbonTheme</code> to all ribbon sub-controls, backstage, search, and groups.</td></tr>
+                    <tr><td><code>ApplyThemeFromBeep</code></td><td><code>void ApplyThemeFromBeep(IBeepTheme? theme)</code></td><td>Maps a BeepTheme to the ribbon using the current form style.</td></tr>
+                    <tr><td><code>ApplyThemeFromBeep</code></td><td><code>void ApplyThemeFromBeep(IBeepTheme? theme, FormStyle formStyle)</code></td><td>Maps a BeepTheme to the ribbon with an explicit form style.</td></tr>
+                    <tr><td><code>SyncWithGlobalThemeAndStyle</code></td><td><code>void SyncWithGlobalThemeAndStyle()</code></td><td>Forces the ribbon to match the current global BeepThemesManager theme and style.</td></tr>
+                    <tr><td><code>LoadThemeFromTokenFile</code></td><td><code>bool LoadThemeFromTokenFile(string filePath, string mode = "light")</code></td><td>Imports a theme from a token JSON file. Returns true on success.</td></tr>
+                    <tr><td><code>AddCommandToQuickAccess</code></td><td><code>bool AddCommandToQuickAccess(SimpleItem command)</code></td><td>Adds a command to the Quick Access Toolbar by item reference.</td></tr>
+                    <tr><td><code>AddCommandToQuickAccess</code></td><td><code>bool AddCommandToQuickAccess(string commandKey)</code></td><td>Adds a command to the QAT by key. Returns false if already present.</td></tr>
+                    <tr><td><code>RemoveCommandFromQuickAccess</code></td><td><code>bool RemoveCommandFromQuickAccess(SimpleItem command)</code></td><td>Removes a command from the Quick Access Toolbar.</td></tr>
+                    <tr><td><code>RemoveCommandFromQuickAccess</code></td><td><code>bool RemoveCommandFromQuickAccess(string commandKey)</code></td><td>Removes a command from the QAT by key.</td></tr>
+                    <tr><td><code>MoveQuickAccessCommand</code></td><td><code>bool MoveQuickAccessCommand(string commandKey, int newIndex)</code></td><td>Reorders a command in the Quick Access Toolbar.</td></tr>
+                    <tr><td><code>SaveQuickAccessTo</code></td><td><code>void SaveQuickAccessTo(string file)</code></td><td>Saves Quick Access command keys to a text file.</td></tr>
+                    <tr><td><code>LoadQuickAccessFrom</code></td><td><code>void LoadQuickAccessFrom(string file)</code></td><td>Loads and resolves Quick Access command keys from a file.</td></tr>
+                    <tr><td><code>ToggleMinimized</code></td><td><code>void ToggleMinimized()</code></td><td>Toggles the minimized/expanded ribbon state (respects <code>AllowMinimize</code>).</td></tr>
+                    <tr><td><code>SetSearchCategoryBoost</code></td><td><code>void SetSearchCategoryBoost(string categoryKey, int scoreBoost)</code></td><td>Sets a score boost (clamped -200 to 300) for a search category.</td></tr>
+                    <tr><td><code>ClearSearchCategoryBoosts</code></td><td><code>void ClearSearchCategoryBoosts()</code></td><td>Removes all custom search category boosts.</td></tr>
+                    <tr><td><code>ClearSearchHistory</code></td><td><code>void ClearSearchHistory()</code></td><td>Clears all saved search queries and command usage scores.</td></tr>
+                    <tr><td><code>RemoveSearchHistoryItem</code></td><td><code>bool RemoveSearchHistoryItem(string query)</code></td><td>Removes a specific query from search history.</td></tr>
+                    <tr><td><code>SaveSearchHistoryTo</code></td><td><code>void SaveSearchHistoryTo(string file)</code></td><td>Persists search history to a text file.</td></tr>
+                    <tr><td><code>LoadSearchHistoryFrom</code></td><td><code>void LoadSearchHistoryFrom(string file)</code></td><td>Loads search history from a text file.</td></tr>
+                    <tr><td><code>RunLocalSearchBenchmark</code></td><td><code>RibbonSearchBenchmarkReport RunLocalSearchBenchmark(IEnumerable&lt;string&gt; queries, bool? includeBackstage = null)</code></td><td>Runs a benchmark on the local search engine for the given queries.</td></tr>
+                    <tr><td><code>RunAccessibilityAudit</code></td><td><code>RibbonAccessibilityAuditReport RunAccessibilityAudit()</code></td><td>Runs a full accessibility audit on the ribbon control.</td></tr>
+                    <tr><td><code>BeginMergeScope</code></td><td><code>void BeginMergeScope()</code></td><td>Captures a snapshot before merging, enabling later rollback with <code>EndMergeScope()</code>.</td></tr>
+                    <tr><td><code>GetCommandModelSnapshot</code></td><td><code>List&lt;SimpleItem&gt; GetCommandModelSnapshot()</code></td><td>Returns a deep clone of the current command model.</td></tr>
+                    <tr><td><code>MergeFrom</code></td><td><code>void MergeFrom(BeepRibbonControl source, RibbonMergeMode mode = AppendTabs)</code></td><td>Merges tabs from another ribbon control.</td></tr>
+                    <tr><td><code>MergeFrom</code></td><td><code>void MergeFrom(IEnumerable&lt;SimpleItem&gt;? sourceTabs, RibbonMergeMode mode = AppendTabs)</code></td><td>Merges tabs from a tab model collection.</td></tr>
+                    <tr><td><code>EndMergeScope</code></td><td><code>void EndMergeScope()</code></td><td>Restores the ribbon to the pre-merge snapshot.</td></tr>
+                    <tr><td><code>SetTabVisible</code></td><td><code>bool SetTabVisible(string tabKey, bool visible)</code></td><td>Shows or hides a tab by key. Triggers a full ribbon rebuild.</td></tr>
+                    <tr><td><code>MoveTab</code></td><td><code>bool MoveTab(string tabKey, int newIndex)</code></td><td>Reorders tabs by key.</td></tr>
+                    <tr><td><code>SetGroupVisible</code></td><td><code>bool SetGroupVisible(string tabKey, string groupKey, bool visible)</code></td><td>Shows or hides a group within a tab.</td></tr>
+                    <tr><td><code>MoveGroup</code></td><td><code>bool MoveGroup(string tabKey, string groupKey, int newIndex)</code></td><td>Reorders groups within a tab.</td></tr>
+                    <tr><td><code>ShowCustomizeRibbonDialog</code></td><td><code>bool ShowCustomizeRibbonDialog(IWin32Window? owner = null)</code></td><td>Opens the built-in ribbon customization dialog. Returns true if changes were applied.</td></tr>
+                    <tr><td><code>CaptureCustomizationState</code></td><td><code>RibbonCustomizationDialogState CaptureCustomizationState()</code></td><td>Captures the current tabs, groups, and QAT state for external customization UIs.</td></tr>
+                    <tr><td><code>ApplyCustomizationState</code></td><td><code>void ApplyCustomizationState(RibbonCustomizationDialogState state, RibbonCustomizationAction action = Apply)</code></td><td>Applies a customization dialog state to the ribbon.</td></tr>
+                    <tr><td><code>ResetCustomizationToDefault</code></td><td><code>void ResetCustomizationToDefault()</code></td><td>Restores the ribbon to the captured default customization snapshot.</td></tr>
+                    <tr><td><code>MarkCurrentCustomizationAsDefault</code></td><td><code>void MarkCurrentCustomizationAsDefault()</code></td><td>Marks the current ribbon state as the customization default.</td></tr>
+                    <tr><td><code>SaveCustomizationTo</code></td><td><code>void SaveCustomizationTo(string file)</code></td><td>Saves customization state (layout, density, tabs, QAT) to a JSON file.</td></tr>
+                    <tr><td><code>LoadCustomizationFrom</code></td><td><code>void LoadCustomizationFrom(string file)</code></td><td>Loads and applies customization state from a JSON file.</td></tr>
+                    <tr><td><code>SaveThemeTokensTo</code></td><td><code>void SaveThemeTokensTo(string file)</code></td><td>Serializes the current ribbon theme tokens to a JSON file.</td></tr>
+                    <tr><td><code>LoadThemeTokensFrom</code></td><td><code>void LoadThemeTokensFrom(string file)</code></td><td>Loads and applies ribbon theme tokens from a JSON file.</td></tr>
+                    <tr><td><code>CreateCustomizeRibbonMenuItem</code></td><td><code>ToolStripMenuItem CreateCustomizeRibbonMenuItem(string text = "Customize Ribbon...")</code></td><td>Creates a context menu item that opens the customization dialog.</td></tr>
+                    <tr><td><code>AddContextualGroup</code></td><td><code>int AddContextualGroup(string name, Color color)</code></td><td>Creates a new contextual group and returns its ID.</td></tr>
+                    <tr><td><code>AddContextualTab</code></td><td><code>TabPage AddContextualTab(int groupId, string title)</code></td><td>Adds a tab page to a contextual group.</td></tr>
+                    <tr><td><code>SetContextualGroupVisible</code></td><td><code>void SetContextualGroupVisible(int groupId, bool visible)</code></td><td>Shows/hides all tabs in a contextual group with animated transition.</td></tr>
+                    <tr><td><code>RegisterContextualRule</code></td><td><code>void RegisterContextualRule(string contextKey, int groupId)</code></td><td>Maps a context key to a contextual group for automatic activation.</td></tr>
+                    <tr><td><code>ActivateContext</code></td><td><code>void ActivateContext(string? contextKey)</code></td><td>Activates contextual tabs based on a context key. Pass null or empty to hide all.</td></tr>
+                    <tr><td><code>BuildBackstageFromSimpleItems</code></td><td><code>void BuildBackstageFromSimpleItems()</code></td><td>Rebuilds the backstage navigation from <code>BackstageItems</code>.</td></tr>
+                    <tr><td><code>BuildBackstageFromSimpleItems</code></td><td><code>void BuildBackstageFromSimpleItems(IEnumerable&lt;SimpleItem&gt;? sectionNodes)</code></td><td>Rebuilds backstage from a given section collection.</td></tr>
+                    <tr><td><code>LoadStandardBackstageTemplate</code></td><td><code>void LoadStandardBackstageTemplate(string applicationTitle, bool replaceExistingSections = true)</code></td><td>Populates the backstage with a standard template (Info, New, Open, Save, Print, etc.).</td></tr>
+                    <tr><td><code>BindBackstageRecentItems</code></td><td><code>void BindBackstageRecentItems(IEnumerable&lt;RibbonRecentItemModel&gt;? items, bool clearCurrent = true)</code></td><td>Binds a list of recent item models (with pinned state) to the backstage.</td></tr>
+                    <tr><td><code>AddBackstageFooterAction</code></td><td><code>void AddBackstageFooterAction(SimpleItem item)</code></td><td>Adds a footer action (e.g., Options button) to the backstage.</td></tr>
+                    <tr><td><code>ClearBackstageFooterActionItems</code></td><td><code>void ClearBackstageFooterActionItems()</code></td><td>Clears all backstage footer actions.</td></tr>
+                    <tr><td><code>AddBackstageRecentItem</code></td><td><code>void AddBackstageRecentItem(SimpleItem item, bool pin = false)</code></td><td>Adds a recent item. Duplicate keys are removed first.</td></tr>
+                    <tr><td><code>PinBackstageItem</code></td><td><code>bool PinBackstageItem(SimpleItem item)</code></td><td>Pins a backstage item (removes from recent, adds to pinned).</td></tr>
+                    <tr><td><code>UnpinBackstageItem</code></td><td><code>bool UnpinBackstageItem(string itemKey, bool moveToRecent = true)</code></td><td>Unpins a backstage item and optionally moves it back to recent.</td></tr>
+                    <tr><td><code>ClearBackstageRecentItems</code></td><td><code>void ClearBackstageRecentItems()</code></td><td>Clears all recent backstage items.</td></tr>
+                    <tr><td><code>ClearBackstagePinnedItems</code></td><td><code>void ClearBackstagePinnedItems()</code></td><td>Clears all pinned backstage items.</td></tr>
+                    <tr><td><code>ShowBackstageSection</code></td><td><code>void ShowBackstageSection(int index)</code></td><td>Displays the backstage content for a given section index.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="events" class="section"><h2>Events</h2>
+                <table><thead><tr><th>Event</th><th>Args</th><th>Description</th></tr></thead><tbody>
+                    <tr><td><code>CommandInvoked</code></td><td><code>RibbonCommandInvokedEventArgs</code></td><td>Raised when any ribbon command is invoked (click, gallery select, or search result execute). Provides <code>Command</code> (SimpleItem) and <code>Source</code> (ToolStripItem).</td></tr>
+                    <tr><td><code>BackstageCommandInvoked</code></td><td><code>BackstageCommandInvokedEventArgs</code></td><td>Raised when a backstage action or footer button is clicked. Provides <code>Section</code> and <code>Command</code>.</td></tr>
+                    <tr><td><code>BackstageSectionChanged</code></td><td><code>BackstageSectionChangedEventArgs</code></td><td>Raised when the user navigates between backstage sections. Provides <code>Section</code> and <code>SectionIndex</code>.</td></tr>
+                    <tr><td><code>RibbonMerged</code></td><td><code>RibbonMergedEventArgs</code></td><td>Raised after a merge operation. Provides <code>MergeMode</code>, <code>SourceTabCount</code>, <code>ResultTabCount</code>.</td></tr>
+                    <tr><td><code>RibbonMinimizedChanged</code></td><td><code>EventArgs</code></td><td>Raised when the ribbon minimized state changes.</td></tr>
+                    <tr><td><code>RibbonCustomizationRequested</code></td><td><code>EventArgs</code></td><td>Raised when customization is requested. If unhandled, the built-in dialog opens.</td></tr>
+                    <tr><td><code>RibbonCustomizationApplied</code></td><td><code>RibbonCustomizationAppliedEventArgs</code></td><td>Raised after customization state is applied. Provides <code>Action</code>, <code>TabCount</code>, <code>QuickAccessCount</code>.</td></tr>
+                    <tr><td><code>RibbonCustomizationReset</code></td><td><code>EventArgs</code></td><td>Raised after customization is reset to defaults.</td></tr>
+                    <tr><td><code>RibbonCustomizationCanceled</code></td><td><code>EventArgs</code></td><td>Raised when the customization dialog is canceled without applying.</td></tr>
+                    <tr><td><code>SearchExecuted</code></td><td><code>RibbonSearchExecutedEventArgs</code></td><td>Raised after a search is executed. Provides <code>Query</code>, <code>Mode</code>, <code>ResultCount</code>, <code>ProviderUsed</code>, <code>ProviderFailed</code>, <code>UsedLocalFallback</code>.</td></tr>
+                    <tr><td><code>TooltipActionRequested</code></td><td><code>RibbonTooltipActionRequestedEventArgs</code></td><td>Raised when a super tooltip action button is clicked. Provides <code>Command</code>, <code>Model</code>, <code>Action</code>.</td></tr>
+                </tbody></table>
+            </section>
+
+            <section id="theming" class="section"><h2>Theming</h2>
+                <p>The ribbon uses a <code>RibbonTheme</code> class containing 19 color properties, 4 layout/spacing tokens, and 4 typography styles. The theme can be sourced from:</p>
+                <ul>
+                    <li><strong>Global Theme Manager</strong> &mdash; When <code>FollowGlobalFormStyle = true</code>, the ribbon subscribes to <code>BeepThemesManager.ThemeChanged</code> and <code>BeepThemesManager.FormStyleChanged</code>, automatically mapping the global theme to ribbon colors via <code>RibbonThemeMapper</code>.</li>
+                    <li><strong>Visual Presets</strong> &mdash; Five built-in presets: <code>OfficeLight</code>, <code>OfficeDark</code>, <code>FluentLight</code>, <code>FluentDark</code>, <code>HighContrast</code>. The <code>ResolvedStylePreset</code> read-only property reports the active one.</li>
+                    <li><strong>Token Files</strong> &mdash; Load/save themes from JSON via <code>LoadThemeFromTokenFile()</code> and <code>SaveThemeTokensTo()</code>. Supports light/dark mode variants.</li>
+                    <li><strong>Direct Assignment</strong> &mdash; Set <code>Theme</code> property directly with a custom <code>RibbonTheme</code> instance.</li>
+                </ul>
+                <h4>RibbonTheme Color Properties</h4>
+                <table><thead><tr><th>Property</th><th>Applies To</th></tr></thead><tbody>
+                    <tr><td><code>Background</code></td><td>Control background, tabs, context header, backstage surface</td></tr>
+                    <tr><td><code>TabActiveBack</code></td><td>Active tab page, selected tab color, search box, backstage buttons</td></tr>
+                    <tr><td><code>TabInactiveBack</code></td><td>Inactive tab headers</td></tr>
+                    <tr><td><code>TabBorder</code></td><td>Tab borders</td></tr>
+                    <tr><td><code>GroupBack</code></td><td>Command group background, backstage nav list, minimized popup</td></tr>
+                    <tr><td><code>GroupBorder</code></td><td>Group separator lines, button flat borders</td></tr>
+                    <tr><td><code>HoverBack</code></td><td>Mouse hover background for commands</td></tr>
+                    <tr><td><code>PressedBack</code></td><td>Mouse pressed background for commands</td></tr>
+                    <tr><td><code>FocusBorder</code></td><td>Focus indicator border color</td></tr>
+                    <tr><td><code>Separator</code></td><td>Tool strip separator lines</td></tr>
+                    <tr><td><code>Text</code></td><td>All text throughout the ribbon</td></tr>
+                    <tr><td><code>IconColor</code></td><td>Recolor tint for command images</td></tr>
+                    <tr><td><code>QuickAccessBack</code></td><td>Quick Access Toolbar background</td></tr>
+                    <tr><td><code>QuickAccessBorder</code></td><td>Quick Access Toolbar border</td></tr>
+                    <tr><td><code>DisabledBack</code></td><td>Disabled command background</td></tr>
+                    <tr><td><code>DisabledText</code></td><td>Disabled command text color</td></tr>
+                    <tr><td><code>DisabledBorder</code></td><td>Disabled command border</td></tr>
+                    <tr><td><code>SelectionBack</code></td><td>Selected/checked command background</td></tr>
+                    <tr><td><code>ElevationColor</code></td><td>Shadow/drop-shadow color (applied at 42 alpha)</td></tr>
+                </tbody></table>
+                <h4>Typography Styles</h4>
+                <p>Four <code>TypographyStyle</code> tokens control font rendering: <code>TabTypography</code> (tabs), <code>GroupTypography</code> (group headers), <code>CommandTypography</code> (commands and buttons), and <code>ContextHeaderTypography</code> (contextual tab headers). All are consumed via <code>BeepThemesManager.ToFont()</code>.</p>
+            </section>
+
+            <section id="search" class="section"><h2>Search System</h2>
+                <p>The ribbon includes a built-in command search engine with three modes:</p>
+                <ul>
+                    <li><strong>Off</strong> &mdash; Search box is hidden.</li>
+                    <li><strong>Local</strong> &mdash; Uses <code>RibbonSearchIndex.RankCommands()</code> for fuzzy text matching against command names, tooltips, and categories. Respects per-category score boosts and command usage frequency.</li>
+                    <li><strong>SmartService</strong> &mdash; Delegates to an external <code>IRibbonSearchProvider</code>. Falls back to local search if the provider throws or returns null.</li>
+                </ul>
+                <p>Search results appear as a dropdown from the Quick Access Toolbar. History is persisted and can be managed via a dialog. Arrow keys navigate results; Enter executes the selected command. A <code>RibbonSearchBenchmark</code> API is available for performance testing.</p>
+            </section>
+
+            <section id="backstage" class="section"><h2>Backstage View</h2>
+                <p>The backstage view replaces the traditional File menu with a full-width panel accessible via the "File" button in the Quick Access Toolbar. It consists of:</p>
+                <ul>
+                    <li><strong>Navigation Pane</strong> (left) &mdash; A <code>ListBox</code> showing section names from <code>BackstageItems</code>.</li>
+                    <li><strong>Content Area</strong> (right) &mdash; Action buttons rendered from section children, with automatic "Pinned" and "Recent" subsections when a section is named "Open" or "Recent".</li>
+                    <li><strong>Footer</strong> &mdash; Action buttons from <code>BackstageFooterItems</code> (e.g., Options, Account).</li>
+                    <li><strong>Timestamps</strong> &mdash; Relative or absolute timestamps displayed next to recent items. Supports custom formatting via <code>BackstageTimestampFormatter</code>.</li>
+                    <li><strong>Pin/Unpin</strong> &mdash; Right-click or inline pin buttons to pin items to the top of recent lists.</li>
+                    <li><strong>Animated Transitions</strong> &mdash; Smooth-step ease-in-out size transition when the backstage opens. Duration and behavior configurable.</li>
+                </ul>
+                <pre><code class="language-csharp">// Load standard template
+ribbon.LoadStandardBackstageTemplate("MyApp", replaceExistingSections: true);
+
+// Add a footer action
+ribbon.AddBackstageFooterAction(new SimpleItem { Text = "Options", ActionID = "options" });
+
+// Bind recent files
+ribbon.BindBackstageRecentItems(myRecentFiles);</code></pre>
+            </section>
+
+            <section id="customization" class="section"><h2>Customization</h2>
+                <p>The ribbon supports runtime customization controlled by <code>PersonalizationOptions</code> flags:</p>
+                <ul>
+                    <li><strong>QuickAccess</strong> &mdash; Right-click any command to add/remove from QAT. Reorder via <code>MoveQuickAccessCommand()</code>.</li>
+                    <li><strong>RibbonTabs / RibbonGroups / CommandOrder</strong> &mdash; Opens the built-in <code>RibbonCustomizationDialog</code> for hiding/reordering tabs and groups.</li>
+                </ul>
+                <p>Customization state can be persisted to JSON via <code>SaveCustomizationTo()</code> / <code>LoadCustomizationFrom()</code>. The "Reset to Default" action restores the snapshot captured during the first <code>BuildFromSimpleItems()</code> call. Right-click the tab header area for a context menu with minimize, QAT placement, layout mode, density, and dark mode toggles.</p>
+            </section>
+
+            <section id="examples" class="section"><h2>Examples</h2>
+                <h3>Example 1: Basic Ribbon Setup</h3>
+                <pre><code class="language-csharp">var ribbon = new BeepRibbonControl { Dock = DockStyle.Top };
+var homeTab = new SimpleItem { Text = "Home" };
+var clipboardGroup = new SimpleItem { Text = "Clipboard" };
+clipboardGroup.Children.Add(new SimpleItem { Text = "Paste", ActionID = "paste", ImagePath = "paste.png" });
+clipboardGroup.Children.Add(new SimpleItem { Text = "Cut", ActionID = "cut", ImagePath = "cut.png" });
+clipboardGroup.Children.Add(new SimpleItem { Text = "Copy", ActionID = "copy", ImagePath = "copy.png" });
+homeTab.Children.Add(clipboardGroup);
+ribbon.CommandItems.Add(homeTab);
+ribbon.CommandInvoked += (s, e) => HandleCommand(e.Command);
+this.Controls.Add(ribbon);</code></pre>
+
+                <h3>Example 2: Contextual Tabs</h3>
+                <pre><code class="language-csharp">int picGroupId = ribbon.AddContextualGroup("Picture Tools", Color.Coral);
+var formatTab = ribbon.AddContextualTab(picGroupId, "Format");
+ribbon.AddGroup(formatTab, "Adjust");
+// Later, when an image is selected:
+ribbon.ActivateContext("image");
+// When deselected:
+ribbon.ActivateContext(null);</code></pre>
+
+                <h3>Example 3: Merging Ribbons (MDI)</h3>
+                <pre><code class="language-csharp">// In parent form
+parentRibbon.BeginMergeScope();
+parentRibbon.MergeFrom(childRibbon, RibbonMergeMode.MergeByTabName);
+parentRibbon.CommandInvoked += (s, e) => { /* handle merged commands */ };
+
+// When child closes
+parentRibbon.EndMergeScope();</code></pre>
+
+                <h3>Example 4: Enable Smart Search</h3>
+                <pre><code class="language-csharp">ribbon.SearchMode = RibbonSearchMode.SmartService;
+ribbon.SearchProvider = new MyCloudSearchProvider();
+ribbon.SearchTelemetry = new MyTelemetrySink();
+ribbon.SearchIncludeBackstage = true;
+ribbon.SearchExecuted += (s, e) => Debug.WriteLine($"Search: {e.Query} -> {e.ResultCount} results");</code></pre>
+
+                <h3>Example 5: Save and Restore State</h3>
+                <pre><code class="language-csharp">// Save
+ribbon.SaveCustomizationTo("ribbon-state.json");
+ribbon.SaveQuickAccessTo("qat-keys.txt");
+ribbon.SaveSearchHistoryTo("search-history.txt");
+ribbon.SaveThemeTokensTo("ribbon-theme.json");
+
+// Restore
+ribbon.LoadCustomizationFrom("ribbon-state.json");
+ribbon.LoadQuickAccessFrom("qat-keys.txt");
+ribbon.LoadSearchHistoryFrom("search-history.txt");
+ribbon.LoadThemeTokensFrom("ribbon-theme.json");</code></pre>
+            </section>
+
+            <section id="architecture" class="section"><h2>Architecture</h2>
+                <p><code>BeepRibbonControl</code> is implemented as a single <code>partial class</code> distributed across 15 source files:</p>
+                <table><thead><tr><th>File</th><th>Responsibility</th></tr></thead><tbody>
+                    <tr><td><code>BeepRibbonControl.cs</code></td><td>Partial class declaration, namespace imports</td></tr>
+                    <tr><td><code>BeepRibbonControl.Fields.cs</code></td><td>All private fields: UI controls, command maps, search state, backstage components, transition timers, contextual group storage</td></tr>
+                    <tr><td><code>BeepRibbonControl.Properties.cs</code></td><td>All public properties with designer attributes and change notification logic</td></tr>
+                    <tr><td><code>BeepRibbonControl.Core.cs</code></td><td>Constructor, Dispose, command view refresh, search setup, F6 pane focusing, initial theme sync</td></tr>
+                    <tr><td><code>BeepRibbonControl.Commands.cs</code></td><td>Command tree building: <code>BuildFromSimpleItems</code>, gallery creation, dropdown/overflow button construction, super tooltips, command invocation</td></tr>
+                    <tr><td><code>BeepRibbonControl.Layout.cs</code></td><td>Responsive layout: large/small button determination, width estimation, density-based sizing, image creation, AddPage/AddGroup, responsive re-layout</td></tr>
+                    <tr><td><code>BeepRibbonControl.Theme.cs</code></td><td>Theme application to all sub-controls, RTL layout application, BeepTheme mapping, token file loading</td></tr>
+                    <tr><td><code>BeepRibbonControl.Search.cs</code></td><td>Search engine: local and async smart search, ranking, history management, results dropdown, keyboard navigation, benchmark API</td></tr>
+                    <tr><td><code>BeepRibbonControl.QuickAccess.cs</code></td><td>Quick Access Toolbar: add/remove/move commands, persistence, toolbar rebuild</td></tr>
+                    <tr><td><code>BeepRibbonControl.Backstage.cs</code></td><td>Backstage view: navigation, action buttons, recent/pinned items, timestamps, footer actions, animated transitions, inline pin controls</td></tr>
+                    <tr><td><code>BeepRibbonControl.Contextual.cs</code></td><td>Contextual tabs: group creation, tab assignment, visibility toggling, context activation, animated color transitions, animation preference detection</td></tr>
+                    <tr><td><code>BeepRibbonControl.Customization.cs</code></td><td>Merge (scope, append, by-name, replace), customization dialog integration, tab/group state capture, JSON persistence</td></tr>
+                    <tr><td><code>BeepRibbonControl.Utilities.cs</code></td><td>Helper methods: key resolution, node cloning, merge key computation, visibility checks, separator normalization, backstage item management</td></tr>
+                    <tr><td><code>BeepRibbonControl.KeyTips.cs</code></td><td>Key tips: Alt-key assignment, display/hide, multi-character input buffer, item invocation</td></tr>
+                    <tr><td><code>BeepRibbonControl.Events.cs</code></td><td>Event declarations, theme manager subscription, context menu (tab header, right-click), mouse/double-click handlers</td></tr>
+                    <tr><td><code>BeepRibbonControl.Minimized.cs</code></td><td>Minimized state: popup menu, transient images, height calculation, toggle</td></tr>
+                    <tr><td><code>BeepRibbonControl.Renderer.cs</code></td><td>Internal <code>BeepRibbonToolStripRenderer</code> delegating to <code>BeepRibbonRenderer</code> for custom painting</td></tr>
+                </tbody></table>
+            </section>
+        </div></main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.has-submenu > a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();this.parentElement.classList.toggle('open')})});var p=window.location.pathname.split('/').pop(),l=document.querySelector('a[href="'+p+'"]');if(l){l.classList.add('active');var s=l.closest('.submenu');if(s)s.closest('.has-submenu').classList.add('open')}if(localStorage.getItem('theme')==='dark'){document.body.setAttribute('data-theme','dark');document.getElementById('theme-icon').className='bi bi-moon-fill'}});
+        function toggleTheme(){var b=document.body,i=document.getElementById('theme-icon');if(b.getAttribute('data-theme')==='dark'){b.removeAttribute('data-theme');i.className='bi bi-sun-fill';localStorage.setItem('theme','light')}else{b.setAttribute('data-theme','dark');i.className='bi bi-moon-fill';localStorage.setItem('theme','dark')}};
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')};
+        function searchDocs(q){var lc=q.toLowerCase();document.querySelectorAll('.nav-menu a').forEach(function(a){var l=a.closest('li');l.style.display=a.textContent.toLowerCase().indexOf(lc)>=0||lc===''?'':'none'})};
+    </script>
+</body>
+</html>

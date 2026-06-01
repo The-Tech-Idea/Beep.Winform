@@ -12,39 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-<aside class="sidebar" id="sidebar">
-<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
-<nav><ul style="list-style:none;padding:0;font-size:.9rem">
-<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
-<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
-<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
-<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
-<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
-<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
-<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
-</ul></nav>
-</aside>
-<main class="content"><div class="content-wrapper">
+<div class="container"><main class="content"><div class="content-wrapper">
 <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>beepgridprodesigner</span></nav><div class="page-header"><h1>BeepGridProDesigner</h1><p class="page-subtitle">The design-time designer for BeepGridPro — 47 smart-tag properties, quick configuration presets, column editor, sample data generation</p></div>
 <div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#smart-tag">Smart-Tag Sections</a></li><li><a href="#actions">Quick Configuration Actions</a></li><li><a href="#sample-data">Design-Time Sample Data</a></li><li><a href="#column-editor">Column Editor</a></li><li><a href="#examples">Code Example</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Inheritance:</strong> <code>BaseBeepControlDesigner</code></p><p><code>BeepGridProDesigner</code> is the richest single-control designer in the library with <strong>47 smart-tag items</strong> organized across 7 named sections. It provides:</p><ul><li>Quick configuration presets (DataDisplay, DataEntry, SimpleList, SelectionGrid)</li><li>Design-time sample data generation</li><li>Column editor dialog integration</li><li>Row height presets (Standard/Compact/Comfortable)</li><li>Batch feature toggles (EnableAll/DisableAll)</li><li>Column auto-sizing commands</li></ul></section><section class="section" id="features"><h2>Key Features</h2><ul><li>4 quick-configuration presets that set multiple properties at once</li><li>GenerateSampleData() creates a 6-row BindingList for design-time preview</li><li>EditColumns() opens the BeepGridColumnEditorDialog modal</li><li>3 row-height presets: Standard (24px), Compact (20px), Comfortable (28px)</li><li>Column auto-size: BestFitVisibleColumns, BestFitVisibleColumnsAllRows, AutoSizeColumnsNow</li><li>Inherits CommonBeepControlActionList for style/theme/schema</li><li>All property changes route through IComponentChangeService</li></ul></section><section class="section" id="smart-tag"><h2>Smart-Tag Sections</h2><table><thead><tr><th>Section</th><th>Items</th><th>Description</th></tr></thead><tbody><tr><td>Quick Configuration</td><td>7 action methods</td><td>ConfigureAsDataDisplay, ConfigureAsDataEntry, ConfigureAsSimpleList, ConfigureAsSelectionGrid, GenerateSampleData, ClearSamplePreview, EditColumns</td></tr><tr><td>Row Height Presets</td><td>3 action methods</td><td>SetStandardRowHeight (24px), SetCompactRowHeight (20px), SetComfortableRowHeight (28px)</td></tr><tr><td>Features</td><td>2 action methods</td><td>EnableAllFeatures, DisableInteractiveFeatures</td></tr><tr><td>Data Properties</td><td>2 properties</td><td>DataSource (object), DataMember (string)</td></tr><tr><td>Layout Properties</td><td>6 properties</td><td>RowHeight, ColumnHeaderHeight, ShowColumnHeaders, ShowNavigator, AutoSizeColumnsMode, AutoSizeTriggerMode</td></tr><tr><td>Auto-Size</td><td>3 action methods</td><td>BestFitVisibleColumns, BestFitVisibleColumnsAllRows, AutoSizeColumnsNow</td></tr><tr><td>Behavior</td><td>5 properties</td><td>AllowUserToResizeColumns, AllowColumnReorder, MultiSelect, ReadOnly, ShowCheckBox</td></tr><tr><td>Appearance</td><td>5 properties</td><td>GridStyle, GridTitle, NavigationStyle, SortIconVisibility, FilterIconVisibility</td></tr><tr><td>Focus Styling</td><td>3 properties</td><td>UseDedicatedFocusedRowStyle, ShowFocusedCellFill, ShowFocusedCellBorder, FocusedCellBorderWidth</td></tr><tr><td>Filtering UI</td><td>2 properties</td><td>ShowTopFilterPanel, TopFilterPanelHeight</td></tr></tbody></table></section><section class="section" id="actions"><h2>Quick Configuration Actions</h2><h3>ConfigureAsDataDisplay()</h3><p>Sets: ReadOnly=true, ShowColumnHeaders=true, ShowNavigator=true, MultiSelect=true, AllowUserToResizeColumns=true, AllowColumnReorder=true</p><h3>ConfigureAsDataEntry()</h3><p>Sets: ReadOnly=false, ShowColumnHeaders=true, ShowNavigator=true, MultiSelect=false, AllowUserToResizeColumns=true</p><h3>ConfigureAsSimpleList()</h3><p>Sets: ShowColumnHeaders=false, ShowNavigator=false, AllowUserToResizeColumns=false, AllowColumnReorder=false, MultiSelect=false</p><h3>ConfigureAsSelectionGrid()</h3><p>Sets: MultiSelect=true, ShowCheckBox=true, ReadOnly=true</p></section><section class="section" id="sample-data"><h2>Design-Time Sample Data</h2><p>The <code>GenerateSampleData()</code> method creates a <code>BindingList&lt;DesignTimeGridPreviewRow&gt;</code> with 6 sample rows. It uses reflection to access the grid's internal <code>Data</code> and <code>Layout</code> helpers, calls <code>Bind()</code> then <code>Recalculate()</code>. The operation is wrapped in a try/catch to prevent designer crashes.</p><pre><code class="language-csharp">public void GenerateSampleData()
 {
@@ -74,7 +42,7 @@ grid.AllowUserToResizeColumns = true;
 grid.MultiSelect = true;
 grid.ShowColumnHeaders = true;
 grid.GridStyle = "DataTables";</code></pre></section>
-</div></main>
+</div></main></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body></html>

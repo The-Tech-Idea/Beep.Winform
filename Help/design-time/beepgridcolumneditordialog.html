@@ -12,39 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-<aside class="sidebar" id="sidebar">
-<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
-<nav><ul style="list-style:none;padding:0;font-size:.9rem">
-<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
-<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
-<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
-<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
-<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
-<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
-<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
-</ul></nav>
-</aside>
-<main class="content"><div class="content-wrapper">
+<div class="container"><main class="content"><div class="content-wrapper">
 <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>beepgridcolumneditordialog</span></nav><div class="page-header"><h1>BeepGridColumnEditorDialog</h1><p class="page-subtitle">Modal design-time dialog for managing BeepGridPro columns — add, remove, reorder, and configure column types with real-time preview</p></div>
 <div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#ui-sections">UI Sections</a></li><li><a href="#column-types">Column Types</a></li><li><a href="#collection-editor">BeepGridColumnCollectionEditor</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Editors</code><br><strong>Inheritance:</strong> <code>Form</code></p><p>Opened from the BeepGridPro smart-tag via the <code>EditColumns()</code> command. Provides full visual management of grid columns at design time.</p></section><section class="section" id="features"><h2>Key Features</h2><ul><li>Visual column list with drag-to-reorder</li><li>Add/remove/duplicate columns</li><li>Set column HeaderText, Width, ReadOnly</li><li>Assign column type (Text, Numeric, Date, ComboBox, CheckBox, Masked)</li><li>Real-time preview of column layout</li><li>Collection editor integration for complex types</li></ul></section><section class="section" id="column-types"><h2>Column Types</h2><table><thead><tr><th>Type</th><th>Editor</th><th>Description</th></tr></thead><tbody><tr><td>Text</td><td>BeepGridTextEditor</td><td>Free-form text input</td></tr><tr><td>Numeric</td><td>BeepGridNumericEditor</td><td>Numeric-only input</td></tr><tr><td>Date</td><td>BeepGridDateDropDownEditor</td><td>Date picker dropdown</td></tr><tr><td>ComboBox</td><td>BeepGridComboBoxEditor</td><td>Dropdown list selection</td></tr><tr><td>CheckBox</td><td>BeepGridCheckBoxEditor</td><td>Boolean toggle</td></tr><tr><td>Masked</td><td>BeepGridMaskedEditor</td><td>Input mask (phone, SSN, etc.)</td></tr><tr><td>Generic</td><td>BeepGridGenericEditor</td><td>Fallback for unknown types</td></tr></tbody></table></section><section class="section" id="collection-editor"><h2>BeepGridColumnCollectionEditor</h2><p>The <strong>BeepGridColumnCollectionEditor</strong> is a <code>CollectionEditor</code> subclass that provides the standard .NET collection editing UI for grid columns. Features:</p><ul><li>Add/remove column items in the collection</li><li>Property grid for editing individual column properties</li><li>Type filtering for column-specific subtypes</li></ul></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// Open the column editor from code:
 var editor = new BeepGridColumnEditorDialog(grid.Columns);
@@ -53,7 +21,7 @@ if (editor.ShowDialog() == DialogResult.OK)
     grid.Columns = editor.Result;
     grid.Refresh();
 }</code></pre></section>
-</div></main>
+</div></main></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body></html>

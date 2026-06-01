@@ -12,39 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-<aside class="sidebar" id="sidebar">
-<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
-<nav><ul style="list-style:none;padding:0;font-size:.9rem">
-<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
-<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
-<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
-<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
-<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
-<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
-<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
-</ul></nav>
-</aside>
-<main class="content"><div class="content-wrapper">
+<div class="container"><main class="content"><div class="content-wrapper">
 <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>beepdockspacedesigner</span></nav><div class="page-header"><h1>BeepDockspaceDesigner</h1><p class="page-subtitle">The ParentControlDesigner for BeepDockspace — enables tab drag-drop reordering, header click routing, and intelligent move snapping at design time</p></div>
 <div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#features">Key Features</a></li><li><a href="#design-time-behavior">Design-Time Behavior</a></li><li><a href="#window-messages">Window Message Handling</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Docking.Designers</code><br><strong>Inheritance:</strong> <code>ParentControlDesigner</code><br><strong>Visibility:</strong> <code>internal sealed</code></p><p><code>BeepDockspaceDesigner</code> manages the design-time experience for <strong>BeepDockspace</strong> controls — the visual containers that hold docked panels and render tab strips with captions. At design time, it enables tab reordering via drag-drop within the header area and intelligent repositioning when the entire dockspace is moved.</p></section><section class="section" id="features"><h2>Key Features</h2><ul><li><strong>Tab drag-drop</strong> — Users can drag tab headers within the dockspace's header bar to reorder panels at design time</li><li><strong>Header click routing</strong> — Clicks on the header area at design time are properly routed for tab selection</li><li><strong>Move snapping</strong> — When the dockspace is dragged, it recalcalculates the nearest DockPosition from its new center</li><li><strong>Resize forwarding</strong> — Resize operations delegate to BeepDockingDesignerWiring for proportional recalculation</li><li><strong>Selection rules</strong> — Visible and AllSizeable for proper designer interaction</li></ul></section><section class="section" id="design-time-behavior"><h2>Design-Time Behavior</h2><h3>GetHitTest</h3><p>The <code>GetHitTest()</code> override returns true only when the dockspace is the primary selection AND the click point is within the header area. This allows tab header interactions at design time while letting non-header areas pass through to the contained panels.</p><h3>Move Snapping</h3><p>When the user moves a dockspace in the designer, <code>HandleDockspaceMove()</code> calculates the nearest DockPosition based on the center point of the dockspace relative to the host form bounds. This is similar to DockPanel's move snapping but operates at the dockspace level.</p><h3>ComponentChanged Handling</h3><p>Subscribes to <code>ComponentChanged</code> and <code>SelectionChanged</code> events. On move changes, resolves the nearest dock position. On resize changes, forwards to <code>BeepDockingDesignerWiring.ResizeDockspace()</code>.</p></section><section class="section" id="window-messages"><h2>Window Message Handling</h2><p>The designer overrides <code>WndProc()</code> to intercept three key Windows messages for tab drag-drop:</p><table><thead><tr><th>Message</th><th>Behavior</th></tr></thead><tbody><tr><td><code>WM_LBUTTONDOWN</code></td><td>Detects if the click is on a tab header. If yes, initiates drag tracking by recording the source panel.</td></tr><tr><td><code>WM_MOUSEMOVE</code></td><td>While dragging, tracks mouse position for potential drop target.</td></tr><tr><td><code>WM_LBUTTONUP</code></td><td>Completes the drag: calls <code>BeepDockingDesignerWiring.DropPanelAt()</code> to place the panel at its new position.</td></tr></tbody></table></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">// At design time, the user can:
 // 1. Click a tab header to select the corresponding DockPanel
@@ -56,7 +24,7 @@
 dockspace.ActivatePanel(myPanel);
 dockspace.SelectPage("my-panel-key");
 var activePanel = dockspace.ActivePanel;</code></pre></section>
-</div></main>
+</div></main></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body></html>

@@ -12,39 +12,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-<aside class="sidebar" id="sidebar">
-<div style="padding:0 1.5rem;margin-bottom:1rem"><h2 style="font-size:1.1rem;margin:0">Beep Controls</h2><span style="font-size:.75rem;color:var(--meta)">Design-Time Infrastructure v1.0.164</span></div>
-<nav><ul style="list-style:none;padding:0;font-size:.9rem">
-<li style="padding:4px 1.5rem"><a href="index.html">&#x2190; Main Docs</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Base Classes</li>
-<li style="padding:4px 1.5rem"><a href="basebeepcontroldesigner.html">BaseBeepControlDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="basebeepparentcontroldesigner.html">BaseBeepParentControlDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Control Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepgridprodesigner.html">BeepGridProDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepchartdesigner.html">BeepChartDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepcalendardesigner.html">BeepCalendarDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockdesigner.html">BeepDockDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Docking Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingmanagerdesigner.html">BeepDockingManagerDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="dockpaneldesigner.html">DockPanelDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdockspacedesigner.html">BeepDockspaceDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">DocumentHost Designers</li>
-<li style="padding:4px 1.5rem"><a href="beepdocumenthostdesigner.html">BeepDocumentHostDesigner</a></li>
-<li style="padding:4px 1.5rem"><a href="documenthostactionlist.html">DocumentHostActionList</a></li>
-<li style="padding:4px 1.5rem"><a href="beepdocumentmanagerdesigner.html">BeepDocumentManagerDesigner</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Action Lists</li>
-<li style="padding:4px 1.5rem"><a href="commonbeepcontrolactionlist.html">CommonBeepControlActionList</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Dialogs & Editors</li>
-<li style="padding:4px 1.5rem"><a href="beepgridcolumneditordialog.html">BeepGridColumnEditor</a></li>
-<li style="padding:4px 1.5rem"><a href="pickereditors.html">Picker Editors</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Wiring & Helpers</li>
-<li style="padding:4px 1.5rem"><a href="beepdockingdesignerwiring.html">BeepDockingDesignerWiring</a></li>
-<li style="padding:4px 1.5rem"><a href="designtimehelpers.html">Design-Time Helpers</a></li>
-<li style="padding:4px 1.5rem;margin-top:1rem;font-weight:700;color:var(--fg)">Integrated Designers</li>
-<li style="padding:4px 1.5rem"><a href="integrateddesigners.html">BeepBlock/BeepForms Designers</a></li>
-</ul></nav>
-</aside>
-<main class="content"><div class="content-wrapper">
+<div class="container"><main class="content"><div class="content-wrapper">
 <nav class="breadcrumb-nav"><a href="../index.html">Home</a><span>&rsaquo;</span> <a href="overview.html">Design-Time Infrastructure</a><span>&rsaquo;</span> <span>beepdockdesigner</span></nav><div class="page-header"><h1>BeepDockDesigner</h1><p class="page-subtitle">Design-time designer for BeepDock — 14 smart-tag properties, 9 style presets, 4 position presets, 3 size presets</p></div>
 <div class="toc"><h3>Table of Contents</h3><ul><li><a href="#overview">Overview</a></li><li><a href="#smart-tag">Smart-Tag Properties</a></li><li><a href="#presets">Style & Position Presets</a></li><li><a href="#examples">Examples</a></li></ul></div><section class="section" id="overview"><h2>Overview</h2><p><strong>Namespace:</strong> <code>TheTechIdea.Beep.Winform.Controls.Design.Server.Designers</code><br><strong>Inheritance:</strong> <code>BaseBeepControlDesigner</code></p><p>One of the richest single-control designers, with 14 properties and 16 quick-configuration actions for the BeepDock control.</p></section><section class="section" id="smart-tag"><h2>Smart-Tag Properties (14)</h2><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>DockStyleType</td><td>DockStyle</td><td>Visual style (Apple, Windows11, Material3, etc.)</td></tr><tr><td>ItemSize</td><td>int</td><td>Default item icon size</td></tr><tr><td>DockHeight</td><td>int</td><td>Height of the dock bar</td></tr><tr><td>ItemSpacing</td><td>int</td><td>Space between items</td></tr><tr><td>MaxScale</td><td>float</td><td>Maximum magnification on hover</td></tr><tr><td>DockPositionType</td><td>DockPosition</td><td>Dock bar position</td></tr><tr><td>DockOrientationType</td><td>DockOrientation</td><td>Orientation (horizontal/vertical)</td></tr><tr><td>DockAlignmentType</td><td>DockAlignment</td><td>Alignment within position</td></tr><tr><td>IndicatorStyle</td><td>DockIndicatorStyle</td><td>Active item indicator style</td></tr><tr><td>AnimationStyle</td><td>DockAnimationStyle</td><td>Hover animation effect</td></tr><tr><td>IconMode</td><td>DockIconMode</td><td>Icon display mode</td></tr><tr><td>ShowTooltips</td><td>bool</td><td>Show tooltip on hover</td></tr><tr><td>ShowBadges</td><td>bool</td><td>Show notification badges</td></tr></tbody></table></section><section class="section" id="presets"><h2>Style & Position Presets</h2><h3>9 Style Presets</h3><table><thead><tr><th>Preset</th><th>DockStyle</th><th>Look</th></tr></thead><tbody><tr><td>ConfigureAsAppleDock()</td><td>AppleDock</td><td>macOS dock with magnification</td></tr><tr><td>ConfigureAsWindows11Dock()</td><td>Windows11Dock</td><td>Win11 taskbar look</td></tr><tr><td>ConfigureAsMaterial3Dock()</td><td>Material3Dock</td><td>Google Material Design 3</td></tr><tr><td>ConfigureAsGlassmorphismDock()</td><td>GlassmorphismDock</td><td>Frosted glass effect</td></tr><tr><td>ConfigureAsiOSDock()</td><td>iOSDock</td><td>iOS-style dock</td></tr><tr><td>ConfigureAsMinimalDock()</td><td>MinimalDock</td><td>Clean minimal style</td></tr><tr><td>ConfigureAsCyberpunkDock()</td><td>CyberpunkDock</td><td>Neon cyberpunk</td></tr><tr><td>ConfigureAsDraculaDock()</td><td>DraculaDock</td><td>Dracula theme</td></tr></tbody></table><h3>4 Position Presets</h3><p>PositionAtBottom(), PositionAtTop(), PositionOnLeft(), PositionOnRight()</p><h3>3 Size Presets</h3><p>SetStandardItemSize (56px), SetCompactItemSize (48px), SetLargeItemSize (64px)</p></section><section class="section" id="examples"><h2>Examples</h2><pre><code class="language-csharp">var dock = new BeepDock();
 dock.DockStyleType = DockStyle.Windows11Dock;
@@ -54,7 +22,7 @@ dock.ShowTooltips = true;
 // Or use preset:
 // dock.ConfigureAsMaterial3Dock();
 // dock.PositionOnLeft();</code></pre></section>
-</div></main>
+</div></main></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body></html>

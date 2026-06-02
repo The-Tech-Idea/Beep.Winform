@@ -41,6 +41,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private Rectangle _bottomRect;
         private Rectangle _fillRect;
         private DockPosition? _hoveredTarget;
+        private Rectangle _snapLineBounds;       // screen-coord rect of the active snap line
+        private DockPosition _snapLinePosition;
+        private bool _snapLineVisible;
 
         // ── Constructor ──────────────────────────────────────────────────────
 
@@ -107,6 +110,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             return hit;
         }
 
+        /// <summary>
+        /// Shows a thin accent bar at the given screen-coord rectangle to indicate where a
+        /// tab-drag would insert or split a dockspace. Used for <c>GroupEdge</c> and
+        /// <c>GroupCenterStack</c> drop targets. Pass an empty rect to clear the snap line.
+        /// </summary>
+        /// <param name="screenRect">Bar location/size in screen coordinates (in
+        /// <see cref="DockPosition"/> orientation; the bar is always 3 px wide).</param>
+        /// <param name="orientation">Which edge of the bar corresponds to the dock edge.</param>
+        public void ShowSnapGuide(Rectangle screenRect, DockPosition orientation)
+        {
+            bool wasVisible = _snapLineVisible;
+            _snapLineVisible = !screenRect.IsEmpty;
+            _snapLineBounds  = screenRect;
+            _snapLinePosition = orientation;
+            if (wasVisible != _snapLineVisible)
+                Invalidate();
+        }
+
+        /// <summary>Removes any active snap-line indicator.</summary>
+        public void ClearSnapGuide()
+        {
+            if (!_snapLineVisible) return;
+            _snapLineVisible = false;
+            _snapLineBounds  = Rectangle.Empty;
+            Invalidate();
+        }
+
         // ── Layout ───────────────────────────────────────────────────────────
 
         private void LayoutDiamonds()
@@ -142,6 +172,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             DrawDiamond(e.Graphics, _topRect,    DockPosition.Top);
             DrawDiamond(e.Graphics, _bottomRect, DockPosition.Bottom);
             DrawDiamond(e.Graphics, _fillRect,   DockPosition.Fill);
+
+            if (_snapLineVisible)
+                DrawSnapLine(e.Graphics);
+        }
+
+        private void DrawSnapLine(Graphics g)
+        {
+            // Convert screen-coord bar to overlay-client coords.
+            var local = RectangleToClient(_snapLineBounds);
+            if (local.Width <= 0 || local.Height <= 0)
+                return;
+
+            const int thickness = 3;
+            Rectangle bar;
+            switch (_snapLinePosition)
+            {
+                case DockPosition.Left:   bar = new Rectangle(local.X, local.Y, thickness, local.Height); break;
+                case DockPosition.Right:  bar = new Rectangle(local.Right - thickness, local.Y, thickness, local.Height); break;
+                case DockPosition.Top:    bar = new Rectangle(local.X, local.Y, local.Width, thickness); break;
+                case DockPosition.Bottom: bar = new Rectangle(local.X, local.Bottom - thickness, local.Width, thickness); break;
+                case DockPosition.Fill:   bar = local; break;
+                default: return;
+            }
+
+            using (var fill = new SolidBrush(Color.FromArgb(160, 0, 122, 204)))
+                g.FillRectangle(fill, bar);
+            using (var pen = new Pen(Color.White, 1f))
+                g.DrawRectangle(pen, bar);
         }
 
         private void DrawDiamond(Graphics g, Rectangle r, DockPosition target)

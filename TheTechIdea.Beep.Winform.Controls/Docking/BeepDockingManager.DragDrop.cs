@@ -17,15 +17,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
     {
         private DockDragController _dragController;
 
-        private DockDragController DragController =>
-            _dragController ??= new DockDragController(this);
+        private DockDragController DragController
+        {
+            get
+            {
+                if (_dragController == null)
+                {
+                    _dragController = new DockDragController(this);
+                    _dragController.ShowSnapGuides = _showSnapGuides;
+                }
+                return _dragController;
+            }
+        }
 
         // ── Entry points called by DockPanel caption/tab mouse handlers ──────────────
 
-        /// <summary>Records a caption/tab mouse-down candidate (screen coords). No-op at design time.</summary>
+        /// <summary>Records a caption/tab mouse-down candidate (screen coords). No-op at design time
+        /// or when the manager has <see cref="BeepDockingManager.AllowEndUserDocking"/> disabled.</summary>
         internal void BeginCaptionDrag(DockPanel panel, Point screenPoint)
         {
-            if (IsDesignHosted || panel == null)
+            if (IsDesignHosted || !_allowEndUserDocking || panel == null)
                 return;
             DragController.BeginCandidate(panel, screenPoint);
         }

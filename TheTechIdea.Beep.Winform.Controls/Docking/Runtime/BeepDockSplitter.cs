@@ -204,7 +204,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 Style = ControlStyle,
                 Bounds = ClientRectangle,
                 IsHover = _hovered,
-                IsDragging = _dragging
+                IsDragging = _dragging,
+                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).Splitter.Paint(e.Graphics, ctx, orientation);

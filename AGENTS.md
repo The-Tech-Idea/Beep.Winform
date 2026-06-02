@@ -127,6 +127,25 @@ When implementing document management:
 6. Designer must call `host.CreateComponent(typeof(BeepDocumentHost))` and `host.CreateComponent(typeof(BeepDocumentPanel))`
 7. Never instantiate child controls in the control constructor — let the designer create them
 
+## Architecture Rule: Docking — `BeepDockspace` is a Persistent Runtime Control
+
+The control hierarchy is: `Form` → `BeepDockingManager` (component) → `BeepDockspace[]` (Panels) → `DockPanel[]` (children of dockspace).
+
+**Runtime must not reparent anything.** The designer (and `*.Designer.cs`) places `DockPanel`s inside `BeepDockspace` containers. The dockspace IS the view, not a transparent shell. At runtime:
+- Each `BeepDockspace` sits directly in `hostForm.Controls` and gets a `DockStyle` (`Top`/`Bottom`/`Left`/`Right`/`Fill`) derived from its `DockPosition` (set by the manager in `SyncDockspaceDockStyles`).
+- The WinForms layout engine sizes each dockspace to its assigned edge of the host form.
+- Each dockspace arranges its own child `DockPanel`s via its own `LayoutPanels` / `OnLayout` (panels fill the content area below the header).
+- The manager's `ApplyLayout` positions dockspaces via `DockStyle` and skips per-panel bounds for panels whose parent is a dockspace.
+
+**Forbidden patterns** (these break the design-time contract):
+- `panel.Parent?.Controls.Remove(panel); hostForm.Controls.Add(panel);` — never reparent a `DockPanel` out of its dockspace.
+- Removing now-empty `BeepDockspace` controls from the form — they stay.
+- `DockingLayoutController` setting `panel.Bounds` for panels in dockspaces — the dockspace owns their layout.
+
+**Allowed patterns**:
+- The `AddPanel` runtime API still adds panels directly to `hostForm.Controls` as a legacy path; the layout controller handles their bounds.
+- The `AutoHidePanel` flow removes a panel from its dockspace, gives it to the `AutoHideStrip`'s slide panel while peeked, then returns it to the dockspace.
+
 ## References
 - [Microsoft: Creating a WF Control Design-Time Features](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/creating-a-wf-control-design-time-features)
 - [Microsoft: Serializing Collections DesignerSerializationVisibilityAttribute](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/serializing-collections-designerserializationvisibilityattribute)

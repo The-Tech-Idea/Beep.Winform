@@ -28,9 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         private static readonly object _rendererLock = new object();
 
         /// <summary>
-        /// Gets (or creates and caches) the renderer set for the given control style. Renderers are
-        /// currently style-agnostic — they paint flat themed chrome driven by the render context —
-        /// so style-specific renderers can be substituted here later without touching call sites.
+        /// Gets (or creates and caches) the renderer set for the given control style. The same
+        /// renderer classes are used for every style — per-style look is supplied at paint time
+        /// via <see cref="DockingStyleFlavor"/> resolved by <see cref="ResolveFlavor"/>.
         /// </summary>
         internal static DockingRendererSet GetRenderers(BeepControlStyle style)
         {
@@ -45,26 +45,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             }
         }
 
+        /// <summary>
+        /// Returns the per-style chrome flavor used to tweak corner radii, accent bars, and
+        /// grip styles for a given <see cref="BeepControlStyle"/>. Cached for cheap lookup.
+        /// Exposed publicly so host applications can inspect (or pre-warm) the flavor used
+        /// for a given style.
+        /// </summary>
+        public static DockingStyleFlavor ResolveFlavor(BeepControlStyle style)
+        {
+            lock (_rendererLock)
+            {
+                if (_flavorCache.TryGetValue(style, out var f))
+                    return f;
+                f = DockingStyleFlavor.ForStyle(style);
+                _flavorCache[style] = f;
+                return f;
+            }
+        }
+
+        private static readonly Dictionary<BeepControlStyle, DockingStyleFlavor> _flavorCache
+            = new Dictionary<BeepControlStyle, DockingStyleFlavor>();
+
         private static DockingRendererSet CreateRendererSet(BeepControlStyle style)
         {
-            // Branch on style here when style-specific renderers are introduced
-            // (e.g. Fluent2 gets acrylic caption, Material3 gets tonal elevation).
-            // Currently all styles share the same renderer set.
-            switch (style)
-            {
-                case BeepControlStyle.Material3:
-                case BeepControlStyle.MaterialYou:
-                case BeepControlStyle.Fluent2:
-                case BeepControlStyle.Windows11Mica:
-                case BeepControlStyle.MacOSBigSur:
-                case BeepControlStyle.iOS15:
-                case BeepControlStyle.AntDesign:
-                case BeepControlStyle.ChakraUI:
-                case BeepControlStyle.TailwindCard:
-                default:
-                    return new DockingRendererSet(
-                        new CaptionRenderer(), new SplitterRenderer(), new AutoHideStripRenderer());
-            }
+            // All styles share the same renderer instances — per-style differences are applied
+            // at paint time through DockingStyleFlavor. Hooks for a fully custom renderer set
+            // remain available here (subclass CaptionRenderer etc.) without touching call sites.
+            return new DockingRendererSet(
+                new CaptionRenderer(), new SplitterRenderer(), new AutoHideStripRenderer());
         }
 
         /// <summary>
@@ -109,7 +117,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         {
             _painterCache.Clear();
             lock (_rendererLock)
+            {
                 _rendererCache.Clear();
+                _flavorCache.Clear();
+            }
         }
 
         /// <summary>

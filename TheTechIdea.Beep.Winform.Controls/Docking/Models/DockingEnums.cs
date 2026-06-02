@@ -176,8 +176,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 
     /// <summary>
     /// Specifies a propagated action sent down the docking hierarchy.
-    /// Mirrors Krypton's <c>DockingPropogateAction</c> enum.
+    /// Mirrors Krypton's <c>DockingPropagateAction</c> enum.
     /// </summary>
+    public enum DockingPropagateAction
+    {
+        /// <summary>Null / no-op.</summary>
+        Null,
+
+        /// <summary>A multi-part update is starting — suspend recalculation.</summary>
+        StartUpdate,
+
+        /// <summary>A multi-part update has ended — resume recalculation.</summary>
+        EndUpdate,
+
+        /// <summary>Show all display elements of the named panels.</summary>
+        ShowPages,
+
+        /// <summary>Show all display elements of all panels.</summary>
+        ShowAllPages,
+
+        /// <summary>Hide all display elements of the named panels.</summary>
+        HidePages,
+
+        /// <summary>Hide all display elements of all panels.</summary>
+        HideAllPages,
+
+        /// <summary>Replace named panels with position placeholders.</summary>
+        StorePages,
+
+        /// <summary>Replace all panels with position placeholders.</summary>
+        StoreAllPages,
+
+        /// <summary>Restore position placeholders with actual panels.</summary>
+        RestorePages,
+
+        /// <summary>Remove auto-hidden store pages for the named panels.</summary>
+        ClearAutoHiddenStoredPages,
+
+        /// <summary>Remove docked store pages for the named panels.</summary>
+        ClearDockedStoredPages,
+
+        /// <summary>Remove floating store pages for the named panels.</summary>
+        ClearFloatingStoredPages,
+
+        /// <summary>Remove all stored pages for the named panels.</summary>
+        ClearStoredPages,
+
+        /// <summary>Remove all stored pages across all panels.</summary>
+        ClearAllStoredPages,
+
+        /// <summary>Remove all details of the named panels.</summary>
+        RemovePages,
+
+        /// <summary>Remove all details of the named panels and dispose them.</summary>
+        RemoveAndDisposePages,
+
+        /// <summary>Remove all details of all panels.</summary>
+        RemoveAllPages,
+
+        /// <summary>Remove all details of all panels and dispose them.</summary>
+        RemoveAndDisposeAllPages,
+
+        /// <summary>A loading operation is about to begin.</summary>
+        Loading,
+
+        /// <summary>Named string property has been updated.</summary>
+        StringChanged
+    }
+
+    /// <summary>
+    /// Obsolete spelling of <see cref="DockingPropagateAction"/>. Kept as a binary-compatibility
+    /// shim for external consumers; new code should use <c>DockingPropagateAction</c>.
+    /// </summary>
+    [System.Obsolete("Spelling corrected to DockingPropagateAction; use that instead.")]
     public enum DockingPropogateAction
     {
         /// <summary>Null / no-op.</summary>

@@ -40,6 +40,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
             return _overlay.HitTest(screenPoint);
         }
 
+        /// <summary>
+        /// Shows a thin accent bar at the given screen-coord rect indicating where a tab-drag
+        /// would insert or split a dockspace. Pass <see cref="Rectangle.Empty"/> to clear.
+        /// </summary>
+        public void ShowSnapGuide(Rectangle screenRect, DockPosition orientation)
+        {
+            if (_overlay == null || _overlay.IsDisposed)
+                return;
+            _overlay.ShowSnapGuide(screenRect, orientation);
+        }
+
+        /// <summary>Removes any active snap-line indicator on the overlay.</summary>
+        public void ClearSnapGuide()
+        {
+            if (_overlay == null || _overlay.IsDisposed)
+                return;
+            _overlay.ClearSnapGuide();
+        }
+
         /// <summary>Hides the overlay (kept alive for reuse).</summary>
         public void Hide()
         {

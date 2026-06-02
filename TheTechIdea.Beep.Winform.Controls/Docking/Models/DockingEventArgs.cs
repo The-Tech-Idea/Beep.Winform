@@ -218,6 +218,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         public Rectangle ResizeRect { get; set; }
     }
 
+    /// <summary>
+    /// Event arguments for <see cref="BeepDockingManager.PanelMovedBetweenGroups"/>. Fires
+    /// when a docked panel is moved from one <see cref="DockGroup"/> to another (e.g., as a
+    /// result of <see cref="BeepDockingManager.StackPanel"/>,
+    /// <see cref="BeepDockingManager.MovePanelInStack"/>, or a tab-drag commit). Floating
+    /// reparenting does not raise this event; use <see cref="BeepDockingManager.PanelFloated"/>
+    /// for that.
+    /// </summary>
+    public class PanelMovedBetweenGroupsEventArgs : EventArgs
+    {
+        public PanelMovedBetweenGroupsEventArgs(
+            DockPanel panel, DockGroup? oldGroup, DockGroup newGroup, int newIndex)
+        {
+            Panel    = panel;
+            OldGroup = oldGroup;
+            NewGroup = newGroup;
+            NewIndex = newIndex;
+        }
+
+        /// <summary>The panel that was moved.</summary>
+        public DockPanel Panel { get; }
+
+        /// <summary>The group the panel was in before the move (null if it had no group).</summary>
+        public DockGroup? OldGroup { get; }
+
+        /// <summary>The group the panel is now in.</summary>
+        public DockGroup NewGroup { get; }
+
+        /// <summary>Zero-based position of the panel in <see cref="NewGroup"/>'s tab order.</summary>
+        public int NewIndex { get; }
+    }
+
+    /// <summary>
+    /// Cancelable event arguments for <see cref="BeepDockingManager.PanelStateChanging"/>.
+    /// Raised before the manager mutates a panel's <see cref="DockPanelState"/>. Subscribers
+    /// may inspect the requested transition (current → new) and set <see cref="CancelEventArgs.Cancel"/>
+    /// to veto the change. Useful for permission systems or to require confirmation before
+    /// floating/auto-hiding/closing a panel.
+    /// </summary>
+    public class PanelStateChangingEventArgs : CancelEventArgs
+    {
+        public PanelStateChangingEventArgs(DockPanel panel,
+            DockPanelState currentState, DockPanelState requestedState)
+        {
+            Panel          = panel;
+            CurrentState   = currentState;
+            RequestedState = requestedState;
+        }
+
+        /// <summary>The panel whose state is about to change.</summary>
+        public DockPanel Panel { get; }
+
+        /// <summary>The panel's state right now (before the change).</summary>
+        public DockPanelState CurrentState { get; }
+
+        /// <summary>The state the manager is about to apply.</summary>
+        public DockPanelState RequestedState { get; }
+    }
+
     // ── DoDragDropEnd / DoDragDropQuit use plain EventArgs — no class needed ────
 
 }

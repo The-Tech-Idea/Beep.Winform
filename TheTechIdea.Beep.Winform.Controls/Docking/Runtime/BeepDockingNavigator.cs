@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private readonly ListBox _list;
         private readonly Panel _frame;
         private readonly List<DockPanel> _allPanels;
-        private readonly DockingThemeColors _colors;
+        private DockingThemeColors _colors;
         private List<DockPanel> _filtered = new();
 
         private const int PopupWidth = 440;
@@ -55,6 +55,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             SelectedPanelKey = null;
             Close();
+        }
+
+        /// <summary>
+        /// Updates the cached theme colours and repaints. Called by the manager when the host
+        /// application's active theme changes while the navigator is open. No-op if the
+        /// navigator has not been shown yet (the constructor has not run) or has been closed.
+        /// </summary>
+        internal void RefreshTheme(DockingThemeColors colors)
+        {
+            if (IsDisposed) return;
+            _colors = colors ?? DockingThemeColors.Default;
+            BackColor = _colors.PanelBackColor;
+            if (_frame != null) _frame.BackColor = _colors.PanelBackColor;
+            if (_search != null)
+            {
+                _search.BackColor = _colors.PanelBackColor;
+                _search.ForeColor = _colors.PanelForeColor;
+            }
+            if (_list != null)
+            {
+                _list.BackColor = _colors.PanelBackColor;
+                _list.ForeColor = _colors.PanelForeColor;
+            }
+            Invalidate(true);
         }
 
         internal BeepDockingNavigator(

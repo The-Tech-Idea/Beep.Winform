@@ -217,7 +217,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     if (panel == null) continue;
                     panel.DockPosition = def.Position;
                     panel.State = DockPanelState.Docked;
-                    EnsurePanelHostedForDock(panel);
+                    panel.ShowCaption = true;
+                    panel.Visible = true;
                     group.AddPanel(panel);
                 }
             }

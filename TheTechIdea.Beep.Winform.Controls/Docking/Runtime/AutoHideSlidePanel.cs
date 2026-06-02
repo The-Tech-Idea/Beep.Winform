@@ -54,6 +54,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// <summary>Raised when the user drags the separator to resize the slide panel.</summary>
         public event EventHandler<SeparatorResizeEventArgs> SeparatorResize;
 
+        /// <summary>Raised when the slide-in animation completes and the hosted panel is fully
+        /// visible. The owning strip forwards this to the manager so the manager can focus the
+        /// panel content (when <c>ActiveAutoHideContent</c> is true).</summary>
+        public event EventHandler<DockPanel> SlideShown;
+
         public AutoHideSlidePanel(DockPosition edge)
         {
             _edge = edge;
@@ -110,6 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             SetSizeToZero();
             Visible    = true;
             BringToFront();
+            _hostedPanel.BringToFront();
 
             _slidingIn = true;
             _step      = 0;
@@ -221,6 +227,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 {
                     newSize = _targetSize;
                     _animTimer.Stop();
+                    if (_hostedPanel != null)
+                        SlideShown?.Invoke(this, _hostedPanel);
                 }
             }
             else

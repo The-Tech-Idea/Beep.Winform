@@ -31,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 return;
 
             var colors = ctx.Colors;
+            var flavor = ctx.Flavor;
             Rectangle strip = ctx.Bounds;
 
-            using (var brush = new SolidBrush(colors.HeaderBackColor))
-                g.FillRectangle(brush, strip);
+            PaintHeaderBackground(g, strip, colors.HeaderBackColor, flavor);
 
             PaintTabs(g, ctx, layout);
             PaintButtons(g, colors.HeaderButtonForeColor, layout, buttons);
@@ -49,13 +49,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 DockingCaptionPainter.PaintDropDownFallback(g, chevron, colors.HeaderButtonForeColor);
             }
 
-            using (var pen = new Pen(colors.TabBorderColor))
-                g.DrawLine(pen, strip.Left, strip.Bottom - 1, strip.Right - 1, strip.Bottom - 1);
+            if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
+            {
+                using (var pen = new Pen(colors.TabBorderColor))
+                    g.DrawLine(pen, strip.Left, strip.Bottom - 1, strip.Right - 1, strip.Bottom - 1);
+            }
+        }
+
+        private static void PaintHeaderBackground(Graphics g, Rectangle strip, Color back, DockingStyleFlavor flavor)
+        {
+            if (flavor.HeaderCornerRadius <= 0 && flavor.HeaderElevationBlend <= 0f)
+            {
+                using var brush = new SolidBrush(back);
+                g.FillRectangle(brush, strip);
+                return;
+            }
+
+            // Rounded header (Fluent2 / Material3 / MacOS) with a subtle elevation tint.
+            Color tinted = flavor.HeaderElevationBlend > 0f
+                ? BlendTowards(back, ControlPaint.Light(back, 0.05f), flavor.HeaderElevationBlend)
+                : back;
+            using (var brush = new SolidBrush(tinted))
+            {
+                if (flavor.HeaderCornerRadius > 0)
+                {
+                    using var path = RoundedRectPath(strip, flavor.HeaderCornerRadius);
+                    g.FillPath(brush, path);
+                }
+                else
+                {
+                    g.FillRectangle(brush, strip);
+                }
+            }
+        }
+
+        private static Color BlendTowards(Color a, Color b, float t)
+        {
+            t = System.Math.Max(0f, System.Math.Min(1f, t));
+            return Color.FromArgb(
+                a.A,
+                (int)(a.R + (b.R - a.R) * t),
+                (int)(a.G + (b.G - a.G) * t),
+                (int)(a.B + (b.B - a.B) * t));
+        }
+
+        internal static GraphicsPath RoundedRectPath(Rectangle r, int radius)
+        {
+            var path = new GraphicsPath();
+            int d = radius * 2;
+            if (d > r.Width) d = r.Width;
+            if (d > r.Height) d = r.Height;
+            if (d <= 0) { path.AddRectangle(r); return path; }
+            path.AddArc(r.X, r.Y, d, d, 180, 90);
+            path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+            path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
+            path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private static void PaintTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
         {
             var colors = ctx.Colors;
+            var flavor = ctx.Flavor;
             Font font = BeepFontManager.DefaultFont;
 
             using var sf = new StringFormat
@@ -74,11 +130,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                 Color tabFore = tab.IsActive ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
                 bool showIcon = DockingCaptionPainter.HasTabIcon(tab.IconPath);
 
-                using (var brush = new SolidBrush(tabBack))
-                    g.FillRectangle(brush, tabRect);
+                PaintTabBackground(g, tabRect, tabBack, flavor);
 
-                using (var pen = new Pen(colors.TabBorderColor))
-                    g.DrawRectangle(pen, tabRect.X, tabRect.Y, System.Math.Max(0, tabRect.Width - 1), System.Math.Max(0, tabRect.Height - 1));
+                if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
+                {
+                    using var pen = new Pen(colors.TabBorderColor);
+                    if (flavor.TabCornerRadius > 0)
+                    {
+                        using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);
+                        g.DrawPath(pen, path);
+                    }
+                    else
+                    {
+                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, System.Math.Max(0, tabRect.Width - 1), System.Math.Max(0, tabRect.Height - 1));
+                    }
+                }
+
+                if (tab.IsActive)
+                {
+                    if (flavor.UseTonalElevation)
+                    {
+                        var tint = BlendTowards(tabBack, ControlPaint.Light(tabBack, 0.18f), 0.35f);
+                        using var elevationBrush = new SolidBrush(Color.FromArgb(40, tint));
+                        if (flavor.TabCornerRadius > 0)
+                        {
+                            using var p = RoundedRectPath(tabRect, flavor.TabCornerRadius);
+                            g.FillPath(elevationBrush, p);
+                        }
+                        else
+                        {
+                            g.FillRectangle(elevationBrush, tabRect);
+                        }
+                    }
+                    if (flavor.ActiveTabAccentWidth > 0)
+                    {
+                        int accentH = flavor.ActiveTabAccentWidth;
+                        var accentRect = new Rectangle(
+                            tabRect.Left + 2,
+                            tabRect.Bottom - accentH,
+                            System.Math.Max(0, tabRect.Width - 4),
+                            accentH);
+                        using var accentBrush = new SolidBrush(colors.AccentColor);
+                        g.FillRectangle(accentBrush, accentRect);
+                    }
+                }
 
                 if (showIcon)
                     DockingCaptionPainter.PaintTabIcon(g, tabRect, tab.IconPath, tabFore);
@@ -112,6 +207,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                         System.Math.Max(0, tabRect.Width - 3),
                         System.Math.Max(0, tabRect.Height - 3));
                 }
+            }
+        }
+
+        private static void PaintTabBackground(Graphics g, Rectangle tabRect, Color tabBack, DockingStyleFlavor flavor)
+        {
+            using var brush = new SolidBrush(tabBack);
+            if (flavor.TabCornerRadius > 0)
+            {
+                using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);
+                g.FillPath(brush, path);
+            }
+            else
+            {
+                g.FillRectangle(brush, tabRect);
             }
         }
 

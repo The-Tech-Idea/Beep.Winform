@@ -19,10 +19,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
 
         private DockTargetResolver _resolver;
         private DockDragSession _session;
+        private bool _showSnapGuides = true;
 
         public DockDragController(IDockDragHost host)
         {
             _host = host ?? throw new ArgumentNullException(nameof(host));
+        }
+
+        /// <summary>
+        /// When true, a thin accent bar is drawn over the host form on each move for
+        /// <c>GroupEdge</c> / <c>GroupCenterStack</c> drop targets. Mirrors the manager's
+        /// <c>ShowSnapGuides</c> option.
+        /// </summary>
+        public bool ShowSnapGuides
+        {
+            get => _showSnapGuides;
+            set
+            {
+                _showSnapGuides = value;
+                if (!value)
+                    _guides.ClearSnapGuide();
+            }
         }
 
         /// <summary>True while a drag has crossed the threshold and is actively tracking.</summary>
@@ -56,6 +73,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
                 _host.GroupBounds, _host.GetGroup);
             _session.Current = result;
             _ghost.MoveTo(result.PreviewBounds);
+
+            if (_showSnapGuides &&
+                (result.Kind == DockDropKind.GroupEdge || result.Kind == DockDropKind.GroupCenterStack))
+            {
+                _guides.ShowSnapGuide(result.PreviewBounds, result.Position);
+            }
+            else
+            {
+                _guides.ClearSnapGuide();
+            }
         }
 
         /// <summary>Ends the drag: commits the resolved target (or cancels).</summary>
@@ -71,6 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
             if (wasDragging)
             {
                 _guides.Hide();
+                _guides.ClearSnapGuide();
                 _ghost.End();
 
                 if (commit)
@@ -86,6 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
 
             _session = null;
             _guides.Hide();
+            _guides.ClearSnapGuide();
             _ghost.End();
         }
 

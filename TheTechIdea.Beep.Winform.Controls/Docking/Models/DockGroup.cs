@@ -211,6 +211,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 
             _panels.RemoveAt(current);
             _panels.Insert(newIndex, panel);
+
+            // Keep the dock panel's TabIndex in sync with the visual order so
+            // BeepDockspace.GetPanels (which orders by TabIndex) reflects the new position.
+            // Without this, runtime drag-reorder / keyboard reorder wouldn't repaint the
+            // header in the new order until the next layout pass that fixes TabIndex.
+            for (int i = 0; i < _panels.Count; i++)
+                _panels[i].TabIndex = i;
         }
 
         /// <summary>

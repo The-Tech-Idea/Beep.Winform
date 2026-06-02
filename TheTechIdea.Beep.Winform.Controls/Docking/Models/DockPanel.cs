@@ -52,6 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         private bool _canClose = true;
         private bool _canFloat = true;
         private bool _canAutoHide = true;
+        private bool _hideOnClose;
         private DockAreas _allowedAreas = DockAreas.All;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
 
@@ -391,6 +392,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         }
 
         /// <summary>
+        /// When true, closing the panel hides it (sets <see cref="Control.Visible"/> false and
+        /// <see cref="DockPanelState.Hidden"/>) instead of removing it from the manager. Mirrors
+        /// <c>DockContent.HideOnClose</c> in DockPanelSuite. Reopen with
+        /// <see cref="BeepDockingManager.ShowPanel(string)"/>.
+        /// </summary>
+        [Category("Docking")]
+        [Description("When true, the close button hides the panel instead of removing it. " +
+                     "Use the manager's ShowPanel API to bring it back.")]
+        [DefaultValue(false)]
+        public bool HideOnClose
+        {
+            get => _hideOnClose;
+            set
+            {
+                if (_hideOnClose == value) return;
+                _hideOnClose = value;
+                OnPropertyChanged(nameof(HideOnClose));
+            }
+        }
+
+        /// <summary>
         /// Flags controlling which dock positions and states are allowed.
         /// Mirrors DockContent.DockAreas in DockPanelSuite and per-page flags in Krypton.
         /// </summary>
@@ -571,7 +593,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                 Colors = _themeColors,
                 Style = ControlStyle,
                 Bounds = new Rectangle(0, 0, Width, CaptionHeight),
-                IsDesignTime = IsDesigning
+                IsDesignTime = IsDesigning,
+                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);

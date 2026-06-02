@@ -170,7 +170,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                 Colors = _themeColors,
                 Style = ControlStyle,
                 Bounds = CaptionBounds,
-                IsDesignTime = false
+                IsDesignTime = false,
+                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
             };
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(e.Graphics, ctx, _captionLayout, CaptionButtons);
 

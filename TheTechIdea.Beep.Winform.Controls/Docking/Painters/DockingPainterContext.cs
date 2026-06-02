@@ -62,6 +62,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         /// <summary>Show the pin button (auto-hidden state toggle).</summary>
         public bool CanPin { get; init; }
 
+        /// <summary>Per-style chrome tuning (corner radii, accent width, grip style). Defaults to <see cref="DockingStyleFlavor.Default"/>.</summary>
+        public DockingStyleFlavor Flavor { get; init; } = DockingStyleFlavor.Default;
+
         /// <summary>Returns a copy of this context with new bounds (renderers paint sub-regions).</summary>
         public DockingPainterContext WithBounds(Rectangle bounds) => new DockingPainterContext
         {
@@ -80,7 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             CanClose = CanClose,
             CanFloat = CanFloat,
             CanAutoHide = CanAutoHide,
-            CanPin = CanPin
+            CanPin = CanPin,
+            Flavor = Flavor
         };
     }
 }

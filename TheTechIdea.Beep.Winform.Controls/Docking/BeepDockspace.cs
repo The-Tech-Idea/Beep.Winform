@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption;
+using TheTechIdea.Beep.Winform.Controls.Docking.Runtime;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking
 {
@@ -48,12 +49,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private string _activePanelKey = string.Empty;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
         private readonly ToolTip _tabToolTip = new ToolTip();
+        private bool _showHint = true;
+        private Padding _dockPadding = Padding.Empty;
 
         // Tab drag-to-float/dock state.
         private DockPanel _dragPanel;
         private Point _dragStartScreen;
         private bool _dragArmed;
         private bool _isDragging;
+
+        // Child-group splitters owned by this dockspace (one per gap between two child groups
+        // when the layout tree's parent group has 2+ children). Keyed by the layout engine's
+        // GroupId ({parentId}_child_{i}). Bounds are in dockspace-local coordinates.
+        private readonly Dictionary<string, BeepDockSplitter> _ownedChildSplitters =
+            new Dictionary<string, BeepDockSplitter>(StringComparer.Ordinal);
 
         public BeepDockspace()
         {
@@ -101,6 +110,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 _dockPosition = value;
                 SyncPanelDockingProperties();
                 Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Whether the dockspace should pop a tooltip showing a tab's panel title while the
+       /// cursor hovers over it. Mirrors <c>DockPanelExt.ShowHint</c> from DockPanelSuite.
+        /// </summary>
+        [Category("Docking")]
+        [Description("Show a tooltip with the panel title when the cursor hovers a tab.")]
+        [DefaultValue(true)]
+        public bool ShowHint
+        {
+            get => _showHint;
+            set
+            {
+                if (_showHint == value) return;
+                _showHint = value;
+                if (!_showHint)
+                    _tabToolTip.Hide(this);
+            }
+        }
+
+        /// <summary>
+        /// Inner padding (in pixels) applied to the dockspace's child panel bounds inside
+        /// <see cref="LayoutPanels"/>. Useful for breathing room around panel content. Mirrors
+        /// <c>DockPanelExt.DockPadding</c> from DockPanelSuite.
+        /// </summary>
+        [Category("Docking")]
+        [Description("Inner padding inset applied to every child panel's bounds during layout.")]
+        [DefaultValue(typeof(Padding), "0,0,0,0")]
+        public Padding DockPadding
+        {
+            get => _dockPadding;
+            set
+            {
+                if (_dockPadding == value) return;
+                _dockPadding = value;
+                LayoutPanels();
             }
         }
 
@@ -347,6 +394,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 _dragPanel = tab;
                 _dragStartScreen = PointToScreen(e.Location);
                 _dragArmed = true;
+                // Capture mouse so OnMouseMove/OnMouseUp keep firing as the cursor leaves
+                // the dockspace header during a tab drag-to-float/dock.
+                Capture = true;
             }
         }
 
@@ -359,6 +409,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
             DockPanel tab = HitTestTab(e.Location);
             if (tab == null)
+                return;
+
+            // Suppress the trailing click that fires after a drag commits — otherwise a drag
+            // would re-activate the tab or pop a stray context menu.
+            if (_isDragging)
                 return;
 
             if (e.Button == MouseButtons.Middle && tab.CanClose)
@@ -404,6 +459,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
+            // Suppress tooltips while a drag is in progress or armed — otherwise they pop
+            // under the ghost and flicker as the cursor leaves the tab.
+            if (!_showHint || _isDragging || _dragArmed)
+            {
+                _tabToolTip.Hide(this);
+                return;
+            }
+
             var hoveredTab = e.Y <= HeaderHeight ? _captionLayout.HitTestTab(e.Location) : null;
             if (hoveredTab?.Tag is DockPanel panel && !string.IsNullOrEmpty(panel.Title))
             {
@@ -433,6 +496,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _dragArmed = false;
             _isDragging = false;
             _dragPanel = null;
+            if (Capture)
+                Capture = false;
         }
 
         /// <summary>Builds the ordered caption button set (right-to-left placement) for the active page.</summary>
@@ -491,7 +556,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 Colors = _themeColors,
                 Style = ControlStyle,
                 Bounds = new Rectangle(0, 0, Width, HeaderHeight),
-                IsDesignTime = IsDesigning
+                IsDesignTime = IsDesigning,
+                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
@@ -594,8 +660,127 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 _tabToolTip?.Dispose();
+                DisposeOwnedChildSplitters();
+            }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Reconciles the dockspace-owned child splitters with the splitter hits from a layout
+        /// pass. The bounds are in <b>dockspace-local</b> coordinates (translated by the manager
+        /// from the layout engine's container coordinates). Existing splitters are repositioned
+        /// and re-themed; missing ones are created as children of this dockspace; orphaned
+        /// splitters (no longer in the desired set) are disposed.
+        /// </summary>
+        /// <param name="desired">Hit records keyed by the layout engine's GroupId
+        /// ({parentId}_child_{i}). Each tuple holds the dockspace-local bounds and orientation.</param>
+        /// <param name="raisedByDockspace">Callback for splitter drag events. Receives the
+        /// GroupId of the splitter being dragged so the manager can update the layout engine.</param>
+        public void UpdateChildSplitters(
+            IReadOnlyDictionary<string, (Rectangle Bounds, bool IsVertical)> desired,
+            EventHandler<SplitterMovedEventArgs> raisedByDockspace)
+        {
+            if (desired == null)
+                desired = new Dictionary<string, (Rectangle, bool)>();
+
+            // Create / update existing.
+            foreach (var kv in desired)
+            {
+                if (!_ownedChildSplitters.TryGetValue(kv.Key, out var splitter) || splitter.IsDisposed)
+                {
+                    splitter = new BeepDockSplitter
+                    {
+                        GroupId = kv.Key,
+                        Dock = DockStyle.None   // dockspace-owned, positioned by bounds
+                    };
+                    splitter.ControlStyle = ControlStyle;
+                    splitter.ApplyDockingTheme(_themeColors);
+                    if (raisedByDockspace != null)
+                        splitter.SplitterMoved += raisedByDockspace;
+                    _ownedChildSplitters[kv.Key] = splitter;
+                    Controls.Add(splitter);
+                }
+
+                splitter.Orientation = kv.Value.IsVertical
+                    ? SplitterOrientation.Vertical
+                    : SplitterOrientation.Horizontal;
+                splitter.Bounds = kv.Value.Bounds;
+                splitter.Visible = true;
+            }
+
+            // Dispose orphans.
+            var orphanKeys = _ownedChildSplitters.Keys
+                .Where(k => !desired.ContainsKey(k))
+                .ToList();
+            foreach (var key in orphanKeys)
+            {
+                var splitter = _ownedChildSplitters[key];
+                _ownedChildSplitters.Remove(key);
+                if (splitter == null || splitter.IsDisposed)
+                    continue;
+                if (raisedByDockspace != null)
+                    splitter.SplitterMoved -= raisedByDockspace;
+                if (Controls.Contains(splitter))
+                    Controls.Remove(splitter);
+                splitter.Dispose();
+            }
+        }
+
+        /// <summary>Removes all dockspace-owned child splitters and disposes them.</summary>
+        public void ClearChildSplitters()
+        {
+            var keys = _ownedChildSplitters.Keys.ToList();
+            foreach (var key in keys)
+            {
+                var splitter = _ownedChildSplitters[key];
+                _ownedChildSplitters.Remove(key);
+                if (splitter == null || splitter.IsDisposed)
+                    continue;
+                if (Controls.Contains(splitter))
+                    Controls.Remove(splitter);
+                splitter.Dispose();
+            }
+        }
+
+        private void DisposeOwnedChildSplitters()
+        {
+            foreach (var splitter in _ownedChildSplitters.Values)
+            {
+                if (splitter == null || splitter.IsDisposed)
+                    continue;
+                if (Controls.Contains(splitter))
+                    Controls.Remove(splitter);
+                splitter.Dispose();
+            }
+            _ownedChildSplitters.Clear();
+        }
+
+        /// <summary>
+        /// Cancels a tab drag-in-progress (called by the manager on Escape). Resets local flags
+        /// and releases mouse capture so the trailing click is treated as a normal click.
+        /// </summary>
+        internal void CancelDrag()
+        {
+            if (_isDragging)
+                _manager?.CancelCaptionDrag();
+
+            _dragArmed = false;
+            _isDragging = false;
+            _dragPanel = null;
+            if (Capture)
+                Capture = false;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if ((_isDragging || _dragArmed) && keyData == Keys.Escape)
+            {
+                CancelDrag();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private DockPanel ResolveActivePanel()
@@ -625,9 +810,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 .ThenBy(panel => Controls.IndexOf(panel))
                 .ToList();
 
-        private void LayoutPanels()
+        public void LayoutPanels()
         {
             Rectangle pageBounds = new Rectangle(0, HeaderHeight, Width, Math.Max(0, Height - HeaderHeight));
+            if (!_dockPadding.Equals(Padding.Empty))
+            {
+                pageBounds = new Rectangle(
+                    pageBounds.X + _dockPadding.Left,
+                    pageBounds.Y + _dockPadding.Top,
+                    Math.Max(0, pageBounds.Width  - _dockPadding.Horizontal),
+                    Math.Max(0, pageBounds.Height - _dockPadding.Vertical));
+            }
             DockPanel active = ResolveActivePanel();
 
             foreach (DockPanel panel in GetPanels())

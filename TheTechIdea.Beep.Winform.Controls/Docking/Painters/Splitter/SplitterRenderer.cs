@@ -11,11 +11,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
     internal sealed class SplitterRenderer
     {
         private const int GripDotCount = 3;
-        private const int GripDotSize = 2;
-        private const int GripDotSpacing = 4;
 
         /// <summary>
-        /// Paints the splitter into <c>ctx.Bounds</c>.
+        /// Paints the splitter into <c>ctx.Bounds</c>. The <see cref="DockingStyleFlavor"/>
+        /// from <paramref name="ctx"/> controls the grip dot size, spacing, and whether the
+        /// bar gets a translucent overlay (macOS).
         /// </summary>
         /// <param name="g">Target graphics.</param>
         /// <param name="ctx">Render context (palette + hover/drag flags + bounds).</param>
@@ -26,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
                 return;
 
             var colors = ctx.Colors;
+            var flavor = ctx.Flavor;
             Rectangle bounds = ctx.Bounds;
             if (bounds.Width <= 0 || bounds.Height <= 0)
                 return;
@@ -37,38 +38,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
             using (var brush = new SolidBrush(barColor))
                 g.FillRectangle(brush, bounds);
 
-            PaintGrip(g, bounds, orientation, colors.TabBorderColor);
+            if (flavor.UseTranslucentSplitter)
+            {
+                using var overlay = new SolidBrush(Color.FromArgb(48, ControlPaint.Light(barColor, 0.10f)));
+                g.FillRectangle(overlay, bounds);
+            }
+
+            PaintGrip(g, bounds, orientation, colors.TabBorderColor, flavor.SplitterGripSize, flavor.SplitterGripSpacing);
         }
 
-        private static void PaintGrip(Graphics g, Rectangle bounds, SplitterOrientation orientation, Color gripColor)
+        private static void PaintGrip(Graphics g, Rectangle bounds, SplitterOrientation orientation,
+            Color gripColor, int gripSize, int gripSpacing)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             int cx = bounds.Left + bounds.Width / 2;
             int cy = bounds.Top + bounds.Height / 2;
-            int span = (GripDotCount - 1) * GripDotSpacing;
+            int span = (GripDotCount - 1) * gripSpacing;
 
             using var brush = new SolidBrush(gripColor);
 
             for (int i = 0; i < GripDotCount; i++)
             {
-                int offset = i * GripDotSpacing - span / 2;
+                int offset = i * gripSpacing - span / 2;
                 int dx, dy;
 
                 if (orientation == SplitterOrientation.Vertical)
                 {
                     // Tall thin bar → stack dots vertically.
-                    dx = cx - GripDotSize / 2;
-                    dy = cy + offset - GripDotSize / 2;
+                    dx = cx - gripSize / 2;
+                    dy = cy + offset - gripSize / 2;
                 }
                 else
                 {
                     // Wide thin bar → lay dots horizontally.
-                    dx = cx + offset - GripDotSize / 2;
-                    dy = cy - GripDotSize / 2;
+                    dx = cx + offset - gripSize / 2;
+                    dy = cy - gripSize / 2;
                 }
 
-                g.FillEllipse(brush, dx, dy, GripDotSize, GripDotSize);
+                g.FillEllipse(brush, dx, dy, gripSize, gripSize);
             }
         }
     }

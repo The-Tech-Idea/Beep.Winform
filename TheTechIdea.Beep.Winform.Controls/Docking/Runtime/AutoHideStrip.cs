@@ -59,11 +59,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// </summary>
         public event EventHandler<DockPanel> PanelRestoreRequested;
 
+        /// <summary>
+        /// Raised when the user middle-clicks a tab or picks "Close" from the tab context menu.
+        /// The manager should close the panel (routing through <c>CloseRequest</c> so it can veto).
+        /// </summary>
+        public event EventHandler<DockPanel> PanelCloseRequested;
+
+        /// <summary>
+        /// Raised when the user picks "Floating" from the tab context menu. The manager should
+        /// float the panel into a top-level window.
+        /// </summary>
+        public event EventHandler<DockPanel> PanelFloatRequested;
+
         /// <summary>Raised when the slide panel expands or collapses (layout inset may change).</summary>
         internal event EventHandler SlideLayoutChanged;
 
         /// <summary>Raised when the user drags the slide panel separator to resize it.</summary>
         internal event EventHandler<SeparatorResizeEventArgs> SlideSeparatorResized;
+
+        /// <summary>Raised when the slide-in animation completes and the hosted panel is fully
+        /// visible. The manager uses this to focus the panel content (when
+        /// <c>ActiveAutoHideContent</c> is true).</summary>
+        public event EventHandler<DockPanel> SlideShown;
 
         private void NotifySlideLayoutChanged() => SlideLayoutChanged?.Invoke(this, EventArgs.Empty);
 
@@ -88,6 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             // Create the companion slide panel
             _slidePanel = new AutoHideSlidePanel(_edge);
             _slidePanel.SeparatorResize += (_, e) => SlideSeparatorResized?.Invoke(this, e);
+            _slidePanel.SlideShown += (_, panel) => SlideShown?.Invoke(this, panel);
             if (hostForm != null)
             {
                 hostForm.Controls.Add(_slidePanel);
@@ -310,7 +328,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             {
                 Colors = _themeColors,
                 Style = ControlStyle,
-                Bounds = ClientRectangle
+                Bounds = ClientRectangle,
+                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
             };
 
             DockingPainterFactory.GetRenderers(ControlStyle).AutoHide.Paint(e.Graphics, ctx, _layout);
@@ -344,8 +363,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             base.OnMouseClick(e);
             var hit = _layout.HitTest(e.Location);
-            if (hit?.Tag is DockPanel panel)
-                PanelRestoreRequested?.Invoke(this, panel);
+            if (hit?.Tag is not DockPanel panel)
+                return;
+
+            switch (e.Button)
+            {
+                case MouseButtons.Middle when panel.CanClose:
+                    PanelCloseRequested?.Invoke(this, panel);
+                    break;
+                case MouseButtons.Right:
+                    ShowTabContextMenu(panel, e.Location);
+                    break;
+                case MouseButtons.Left:
+                    PanelRestoreRequested?.Invoke(this, panel);
+                    break;
+            }
+        }
+
+        private void ShowTabContextMenu(DockPanel panel, Point location)
+        {
+            var menu = new ContextMenuStrip();
+
+            var restore = new ToolStripMenuItem("Dock");
+            restore.Click += (_, _) => PanelRestoreRequested?.Invoke(this, panel);
+            menu.Items.Add(restore);
+
+            if (panel.CanFloat)
+            {
+                var floating = new ToolStripMenuItem("Floating");
+                floating.Click += (_, _) => PanelFloatRequested?.Invoke(this, panel);
+                menu.Items.Add(floating);
+            }
+
+            if (panel.CanClose)
+            {
+                if (menu.Items.Count > 0)
+                    menu.Items.Add(new ToolStripSeparator());
+                var close = new ToolStripMenuItem("Close");
+                close.Click += (_, _) => PanelCloseRequested?.Invoke(this, panel);
+                menu.Items.Add(close);
+            }
+
+            if (menu.Items.Count > 0)
+                menu.Show(this, location);
+            else
+                menu.Dispose();
         }
 
         protected override void Dispose(bool disposing)

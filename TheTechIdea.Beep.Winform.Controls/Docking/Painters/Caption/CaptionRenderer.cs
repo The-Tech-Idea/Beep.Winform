@@ -16,15 +16,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
     /// Geometry and interaction state come from <see cref="CaptionLayoutManager"/> — this class
     /// only paints.
     /// </summary>
-    internal sealed class CaptionRenderer
+    internal sealed class CaptionRenderer : System.IDisposable
     {
-        /// <summary>
-        /// Paints the caption strip described by <paramref name="layout"/>.
-        /// </summary>
-        /// <param name="g">Target graphics.</param>
-        /// <param name="ctx">Render context. <c>ctx.Bounds</c> is the full strip rectangle.</param>
-        /// <param name="layout">Pre-computed tab/button geometry for this strip.</param>
-        /// <param name="buttons">Buttons to paint (right-to-left), matching the layout's compute call.</param>
+        private static Font SafeFont => BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
+        private readonly PaintResourceCache _cache = new PaintResourceCache();
+
+        public void Dispose() => _cache.Dispose();
+
         public void Paint(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout, IReadOnlyList<CaptionButtonKind> buttons)
         {
             if (g == null || ctx == null || layout == null)
@@ -51,16 +49,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
             if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
             {
-                using (var pen = new Pen(colors.TabBorderColor))
+                using (var pen = _cache.GetPen(colors.TabBorderColor))
                     g.DrawLine(pen, strip.Left, strip.Bottom - 1, strip.Right - 1, strip.Bottom - 1);
             }
         }
 
-        private static void PaintHeaderBackground(Graphics g, Rectangle strip, Color back, DockingStyleFlavor flavor)
+        private void PaintHeaderBackground(Graphics g, Rectangle strip, Color back, DockingStyleFlavor flavor)
         {
             if (flavor.HeaderCornerRadius <= 0 && flavor.HeaderElevationBlend <= 0f)
             {
-                using var brush = new SolidBrush(back);
+                using var brush = _cache.GetBrush(back);
                 g.FillRectangle(brush, strip);
                 return;
             }
@@ -69,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             Color tinted = flavor.HeaderElevationBlend > 0f
                 ? BlendTowards(back, ControlPaint.Light(back, 0.05f), flavor.HeaderElevationBlend)
                 : back;
-            using (var brush = new SolidBrush(tinted))
+            using (var brush = _cache.GetBrush(tinted))
             {
                 if (flavor.HeaderCornerRadius > 0)
                 {
@@ -108,11 +106,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             return path;
         }
 
-        private static void PaintTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        private void PaintTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            if (layout.IsVertical)
+            {
+                PaintVerticalTabs(g, ctx, layout);
+                return;
+            }
+
+            PaintHorizontalTabs(g, ctx, layout);
+        }
+
+        private void PaintHorizontalTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
         {
             var colors = ctx.Colors;
             var flavor = ctx.Flavor;
-            Font font = BeepFontManager.DefaultFont;
+            Font font = SafeFont;
 
             using var sf = new StringFormat
             {
@@ -134,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
                 if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
                 {
-                    using var pen = new Pen(colors.TabBorderColor);
+                    using var pen = _cache.GetPen(colors.TabBorderColor);
                     if (flavor.TabCornerRadius > 0)
                     {
                         using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);
@@ -151,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                     if (flavor.UseTonalElevation)
                     {
                         var tint = BlendTowards(tabBack, ControlPaint.Light(tabBack, 0.18f), 0.35f);
-                        using var elevationBrush = new SolidBrush(Color.FromArgb(40, tint));
+                        using var elevationBrush = _cache.GetBrush(Color.FromArgb(40, tint));
                         if (flavor.TabCornerRadius > 0)
                         {
                             using var p = RoundedRectPath(tabRect, flavor.TabCornerRadius);
@@ -170,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                             tabRect.Bottom - accentH,
                             System.Math.Max(0, tabRect.Width - 4),
                             accentH);
-                        using var accentBrush = new SolidBrush(colors.AccentColor);
+                        using var accentBrush = _cache.GetBrush(colors.AccentColor);
                         g.FillRectangle(accentBrush, accentRect);
                     }
                 }
@@ -185,13 +194,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
                     System.Math.Max(0, tabRect.Right - textLeft - DockingCaptionPainter.TabTextPadding),
                     tabRect.Height);
 
-                using (var brush = new SolidBrush(tabFore))
+                using (var brush = _cache.GetBrush(tabFore))
                     g.DrawString(tab.Title ?? "Panel", font, brush, textRect, sf);
 
                 if (tab.IsDirty)
                 {
                     var dot = new Rectangle(tabRect.Right - 8, tabRect.Top + 6, 5, 5);
-                    using var dirtyBrush = new SolidBrush(colors.ActiveTabBackColor);
+                    using var dirtyBrush = _cache.GetBrush(colors.ActiveTabBackColor);
                     g.FillEllipse(dirtyBrush, dot);
                 }
 
@@ -210,9 +219,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             }
         }
 
-        private static void PaintTabBackground(Graphics g, Rectangle tabRect, Color tabBack, DockingStyleFlavor flavor)
+        private void PaintVerticalTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
         {
-            using var brush = new SolidBrush(tabBack);
+            var colors = ctx.Colors;
+            var flavor = ctx.Flavor;
+            Font font = SafeFont;
+
+            using var sf = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                LineAlignment = StringAlignment.Center,
+                Trimming = StringTrimming.EllipsisCharacter,
+                FormatFlags = StringFormatFlags.NoWrap
+            };
+
+            float angle = layout.IsFlipped ? 90f : -90f;
+
+            foreach (var kv in layout.TabRects)
+            {
+                CaptionTabModel tab = kv.Key;
+                Rectangle tabRect = kv.Value;
+
+                Color tabBack = tab.IsActive ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color tabFore = tab.IsActive ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
+
+                PaintTabBackground(g, tabRect, tabBack, flavor);
+
+                if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
+                {
+                    using var pen = _cache.GetPen(colors.TabBorderColor);
+                    g.DrawRectangle(pen, tabRect.X, tabRect.Y, Math.Max(0, tabRect.Width - 1), Math.Max(0, tabRect.Height - 1));
+                }
+
+                if (tab.IsActive && flavor.ActiveTabAccentWidth > 0)
+                {
+                    int accentW = flavor.ActiveTabAccentWidth;
+                    var accentRect = new Rectangle(
+                        tabRect.Right - accentW, tabRect.Top + 2,
+                        accentW, Math.Max(0, tabRect.Height - 4));
+                    using var accentBrush = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(accentBrush, accentRect);
+                }
+
+                // Paint title text rotated 90° (or -90° for Left).
+                var state = g.Save();
+                float cx = tabRect.Left + tabRect.Width / 2f;
+                float cy = tabRect.Top + tabRect.Height / 2f;
+                g.TranslateTransform(cx, cy);
+                g.RotateTransform(angle);
+
+                // After rotation, the "width" is the height of the original rect, and the
+                // "height" is the width (since we rotated 90°). Draw from centre.
+                int textW = tabRect.Height - 2;
+                int textH = tabRect.Width - 2;
+                var rotatedRect = new RectangleF(-textW / 2f, -textH / 2f, textW, textH);
+
+                using var brush = _cache.GetBrush(tabFore);
+                g.DrawString(tab.Title ?? "Panel", font, brush, rotatedRect, sf);
+                g.Restore(state);
+            }
+        }
+
+        private void PaintTabBackground(Graphics g, Rectangle tabRect, Color tabBack, DockingStyleFlavor flavor)
+        {
+            using var brush = _cache.GetBrush(tabBack);
             if (flavor.TabCornerRadius > 0)
             {
                 using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);
@@ -224,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             }
         }
 
-        private static void PaintButtons(Graphics g, Color tint, CaptionLayoutManager layout, IReadOnlyList<CaptionButtonKind> buttons)
+        private void PaintButtons(Graphics g, Color tint, CaptionLayoutManager layout, IReadOnlyList<CaptionButtonKind> buttons)
         {
             if (buttons == null)
                 return;

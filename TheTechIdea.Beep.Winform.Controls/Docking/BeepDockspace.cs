@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private const int CaptionButtonSize = 18;
         private const int CaptionButtonSpacing = 4;
 
+        private readonly DockingPainterContext _paintContext = new DockingPainterContext();
+
         private readonly CaptionLayoutManager _captionLayout = new CaptionLayoutManager
         {
             ButtonSize = CaptionButtonSize,
@@ -51,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private readonly ToolTip _tabToolTip = new ToolTip();
         private bool _showHint = true;
         private Padding _dockPadding = Padding.Empty;
+        private Models.TabStyle _tabPosition = Models.TabStyle.Top;
 
         // Tab drag-to-float/dock state.
         private DockPanel _dragPanel;
@@ -152,6 +155,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         }
 
         [Category("Docking")]
+        [Description("Tab strip position relative to the panel content area.")]
+        [DefaultValue(typeof(Models.TabStyle), "Top")]
+        public Models.TabStyle TabPosition
+        {
+            get => _tabPosition;
+            set
+            {
+                if (_tabPosition == value) return;
+                _tabPosition = value;
+                LayoutPanels();
+                Invalidate();
+            }
+        }
+
+        [Category("Docking")]
         [Description("Key of the active panel page in this dockspace.")]
         [DefaultValue("")]
         public string ActivePanelKey
@@ -182,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         public bool IsDesigning =>
             Site?.DesignMode == true ||
             LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
-            IsWinFormsDesignerProcess();
+            DockingHelpers.IsWinFormsDesignerProcess();
 
         internal void ApplyDockingTheme(DockingThemeColors colors)
         {
@@ -236,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         public bool SelectTabAt(Point clientPoint)
         {
-            if (clientPoint.Y < 0 || clientPoint.Y > HeaderHeight)
+            if (!IsInHeader(clientPoint))
                 return false;
 
             DockPanel tabPanel = HitTestTab(clientPoint);
@@ -249,7 +267,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         public DockPanel HitTestTabAt(Point clientPoint)
         {
-            if (clientPoint.Y < 0 || clientPoint.Y > HeaderHeight)
+            if (!IsInHeader(clientPoint))
                 return null;
 
             return HitTestTab(clientPoint);
@@ -257,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         public bool HandleHeaderMouseDown(Point clientPoint, MouseButtons button)
         {
-            if (clientPoint.Y < 0 || clientPoint.Y > HeaderHeight)
+            if (!IsInHeader(clientPoint))
                 return false;
 
             if (button != MouseButtons.Left)
@@ -379,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             _isDragging = false;
             _dragPanel = null;
 
-            if (e.Button != MouseButtons.Left || e.Y > HeaderHeight)
+            if (e.Button != MouseButtons.Left || !IsInHeader(e.Location))
                 return;
 
             if (_captionLayout.HitTestButton(e.Location) != null)
@@ -404,7 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             base.OnMouseClick(e);
 
-            if (e.Y < 0 || e.Y > HeaderHeight)
+            if (!IsInHeader(e.Location))
                 return;
 
             DockPanel tab = HitTestTab(e.Location);
@@ -434,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             base.OnMouseMove(e);
 
-            if (e.Y <= HeaderHeight)
+            if (IsInHeader(e.Location))
                 RecomputeCaptionLayout();
 
             // Tab drag to float/dock — start when system drag threshold is crossed.
@@ -467,7 +485,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
-            var hoveredTab = e.Y <= HeaderHeight ? _captionLayout.HitTestTab(e.Location) : null;
+            var hoveredTab = IsInHeader(e.Location) ? _captionLayout.HitTestTab(e.Location) : null;
             if (hoveredTab?.Tag is DockPanel panel && !string.IsNullOrEmpty(panel.Title))
             {
                 _tabToolTip.Show(panel.Title, this, e.X + 12, e.Y + 12, 3000);
@@ -477,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 _tabToolTip.Hide(this);
             }
 
-            Cursor = e.Y <= HeaderHeight &&
+            Cursor = IsInHeader(e.Location) &&
                      (hoveredTab != null ||
                       _captionLayout.HitTestButton(e.Location) != null)
                 ? Cursors.Hand
@@ -519,22 +537,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var panels = GetPanels();
             DockPanel active = ResolveActivePanel();
             var buttons = BuildCaptionButtons(active);
+            var tabs = CaptionLayoutManager.BuildTabModels(panels, active);
 
-            var tabs = new List<CaptionTabModel>(panels.Count);
-            foreach (DockPanel panel in panels)
-            {
-                tabs.Add(new CaptionTabModel
-                {
-                    Key = panel.Key,
-                    Title = panel.Title,
-                    IconPath = panel.IconPath,
-                    IsDirty = panel.IsDirty,
-                    IsActive = ReferenceEquals(panel, active),
-                    Tag = panel
-                });
-            }
+            bool vertical = _tabPosition == Models.TabStyle.Left || _tabPosition == Models.TabStyle.Right;
+            _captionLayout.IsVertical = vertical;
+            _captionLayout.IsFlipped = _tabPosition == Models.TabStyle.Right;
 
-            _captionLayout.Compute(Width, HeaderHeight, tabs, buttons);
+            if (vertical)
+                _captionLayout.Compute(HeaderHeight, Height, tabs, buttons);
+            else
+                _captionLayout.Compute(Width, HeaderHeight, tabs, buttons);
 
             foreach (DockPanel panel in panels)
                 panel.TabBounds = Rectangle.Empty;
@@ -549,18 +561,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         private void DrawHeader(Graphics g)
         {
+            Rectangle headerRect = GetHeaderRect();
+            if (headerRect.IsEmpty)
+                return;
+
             var buttons = RecomputeCaptionLayout();
 
-            var ctx = new DockingPainterContext
-            {
-                Colors = _themeColors,
-                Style = ControlStyle,
-                Bounds = new Rectangle(0, 0, Width, HeaderHeight),
-                IsDesignTime = IsDesigning,
-                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
-            };
+            _paintContext.Update(_themeColors, ControlStyle, headerRect, IsDesigning);
 
-            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
+            var renderers = DockingPainterFactory.GetRenderers(ControlStyle);
+            renderers.Caption.Paint(g, _paintContext, _captionLayout, buttons);
+
+            // Draw separator line along the content-adjacent edge.
+            if (_tabPosition == Models.TabStyle.Left)
+            {
+                using var pen = new Pen(_themeColors.TabBorderColor);
+                g.DrawLine(pen, headerRect.Right - 1, 0, headerRect.Right - 1, headerRect.Bottom - 1);
+            }
+            else if (_tabPosition == Models.TabStyle.Right)
+            {
+                using var pen = new Pen(_themeColors.TabBorderColor);
+                g.DrawLine(pen, headerRect.X, 0, headerRect.X, headerRect.Bottom - 1);
+            }
         }
 
         private void ShowActivePageMenu(DockPanel active, Point location)
@@ -812,7 +834,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         public void LayoutPanels()
         {
-            Rectangle pageBounds = new Rectangle(0, HeaderHeight, Width, Math.Max(0, Height - HeaderHeight));
+            Rectangle pageBounds = GetContentRect();
             if (!_dockPadding.Equals(Padding.Empty))
             {
                 pageBounds = new Rectangle(
@@ -821,9 +843,59 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     Math.Max(0, pageBounds.Width  - _dockPadding.Horizontal),
                     Math.Max(0, pageBounds.Height - _dockPadding.Vertical));
             }
+
+            var panels = GetPanels();
             DockPanel active = ResolveActivePanel();
 
-            foreach (DockPanel panel in GetPanels())
+            // Group panels by their layout-tree group. When multiple groups co-exist in one
+            // dockspace (nested child groups created by group-edge drops), use the layout
+            // controller's GroupBounds to assign each group a sub-rectangle of the content area.
+            var groupsById = panels.GroupBy(p => p.Group?.Id ?? string.Empty)
+                                    .Where(g => !string.IsNullOrEmpty(g.Key))
+                                    .ToList();
+
+            if (groupsById.Count > 1 && _manager?.LayoutController != null)
+            {
+                var result = _manager.LayoutController.CalculateLayoutResult();
+                if (result != null)
+                {
+                    // Compute the dockspace's position relative to the layout container (host form).
+                    Point hostOffset = PointToScreen(Point.Empty);
+                    if (_manager.HostForm != null)
+                        hostOffset = _manager.HostForm.PointToClient(hostOffset);
+
+                    foreach (var grp in groupsById)
+                    {
+                        Rectangle? groupRect = result.GetGroupBounds(grp.Key);
+                        if (!groupRect.HasValue) continue;
+
+                        Rectangle localRect = new Rectangle(
+                            groupRect.Value.X - hostOffset.X,
+                            groupRect.Value.Y - hostOffset.Y,
+                            groupRect.Value.Width,
+                            groupRect.Value.Height);
+
+                        // Intersect with the dockspace's content area so panels cannot spill
+                        // outside (e.g. into the header strip or past the dockspace edge).
+                        localRect.Intersect(pageBounds);
+
+                        foreach (DockPanel panel in grp)
+                        {
+                            panel.Bounds = localRect;
+                            panel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                            panel.DockPosition = _dockPosition;
+                            if (_manager != null && panel.Manager == null)
+                                panel.Manager = _manager;
+                        }
+                    }
+
+                    active?.BringToFront();
+                    return;
+                }
+            }
+
+            // Single group (or no layout result available): all panels share the full content area.
+            foreach (DockPanel panel in panels)
             {
                 panel.Bounds = pageBounds;
                 panel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -836,6 +908,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             active?.BringToFront();
         }
 
+        /// <summary>Returns the rectangle occupied by the tab strip header.</summary>
+        private Rectangle GetHeaderRect()
+        {
+            return _tabPosition switch
+            {
+                Models.TabStyle.Bottom => new Rectangle(0, Height - HeaderHeight, Width, HeaderHeight),
+                Models.TabStyle.Left   => new Rectangle(0, 0, HeaderHeight, Height),
+                Models.TabStyle.Right  => new Rectangle(Width - HeaderHeight, 0, HeaderHeight, Height),
+                Models.TabStyle.None   => Rectangle.Empty,
+                _                     => new Rectangle(0, 0, Width, HeaderHeight)
+            };
+        }
+
+        private Rectangle GetContentRect()
+        {
+            return _tabPosition switch
+            {
+                Models.TabStyle.Bottom => new Rectangle(0, 0, Width, Math.Max(0, Height - HeaderHeight)),
+                Models.TabStyle.Left   => new Rectangle(HeaderHeight, 0, Math.Max(0, Width - HeaderHeight), Height),
+                Models.TabStyle.Right  => new Rectangle(0, 0, Math.Max(0, Width - HeaderHeight), Height),
+                Models.TabStyle.None   => new Rectangle(0, 0, Width, Height),
+                _                     => new Rectangle(0, HeaderHeight, Width, Math.Max(0, Height - HeaderHeight))
+            };
+        }
+
+        private bool IsInHeader(Point clientPoint)
+        {
+            if (_tabPosition == Models.TabStyle.None) return false;
+            return GetHeaderRect().Contains(clientPoint);
+        }
+
         private void SyncPanelDockingProperties()
         {
             foreach (DockPanel panel in GetPanels())
@@ -844,20 +947,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     panel.Manager = _manager;
 
                 panel.DockPosition = _dockPosition;
-            }
-        }
-
-        private static bool IsWinFormsDesignerProcess()
-        {
-            try
-            {
-                string processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                return processName.IndexOf("DesignToolsServer", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       string.Equals(processName, "devenv", StringComparison.OrdinalIgnoreCase);
-            }
-            catch
-            {
-                return false;
             }
         }
     }

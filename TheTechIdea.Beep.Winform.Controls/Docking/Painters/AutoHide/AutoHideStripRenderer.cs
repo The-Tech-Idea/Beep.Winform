@@ -14,8 +14,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
     /// <see cref="DockingCaptionPainter"/> (SVG via <c>StyledImagePainter</c>) for icons. Geometry
     /// and hit-testing live in <see cref="AutoHideStripLayoutManager"/> — this class only paints.
     /// </summary>
-    internal sealed class AutoHideStripRenderer
+    internal sealed class AutoHideStripRenderer : System.IDisposable
     {
+        private readonly PaintResourceCache _cache = new PaintResourceCache();
+
+        public void Dispose() => _cache.Dispose();
         /// <summary>
         /// Paints the auto-hide strip described by <paramref name="layout"/>.
         /// </summary>
@@ -30,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
             var colors = ctx.Colors;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            using (var bg = new SolidBrush(colors.AutoHideStripBackColor))
+            using (var bg = _cache.GetBrush(colors.AutoHideStripBackColor))
                 g.FillRectangle(bg, ctx.Bounds);
 
             Font font = BeepFontManager.StatusBarFont;
@@ -47,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
                     ? colors.ActiveTabForeColor
                     : colors.InactiveTabForeColor;
 
-                using (var brush = new SolidBrush(tabBack))
+                using (var brush = _cache.GetBrush(tabBack))
                     g.FillRectangle(brush, rect);
 
                 using (var pen = new Pen(colors.TabBorderColor))
@@ -57,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
             }
         }
 
-        private static void PaintTab(Graphics g, Rectangle rect, AutoHideTabModel tab, Color fore, Font font, AutoHideStripLayoutManager layout)
+        private void PaintTab(Graphics g, Rectangle rect, AutoHideTabModel tab, Color fore, Font font, AutoHideStripLayoutManager layout)
         {
             string iconPath = DockingCaptionPainter.ResolveTabIconPath(tab.IconPath);
 
@@ -81,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
                     textLeft, rect.Top,
                     Math.Max(0, rect.Right - layout.TabPadding - textLeft), rect.Height);
 
-                using var brush = new SolidBrush(fore);
+                using var brush = _cache.GetBrush(fore);
                 g.DrawString(tab.Title, font, brush, textRect, sf);
                 return;
             }
@@ -100,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
             g.TranslateTransform(rect.X + rect.Width / 2f, textStart + textLen / 2f);
             g.RotateTransform(-90f);
             var rotRect = new RectangleF(-textLen / 2f, -rect.Width / 2f, textLen, rect.Width);
-            using (var brush = new SolidBrush(fore))
+            using (var brush = _cache.GetBrush(fore))
                 g.DrawString(tab.Title, font, brush, rotRect, sf);
             g.Restore(state);
         }

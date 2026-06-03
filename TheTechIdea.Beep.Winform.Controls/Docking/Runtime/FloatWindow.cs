@@ -55,6 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private bool _redocking;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
         private readonly CaptionLayoutManager _captionLayout = new CaptionLayoutManager();
+        private readonly DockingPainterContext _paintContext = new DockingPainterContext();
 
         /// <summary>Control style driving caption rendering. Set by the manager.</summary>
         internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
@@ -165,15 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             base.OnPaint(e);
 
             RecomputeCaption();
-            var ctx = new DockingPainterContext
-            {
-                Colors = _themeColors,
-                Style = ControlStyle,
-                Bounds = CaptionBounds,
-                IsDesignTime = false,
-                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
-            };
-            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(e.Graphics, ctx, _captionLayout, CaptionButtons);
+            _paintContext.Update(_themeColors, ControlStyle, CaptionBounds);
+            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(e.Graphics, _paintContext, _captionLayout, CaptionButtons);
 
             // Themed 1px border around the whole window.
             using var pen = new Pen(_themeColors.TabBorderColor);
@@ -288,6 +282,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (_panel == null)
                 return;
 
+            // During application shutdown, skip the user-facing CloseRequest path which
+            // may show UI or fire vetoable events that cannot be handled.
+            if (e.CloseReason == CloseReason.WindowsShutDown ||
+                e.CloseReason == CloseReason.ApplicationExitCall ||
+                e.CloseReason == CloseReason.TaskManagerClosing)
+                return;
+
             var panel = _panel;
             var manager = panel.Manager;
             ExtractHostedPanel();
@@ -297,10 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             if (manager != null && manager.ContainsPanel(panel.Key))
                 manager.CloseRequest(panel.Key);
             else
-            {
                 panel.State = DockPanelState.Closed;
-                panel.OnClosed();
-            }
         }
 
         protected override void Dispose(bool disposing)

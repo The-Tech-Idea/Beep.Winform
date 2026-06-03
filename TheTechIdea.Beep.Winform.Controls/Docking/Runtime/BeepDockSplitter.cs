@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private int    _sizeAtDragStart;   // size of the "first" panel at drag start
         private SplitterOrientation _orientation = SplitterOrientation.Vertical;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
+        private readonly DockingPainterContext _paintContext = new DockingPainterContext();
 
         /// <summary>Control style driving splitter rendering. Set by the manager.</summary>
         internal BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
@@ -198,17 +199,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             var orientation = EffectiveOrientation;
 
-            var ctx = new DockingPainterContext
-            {
-                Colors = _themeColors,
-                Style = ControlStyle,
-                Bounds = ClientRectangle,
-                IsHover = _hovered,
-                IsDragging = _dragging,
-                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
-            };
+            _paintContext.Update(_themeColors, ControlStyle, ClientRectangle);
+            _paintContext.IsHover = _hovered;
+            _paintContext.IsDragging = _dragging;
 
-            DockingPainterFactory.GetRenderers(ControlStyle).Splitter.Paint(e.Graphics, ctx, orientation);
+            DockingPainterFactory.GetRenderers(ControlStyle).Splitter.Paint(e.Graphics, _paintContext, orientation);
         }
     }
 

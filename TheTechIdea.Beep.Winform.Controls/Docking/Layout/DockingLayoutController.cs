@@ -198,19 +198,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layout
             }
 
             // Right/Bottom edges grow when dragged toward the center (negative screen delta),
-            // so invert the sign for them.
-            // For nested groups, the first child is the one that "owns" the ratio, sign is consistent
-            // (positive delta = grow first child = left/top side).
-            int signedDelta;
-            if (group != null)
+            // so invert the sign for root-level edge splitters. For nested child splitters
+            // (group was not found directly, adjustGroup is the parent), the first child is
+            // always left/top within its parent — delta sign is always positive.
+            int signedDelta = deltaPx;
+            if (group != null &&
+                (adjustGroup.Position == DockPosition.Right || adjustGroup.Position == DockPosition.Bottom))
             {
-                signedDelta = (adjustGroup.Position == DockPosition.Right || adjustGroup.Position == DockPosition.Bottom)
-                    ? -deltaPx
-                    : deltaPx;
-            }
-            else
-            {
-                signedDelta = deltaPx;
+                signedDelta = -deltaPx;
             }
 
             float ratio = _calculator.RatioFromDelta(adjustGroup.SplitRatio, signedDelta, axisSize);

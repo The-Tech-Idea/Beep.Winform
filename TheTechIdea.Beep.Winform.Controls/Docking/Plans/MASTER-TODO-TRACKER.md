@@ -55,15 +55,24 @@ removes the dead MDI and stub layers. Full file-by-file disposition is in `PHASE
 
 | # | Phase | Document | Status | Depends on |
 |---|-------|----------|--------|-----------|
-| 00 | Audit, Disposition & Architecture | `PHASE-00-Architecture-And-Gap-Analysis.md` | ⬜ | — |
-| 01 | Theming & Painter Framework | `PHASE-01-Theming-Painter-Framework.md` | 🟦 | 00 |
-| 02 | Drag & Drop Docking Engine | `PHASE-02-Drag-And-Drop-Docking.md` | 🟦 | 00, 01 |
+| 00 | Audit, Disposition & Architecture | `PHASE-00-Architecture-And-Gap-Analysis.md` | ✅ | — |
+| 01 | Theming & Painter Framework | `PHASE-01-Theming-Painter-Framework.md` | ✅ | 00 |
+| 02 | Drag & Drop Docking Engine | `PHASE-02-Drag-And-Drop-Docking.md` | ✅ | 00, 01 |
 | 03 | Layout Engine & Live Splitters | `PHASE-03-Layout-Engine-Splitters.md` | ✅ | 00 |
 | 04 | Auto-Hide, Float & Animations | `PHASE-04-AutoHide-Float-Animations.md` | ✅ | 01, 02, 03 |
 | 05 | Tabbed Groups (unified, no Document type) | `PHASE-05-Document-Area-Tabs.md` | ✅ | 01, 02, 03 |
 | 06 | Designer.cs Layout Persistence | `PHASE-06-Layout-Persistence.md` | ✅ | 00, 03, 07 |
 | 07 | Designer & Smart-Tag ActionList | `PHASE-07-Designer-ActionList.md` | ✅ | 00–05 |
-| 08 | Performance, Docs & Testing | `PHASE-08-Performance-Docs-Testing.md` | 🟦 (code+docs done; sample/matrix = QA) | all |
+| 08 | Performance, Docs & Testing | `PHASE-08-Performance-Docs-Testing.md` | ✅ (code+docs done; sample/matrix = QA) | all |
+| 09 | Design-Time Polish & Keyboard/MRU/Navigator | _(inline)_ | ✅ | 07, 08 |
+| 10 | Architecture Refactor — Dockspace as Persistent Host | _(inline)_ | ✅ | 09 |
+| 11 | Child Splitters & FindDockspaceAt | _(inline)_ | ✅ | 03, 10 |
+| 12 | UX Parity — HideOnClose, ShowHint, AllowEndUserDocking, DockPadding, FloatWindowSize | _(inline)_ | ✅ | 10 |
+| 13 | UX — ActiveAutoHideContent, Snap Guides Overlay | _(inline)_ | ✅ | 04, 12 |
+| 14 | API Surface — Options, FocusManager, GetActivePanelKey, PanelMovedBetweenGroups, PanelStateChanging | _(inline)_ | ✅ | 12, 13 |
+| 15 | Per-Style Painters & Theme Refresh | _(inline)_ | ✅ | 01, 14 |
+| 16 | TabStyle (Top/Bottom/Left/Right/None) & Schema Version & Test Fixes | _(inline)_ | ✅ | 05, 06, 15 |
+| 17 | Audit Passes — Lifecycle, Events, Safety, Dedup, Paint Optimization | _(inline)_ | ✅ | all |
 
 ---
 
@@ -115,12 +124,12 @@ removes the dead MDI and stub layers. Full file-by-file disposition is in `PHASE
 
 ## Rolled-up TODO summary
 
-### Phase 00 — Audit, Disposition & Architecture
-- [ ] Finalize per-file disposition table (Reuse/Refactor/Replace/Delete).
-- [ ] Confirm hosting model = WinForms child controls (no MDI) under `BeepDockingManager`.
-- [ ] Record decisions (component vs control, document representation, ratio convention).
+### Phase 00 — Audit, Disposition & Architecture  ✅ done
+- [x] Finalize per-file disposition table (Reuse/Refactor/Replace/Delete).
+- [x] Confirm hosting model = WinForms child controls (no MDI) under `BeepDockingManager`.
+- [x] Record decisions (component vs control, document representation, ratio convention).
 
-### Phase 01 — Theming & Painters  🟦 in progress
+### Phase 01 — Theming & Painters  ✅ done
 - [x] Replace `DockingPainterAdapter` GDI primitives with painter-framework renderers
       (adapter is now a theme/metrics provider; caption + splitter painted by renderers).
 - [x] Unify the duplicated caption/tab painting in `DockPanel.DrawCaption` and
@@ -132,14 +141,14 @@ removes the dead MDI and stub layers. Full file-by-file disposition is in `PHASE
 - [x] `DockingGuideOverlay` glyphs migrated to `SvgsUIcons`.
 - [x] `DockingPainterFactory` vends a per-style renderer set (cached).
 - [x] `AutoHideStripRenderer` + `AutoHideStripLayoutManager`; `AutoHideStrip` delegates paint + hit-test.
-- [ ] `TabStripRenderer` + `TabStripLayoutManager` (document tabs — deferred to Phase 05).
+- [x] `TabStripRenderer` + `TabStripLayoutManager` (document tabs — deferred to Phase 05).
 
-### Phase 02 — Drag & Drop  🟦 in progress
+### Phase 02 — Drag & Drop  ✅ done
 - [x] Real drag controller (`DockDragController`) with session/result/ghost/guides/resolver;
       caption drag → float / dock-to-edge / center-stack, with Esc cancel.
 - [x] Reuse `DockingGuideOverlay` (via `DockGuideController`) + translucent `DockDragGhost` preview.
 - [x] Dead MDI mouse path (`EventInterceptor`/`DockingMouseEventHandler`) already removed; no `IMessageFilter`.
-- [ ] Tab-drag reorder + group-edge split guides (lands with Phase 03 layout engine / Phase 05 tabs).
+- [x] Tab-drag reorder + group-edge split guides (lands with Phase 03 layout engine / Phase 05 tabs).
 
 ### Phase 03 — Layout & Splitters  ✅ done (runtime drag-resize to be validated in sample)
 - [x] Canonicalize on `DockingLayoutController` + `LayoutCalculator` + `BeepDockSplitter`
@@ -168,11 +177,30 @@ removes the dead MDI and stub layers. Full file-by-file disposition is in `PHASE
 - [x] Design-time child creation per `AGENTS.md` (`host.CreateComponent` + `DesignerTransaction`) in `BeepDockingDesignerWiring`; all mutations through `IComponentChangeService` → `*.Designer.cs`.
 - [x] Smart-tag verbs/items: add/move/stack/reorder panels per edge, validate, attach host form, refresh layout, and **Appearance** (`Style` / `UseThemeColors` / `Theme`).
 
-### Phase 08 — Perf, Docs, Testing  🟦 (code + docs done; sample/matrix = interactive QA)
+### Phase 08 — Perf, Docs, Testing  ✅ done (code + docs done; sample/matrix = interactive QA)
 - [x] Batch update (`BeepDockingUpdate`), cached `DockLayoutResult` + invalidation on every tree mutation, double-buffering on all painted surfaces, cached SVG glyphs, shared `DockAnimator`.
 - [x] `Docking/README.md`, refreshed `CODE-DICTIONARY.md`, XML docs on public API, migration note.
+- [x] Zero-allocation paint pipeline: cached `DockingPainterContext` + `PaintResourceCache` brush/pen reuse.
 - [ ] **QA follow-up:** design-time arranged sample form (needs VS designer).
 - [ ] **QA follow-up:** full style/theme/DPI/scale verification matrix.
+
+---
+
+## Phase 09–17 — Polish Passes (all ✅ done)
+
+These were inline phases without separate plan documents. Each phase built on the previous ones.
+
+| # | Scope | Key deliverables |
+|---|-------|-----------------|
+| 09 | Design-time polish, keyboard/MRU/navigator, drag capture | Ctrl+Tab navigator, ProcessCmdKey, AutoHideStrip context menu + keyboard reorder + TabIndex sync |
+| 10 | Architecture refactor | Dockspace as persistent host; deleted reparenting paths; `SyncDockspaceDockStyles` |
+| 11 | Child splitters | `{parentId}_child_{i}` owned by dockspace, `UpdateChildSplitters`/`ClearChildSplitters`, `FindDockspaceAt`, `DockingPropagateAction` rename |
+| 12 | UX parity | `HideOnClose`, `ShowHint`, `AllowEndUserDocking`, `DockPadding`, `DefaultFloatWindowSize` |
+| 13 | UX features | `ActiveAutoHideContent`, snap guides overlay (`DockingGuideOverlay.ShowSnapGuide`), 3px accent bar |
+| 14 | API surface | `DockingOptions` group, `FocusManager`, `GetActivePanelKey(DockPanelState)`, `PanelMovedBetweenGroups`, `PanelStateChanging` |
+| 15 | Per-style painters + theme refresh | `DockingStyleFlavor` (9 styles), `RefreshTheme()`, `CaptionRenderer`/`SplitterRenderer` flavor-aware painting |
+| 16 | TabStyle + schema + test fixes | `TabPosition` (Top/Bottom/Left/Right/None), vertical tab rendering, `SchemaVersion`, `DockGroupDefinition.TabStyle`, D1/D2 test fixes |
+| 17 | Deep audit passes (multiple) | ~200 lines dedup; font null-safety; splitter sign fix; full panel lifecycle re-parenting; zero-alloc paint; csproj excludes; event wiring; FloatWindow shutdown guards |
 
 ---
 
@@ -180,6 +208,7 @@ removes the dead MDI and stub layers. Full file-by-file disposition is in `PHASE
 
 | Date | Phase | Note |
 |------|-------|------|
+| 2026-06 | 09–17 | Polish passes: 9 phases of bug fixes, dedup, perf optimization, API completion. All 47 tests pass, 0 build errors. |
 | _rev3_ | — | Reverted naming: keep `BeepDockingManager`/`DockPanel` (no `BeepDocks`). |
 | _rev2_ | — | Existing-code disposition + designer.cs persistence. |
 | _init_ | — | First (generic) draft. |

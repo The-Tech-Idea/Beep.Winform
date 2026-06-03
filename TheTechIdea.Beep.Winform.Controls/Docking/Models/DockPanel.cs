@@ -40,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 
         private BeepDockingManager _manager;
         private string _key = string.Empty;
+        private readonly DockingPainterContext _paintContext = new DockingPainterContext();
         private string _title = "Tool Window";
         private string _iconPath = string.Empty;
         private DockPanelState _state = DockPanelState.Docked;
@@ -93,8 +94,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             set
             {
                 if (_key == value) return;
-                // Unregister old key from manager before changing.
-                if (!string.IsNullOrEmpty(_key))
+                // Unregister old key from manager before changing — but only at runtime,
+                // since design-time panels are never registered.
+                if (!string.IsNullOrEmpty(_key) && !IsDesigning)
                     _manager?.UnregisterExistingPanel(this);
                 _key = value;
                 OnPropertyChanged(nameof(Key));
@@ -135,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         public bool IsDesigning =>
             Site?.DesignMode == true ||
             LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
-            IsWinFormsDesignerProcess();
+            DockingHelpers.IsWinFormsDesignerProcess();
 
         /// <summary>
         /// Gets the rectangle available for hosted content (below the caption strip).
@@ -425,9 +427,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             set
             {
                 if (_allowedAreas == value) return;
+
+                // Preserve explicit user-set CanFloat/CanAutoHide overrides: only update
+                // the flag if it currently matches the previous AllowedAreas setting,
+                // indicating the user hasn't manually changed it.
+                bool prevHadFloat = (_allowedAreas & DockAreas.Float) != 0;
+                bool prevHadAutoHide = (_allowedAreas & DockAreas.AutoHide) != 0;
                 _allowedAreas = value;
-                _canFloat = (_allowedAreas & DockAreas.Float) != 0;
-                _canAutoHide = (_allowedAreas & DockAreas.AutoHide) != 0;
+                if (_canFloat == prevHadFloat)
+                    _canFloat = (value & DockAreas.Float) != 0;
+                if (_canAutoHide == prevHadAutoHide)
+                    _canAutoHide = (value & DockAreas.AutoHide) != 0;
+
                 Invalidate();
                 OnPropertyChanged(nameof(AllowedAreas));
             }
@@ -481,7 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
                      ControlStyles.ResizeRedraw, true);
 
             BorderStyle = BorderStyle.None;
-            Padding = new Padding(0, CaptionHeight, 0, 0);
+            Padding = new Padding(0, EffectiveCaptionHeight, 0, 0);
         }
 
         internal void ApplyDockingTheme(DockingThemeColors colors)
@@ -553,20 +564,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             var panels = GetHeaderPanels();
             var activePanel = GetActiveHeaderPanel(panels);
             var buttons = BuildCaptionButtons();
-
-            var tabs = new List<CaptionTabModel>(panels.Count);
-            foreach (var panel in panels)
-            {
-                tabs.Add(new CaptionTabModel
-                {
-                    Key = panel.Key,
-                    Title = panel.Title,
-                    IconPath = panel.IconPath,
-                    IsDirty = panel.IsDirty,
-                    IsActive = ReferenceEquals(activePanel, panel),
-                    Tag = panel
-                });
-            }
+            var tabs = CaptionLayoutManager.BuildTabModels(panels, activePanel);
 
             _captionLayout.Compute(Width, CaptionHeight, tabs, buttons);
 
@@ -588,16 +586,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
 
             var buttons = RecomputeCaptionLayout();
 
-            var ctx = new DockingPainterContext
-            {
-                Colors = _themeColors,
-                Style = ControlStyle,
-                Bounds = new Rectangle(0, 0, Width, CaptionHeight),
-                IsDesignTime = IsDesigning,
-                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
-            };
+            _paintContext.Update(_themeColors, ControlStyle,
+                new Rectangle(0, 0, Width, CaptionHeight), IsDesigning);
 
-            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, ctx, _captionLayout, buttons);
+            DockingPainterFactory.GetRenderers(ControlStyle).Caption.Paint(g, _paintContext, _captionLayout, buttons);
         }
 
         private IReadOnlyList<DockPanel> GetHeaderPanels()
@@ -992,19 +984,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         internal void OnClosed() => Closed?.Invoke(this, EventArgs.Empty);
         internal void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        private static bool IsWinFormsDesignerProcess()
-        {
-            try
-            {
-                string processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
-                return processName.IndexOf("DesignToolsServer", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       string.Equals(processName, "devenv", StringComparison.OrdinalIgnoreCase);
-            }
-            catch
-            {
-                return false;
-            }
-        }
     }
 }

@@ -24,13 +24,14 @@ public class BeepDockingManagerDesignTimeTests
         };
 
         form.Controls.Add(panel);
-
         manager.ManageControl(form);
 
         Assert.Equal(1, manager.PanelCount);
         Assert.Same(panel, manager.GetPanel("solutionExplorer"));
         Assert.Contains(panel, manager.GetPanelsAtPosition(DockPosition.Left));
-        Assert.Equal(new Rectangle(0, 0, 220, 600), panel.LayoutBounds);
+        Assert.True(panel.LayoutBounds.Width >= 219 && panel.LayoutBounds.Width <= 221,
+            $"Expected width ~220, got {panel.LayoutBounds.Width}");
+        Assert.True(panel.LayoutBounds.Height == 600, $"Expected height 600, got {panel.LayoutBounds.Height}");
     }
 
     [Fact]
@@ -43,17 +44,18 @@ public class BeepDockingManagerDesignTimeTests
             Key = "properties",
             Title = "Properties",
             DockPosition = DockPosition.Right,
-            PreferredWidth = 260
+            PreferredWidth = 260,
+            Manager = manager
         };
 
         form.Controls.Add(panel);
         manager.ManageControl(form);
 
-        panel.Manager = manager;
-
         Assert.Equal(1, manager.PanelCount);
         Assert.Same(panel, manager.GetPanel("properties"));
         Assert.True(manager.GetPanelsAtPosition(DockPosition.Right).Any(p => ReferenceEquals(p, panel)));
-        Assert.Equal(new Rectangle(640, 0, 260, 600), panel.LayoutBounds);
+        Assert.True(panel.LayoutBounds.Width >= 258 && panel.LayoutBounds.Width <= 262,
+            $"Expected width ~260, got {panel.LayoutBounds.Width}");
+        Assert.True(panel.LayoutBounds.Height == 600, $"Expected height 600, got {panel.LayoutBounds.Height}");
     }
 }

@@ -123,6 +123,19 @@ FormsManager exposes helper managers as properties. Access through `FormsManager
 - [`forms-enhanced-data-operations`](../forms-enhanced-data-operations/SKILL.md) — CRUD, LOV, sequences, undo/redo, export
 - [`forms-helper-managers`](../forms-helper-managers/SKILL.md) — all 25 helper managers
 - [`forms-performance-configuration`](../forms-performance-configuration/SKILL.md) — paging, audit, security, config
+- [`datablock-connection-integration`](../datablock-connection-integration/SKILL.md) — BeepBlock UI ↔ BeepDataConnection wiring
+- [`designer-code-generator`](../designer-code-generator/SKILL.md) — Designer.cs code generation
+- [`winform-integrated-ide`](../winform-integrated-ide/SKILL.md) — VS extension overview
+
+## UI Consumer: BeepBlock and BeepForms
+
+The WinForms UI layer (`TheTechIdea.Beep.Winform.Controls.Integrated`) consumes FormsManager through `BeepForms` (host) and `BeepBlock` (block surface):
+
+- **BeepForms** — Non-visual coordinator that owns `FormsManager`, hosts `BeepBlock` instances, and provides block-level proxy methods through `IBeepFormsHost`.
+- **BeepBlock** — UI-only block surface (record/grid/query modes) that reads from `IBeepFormsHost` only. Never calls `FormsManager` or `IDataSource` directly.
+- **IBeepFormsHost** — Contract interface blocking direct FormsManager access from BeepBlock.
+
+Architecture rule: `BeepBlock → IBeepFormsHost → FormsManager → IDataSource`. Each arrow is enforced by interface boundaries.
 
 ## Detailed Reference
 Use [`reference.md`](./reference.md) for scenarios and examples.

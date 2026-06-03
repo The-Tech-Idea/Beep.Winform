@@ -101,17 +101,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     /// </summary>
     public enum TabStyle
     {
-        /// <summary>Tabs displayed at the top of the group.</summary>
+        /// <summary>Tabs displayed at the top of the group (default).</summary>
         Top = 0,
 
         /// <summary>Tabs displayed at the bottom of the group.</summary>
         Bottom = 1,
 
-        /// <summary>Tabs displayed on the left side of the group.</summary>
+        /// <summary>Tabs displayed on the left side of the group (rotated text).</summary>
         Left = 2,
 
-        /// <summary>Tabs displayed on the right side of the group.</summary>
-        Right = 3
+        /// <summary>Tabs displayed on the right side of the group (rotated text).</summary>
+        Right = 3,
+
+        /// <summary>No tab strip — panel content fills the entire container. Useful for single-panel groups.</summary>
+        None = 4
     }
 
     /// <summary>

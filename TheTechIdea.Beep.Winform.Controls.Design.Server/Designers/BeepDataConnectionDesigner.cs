@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using Microsoft.DotNet.DesignTools.Designers;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers

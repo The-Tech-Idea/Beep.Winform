@@ -43,6 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         private readonly DockPosition _edge;
         private readonly List<DockPanel> _panels = new List<DockPanel>();
         private readonly AutoHideStripLayoutManager _layout = new AutoHideStripLayoutManager();
+        private readonly DockingPainterContext _paintContext = new DockingPainterContext();
         private DockPanel _activePanel;   // tab that is currently selected (slide shown)
         private AutoHideSlidePanel _slidePanel;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
@@ -324,15 +325,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         {
             base.OnPaint(e);
 
-            var ctx = new DockingPainterContext
-            {
-                Colors = _themeColors,
-                Style = ControlStyle,
-                Bounds = ClientRectangle,
-                Flavor = DockingPainterFactory.ResolveFlavor(ControlStyle)
-            };
-
-            DockingPainterFactory.GetRenderers(ControlStyle).AutoHide.Paint(e.Graphics, ctx, _layout);
+            _paintContext.Update(_themeColors, ControlStyle, ClientRectangle);
+            DockingPainterFactory.GetRenderers(ControlStyle).AutoHide.Paint(e.Graphics, _paintContext, _layout);
         }
 
         protected override void OnResize(EventArgs e)

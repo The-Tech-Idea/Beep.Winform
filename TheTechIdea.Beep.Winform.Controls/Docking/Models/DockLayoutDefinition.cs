@@ -37,6 +37,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         [DefaultValue(null)]
         public string ActivePanelKey { get; set; }
 
+        /// <summary>Tab strip position for this group.</summary>
+        [DefaultValue(TabStyle.Top)]
+        public TabStyle TabStyle { get; set; } = TabStyle.Top;
+
         /// <summary>Nested child groups (split containers). Empty for a leaf tab cell.</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public List<DockGroupDefinition> Children { get; } = new List<DockGroupDefinition>();

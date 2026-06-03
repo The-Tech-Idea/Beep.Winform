@@ -8,9 +8,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
     /// supplied <see cref="DockingPainterContext"/>. Geometry/interaction (drag math, hit-test) stay
     /// in the splitter control / layout engine; this renderer only paints the resolved state.
     /// </summary>
-    internal sealed class SplitterRenderer
+    internal sealed class SplitterRenderer : System.IDisposable
     {
         private const int GripDotCount = 3;
+        private readonly PaintResourceCache _cache = new PaintResourceCache();
+
+        public void Dispose() => _cache.Dispose();
 
         /// <summary>
         /// Paints the splitter into <c>ctx.Bounds</c>. The <see cref="DockingStyleFlavor"/>
@@ -35,19 +38,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
                 ? colors.HoverBackColor
                 : colors.SplitterBackColor;
 
-            using (var brush = new SolidBrush(barColor))
+            using (var brush = _cache.GetBrush(barColor))
                 g.FillRectangle(brush, bounds);
 
             if (flavor.UseTranslucentSplitter)
             {
-                using var overlay = new SolidBrush(Color.FromArgb(48, ControlPaint.Light(barColor, 0.10f)));
+                using var overlay = _cache.GetBrush(Color.FromArgb(48, ControlPaint.Light(barColor, 0.10f)));
                 g.FillRectangle(overlay, bounds);
             }
 
             PaintGrip(g, bounds, orientation, colors.TabBorderColor, flavor.SplitterGripSize, flavor.SplitterGripSpacing);
         }
 
-        private static void PaintGrip(Graphics g, Rectangle bounds, SplitterOrientation orientation,
+        private void PaintGrip(Graphics g, Rectangle bounds, SplitterOrientation orientation,
             Color gripColor, int gripSize, int gripSpacing)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -56,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter
             int cy = bounds.Top + bounds.Height / 2;
             int span = (GripDotCount - 1) * gripSpacing;
 
-            using var brush = new SolidBrush(gripColor);
+            using var brush = _cache.GetBrush(gripColor);
 
             for (int i = 0; i < GripDotCount; i++)
             {

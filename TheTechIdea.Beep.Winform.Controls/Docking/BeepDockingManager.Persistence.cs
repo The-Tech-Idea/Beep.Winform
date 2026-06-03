@@ -116,7 +116,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 Position = group.Position,
                 SplitOrientation = group.SplitOrientation,
                 SplitRatio = group.SplitRatio,
-                ActivePanelKey = group.ActivePanel?.Key
+                ActivePanelKey = group.ActivePanel?.Key,
+                TabStyle = group.TabStyle
             };
 
             foreach (var panel in group.Panels)
@@ -164,6 +165,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     root.AddChild(BuildGroup(groupDef));
             }
 
+            // Sync dockspace TabPosition from restored group TabStyle values.
+            foreach (var group in root.Children)
+                SyncDockspaceTabStyle(group);
+
             if (def.Floating != null)
             {
                 foreach (var info in def.Floating)
@@ -205,7 +210,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 Position = def.Position,
                 SplitOrientation = def.SplitOrientation,
                 SplitRatio = def.SplitRatio,
-                RatioInitialized = true
+                RatioInitialized = true,
+                TabStyle = def.TabStyle
             };
             _layoutTree.RegisterGroup(group);
 
@@ -244,5 +250,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         /// <summary>Runtime convenience: apply a previously captured layout definition.</summary>
         public void LoadLayout(DockLayoutDefinition definition) => MaterializeFromDefinition(definition);
+
+        private void SyncDockspaceTabStyle(DockGroup group)
+        {
+            if (group == null || _hostForm == null) return;
+            var ds = FindDockspaceAt(_hostForm, group.Position);
+            if (ds != null)
+                ds.TabPosition = group.TabStyle;
+            foreach (var child in group.Children)
+                SyncDockspaceTabStyle(child);
+        }
     }
 }

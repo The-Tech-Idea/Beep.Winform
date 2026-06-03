@@ -102,7 +102,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime.DragDrop
                     FormatFlags = StringFormatFlags.NoWrap
                 };
                 using var brush = new SolidBrush(_colors.ActiveTabForeColor);
-                g.DrawString(_title, BeepFontManager.DefaultFont, brush, rect, sf);
+                var font = BeepFontManager.DefaultFont ?? SystemFonts.DefaultFont;
+                g.DrawString(_title, font, brush, rect, sf);
             }
         }
     }

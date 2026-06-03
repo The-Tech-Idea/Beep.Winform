@@ -4,10 +4,6 @@ using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
 {
-    /// <summary>
-    /// Caption chrome buttons shared by the panel caption and the dockspace header.
-    /// Order in the buttons list = right-to-left placement (first entry sits rightmost).
-    /// </summary>
     internal enum CaptionButtonKind
     {
         Close,
@@ -17,9 +13,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
         DropDown
     }
 
-    /// <summary>
-    /// Immutable description of one tab to lay out in a caption/header strip.
-    /// </summary>
     internal sealed class CaptionTabModel
     {
         public string Key { get; init; } = string.Empty;
@@ -27,17 +20,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
         public string IconPath { get; init; } = string.Empty;
         public bool IsDirty { get; init; }
         public bool IsActive { get; init; }
-
-        /// <summary>Optional back-reference so callers can map a hit-tested tab to their model.</summary>
         public object Tag { get; init; }
     }
 
-    /// <summary>
-    /// Computes tab and caption-button geometry for a caption strip and resolves hit-testing.
-    /// This is the single source of layout for both <c>DockPanel</c> and <c>BeepDockspace</c>
-    /// captions. Per house style the layout manager <b>detects</b> (geometry + hit-test); the
-    /// matching <c>CaptionRenderer</c> only paints the resolved layout.
-    /// </summary>
     internal sealed class CaptionLayoutManager
     {
         public int ButtonSize { get; init; } = 18;
@@ -46,35 +31,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
         public int MaxTabWidth { get; init; } = 160;
         public int RightMargin { get; init; } = 4;
         public int TabsRightGap { get; init; } = 2;
-
-        /// <summary>Smallest readable tab width; below this the surplus tabs collapse into the chevron.</summary>
         public int OverflowMinTabWidth { get; init; } = 64;
+
+        public bool IsVertical { get; set; }
+        public bool IsFlipped { get; set; }
+
+        public int VerticalIconSize { get; init; } = 16;
+        public int VerticalPadding { get; init; } = 4;
 
         private readonly Dictionary<CaptionButtonKind, Rectangle> _buttonRects = new();
         private readonly List<KeyValuePair<CaptionTabModel, Rectangle>> _tabRects = new();
         private readonly List<CaptionTabModel> _overflowTabs = new();
 
-        /// <summary>Computed tab rectangles in paint order (left to right).</summary>
         public IReadOnlyList<KeyValuePair<CaptionTabModel, Rectangle>> TabRects => _tabRects;
-
-        /// <summary>Strip height used by the last <see cref="Compute"/> call.</summary>
         public int StripHeight { get; private set; }
-
-        /// <summary>True when not all tabs fit and a chevron is shown.</summary>
         public bool HasOverflow { get; private set; }
-
-        /// <summary>Chevron rect (empty when <see cref="HasOverflow"/> is false).</summary>
         public Rectangle OverflowButtonRect { get; private set; }
-
-        /// <summary>Tabs that did not fit and are reachable only through the chevron dropdown.</summary>
         public IReadOnlyList<CaptionTabModel> OverflowTabs => _overflowTabs;
 
-        /// <summary>
-        /// Computes button rects (right-aligned in the supplied order) and tab rects (left-aligned,
-        /// sharing the remaining width). When the tabs cannot all fit at <see cref="OverflowMinTabWidth"/>,
-        /// only those that fit are laid out — the active tab is always kept visible — and a chevron is
-        /// reserved on the right of the tab area. Call from paint and from resize/hit-test code paths.
-        /// </summary>
         public void Compute(int width, int height, IReadOnlyList<CaptionTabModel> tabs, IReadOnlyList<CaptionButtonKind> buttons)
         {
             _buttonRects.Clear();
@@ -84,6 +58,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
             OverflowButtonRect = Rectangle.Empty;
             StripHeight = height;
 
+            if (IsVertical)
+                ComputeVertical(width, height, tabs, buttons);
+            else
+                ComputeHorizontal(width, height, tabs, buttons);
+        }
+
+        private void ComputeHorizontal(int width, int height, IReadOnlyList<CaptionTabModel> tabs, IReadOnlyList<CaptionButtonKind> buttons)
+        {
             int y = (height - ButtonSize) / 2;
             int x = width - RightMargin;
 
@@ -103,35 +85,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
             if (count == 0 || tabsWidth <= 0)
                 return;
 
-            // How many tabs fit at a readable width? If all fit, share the width evenly (capped).
             int chevronSlot = ButtonSize + ButtonSpacing;
             int fitCount = Math.Max(1, tabsWidth / OverflowMinTabWidth);
 
             if (count <= fitCount)
             {
-                LayoutVisibleTabs(tabs, tabsWidth, height);
+                LayoutVisibleHorizontalTabs(tabs, tabsWidth, height);
                 return;
             }
 
-            // Overflow: reserve a chevron, keep the active tab visible, lay out the first
-            // (visibleCount) tabs in order and push the remainder into the dropdown.
             HasOverflow = true;
             int tabsArea = Math.Max(OverflowMinTabWidth, tabsWidth - chevronSlot);
             int visibleCount = Math.Max(1, tabsArea / OverflowMinTabWidth);
-            if (visibleCount >= count) visibleCount = count - 1;   // guarantee at least one overflow
-
-            var visible = new List<CaptionTabModel>(visibleCount);
-            for (int i = 0; i < count; i++)
-                visible.Add(tabs[i]);
-
-            // Ensure the active tab is in the visible window; if not, swap it into the last slot.
-            int activeIndex = -1;
-            for (int i = 0; i < count; i++)
-                if (tabs[i].IsActive) { activeIndex = i; break; }
+            if (visibleCount >= count) visibleCount = count - 1;
 
             var shown = new List<CaptionTabModel>(visibleCount);
             for (int i = 0; i < visibleCount; i++)
                 shown.Add(tabs[i]);
+
+            int activeIndex = -1;
+            for (int i = 0; i < count; i++)
+                if (tabs[i].IsActive) { activeIndex = i; break; }
 
             if (activeIndex >= visibleCount && visibleCount > 0)
                 shown[visibleCount - 1] = tabs[activeIndex];
@@ -142,12 +116,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
                     _overflowTabs.Add(tabs[i]);
             }
 
-            LayoutVisibleTabs(shown, tabsArea, height);
-
+            LayoutVisibleHorizontalTabs(shown, tabsArea, height);
             OverflowButtonRect = new Rectangle(tabsArea + TabsRightGap, y, ButtonSize, ButtonSize);
         }
 
-        private void LayoutVisibleTabs(IReadOnlyList<CaptionTabModel> tabs, int tabsWidth, int height)
+        private void ComputeVertical(int width, int height, IReadOnlyList<CaptionTabModel> tabs, IReadOnlyList<CaptionButtonKind> buttons)
+        {
+            if (tabs == null || tabs.Count == 0) return;
+
+            int bx = (width - ButtonSize) / 2;
+            int by = height - RightMargin;
+            if (buttons != null)
+            {
+                foreach (var kind in buttons)
+                {
+                    by -= ButtonSize + ButtonSpacing;
+                    _buttonRects[kind] = new Rectangle(bx, by, ButtonSize, ButtonSize);
+                }
+            }
+
+            int buttonRegionTop = FirstButtonTop(height);
+            int tabsHeight = Math.Max(0, buttonRegionTop - VerticalPadding * 2);
+
+            int count = tabs.Count;
+            if (count == 0 || tabsHeight <= 0) return;
+
+            int tabHeight = Math.Max(MinTabWidth, Math.Min(MaxTabWidth, tabsHeight / count));
+            int ty = VerticalPadding;
+            for (int i = 0; i < count; i++)
+            {
+                int h = Math.Min(tabHeight, tabsHeight - ty + VerticalPadding);
+                if (h <= 0) break;
+                var rect = new Rectangle(0, ty, width, h);
+                _tabRects.Add(new KeyValuePair<CaptionTabModel, Rectangle>(tabs[i], rect));
+                ty += h;
+            }
+        }
+
+        private void LayoutVisibleHorizontalTabs(IReadOnlyList<CaptionTabModel> tabs, int tabsWidth, int height)
         {
             int count = tabs.Count;
             if (count == 0) return;
@@ -156,43 +162,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
             int tx = 0;
             foreach (var tab in tabs)
             {
-                if (tx >= tabsWidth)
-                    break;
+                if (tx >= tabsWidth) break;
                 var rect = new Rectangle(tx, 0, Math.Min(tabWidth, tabsWidth - tx), height);
                 _tabRects.Add(new KeyValuePair<CaptionTabModel, Rectangle>(tab, rect));
                 tx += rect.Width;
             }
         }
 
-        /// <summary>Returns true if the point is on the overflow chevron.</summary>
         public bool HitTestOverflow(Point p) => HasOverflow && OverflowButtonRect.Contains(p);
 
-        /// <summary>Returns the rect for a button, or <see cref="Rectangle.Empty"/> if not shown.</summary>
         public Rectangle GetButtonRect(CaptionButtonKind kind) =>
             _buttonRects.TryGetValue(kind, out var r) ? r : Rectangle.Empty;
 
-        /// <summary>Enumerates the computed button rects.</summary>
         public IReadOnlyDictionary<CaptionButtonKind, Rectangle> ButtonRects => _buttonRects;
 
-        /// <summary>Returns the button kind at a point, or null.</summary>
         public CaptionButtonKind? HitTestButton(Point p)
         {
             foreach (var kv in _buttonRects)
-            {
-                if (kv.Value.Contains(p))
-                    return kv.Key;
-            }
+                if (kv.Value.Contains(p)) return kv.Key;
             return null;
         }
 
-        /// <summary>Returns the tab model at a point, or null.</summary>
         public CaptionTabModel HitTestTab(Point p)
         {
             foreach (var kv in _tabRects)
-            {
-                if (kv.Value.Contains(p))
-                    return kv.Key;
-            }
+                if (kv.Value.Contains(p)) return kv.Key;
             return null;
         }
 
@@ -201,8 +195,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
             int left = width;
             foreach (var r in _buttonRects.Values)
                 left = Math.Min(left, r.Left);
-
             return left == width ? width : Math.Max(0, left - ButtonSpacing);
+        }
+
+        private int FirstButtonTop(int height)
+        {
+            int top = height;
+            foreach (var r in _buttonRects.Values)
+                top = Math.Min(top, r.Top);
+            return top == height ? height : Math.Max(0, top - ButtonSpacing);
+        }
+
+        /// <summary>Builds <see cref="CaptionTabModel"/> list from a set of <see cref="Models.DockPanel"/> instances,
+        /// marking the panel that matches <paramref name="active"/> as active.</summary>
+        internal static List<CaptionTabModel> BuildTabModels(IReadOnlyList<Models.DockPanel> panels, Models.DockPanel active)
+        {
+            var tabs = new List<CaptionTabModel>(panels.Count);
+            foreach (var panel in panels)
+            {
+                tabs.Add(new CaptionTabModel
+                {
+                    Key = panel.Key,
+                    Title = panel.Title,
+                    IconPath = panel.IconPath,
+                    IsDirty = panel.IsDirty,
+                    IsActive = ReferenceEquals(panel, active),
+                    Tag = panel
+                });
+            }
+            return tabs;
         }
     }
 }

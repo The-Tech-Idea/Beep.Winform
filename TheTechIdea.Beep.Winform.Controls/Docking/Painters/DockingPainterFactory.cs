@@ -118,6 +118,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
             _painterCache.Clear();
             lock (_rendererLock)
             {
+                foreach (var set in _rendererCache.Values)
+                    set.Dispose();
                 _rendererCache.Clear();
                 _flavorCache.Clear();
             }

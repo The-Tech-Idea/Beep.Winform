@@ -85,7 +85,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        public event EventHandler<SelectedItemChangedEventArgs> MenuItemSelected;
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+
+        protected virtual void OnMenuItemSelected(SimpleItem selectedItem)
+        {
+            MenuItemSelected?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
 
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {

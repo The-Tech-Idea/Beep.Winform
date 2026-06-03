@@ -242,8 +242,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                             var checkAccessibleObject = AccessibilityObject as BeepTreeAccessibleObject;
                             checkAccessibleObject?.NotifyStateChanged(item);
                             break;
-
                         case "row":
+                        case "text":
                         case "icon":
                             if (e.Button == MouseButtons.Left)
                             {
@@ -1116,7 +1116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isPopupOpen;
         
 
-        private void TogglePopup()
+        public virtual void TogglePopup()
         {
             if (_isPopupOpen)
                 ClosePopup();
@@ -1124,7 +1124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowPopup();
         }
 
-        public void ShowPopup()
+        public virtual void ShowPopup()
         {
             if (_isPopupOpen) return;
             if (CurrentMenutems == null || CurrentMenutems.Count == 0)
@@ -1155,14 +1155,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        public void ClosePopup()
+        public virtual void ClosePopup()
         {
             // No persistent popup to close when using BeepContextMenu per call
             _isPopupOpen = false;
             Invalidate();
         }
 
-        public void ShowContextMenu(BindingList<SimpleItem> menuList)
+        public virtual void ShowContextMenu(BindingList<SimpleItem> menuList)
         {
             CurrentMenutems = menuList;
             TogglePopup();

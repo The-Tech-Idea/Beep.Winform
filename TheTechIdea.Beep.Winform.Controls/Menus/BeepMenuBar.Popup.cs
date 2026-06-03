@@ -242,9 +242,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (selectedItem != null)
             {
                 SelectedItem = selectedItem;
+                
                 if (SelectedItem.MethodName != null)
                 {
-                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                   
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.MethodName);
                 }
             }
         }
@@ -319,6 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         // Mirror the synchronous path's post-select dispatch.
                         if (selectedItem == null) return;
                         SelectedItem = selectedItem;
+                        //OnMenuItemSelected(selectedItem);
                         if (SelectedItem.MethodName != null)
                         {
                             RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);

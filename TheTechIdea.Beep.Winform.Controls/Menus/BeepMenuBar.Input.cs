@@ -254,6 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 currentMenu = items;
                 SelectedItem = item;
+              
 
                 if (SelectedItem.MethodName != null)
                 {

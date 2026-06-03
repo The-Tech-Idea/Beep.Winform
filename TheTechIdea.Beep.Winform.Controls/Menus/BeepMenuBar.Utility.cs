@@ -42,6 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
+                OnMenuItemSelected(item);
                 //SimpleItemFactory.RunFunctionWithTreeHandler(item, MethodName);
             }
             catch (Exception ex)

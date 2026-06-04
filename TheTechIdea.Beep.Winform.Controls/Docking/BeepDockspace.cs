@@ -53,7 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private readonly ToolTip _tabToolTip = new ToolTip();
         private bool _showHint = true;
         private Padding _dockPadding = Padding.Empty;
-        private Models.TabStyle _tabPosition = Models.TabStyle.Top;
+        private Models.HeaderPosition _tabPosition = Models.HeaderPosition.Top;
+        private Models.TabStyle _tabStyle = Models.TabStyle.Default;
 
         // Tab drag-to-float/dock state.
         private DockPanel _dragPanel;
@@ -156,8 +157,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
 
         [Category("Docking")]
         [Description("Tab strip position relative to the panel content area.")]
-        [DefaultValue(typeof(Models.TabStyle), "Top")]
-        public Models.TabStyle TabPosition
+        [DefaultValue(typeof(Models.HeaderPosition), "Top")]
+        public Models.HeaderPosition TabPosition
         {
             get => _tabPosition;
             set
@@ -165,6 +166,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 if (_tabPosition == value) return;
                 _tabPosition = value;
                 LayoutPanels();
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Visual style used to paint tab headers (Default, VsCode, VsIde2022, JetBrains, Browser).")]
+        [DefaultValue(Models.TabStyle.Default)]
+        public Models.TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set
+            {
+                if (_tabStyle == value) return;
+                _tabStyle = value;
                 Invalidate();
             }
         }
@@ -486,6 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             var hoveredTab = IsInHeader(e.Location) ? _captionLayout.HitTestTab(e.Location) : null;
+            _captionLayout.HoveredTab = hoveredTab;
             if (hoveredTab?.Tag is DockPanel panel && !string.IsNullOrEmpty(panel.Title))
             {
                 _tabToolTip.Show(panel.Title, this, e.X + 12, e.Y + 12, 3000);
@@ -500,6 +516,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                       _captionLayout.HitTestButton(e.Location) != null)
                 ? Cursors.Hand
                 : Cursors.Default;
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (_captionLayout.HoveredTab != null)
+            {
+                _captionLayout.HoveredTab = null;
+                Invalidate();
+            }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -539,9 +565,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var buttons = BuildCaptionButtons(active);
             var tabs = CaptionLayoutManager.BuildTabModels(panels, active);
 
-            bool vertical = _tabPosition == Models.TabStyle.Left || _tabPosition == Models.TabStyle.Right;
+            bool vertical = _tabPosition == Models.HeaderPosition.Left || _tabPosition == Models.HeaderPosition.Right;
             _captionLayout.IsVertical = vertical;
-            _captionLayout.IsFlipped = _tabPosition == Models.TabStyle.Right;
+            _captionLayout.IsFlipped = _tabPosition == Models.HeaderPosition.Right;
 
             if (vertical)
                 _captionLayout.Compute(HeaderHeight, Height, tabs, buttons);
@@ -568,17 +594,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             var buttons = RecomputeCaptionLayout();
 
             _paintContext.Update(_themeColors, ControlStyle, headerRect, IsDesigning);
+            _paintContext.TabStyle = _tabStyle;
 
             var renderers = DockingPainterFactory.GetRenderers(ControlStyle);
             renderers.Caption.Paint(g, _paintContext, _captionLayout, buttons);
 
             // Draw separator line along the content-adjacent edge.
-            if (_tabPosition == Models.TabStyle.Left)
+            if (_tabPosition == Models.HeaderPosition.Left)
             {
                 using var pen = new Pen(_themeColors.TabBorderColor);
                 g.DrawLine(pen, headerRect.Right - 1, 0, headerRect.Right - 1, headerRect.Bottom - 1);
             }
-            else if (_tabPosition == Models.TabStyle.Right)
+            else if (_tabPosition == Models.HeaderPosition.Right)
             {
                 using var pen = new Pen(_themeColors.TabBorderColor);
                 g.DrawLine(pen, headerRect.X, 0, headerRect.X, headerRect.Bottom - 1);
@@ -913,10 +940,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             return _tabPosition switch
             {
-                Models.TabStyle.Bottom => new Rectangle(0, Height - HeaderHeight, Width, HeaderHeight),
-                Models.TabStyle.Left   => new Rectangle(0, 0, HeaderHeight, Height),
-                Models.TabStyle.Right  => new Rectangle(Width - HeaderHeight, 0, HeaderHeight, Height),
-                Models.TabStyle.None   => Rectangle.Empty,
+                Models.HeaderPosition.Bottom => new Rectangle(0, Height - HeaderHeight, Width, HeaderHeight),
+                Models.HeaderPosition.Left   => new Rectangle(0, 0, HeaderHeight, Height),
+                Models.HeaderPosition.Right  => new Rectangle(Width - HeaderHeight, 0, HeaderHeight, Height),
+                Models.HeaderPosition.None   => Rectangle.Empty,
                 _                     => new Rectangle(0, 0, Width, HeaderHeight)
             };
         }
@@ -925,17 +952,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         {
             return _tabPosition switch
             {
-                Models.TabStyle.Bottom => new Rectangle(0, 0, Width, Math.Max(0, Height - HeaderHeight)),
-                Models.TabStyle.Left   => new Rectangle(HeaderHeight, 0, Math.Max(0, Width - HeaderHeight), Height),
-                Models.TabStyle.Right  => new Rectangle(0, 0, Math.Max(0, Width - HeaderHeight), Height),
-                Models.TabStyle.None   => new Rectangle(0, 0, Width, Height),
+                Models.HeaderPosition.Bottom => new Rectangle(0, 0, Width, Math.Max(0, Height - HeaderHeight)),
+                Models.HeaderPosition.Left   => new Rectangle(HeaderHeight, 0, Math.Max(0, Width - HeaderHeight), Height),
+                Models.HeaderPosition.Right  => new Rectangle(0, 0, Math.Max(0, Width - HeaderHeight), Height),
+                Models.HeaderPosition.None   => new Rectangle(0, 0, Width, Height),
                 _                     => new Rectangle(0, HeaderHeight, Width, Math.Max(0, Height - HeaderHeight))
             };
         }
 
         private bool IsInHeader(Point clientPoint)
         {
-            if (_tabPosition == Models.TabStyle.None) return false;
+            if (_tabPosition == Models.HeaderPosition.None) return false;
             return GetHeaderRect().Contains(clientPoint);
         }
 

@@ -1,12 +1,15 @@
 using System.ComponentModel;
-using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
     public partial class BeepCalendar
     {
         /// <summary>
-        /// Gets or sets the visual style for the calendar
+        /// Gets or sets the visual style for the calendar. The per-view
+        /// <see cref="ICalendarViewPainter"/> reads this via
+        /// <see cref="ViewPaintArgs.ControlStyle"/>; Material3 and Minimal
+        /// are produced by switching on this value inside the painter body
+        /// (there is no separate <c>ICalendarStylePainter</c> hierarchy).
         /// </summary>
         [Browsable(true)]
         [Category("Appearance")]
@@ -20,27 +23,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 if (_calendarStyle != value)
                 {
                     _calendarStyle = value;
-                    _stylePainter = CalendarPainterFactory.GetPainter(value);
-                    Invalidate();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets whether to use the new painter system
-        /// </summary>
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use the new style painter system for rendering")]
-        [DefaultValue(true)]
-        public bool UsePainterSystem
-        {
-            get => _usePainterSystem;
-            set
-            {
-                if (_usePainterSystem != value)
-                {
-                    _usePainterSystem = value;
                     Invalidate();
                 }
             }

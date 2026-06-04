@@ -900,11 +900,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
             if (_showCaption && e.Y <= EffectiveCaptionHeight)
             {
                 RecomputeCaptionLayout();
-                Cursor = _captionLayout.HitTestTab(e.Location) != null ||
+                _captionLayout.HoveredTab = _captionLayout.HitTestTab(e.Location);
+                Cursor = _captionLayout.HoveredTab != null ||
                          _captionLayout.HitTestButton(e.Location) != null ||
                          _captionLayout.HitTestOverflow(e.Location)
                     ? Cursors.Hand
                     : Cursors.Default;
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (_captionLayout.HoveredTab != null)
+            {
+                _captionLayout.HoveredTab = null;
+                Invalidate();
             }
         }
 

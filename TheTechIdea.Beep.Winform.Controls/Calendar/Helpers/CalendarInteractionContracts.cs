@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         DialogEdit
     }
 
-    internal sealed class CalendarInteractionHitTestResult
+    public sealed class CalendarInteractionHitTestResult
     {
         public CalendarInteractionTargetKind TargetKind { get; init; }
         public CalendarInteractionMode RequestedMode { get; init; }

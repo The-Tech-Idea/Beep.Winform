@@ -348,219 +348,108 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _externalDrawing.ClearAllChildExternalDrawing();
 
         /// <summary>
-        /// Creates a badge drawing handler that can be registered with AddChildExternalDrawing.
-        /// This is a helper method that creates a DrawExternalHandler for drawing badges.
+        /// Sets a new-style floating badge (UserControl-based) on this control.
+        /// The badge is added as a child of the parent and tracks this control's position.
         /// </summary>
-        /// <param name="badgeText">The badge text to display</param>
-        /// <param name="badgeBackColor">The badge background color</param>
-        /// <param name="badgeForeColor">The badge foreground/text color</param>
-        /// <param name="badgeFont">The badge font</param>
-        /// <param name="badgeShape">The badge shape</param>
-        /// <returns>A DrawExternalHandler that draws the badge</returns>
-        public static DrawExternalHandler CreateBadgeDrawingHandler(string badgeText, Color badgeBackColor, Color badgeForeColor, Font badgeFont, BadgeShape badgeShape = BadgeShape.Circle)
+        /// <param name="badge">The badge to attach, or null to clear.</param>
+        /// <returns>The attached badge.</returns>
+        public TheTechIdea.Beep.Winform.Controls.Badges.IBeepBadge? SetBadge(TheTechIdea.Beep.Winform.Controls.Badges.IBeepBadge? badge)
         {
-            return (Graphics parentGraphics, Rectangle childBounds) =>
-            {
-                if (parentGraphics == null || string.IsNullOrEmpty(badgeText)) return;
-                // Use the helper's utility method to draw the badge
-                // Note: We need to access the helper, but this is a static method
-                // So we'll implement the drawing directly here
-                const int badgeSize = 22;
-                int x = childBounds.Right - badgeSize / 2;
-                int y = childBounds.Top - badgeSize / 2;
-                var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
-
-                parentGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-                // Badge background
-                using (var brush = new SolidBrush(badgeBackColor))
-                {
-                    switch (badgeShape)
-                    {
-                        case BadgeShape.Circle:
-                            parentGraphics.FillEllipse(brush, badgeRect);
-                            break;
-                        case BadgeShape.RoundedRectangle:
-                            using (var path = Helpers.ControlPaintHelper.GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
-                                parentGraphics.FillPath(brush, path);
-                            break;
-                        case BadgeShape.Rectangle:
-                            parentGraphics.FillRectangle(brush, badgeRect);
-                            break;
-                    }
-                }
-
-                // Badge text
-                if (!string.IsNullOrEmpty(badgeText))
-                {
-                    using (var textBrush = new SolidBrush(badgeForeColor))
-                    {
-                        // Simple font scaling
-                        Font scaledFont = badgeFont;
-                        if (badgeText.Length > 2)
-                        {
-                            float fontSize = Math.Max(6, Math.Min(badgeRect.Height * 0.5f, badgeFont.Size));
-                            scaledFont = new Font(badgeFont.FontFamily, fontSize, FontStyle.Bold);
-                        }
-                        using (scaledFont)
-                        {
-                            var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                            parentGraphics.DrawString(badgeText, scaledFont, textBrush, badgeRect, fmt);
-                        }
-                    }
-                }
-            };
+            Badge = badge;
+            return Badge;
         }
 
         /// <summary>
-        /// Creates a label and helper/error drawing handler that can be registered with AddChildExternalDrawing.
-        /// This is a helper method that creates a DrawExternalHandler for drawing labels and error/helper text.
+        /// Clears the new-style floating badge from this control.
         /// </summary>
-        /// <param name="labelText">The label text to display above the control</param>
-        /// <param name="helperText">The helper text to display below the control</param>
-        /// <param name="errorText">The error text to display below the control (takes precedence over helperText)</param>
-        /// <param name="labelLocation">The horizontal location of the label</param>
-        /// <param name="imageLocation">The location of the message image</param>
-        /// <param name="messageImagePath">Path to the message image (optional)</param>
-        /// <param name="showImage">Whether to show the image</param>
-        /// <param name="showHelperText">Whether to show helper text</param>
-        /// <param name="showErrorText">Whether to show error text</param>
-        /// <param name="labelColor">The label text color</param>
-        /// <param name="errorColor">The error text color</param>
-        /// <param name="helperColor">The helper text color</param>
-        /// <param name="font">The font to use for text</param>
-        /// <returns>A DrawExternalHandler that draws the label and helper/error text</returns>
-        public static DrawExternalHandler CreateLabelAndHelperDrawingHandler(
-            string labelText, string helperText, string errorText,
-            LabelLocation labelLocation = LabelLocation.Left,
-            ImageLocation imageLocation = ImageLocation.Top,
-            string messageImagePath = "",
-            bool showImage = false,
-            bool showHelperText = true,
-            bool showErrorText = true,
-            Color? labelColor = null,
-            Color? errorColor = null,
-            Color? helperColor = null,
-            Font font = null)
+        public void ClearBadge()
         {
-            return (Graphics parentGraphics, Rectangle childBounds) =>
+            SetBadge(null);
+        }
+
+        /// <summary>
+        /// Sets the validation state for this control, showing the appropriate icon, indicator line,
+        /// and error text in one call. Web-standard form validation pattern.
+        /// </summary>
+        /// <param name="state">The validation state (None clears all indicators).</param>
+        /// <param name="message">Optional error/helper message text.</param>
+        public void ShowValidation(TheTechIdea.Beep.Winform.Controls.Badges.ValidationState state, string? message = null)
+        {
+            var oldState = _validationIcon;
+
+            // Set fields directly to avoid multiple UpdateExternalDrawing calls
+            _validationIcon = state;
+
+            switch (state)
             {
-                if (parentGraphics == null) return;
+                case TheTechIdea.Beep.Winform.Controls.Badges.ValidationState.Error:
+                    _showIndicatorLine = true;
+                    _indicatorLineColor = ErrorColor;
+                    _indicatorLineThickness = 2;
+                    _indicatorLineStyle = IndicatorLineStyle.Solid;
+                    if (message is not null) ErrorText = message;
+                    break;
 
-                const int labelSpacing = 4;
-                const int errorSpacing = 4;
-                const int imageSize = 16;
-                const int imageSpacing = 4;
+                case TheTechIdea.Beep.Winform.Controls.Badges.ValidationState.Success:
+                    _showIndicatorLine = true;
+                    _indicatorLineColor = Color.FromArgb(40, 167, 69);
+                    _indicatorLineThickness = 2;
+                    _indicatorLineStyle = IndicatorLineStyle.Solid;
+                    if (message is not null) ErrorText = string.Empty;
+                    break;
 
-                // Use provided font or default
-                Font labelFont = font ?? new Font("Arial", 8, FontStyle.Regular);
-                Font helperFont = font ?? new Font("Arial", 8, FontStyle.Regular);
+                case TheTechIdea.Beep.Winform.Controls.Badges.ValidationState.Warning:
+                    _showIndicatorLine = true;
+                    _indicatorLineColor = Color.FromArgb(255, 152, 0);
+                    _indicatorLineThickness = 2;
+                    _indicatorLineStyle = IndicatorLineStyle.Solid;
+                    if (message is not null) ErrorText = string.Empty;
+                    break;
 
-                // Draw label above the control
-                if (!string.IsNullOrEmpty(labelText))
-                {
-                    float labelSize = Math.Max(7f, labelFont.Size - 2f);
-                    using var labelFontScaled = new Font(labelFont.FontFamily, labelSize, FontStyle.Regular);
-                    var labelHeight = TextRenderer.MeasureText(parentGraphics, "Ag", labelFontScaled, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                    
-                    int labelY = childBounds.Top - labelHeight - labelSpacing;
-                    TextFormatFlags labelFlags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
-                    
-                    switch (labelLocation)
-                    {
-                        case LabelLocation.Center:
-                            labelFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis;
-                            break;
-                        case LabelLocation.Right:
-                            labelFlags = TextFormatFlags.Right | TextFormatFlags.EndEllipsis;
-                            break;
-                    }
+                case TheTechIdea.Beep.Winform.Controls.Badges.ValidationState.Info:
+                    _showIndicatorLine = true;
+                    _indicatorLineColor = Color.FromArgb(33, 150, 243);
+                    _indicatorLineThickness = 1;
+                    _indicatorLineStyle = IndicatorLineStyle.Dashed;
+                    if (message is not null) ErrorText = string.Empty;
+                    break;
 
-                    int imageOffset = 0;
-                    if (showImage && !string.IsNullOrEmpty(messageImagePath) && imageLocation == ImageLocation.Left)
-                    {
-                        imageOffset = imageSize + imageSpacing;
-                    }
+                default:
+                    _showIndicatorLine = false;
+                    break;
+            }
 
-                    var labelRect = new Rectangle(
-                        childBounds.Left + imageOffset,
-                        labelY,
-                        Math.Max(10, childBounds.Width - imageOffset),
-                        labelHeight
-                    );
+            UpdateExternalDrawing();
+            OnValidationStateChanged(oldState, state, message);
+        }
 
-                    Color lblColor = labelColor ?? Color.Black;
-                    TextRenderer.DrawText(parentGraphics, labelText, labelFontScaled, labelRect, lblColor, labelFlags);
+        /// <summary>
+        /// Clears all validation indicators from this control.
+        /// </summary>
+        public void ClearValidation()
+        {
+            ShowValidation(TheTechIdea.Beep.Winform.Controls.Badges.ValidationState.None);
+        }
 
-                    // Draw message image if provided
-                    if (showImage && !string.IsNullOrEmpty(messageImagePath))
-                    {
-                        Rectangle imageRect = Rectangle.Empty;
-                        switch (imageLocation)
-                        {
-                            case ImageLocation.Top:
-                                imageRect = new Rectangle(childBounds.Left, labelY - imageSize / 2, imageSize, imageSize);
-                                break;
-                            case ImageLocation.Left:
-                                imageRect = new Rectangle(childBounds.Left, labelY + (labelHeight - imageSize) / 2, imageSize, imageSize);
-                                break;
-                            case ImageLocation.Right:
-                                imageRect = new Rectangle(childBounds.Right - imageSize, labelY + (labelHeight - imageSize) / 2, imageSize, imageSize);
-                                break;
-                        }
+        /// <summary>
+        /// Occurs when the validation state changes via ShowValidation.
+        /// </summary>
+        public event EventHandler<TheTechIdea.Beep.Winform.Controls.Badges.ValidationStateChangedEventArgs>? ValidationStateChanged;
 
-                        if (!imageRect.IsEmpty)
-                        {
-                            try
-                            {
-                                Styling.ImagePainters.StyledImagePainter.Paint(parentGraphics, imageRect, messageImagePath);
-                            }
-                            catch { }
-                        }
-                    }
-                }
-
-                // Draw helper or error text below the control
-                if (showHelperText || showErrorText)
-                {
-                    string supporting = !string.IsNullOrEmpty(errorText) ? errorText : helperText;
-                    if (!string.IsNullOrEmpty(supporting))
-                    {
-                        float supSize = Math.Max(7f, helperFont.Size - 2f);
-                        using var supportFont = new Font(helperFont.FontFamily, supSize, FontStyle.Regular);
-                        var supportHeight = TextRenderer.MeasureText(parentGraphics, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        
-                        int supportY = childBounds.Bottom + errorSpacing;
-                        var supportRect = new Rectangle(
-                            childBounds.Left + 6,
-                            supportY,
-                            Math.Max(10, childBounds.Width - 12),
-                            supportHeight
-                        );
-                        
-                        Color supportColor = !string.IsNullOrEmpty(errorText) 
-                            ? (errorColor ?? Color.Red)
-                            : (helperColor ?? Color.Gray);
-                        TextRenderer.DrawText(parentGraphics, supporting, supportFont, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-
-                        // Draw message image below if imageLocation is Bottom
-                        if (showImage && !string.IsNullOrEmpty(messageImagePath) && imageLocation == ImageLocation.Bottom)
-                        {
-                            Rectangle imageRect = new Rectangle(
-                                childBounds.Left,
-                                supportY + (supportHeight - imageSize) / 2,
-                                imageSize,
-                                imageSize
-                            );
-                            try
-                            {
-                                Styling.ImagePainters.StyledImagePainter.Paint(parentGraphics, imageRect, messageImagePath);
-                            }
-                            catch { }
-                        }
-                    }
-                }
-            };
+        /// <summary>
+        /// Raises the ValidationStateChanged event.
+        /// </summary>
+        protected virtual void OnValidationStateChanged(
+            TheTechIdea.Beep.Winform.Controls.Badges.ValidationState oldState,
+            TheTechIdea.Beep.Winform.Controls.Badges.ValidationState newState,
+            string? message)
+        {
+            if (oldState == newState) return;
+            try
+            {
+                ValidationStateChanged?.Invoke(this, new TheTechIdea.Beep.Winform.Controls.Badges.ValidationStateChangedEventArgs(oldState, newState, message));
+            }
+            catch { }
         }
         #endregion
 

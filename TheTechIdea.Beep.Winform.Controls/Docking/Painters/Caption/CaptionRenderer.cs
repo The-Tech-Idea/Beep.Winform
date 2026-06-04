@@ -50,7 +50,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
             if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
             {
                 using (var pen = _cache.GetPen(colors.TabBorderColor))
-                    g.DrawLine(pen, strip.Left, strip.Bottom - 1, strip.Right - 1, strip.Bottom - 1);
+                {
+                    switch (ctx.TabStyle)
+                    {
+                        case Models.TabStyle.VsCode:
+                            // Thin accent line below the active tab only — no full separator.
+                            break;
+                        case Models.TabStyle.VsIde2022:
+                            // Thick 2px separator with gradient edge.
+                            pen.Width = 2;
+                            g.DrawLine(pen, strip.Left, strip.Bottom - 2, strip.Right - 1, strip.Bottom - 2);
+                            break;
+                        case Models.TabStyle.Browser:
+                            // Top-border style separator.
+                            g.DrawLine(pen, strip.Left, 0, strip.Right - 1, 0);
+                            break;
+                        default:
+                            g.DrawLine(pen, strip.Left, strip.Bottom - 1, strip.Right - 1, strip.Bottom - 1);
+                            break;
+                    }
+                }
             }
         }
 
@@ -119,103 +138,291 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption
 
         private void PaintHorizontalTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
         {
-            var colors = ctx.Colors;
-            var flavor = ctx.Flavor;
-            Font font = SafeFont;
-
-            using var sf = new StringFormat
+            switch (ctx.TabStyle)
             {
-                LineAlignment = StringAlignment.Center,
-                Trimming = StringTrimming.EllipsisCharacter,
-                FormatFlags = StringFormatFlags.NoWrap
-            };
+                case Models.TabStyle.VsCode:     PaintVsCodeTabs(g, ctx, layout);    return;
+                case Models.TabStyle.VsIde2022:  PaintVsIde2022Tabs(g, ctx, layout); return;
+                case Models.TabStyle.JetBrains:  PaintJetBrainsTabs(g, ctx, layout); return;
+                case Models.TabStyle.Browser:    PaintBrowserTabs(g, ctx, layout);   return;
+                default:                         PaintDefaultTabs(g, ctx, layout);   return;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  Default — flat square tabs with separator line
+        // ════════════════════════════════════════════════════════════════════
+        private void PaintDefaultTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            var colors = ctx.Colors;
+            Font font = SafeFont;
+            using var sf = TabStringFormat();
+            foreach (var kv in layout.TabRects)
+            {
+                var tab = kv.Key;
+                var r = kv.Value;
+                bool active = tab.IsActive;
+                Color back = active ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color fore = active ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
+
+                // Hover — lighten the background
+                if (!active && tab == layout.HoveredTab)
+                    back = ControlPaint.Light(back, 0.10f);
+
+                using (var brush = _cache.GetBrush(back))
+                    g.FillRectangle(brush, r);
+
+                // Border
+                using (var pen = _cache.GetPen(colors.TabBorderColor))
+                    g.DrawRectangle(pen, r.X, r.Y, r.Width - 1, r.Height - 1);
+
+                // Active accent bar (bottom)
+                if (active)
+                {
+                    var accent = new Rectangle(r.Left + 1, r.Bottom - 2, r.Width - 2, 2);
+                    using var ab = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(ab, accent);
+                }
+
+                DrawTabContent(g, r, tab, fore, font, sf, colors);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  VsCode — pill tabs, no borders, hover fill, bottom accent
+        // ════════════════════════════════════════════════════════════════════
+        private void PaintVsCodeTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            var colors = ctx.Colors;
+            Font font = SafeFont;
+            using var sf = TabStringFormat();
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             foreach (var kv in layout.TabRects)
             {
-                CaptionTabModel tab = kv.Key;
-                Rectangle tabRect = kv.Value;
+                var tab = kv.Key;
+                var r = kv.Value;
+                bool active = tab.IsActive;
+                bool hover = tab == layout.HoveredTab;
+                Color back = active ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color fore = active ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
 
-                Color tabBack = tab.IsActive ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
-                Color tabFore = tab.IsActive ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
-                bool showIcon = DockingCaptionPainter.HasTabIcon(tab.IconPath);
+                // Inactive + hover: subtle fill
+                if (hover && !active)
+                    back = ControlPaint.Light(back, 0.08f);
 
-                PaintTabBackground(g, tabRect, tabBack, flavor);
+                // Pill shape
+                var pillRect = new Rectangle(r.X + 2, r.Y + 3, r.Width - 4, r.Height - 6);
+                if (pillRect.Width < 4 || pillRect.Height < 4) pillRect = r;
 
-                if (flavor.TabBorderStyle == DockingTabBorderStyle.Rectangle)
+                using (var path = RoundedRectPath(pillRect, pillRect.Height / 2))
+                using (var brush = _cache.GetBrush(back))
+                    g.FillPath(brush, path);
+
+                // Active: bottom accent bar
+                if (active)
                 {
-                    using var pen = _cache.GetPen(colors.TabBorderColor);
-                    if (flavor.TabCornerRadius > 0)
-                    {
-                        using var path = RoundedRectPath(tabRect, flavor.TabCornerRadius);
-                        g.DrawPath(pen, path);
-                    }
-                    else
-                    {
-                        g.DrawRectangle(pen, tabRect.X, tabRect.Y, System.Math.Max(0, tabRect.Width - 1), System.Math.Max(0, tabRect.Height - 1));
-                    }
+                    var accentRect = new Rectangle(pillRect.Left + 4, pillRect.Bottom - 2, pillRect.Width - 8, 2);
+                    using (var path = RoundedRectPath(accentRect, 1))
+                    using (var ab = _cache.GetBrush(colors.AccentColor))
+                        g.FillPath(ab, path);
                 }
 
-                if (tab.IsActive)
+                DrawTabContent(g, pillRect, tab, fore, font, sf, colors);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  VsIde2022 — sharp tabs, gradient header, thick accent, hover glow
+        // ════════════════════════════════════════════════════════════════════
+        private void PaintVsIde2022Tabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            var colors = ctx.Colors;
+            Font font = SafeFont;
+            using var sf = TabStringFormat();
+
+            foreach (var kv in layout.TabRects)
+            {
+                var tab = kv.Key;
+                var r = kv.Value;
+                bool active = tab.IsActive;
+                bool hover = tab == layout.HoveredTab;
+                Color back = active ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color fore = active ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
+
+                // Active tab bleeds into the header (top edge fully colored)
+                if (active) r = new Rectangle(r.X, 0, r.Width, r.Height + r.Y);
+
+                // Hover: glow effect via lighter fill
+                if (hover && !active)
+                    back = ControlPaint.Light(back, 0.12f);
+
+                // Gradient background for active tab
+                if (active)
                 {
-                    if (flavor.UseTonalElevation)
-                    {
-                        var tint = BlendTowards(tabBack, ControlPaint.Light(tabBack, 0.18f), 0.35f);
-                        using var elevationBrush = _cache.GetBrush(Color.FromArgb(40, tint));
-                        if (flavor.TabCornerRadius > 0)
-                        {
-                            using var p = RoundedRectPath(tabRect, flavor.TabCornerRadius);
-                            g.FillPath(elevationBrush, p);
-                        }
-                        else
-                        {
-                            g.FillRectangle(elevationBrush, tabRect);
-                        }
-                    }
-                    if (flavor.ActiveTabAccentWidth > 0)
-                    {
-                        int accentH = flavor.ActiveTabAccentWidth;
-                        var accentRect = new Rectangle(
-                            tabRect.Left + 2,
-                            tabRect.Bottom - accentH,
-                            System.Math.Max(0, tabRect.Width - 4),
-                            accentH);
-                        using var accentBrush = _cache.GetBrush(colors.AccentColor);
-                        g.FillRectangle(accentBrush, accentRect);
-                    }
+                    var dark = ControlPaint.Dark(back, 0.08f);
+                    using var gradient = new System.Drawing.Drawing2D.LinearGradientBrush(
+                        r, back, dark, System.Drawing.Drawing2D.LinearGradientMode.Vertical);
+                    g.FillRectangle(gradient, r);
+                }
+                else
+                {
+                    using var brush = _cache.GetBrush(back);
+                    g.FillRectangle(brush, r);
                 }
 
-                if (showIcon)
-                    DockingCaptionPainter.PaintTabIcon(g, tabRect, tab.IconPath, tabFore);
-
-                int textLeft = tabRect.Left + DockingCaptionPainter.GetTabContentLeft(showIcon);
-                var textRect = new Rectangle(
-                    textLeft,
-                    tabRect.Top,
-                    System.Math.Max(0, tabRect.Right - textLeft - DockingCaptionPainter.TabTextPadding),
-                    tabRect.Height);
-
-                using (var brush = _cache.GetBrush(tabFore))
-                    g.DrawString(tab.Title ?? "Panel", font, brush, textRect, sf);
-
-                if (tab.IsDirty)
+                // Border (no left/right border for adjacent tabs)
+                using (var pen = _cache.GetPen(colors.TabBorderColor))
                 {
-                    var dot = new Rectangle(tabRect.Right - 8, tabRect.Top + 6, 5, 5);
-                    using var dirtyBrush = _cache.GetBrush(colors.ActiveTabBackColor);
-                    g.FillEllipse(dirtyBrush, dot);
+                    g.DrawLine(pen, r.Left, r.Bottom - 1, r.Right - 1, r.Bottom - 1);
+                    if (active)
+                        g.DrawLine(pen, r.Left, r.Top, r.Right - 1, r.Top);
                 }
 
-                if (ctx.IsDesignTime && tab.IsActive)
+                // Thick accent bar on active tab
+                if (active)
                 {
-                    using var selectPen = new Pen(colors.ActiveTabBackColor)
-                    {
-                        DashStyle = DashStyle.Dot,
-                        Width = 1
-                    };
-                    g.DrawRectangle(selectPen,
-                        tabRect.X + 1, tabRect.Y + 1,
-                        System.Math.Max(0, tabRect.Width - 3),
-                        System.Math.Max(0, tabRect.Height - 3));
+                    var accent = new Rectangle(r.Left, r.Bottom - 3, r.Width, 3);
+                    using var ab = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(ab, accent);
                 }
+
+                // Hover underline for inactive
+                if (hover && !active)
+                {
+                    var ul = new Rectangle(r.Left + 4, r.Bottom - 1, r.Width - 8, 1);
+                    using var hb = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(hb, ul);
+                }
+
+                DrawTabContent(g, r, tab, fore, font, sf, colors);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  JetBrains — clean rectangular, top accent, subtle hover
+        // ════════════════════════════════════════════════════════════════════
+        private void PaintJetBrainsTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            var colors = ctx.Colors;
+            Font font = SafeFont;
+            using var sf = TabStringFormat();
+
+            foreach (var kv in layout.TabRects)
+            {
+                var tab = kv.Key;
+                var r = kv.Value;
+                bool active = tab.IsActive;
+                bool hover = tab == layout.HoveredTab;
+                Color back = active ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color fore = active ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
+
+                // Hover: very subtle fill
+                if (hover && !active)
+                    back = ControlPaint.Light(back, 0.06f);
+
+                // Background with subtle rounding
+                int rnd = 2;
+                using (var path = RoundedRectPath(r, rnd))
+                using (var brush = _cache.GetBrush(back))
+                    g.FillPath(brush, path);
+
+                // Active: top accent bar
+                if (active)
+                {
+                    var accent = new Rectangle(r.Left, r.Top, r.Width, 2);
+                    using (var path = RoundedRectPath(accent, 1))
+                    using (var ab = _cache.GetBrush(colors.AccentColor))
+                        g.FillPath(ab, path);
+                }
+                // Hover: top dot indicator
+                else if (hover)
+                {
+                    var dot = new Rectangle(r.Left + r.Width / 2 - 3, r.Top, 6, 2);
+                    using var hb = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(hb, dot);
+                }
+
+                DrawTabContent(g, r, tab, fore, font, sf, colors);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  Browser — trapezoid tabs (rounded top, flat bottom), dark separator
+        // ════════════════════════════════════════════════════════════════════
+        private void PaintBrowserTabs(Graphics g, DockingPainterContext ctx, CaptionLayoutManager layout)
+        {
+            var colors = ctx.Colors;
+            Font font = SafeFont;
+            using var sf = TabStringFormat();
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            foreach (var kv in layout.TabRects)
+            {
+                var tab = kv.Key;
+                var r = kv.Value;
+                bool active = tab.IsActive;
+                bool hover = tab == layout.HoveredTab;
+                Color back = active ? colors.ActiveTabBackColor : colors.InactiveTabBackColor;
+                Color fore = active ? colors.ActiveTabForeColor : colors.InactiveTabForeColor;
+
+                // Hover: warm fill
+                if (hover && !active)
+                    back = ControlPaint.Light(back, 0.15f);
+
+                // Trapezoid: top-rounded, flat bottom
+                int rnd = 6;
+                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    path.AddArc(r.X, r.Y, rnd * 2, rnd * 2, 180, 90);
+                    path.AddArc(r.Right - rnd * 2, r.Y, rnd * 2, rnd * 2, 270, 90);
+                    path.AddLine(r.Right - 1, r.Bottom - 1, r.X + 1, r.Bottom - 1);
+                    path.CloseFigure();
+                    using var brush = _cache.GetBrush(back);
+                    g.FillPath(brush, path);
+                }
+
+                // Bottom separator line (thick, dark)
+                using (var pen = _cache.GetPen(colors.TabBorderColor, 1.5f))
+                    g.DrawLine(pen, 0, r.Bottom - 1, r.Right, r.Bottom - 1);
+
+                // Active tab: accent tint at top
+                if (active)
+                {
+                    var tintRect = new Rectangle(r.X + 2, r.Y, r.Width - 4, 3);
+                    using var tb = _cache.GetBrush(colors.AccentColor);
+                    g.FillRectangle(tb, tintRect);
+                }
+
+                DrawTabContent(g, r, tab, fore, font, sf, colors);
+            }
+        }
+
+        private static StringFormat TabStringFormat() => new StringFormat
+        {
+            LineAlignment = StringAlignment.Center,
+            Trimming = StringTrimming.EllipsisCharacter,
+            FormatFlags = StringFormatFlags.NoWrap
+        };
+
+        private void DrawTabContent(Graphics g, Rectangle r, CaptionTabModel tab, Color fore, Font font, StringFormat sf, DockingThemeColors colors)
+        {
+            bool showIcon = DockingCaptionPainter.HasTabIcon(tab.IconPath);
+            if (showIcon)
+                DockingCaptionPainter.PaintTabIcon(g, r, tab.IconPath, fore);
+
+            int textLeft = r.Left + DockingCaptionPainter.GetTabContentLeft(showIcon);
+            var textRect = new Rectangle(
+                textLeft, r.Top,
+                Math.Max(0, r.Right - textLeft - DockingCaptionPainter.TabTextPadding),
+                r.Height);
+            using (var brush = _cache.GetBrush(fore))
+                g.DrawString(tab.Title ?? "Panel", font, brush, textRect, sf);
+
+            if (tab.IsDirty)
+            {
+                var dot = new Rectangle(r.Right - r.Height / 2 - 3, r.Top + r.Height / 2 - 2, 5, 5);
+                using var dirtyBrush = _cache.GetBrush(colors.AccentColor);
+                g.FillEllipse(dirtyBrush, dot);
             }
         }
 

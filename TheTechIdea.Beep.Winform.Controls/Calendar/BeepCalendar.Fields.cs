@@ -15,12 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private readonly CalendarRects _rects = new CalendarRects();
         private CalendarLayoutManager _layout;
         private CalendarEventService _eventService;
-        private CalendarRenderer _renderer;
+        private CalendarSurfaceModel _surfaceModel;
 
-        // Painter system
-        private ICalendarStylePainter _stylePainter;
+        // Per-view painter (one per CalendarViewMode, swapped by ViewPainterFactory)
+        private ICalendarViewPainter _viewPainter;
         private BeepControlStyle _calendarStyle = BeepControlStyle.Material3;
-        private bool _usePainterSystem = true;
 
         // Hover tracking
         private DateTime? _hoveredDate;

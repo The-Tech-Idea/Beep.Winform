@@ -117,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 SplitOrientation = group.SplitOrientation,
                 SplitRatio = group.SplitRatio,
                 ActivePanelKey = group.ActivePanel?.Key,
-                TabStyle = group.TabStyle
+                HeaderPosition = group.HeaderPosition
             };
 
             foreach (var panel in group.Panels)
@@ -165,9 +165,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     root.AddChild(BuildGroup(groupDef));
             }
 
-            // Sync dockspace TabPosition from restored group TabStyle values.
+            // Sync dockspace TabPosition from restored group HeaderPosition values.
             foreach (var group in root.Children)
-                SyncDockspaceTabStyle(group);
+                SyncDockspaceHeaderPosition(group);
 
             if (def.Floating != null)
             {
@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 SplitOrientation = def.SplitOrientation,
                 SplitRatio = def.SplitRatio,
                 RatioInitialized = true,
-                TabStyle = def.TabStyle
+                HeaderPosition = def.HeaderPosition
             };
             _layoutTree.RegisterGroup(group);
 
@@ -251,14 +251,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         /// <summary>Runtime convenience: apply a previously captured layout definition.</summary>
         public void LoadLayout(DockLayoutDefinition definition) => MaterializeFromDefinition(definition);
 
-        private void SyncDockspaceTabStyle(DockGroup group)
+        private void SyncDockspaceHeaderPosition(DockGroup group)
         {
             if (group == null || _hostForm == null) return;
             var ds = FindDockspaceAt(_hostForm, group.Position);
             if (ds != null)
-                ds.TabPosition = group.TabStyle;
+                ds.TabPosition = group.HeaderPosition;
             foreach (var child in group.Children)
-                SyncDockspaceTabStyle(child);
+                SyncDockspaceHeaderPosition(child);
         }
     }
 }

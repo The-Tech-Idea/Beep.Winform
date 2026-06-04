@@ -551,6 +551,83 @@
 
 ---
 
+---
+
+## BeepCalendar Commercialization Program (Design-Time)
+
+*Goal: elevate BeepCalendar's design-time surface to BeepGridPro / BeepBlock quality — smart-tag, Property Grid collection editors, right-click verbs, and design-time tests.*
+
+*Supporting designs: `TheTechIdea.Beep.Winform.Controls/Calendar/plans/` (Phase 1-4) plus the phases below.*
+
+### Phase C0 — Stop the Bleeding (Designer Fix)
+- [x] Remove dead `ShowWeekNumbers` / `ShowTodayButton` property items from `BeepCalendarActionList.GetSortedActionItems()` — these properties did not exist on `BeepCalendar`
+- [x] Remove dead property accessors from the action list class
+- [x] Verify: `dotnet build` → 0 errors on both Controls and Design.Server projects
+
+### Phase C1 — Designer-Surface Property Expansion (25 properties)
+- [x] Add `BeepCalendar.Core.PublicApi.DesignerSurface.cs` partial with 25 new `[Category("Appearance|Behavior")]` properties
+  - [x] Toolbar: `ShowWeekNumbers`, `ShowTodayButton`, `ShowNavigationButtons`, `ShowViewSelector`, `ShowSearchBox`
+  - [x] Week config: `FirstDayOfWeek`, `WorkDays` (new `[Flags] DaysOfWeek` enum on `BeepCalendar.Types.cs`)
+  - [x] Interaction toggles: `ReadOnly`, `AllowDragCreate`, `AllowEventMove`, `AllowEventResize`
+  - [x] Time/date formatting: `TimeFormat`, `DateFormat`
+  - [x] Slot gutter: `TimeInterval`, `SlotLabelInterval`, `BusinessHourStart`, `BusinessHourEnd`
+  - [x] View layout: `ShowAllDayArea`, `ShowTimeGutter`, `ShowMinutes`, `Show24Hours`
+  - [x] Constraints: `MinAppointmentDuration`, `MaxAppointmentDuration`, `SnapToGrid`
+  - [x] Highlighting: `HighlightToday`
+- [x] Add backing fields to `BeepCalendar.Fields.cs`
+- [x] Verify: 0 build errors; all 25 properties discoverable via `TypeDescriptor.GetProperties`
+
+### Phase C2 — Collection Editors (Events, Categories, Resources)
+- [x] `Editors/CalendarEventCollectionEditor.cs` — `UITypeEditor` opening `CalendarEventEditorDialog`
+- [x] `Editors/CalendarEventEditorDialog.cs` — code-built `Form`; `ListView` (Title|Start|End) + `PropertyGrid`; Add/Remove/Duplicate/OK/Cancel
+- [x] `Editors/EventCategoryCollectionEditor.cs` + `EventCategoryEditorDialog.cs` — ListView + PropertyGrid + Add/Remove/MoveUp/MoveDown
+- [x] `Editors/CalendarResourceCollectionEditor.cs` + `CalendarResourceEditorDialog.cs` — same pattern for `CalendarResource`
+- [x] Wire `[Editor("...Design.Server...", typeof(UITypeEditor))]` on `Events`, `Categories`, `Resources` properties
+- [x] Verify: 0 build errors; `[Editor]` attributes discoverable via reflection
+
+### Phase C3 — Smart-Tag Action List Parity
+- [x] Quick Configuration: 6 `ConfigureAs*` methods (Month/Week/WorkWeek/Day/Agenda/Timeline) + `ViewMode` picker
+- [x] Sample Data: `AddSampleData` (8 events, 3 categories, 2 resources) + `ClearAllData`
+- [x] Data Editors: `EditEvents`, `EditCategories`, `EditResources` (open respective collection dialogs)
+- [x] Behavior `DesignerActionPropertyItem`: `ReadOnly`, `AllowDragCreate`, `AllowEventMove`, `AllowEventResize`, `SnapToGrid`, `InteractionSnapIntervalMinutes`, `FirstDayOfWeek`, `ConflictPolicyMode`, `DensityMode`
+- [x] Appearance `DesignerActionPropertyItem`: `CalendarStyle`, `ShowSidebar`, `ShowTodayButton`, `ShowNavigationButtons`, `ShowViewSelector`, `ShowWeekNumbers`, `HighlightToday`, `ShowAllDayArea`, `ShowTimeGutter`, `ShowMinutes`, `Show24Hours`, `TimeFormat`, `DateFormat`, `TimeInterval`, `BusinessHourStart`, `BusinessHourEnd`
+- [x] Theme verbs: `ApplyTheme` (calls `_designer.ApplyTheme()`), `ChooseTheme` (reuses `ThemePickerDialog`), `ChooseStyle` (reuses `StyleSelectorDialog`)
+- [x] `ResetToDefaults` method — resets all ~25 properties to their defaults
+- [x] Verify: 0 build errors; smart-tag surfaces ~35 items across 6 sections
+
+### Phase C4 — Verbs (Right-Click Context Menu)
+- [x] Add `Verbs` override to `BeepCalendarDesigner` with 6 `DesignerVerb` entries:
+  - `Edit Events…`, `Edit Categories…`, `Edit Resources…`, `Add Sample Data`, `Clear All Data`, `Reset to Defaults`
+- [x] Cached `_actionList` field avoids re-creating action list per verb call
+- [x] Verify: 0 build errors; `new BeepCalendarDesigner().Verbs.Count >= 6`
+
+### Phase C5 — Design-Time Tests
+- [x] 5 xUnit tests in `TheTechIdea.Beep.Winform.Controls.Tests/Calendar/BeepCalendarDesignerTests.cs`:
+  - [x] `BeepCalendar_Events_HasCollectionEditor` — verifies `[Editor]` attribute
+  - [x] `BeepCalendar_Categories_HasCollectionEditor` — verifies `[Editor]` attribute
+  - [x] `BeepCalendar_Resources_HasCollectionEditor` — verifies `[Editor]` attribute
+  - [x] `BeepCalendar_DesignerSurfaceProperties_ExistOnType` — asserts all 20 new properties exist on type
+  - [x] `BeepCalendar_DesignTimeEvents_Exist` — asserts all 7 design-time events exist
+- [x] All 5 tests pass (0 failed)
+- [ ] (Optional) `Samples/BeepCalendarSampleForm.cs` — deferred for future sample project
+- [ ] (Optional) Update `Help/controls/beep-calendar.html` and `Help/design-time/beepcalendardesigner.html` — deferred
+
+### Cross-Phase Governance
+- [x] Keep `MASTER-TODO-TRACKER.md` in sync after each phase
+- [ ] Update `Calendar/Readme.md` with design-time features — deferred
+- [ ] Validate no regressions in existing Calendar runtime paths — deferred
+
+### Build Verification
+- [x] `dotnet build TheTechIdea.Beep.Winform.Controls.csproj` → 0 errors after each phase
+- [x] `dotnet build TheTechIdea.Beep.Winform.Controls.Design.Server.csproj` → 0 errors after each phase
+- [x] `dotnet test` (Calendar-filtered) → 5 passed, 0 failed
+
+### Files Created / Modified
+- **New (10):** `BeepCalendar.Core.PublicApi.DesignerSurface.cs`, `CalendarEventCollectionEditor.cs`, `CalendarEventEditorDialog.cs`, `EventCategoryCollectionEditor.cs`, `EventCategoryEditorDialog.cs`, `CalendarResourceCollectionEditor.cs`, `CalendarResourceEditorDialog.cs`, `BeepCalendarDesignerTests.cs`
+- **Modified (4):** `BeepCalendarDesigner.cs`, `BeepCalendar.Core.PublicApi.cs`, `BeepCalendar.Fields.cs`, `BeepCalendar.Types.cs`
+
+---
+
 ## Priority Order (One-By-One Execution)
 
 Controls below are sorted by importance. Work through top-to-bottom.

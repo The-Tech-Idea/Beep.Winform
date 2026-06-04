@@ -27,6 +27,39 @@ Scope: Foundation and core contracts
 - [ ] PageUp/PageDown uses command-driven period navigation.
 - [ ] View switches (Month/Week/Day/List) keep layout consistent.
 
+## Pipeline Consolidation (W5 - Phase 6)
+
+- [ ] Only one paint path executes: `_viewPainter.Paint(g, args)` from `BeepCalendar.Painting.Pipeline.cs:12 DrawWithPainter`; no call sites to `DrawWithLegacyRenderer`.
+- [ ] Per-view `ICalendarViewPainter` files exist in `Rendering/ViewPainters/`: `MonthViewPainter.cs`, `WeekViewPainter.cs`, `WorkWeekViewPainter.cs`, `DayViewPainter.cs`, `AgendaViewPainter.cs`, `TimelineViewPainter.cs`, `ListViewPainter.cs`.
+- [ ] `Rendering/ICalendarViewRenderer.cs`, `CalendarRenderer.cs`, `CalendarRenderContext.cs`, `CommonDrawing.cs`, `*ViewRenderer.cs` files are deleted from the project.
+- [ ] `Rendering/ICalendarStylePainter.cs`, `StylePainters/MaterialCalendarPainter.cs`, `StylePainters/MinimalCalendarPainter.cs`, `StylePainters/` directory, `CalendarPainterFactory.cs` are deleted from the project (style painter hierarchy is gone).
+- [ ] `_usePainterSystem` field, `UsePainterSystem` property, `_stylePainter` field are removed from `BeepCalendar`.
+- [ ] `_renderer` field and `_renderer.HandleClick(...)` call in `OnMouseClick` are removed.
+- [ ] 12+ empty / stub partial files are deleted (Painting.Views, Painting.Helpers, Invalidation, HitTesting.Views, Pointer, Commands, EventOperations.Crud, EventOperations.Public, Core, LayoutTheme.Controls, LayoutTheme.ResponsiveLabels, LayoutTheme.ResponsiveLabels.Assignments, Painting.DesignTime).
+- [ ] `CalendarSurfaceModel` is built once per `UpdateLayout` and consumed by all view painters and view-painter hit-test methods.
+- [ ] `ViewPaintArgs` exposes `ApplyTheme(IBeepTheme)` and `ApplyThemeFonts()`; `BeepCalendar.ApplyTheme` calls both; `CalendarStyleMetrics.For(BeepControlStyle)` resolves the default `IBeepTheme` for the style via `BeepThemesManager.GetThemeNameForFormStyle(FormStyle)`.
+- [ ] View painters use `StyledImagePainter` + `SvgsUIcons` for icon painting.
+- [ ] Month / Week / WorkWeek / Day / Agenda / Timeline / List views produce identical screenshots before and after the consolidation (delta within 1 px).
+
+## Editor Layer (W6 - Phase 6)
+
+- [ ] `Editor/CalendarEditorHost.cs`, `Editor/CalendarEditorLayer.cs`, `Editor/CalendarEditorDescriptor.cs`, `Editor/HostedEditor.cs`, `Editor/CalendarEditorPool.cs` exist in the project.
+- [ ] `BeepCalendar` overrides `AllowBaseControlClear => false` and `IsContainerControl => true`.
+- [ ] `BeepCalendar` overrides BOTH `OnPaint` and `OnPaintBackground`; each applies `Region.Exclude(_editorLayer.Bounds)` and restores the previous `Graphics.Clip` in a `finally`.
+- [ ] `_editorLayer` is a single child of `BeepCalendar.Controls`; its `BackColor` is `Color.Transparent` and `SupportsTransparentBackColor` is enabled.
+- [ ] `BeepCalendar.BeginEdit(event, "title")` activates an inline `BeepTextBox` in the editor layer; the painted calendar surface is not over-drawn under the editor.
+- [ ] `BeepCalendar.EndEdit(true)` raises `EditCommitted`; `EndEdit(false)` raises `EditCancelled`.
+- [ ] Double-clicking an event opens the inline title editor; Enter commits; Esc cancels.
+- [ ] The editor does not appear in the host form's `designer.cs` (Site = null + `[DesignerSerializationVisibility(Hidden)]`, or equivalent).
+- [ ] XUnit tests in `Beep.Winform.Controls.Tests/Calendar/BeepCalendarTests_EditorLayer.cs` all pass:
+  - `BeginEdit_AddsHostedEditorToLayer`
+  - `OnPaint_ClipsAroundEditorLayer`
+  - `OnPaintBackground_ClipsAroundEditorLayer`
+  - `EndEdit_RaisesEditCommitted`
+  - `EndEdit_Cancel_RaisesEditCancelled`
+  - `DoubleClick_SelectedEvent_OpensInlineTitleEditor`
+- [ ] Manual demo screenshot captured: `BeepCalendar` with one event in week view, double-clicked, `BeepTextBox` visible over the event block, typed text appears in the editor.
+
 ## Baseline Screenshot Matrix
 
 Capture screenshots for each row and record file paths.

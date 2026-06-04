@@ -335,6 +335,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     externalDrawingProvider.ClearChildExternalDrawing(this);
                 }
 
+                // Detach floating badge
+                if (_badge is not null)
+                {
+                    try { _badge.Detach(); } catch { }
+                    _badge = null;
+                }
+
+                _previousParent = null;
+                _previousParentTracked = false;
+
                 // Unsubscribe from theme changes
                 if (_subscribedToThemeChanged)
                 {
@@ -353,6 +363,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _cachedParentBackground?.Dispose();
                 _cachedParentBackground = null;
                 _parentBackgroundCacheValid = false;
+
+                // Dispose badge font
+                _badgeFont?.Dispose();
+                _badgeFont = null!;
 
                 // Unsubscribe from child dispose events before base tears down children.
                 foreach (Control child in Controls)

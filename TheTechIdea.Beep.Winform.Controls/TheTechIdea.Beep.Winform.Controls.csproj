@@ -73,6 +73,11 @@
 	  <EmbeddedResource Include="GFX\streamingsports\*.*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="BeepDateTimePicker\**" />
+    <EmbeddedResource Remove="BeepDateTimePicker\**" />
+    <None Remove="BeepDateTimePicker\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="GFX\Shapes\001-semicircle-2.svg" />
     <None Remove="GFX\Shapes\002-triangle-1.svg" />
     <None Remove="GFX\Shapes\003-square-1.svg" />
@@ -4666,7 +4671,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BaseImage\Helpers\" />
-    <Folder Include="BeepDateTimePicker\" />
     <Folder Include="Buttons\BeepAdvancedButton\Samples\" />
     <Folder Include="ComboBoxes\Helpers\" />
     <Folder Include="ComboBoxes\.plans\" />

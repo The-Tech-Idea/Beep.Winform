@@ -1,8 +1,23 @@
 using System;
-using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 {
+    /// <summary>
+    /// Visual state for a single day cell in the month view. Built once per
+    /// day-cell draw and consumed by <c>MonthViewPainter</c>.
+    /// </summary>
+    public sealed class DayCellState
+    {
+        public bool IsCurrentMonth { get; set; }
+        public bool IsToday { get; set; }
+        public bool IsSelected { get; set; }
+        public bool IsHovered { get; set; }
+        public bool IsWeekend { get; set; }
+        public bool IsFocused { get; set; }
+        public int EventCount { get; set; }
+        public bool HasMoreEvents { get; set; }
+    }
+
     internal static class CalendarViewStateHelper
     {
         public static DayCellState BuildDayCellState(

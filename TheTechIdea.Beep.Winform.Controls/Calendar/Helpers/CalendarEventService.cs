@@ -7,9 +7,12 @@ using TheTechIdea.Beep.Winform.Controls.Calendar;
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 {
     /// <summary>
-    /// Service for querying calendar events with per-paint-cycle caching
+    /// Service for querying calendar events with per-paint-cycle caching.
+    /// Public so the per-view <c>ICalendarViewPainter</c> implementations
+    /// (under <c>Calendar.Rendering.ViewPainters</c>) can consume the
+    /// same event cache that <c>BeepCalendar</c> uses.
     /// </summary>
-    internal class CalendarEventService
+    public class CalendarEventService
     {
         private readonly List<CalendarEvent> _events;
         

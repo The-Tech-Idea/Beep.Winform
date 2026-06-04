@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters.AutoHide
                 using (var brush = _cache.GetBrush(tabBack))
                     g.FillRectangle(brush, rect);
 
-                using (var pen = new Pen(colors.TabBorderColor))
+                using (var pen = _cache.GetPen(colors.TabBorderColor))
                     g.DrawRectangle(pen, rect.X, rect.Y, Math.Max(0, rect.Width - 1), Math.Max(0, rect.Height - 1));
 
                 PaintTab(g, rect, tab, tabFore, font, layout);

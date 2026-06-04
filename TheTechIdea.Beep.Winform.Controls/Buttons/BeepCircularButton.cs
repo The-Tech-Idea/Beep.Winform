@@ -689,59 +689,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
         }
 
         #region "Badge"
-        private BaseControl _lastBeepParent;
-
-        protected override void OnParentChanged(EventArgs e)
-        {
-            base.OnParentChanged(e);
-
-            if (_lastBeepParent != null)
-                _lastBeepParent.ClearChildExternalDrawing(this);
-
-            if (Parent is BaseControl newBeepParent)
-            {
-                newBeepParent.AddChildExternalDrawing(
-                    this,
-                    DrawBadgeExternally,
-                    DrawingLayer.AfterAll
-                );
-            }
-
-            _lastBeepParent = Parent as BaseControl;
-        }
-
-        private void DrawBadgeExternally(Graphics g, Rectangle childBounds)
-        {
-            if (string.IsNullOrEmpty(BadgeText))
-                return;
-
-            int badgeSize = DpiScalingHelper.ScaleValue(22, this);
-            int x = childBounds.Right - badgeSize / 2;
-            int y = childBounds.Y - badgeSize / 2;
-            var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
-
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-            Color badgeBackColor = BadgeBackColor != Color.Empty ? BadgeBackColor : (_currentTheme?.BadgeBackColor ?? _currentTheme?.AccentColor ?? ColorUtils.MapSystemColor(SystemColors.Highlight));
-            using (var brush = new SolidBrush(badgeBackColor))
-            {
-                g.FillEllipse(brush, badgeRect);
-            }
-
-            if (!string.IsNullOrEmpty(BadgeText))
-            {
-                Color badgeForeColor = BadgeForeColor != Color.Empty ? BadgeForeColor : (_currentTheme?.BadgeForeColor ?? (badgeBackColor.GetBrightness() > 0.5 ? Color.Black : Color.White));
-                using var textBrush = new SolidBrush(badgeForeColor);
-                using Font badgeFont = (BadgeFont ?? TextFont) ?? SystemFonts.DefaultFont;
-                var fmt = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(BadgeText, badgeFont, textBrush, badgeRect, fmt);
-            }
-        }
+        // Badge is now handled by the BaseControl BadgeText property which auto-creates a BeepCounterBadge.
+        // No manual external drawing registration needed.
         #endregion "Badge"
 
         protected override void Dispose(bool disposing)

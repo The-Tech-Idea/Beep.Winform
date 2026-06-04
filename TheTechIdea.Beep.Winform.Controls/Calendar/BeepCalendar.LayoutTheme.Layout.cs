@@ -23,6 +23,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             int sidebarWidth = GetResponsiveSidebarWidth(contentRect.Width);
             _layout.UpdateLayout(contentRect, toolbarHeight, sidebarWidth, ScaleMetric(Math.Max(0, GridLeftGutter)), GetMetricScale());
 
+            // Build the immutable surface model for this layout. Painters and
+            // hit-test helpers consume this snapshot rather than recomputing
+            // geometry on every call.
+            var metrics = CalendarStyleMetrics.For(_calendarStyle);
+            _surfaceModel = CalendarSurfaceModel.Build(
+                _state, _rects,
+                ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight),
+                ScaleMetric(CalendarLayoutMetrics.TimeColumnWidth),
+                ScaleMetric(CalendarLayoutMetrics.TimeSlotHeight),
+                ScaleMetric(CalendarLayoutMetrics.EventInsetX),
+                ScaleMetric(CalendarLayoutMetrics.EventInsetY),
+                ScaleMetric(CalendarLayoutMetrics.MinEventHitHeight),
+                ScaleMetric(16),                     // event bar height
+                ScaleMetric(2),                      // event spacing
+                ScaleMetric(CalendarLayoutMetrics.SidebarPadding),
+                ScaleMetric(CalendarLayoutMetrics.SidebarCardHeight),
+                ScaleMetric(CalendarLayoutMetrics.SidebarCardGap),
+                ScaleMetric(CalendarLayoutMetrics.ListRowHeight),
+                ScaleMetric(CalendarLayoutMetrics.ListRowSpacing),
+                ScaleMetric(metrics.CornerRadius),
+                ScaleMetric(metrics.CellPadding),
+                CalendarLayoutMetrics.MaxEventsPerCell,
+                Math.Max(0, HeaderLeftPadding),
+                CalendarLayoutMetrics.HeaderRightPadding);
+
             LayoutToolbar(_rects.HeaderRect, _rects.ViewSelectorRect);
             Invalidate();
         }

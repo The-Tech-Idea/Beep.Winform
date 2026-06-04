@@ -761,7 +761,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string LabelText
         {
             get => _labelText;
-            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
+            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalDrawing(); Invalidate(); }
         }
 
 
@@ -796,7 +796,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string HelperText
         {
             get => _helperText;
-            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalLabelHelperDrawing(); Invalidate(); }
+            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalDrawing(); Invalidate(); }
         }
         private string _helperText = string.Empty;
 
@@ -815,23 +815,127 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set { if (_filledBackgroundColor == value) return; _filledBackgroundColor = value; Invalidate(); }
         }
         private Color _filledBackgroundColor = Color.FromArgb(20, Beep.Winform.Controls.Styling.BeepStyling.CurrentTheme?.ShadowColor ?? Color.Black);
-        // Badge
+        // Badge — backed by the new BeepFloatingBadge UserControl system
         private string _badgeText = "";
-        [Browsable(true)] public virtual string BadgeText
+        [Browsable(true)]
+        [DefaultValue("")]
+        public virtual string BadgeText
         {
             get => _badgeText;
             set
             {
-                if(value.Equals(_badgeText)) return;
+                if (value.Equals(_badgeText)) return;
                 _badgeText = value;
-             //   UpdateRegionForBadge();
-                Invalidate();
+                SyncLegacyBadge();
             }
         }
-        [Browsable(true)] public Color BadgeBackColor { get; set; } = Color.Red;
-        [Browsable(true)] public Color BadgeForeColor { get; set; } = Color.White;
-        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Segoe UI", 7, FontStyle.Bold);
-        [Browsable(true)] public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
+
+        private Color _badgeBackColor = Color.Red;
+        [Browsable(true)]
+        public Color BadgeBackColor
+        {
+            get => _badgeBackColor;
+            set
+            {
+                if (_badgeBackColor == value) return;
+                _badgeBackColor = value;
+                SyncBadgeAppearance();
+            }
+        }
+
+        private Color _badgeForeColor = Color.White;
+        [Browsable(true)]
+        public Color BadgeForeColor
+        {
+            get => _badgeForeColor;
+            set
+            {
+                if (_badgeForeColor == value) return;
+                _badgeForeColor = value;
+                SyncBadgeAppearance();
+            }
+        }
+
+        private Font _badgeFont = new Font("Segoe UI", 7, FontStyle.Bold);
+        [Browsable(true)]
+        public Font BadgeFont
+        {
+            get => _badgeFont;
+            set
+            {
+                if (_badgeFont == value) return;
+                _badgeFont?.Dispose();
+                _badgeFont = value;
+                SyncBadgeAppearance();
+            }
+        }
+
+        [Browsable(true)]
+        public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
+
+        private void SyncLegacyBadge()
+        {
+            if (string.IsNullOrEmpty(_badgeText))
+            {
+                ClearBadge();
+                return;
+            }
+
+            if (Badge is TheTechIdea.Beep.Winform.Controls.Badges.Builtin.BeepCounterBadge cb)
+            {
+                cb.DisplayText = _badgeText;
+                SyncBadgeAppearance();
+                return;
+            }
+
+            var shapeMap = BadgeShape switch
+            {
+                BadgeShape.RoundedRectangle => TheTechIdea.Beep.Winform.Controls.Badges.BadgeShape.RoundedSquare,
+                BadgeShape.Rectangle => TheTechIdea.Beep.Winform.Controls.Badges.BadgeShape.Rectangle,
+                _ => TheTechIdea.Beep.Winform.Controls.Badges.BadgeShape.Circle
+            };
+
+            var counterBadge = new TheTechIdea.Beep.Winform.Controls.Badges.Builtin.BeepCounterBadge(_badgeText)
+            {
+                BadgeBackColor = BadgeBackColor,
+                BadgeForeColor = BadgeForeColor,
+                Shape = shapeMap,
+                Anchor = TheTechIdea.Beep.Winform.Controls.Badges.BadgeAnchor.TopRight
+            };
+            SetBadge(counterBadge);
+        }
+
+        private void SyncBadgeAppearance()
+        {
+            if (Badge is not null && Badge is TheTechIdea.Beep.Winform.Controls.Badges.BeepFloatingBadge fb)
+            {
+                fb.BadgeBackColor = BadgeBackColor;
+                fb.BadgeForeColor = BadgeForeColor;
+            }
+        }
+
+        // New-style floating badge (UserControl-based, works for any Control)
+        private TheTechIdea.Beep.Winform.Controls.Badges.IBeepBadge? _badge;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public TheTechIdea.Beep.Winform.Controls.Badges.IBeepBadge? Badge
+        {
+            get => _badge;
+            set
+            {
+                if (ReferenceEquals(_badge, value)) return;
+                if (_badge is not null)
+                {
+                    _badge.Detach();
+                    _badge = null;
+                }
+                _badge = value;
+                if (_badge is not null && Parent is not null && !IsDisposed && !Disposing)
+                {
+                    _badge.Attach(this);
+                }
+            }
+        }
 
         // State colors
         [Browsable(true)] public Color HoverBackColor { get; set; } = Color.LightBlue;

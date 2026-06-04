@@ -224,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     {
                         Id = $"child_{Guid.NewGuid():N}",
                         Position = targetGroup.Position,
-                        TabStyle = targetGroup.TabStyle
+                        HeaderPosition = targetGroup.HeaderPosition
                     };
                     foreach (var ep in lingering)
                     {
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 {
                     Id = $"child_{Guid.NewGuid():N}",
                     Position = targetGroup.Position,
-                    TabStyle = targetGroup.TabStyle
+                    HeaderPosition = targetGroup.HeaderPosition
                 };
                 childGroup.AddPanel(panel);
                 targetGroup.AddChild(childGroup);
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     {
                         Id = $"child_{Guid.NewGuid():N}",
                         Position = targetGroup.Position,
-                        TabStyle = targetGroup.TabStyle
+                        HeaderPosition = targetGroup.HeaderPosition
                     };
                     var directPanels = targetGroup.Panels.ToArray();
                     foreach (var ep in directPanels)
@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 {
                     Id = $"child_{Guid.NewGuid():N}",
                     Position = targetGroup.Position,
-                    TabStyle = targetGroup.TabStyle,
+                    HeaderPosition = targetGroup.HeaderPosition,
                     ActivePanel = panel
                 };
                 newChild.AddPanel(panel);

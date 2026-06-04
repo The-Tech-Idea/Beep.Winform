@@ -34,6 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Painters
         /// <summary>Per-style chrome tuning (corner radii, accent width, grip style).</summary>
         public DockingStyleFlavor Flavor { get; set; } = DockingStyleFlavor.Default;
 
+        /// <summary>Visual tab header style (Default, VsCode, VsIde2022, JetBrains, Browser).</summary>
+        public Models.TabStyle TabStyle { get; set; } = Models.TabStyle.Default;
+
         /// <summary>
         /// Updates the context in-place with the most common paint-time values. No allocation.
         /// </summary>

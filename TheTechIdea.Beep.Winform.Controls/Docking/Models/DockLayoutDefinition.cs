@@ -38,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         public string ActivePanelKey { get; set; }
 
         /// <summary>Tab strip position for this group.</summary>
-        [DefaultValue(TabStyle.Top)]
-        public TabStyle TabStyle { get; set; } = TabStyle.Top;
+        [DefaultValue(HeaderPosition.Top)]
+        public HeaderPosition HeaderPosition { get; set; } = HeaderPosition.Top;
 
         /// <summary>Nested child groups (split containers). Empty for a leaf tab cell.</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]

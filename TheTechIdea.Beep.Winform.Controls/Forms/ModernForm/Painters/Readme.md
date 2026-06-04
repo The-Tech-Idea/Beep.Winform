@@ -1,6 +1,16 @@
 # BeepiFormPro Painters
 
-This folder contains **33 specialized painter classes** that provide unique visual styles for `BeepiFormPro` forms.
+This folder contains **37 specialized painter classes** that provide unique visual styles for `BeepiFormPro` forms. All painters are `internal sealed class` implementations with **no base class inheritance** — each stands alone.
+
+## Implementation Status: 37/37 Complete (100%)
+
+All painters implement three interfaces directly:
+- `IFormPainter` — PaintBackground, PaintCaption, PaintBorders, PaintWithEffects
+- `IFormPainterMetricsProvider` — GetMetrics, CalculateLayoutAndHitAreas
+- `IFormNonClientPainter` — PaintNonClientBorder
+
+Shared rendering goes through `FormPainterRenderHelper` (drawing utilities only, never layout).
+Shared caption geometry goes through `FormPainterLayoutHelper` (layout only, never rendering).
 
 ## ⚠️ CRITICAL DESIGN PRINCIPLE
 

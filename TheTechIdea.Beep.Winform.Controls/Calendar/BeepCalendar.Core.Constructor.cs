@@ -24,12 +24,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _eventService = new CalendarEventService(_events);
             ConfigureEventServiceTelemetry();
             _layout = new CalendarLayoutManager(this, _state, _rects);
-            _renderer = new CalendarRenderer();
             _conflictPolicy = new CalendarConflictPolicy(_conflictPolicyMode);
             EventEditor = new CalendarEventEditor();
 
-            // Initialize style painter
-            _stylePainter = CalendarPainterFactory.GetPainter(_calendarStyle);
+            // Initialize per-view painter
+            _viewPainter = ViewPainterFactory.GetPainter(_state.ViewMode);
             ApplyThemeTypography();
 
             if (!IsDesignModeSafe)

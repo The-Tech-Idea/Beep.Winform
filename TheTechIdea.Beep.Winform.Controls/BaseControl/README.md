@@ -7,6 +7,7 @@ This document explains how `BaseControl` renders and how to extend it safely. It
 BaseControl uses a **Painter Strategy Pattern** to handle all visual rendering. This architecture separates outer styling (borders, shadows, backgrounds) from inner content, allowing for maximum flexibility and consistency across different visual styles.
 
 ## Recent updates
+- 2026-06: `BaseControl` directory audited and README updated. Pipeline: `Painter → UpdateLayout → Paint → UpdateHitAreas`.
 - 2026-05-12: `BeepCalendar` was mechanically split into multiple partial files (`Core`, `Fields`, `Painting`, `LayoutTheme`, `EventOperations`, `Types`) while preserving `BaseControl` inheritance and rendering behavior.
 - `BaseControl` now exposes the protected `UseBaseMouseInputRouting` hook. Leave it `true` for interactive controls; override it to `false` only for passive container surfaces that should raise normal WinForms mouse events without BaseControl hover/ripple/hit-test repaint routing.
 - BeepGridPro top filter panel now supports a `GridTitle` label and is enabled by default via `ShowTopFilterPanel`.
@@ -14,38 +15,39 @@ BaseControl uses a **Painter Strategy Pattern** to handle all visual rendering. 
 
 ## Structure
 
-- **`BaseControl`** (partial): Core behavior, theming, events, drawing entry points
-- **`Painters/`**: Strategy pattern implementations for different visual styles
-- **`Helpers/`**: Supporting classes for effects, hit testing, DPI scaling, etc.
+- **`BaseControl`** (partial, 10 files): Core behavior, theming, events, drawing entry points
+- **`Painters/`**: Strategy pattern implementations for different visual styles (currently 1 implementation: Classic)
+- **`Helpers/`**: Supporting classes for effects, hit testing, DPI scaling, external drawing, data binding, icons, input routing
 
 ### Core Files
 ```
 BaseControl/
-??? BaseControl.cs                    # Main control class
-??? BaseControl.Events.cs             # Event handling and routing
-??? BaseControl.Methods.cs            # Core methods and painter management
-??? BaseControl.Properties.cs         # Properties and painter selection
-??? BaseControl.Material.cs           # Material Design integration
-??? README.md                         # This documentation
-??? Helpers/
-    ??? Painters/
-    ?   ??? IBaseControlPainter.cs     # Painter interface
-    ?   ??? ClassicBaseControlPainter.cs
-    ?   (removed) MaterialBaseControlPainter.cs
-    ?   ??? CardBaseControlPainter.cs
-    ?   ??? NeoBrutalistBaseControlPainter.cs
-    ?   ??? ReadingCardBaseControlPainter.cs
-    ?   ??? ButtonBaseControlPainter.cs
-    ?   ??? ShortcutCardBaseControlPainter.cs
-    ?   ??? GlassmorphismBaseControlPainter.cs
-    ?   ??? NeumorphismBaseControlPainter.cs
-    ?   ??? MinimalistBaseControlPainter.cs
-    ??? ControlEffectHelper.cs         # Effects and ripple animations
-    ??? ControlHitTestHelper.cs        # Hit area management
-    ??? ControlExternalDrawingHelper.cs # Overlays and badges
-    ??? ControlDpiHelper.cs            # DPI scaling support
-    ??? ControlDataBindingHelper.cs    # Data binding logic
-```
+├── BaseControl.cs                     # Constructor, dispose, DPI, theme events, CreateParams
+├── BaseControl.ContextMenu.cs         # Context menu functionality
+├── BaseControl.Events.cs              # Paint pipeline, mouse/keyboard events, parent change
+├── BaseControl.LabelandError.cs       # Label/error/helper text, external drawing on parent
+├── BaseControl.LayoutManagement.cs    # Layout update method
+├── BaseControl.Material.cs            # Icons, validation, content rects
+├── BaseControl.Methods.cs             # Painter management, theme, binding, hit-testing, animation, badges
+├── BaseControl.Properties.cs          # All properties: painter, text, theme, font, borders, shadows, gradients, state colors, events, context menu
+├── BaseControl.Tooltip.cs             # Rich tooltip integration via ToolTipManager
+├── BaseControl.Win32.cs               # Win32 interop stub
+├── IExternalDrawingProvider.cs        # Interface for external child drawing on parent surfaces
+├── README.md
+├── DPI_SCALING_BEST_PRACTICES.md
+├── Helpers/
+│   ├── BaseControlIconsHelper.cs       # Leading/trailing icon layout and drawing
+│   ├── ControlDataBindingHelper.cs     # Data binding helper
+│   ├── ControlEffectHelper.cs          # Effects, focus indicators, ripple animations, slide/fade
+│   ├── ControlExternalDrawingHelper.cs # External drawing coordinator (badges, labels from children)
+│   ├── ControlHitTestHelper.cs         # Hit-test area management
+│   ├── ControlIBeepUIComponentHelper.cs# Static helper for WinForms data binding and AppFilter creation
+│   ├── ControlInputHelper.cs           # Mouse/key input routing
+│   ├── ControlPaintHelper.cs           # [Obsolete] Shared utilities: gradients, rounded paths, font scaling
+│   ├── Painters/
+│   │   ├── IBaseControlPainter.cs       # Painter strategy interface
+│   │   └── ClassicBaseControlPainter.cs # Classic-mode painter implementation
+
 
 ## Render Flow
 

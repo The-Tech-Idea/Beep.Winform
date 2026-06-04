@@ -22,6 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private Rectangle? TryGetMonthCellRect(DateTime date)
         {
+            if (_surfaceModel != null)
+            {
+                var rect = _surfaceModel.GetMonthCellRect(date);
+                return rect.IsEmpty ? (Rectangle?)null : rect;
+            }
+
             var grid = _rects.CalendarGridRect;
             int dayHeaderHeight = ScaleMetric(CalendarLayoutMetrics.DayHeaderHeight);
             if (grid.Width <= 0 || grid.Height <= dayHeaderHeight)

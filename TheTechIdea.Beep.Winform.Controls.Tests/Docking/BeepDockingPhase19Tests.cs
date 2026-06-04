@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Docking;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
-using DTabStyle = TheTechIdea.Beep.Winform.Controls.Docking.Models.TabStyle;
+using HdrPos = TheTechIdea.Beep.Winform.Controls.Docking.Models.HeaderPosition;
 using Xunit;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         public void Dockspace_TabPosition_DefaultsToTop()
         {
             using var ds = new BeepDockspace();
-            Assert.Equal(DTabStyle.Top, ds.TabPosition);
+            Assert.Equal(HdrPos.Top, ds.TabPosition);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
             using var ds = new BeepDockspace();
             ds.Size = new Size(300, 200);
 
-            ds.TabPosition = DTabStyle.Top;
+            ds.TabPosition = HdrPos.Top;
             ds.LayoutPanels();
             using var panel1 = new DockPanel { Key = "p1" };
             ds.Controls.Add(panel1);
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
             Assert.True(panel1.Bounds.Y >= BeepDockspace.HeaderHeight,
                 $"Top: panel Y={panel1.Bounds.Y}, expected >= {BeepDockspace.HeaderHeight}");
 
-            ds.TabPosition = DTabStyle.Bottom;
+            ds.TabPosition = HdrPos.Bottom;
             ds.LayoutPanels();
             Assert.True(panel1.Bounds.Y == 0,
                 $"Bottom: panel Y={panel1.Bounds.Y}, expected 0 (content fills top)");
@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         {
             using var ds = new BeepDockspace();
             ds.Size = new Size(300, 200);
-            ds.TabPosition = DTabStyle.None;
+            ds.TabPosition = HdrPos.None;
             ds.LayoutPanels();
 
             using var panel = new DockPanel { Key = "p1" };
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         {
             using var ds = new BeepDockspace();
             ds.Size = new Size(300, 200);
-            ds.TabPosition = DTabStyle.Left;
+            ds.TabPosition = HdrPos.Left;
             using var panel = new DockPanel { Key = "p1" };
             ds.Controls.Add(panel);
             ds.LayoutPanels();
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         {
             using var ds = new BeepDockspace();
             ds.Size = new Size(300, 200);
-            ds.TabPosition = DTabStyle.Right;
+            ds.TabPosition = HdrPos.Right;
             using var panel = new DockPanel { Key = "p1" };
             ds.Controls.Add(panel);
             ds.LayoutPanels();
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
             {
                 bool invalidated = false;
                 ds.Invalidated += (_, _) => invalidated = true;
-                ds.TabPosition = DTabStyle.Bottom;
+                ds.TabPosition = HdrPos.Bottom;
                 Assert.True(invalidated);
             }
             finally { form.Hide(); }
@@ -109,11 +109,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Tests
         }
 
         [Fact]
-        public void DockGroupDefinition_SerializesTabStyle()
+        public void DockGroupDefinition_SerializesHeaderPosition()
         {
-            var gd = new DockGroupDefinition { TabStyle = DTabStyle.Bottom };
-            Assert.Equal(DTabStyle.Bottom, gd.TabStyle);
-            Assert.Equal(DTabStyle.Top, new DockGroupDefinition().TabStyle);
+            var gd = new DockGroupDefinition { HeaderPosition = HdrPos.Bottom };
+            Assert.Equal(HdrPos.Bottom, gd.HeaderPosition);
+            Assert.Equal(HdrPos.Top, new DockGroupDefinition().HeaderPosition);
         }
 
         // ── Single/Multi group layout within a dockspace ────────────────────────

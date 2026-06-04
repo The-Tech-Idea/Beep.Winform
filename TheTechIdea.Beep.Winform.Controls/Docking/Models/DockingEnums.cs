@@ -97,24 +97,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
     }
 
     /// <summary>
-    /// Defines the tab display style for grouped panels.
+    /// Defines the position of the tab strip header relative to the content area.
     /// </summary>
-    public enum TabStyle
+    public enum HeaderPosition
     {
-        /// <summary>Tabs displayed at the top of the group (default).</summary>
+        /// <summary>Tab strip displayed at the top of the group (default).</summary>
         Top = 0,
 
-        /// <summary>Tabs displayed at the bottom of the group.</summary>
+        /// <summary>Tab strip displayed at the bottom of the group.</summary>
         Bottom = 1,
 
-        /// <summary>Tabs displayed on the left side of the group (rotated text).</summary>
+        /// <summary>Tab strip displayed on the left side of the group (rotated text).</summary>
         Left = 2,
 
-        /// <summary>Tabs displayed on the right side of the group (rotated text).</summary>
+        /// <summary>Tab strip displayed on the right side of the group (rotated text).</summary>
         Right = 3,
 
         /// <summary>No tab strip — panel content fills the entire container. Useful for single-panel groups.</summary>
         None = 4
+    }
+
+    /// <summary>
+    /// Defines the visual style used to paint tab headers. Controls tab shape, button
+    /// appearance, accent indicators, and separator style.
+    /// </summary>
+    public enum TabStyle
+    {
+        /// <summary>Default flat tabs — square corners, thin separator, minimal accent.</summary>
+        Default = 0,
+
+        /// <summary>VS Code style — pill-shaped tabs, accent bar below active tab, compact buttons.</summary>
+        VsCode = 1,
+
+        /// <summary>VS IDE 2022 style — trapezoid tabs with gradient, thick bottom accent, large hover zones.</summary>
+        VsIde2022 = 2,
+
+        /// <summary>Compact square tabs with primary-color accent strip, similar to Rider / IntelliJ.</summary>
+        JetBrains = 3,
+
+        /// <summary>Browser-style tabs — trapezoid with rounded top corners, dark separator line.</summary>
+        Browser = 4
     }
 
     /// <summary>

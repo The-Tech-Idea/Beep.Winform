@@ -1507,16 +1507,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // inherit splash effect setting from parent BeepControl
                 EnableSplashEffect = newBeepParent.EnableSplashEffect;
-                
-                // Register badge if needed
-                if (!string.IsNullOrEmpty(BadgeText))
-                {
-                    // Create BaseControl handler and wrap it for BeepControl
-                    var baseHandler = BaseControl.CreateBadgeDrawingHandler(
-                        BadgeText, BadgeBackColor, BadgeForeColor, BadgeFont, BadgeShape);
-                    // Wrap BaseControl.DrawExternalHandler to BeepControl.DrawExternalHandler
-                  
-                }
             }
 
             _lastBeepParent = Parent as BaseControl;

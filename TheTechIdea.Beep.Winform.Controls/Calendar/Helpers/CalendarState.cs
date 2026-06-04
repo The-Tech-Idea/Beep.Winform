@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Winform.Controls.Calendar; // for CalendarViewMode, Calen
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 {
     // Holds current calendar state
-    internal class CalendarState
+    public class CalendarState
     {
         public DateTime CurrentDate { get; set; } = DateTime.Today;
         public CalendarViewMode ViewMode { get; set; } = CalendarViewMode.Month;
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
     }
 
     // Rectangles computed by layout
-    internal class CalendarRects
+    public class CalendarRects
     {
         public Rectangle HeaderRect;
         public Rectangle ViewSelectorRect;

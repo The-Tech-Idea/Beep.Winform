@@ -68,6 +68,23 @@ Current architecture already has strong seams (state, layout manager, renderer s
 - Improve layout manager resilience on resize and sidebar toggles.
 - Prevent unnecessary recompute/repaint churn during multi-property updates.
 
+### W5 - Pipeline Consolidation (cross-ref Phase 6)
+
+- Delete the legacy `ICalendarViewRenderer` / `CalendarRenderer` / `*ViewRenderer.cs` path AND the `ICalendarStylePainter` / `MaterialCalendarPainter` / `MinimalCalendarPainter` / `CalendarPainterFactory` stack. **No** style painter hierarchy remains. The replacement is one `ICalendarViewPainter` per `CalendarViewMode` (Month / Week / WorkWeek / Day / Agenda / Timeline / List) under `Rendering/ViewPainters/`, each consuming `IBeepTheme` + `BeepControlStyle` directly via `ViewPaintArgs` + `CalendarStyleMetrics.For(style)`.
+- Promote reusable geometry into a new `Helpers/CalendarSurfaceModel.cs` (immutable, built per `UpdateLayout`).
+- Delete 12+ empty / stub partial files.
+- Remove `_usePainterSystem` flag, `UsePainterSystem` property, `_renderer` field, and `_renderer.HandleClick(...)` call.
+- Full workstream: `06-pipeline-consolidation-and-editor-layer.md` W1-W2.
+
+### W6 - Editor Layer (cross-ref Phase 6)
+
+- New `Editor/CalendarEditorHost.cs`, `Editor/CalendarEditorLayer.cs`, `Editor/CalendarEditorDescriptor.cs`, `Editor/HostedEditor.cs`, `Editor/CalendarEditorPool.cs`.
+- `BeepCalendar` overrides `OnPaint` AND `OnPaintBackground` to apply `Region.Exclude(_editorLayer.Bounds)` clip.
+- `BeepCalendar` overrides `AllowBaseControlClear => false` and `IsContainerControl => true`.
+- Sample editors: `InlineEventTitleEditor` (BeepTextBox), `InlineEventDateRangeEditor` (BeepDateTimePicker x2), `InlineAllDayToggleEditor` (BeepCheckBoxBool).
+- XUnit tests in `Beep.Winform.Controls.Tests/Calendar/BeepCalendarTests_EditorLayer.cs`.
+- Full workstream: `06-pipeline-consolidation-and-editor-layer.md` W3-W5.
+
 ## UX/Visual Standards Applied
 
 - Figma-style component structure: header, selector, grid, sidebar as reusable layout regions.
@@ -93,6 +110,8 @@ Current architecture already has strong seams (state, layout manager, renderer s
 - Renderer contract is consistent across month/week/day/list implementations.
 - Command-driven navigation is deterministic and unit-testable.
 - No regressions in current views after token and layout normalization.
+- **W5:** single paint path; per-view `ICalendarViewPainter` (Month / Week / WorkWeek / Day / Agenda / Timeline / List) consumes `IBeepTheme` + `BeepControlStyle` via `ViewPaintArgs` + `CalendarStyleMetrics.For(style)`; legacy `ICalendarViewRenderer` files AND `ICalendarStylePainter` / Material / Minimal painters all deleted; `_usePainterSystem` / `_renderer` / `UsePainterSystem` / `_stylePainter` removed; `CalendarSurfaceModel` consumed by every painter and hit-test helper.
+- **W6:** `BeepCalendar` overrides `OnPaint` and `OnPaintBackground`; `_editorLayer` is a single child of `Controls`; double-clicking an event opens an inline `BeepTextBox` for the title; Esc cancels, Enter commits; XUnit tests pass.
 
 ## Risks
 

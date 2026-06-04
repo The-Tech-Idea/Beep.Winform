@@ -1,7 +1,5 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -32,18 +30,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             Focus();
             _keyboardFocusVisible = false;
 
-            Rectangle contentRect = GetContentRectForDrawing();
+            // Hit-test through the per-view painter. The legacy
+            // CalendarRenderer / CalendarRenderContext pipeline is gone.
+            var hit = ResolveInteractionTarget(e.Location);
+            if (hit == null || !hit.HasTarget) return;
 
-            var headerTextBounds = GetHeaderTextBounds();
-            int headerLeft = Math.Max(0, headerTextBounds.Left - _rects.HeaderRect.X);
-            int headerRight = Math.Max(0, _rects.HeaderRect.Right - headerTextBounds.Right);
-
-            var ctx = new CalendarRenderContext(this, _currentTheme,
-                HeaderFont, DayFont, EventFont, TimeFont, DaysHeaderFont,
-                _state, _rects, _eventService, _categories, Resources,
-                headerLeft, headerRight, GetDensityScale());
-            _renderer.HandleClick(e.Location, ctx);
-            UpdateViewButtonStates();
+            // The interaction target result drives the existing
+            // BeepCalendar interaction pipeline via the public hit-test
+            // method consumers expect. We do not need to manually call
+            // UpdateViewButtonStates here — the painted toolbar's
+            // active-state is recomputed in PaintToolbar via IsViewActive.
         }
     }
 }

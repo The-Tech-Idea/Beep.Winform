@@ -10,7 +10,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         [Browsable(true)]
         [Category("Calendar")] public DateTime CurrentDate { get => _state.CurrentDate; set { _state.CurrentDate = value; _state.SelectedDate = value; Invalidate(); } }
         [Browsable(true)]
-        [Category("Calendar")] public CalendarViewMode ViewMode { get => _state.ViewMode; set { _state.ViewMode = value; RequestLayoutAndRedraw(); } }
+        [Category("Calendar")]
+        public CalendarViewMode ViewMode
+        {
+            get => _state.ViewMode;
+            set
+            {
+                if (_state.ViewMode == value) return;
+                _state.ViewMode = value;
+                _viewPainter = ViewPainterFactory.GetPainter(value);
+                RequestLayoutAndRedraw();
+            }
+        }
         [Browsable(true)]
         [Category("Calendar")] public bool ShowSidebar { get => _state.ShowSidebar; set { _state.ShowSidebar = value; RequestLayoutAndRedraw(); } }
         [Browsable(true)]

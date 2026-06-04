@@ -45,15 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             // Get the actual content rectangle
             Rectangle contentRect = bounds.IsEmpty ? GetContentRectForDrawing() : bounds;
 
-            if (_usePainterSystem && _stylePainter != null)
+            if (_viewPainter != null)
             {
-                // Use new painter system
                 DrawWithPainter(g, contentRect);
-            }
-            else
-            {
-                // Use legacy renderer
-                DrawWithLegacyRenderer(g, contentRect);
             }
         }
 

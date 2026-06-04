@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Models
         /// <summary>
         /// How child panels are arranged (tabs at top, bottom, left, or right).
         /// </summary>
-        public TabStyle TabStyle { get; set; } = TabStyle.Top;
+        public HeaderPosition HeaderPosition { get; set; } = HeaderPosition.Top;
 
         /// <summary>
         /// How child groups are split (horizontal or vertical).

@@ -81,6 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
         private IBeepTheme _currentTheme;
         private DockingThemeColors _themeColors = DockingThemeColors.Default;
         private BeepControlStyle _style = BeepControlStyle.Material3;
+        private Models.TabStyle _tabStyle = Models.TabStyle.Default;
 
         // MRU-ordered panel keys (head = most recently activated).
         private readonly LinkedList<string> _mruList = new LinkedList<string>();
@@ -418,6 +419,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                     return;
 
                 _style = value;
+                PropagateControlStyle();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the visual style used to paint tab headers across all docking surfaces.
+        /// Controls tab shape (pill, square, trapezoid), button appearance, and accent indicators.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(Models.TabStyle.Default)]
+        [Description("Visual tab header style: Default, VsCode, VsIde2022, JetBrains, or Browser.")]
+        public Models.TabStyle TabStyle
+        {
+            get => _tabStyle;
+            set
+            {
+                if (_tabStyle == value) return;
+                _tabStyle = value;
                 PropagateControlStyle();
             }
         }
@@ -2440,7 +2460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             {
                 Id = $"group_{position}_{Guid.NewGuid().ToString("N").Substring(0, 8)}",
                 Position = position,
-                TabStyle = Models.TabStyle.Top
+                HeaderPosition = HeaderPosition.Top
             };
 
             _layoutTree.RegisterGroup(newGroup);
@@ -2558,7 +2578,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             }
 
             WalkSurfaces(
-                ds => { ds.ControlStyle = _style; ds.Invalidate(); },
+                ds => { ds.ControlStyle = _style; ds.TabStyle = _tabStyle; ds.Invalidate(); },
                 strip => { strip.ControlStyle = _style; strip.Invalidate(); },
                 sp => { sp.ControlStyle = _style; sp.Invalidate(); });
         }
@@ -2569,6 +2589,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
 
             dockspace.ControlStyle = _style;
+            dockspace.TabStyle = _tabStyle;
             dockspace.ApplyDockingTheme(_themeColors);
         }
 

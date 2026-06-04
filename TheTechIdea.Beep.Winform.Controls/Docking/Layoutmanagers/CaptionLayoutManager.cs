@@ -49,6 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Layoutmanagers
         public Rectangle OverflowButtonRect { get; private set; }
         public IReadOnlyList<CaptionTabModel> OverflowTabs => _overflowTabs;
 
+        /// <summary>The tab currently under the mouse pointer, set by the owning control's OnMouseMove.</summary>
+        public CaptionTabModel HoveredTab { get; set; }
+
         public void Compute(int width, int height, IReadOnlyList<CaptionTabModel> tabs, IReadOnlyList<CaptionButtonKind> buttons)
         {
             _buttonRects.Clear();

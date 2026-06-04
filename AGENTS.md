@@ -148,6 +148,94 @@ The control hierarchy is: `Form` → `BeepDockingManager` (component) → `BeepD
 
 ## References
 - [Microsoft: Creating a WF Control Design-Time Features](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/creating-a-wf-control-design-time-features)
-- [Microsoft: Serializing Collections DesignerSerializationVisibilityAttribute](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/serializing-collections-designerserializationvisibilityattribute)
+- [Microsoft: Serializing Collections DesignerSerializationVisibilityAttribute](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/serializing-collections-designerserialization-visibilityattribute)
 - [Stack Overflow: Add Child to Custom Control in Designer Mode](https://stackoverflow.com/questions/44144698/add-child-to-custom-control-in-designer-mode)
 - [Reza Aghaei: Enable Designer of Child Panel in a UserControl](https://reza-aghaei.com/enable-designer-of-child-panel-in-a-usercontrol/)
+
+## Custom Control Smart-Tag Pattern (DesignerActionList + Verb + Dialog)
+
+The BeepForms / BeepDataConnection / BeepBlock smart-tags follow a single recipe. New verbs should follow this recipe rather than ad-hoc `DesignerVerb` collections.
+
+### Anatomy
+
+1. **Designer** (`Designers/*Designer.cs`) — extends `ComponentDesigner` (for `Component`s) or `BaseBeepParentControlDesigner` (for `Control`s) and exposes a cached `ActionLists` collection.
+2. **ActionList** (`Designers/*ActionList.cs`) — a `DesignerActionList` subclass:
+   - Wraps the designer.
+   - Exposes typed property getters/setters that call `designer.GetProperty<T>()` and `designer.SetProperty()`.
+   - Exposes verb methods that open WinForms dialogs and write the result back through `SetProperty()` so `IComponentChangeService` fires and the property grid updates.
+   - Implements `GetSortedActionItems()` and groups items with `DesignerActionHeaderItem` / `DesignerActionPropertyItem` / `DesignerActionMethodItem`.
+3. **Dialogs** (`Designers/*Form.cs`) — modal WinForms `Form` subclasses. They follow the **DataGridView / TableLayoutPanel** pattern from `BeepBlockFieldEditorForm` and `BeepConnectionEditorForm` rather than designer-generated `.Designer.cs` files.
+4. **Reuse `ConflictPolicyDialog`** (verified, `Designers/ConflictPolicyDialog.cs`) for any promote/demote/import/export verb that needs a `ConnectionConflictPolicy` + `ImportWhenEmptyOnly` choice.
+
+### Base-class choice for designer
+
+| Component type | Designer base | Why |
+|----------------|---------------|-----|
+| `Component` (no UI, e.g. `BeepDataConnection`) | `ComponentDesigner` | No surface to draw; the `IDesignerHost` services are enough for verbs. |
+| `Control` / `Panel` (e.g. `BeepForms`) | `BaseBeepParentControlDesigner` (which itself extends `Microsoft.DotNet.DesignTools.Designers.ControlDesigner`) | Inherits the common Beep style smart-tag + change-service plumbing. |
+| `Control` with inner panels and child composition (e.g. `BeepBlock`) | `ParentControlDesigner` (the out-of-process equivalent, see `BeepBlockDesigner`) | Lets the designer offer parent/child surface verbs. |
+
+### Setting and reading properties
+
+Always go through `designer.SetProperty(name, value)` / `designer.GetProperty<T>(name)` so the component change service fires:
+
+```csharp
+_designer.SetProperty(nameof(BeepForms.FormName), "NewForm");
+string current = _designer.GetProperty<string>(nameof(BeepForms.FormName)) ?? string.Empty;
+```
+
+Direct property writes (e.g. `forms.Definition = newDefinition`) bypass the change service and the property grid won't refresh.
+
+### ActionLists plumbing
+
+For a `Component` designer, add the field, override `ActionLists`, and return a cached collection. The `ComponentDesigner` base class does **not** add the field for you.
+
+```csharp
+public override DesignerActionListCollection ActionLists
+    => _actionLists ??= new DesignerActionListCollection
+    {
+        new BeepDataConnectionActionList(this)
+    };
+```
+
+For a `Control` designer that extends `BaseBeepParentControlDesigner`, the `ActionLists` collection already contains the common Beep control action list. Override `GetControlSpecificActionLists()` instead of `ActionLists` itself.
+
+### Editor-dialog files
+
+| Control | Smart-tag editor form(s) |
+|---------|--------------------------|
+| `BeepDataConnection` | `BeepConnectionEditorForm`, `BeepConnectionListEditorForm`, `BeepConnectionTestReportForm` (all in `Designers/`) |
+| `BeepForms` | `BeepFormsSetupWizardForm`, `BeepFormPropertiesEditorForm`, `BeepFormsValidationReportForm` |
+| `BeepBlock` | `BeepBlockSetupWizardForm` (existing), `BeepBlockFieldEditorForm` (existing), `BeepBlockEntityEditorForm`, `BeepFieldControlTypePolicyEditorForm` (existing) |
+
+When you need a new editor:
+
+1. Add a WinForms `Form` subclass in `Designers/`. **Do not** hand-write a `.Designer.cs` and `.resx`; build the layout in code with `TableLayoutPanel` / `SplitContainer` / `DataGridView`.
+2. Add a `DesignerActionMethodItem` in the action list's `GetSortedActionItems()` and a verb method that opens the form and writes the result through `SetProperty()`.
+3. Reuse `ConflictPolicyDialog` for any policy-picker verb.
+4. Reuse `DefinitionObjectEditorForm<T>` (`Editors/IntegratedFormsDefinitionEditors.cs`, `internal`) for full-object property-grid editing of any `*Definition` model. It's `internal` so the action list must live in the same assembly (`Design.Server`).
+5. Add an XUnit test in `Beep.Winform/.../Beep.Winform.Controls.Tests/` that opens a `DesignSurface`, drops the control, and asserts the new verb is present in the smart-tag.
+
+### Test connection at design time
+
+`IDMEEditor` is not available through the designer's `GetService`. Get it from a live `BeepDataConnection.BeepService?.DMEEditor`. The action list helper that handles test should look like this:
+
+```csharp
+private static IDMEEditor? ResolveEditor(BeepDataConnection? connection)
+    => connection?.BeepService?.DMEEditor;
+```
+
+If the connection is null or the editor is null, the smart-tag verb should still work (just show "Editor not available" in the report). Do not throw.
+
+### Out-of-process designer crash recipe: `BackColor = Color.Transparent`
+
+The WinForms out-of-process designer refuses to instantiate any `Control` that sets `BackColor = Color.Transparent` without first enabling `ControlStyles.SupportsTransparentBackColor`. Two safe options:
+
+1. **Derive from `Panel`** instead of `Control`. `Panel` enables `SupportsTransparentBackColor` in its constructor. Use this for any control that needs to be transparent at design time.
+2. **Set the style flag in `InitializeComponent`**: `SetStyle(ControlStyles.SupportsTransparentBackColor, true); BackColor = Color.Transparent;`. Use this only when the class must stay a `Control` for some reason.
+
+`BeepBlock.cs` uses option 2. `BeepForms.cs` was failing with the `Control does not support transparent background colors` error and was changed to derive from `Panel` (option 1).
+
+### Designer-time service lease
+
+`BeepDataConnectionDesigner` and `BeepBlockDesigner` both call `DesignTimeBeepServiceManager.Acquire(...)` in their `Initialize` to attach a shared `IBeepService` while the form is open in Visual Studio. The lease is reference-counted and disposed in the designer's `Dispose`. Verb methods that need the live `IDMEEditor` should resolve it through this lease, not through `GetService(typeof(IDMEEditor))`.

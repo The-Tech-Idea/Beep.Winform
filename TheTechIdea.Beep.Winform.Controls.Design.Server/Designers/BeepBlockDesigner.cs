@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.DotNet.DesignTools.Designers;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
@@ -8,6 +9,8 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Editors;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Blocks.Models;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Forms;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Forms.Models;
 using TheTechIdea.Beep.Winform.Controls.Design.Server.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
@@ -350,6 +353,158 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             dialog.ShowDialog();
         }
 
+        public void EditEntitySnapshot()
+        {
+            if (Component is not BeepBlock block)
+            {
+                return;
+            }
+
+            BeepBlockEntityDefinition entity = block.Entity?.Clone() ?? new BeepBlockEntityDefinition();
+            using var dialog = new BeepBlockEntityEditorForm(entity);
+            if (dialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            BeepBlockDefinition definition = CreateWorkingDefinition();
+            definition.Entity = dialog.Result.Clone();
+            Definition = definition;
+        }
+
+        public void ConnectToFormsHost()
+        {
+            if (Component is not BeepBlock block)
+            {
+                return;
+            }
+
+            var host = FindFormsHost();
+            if (host == null)
+            {
+                MessageBox.Show(
+                    "No BeepForms host found on the same form. Use 'Create New Host + Bind...' to create one.",
+                    "Connect To BeepForms Host",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            block.Bind(host);
+        }
+
+        public void DisconnectFromHost()
+        {
+            if (Component is BeepBlock block && block.IsBound)
+            {
+                block.Unbind();
+            }
+        }
+
+        public void CreateNewHostAndBind()
+        {
+            if (Component is not BeepBlock block)
+            {
+                return;
+            }
+
+            var site = block.Site;
+            if (site?.Container is not Form hostForm)
+            {
+                MessageBox.Show(
+                    "Cannot create a host: the BeepBlock is not parented to a WinForms Form.",
+                    "Create New Host + Bind",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            var designerHost = (IDesignerHost?)site.GetService(typeof(IDesignerHost));
+            if (designerHost == null)
+            {
+                return;
+            }
+
+            using var transaction = designerHost.CreateTransaction("Create BeepForms host and bind block");
+            try
+            {
+                string hostName = MakeUniqueName(designerHost, "beepForms1", typeof(BeepForms));
+                var host = (BeepForms)designerHost.CreateComponent(typeof(BeepForms), hostName);
+
+                string resolvedBlockName = string.IsNullOrWhiteSpace(block.BlockName) ? "MainBlock" : block.BlockName;
+                BeepBlockDefinition blockDefinition = new BeepBlockDefinition
+                {
+                    BlockName = resolvedBlockName,
+                    Caption = block.Definition?.Caption ?? resolvedBlockName,
+                    PresentationMode = block.Definition?.PresentationMode ?? BeepBlockPresentationMode.Record
+                };
+                BeepFormsDefinition formDefinition = new BeepFormsDefinition
+                {
+                    FormName = hostName,
+                    Title = hostName,
+                    Blocks = { blockDefinition }
+                };
+                host.Definition = formDefinition;
+                host.AutoCreateBlocksFromDefinition = false;
+                if (host.Site != null)
+                {
+                    host.Site.Name = hostName;
+                }
+
+                block.Bind(host);
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Cancel();
+                MessageBox.Show(
+                    $"Failed to create and bind host: {ex.GetType().Name}: {ex.Message}",
+                    "Create New Host + Bind",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private BeepForms? FindFormsHost()
+        {
+            if (Component is not BeepBlock block)
+            {
+                return null;
+            }
+
+            if (block.FormsHost is BeepForms existing)
+            {
+                return existing;
+            }
+
+            var site = block.Site;
+            if (site?.Container == null)
+            {
+                return null;
+            }
+
+            foreach (var component in site.Container.Components)
+            {
+                if (component is BeepForms host)
+                {
+                    return host;
+                }
+            }
+            return null;
+        }
+
+        private static string MakeUniqueName(IDesignerHost host, string baseName, Type componentType)
+        {
+            string candidate = baseName;
+            int suffix = 1;
+            while (host.Container.Components.Cast<IComponent>().Any(c => c.GetType() == componentType && string.Equals(c.Site?.Name, candidate, StringComparison.OrdinalIgnoreCase)))
+            {
+                suffix++;
+                candidate = baseName + suffix;
+            }
+            return candidate;
+        }
+
         public void EditNavigationSettings()
         {
             BeepBlockDefinition definition = CreateWorkingDefinition();
@@ -432,6 +587,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
             items.Add(new DesignerActionHeaderItem("Entity"));
             items.Add(new DesignerActionPropertyItem(nameof(Entity), "Entity Snapshot", "Entity", "Edit the typed entity, field, and structure metadata stored by the block UI."));
+            items.Add(new DesignerActionMethodItem(this, nameof(EditEntitySnapshot), "Edit Entity Snapshot...", "Entity", true));
             items.Add(new DesignerActionMethodItem(this, nameof(CaptureEntityFromManager), "Capture Entity From Manager", "Entity", true));
             items.Add(new DesignerActionMethodItem(this, nameof(RebuildFieldsFromEntity), "Rebuild Fields From Entity", "Entity", true));
 
@@ -449,6 +605,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, nameof(CreateStarterDefinition), "Create Starter Definition", "Quick Presets", true));
             items.Add(new DesignerActionMethodItem(this, nameof(UseRecordMode), "Use Record Mode", "Quick Presets", true));
             items.Add(new DesignerActionMethodItem(this, nameof(UseGridMode), "Use Grid Mode", "Quick Presets", true));
+
+            items.Add(new DesignerActionHeaderItem("Host"));
+            items.Add(new DesignerActionMethodItem(this, nameof(ConnectToFormsHost), "Connect To BeepForms Host...", "Host", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(DisconnectFromHost), "Disconnect From Host", "Host", false));
+            items.Add(new DesignerActionMethodItem(this, nameof(CreateNewHostAndBind), "Create New Host + Bind...", "Host", true));
 
             return items;
         }

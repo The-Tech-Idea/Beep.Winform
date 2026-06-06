@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     {
         private void InvalidateDateCell(DateTime? date)
         {
-            if (!date.HasValue || _state.ViewMode != CalendarViewMode.Month)
+            if (!date.HasValue || _viewPainter == null || !_viewPainter.IsMonthGrid)
             {
                 return;
             }

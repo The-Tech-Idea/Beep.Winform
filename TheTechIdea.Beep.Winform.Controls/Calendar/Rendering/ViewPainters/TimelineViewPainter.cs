@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
@@ -15,6 +16,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
     public sealed class TimelineViewPainter : ICalendarViewPainter
     {
         public CalendarViewMode ViewMode => CalendarViewMode.Timeline;
+        public string Key => "timeline";
+        public string DisplayLabel => "Timeline";
+        public int VisibleDayCount => 7;
+        public bool IsTimedView => false;
+        public bool IsMonthGrid => false;
+        public bool RequiresLeftGutter => true;
+        public bool HasAllDayStrip => false;
+        public bool SupportsEventDrag => true;
+        public bool IsHorizontalTimeAxis => true;
+
+        public DateTime NavigatePrevious(DateTime d) => d.AddDays(-7);
+        public DateTime NavigateNext(DateTime d) => d.AddDays(7);
+        public string GetHeaderText(DateTime d) => $"Timeline of {d:MMMM yyyy}";
+        public DateTime GetVisibleRangeStart(DateTime d) => d.AddDays(-(int)d.DayOfWeek).Date;
+        public DateTime GetVisibleRangeEnd(DateTime d) => GetVisibleRangeStart(d).AddDays(7);
 
         public void Layout(ViewPaintArgs args) { }
 
@@ -38,7 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 out int firstVisibleLane, out int lastVisibleLane);
             var eventsByLane = BuildLaneEventLookup(resources, startOfWeek, startOfWeek.AddDays(dayCount - 1), args);
 
-            // Day axis across the top of the content area
             for (int day = 0; day < dayCount; day++)
             {
                 var dayDate = startOfWeek.AddDays(day);
@@ -48,7 +63,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 PaintDayHeader(g, headerRect, dayDate, dayDate.Date == DateTime.Today, args);
             }
 
-            // Resource axis (one row per visible lane) + lane backgrounds + per-lane events
             for (int laneIndex = firstVisibleLane; laneIndex <= lastVisibleLane; laneIndex++)
             {
                 var lane = resources[laneIndex];
@@ -56,7 +70,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 var laneRect = new Rectangle(contentArea.X, laneTop, contentArea.Width, laneHeight);
                 var headerRect = new Rectangle(grid.X, laneTop, laneHeaderWidth, laneHeight);
 
-                // Resource header background
                 using (var backBrush = new SolidBrush(args.BackgroundColor))
                 using (var borderPen = new Pen(args.BorderColor))
                 {
@@ -67,7 +80,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         headerRect, StringAlignment.Near, StringAlignment.Center);
                 }
 
-                // Lane background (alternating even/odd)
                 var laneBack = (laneIndex % 2 == 0)
                     ? args.BackgroundColor
                     : Color.FromArgb(255,
@@ -81,7 +93,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                     g.DrawRectangle(lanePen, laneRect);
                 }
 
-                // Per-resource accent stripe (legacy feature)
                 if (lane.Color != Color.Empty)
                 {
                     using var accentBrush = new SolidBrush(lane.Color);
@@ -129,7 +140,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             if (contentArea.Width <= 0 || grid.Height <= dayHeaderHeight)
                 return EmptyHit(location, args);
 
-            // Day-axis hit
             if (location.Y <= grid.Y + dayHeaderHeight)
             {
                 int day = CalendarPainterHelpers.GetColumnIndex(contentArea, location.X, dayCount);
@@ -167,10 +177,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         var eventRect = GetTimelineEventRect(evt, startOfWeek, dayCount, laneRect, laneTop, laneHeight, surface);
                         if (eventRect.Contains(location))
                         {
+                            var edge = CalendarPainterHelpers.ResolveResizeEdge(location, eventRect, 6);
                             return new CalendarInteractionHitTestResult
                             {
                                 TargetKind = CalendarInteractionTargetKind.EventBlock,
-                                RequestedMode = CalendarInteractionMode.SelectEvent,
+                                RequestedMode = edge == CalendarEventResizeEdge.Start
+                                    ? CalendarInteractionMode.ResizeStart
+                                    : edge == CalendarEventResizeEdge.End
+                                        ? CalendarInteractionMode.ResizeEnd
+                                        : CalendarInteractionMode.SelectEvent,
+                                ResizeEdge = edge,
                                 Location = location,
                                 Date = evt.StartTime.Date,
                                 Event = evt,
@@ -198,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             return EmptyHit(location, args);
         }
 
-        // ── Helpers ──────────────────────────────────────────────────────
+        public DateTime? GetDateTimeFromLocation(Point location, ViewPaintArgs args) => null;
 
         private static DateTime GetStartOfWeek(DateTime date) => date.Date.AddDays(-(int)date.DayOfWeek);
 
@@ -282,6 +298,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
         private static void PaintDayHeader(Graphics g, Rectangle rect, DateTime dayDate, bool isToday, ViewPaintArgs args)
         {
+            // W8 - delegate to developer's IBeepUIComponent DateCell factory for the
+            // timeline day-axis header (which is a date cell) when one is registered.
+            // Falls through to the default filled header + text otherwise.
+            string cellKey = $"date:{dayDate:yyyy-MM-dd}:timeline-header";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.DateCell, null, dayDate,
+                args.Surface?.ViewMode ?? CalendarViewMode.Timeline, 0, 0);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, args.BackgroundColor);
             CalendarPainterHelpers.DrawText(g, dayDate.ToString("ddd\nd"),
                 args.DaysHeaderFont ?? args.DayFont,
@@ -292,6 +317,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
         private static void PaintEventBlock(Graphics g, Rectangle rect, CalendarEvent evt, ViewPaintArgs args)
         {
             if (rect.Width <= 0 || rect.Height <= 0) return;
+            // W8 - delegate to developer's IBeepUIComponent when registered.
+            var cellKey = $"evt:{evt.Id}";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.EventBlock,
+                evt,
+                evt.StartTime.Date,
+                args.State?.ViewMode ?? CalendarViewMode.Week1,
+                0, 0);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             Color fill = args.GetCategoryColor(evt.CategoryId);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;
@@ -308,11 +343,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 StringAlignment.Near, StringAlignment.Near, centerVertically: false);
         }
 
+        // W2-Redo-10 GAP 1 - TimelineViewPainter.EmptyHit returned
+        // SelectDate which is inconsistent with all 13 other painters
+        // (DayView/Week/WorkWeek/Month/Agenda/List/Week1..Week7) that all
+        // return CreateEvent for EmptyHit. The RequestedMode is metadata
+        // not consumed by BeepCalendar's ResolveDragMode or
+        // OnMouseDoubleClick (both branch on TargetKind, not on
+        // RequestedMode), so the actual user-facing behavior was the same
+        // for both — but downstream consumers reading the
+        // CalendarInteractionHitTestResult would see an inconsistent
+        // value. Normalize to CreateEvent.
         private static CalendarInteractionHitTestResult EmptyHit(Point location, ViewPaintArgs args) =>
             new CalendarInteractionHitTestResult
             {
                 TargetKind = CalendarInteractionTargetKind.EmptySurface,
-                RequestedMode = CalendarInteractionMode.SelectDate,
+                RequestedMode = CalendarInteractionMode.CreateEvent,
                 Location = location,
                 Date = args.Surface?.CurrentDate.Date ?? DateTime.Today
             };

@@ -53,7 +53,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         {
             EnsureTip();
             _tip.ApplyConfig(config);
-            _tip.Location = screenLocation;
+
+            // B2: Use the same positioning pipeline as CustomToolTip.ShowAsync
+            // so callers that pass an anchor point get the full collision
+            // detection / screen clamp behavior — not a raw Location set that
+            // can clip the tooltip off the right or bottom edge of a monitor.
+            var anchor = new Rectangle(screenLocation, new Size(1, 1));
+            var (placement, finalPosition) = ToolTipPositioningHelpers.FindBestPlacement(
+                anchor, _tip.Size, config.Placement, config.Offset);
+            _tip.Location = finalPosition;
             _tip.Show();
             Shown?.Invoke(this, EventArgs.Empty);
             await Task.CompletedTask;

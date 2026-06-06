@@ -12,16 +12,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private CalendarInteractionMode ResolveDragMode(CalendarInteractionHitTestResult hit)
         {
-            if (hit == null)
+            if (hit == null || _viewPainter == null)
             {
                 return CalendarInteractionMode.None;
             }
 
             if (hit.TargetKind == CalendarInteractionTargetKind.EventBlock)
             {
-                if (_state.ViewMode == CalendarViewMode.Day ||
-                    _state.ViewMode == CalendarViewMode.Week ||
-                    _state.ViewMode == CalendarViewMode.WorkWeek)
+                if (_viewPainter.IsTimedView)
                 {
                     return hit.ResizeEdge == CalendarEventResizeEdge.Start
                         ? CalendarInteractionMode.ResizeStart
@@ -30,19 +28,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                             : CalendarInteractionMode.MoveEvent;
                 }
 
-                if (_state.ViewMode == CalendarViewMode.Timeline)
-                {
-                    return CalendarInteractionMode.MoveEvent;
-                }
-
-                return CalendarInteractionMode.SelectEvent;
+                return _viewPainter.SupportsEventDrag
+                    ? CalendarInteractionMode.MoveEvent
+                    : CalendarInteractionMode.SelectEvent;
             }
 
             if (hit.TargetKind == CalendarInteractionTargetKind.DateCell)
             {
-                return _state.ViewMode == CalendarViewMode.Day ||
-                       _state.ViewMode == CalendarViewMode.Week ||
-                       _state.ViewMode == CalendarViewMode.WorkWeek
+                return _viewPainter.IsTimedView
                     ? CalendarInteractionMode.RangeSelect
                     : CalendarInteractionMode.CreateEvent;
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -81,11 +81,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             Point location = _owner.PointToClient(Cursor.Position);
             _hitTest.HandleMouseHover(location);
-            // Show tooltip if configured
-            if (!string.IsNullOrEmpty(_owner.ToolTipText))
-            {
-                _owner.ShowToolTip(_owner.ToolTipText);
-            }
+            // Show tooltip if configured. TooltipText (lowercase) is the rich property
+            // defined in BaseControl.Tooltip.cs — it owns the ToolTipManager registration.
+            // ShowToolTipIfExists is a no-op when the rich system has already registered
+            // MouseEnter/MouseLeave, but we call it here for the legacy hover flow.
+            _owner.ShowToolTipIfExists();
         }
 
         public void OnClick()

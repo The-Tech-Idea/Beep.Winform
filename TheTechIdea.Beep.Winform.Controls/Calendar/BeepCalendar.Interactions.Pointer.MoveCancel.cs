@@ -40,6 +40,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 return;
             }
 
+            if (HasActiveCellComponent())
+            {
+                return;
+            }
+
             var delta = new Point(e.X - _pointerDownLocation.X, e.Y - _pointerDownLocation.Y);
             if (!_dragInProgress && (Math.Abs(delta.X) >= InteractionDragThresholdPx || Math.Abs(delta.Y) >= InteractionDragThresholdPx))
             {
@@ -68,6 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private void UpdateHoverState(Point location)
         {
+            if (HasActiveCellComponent())
+            {
+                return;
+            }
+
             var hit = ResolveInteractionTarget(location);
             CalendarEvent hoveredEvent = hit?.TargetKind == CalendarInteractionTargetKind.EventBlock ? hit.Event : null;
             DateTime? hoveredDate = hit?.TargetKind == CalendarInteractionTargetKind.DateCell || hit?.TargetKind == CalendarInteractionTargetKind.EventBlock
@@ -150,6 +160,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _state.InteractionMode = CalendarInteractionMode.None;
             _state.InteractionTargetKind = CalendarInteractionTargetKind.None;
             _state.InteractionEventId = null;
+
+            // W2-Redo-6 GAP 2 - release the mouse capture that was set in
+            // OnMouseDown so a cancel (e.g. Esc) doesn't leave the
+            // calendar holding the mouse. Otherwise subsequent clicks
+            // outside the control would still route to the calendar.
+            Capture = false;
+        }
+
+        // W2-Redo-18 GAP A - when the calendar loses mouse capture
+        // (Alt+Tab, system menu opens, window deactivation), Windows
+        // releases the capture but does NOT send a MouseUp. Without this
+        // handler the drag state (_pointerDown, _dragInProgress,
+        // _state.InteractionMode) stays live. The next click reuses the
+        // stale state: OnMouseMove sees _dragInProgress=true and fires
+        // InteractionUpdated with the old interaction mode for the NEW
+        // hit location, causing a spurious drag of whatever was
+        // previously selected. CancelInteraction resets everything and
+        // raises InteractionCancelled so consumers can clean up tentative
+        // visuals.
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
+            base.OnMouseCaptureChanged(e);
+            if (!Capture && _pointerDown)
+            {
+                CancelInteraction();
+                Invalidate();
+            }
         }
     }
 }

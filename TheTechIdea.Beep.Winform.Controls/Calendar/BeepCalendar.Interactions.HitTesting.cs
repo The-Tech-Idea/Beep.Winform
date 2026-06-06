@@ -48,6 +48,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             };
             args.ResolveThemeColors();
 
+            if (_state.ShowSidebar && _rects.SidebarRect.Contains(location))
+            {
+                var detailsRect = _surfaceModel?.GetSidebarEventDetailsRect() ?? Rectangle.Empty;
+                if (detailsRect.Width > 20 && detailsRect.Contains(location))
+                {
+                    return new CalendarInteractionHitTestResult
+                    {
+                        TargetKind = CalendarInteractionTargetKind.SidebarDetailCard,
+                        RequestedMode = CalendarInteractionMode.SelectEvent,
+                        Location = location,
+                        Event = _state.SelectedEvent,
+                        Date = _state.CurrentDate,
+                        Bounds = detailsRect
+                    };
+                }
+                return new CalendarInteractionHitTestResult
+                {
+                    TargetKind = CalendarInteractionTargetKind.None,
+                    Location = location
+                };
+            }
+
             return _viewPainter.HitTest(location, args);
         }
     }

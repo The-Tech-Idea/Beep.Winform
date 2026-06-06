@@ -28,11 +28,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 case CalendarCommandType.SetVisibleRange:
                     if (args.AnchorDate.HasValue)
                     {
-                        _state.VisibleRangeStart = args.AnchorDate.Value.Date;
+                        // W2-Redo-11 BUG A - mirroring the W2-Redo-9
+                        // CurrentDate-setter fix, SetVisibleRange must also
+                        // sync _focusedDate / _state.FocusedDate and tear
+                        // down any active W8 cell component. Otherwise
+                        // (a) the keyboard navigation anchor stays at the
+                        // old date so the next Left/Right arrow press
+                        // jumps from the wrong cell, and (b) a hosted
+                        // W8 Control remains visible at the previous
+                        // cell's bounds even though that cell is no
+                        // longer in view.
+                        DateTime anchor = args.AnchorDate.Value.Date;
+                        _state.VisibleRangeStart = anchor;
                         _state.VisibleRangeEnd = args.VisibleRangeEnd?.Date;
-                        _state.CurrentDate = args.AnchorDate.Value.Date;
-                        _state.SelectedDate = args.AnchorDate.Value.Date;
-                        Invalidate();
+                        _state.CurrentDate = anchor;
+                        _state.SelectedDate = anchor;
+                        _focusedDate = anchor;
+                        _state.FocusedDate = _focusedDate;
+                        DeactivateAllCellComponents();
+                        RequestLayoutAndRedraw();
                         return true;
                     }
                     return false;
@@ -47,7 +61,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     return TryDeleteSelectedEvent();
 
                 case CalendarCommandType.EditSelectedEvent:
-                    return TryEditSelectedEvent(System.Drawing.Point.Empty);
+                    // W2-Redo-9 GAP 4 - the previous version passed
+                    // Point.Empty to TryEditSelectedEvent, which forwarded
+                    // it to TryOpenEventEditor as the editor request's
+                    // Location. The W4 sample editors ignore Location
+                    // (they use ComputeEditorBounds), but custom
+                    // ICalendarEventEditor implementations typically
+                    // position a popup dialog at the click point. With
+                    // Point.Empty the dialog would pop at (0, 0) — the
+                    // form's top-left corner — which is jarring. Pass
+                    // the center of the client area so a popup-style
+                    // custom editor appears in a sensible default
+                    // location.
+                    {
+                        var clientCenter = new System.Drawing.Point(
+                            ClientRectangle.Width / 2,
+                            ClientRectangle.Height / 2);
+                        return TryEditSelectedEvent(clientCenter);
+                    }
 
                 case CalendarCommandType.CreateEventAtFocusedDate:
                     OnCreateEventRequested(args.AnchorDate ?? _focusedDate.Date);

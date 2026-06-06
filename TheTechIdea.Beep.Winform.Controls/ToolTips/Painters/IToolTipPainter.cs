@@ -71,5 +71,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// <param name="config">Tooltip configuration</param>
         /// <returns>Calculated size</returns>
         Size CalculateSize(Graphics g, ToolTipConfig config);
+
+        /// <summary>
+        /// B5: Called when the painter should discard any cached resources
+        /// (e.g. GraphicsPath shadows keyed by size/radius, theme-colour brushes).
+        /// Typically invoked on theme change, DPI change, or painter reassignment.
+        /// Default no-op for painters without a cache.
+        /// </summary>
+        void InvalidateCache();
     }
 }

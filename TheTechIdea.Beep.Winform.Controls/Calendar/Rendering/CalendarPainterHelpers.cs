@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -170,6 +172,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             catch
             {
                 /* icon paint failures are non-fatal */
+            }
+        }
+
+        /// <summary>
+        /// W8 - fetch the cached IBeepUIComponent for the supplied cell key
+        /// (via the calendar's <c>CellComponentFactory</c>) and call
+        /// its <c>Draw(g, rect)</c>. Returns true when a component was
+        /// actually drawn; false when no factory is registered (or the
+        /// factory returned null), so the caller can fall back to its
+        /// default rendering. Centralizes the try/catch boundary so the
+        /// rest of every painter stays linear.
+        /// </summary>
+        public static bool TryDrawCellComponent(Graphics g, Rectangle rect, string cellKey,
+            CalendarCellContext ctx, ViewPaintArgs args)
+        {
+            if (args?.Owner == null) return false;
+            try
+            {
+                var comp = args.Owner.GetCellComponent(cellKey, ctx);
+                if (comp == null) return false;
+                if (comp is Control asControl)
+                {
+                    if (asControl.Parent == null)
+                    {
+                        asControl.Bounds = rect;
+                        if (!asControl.Visible) asControl.Visible = true;
+                    }
+                    if (asControl.Parent != null)
+                        return true;
+                }
+                comp.Draw(g, rect);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

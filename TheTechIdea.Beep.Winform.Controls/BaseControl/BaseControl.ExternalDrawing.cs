@@ -71,14 +71,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         internal static DrawExternalHandler CreateCombinedExternalHandler(BaseControl owner)
         {
-            bool hasLabel = owner.LabelTextOn && !string.IsNullOrEmpty(owner.LabelText);
-            bool hasHelper = !string.IsNullOrEmpty(owner.HelperText);
+            // Label is external only when floating. Helper/Error are always external when set
+            // (independent of FloatingLabelOn). DrawLabelAndHelperUniversal never paints them.
+            bool labelExternal = owner.LabelTextOn && owner.FloatingLabelOn && !string.IsNullOrEmpty(owner.LabelText);
+            bool hasHelper = owner.HelperTextOn && !string.IsNullOrEmpty(owner.HelperText);
             bool hasError = !string.IsNullOrEmpty(owner.ErrorText);
             bool showIcon = owner._validationIcon != ValidationState.None;
             bool showLine = owner._showIndicatorLine;
             bool showCustom = !string.IsNullOrEmpty(owner._customIconPath);
 
-            if (!hasLabel && !hasHelper && !hasError && !showIcon && !showLine && !showCustom)
+            if (!labelExternal && !hasHelper && !hasError && !showIcon && !showLine && !showCustom)
                 return (Graphics g, Rectangle cb) => { };
 
             string? iconSvg = showIcon ? owner._validationIcon switch
@@ -94,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (g is null || cb.IsEmpty) return;
 
-                if (hasLabel || hasHelper || hasError)
+                if (labelExternal || hasHelper || hasError)
                 {
                     owner.DrawLabelAndHelperToParent(g, cb, owner,
                         owner.GetLabelLocation(), owner.GetImageLocation(), owner.GetMessageImagePath(),

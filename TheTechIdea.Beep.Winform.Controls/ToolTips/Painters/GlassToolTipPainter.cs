@@ -137,6 +137,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         public override void PaintContent(Graphics g, Rectangle bounds, ToolTipConfig config,
                                           IBeepTheme theme)
         {
+            // B1: When ContentItems is populated, delegate to the styled
+            // painter so the glass variant picks up icons, code, links,
+            // dividers, footers, and rich markup instead of falling back
+            // to plain Title+Text.
+            if (config.ContentItems != null && config.ContentItems.Count > 0)
+            {
+                _contentDelegate.PaintContentItems(g, bounds, config, theme);
+                return;
+            }
+
             var colors = ToolTipStyleAdapter.GetColors(config, theme);
 
             int pad  = 10;
@@ -169,6 +179,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 g.DrawString(config.Text, bodyFont, fg, area);
             }
         }
+
+        // B1: cached delegate to avoid allocating a BeepStyledToolTipPainter
+        // on every show. Painter is stateless w.r.t. its inputs so sharing
+        // across shows is safe.
+        private static readonly BeepStyledToolTipPainter _contentDelegate = new BeepStyledToolTipPainter();
 
         // ──────────────────────────────────────────────────────────────
         // Helpers

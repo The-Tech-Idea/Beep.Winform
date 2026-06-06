@@ -73,7 +73,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected string _text = string.Empty;
         private SimpleItem _info = new SimpleItem();
         private bool _isInitializing = true;
-        protected ToolTip _toolTip;
 
         // Cached parent background for transparent controls (avoid BitBlt feedback loop)
         private Bitmap? _cachedParentBackground = null;
@@ -100,7 +99,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        public string ToolTipText { get ; set ; }
+        // PascalCase ToolTipText is required by IBeepUIComponent. It forwards to the rich
+        // TooltipText (lowercase) property in BaseControl.Tooltip.cs so there is a single
+        // source of truth for tooltip text.
+        public string ToolTipText
+        {
+            get => TooltipText;
+            set => TooltipText = value;
+        }
 
         private bool _canBeFocused= false;
         private bool CanFocus() => _canBeFocused;
@@ -244,17 +250,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
            
          
             ComponentName = "BaseControl";
-            
-            // Initialize tooltip with null check
-            try
-            {
-                InitializeTooltip();
-            }
-            catch (Exception tooltipEx)
-            {
-              //  Console.WriteLine($"Tooltip initialization failed: {tooltipEx.Message}");
-            }
-            
+
+            // Tooltip is now managed entirely by the rich ToolTipManager (see BaseControl.Tooltip.cs).
+            // The legacy System.Windows.Forms.ToolTip component is no longer used.
+
             // Subscribe to global theme changes at runtime
             TrySubscribeThemeChanged(isDesignMode);
             
@@ -286,19 +285,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region ToolTip
-        protected void InitializeTooltip()
-        {
-            _toolTip = new ToolTip
-            {
-                AutoPopDelay = 5000,
-                InitialDelay = 500,
-                ReshowDelay = 500,
-                ShowAlways = true // Always show the tooltip, even if the control is not active
-            };
-        }
-        #endregion
-
         #region Dispose
         protected override void Dispose(bool disposing)
         {
@@ -323,8 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     tip.Dispose();
                 }
 
-                // Dispose tooltip
-                _toolTip?.Dispose();
+                // Tooltip cleanup is handled by the rich ToolTipManager (see CleanupTooltip in BaseControl.Tooltip.cs).
 
                 // Clear external drawing from parent only when parent is still valid.
                 if (Parent is IExternalDrawingProvider externalDrawingProvider &&

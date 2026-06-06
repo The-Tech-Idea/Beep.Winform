@@ -60,7 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
 
             _eventService?.InvalidateCache();
-            Invalidate();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
+            RequestRedraw();
             RecordMutationHistory(mutationKind, source, mutated);
             RaiseMutated(mutationKind, source, mutated, mutated, false, updateConflicts?.Conflicts ?? Array.Empty<CalendarEvent>());
             return true;

@@ -600,45 +600,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Fallback label/helper drawing
         /// <summary>
-        /// Draws LabelText above the top border and Helper/Error text below the bottom border
-        /// for painters that don't explicitly handle it. Skips when Material painter is active
-        /// because it already provides floating label and helper rendering.
+        /// Internal label + supporting text drawer. Used as the fallback when the parent does
+        /// NOT support external drawing (i.e. parent is not IExternalDrawingProvider). When the
+        /// parent does support external drawing, the parent's external pass is the source of
+        /// truth and this method stays silent to avoid double-paint.
         /// </summary>
         private void DrawLabelAndHelperUniversal(Graphics g)
         {
-            if (g == null || _painter == null) return;
+            if (g == null) return;
 
-            // Nothing to draw
-            bool hasLabel = !string.IsNullOrEmpty(LabelText);
-            bool hasSupporting = !string.IsNullOrEmpty(ErrorText) || !string.IsNullOrEmpty(HelperText);
-            if (!hasLabel && !hasSupporting && !_showLabelText) return;
+            bool parentSupportsExternal = Parent is IExternalDrawingProvider;
 
-            // Use painter border rect when available
-            Rectangle border = _painter.BorderRect;
-            if (border.Width <= 0 || border.Height <= 0) border = new Rectangle(0, 0, Width - 1, Height - 1);
+            bool hasLabel = LabelTextOn && !string.IsNullOrEmpty(LabelText);
+            bool hasSupporting = !string.IsNullOrEmpty(ErrorText)
+                || (HelperTextOn && !string.IsNullOrEmpty(HelperText));
+            if (!hasLabel && !hasSupporting) return;
 
-            // Label
-            if (hasLabel)
+            // Use painter border rect when available, else fall back to client rect
+            Rectangle border = _painter?.BorderRect ?? Rectangle.Empty;
+            if (border.Width <= 0 || border.Height <= 0)
+                border = new Rectangle(0, 0, Width - 1, Height - 1);
+
+            // 1) Label — internal only when NOT floating (external handles floating label)
+            if (hasLabel && !FloatingLabelOn)
             {
                 float labelSize = Math.Max(8f, TextFont.Size - 1f);
                 using var lf = BeepFontManager.GetFont(TextFont.FontFamily.Name, labelSize, FontStyle.Regular);
-                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                var labelRect = new Rectangle(border.Left + 6, Math.Max(0, border.Top - labelHeight - 2), Math.Max(10, border.Width - 12), labelHeight);
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf,
+                    new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+
+                int imageOffset = 0;
+                if (!string.IsNullOrEmpty(LeadingIconPath) || !string.IsNullOrEmpty(LeadingImagePath))
+                    imageOffset = IconSize + (IconPadding * 2);
+                int x = border.Left + 6 + imageOffset;
+                int y = border.Top + 2;
+                int w = Math.Max(10, border.Width - 12 - imageOffset);
+                var labelRect = new Rectangle(x, y, w, labelHeight);
+
                 Color labelColor = string.IsNullOrEmpty(ErrorText) ? ForeColor : ErrorColor;
-                TextRenderer.DrawText(g, LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                TextRenderer.DrawText(g, LabelText, lf, labelRect, labelColor,
+                    TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            //// Helper / Error
-            //if(hasSupporting )
-            //{
-            //    string supportingText = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
-            //    Color supportingColor = !string.IsNullOrEmpty(ErrorText) ? ErrorColor : ErrorColor;
-            //    float supportingSize = Math.Max(7f, TextFont.Size - 2f);
-            //    using var sf = BeepFontManager.GetFont(TextFont.FontFamily.Name, supportingSize, FontStyle.Regular);
-            //    int supportingHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-            //    var supportingRect = new Rectangle(border.Left + 6, border.Bottom + 2, Math.Max(10, border.Width - 12), supportingHeight);
-            //    TextRenderer.DrawText(g, supportingText, sf, supportingRect, supportingColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            //}
+            // 2) Helper / Error — external is primary; internal is fallback when no parent
+            // provider is available. Skips entirely when parent supports external (no double-paint).
+            if (hasSupporting && !parentSupportsExternal)
+            {
+                string supportingText = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
+                Color supportingColor = !string.IsNullOrEmpty(ErrorText) ? ErrorColor : ForeColor;
+                float supportingSize = Math.Max(7f, TextFont.Size - 2f);
+                using var sf = BeepFontManager.GetFont(TextFont.FontFamily.Name, supportingSize, FontStyle.Regular);
+                int supportingHeight = TextRenderer.MeasureText(g, "Ag", sf,
+                    new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportingRect = new Rectangle(
+                    border.Left + 6,
+                    border.Bottom + 2,
+                    Math.Max(10, border.Width - 12),
+                    supportingHeight);
+                TextRenderer.DrawText(g, supportingText, sf, supportingRect, supportingColor,
+                    TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
         }
 
         #endregion

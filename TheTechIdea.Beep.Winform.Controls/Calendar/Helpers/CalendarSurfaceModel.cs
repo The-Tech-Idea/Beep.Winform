@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 {
@@ -61,7 +62,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         public DateTime StartOfWorkWeek { get; }
         public DateTime FirstDayOfMonth { get; }
         public DateTime FirstDayOfCalendar { get; }
-        public int WeekDayCount => ViewMode == CalendarViewMode.WorkWeek ? 5 : 7;
+
+        /// <summary>
+        /// Day count decided by the registered view painter. The painter is
+        /// always supplied by <see cref="BeepCalendar.LayoutTheme.Layout.cs"/>
+        /// (legacy fallback removed — that path is dead code now that
+        /// W2-Redo-2 inlined the timed painters).
+        /// </summary>
+        public int WeekDayCount
+            => _viewPainter != null ? _viewPainter.VisibleDayCount : 7;
 
         #endregion
 
@@ -83,6 +92,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 
         #endregion
 
+        private readonly ICalendarViewPainter _viewPainter;
+
         private CalendarSurfaceModel(
             Rectangle clientRect, Rectangle headerRect, Rectangle viewSelectorRect,
             Rectangle calendarGridRect, Rectangle sidebarRect,
@@ -94,7 +105,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             int sidebarPadding, int sidebarCardHeight, int sidebarCardGap,
             int listRowHeight, int listRowSpacing,
             int cornerRadius, int cellPadding, int maxEventsPerCell,
-            int headerLeftPadding, int headerRightPadding)
+            int headerLeftPadding, int headerRightPadding,
+            ICalendarViewPainter viewPainter = null)
         {
             ClientRect = clientRect;
             HeaderRect = headerRect;
@@ -126,6 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             MaxEventsPerCell = maxEventsPerCell;
             HeaderLeftPadding = headerLeftPadding;
             HeaderRightPadding = headerRightPadding;
+            _viewPainter = viewPainter;
 
             // Per-view anchors
             StartOfWeek = currentDate.Date.AddDays(-(int)currentDate.DayOfWeek);
@@ -174,7 +187,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             int cellPadding,
             int maxEventsPerCell,
             int headerLeftPadding,
-            int headerRightPadding)
+            int headerRightPadding,
+            ICalendarViewPainter viewPainter = null)
         {
             return new CalendarSurfaceModel(
                 rects.CalendarGridRect, // clientRect fallback
@@ -206,7 +220,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
                 cellPadding,
                 maxEventsPerCell,
                 headerLeftPadding,
-                headerRightPadding);
+                headerRightPadding,
+                viewPainter);
         }
 
         #endregion
@@ -331,7 +346,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 
         public DateTime GetWeekDayDate(int dayIndex)
         {
-            DateTime start = ViewMode == CalendarViewMode.WorkWeek ? StartOfWorkWeek : StartOfWeek;
+            // Painter decides which start anchor to use. The painter is
+            // always supplied by BeepCalendar.LayoutTheme.Layout.cs (legacy
+            // fallback removed in this pass).
+            DateTime start = _viewPainter != null
+                ? _viewPainter.GetVisibleRangeStart(CurrentDate)
+                : StartOfWeek;
             return start.AddDays(dayIndex);
         }
 

@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 if (_calendarStyle != value)
                 {
                     _calendarStyle = value;
-                    Invalidate();
+                    RequestRedraw();
                 }
             }
         }

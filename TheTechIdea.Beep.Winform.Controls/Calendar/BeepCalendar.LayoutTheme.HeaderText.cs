@@ -6,22 +6,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
     public partial class BeepCalendar
     {
-        private void DrawPainterHeaderText(Graphics g, CalendarPainterContext ctx, string headerText, Rectangle textRect)
-        {
-            if (textRect.Width <= 0 || textRect.Height <= 0) return;
-
-            using (var brush = new SolidBrush(ctx.ForegroundColor))
-            using (var sf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center,
-                Trimming = StringTrimming.EllipsisCharacter
-            })
-            {
-                g.DrawString(headerText, HeaderFont, brush, textRect, sf);
-            }
-        }
-
         private Rectangle GetHeaderTextBounds()
         {
             var headerRect = _rects.HeaderRect;

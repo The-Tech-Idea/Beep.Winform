@@ -368,46 +368,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 _isUpdatingTooltip = true;
 
-                // Get current theme from BaseControl (set by ApplyTheme())
-                var theme = _currentTheme ?? (UseThemeColors ? BeepThemesManager.CurrentTheme : null);
-                var useTheme = TooltipUseThemeColors && theme != null;
+                // Get config from the single source of truth (GetTooltipConfig) — derived
+                // classes can override it to add custom configuration. This avoids the
+                // previous duplication between UpdateTooltip and GetTooltipConfig.
+                var config = GetTooltipConfig();
 
-                // Create tooltip configuration
-                var config = new ToolTipConfig
+                // Optional style-recommended max width when no max-size was set
+                if (config.UseBeepThemeColors && (config.MaxSize == null || config.MaxSize.Value.Width == 0))
                 {
-                    Text = _tooltipText,
-                    Title = _tooltipTitle,
-                    Type = _tooltipType,
-                    Style = TooltipUseControlStyle ? ControlStyle : BeepControlStyle.Material3,
-                    UseBeepThemeColors = useTheme,
-                    IconPath = _tooltipIconPath,
-                    Duration = _tooltipDuration,
-                    Placement = _tooltipPlacement,
-                    Animation = _tooltipAnimation,
-                    ShowArrow = _tooltipShowArrow,
-                    ShowShadow = _tooltipShowShadow,
-                    EnableShadow = _tooltipShowShadow,
-                    FollowCursor = _tooltipFollowCursor,
-                    ShowDelay = _tooltipShowDelay,
-                    Closable = _tooltipClosable,
-                    MaxSize = _tooltipMaxSize,
-                    Font = _tooltipFont,
-                    ApplyThemeOnImage = true
-                };
-
-                // Apply theme colors using ToolTipThemeHelpers
-                if (useTheme && theme != null)
-                {
-                    ToolTipThemeHelpers.ApplyThemeColors(config, theme, useTheme);
-                    
-                    // Use ToolTipStyleHelpers for recommended sizes if not specified
-                    if (config.MaxSize == null || config.MaxSize.Value.Width == 0)
-                    {
-                        config.MaxSize = new Size(
-                            TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers.ToolTipStyleHelpers.GetRecommendedMaxWidth(config.Style),
-                            0 // Height calculated automatically
-                        );
-                    }
+                    config.MaxSize = new Size(
+                        TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers.ToolTipStyleHelpers.GetRecommendedMaxWidth(config.Style),
+                        0);
                 }
 
                 // Register with ToolTipManager

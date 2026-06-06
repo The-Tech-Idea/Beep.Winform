@@ -160,6 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Build config
             var cfg = new ToolTipConfig
             {
+                Key                   = TourKey(),   // C3: register under the same key HideCurrentTooltip targets
                 Title                 = step.Title,
                 Text                  = step.Body,
                 ImagePath             = step.ImagePath,
@@ -170,7 +171,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 ShowNavigationButtons = true,
                 Duration              = 0,       // No auto-hide
                 ShowArrow             = true,
-                Animation             = ToolTipAnimation.Scale
+                Animation             = ToolTipAnimation.Scale,
+                // C7: wire nav buttons. The primary button advances the tour;
+                // the secondary button skips it. These now exist on ToolTipConfig.
+                OnPrimaryClick        = () => _ = NextAsync(),
+                OnSecondaryClick      = Skip
             };
 
             // Resolve screen position from target control

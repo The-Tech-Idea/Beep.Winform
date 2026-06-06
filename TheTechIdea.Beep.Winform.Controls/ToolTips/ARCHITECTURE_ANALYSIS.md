@@ -162,10 +162,12 @@ await tooltip.ShowAsync(position);
 - ❌ No control-attached tooltips (mouse enter/leave)
 - ❌ No centralized management
 - ❌ No automatic cleanup
-- ❌ No theme management
+- ❌ No theme propagation across multiple tooltips (single-tip `ApplyTheme` still works)
 - ❌ Manual lifecycle management required
 - ❌ No cancellation support
 - ❌ No auto-hide scheduling
+
+> **Note:** `CustomToolTip.ApplyTheme(IBeepTheme)` does exist (`CustomToolTip.Core.cs:100-133`) for single-tooltip theming, but `ToolTipManager.ApplyThemeToAll` is the only way to push a theme to every active tooltip at once.
 
 ---
 
@@ -206,6 +208,19 @@ If you want to simplify, you could:
    - Each class has single responsibility
    - Easy to maintain and extend
    - Follows established patterns (like BeepNotificationManager)
+
+---
+
+## Audit Findings (2026-06-05)
+
+The 3-layer architecture is sound, but a 2026-06-05 audit found 5 additional bugs in the layer below the manager (painters + helpers) and 1 doc bug. See `TOOLTIP_COMPREHENSIVE_ENHANCEMENT_PLAN.md` Phase 0 for the full list:
+
+- **B1:** `GlassToolTipPainter` doesn't support `ContentItems` (only `BeepStyledToolTipPainter` does).
+- **B2:** `VirtualToolTipHost.ShowAsync` bypasses positioning — sets `_tip.Location` directly with no collision check.
+- **B3:** `ToolTipPainterFactory` allocates a new painter per show (no pooling).
+- **B4:** `_lastPaintBounds` in `BeepStyledToolTipPainter` is a non-volatile field mutated on the UI thread and read in `GetArrowPath` (could be on any thread).
+- **B5:** Shadow cache in painters is never invalidated on DPI/theme change.
+- **D1:** `Readme.md` examples use `Message = "..."` but the actual field is `Text`.
 
 ---
 

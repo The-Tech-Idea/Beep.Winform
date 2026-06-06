@@ -45,7 +45,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 _state.SelectedEvent = appliedEvent;
             }
             _eventService?.InvalidateCache();
-            Invalidate();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
+            RequestRedraw();
             RecordMutationHistory(CalendarEventMutationKind.Update, existingEvent, appliedEvent);
             RaiseMutated(CalendarEventMutationKind.Update, existingEvent, appliedEvent, appliedEvent, false, GetConflicts(appliedEvent, existingEvent));
             return true;

@@ -14,6 +14,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 return;
             }
 
+            // W2-Redo-6 GAP 2 - release mouse capture that was set in
+            // OnMouseDown. Always release on the way in so an early-out
+            // (e.g. IsDesignModeSafe, !_pointerDown) doesn't leak the
+            // capture. Safe to assign false unconditionally because
+            // WinForms ignores Capture = false when the control doesn't
+            // actually have capture.
+            Capture = false;
+
             if (!_pointerDown)
             {
                 return;

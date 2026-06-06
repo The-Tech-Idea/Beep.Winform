@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ToolTips.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 {
@@ -251,6 +252,59 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     _config.ForeColor = accessibleColors.foreColor;
                 if (!_config.BorderColor.HasValue)
                     _config.BorderColor = accessibleColors.borderColor;
+            }
+        }
+
+        #endregion
+
+        #region Mouse handling (C7)
+
+        // C7: Detect clicks on the tour tooltip's "Skip" / "Next →" / "Done"
+        // visual button areas. The tour painter renders these as text, not
+        // real Button controls (so they pick up the tooltip's anti-aliased
+        // paint). We hit-test the same rectangles the painter used and
+        // invoke the callbacks the tour wired in ToolTipConfig.
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (_config == null) return;
+            if (!(_painter is TourToolTipPainter)) return;
+            if (_config.LayoutVariant != ToolTipLayoutVariant.Tour) return;
+
+            // Layout constants from TourToolTipPainter — kept in sync
+            // (the painter is the source of truth; if those constants
+            // change, update these too).
+            const int PaddingH   = 14;
+            const int PaddingV   = 12;
+            const int BtnH       = 26;
+
+            int btnY = ClientSize.Height - BtnH - PaddingV;
+            int margin = PaddingH;
+
+            // "Skip" hit area — left side, full button height
+            if (_config.ShowNavigationButtons)
+            {
+                var skipRect = new Rectangle(margin - 4, btnY, 60, BtnH);
+                if (skipRect.Contains(e.Location))
+                {
+                    _config.OnSecondaryClick?.Invoke();
+                    return;
+                }
+            }
+
+            // "Next →" / "Done" hit area — right side, sized to text
+            if (_config.ShowNavigationButtons && _config.CurrentStep <= _config.TotalSteps)
+            {
+                bool isLast   = _config.CurrentStep == _config.TotalSteps;
+                string txt    = isLast ? "Done" : "Next →";
+                int approxW   = (int)(txt.Length * 7.0) + 16;   // matches the painter's rough sizing
+                var btnRect   = new Rectangle(ClientSize.Width - margin - approxW, btnY, approxW, BtnH);
+                if (btnRect.Contains(e.Location))
+                {
+                    _config.OnPrimaryClick?.Invoke();
+                    return;
+                }
             }
         }
 

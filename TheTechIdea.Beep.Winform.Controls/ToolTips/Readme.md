@@ -72,7 +72,7 @@ ToolTips/
 var config = new ToolTipConfig
 {
     Title   = "Save File",
-    Message = "Saves the current document to disk.",
+    Text    = "Saves the current document to disk.",
 };
 await ToolTipManager.Instance.ShowTooltipAsync(saveButton, config);
 ```
@@ -83,7 +83,7 @@ var config = new ToolTipConfig
 {
     LayoutVariant = ToolTipLayoutVariant.Card,
     Title         = "Pro Feature",
-    Message       = "Upgrade your plan to unlock this.",
+    Text          = "Upgrade your plan to unlock this.",
 };
 ```
 
@@ -97,7 +97,7 @@ var config = new ToolTipConfig { LayoutVariant = ToolTipLayoutVariant.Glass, Tit
 var config = new ToolTipConfig
 {
     LayoutVariant = ToolTipLayoutVariant.Shortcut,
-    Message       = "Undo last action",
+    Text          = "Undo last action",
     Shortcuts     = new List<ShortcutKeyItem> { new ShortcutKeyItem("Ctrl+Z") }
 };
 ```
@@ -106,18 +106,18 @@ var config = new ToolTipConfig
 ```csharp
 var popoverCfg = new PopoverConfig
 {
-    Title            = "Delete item?",
-    Message          = "This cannot be undone.",
+    Title               = "Delete item?",
+    Text                = "This cannot be undone.",
     PrimaryButtonText   = "Delete",
     SecondaryButtonText = "Cancel",
-    OnPrimaryClick   = () => itemService.Delete(item),
+    OnPrimaryClick      = () => itemService.Delete(item),
 };
 await ToolTipManager.Instance.ShowPopoverAsync(deleteButton, popoverCfg);
 ```
 
 ### Pinned / draggable tooltip
 ```csharp
-var cfg = new ToolTipConfig { Title = "Notes", Message = "…", Pinnable = true, IsPinned = true };
+var cfg = new ToolTipConfig { Title = "Notes", Text = "…", Pinnable = true, IsPinned = true };
 var pinned = new BeepPinnedTooltip();
 pinned.ApplyPinnedConfig(cfg, Control.MousePosition);
 ```

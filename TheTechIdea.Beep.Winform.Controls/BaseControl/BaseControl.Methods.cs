@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ToolTips;
  
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
@@ -250,20 +251,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region IBeepUIComponent Methods
         public Size GetSize() => new Size(Width, Height);
 
-        public virtual void ShowToolTip(string title,string text)
+        public virtual void ShowToolTip(string title, string text)
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            // Get the top-level form for this control
-            var form = FindForm();
-            if (form == null) return;
-            
-            _toolTip?.Show(text, this, PointToClient(MousePosition), 3000);
+            // Rich tooltip system (ToolTipManager) handles display. Legacy _toolTip
+            // (System.Windows.Forms.ToolTip) is no longer used.
+            try { ShowNotification(text, ToolTipType.Default, _tooltipDuration); }
+            catch { /* swallow — tooltip is best-effort */ }
         }
 
         public virtual void HideToolTip()
         {
-            _toolTip?.Hide(this);
+            try
+            {
+                var config = GetTooltipConfig();
+                if (config != null && !string.IsNullOrEmpty(config.Key))
+                    TheTechIdea.Beep.Winform.Controls.ToolTips.ToolTipManager.Instance.HideTooltipAsync(config.Key);
+            }
+            catch { }
         }
 
         public virtual bool ValidateData(out string message)
@@ -462,11 +468,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public void StartRippleEffect(Point center) => _input.StartRippleEffect(center);
         #endregion
         #region Control State Management
-        protected virtual void ShowToolTipIfExists()
+        public virtual void ShowToolTipIfExists()
         {
-            if (!string.IsNullOrEmpty(ToolTipText))
+            // TooltipText is the rich property (see BaseControl.Tooltip.cs). It already
+            // registers with ToolTipManager on MouseEnter, so we just need to make sure
+            // the registration is current. TooltipManager's own MouseEnter handler will
+            // fire and show the tooltip.
+            if (!string.IsNullOrEmpty(TooltipText))
             {
-                _toolTip?.Show(ToolTipText, this, PointToClient(MousePosition), 3000);
+                UpdateTooltip();
             }
         }
        

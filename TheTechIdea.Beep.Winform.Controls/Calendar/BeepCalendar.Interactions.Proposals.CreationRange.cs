@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             var fallbackStart = GetSnappedStartFromLocation(anchorPoint) ?? _state.SelectedDate.Date.AddHours(9);
             var fallbackEnd = fallbackStart.AddMinutes(Math.Max(InteractionSnapIntervalMinutes, 60));
 
-            if (_state.ViewMode != CalendarViewMode.Week && _state.ViewMode != CalendarViewMode.WorkWeek && _state.ViewMode != CalendarViewMode.Day)
+            if (_viewPainter == null || !_viewPainter.IsTimedView)
             {
                 return (fallbackStart, fallbackEnd);
             }

@@ -82,21 +82,71 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             return Color.Gray;
         }
 
-        /// <summary>Project the theme + style + control flags into the resolved color set above.</summary>
+        /// <summary>
+        /// Project the theme + style + control flags into the resolved color set above.
+        ///
+        /// Pattern (same as every other Beep control):
+        /// 1. Re-resolve <see cref="Metrics"/> from <see cref="ControlStyle"/>
+        ///    so per-style layout/visual constants are current.
+        /// 2. If a theme is supplied, project <see cref="Theme.CalendarBackColor"/>
+        ///    / <see cref="Theme.CalendarForeColor"/> / <see cref="Theme.CalendarBorderColor"/>
+        ///    / <see cref="Theme.PrimaryColor"/> into the resolved palette.
+        /// 3. If no theme is supplied, resolve the default theme for the
+        ///    owning control's <c>ControlStyle</c> via
+        ///    <c>BeepStyling.GetFormStyle</c> +
+        ///    <c>BeepThemesManager.GetThemeNameForFormStyle</c> +
+        ///    <c>BeepThemesManager.GetTheme</c> and use its colors.
+        ///    This mirrors <c>BaseControl.Properties.cs:382</c>:
+        ///    <c>Theme = BeepStyling.GetThemeStyle(_controlstyle);</c>.
+        /// 4. Only as a final safety net (no theme resolvable) fall back to
+        ///    built-in static defaults.
+        /// </summary>
         public void ResolveThemeColors()
         {
-            if (UseThemeColors && Theme != null)
+            Metrics = CalendarStyleMetrics.For(ControlStyle);
+
+            IBeepTheme effectiveTheme = Theme;
+            if (effectiveTheme == null)
             {
-                BackgroundColor = Theme.CalendarBackColor;
-                ForegroundColor = Theme.CalendarForeColor;
-                BorderColor = Theme.CalendarBorderColor;
-                PrimaryColor = Theme.PrimaryColor;
-                if (Theme is BeepTheme bt)
+                // Resolve the default theme for the owner's control style
+                // (this is the same mapping BaseControl uses when its
+                // ControlStyle property is set).
+                BeepControlStyle ownerStyle = Owner?.ControlStyle ?? ControlStyle;
+                FormStyle formStyle = BeepStyling.GetFormStyle(ownerStyle);
+                try
+                {
+                    string themeName = BeepThemesManager.GetThemeNameForFormStyle(formStyle);
+                    if (!string.IsNullOrEmpty(themeName))
+                    {
+                        effectiveTheme = BeepThemesManager.GetTheme(themeName);
+                    }
+                }
+                catch
+                {
+                    /* fall through to defaults */
+                }
+            }
+
+            if (UseThemeColors && effectiveTheme != null)
+            {
+                BackgroundColor = effectiveTheme.CalendarBackColor;
+                ForegroundColor = effectiveTheme.CalendarForeColor;
+                BorderColor = effectiveTheme.CalendarBorderColor;
+                PrimaryColor = effectiveTheme.PrimaryColor;
+                if (effectiveTheme is BeepTheme bt)
                 {
                     SecondaryColor = bt.SecondaryColor;
                 }
             }
-            Metrics = CalendarStyleMetrics.For(ControlStyle);
+            else
+            {
+                // No theme resolvable at all — fall back to safe built-in defaults.
+                BackgroundColor = Color.White;
+                ForegroundColor = Color.Black;
+                BorderColor = Color.FromArgb(218, 220, 224);
+                PrimaryColor = Color.FromArgb(103, 80, 164);
+                SecondaryColor = Color.FromArgb(66, 133, 244);
+            }
         }
 
         /// <summary>
@@ -134,8 +184,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
     }
 
     /// <summary>
-    /// Style-specific layout + visual metrics. Each control style picks a
-    /// preset; view painters consult these instead of hard-coding numbers.
+    /// Style-specific layout + visual metrics. Layout constants only — colors
+    /// are NOT stored here. Colors and theme come from <see cref="IBeepTheme"/>
+    /// (the same way every other Beep control does it), resolved from
+    /// <c>BeepThemesManager.GetThemeNameForFormStyle(BeepStyling.GetFormStyle(style))</c>
+    /// + <c>BeepThemesManager.GetTheme(name)</c>.
     /// </summary>
     public sealed class CalendarStyleMetrics
     {
@@ -205,54 +258,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             UseElevatedCards = false
         };
 
+        /// <summary>
+        /// Return the layout/visual metrics for the supplied control style.
+        /// Colors and theme are NOT derived here — see
+        /// <see cref="ViewPaintArgs.ResolveThemeColors"/> for theme-driven
+        /// color resolution, which follows the same
+        /// <c>BeepStyling.GetFormStyle → BeepThemesManager.GetTheme</c>
+        /// pattern that every other Beep control uses.
+        /// </summary>
         public static CalendarStyleMetrics For(BeepControlStyle style)
         {
-            switch (style)
+            return style switch
             {
-                case BeepControlStyle.Material3:
-                case BeepControlStyle.Material:
-                case BeepControlStyle.MaterialYou:
-                    return Material3();
-                case BeepControlStyle.Minimal:
-                case BeepControlStyle.NotionMinimal:
-                case BeepControlStyle.VercelClean:
-                    return Minimal();
-                default:
-                    return Material3();
-            }
-        }
-
-        /// <summary>
-        /// Resolve the default <see cref="IBeepTheme"/> for the supplied
-        /// control style. Maps the style to its <see cref="FormStyle"/>
-        /// via <see cref="BeepStyling.GetFormStyle(BeepControlStyle)"/>
-        /// and then to a theme via
-        /// <see cref="BeepThemesManager.GetThemeNameForFormStyle(FormStyle)"/>
-        /// + <see cref="BeepThemesManager.GetTheme(string)"/>.
-        /// </summary>
-        public static IBeepTheme ResolveDefaultTheme(BeepControlStyle style)
-        {
-            try
-            {
-                FormStyle formStyle = BeepStyling.GetFormStyle(style);
-                string themeName = BeepThemesManager.GetThemeNameForFormStyle(formStyle);
-                if (!string.IsNullOrEmpty(themeName))
-                {
-                    return BeepThemesManager.GetTheme(themeName);
-                }
-            }
-            catch
-            {
-                /* fall through */
-            }
-            try
-            {
-                return BeepThemesManager.GetDefaultTheme();
-            }
-            catch
-            {
-                return null;
-            }
+                BeepControlStyle.Material3 => Material3(),
+                BeepControlStyle.Material => Material3(),
+                BeepControlStyle.MaterialYou => Material3(),
+                BeepControlStyle.Minimal => Minimal(),
+                BeepControlStyle.NotionMinimal => Minimal(),
+                BeepControlStyle.VercelClean => Minimal(),
+                _ => Material3()
+            };
         }
     }
 }

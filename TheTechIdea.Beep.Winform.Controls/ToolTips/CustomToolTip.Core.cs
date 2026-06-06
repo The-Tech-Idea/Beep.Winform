@@ -35,6 +35,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         private bool _isAnimatingOut;
         private double _animationProgress;
         private Timer _animationTimer;
+        // C9: TCS to bridge the timer-driven animation back to the awaiters
+        // in AnimateInAsync / AnimateOutAsync. Replaces the per-frame Task.Delay
+        // loop, which allocated a Task each frame and ran on the threadpool.
+        private TaskCompletionSource<bool> _animationTcs;
+        private DateTime _animationStartTime;
+        // C9: The Slide animation interpolates from this captured start point,
+        // not from the current (changing) Location on every tick. Without
+        // capturing here, the slide would drift each frame.
+        private Point _anchorStartLocation;
 
         #endregion
 
@@ -49,10 +58,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             TopMost = true;
             ShowCaptionBar = false; // BeepiFormPro property
 
+            // C1: Transparency key + back color must match so OnPaintBackground's
+            // fill is actually treated as transparent by the OS compositor.
+            // Picked magenta because it is not in any standard theme palette.
+            TransparencyKey = Color.Magenta;
+            BackColor = Color.Magenta;
+
             // Additional tooltip-specific properties
-            BackColor = Color.FromArgb(45, 45, 48); // Default dark tooltip
             ForeColor = Color.White;
-           
+
             DoubleBuffered = true;
 
             // Initialize animation timer
@@ -105,23 +119,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             try
             {
                 _currentTheme = theme;
-                
+
                 // Apply theme colors to config if available
                 if (_config != null && theme != null)
                 {
                     ToolTipThemeHelpers.ApplyThemeColors(_config, theme, useThemeColors);
-                    
+
                     // Update form colors
                     if (!_config.BackColor.HasValue)
                     {
                         BackColor = ToolTipThemeHelpers.GetToolTipBackColor(theme, _config.Type, useThemeColors);
                     }
-                    
+
                     if (!_config.ForeColor.HasValue)
                     {
                         ForeColor = ToolTipThemeHelpers.GetToolTipForeColor(theme, _config.Type, useThemeColors);
                     }
                 }
+
+                // B5: Theme change invalidates painter caches (shadow paths, etc.)
+                _painter?.InvalidateCache();
 
                 // Trigger repaint
                 Invalidate();
@@ -141,6 +158,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             set
             {
                 _painter = value;
+                // B5: invalidate the new painter in case it was shared
+                _painter?.InvalidateCache();
                 Invalidate();
             }
         }

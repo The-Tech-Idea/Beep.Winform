@@ -42,55 +42,6 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Get background color based on ToolTipType
-        /// </summary>
-        private static Color GetSemanticBackgroundColor(ToolTipType type, IBeepTheme theme, BeepControlStyle style)
-        {
-            return type switch
-            {
-                ToolTipType.Success => theme.SuccessColor,
-                ToolTipType.Warning => theme.WarningColor,
-                ToolTipType.Error => theme.ErrorColor,
-                ToolTipType.Info => theme.AccentColor,
-                ToolTipType.Primary => theme.PrimaryColor,
-                ToolTipType.Secondary => theme.SecondaryColor,
-                ToolTipType.Accent => theme.AccentColor,
-                _ => StyleColors.GetBackground(style)
-            };
-        }
-
-        /// <summary>
-        /// Get foreground color based on ToolTipType
-        /// </summary>
-        private static Color GetSemanticForegroundColor(ToolTipType type, IBeepTheme theme)
-        {
-            return type switch
-            {
-                ToolTipType.Success or ToolTipType.Warning or ToolTipType.Error or 
-                ToolTipType.Info or ToolTipType.Primary => Color.White,
-                _ => theme.ForeColor
-            };
-        }
-
-        /// <summary>
-        /// Get border color based on ToolTipType
-        /// </summary>
-        private static Color GetSemanticBorderColor(ToolTipType type, IBeepTheme theme, BeepControlStyle style)
-        {
-            return type switch
-            {
-                ToolTipType.Success => ColorUtils.ShiftLuminance(theme.SuccessColor, -0.2f),
-                ToolTipType.Warning => ColorUtils.ShiftLuminance(theme.WarningColor, -0.2f),
-                ToolTipType.Error => ColorUtils.ShiftLuminance(theme.ErrorColor, -0.2f),
-                ToolTipType.Info => ColorUtils.ShiftLuminance(theme.AccentColor, -0.2f),
-                ToolTipType.Primary => ColorUtils.ShiftLuminance(theme.PrimaryColor, -0.2f),
-                ToolTipType.Secondary => ColorUtils.ShiftLuminance(theme.SecondaryColor, -0.2f),
-                ToolTipType.Accent => ColorUtils.ShiftLuminance(theme.AccentColor, -0.2f),
-                _ => StyleColors.GetBorder(style)
-            };
-        }
-
-        /// <summary>
         /// Get corner radius for tooltip Style
         /// </summary>
         public static int GetCornerRadius(BeepControlStyle style)

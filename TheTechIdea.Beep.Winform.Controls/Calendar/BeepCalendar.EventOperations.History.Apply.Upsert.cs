@@ -28,7 +28,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _focusedDate = clone.StartTime.Date;
             _state.FocusedDate = _focusedDate;
             _eventService?.InvalidateCache();
-            Invalidate();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
+            RequestRedraw();
             return true;
         }
     }

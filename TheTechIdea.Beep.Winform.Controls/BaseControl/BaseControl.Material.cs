@@ -136,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public string ErrorText
         {
             get => _bcErrorText;
-            set { _bcErrorText = value ?? string.Empty; _bcHasError = !string.IsNullOrEmpty(value); Invalidate(); }
+            set { _bcErrorText = value ?? string.Empty; _bcHasError = !string.IsNullOrEmpty(value); UpdateExternalDrawing(); Invalidate(); }
         }
 
         [Browsable(true), Category("Validation")]

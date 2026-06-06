@@ -304,5 +304,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         }
 
         #endregion
+
+        #region Cache Management (B5)
+
+        /// <summary>
+        /// B5: Discard any cached GraphicsPaths, brushes, or layout data.
+        /// Override in painters that maintain a cache. Called from
+        /// theme-changed, DPI-changed, and factory-pool clear events.
+        /// </summary>
+        public virtual void InvalidateCache() { }
+
+        #endregion
     }
 }

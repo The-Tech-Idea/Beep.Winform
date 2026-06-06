@@ -160,13 +160,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region Tooltips (Rich)
-        private string _toolTipText = string.Empty;
-
+        // Designer-only flag kept for backward compatibility with existing .Designer.cs
+        // files. The rich tooltip system (TooltipManager) is now always used; this
+        // property is no longer functional but is preserved so designer serialization
+        // does not break.
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool UseRichToolTip { get; set; } = true;
-        #endregion
-        public DrawingLayer ExternalDrawingLayer { get; set; } =  DrawingLayer.AfterAll;  
+
+        public DrawingLayer ExternalDrawingLayer { get; set; } =  DrawingLayer.AfterAll;
 
         #region Paint Exclusions
         [Browsable(false)]
@@ -738,22 +740,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool FloatingLabelOn
         {
             get => _showFloatingLabel;
-            set { if (_showFloatingLabel == value) return; _showFloatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
+            set { if (_showFloatingLabel == value) return; _showFloatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalDrawing(); Invalidate(); }
         }
 
         [Browsable(true)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("FloatingLabel is obsolete. Use LabelText + FloatingLabelOn instead. LabelText is the content; FloatingLabelOn toggles whether the label floats above the border (external) or sits inside the control (internal).")]
         public string FloatingLabel
         {
-            get => _floatingLabel;
-            set { if (_floatingLabel == value) return; _floatingLabel = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
+            get => _labelText;
+            set { LabelText = value; }
         }
-        private string _floatingLabel = string.Empty;
 
         private bool _showLabelText = false;
         public bool LabelTextOn
         {
             get => _showLabelText;
-            set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
+            set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalDrawing(); Invalidate(); }
         }
         private string _labelText = string.Empty;
 
@@ -789,7 +792,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool HelperTextOn
         {
             get => _showHelperText;
-            set { if (_showHelperText == value) return; _showHelperText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); Invalidate(); }
+            set { if (_showHelperText == value) return; _showHelperText = value; OnMaterialPropertyChanged(); UpdatePainterLayout(); UpdateExternalDrawing(); Invalidate(); }
         }
 
         [Browsable(true)]

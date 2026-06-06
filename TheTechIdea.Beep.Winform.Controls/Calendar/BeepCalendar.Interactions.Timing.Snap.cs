@@ -8,12 +8,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     {
         private TimeSpan CalculateTimedDelta(Point delta)
         {
-            if (_state.ViewMode == CalendarViewMode.Timeline)
+            // Painter decides axis orientation. Horizontal-time-axis views
+            // (Timeline, Gantt) map X delta to days; vertical-time-axis views
+            // (Day, Week, WorkWeek, DayGrid) map Y delta to minutes.
+            if (_viewPainter != null && _viewPainter.IsHorizontalTimeAxis)
             {
                 var timelineGrid = _rects.CalendarGridRect;
                 int laneHeaderWidth = Math.Min(ScaleMetric(140), Math.Max(ScaleMetric(80), timelineGrid.Width / 3));
                 int contentWidth = Math.Max(1, timelineGrid.Width - laneHeaderWidth);
-                double dayWidth = contentWidth / 7d;
+                double dayWidth = contentWidth / Math.Max(1, _viewPainter.VisibleDayCount);
                 int dayDelta = (int)Math.Round(delta.X / dayWidth, MidpointRounding.AwayFromZero);
                 return TimeSpan.FromDays(dayDelta);
             }
@@ -52,19 +55,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private DateTime? GetSnappedStartFromLocation(Point location)
         {
             var baseDate = _activeInteractionHit?.Date?.Date ?? _state.SelectedDate.Date;
-
-            switch (_state.ViewMode)
+            if (_viewPainter != null && _viewPainter.IsTimedView)
             {
-                case CalendarViewMode.Week:
-                case CalendarViewMode.WorkWeek:
-                    return GetTimedViewDateFromLocation(location)?.AddHours(0) ?? baseDate.AddHours(9);
-                case CalendarViewMode.Day:
-                    return GetTimedViewDateFromLocation(location)?.AddHours(0) ?? baseDate.AddHours(9);
-                case CalendarViewMode.Month:
-                case CalendarViewMode.List:
-                default:
-                    return baseDate.AddHours(9);
+                return GetTimedViewDateFromLocation(location) ?? baseDate.AddHours(9);
             }
+            return baseDate.AddHours(9);
         }
 
     }

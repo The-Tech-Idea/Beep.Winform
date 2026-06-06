@@ -29,8 +29,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             if (config == null || bounds.Width <= 0 || bounds.Height <= 0)
                 return;
 
-            // Store bounds so PaintArrow() can access them
-            _lastPaintBounds = bounds;
+            // B4: Store bounds under lock so GetArrowPath can read them
+            // without tearing on concurrent reads from a layout thread.
+            lock (_boundsLock)
+            {
+                _lastPaintBounds = bounds;
+            }
 
             // Set high quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -269,9 +273,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             // ArrowOffset and ArrowStyle stored on the config, so we derive bounds from position.
             // Re-use the bounds rect supplied via the new Paint() overload that stores it in
             // _lastPaintBounds below.  Fall back to estimating from position.
-            var bounds = _lastPaintBounds.IsEmpty
+            // B4: Read under lock to prevent torn reads from a layout thread.
+            Rectangle localBounds;
+            lock (_boundsLock)
+            {
+                localBounds = _lastPaintBounds;
+            }
+            var bounds = localBounds.IsEmpty
                 ? new Rectangle(position.X - 80, position.Y - 30, 160, 30)
-                : _lastPaintBounds;
+                : localBounds;
 
             ToolTipArrowPainter.DrawArrow(
                 g, bounds, placement,
@@ -281,8 +291,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 fill, border);
         }
 
-        // Stores the tooltip bounds so PaintArrow can access them.
+        // B4: Stores the tooltip bounds so PaintArrow can access them.
+        // Guarded by _boundsLock because Paint() (UI thread) writes this
+        // while GetArrowPath / MeasureSize may read from a layout thread.
         private Rectangle _lastPaintBounds;
+        private readonly object _boundsLock = new();
 
         #endregion
 
@@ -399,8 +412,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
         /// <summary>
         /// Renders ToolTipContentItem[] sections (Header / Body / Divider / Footer)
         /// as the source of truth when populated on config.
+        ///
+        /// B1: Marked <c>internal</c> so GlassToolTipPainter (and future painters)
+        /// can delegate rich-content rendering through this single source of truth
+        /// instead of duplicating the icon/code/link/divider logic.
         /// </summary>
-        private void PaintContentItems(Graphics g, Rectangle bounds,
+        internal void PaintContentItems(Graphics g, Rectangle bounds,
             ToolTipConfig config, IBeepTheme theme)
         {
             var contentRect = GetContentRectangle(bounds, config);
@@ -476,29 +493,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                             if (item.IsItalic) fs |= FontStyle.Italic;
 
                             Font font = item.Font ?? bodyFont;
+                            Font ownedFont = null;
                             if (fs != FontStyle.Regular && item.Font == null)
                             {
-                                font = new Font(bodyFont.FontFamily, bodyFont.Size, fs);
+                                ownedFont = font = new Font(bodyFont.FontFamily, bodyFont.Size, fs);
                             }
 
                             var bodyRect = new Rectangle(contentRect.X, y, availableWidth, remainingHeight);
 
-                            if (item.IsCode)
+                            try
                             {
-                                // Tinted code background
-                                var codeRect = new Rectangle(contentRect.X, y, availableWidth, (int)(bodyFont.GetHeight(g) * 1.4f));
-                                using (var codeBrush = new SolidBrush(Color.FromArgb(30, foreColor)))
-                                    g.FillRectangle(codeBrush, codeRect);
-                                var monoFont = new Font("Consolas", bodyFont.Size, fs);
-                                using (var brush = new SolidBrush(itemColor))
-                                    g.DrawString(item.Text ?? "", monoFont, brush, codeRect);
-                                y += codeRect.Height + spacing;
-                            }
-                            else if (item.IsLink)
-                            {
-                                var linkFont = new Font(bodyFont.FontFamily, bodyFont.Size, FontStyle.Underline);
-                                Color linkColor = theme?.AccentColor ?? Color.DodgerBlue;
-                                using (var brush = new SolidBrush(linkColor))
+                                if (item.IsCode)
+                                {
+                                    var codeRect = new Rectangle(contentRect.X, y, availableWidth, (int)(bodyFont.GetHeight(g) * 1.4f));
+                                    using (var codeBrush = new SolidBrush(Color.FromArgb(30, foreColor)))
+                                        g.FillRectangle(codeBrush, codeRect);
+                                    using var monoFont = new Font("Consolas", bodyFont.Size, fs);
+                                    using (var brush = new SolidBrush(itemColor))
+                                        g.DrawString(item.Text ?? "", monoFont, brush, codeRect);
+                                    y += codeRect.Height + spacing;
+                                }
+                                else if (item.IsLink)
+                                {
+                                    using var linkFont = new Font(bodyFont.FontFamily, bodyFont.Size, FontStyle.Underline);
+                                    Color linkColor = theme?.AccentColor ?? Color.DodgerBlue;
+                                    using (var brush = new SolidBrush(linkColor))
                                     g.DrawString(item.Text ?? "", linkFont, brush, bodyRect);
                                 y += (int)(linkFont.GetHeight(g) * 1.2f) + spacing;
                             }
@@ -518,6 +537,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                                 y += (int)Math.Ceiling(measured.Height) + spacing;
                             }
                         }
+                        finally
+                        {
+                            ownedFont?.Dispose();
+                        }
+                    }
                         break;
 
                     case ToolTipSection.Divider:
@@ -601,7 +625,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             foreach (var span in spans)
             {
                 FontStyle fs = span.GetFontStyle();
-                Font spanFont = span.Kind == SpanKind.Code
+                using var spanFont = span.Kind == SpanKind.Code
                     ? new Font("Consolas", baseFont.Size, fs)
                     : new Font(baseFont.FontFamily, baseFont.Size, fs);
 

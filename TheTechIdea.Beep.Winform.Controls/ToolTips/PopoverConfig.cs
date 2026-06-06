@@ -43,14 +43,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         /// <summary>
         /// Raised when the primary button is clicked.
-        /// The string argument is <see cref="ToolTipConfig.Key"/>.
+        /// Inherited from ToolTipConfig (no parameter — callers that need
+        /// the key can capture it in a closure).
         /// </summary>
-        public Action<string> OnPrimaryClick { get; set; }
+        // OnPrimaryClick inherited from ToolTipConfig
 
         /// <summary>
         /// Raised when the secondary button is clicked or the popover is dismissed via cancel.
+        /// Inherited from ToolTipConfig.
         /// </summary>
-        public Action<string> OnSecondaryClick { get; set; }
+        // OnSecondaryClick inherited from ToolTipConfig
 
         /// <summary>
         /// Maximum width of the popover in pixels.

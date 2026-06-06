@@ -77,6 +77,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                     targetPosition.X - Width,
                     targetPosition.Y + arrowSize + offset
                 ),
+                // C4: 4 cases that used to fall through to default.
+                // Left/Right with vertical alignment: align to top of target (Start) or top-bottom (End).
+                ToolTipPlacement.LeftStart => new Point(
+                    targetPosition.X - Width - arrowSize - offset,
+                    targetPosition.Y
+                ),
+                ToolTipPlacement.LeftEnd => new Point(
+                    targetPosition.X - Width - arrowSize - offset,
+                    targetPosition.Y - Height
+                ),
+                ToolTipPlacement.RightStart => new Point(
+                    targetPosition.X + arrowSize + offset,
+                    targetPosition.Y
+                ),
+                ToolTipPlacement.RightEnd => new Point(
+                    targetPosition.X + arrowSize + offset,
+                    targetPosition.Y - Height
+                ),
                 _ => new Point(targetPosition.X - Width / 2, targetPosition.Y + arrowSize + offset)
             };
         }

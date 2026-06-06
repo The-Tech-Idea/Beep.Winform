@@ -11,6 +11,7 @@ This folder contains the BeepCalendar modernization and commercialization roadma
 - 04-phase4-integrations-enterprise-accessibility.md
 - 05-external-benchmark-and-ux-standards.md
 - 06-pipeline-consolidation-and-editor-layer.md
+- 09-all-calendar-view-painter-plan.md *(W9 — all-view coverage plan; in flight 2026-06-04)*
 - phase1-validation-checklist.md
 - phase2-validation-matrix.md
 - TODO-TRACKER.md

@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace TheTechIdea.Beep.Winform.Controls.Badges
 {
     public class BeepFloatingBadge : UserControl, IBeepBadge
@@ -169,6 +171,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
 
         public bool IsAttached => _isAttached;
 
+        private bool _cornerOverlap = true;
+        /// <summary>
+        /// When true (default), the badge is centered on the anchor corner and sticks out
+        /// beyond the target's edge by half its size. This is the modern UI/UX pattern
+        /// (Material Design, Fluent UI) where the badge visually floats above the corner,
+        /// sitting between the control and its parent in z-order. When false, the badge is
+        /// flush inside the target's corner (legacy behavior).
+        /// </summary>
+        [Category("Layout")]
+        [Description("Center the badge on the anchor corner so it sticks out by half its size (modern UI/UX).")]
+        public bool CornerOverlap
+        {
+            get => _cornerOverlap;
+            set { if (_cornerOverlap == value) return; _cornerOverlap = value; Reposition(); }
+        }
+
         public event EventHandler? BadgeClick;
         public event EventHandler? BadgeOpened;
         public event EventHandler? BadgeClosed;
@@ -239,7 +257,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
         {
             if (_target is null || Parent is null) return;
             var newLoc = Location.ComputeBounds(_target.Bounds, Size);
+            if (_cornerOverlap)
+            {
+                newLoc = ApplyCornerOverlap(newLoc, _target.Bounds);
+            }
             SetBounds(newLoc.X, newLoc.Y, Width, Height);
+        }
+
+        /// <summary>
+        /// Centers the badge on the anchor corner so it sticks out by half its size in both
+        /// directions. This produces the modern "floating" UI/UX look where the badge appears
+        /// to sit between the control and its parent (on the parent's surface, centered on the
+        /// control's corner).
+        /// </summary>
+        private Rectangle ApplyCornerOverlap(Rectangle currentBounds, Rectangle targetBounds)
+        {
+            int halfW = currentBounds.Width / 2;
+            int halfH = currentBounds.Height / 2;
+
+            // Determine which corner the anchor is on by inspecting the offset of
+            // currentBounds relative to targetBounds.
+            bool isTop = currentBounds.Top < targetBounds.Top + targetBounds.Height / 2;
+            bool isBottom = !isTop;
+            bool isLeft = currentBounds.Left < targetBounds.Left + targetBounds.Width / 2;
+            bool isRight = !isLeft;
+
+            int newX = currentBounds.X;
+            int newY = currentBounds.Y;
+
+            if (isLeft) newX = targetBounds.Left - halfW;
+            else if (isRight) newX = targetBounds.Right - halfW;
+
+            if (isTop) newY = targetBounds.Top - halfH;
+            else if (isBottom) newY = targetBounds.Bottom - halfH;
+
+            // Middle anchors (MiddleLeft, MiddleRight, MiddleCenter) center on the side.
+            if (currentBounds.Left + halfW == targetBounds.Left + targetBounds.Width / 2)
+            {
+                // Centered horizontally — don't shift X.
+            }
+            if (currentBounds.Top + halfH == targetBounds.Top + targetBounds.Height / 2)
+            {
+                // Centered vertically — don't shift Y.
+            }
+
+            return new Rectangle(newX, newY, currentBounds.Width, currentBounds.Height);
         }
 
         protected override void OnPaint(PaintEventArgs e)

@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
     public class CalendarState
     {
         public DateTime CurrentDate { get; set; } = DateTime.Today;
-        public CalendarViewMode ViewMode { get; set; } = CalendarViewMode.Month;
+        public CalendarViewMode ViewMode { get; set; } = CalendarViewMode.Week4;
         public DateTime SelectedDate { get; set; } = DateTime.Today;
         public CalendarEvent SelectedEvent { get; set; }
         public DateTime? VisibleRangeStart { get; set; }

@@ -24,8 +24,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             _events.Add(mutated);
             _eventService?.InvalidateCache();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
             _state.SelectedEvent = mutated;
-            Invalidate();
+            // W2-Redo-11 BUG C - after a copy the new event is selected
+            // but the calendar's date/focus state still points at the
+            // SOURCE event's day. CommitNewEventMutation does the
+            // analogous sync (SelectedDate / CurrentDate / focusedDate
+            // / FocusedDate). Mirror it here so a Ctrl+Shift+drag copy
+            // (a) scrolls the view to the destination, (b) makes
+            // keyboard navigation continue from the copy's date, and
+            // (c) keeps CurrentDate consistent with SelectedDate for
+            // any consumer that reads the calendar's "current" day.
+            _state.SelectedDate = mutated.StartTime.Date;
+            _state.CurrentDate = mutated.StartTime.Date;
+            _focusedDate = mutated.StartTime.Date;
+            _state.FocusedDate = _focusedDate;
+            RequestLayoutAndRedraw();
             RecordMutationHistory(CalendarEventMutationKind.Copy, source, mutated);
             RaiseMutated(CalendarEventMutationKind.Copy, source, mutated, mutated, true, conflictResult?.Conflicts ?? Array.Empty<CalendarEvent>());
             return true;

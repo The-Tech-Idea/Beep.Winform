@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
@@ -16,13 +17,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
     public sealed class MonthViewPainter : ICalendarViewPainter
     {
         public CalendarViewMode ViewMode => CalendarViewMode.Month;
+        public string Key => "month";
+        public string DisplayLabel => "Month";
+        public int VisibleDayCount => 7;
+        public bool IsTimedView => false;
+        public bool IsMonthGrid => true;
+        public bool RequiresLeftGutter => false;
+        public bool HasAllDayStrip => false;
+        public bool SupportsEventDrag => false;
+        public bool IsHorizontalTimeAxis => false;
+
+        public DateTime NavigatePrevious(DateTime d) => d.AddMonths(-1);
+        public DateTime NavigateNext(DateTime d) => d.AddMonths(1);
+        public string GetHeaderText(DateTime d) => d.ToString("MMMM yyyy");
+        public DateTime GetVisibleRangeStart(DateTime d)
+        {
+            var first = new DateTime(d.Year, d.Month, 1);
+            return first.AddDays(-(int)first.DayOfWeek);
+        }
+        public DateTime GetVisibleRangeEnd(DateTime d) => GetVisibleRangeStart(d).AddDays(42);
 
         private static readonly string[] DayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
         public void Layout(ViewPaintArgs args)
         {
-            // Layout is computed by BeepCalendar.UpdateLayout -> CalendarSurfaceModel.Build
-            // and surfaced through args.Surface. Nothing to cache here.
         }
 
         public void Paint(Graphics g, ViewPaintArgs args)
@@ -31,15 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var surface = args.Surface;
             var metrics = args.Metrics;
 
-            // Day-of-week header band
             for (int i = 0; i < 7; i++)
             {
                 var headerRect = surface.GetColumnRect(surface.MonthHeaderBand, i, 7);
-                bool isToday = (int)DateTime.Today.DayOfWeek == i;
-                PaintDayHeader(g, headerRect, DayNames[i], isToday, args);
+                var headerDate = surface.FirstDayOfCalendar.AddDays(i);
+                bool isToday = headerDate.Date == DateTime.Today;
+                PaintDayHeader(g, headerRect, headerDate, isToday, i, args);
             }
 
-            // Day cells + event bars
             for (int week = 0; week < 6; week++)
             {
                 for (int day = 0; day < 7; day++)
@@ -53,21 +70,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                         cellDate,
                         surface.CurrentDate,
                         surface.SelectedDate,
-                        surface.HoveredDate,
+                        args.HoveredDate,
                         surface.FocusedDate,
-                        surface.State?.IsKeyboardFocusVisible ?? false,
+                        args.State?.IsKeyboardFocusVisible ?? false,
                         dayEvents.Count,
                         metrics.MaxEventsPerCell);
 
-                    PaintDayCell(g, cellRect, cellDate, state, args);
+                    PaintDayCell(g, cellRect, cellDate, state, week, day, args);
 
                     int eventY = PaintCellEvents(g, cellRect, dayEvents, args, state.HasMoreEvents);
                     if (state.HasMoreEvents)
                     {
+                        int moreHeight = args.EventFont != null ? args.EventFont.Height : 16;
                         CalendarPainterHelpers.DrawText(g,
                             $"+{dayEvents.Count - metrics.MaxEventsPerCell} more",
                             args.EventFont, args.ForegroundColor,
-                            new RectangleF(cellRect.X + 2, eventY, cellRect.Width - 4, args.EventFont?.Height ?? 16),
+                            new Rectangle(cellRect.X + 2, eventY, Math.Max(1, cellRect.Width - 4), moreHeight),
                             StringAlignment.Near, StringAlignment.Near,
                             StringTrimming.EllipsisCharacter, centerVertically: false);
                     }
@@ -82,7 +100,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
             var surface = args.Surface;
             if (location.Y < surface.MonthHeaderBand.Bottom)
-                return EmptyHit(location, args);
+            {
+                int hdrCol = CalendarPainterHelpers.GetColumnIndex(surface.MonthHeaderBand, location.X, 7);
+                if (hdrCol < 0 || hdrCol >= 7) return EmptyHit(location, args);
+                var hdrDate = surface.FirstDayOfCalendar.AddDays(hdrCol);
+                return new CalendarInteractionHitTestResult
+                {
+                    TargetKind = CalendarInteractionTargetKind.DateCell,
+                    RequestedMode = CalendarInteractionMode.SelectDate,
+                    Location = location,
+                    Date = hdrDate
+                };
+            }
 
             int col = CalendarPainterHelpers.GetColumnIndex(surface.MonthBody, location.X, 7);
             int row = CalendarPainterHelpers.GetRowIndex(surface.MonthBody, location.Y, 6);
@@ -98,10 +127,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             var eventHit = ResolveMonthEventHit(location, date, cellRect, dayEvents, args);
             if (eventHit.Event != null)
             {
+                // Month-view event bars are 20px tall — use a smaller
+                // resize handle (4px) so the edges don't dominate the bar.
+                var edge = CalendarPainterHelpers.ResolveResizeEdge(location, eventHit.Bounds, 4);
                 return new CalendarInteractionHitTestResult
                 {
                     TargetKind = CalendarInteractionTargetKind.EventBlock,
-                    RequestedMode = CalendarInteractionMode.SelectEvent,
+                    RequestedMode = edge == CalendarEventResizeEdge.Start
+                        ? CalendarInteractionMode.ResizeStart
+                        : edge == CalendarEventResizeEdge.End
+                            ? CalendarInteractionMode.ResizeEnd
+                            : CalendarInteractionMode.SelectEvent,
+                    ResizeEdge = edge,
                     Location = location,
                     Date = eventHit.Event.StartTime.Date,
                     Event = eventHit.Event,
@@ -118,18 +155,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             };
         }
 
-        // ── Drawing helpers ──────────────────────────────────────────────
-
-        private static void PaintDayHeader(Graphics g, Rectangle rect, string dayName, bool isToday, ViewPaintArgs args)
+        public DateTime? GetDateTimeFromLocation(Point location, ViewPaintArgs args)
         {
+            if (args.Surface == null) return null;
+            var surface = args.Surface;
+            int col = CalendarPainterHelpers.GetColumnIndex(surface.MonthBody, location.X, 7);
+            int row = CalendarPainterHelpers.GetRowIndex(surface.MonthBody, location.Y, 6);
+            if (col < 0 || col >= 7 || row < 0 || row >= 6) return null;
+            return surface.FirstDayOfCalendar.AddDays(row * 7 + col);
+        }
+
+        private static void PaintDayHeader(Graphics g, Rectangle rect, DateTime date, bool isToday, int col, ViewPaintArgs args)
+        {
+            string cellKey = $"date:{date:yyyy-MM-dd}:cell";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.DateCell, null, date,
+                args.Surface?.ViewMode ?? CalendarViewMode.Month, 0, col);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, args.BackgroundColor);
             var color = isToday ? args.TodayForeColor : args.ForegroundColor;
-            CalendarPainterHelpers.DrawText(g, dayName, args.DaysHeaderFont ?? args.HeaderFont,
+            CalendarPainterHelpers.DrawText(g, date.ToString("ddd"), args.DaysHeaderFont ?? args.HeaderFont,
                 color, rect, StringAlignment.Center, StringAlignment.Center);
         }
 
-        private static void PaintDayCell(Graphics g, Rectangle rect, DateTime date, DayCellState state, ViewPaintArgs args)
+        private static void PaintDayCell(Graphics g, Rectangle rect, DateTime date, DayCellState state,
+            int row, int col, ViewPaintArgs args)
         {
+            // W8 - delegate to developer's IBeepUIComponent DateCell factory for the
+            // month cell when one is registered. Falls through to the default painted
+            // cell otherwise.
+            string cellKey = $"date:{date:yyyy-MM-dd}:cell";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.DateCell, null, date,
+                args.Surface?.ViewMode ?? CalendarViewMode.Month, row, col);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             Color back = args.BackgroundColor;
             if (!state.IsCurrentMonth) back = args.OutOfMonthBackColor;
             else if (state.IsWeekend) back = args.WeekendBackColor;
@@ -139,7 +200,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             CalendarPainterHelpers.FillRoundedRect(g, rect, args.Metrics.CornerRadius, back);
             CalendarPainterHelpers.StrokeRoundedRect(g, rect, args.Metrics.CornerRadius, args.BorderColor);
 
-            // Today highlight (filled circle behind day number)
             if (state.IsToday)
             {
                 int d = Math.Max(16, Math.Min(rect.Width, rect.Height) / 6);
@@ -147,7 +207,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
                 CalendarPainterHelpers.FillRoundedRect(g, todayRect, d / 2, args.TodayBackColor);
             }
 
-            // Day number
             Color numColor = state.IsToday
                 ? args.TodayForeColor
                 : (state.IsCurrentMonth ? args.ForegroundColor : args.OutOfMonthForeColor);
@@ -181,6 +240,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
 
         private static void PaintEventBar(Graphics g, Rectangle rect, CalendarEvent evt, ViewPaintArgs args)
         {
+            // W8 - delegate to developer's IBeepUIComponent when registered.
+            var cellKey = $"evt:{evt.Id}";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.EventBlock,
+                evt,
+                evt.StartTime.Date,
+                args.State?.ViewMode ?? CalendarViewMode.Week1,
+                0, 0);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             Color fill = args.GetCategoryColor(evt.CategoryId);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;

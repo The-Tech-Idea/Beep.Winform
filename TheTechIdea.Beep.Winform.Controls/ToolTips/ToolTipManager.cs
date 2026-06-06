@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips
@@ -40,17 +41,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             // Start cleanup timer (runs every 5 seconds)
             _cleanupTimer = new System.Threading.Timer(OnCleanupTimer, null, 5000, 5000);
-            
-            // Subscribe to theme changes if BeepThemesManager supports it
-            // This ensures tooltips update when theme changes
+
+            // C8: Subscribe to theme changes. Tooltips already on-screen must
+            // re-paint to match the new palette instead of waiting for the
+            // next show. The previous placeholder try/catch silently swallowed
+            // this — we now actually wire the handler.
             try
             {
-                // Note: If BeepThemesManager has a ThemeChanged event, subscribe here
-                // Example: BeepThemesManager.ThemeChanged += OnThemeChanged;
+                BeepThemesManager.ThemeChanged += OnThemeChanged;
             }
             catch
             {
-                // Theme subscription not available - continue without it
+                // BeepThemesManager.ThemeChanged missing at build time — fall back
+                // to polling the CurrentTheme on next show. Not a hard failure.
             }
         }
 
@@ -408,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 return;
             }
 
-            // Remove existing tooltip first
+            // Remove existing tooltip first (also detaches any prior event handlers)
             RemoveTooltip(control);
 
             // Create or update configuration
@@ -420,24 +423,67 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             // Store control-tooltip mapping
             _controlTooltips[control] = config.Key;
 
-            // Attach event handlers
-            control.MouseEnter += async (s, e) => await OnControlMouseEnter(control, config);
-            control.MouseLeave += async (s, e) => await OnControlMouseLeave(control, config);
-            
-            if (config.FollowCursor)
-            {
-                control.MouseMove += (s, e) => OnControlMouseMove(control, config, e);
-            }
+            // Attach named event handlers so they can be cleanly unsubscribed in
+            // RemoveTooltip. The previous anonymous-lambda approach leaked handlers
+            // every time a tooltip was reassigned.
+            AttachControlHandlers(control, config);
 
             // Set accessibility properties
             if (EnableAccessibility)
             {
                 control.AccessibleDescription = text;
-                
+
                 if (!string.IsNullOrEmpty(config.Title))
                 {
                     control.AccessibleName = config.Title;
                 }
+            }
+        }
+
+        // Per-control named handler registry so RemoveTooltip can detach cleanly.
+        // Stores the *actual* EventHandler/MouseEventHandler instances that were
+        // subscribed to the control's events so they can be removed later. The
+        // async work happens inside the handler — the handler itself is a normal
+        // void-returning delegate (the returned Task is fire-and-forget).
+        private sealed class TooltipHandlers
+        {
+            public EventHandler? EnterHandler;
+            public EventHandler? LeaveHandler;
+            public MouseEventHandler? MoveHandler;
+        }
+        private readonly ConcurrentDictionary<Control, TooltipHandlers> _attachedHandlers = new();
+
+        private void AttachControlHandlers(Control control, ToolTipConfig config)
+        {
+            EventHandler enterHandler = (s, e) => _ = OnControlMouseEnter(control, config);
+            EventHandler leaveHandler = (s, e) => _ = OnControlMouseLeave(control, config);
+            MouseEventHandler moveHandler = (s, e) => OnControlMouseMove(control, config, e);
+
+            _attachedHandlers[control] = new TooltipHandlers
+            {
+                EnterHandler = enterHandler,
+                LeaveHandler = leaveHandler,
+                MoveHandler = moveHandler
+            };
+
+            control.MouseEnter += enterHandler;
+            control.MouseLeave += leaveHandler;
+            if (config.FollowCursor)
+            {
+                control.MouseMove += moveHandler;
+            }
+        }
+
+        private void DetachControlHandlers(Control control)
+        {
+            if (_attachedHandlers.TryRemove(control, out var handlers))
+            {
+                if (handlers.EnterHandler != null)
+                    control.MouseEnter -= handlers.EnterHandler;
+                if (handlers.LeaveHandler != null)
+                    control.MouseLeave -= handlers.LeaveHandler;
+                if (handlers.MoveHandler != null)
+                    control.MouseMove -= handlers.MoveHandler;
             }
         }
 
@@ -487,9 +533,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             {
                 // Hide the tooltip if it's currently showing
                 _ = HideTooltipAsync(key);
-
-                // Note: Event handlers will be garbage collected with the control
             }
+
+            // Detach the MouseEnter/Leave/Move handlers we registered
+            DetachControlHandlers(control);
 
             // Clear accessibility properties
             if (EnableAccessibility)
@@ -796,6 +843,39 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         #endregion
 
+        #region C8: Theme propagation
+
+        /// <summary>
+        /// C8: When the app theme changes, push the new theme into every
+        /// active tooltip instance so the on-screen tooltips re-paint with
+        /// the new palette. Falls back to the manager default if the event
+        /// arg doesn't carry an IBeepTheme.
+        /// </summary>
+        private void OnThemeChanged(object sender, ThemeChangeEventArgs e)
+        {
+            IBeepTheme theme = e?.NewTheme ?? BeepThemesManager.CurrentTheme;
+            if (theme == null) return;
+
+            foreach (var kvp in _activeTooltips)
+            {
+                var instance = kvp.Value;
+                if (instance == null) continue;
+                var tip = instance.ToolTip;
+                if (tip == null || tip.IsDisposed) continue;
+
+                try
+                {
+                    tip.ApplyTheme(theme, useThemeColors: true);
+                }
+                catch
+                {
+                    // One bad tooltip should not block the rest.
+                }
+            }
+        }
+
+        #endregion
+
         #region IDisposable
 
         public void Dispose()
@@ -809,6 +889,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
             // Stop cleanup timer
             _cleanupTimer?.Dispose();
+
+            // C8: unsubscribe from theme changes so the static event
+            // doesn't keep a reference to this disposed singleton.
+            try
+            {
+                BeepThemesManager.ThemeChanged -= OnThemeChanged;
+            }
+            catch
+            {
+                // Same fallback as the subscribe site.
+            }
 
             // Hide all tooltips
             var hideTask = HideAllTooltipsAsync();

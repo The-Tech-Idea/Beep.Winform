@@ -254,15 +254,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         }
 
         /// <summary>
-        /// Darkens a color by a factor
+        /// Darkens a color by the given factor (0.2 = 20% darker = 80% brightness).
         /// </summary>
         private static Color DarkenColor(Color color, float factor)
         {
+            float multiplier = 1f - factor;
             return Color.FromArgb(
                 color.A,
-                (int)(color.R * factor),
-                (int)(color.G * factor),
-                (int)(color.B * factor)
+                (int)(color.R * multiplier),
+                (int)(color.G * multiplier),
+                (int)(color.B * multiplier)
             );
         }
 

@@ -47,7 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             _focusedDate = duplicated.StartTime.Date;
             _state.FocusedDate = _focusedDate;
             _eventService?.InvalidateCache();
-            Invalidate();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
+            RequestRedraw();
             RecordMutationHistory(CalendarEventMutationKind.Copy, source, duplicated);
             RaiseMutated(CalendarEventMutationKind.Copy, source, duplicated, duplicated, true, conflictResult?.Conflicts ?? Array.Empty<CalendarEvent>());
             return true;

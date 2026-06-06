@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
 {
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             _rects = rects;
         }
 
-        public void UpdateLayout(Rectangle clientRect, int tallestSelectorButtonHeight, int sidebarWidth, int leftGutter = 10, float metricScale = 1.0f)
+        public void UpdateLayout(Rectangle clientRect, int tallestSelectorButtonHeight, int sidebarWidth, int leftGutter = 10, float metricScale = 1.0f, ICalendarViewPainter viewPainter = null)
         {
             if (clientRect.Width <= 0 || clientRect.Height <= 0) return;
 
@@ -34,11 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
             int availableGridHeight = Math.Max(0, clientRect.Bottom - gridTop);
             int actualSidebarWidth = _state.ShowSidebar ? Math.Max(0, Math.Min(sidebarWidth, clientRect.Width - 1)) : 0;
 
-            // Apply left gutter only for time-based views that need space for time labels
-            // Month, Agenda, and List views should start at the left edge
-            int actualLeftGutter = (_state.ViewMode == CalendarViewMode.Week || _state.ViewMode == CalendarViewMode.WorkWeek || _state.ViewMode == CalendarViewMode.Day) 
-                                 ? Math.Max(0, leftGutter) 
-                                 : 0;
+            // Apply left gutter only for time-based views that need space for time labels.
+            // Painter decides — it is always supplied by BeepCalendar.LayoutTheme.Layout.cs.
+            bool requiresLeftGutter = viewPainter != null && viewPainter.RequiresLeftGutter;
+            int actualLeftGutter = requiresLeftGutter ? Math.Max(0, leftGutter) : 0;
 
             int gridLeft = clientRect.X + actualLeftGutter;
 

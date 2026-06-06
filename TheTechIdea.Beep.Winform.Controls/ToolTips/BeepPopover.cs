@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         private Button           _primaryBtn;
         private Button           _secondaryBtn;
         private bool             _isMounted;
+        private OutsideClickMessageFilter _outsideClickFilter;   // C5
 
         // ──────────────────────────────────────────────────────────────────────
         // Constructor
@@ -60,14 +62,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// <summary>Dismiss the popover and raise the secondary-click callback.</summary>
         public void DismissAsCancel()
         {
-            _popoverConfig?.OnSecondaryClick?.Invoke(_popoverConfig.Key);
+            _popoverConfig?.OnSecondaryClick?.Invoke();
             Close();
         }
 
         /// <summary>Confirm and raise the primary-click callback then close.</summary>
         public void ConfirmAndClose()
         {
-            _popoverConfig?.OnPrimaryClick?.Invoke(_popoverConfig.Key);
+            _popoverConfig?.OnPrimaryClick?.Invoke();
             Close();
         }
 
@@ -86,14 +88,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Click-outside dismiss
+        // Click-outside dismiss (C5)
         // ──────────────────────────────────────────────────────────────────────
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            // Install a global message filter that fires DismissAsCancel
+            // when the user clicks anywhere outside the popover's bounds.
+            // OnDeactivate used to do this but it fired for clicks on the
+            // popover's own buttons (since the click moved focus), causing
+            // the action handlers to race with the dismiss handler.
+            if (_popoverConfig?.DismissOnClickOutside ?? true)
+            {
+                _outsideClickFilter = new OutsideClickMessageFilter(this, DismissAsCancel);
+                Application.AddMessageFilter(_outsideClickFilter);
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (_outsideClickFilter != null)
+            {
+                Application.RemoveMessageFilter(_outsideClickFilter);
+                _outsideClickFilter = null;
+            }
+            base.OnClosing(e);
+        }
 
         protected override void OnDeactivate(EventArgs e)
         {
+            // C5: keep no-op base. Dismissal is driven by OutsideClickMessageFilter.
             base.OnDeactivate(e);
-            if (_popoverConfig?.DismissOnClickOutside ?? true)
-                DismissAsCancel();
         }
 
         // ──────────────────────────────────────────────────────────────────────
@@ -135,6 +161,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             }
 
             // Position buttons on next layout
+            // C6: unsubscribe first to prevent duplicate subscription on re-ApplyPopoverConfig
+            Layout -= PositionButtons;
             Layout += PositionButtons;
         }
 

@@ -79,11 +79,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
                 if (_config.Duration > 0 && !_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     _ = Task.Delay(_config.Duration, _cancellationTokenSource.Token)
-                        .ContinueWith(async t =>
+                        .ContinueWith(t =>
                         {
                             if (!t.IsCanceled && !_disposed)
                             {
-                                await HideAsync();
+                                _ = HideAsync();
                             }
                         }, TaskContinuationOptions.OnlyOnRanToCompletion);
                 }
@@ -227,6 +227,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Get the tooltip configuration
         /// </summary>
         public ToolTipConfig Config => _config;
+
+        /// <summary>
+        /// C8: Get the underlying CustomToolTip form. Used by ToolTipManager
+        /// to push theme updates to on-screen tooltips. May return null if
+        /// the instance has not been shown yet or has been disposed.
+        /// </summary>
+        public CustomToolTip ToolTip => _tooltip;
 
         #endregion
 

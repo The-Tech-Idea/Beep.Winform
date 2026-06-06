@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
@@ -13,6 +14,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
     public sealed class ListViewPainter : ICalendarViewPainter
     {
         public CalendarViewMode ViewMode => CalendarViewMode.List;
+        public string Key => "list";
+        public string DisplayLabel => "List";
+        public int VisibleDayCount => 7;
+        public bool IsTimedView => false;
+        public bool IsMonthGrid => false;
+        public bool RequiresLeftGutter => false;
+        public bool HasAllDayStrip => false;
+        public bool SupportsEventDrag => false;
+        public bool IsHorizontalTimeAxis => false;
+
+        public DateTime NavigatePrevious(DateTime d) => d.AddMonths(-1);
+        public DateTime NavigateNext(DateTime d) => d.AddMonths(1);
+        public string GetHeaderText(DateTime d) => d.ToString("MMMM yyyy") + " Events";
+        public DateTime GetVisibleRangeStart(DateTime d) => new DateTime(d.Year, d.Month, 1);
+        public DateTime GetVisibleRangeEnd(DateTime d) => GetVisibleRangeStart(d).AddMonths(1);
 
         public void Layout(ViewPaintArgs args) { }
 
@@ -72,8 +88,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering.ViewPainters
             return EmptyHit(location, args);
         }
 
+        public DateTime? GetDateTimeFromLocation(Point location, ViewPaintArgs args)
+        {
+            // List view is time-agnostic; the Y axis lists events
+            // chronologically, not by date. The hit-test API is reserved for
+            // painters that anchor Y/X to a time-of-day; we return null so
+            // the central snap code uses its fallback range.
+            return null;
+        }
+
         private static void PaintListRow(Graphics g, Rectangle rect, CalendarEvent evt, ViewPaintArgs args)
         {
+            // W8 - delegate to developer's IBeepUIComponent when registered.
+            var cellKey = $"evt:{evt.Id}";
+            var ctx = new CalendarCellContext(
+                CalendarCellKind.EventBlock,
+                evt,
+                evt.StartTime.Date,
+                args.State?.ViewMode ?? CalendarViewMode.Week1,
+                0, 0);
+            if (CalendarPainterHelpers.TryDrawCellComponent(g, rect, cellKey, ctx, args)) return;
+
             Color fill = args.GetCategoryColor(evt.CategoryId);
             if (args.SelectedEvent?.Id == evt.Id) fill = args.SelectedBackColor;
             if (args.HoveredEventId == evt.Id) fill = args.HoverBackColor;

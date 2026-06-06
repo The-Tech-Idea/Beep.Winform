@@ -18,7 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
 
             _eventService?.InvalidateCache();
-            Invalidate();
+            DeactivateAllCellComponents();
+            _componentCache?.DisposeAll();
+            RequestRedraw();
             return true;
         }
     }

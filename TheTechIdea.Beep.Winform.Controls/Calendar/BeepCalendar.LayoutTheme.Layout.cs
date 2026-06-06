@@ -17,11 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             if (contentRect.Width <= 0 || contentRect.Height <= 0)
                 return;
 
-            ApplyResponsiveButtonLabels(contentRect.Width);
-
             int toolbarHeight = ScaleMetric(32);
             int sidebarWidth = GetResponsiveSidebarWidth(contentRect.Width);
-            _layout.UpdateLayout(contentRect, toolbarHeight, sidebarWidth, ScaleMetric(Math.Max(0, GridLeftGutter)), GetMetricScale());
+            _layout.UpdateLayout(contentRect, toolbarHeight, sidebarWidth, ScaleMetric(Math.Max(0, GridLeftGutter)), GetMetricScale(), _viewPainter);
 
             // Build the immutable surface model for this layout. Painters and
             // hit-test helpers consume this snapshot rather than recomputing
@@ -46,7 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 ScaleMetric(metrics.CellPadding),
                 CalendarLayoutMetrics.MaxEventsPerCell,
                 Math.Max(0, HeaderLeftPadding),
-                CalendarLayoutMetrics.HeaderRightPadding);
+                CalendarLayoutMetrics.HeaderRightPadding,
+                _viewPainter);
 
             LayoutToolbar(_rects.HeaderRect, _rects.ViewSelectorRect);
             Invalidate();

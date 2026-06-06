@@ -22,7 +22,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         None,
         DateCell,
         EventBlock,
-        EmptySurface
+        EmptySurface,
+        SidebarDetailCard
     }
 
     public enum CalendarEventResizeEdge

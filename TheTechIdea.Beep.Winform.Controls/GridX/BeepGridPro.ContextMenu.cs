@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 Invalidate();
             }
         }
-        private void ClearSelection()
+        public void ClearSelection()
         {
             foreach (var row in Data.Rows) row.IsSelected = false;
             Invalidate();

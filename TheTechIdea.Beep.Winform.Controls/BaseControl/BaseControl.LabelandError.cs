@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             const int imageSize = 16;
             const int imageSpacing = 4;
 
-            if (owner.FloatingLabelOn && !string.IsNullOrEmpty(owner._floatingLabel))
+            if (owner.LabelTextOn && owner.FloatingLabelOn && !string.IsNullOrEmpty(owner.LabelText))
             {
                 float labelSize = Math.Max(7f, owner.Font.Size - 2f);
                 using var labelFont = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     using var supportFont = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
                     var supportHeight = TextRenderer.MeasureText(parentGraphics, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
                     int supportY = childBounds.Bottom + errorSpacing;
-                    var supportRect = new Rectangle(childBounds.Left + 6, supportY, Math.Max(10, childBounds.Width - 12), supportHeight);
+                    var supportRect = new Rectangle(childBounds.Left, supportY, childBounds.Width, supportHeight);
                     Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
                     TextRenderer.DrawText(parentGraphics, supporting, supportFont, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
 
@@ -95,14 +95,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             provider.ClearChildExternalDrawing(this);
 
-            bool hasAny = (LabelTextOn && !string.IsNullOrEmpty(LabelText))
-                       || !string.IsNullOrEmpty(HelperText)
-                       || !string.IsNullOrEmpty(ErrorText)
-                       || _validationIcon != ValidationState.None
-                       || _showIndicatorLine
-                       || !string.IsNullOrEmpty(_customIconPath);
+            // Label is rendered externally only when floating (LabelTextOn && FloatingLabelOn).
+            // Helper/Error are ALWAYS rendered externally when present — they are independent
+            // of the label's floating toggle. DrawLabelAndHelperUniversal never paints them
+            // internally, so external registration is the only way they show.
+            bool labelExternal = LabelTextOn && FloatingLabelOn && !string.IsNullOrEmpty(LabelText);
+            bool helperExternal = (HelperTextOn && !string.IsNullOrEmpty(HelperText))
+                                || !string.IsNullOrEmpty(ErrorText);
 
-            if (!hasAny) return;
+            bool hasText = labelExternal || helperExternal;
+            bool hasOverlays = _validationIcon != ValidationState.None
+                            || _showIndicatorLine
+                            || !string.IsNullOrEmpty(_customIconPath);
+
+            if (!hasText && !hasOverlays) return;
 
             provider.AddChildExternalDrawing(this, CreateCombinedExternalHandler(this), DrawingLayer.AfterAll);
             try { Parent?.Invalidate(); } catch { }

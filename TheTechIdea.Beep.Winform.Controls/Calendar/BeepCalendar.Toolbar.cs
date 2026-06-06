@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -21,6 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             public Rectangle Bounds;
             public Action Action;
             public bool IsViewSelector;
+            // GAP F - the CalendarViewMode this button activates. The
+            // toolbar's active-state check (IsViewActive) compares this
+            // against _state.ViewMode, so setting ViewMode = Month in code
+            // correctly highlights the toolbar button (not just Week1..7
+            // keys via painter.Key).
+            public CalendarViewMode ViewMode;
         }
 
         private void InitializeToolbar()
@@ -37,15 +44,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 new() { Key = "create", IconPath = SvgsUIcons.Common.Add,  Label = "New", Action = () => OnCreateEventRequested(_state.SelectedDate) },
                 new() { Key = "edit",   IconPath = SvgsUIcons.Common.Edit, Action = () => EditSelectedEvent() },
                 new() { Key = "delete", IconPath = SvgsUIcons.Common.Delete, Action = () => DeleteSelectedEvent() },
-
-                new() { Key = "month",    Label = "Month",    Action = () => SwitchView(CalendarViewMode.Month), IsViewSelector = true },
-                new() { Key = "week",     Label = "Week",     Action = () => SwitchView(CalendarViewMode.Week), IsViewSelector = true },
-                new() { Key = "workweek", Label = "Work Week", Action = () => SwitchView(CalendarViewMode.WorkWeek), IsViewSelector = true },
-                new() { Key = "day",      Label = "Day",      Action = () => SwitchView(CalendarViewMode.Day), IsViewSelector = true },
-                new() { Key = "agenda",   Label = "Agenda",   Action = () => SwitchView(CalendarViewMode.Agenda), IsViewSelector = true },
-                new() { Key = "timeline", Label = "Timeline", Action = () => SwitchView(CalendarViewMode.Timeline), IsViewSelector = true },
-                new() { Key = "list",     Label = "List",     Action = () => SwitchView(CalendarViewMode.List), IsViewSelector = true },
             };
+
+            // View-selector buttons are built dynamically from the registered
+            // view painters (Week1..Week7). Adding a new view is a factory
+            // change only — the toolbar picks it up automatically and routes
+            // through the painter's Key/DisplayLabel metadata.
+            foreach (var kvp in ViewPainterFactory.GetRegisteredViews())
+            {
+                CalendarViewMode mode = kvp.Key;
+                ICalendarViewPainter painter = kvp.Value;
+                _toolbarButtons.Add(new CalendarToolbarButton
+                {
+                    Key = painter.Key,
+                    Label = painter.DisplayLabel,
+                    Action = () => SwitchView(mode),
+                    IsViewSelector = true,
+                    ViewMode = mode
+                });
+            }
         }
 
         private void LayoutToolbar(Rectangle headerRect, Rectangle viewSelectorRect)
@@ -196,6 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 if (_toolbarButtons[i].Bounds.Contains(location))
                 {
                     _toolbarButtons[i].Action?.Invoke();
+                    DeactivateAllCellComponents();
                     Invalidate();
                     return;
                 }
@@ -204,17 +222,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private bool IsViewActive(string key)
         {
-            return key switch
+            if (_viewPainter == null) return false;
+            // GAP F - match on the active CalendarViewMode first (handles
+            // legacy enum values like Month/Week/Day/Agenda/List/Timeline
+            // that don't appear in the toolbar's button list but are still
+            // valid ViewMode values). Fall back to the painter.Key match
+            // for safety.
+            foreach (var btn in _toolbarButtons)
             {
-                "month" => _state.ViewMode == CalendarViewMode.Month,
-                "week" => _state.ViewMode == CalendarViewMode.Week,
-                "workweek" => _state.ViewMode == CalendarViewMode.WorkWeek,
-                "day" => _state.ViewMode == CalendarViewMode.Day,
-                "agenda" => _state.ViewMode == CalendarViewMode.Agenda,
-                "timeline" => _state.ViewMode == CalendarViewMode.Timeline,
-                "list" => _state.ViewMode == CalendarViewMode.List,
-                _ => false
-            };
+                if (btn.IsViewSelector && btn.Key == key)
+                {
+                    return btn.ViewMode == _state.ViewMode || _viewPainter.Key == key;
+                }
+            }
+            return _viewPainter.Key == key;
         }
 
         private static int EstimateTextWidth(string text)

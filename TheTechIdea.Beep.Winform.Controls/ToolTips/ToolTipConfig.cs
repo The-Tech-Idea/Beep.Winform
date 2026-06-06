@@ -250,7 +250,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// <summary>Called when tooltip is shown</summary>
         public Action<string> OnShow { get; set; }
 
-        public BeepControlStyle ControlStyle { get; internal set; }
+        /// <summary>Back-compat forwarder to <see cref="Style"/>. Use Style instead.</summary>
+        public BeepControlStyle ControlStyle
+        {
+            get => Style;
+            internal set => Style = value;
+        }
+
+        // C7: Promote button click callbacks to ToolTipConfig so that any
+        // tooltip (not just popovers) can wire primary/secondary button
+        // actions. PopoverConfig inherits these and keeps its existing
+        // Action<string> OnPrimaryClick/OnSecondaryClick as a back-compat
+        // shim, but the tour now uses the parameterless ones here.
+        /// <summary>
+        /// Called when the primary (confirm / next) action button is clicked.
+        /// Parameterless so tour/painter code can wire lambdas without a key.
+        /// </summary>
+        public Action OnPrimaryClick { get; set; }
+
+        /// <summary>
+        /// Called when the secondary (cancel / skip) action button is clicked.
+        /// Parameterless so tour/painter code can wire lambdas without a key.
+        /// </summary>
+        public Action OnSecondaryClick { get; set; }
 
         #endregion
 

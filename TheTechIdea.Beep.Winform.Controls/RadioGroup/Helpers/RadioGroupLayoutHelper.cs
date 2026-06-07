@@ -31,6 +31,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public bool AutoSize { get; set; } = true;
         public Padding ItemPadding { get; set; } = new Padding(8);
 
+        /// <summary>Horizontal gap between items in <see cref="RadioGroupOrientation.Wrap"/> mode. Falls back to <see cref="ItemSpacing"/> when 0.</summary>
+        public int ColumnGap { get; set; }
+        /// <summary>Vertical gap between wrapped rows. Falls back to <see cref="ItemSpacing"/> when 0.</summary>
+        public int RowGap { get; set; }
+
+        private int EffectiveColumnGap => ColumnGap > 0 ? DpiScalingHelper.ScaleValue(ColumnGap, _owner) : DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+        private int EffectiveRowGap => RowGap > 0 ? DpiScalingHelper.ScaleValue(RowGap, _owner) : DpiScalingHelper.ScaleValue(ItemSpacing, _owner);
+
         // Optional external measurer (renderer-provided)
         public Func<SimpleItem, Graphics, Size> ItemMeasurer { get; set; }
         #endregion
@@ -50,16 +58,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             {
                 case RadioGroupOrientation.Vertical:
                     return CalculateVerticalLayout(items, containerRect);
-                    
+
                 case RadioGroupOrientation.Horizontal:
                     return CalculateHorizontalLayout(items, containerRect);
-                    
+
                 case RadioGroupOrientation.Grid:
                     return CalculateGridLayout(items, containerRect);
-                    
+
                 case RadioGroupOrientation.Flow:
                     return CalculateFlowLayout(items, containerRect);
-                    
+
+                case RadioGroupOrientation.Wrap:
+                    return CalculateWrapLayout(items, containerRect);
+
                 default:
                     return CalculateVerticalLayout(items, containerRect);
             }
@@ -298,16 +309,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             {
                 case RadioGroupOrientation.Vertical:
                     return CalculateVerticalTotalSize(items, maxSize);
-                    
+
                 case RadioGroupOrientation.Horizontal:
                     return CalculateHorizontalTotalSize(items, maxSize);
-                    
+
                 case RadioGroupOrientation.Grid:
                     return CalculateGridTotalSize(items, maxSize);
-                    
+
                 case RadioGroupOrientation.Flow:
                     return CalculateFlowTotalSize(items, maxSize);
-                    
+
+                case RadioGroupOrientation.Wrap:
+                    return CalculateWrapTotalSize(items, maxSize);
+
                 default:
                     return CalculateVerticalTotalSize(items, maxSize);
             }
@@ -549,6 +563,75 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
                 }
             }
         }
+
+        private List<Rectangle> CalculateWrapLayout(List<SimpleItem> items, Rectangle containerRect)
+        {
+            var rectangles = new List<Rectangle>();
+            int colGap = EffectiveColumnGap;
+            int rowGap = EffectiveRowGap;
+            int cursorX = containerRect.X + ItemPadding.Left;
+            int cursorY = containerRect.Y + ItemPadding.Top;
+            int rowHeight = 0;
+            var g = CreateGraphicsSafe();
+
+            foreach (var item in items)
+            {
+                var size = MeasureItemSafely(item, g);
+                if (cursorX + size.Width > containerRect.Right - ItemPadding.Right && cursorX > containerRect.X + ItemPadding.Left)
+                {
+                    cursorX = containerRect.X + ItemPadding.Left;
+                    cursorY += rowHeight + rowGap;
+                    rowHeight = 0;
+                }
+                rectangles.Add(new Rectangle(cursorX, cursorY, size.Width, size.Height));
+                cursorX += size.Width + colGap;
+                rowHeight = Math.Max(rowHeight, size.Height);
+            }
+            g?.Dispose();
+            return rectangles;
+        }
+
+        private Size CalculateWrapTotalSize(List<SimpleItem> items, Size maxSize)
+        {
+            int colGap = EffectiveColumnGap;
+            int rowGap = EffectiveRowGap;
+            int cursorX = ItemPadding.Left;
+            int cursorY = ItemPadding.Top;
+            int rowHeight = 0;
+            int totalWidth = 0;
+            var g = CreateGraphicsSafe();
+
+            foreach (var item in items)
+            {
+                var size = MeasureItemSafely(item, g);
+                if (cursorX + size.Width > maxSize.Width - ItemPadding.Right && cursorX > ItemPadding.Left)
+                {
+                    cursorX = ItemPadding.Left;
+                    cursorY += rowHeight + rowGap;
+                    rowHeight = 0;
+                }
+                cursorX += size.Width + colGap;
+                rowHeight = Math.Max(rowHeight, size.Height);
+                totalWidth = Math.Max(totalWidth, cursorX);
+            }
+            g?.Dispose();
+            return new Size(totalWidth, cursorY + rowHeight + ItemPadding.Bottom);
+        }
+
+        private Size MeasureItemSafely(SimpleItem item, Graphics? g)
+        {
+            if (ItemMeasurer != null && g != null)
+            {
+                try { return ItemMeasurer(item, g); } catch { }
+            }
+            return ItemSize;
+        }
+
+        private Graphics? CreateGraphicsSafe()
+        {
+            try { return _owner.CreateGraphics(); }
+            catch { return null; }
+        }
         #endregion
     }
 
@@ -558,7 +641,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         Vertical,
         Horizontal,
         Grid,
-        Flow
+        Flow,
+        /// <summary>Items flow horizontally and wrap to the next row when they don't fit.</summary>
+        Wrap
     }
 
     public enum RadioGroupAlignment

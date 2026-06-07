@@ -35,8 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             if (!string.IsNullOrEmpty(fallbackIcon))
                 return fallbackIcon;
 
-            // Priority 3: Default icon from SvgsUI
-            return SvgsUI.Circle ?? SvgsUI.Check ?? SvgsUI.BoxMultiple;
+            // Priority 3: Default icon from SvgsUIcons (Common.Check is the canonical check icon)
+            return SvgsUIcons.Common.Check ?? SvgsUIcons.Common.Plus ?? string.Empty;
         }
 
         /// <summary>

@@ -9,12 +9,28 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Event Handlers
         private void OnItemClicked(object sender, ItemClickEventArgs e)
         {
+            // Suppress the trailing single click that always follows a double click on
+            // Windows. The dblclick has already been processed (selection animation +
+            // public ItemDoubleClicked event) and the user does not expect a second
+            // selection change immediately after.
+            var now = DateTime.UtcNow;
+            if ((now - _lastDoubleClickUtc).TotalMilliseconds < DoubleClickSuppressionMs)
+            {
+                return;
+            }
+
             // Skip if item is disabled
             if (e.Item != null && IsItemDisabled(e.Item.Text))
             {
                 return;
             }
-            
+
+            // Animate the clicked item
+            if (e.Index >= 0)
+            {
+                StartItemAnimation(e.Index);
+            }
+
             // Handle selection logic
             if (AllowMultipleSelection)
             {
@@ -24,12 +40,23 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 _stateHelper.SelectItem(e.Item);
             }
-            
+
             // Validate selection after change
             ValidateSelection();
 
             // Raise public event
             ItemClicked?.Invoke(this, e);
+        }
+
+        private void OnItemDoubleClicked(object sender, ItemClickEventArgs e)
+        {
+            // Record timestamp so the trailing single click is suppressed.
+            _lastDoubleClickUtc = DateTime.UtcNow;
+            if (e.Index >= 0)
+            {
+                StartItemAnimation(e.Index);
+            }
+            ItemDoubleClicked?.Invoke(this, e);
         }
 
         private void OnItemHoverEnter(object sender, ItemHoverEventArgs e)
@@ -44,18 +71,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
         private void OnHoveredIndexChanged(object sender, IndexChangedEventArgs e)
         {
+            if (e.Index >= 0) StartItemAnimation(e.Index);
             UpdateItemStates();
             RequestVisualRefresh();
         }
 
         private void OnFocusedIndexChanged(object sender, IndexChangedEventArgs e)
         {
+            if (e.Index >= 0) StartItemAnimation(e.Index);
             UpdateItemStates();
             RequestVisualRefresh();
         }
 
         private void OnPressedIndexChanged(object sender, IndexChangedEventArgs e)
         {
+            if (e.Index >= 0) StartItemAnimation(e.Index);
             UpdateItemStates();
             RequestVisualRefresh();
         }
@@ -91,3 +121,4 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #endregion
     }
 }
+

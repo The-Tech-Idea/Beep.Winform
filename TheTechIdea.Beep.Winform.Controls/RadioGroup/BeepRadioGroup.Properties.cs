@@ -130,7 +130,71 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             set
             {
                 _items = value ?? new List<SimpleItem>();
+                // Clear any prior selection — selected values may reference text that
+                // is no longer in the new items list. The state helper will prune
+                // invalid values, but the user expects a clean slate after Items is
+                // reassigned.
+                _stateHelper?.ClearSelection();
+                // Drop any in-flight animations — the old indices may not exist in
+                // the new item list and the timer should not keep ticking.
+                _animationProgress.Clear();
                 UpdateItemsAndLayout();
+            }
+        }
+
+        /// <summary>
+        /// Binds the radio group to a strongly-typed source list. Each source item is
+        /// projected into a <see cref="SimpleItem"/> using the supplied text/value selectors.
+        /// The original source object is preserved on <see cref="SimpleItem.Tag"/>.
+        /// </summary>
+        public void DataBind<T>(IEnumerable<T> source,
+            Func<T, string> textSelector,
+            Func<T, string>? subTextSelector = null,
+            Func<T, string>? imagePathSelector = null,
+            Func<T, string?>? valueSelector = null)
+            where T : class
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (textSelector == null) throw new ArgumentNullException(nameof(textSelector));
+
+            _items = new List<SimpleItem>();
+            foreach (var sourceItem in source)
+            {
+                _items.Add(new SimpleItem
+                {
+                    Text = textSelector(sourceItem) ?? string.Empty,
+                    SubText = subTextSelector?.Invoke(sourceItem),
+                    ImagePath = imagePathSelector?.Invoke(sourceItem),
+                    Value = valueSelector?.Invoke(sourceItem),
+                    Tag = sourceItem
+                });
+            }
+
+            // Clear any prior selection — selected items may reference text values
+            // that no longer exist in the new bound list, and the state helper will
+            // prune invalid values but the user expects a clean slate after DataBind.
+            _stateHelper?.ClearSelection();
+
+            UpdateItemsAndLayout();
+        }
+
+        /// <summary>
+        /// Returns the first selected item's bound source object cast to <typeparamref name="T"/>,
+        /// or <c>null</c> if there is no selection or the tag is not of that type.
+        /// </summary>
+        public T? GetSelectedItem<T>() where T : class
+        {
+            var selected = SelectedItems?.FirstOrDefault();
+            return selected?.Tag as T;
+        }
+
+        /// <summary>Returns all selected items' bound source objects cast to <typeparamref name="T"/>.</summary>
+        public IEnumerable<T> GetSelectedItems<T>() where T : class
+        {
+            if (SelectedItems == null) yield break;
+            foreach (var item in SelectedItems)
+            {
+                if (item.Tag is T t) yield return t;
             }
         }
 
@@ -213,13 +277,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
                     // Update measurer to the new renderer
                     _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
-                    
+
                     // Check if new renderer supports current selection mode
                     if (!_currentRenderer.SupportsMultipleSelection && _allowMultipleSelection)
                     {
                         AllowMultipleSelection = false;
                     }
-                    
+
+                    // Drop any in-flight animations; the new renderer starts from a
+                    // clean slate and stale AnimationProgress values would cause
+                    // mid-animation paints before the first click.
+                    _animationProgress.Clear();
+
                     UpdateItemsAndLayout();
                 }
             }
@@ -409,6 +478,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     _isRequired = value;
                     ValidateSelection();
+                    // ValidateSelection may flip _hasValidationError; refresh the
+                    // per-item IsError flag so the error overlay renders immediately.
+                    UpdateItemStates();
                     RequestVisualRefresh();
                 }
             }
@@ -521,6 +593,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             return !string.IsNullOrEmpty(itemText) && _disabledItems.Contains(itemText);
         }
+
+        /// <summary>
+        /// Read-only view of the currently disabled item texts.  Useful for
+        /// diagnostics, serialization, and code-driven test assertions.
+        /// </summary>
+        [Browsable(false)]
+        public IReadOnlyCollection<string> DisabledItems => _disabledItems;
         
         /// <summary>
         /// Sets the enabled state for multiple items

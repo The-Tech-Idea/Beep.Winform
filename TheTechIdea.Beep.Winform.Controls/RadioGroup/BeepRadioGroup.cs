@@ -27,11 +27,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private readonly RadioGroupHitTestHelper _hitTestHelper;
         private readonly RadioGroupStateHelper _stateHelper;
         private readonly Dictionary<RadioGroupRenderStyle, IRadioGroupRenderer> _renderers;
-        
+
         private List<SimpleItem> _items = new List<SimpleItem>();
         private List<Rectangle> _itemRectangles = new List<Rectangle>();
         private List<RadioItemState> _itemStates = new List<RadioItemState>();
-        
+
         private RadioGroupRenderStyle _renderStyle = RadioGroupRenderStyle.Material;
         private IRadioGroupRenderer _currentRenderer;
         private bool _allowMultipleSelection = false;
@@ -43,6 +43,22 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private bool _eventHandlersRegistered;
         private bool _suppressAccessibilityNotifications;
         private string _lastAccessibilityStatus = string.Empty;
+        private int _virtualizationThreshold = 50;
+        private int _scrollOffset = 0;
+        private System.Windows.Forms.VScrollBar? _vScroll;
+        // Stored Scroll handler so Dispose can unsubscribe the lambda that closes
+        // over `this`.  Without this, the anonymous lambda keeps a managed
+        // reference to the control even after _vScroll.Dispose() runs.
+        private System.Windows.Forms.ScrollEventHandler? _vScrollHandler;
+        private System.Windows.Forms.Timer? _animationTimer;
+        private Dictionary<int, float> _animationProgress = new Dictionary<int, float>();
+        private List<int> _visibleIndices = new List<int>();
+        // Reused buffer for OnAnimationTick so we don't allocate a List<int> per 16ms tick.
+        private readonly List<int> _animationKeyBuffer = new List<int>();
+        // Cached ImageAttributes for DrawDimmedItem. The dim matrix is identical
+        // across paints, so we build it once and reuse it (avoiding GC pressure
+        // when the user is actively typing into the search box).
+        private System.Drawing.Imaging.ImageAttributes? _dimmedImageAttributes;
         #endregion
 
         #region Constructor
@@ -84,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     Enabled &&
                     index >= 0 &&
                     index < _items.Count &&
+                    !_items[index].IsHeader() &&
                     !IsItemDisabled(_items[index].Text);
 
                 // Initialize MaxImageSize for all renderers
@@ -110,13 +127,258 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             ApplyStyleProfile(_styleProfile);
             ApplyColorProfile(_colorProfile);
 
+            // Animation timer for smooth hover/press/select transitions (16ms ≈ 60fps)
+            _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
+            _animationTimer.Tick += OnAnimationTick;
+
             // Apply theme only at runtime
             if (!DesignMode)
             {
                 ApplyTheme();
             }
 
+            // Lazily create a vertical scrollbar for virtualized lists.
+            _vScroll = new System.Windows.Forms.VScrollBar
+            {
+                Dock = System.Windows.Forms.DockStyle.Right,
+                Visible = false,
+                Minimum = 0,
+                Maximum = 0,
+                LargeChange = 1,
+                SmallChange = 1
+            };
+            _vScrollHandler = (s, e) => { _scrollOffset = _vScroll!.Value; MarkLayoutDirty(); Invalidate(); };
+            _vScroll.Scroll += _vScrollHandler;
+            Controls.Add(_vScroll);
+
             UpdateAccessibilityMetadata();
+        }
+
+        private void OnAnimationTick(object? sender, EventArgs e)
+        {
+            const float Step = 0.12f;
+            bool anyAlive = false;
+            // Step every active animation forward; clamp to [0,1].
+            // Iterate over a snapshot of keys so we can mutate the dictionary safely.
+            // Use a reusable buffer to avoid List<int> allocation every 16ms tick.
+            _animationKeyBuffer.Clear();
+            _animationKeyBuffer.AddRange(_animationProgress.Keys);
+            for (int i = 0; i < _animationKeyBuffer.Count; i++)
+            {
+                var key = _animationKeyBuffer[i];
+                if (!_animationProgress.TryGetValue(key, out var p)) continue;
+                p += Step;
+                if (p >= 1f) { p = 1f; }
+                else { anyAlive = true; }
+                _animationProgress[key] = p;
+            }
+
+            UpdateItemStates(notifyAccessibility: false);
+            Invalidate();
+
+            if (!anyAlive)
+            {
+                _animationTimer!.Stop();
+            }
+        }
+
+        /// <summary>Triggers a forward animation on the given item index (e.g. on click, hover, focus change).</summary>
+        public void StartItemAnimation(int index)
+        {
+            if (index < 0) return;
+            _animationProgress[index] = 0f;
+            if (!DesignMode && !(_animationTimer!.Enabled))
+            {
+                _animationTimer!.Start();
+            }
+        }
+
+        /// <summary>
+        /// Scrolls the given item index into view when the radio group is virtualized
+        /// (Items.Count &gt; <see cref="VirtualizationThreshold"/>). When not virtualized,
+        /// the index is always visible, so this is a no-op.
+        /// </summary>
+        public void EnsureItemVisible(int index)
+        {
+            if (index < 0 || index >= _items.Count) return;
+            if (!IsVirtualized) return;
+            if (_vScroll == null) return;
+            // Use the item's actual Y position (pixel offset, not index) so the scroll
+            // is correct even when items have variable heights.
+            int targetY = index < _itemRectangles.Count ? _itemRectangles[index].Y : 0;
+            int visibleTop = _scrollOffset;
+            int visibleBottom = _scrollOffset + (Height > 0 ? Height : ClientSize.Height);
+            int itemBottom = targetY + (index < _itemRectangles.Count ? _itemRectangles[index].Height : 0);
+            int newOffset;
+            if (targetY < visibleTop)
+            {
+                newOffset = targetY;
+            }
+            else if (itemBottom > visibleBottom)
+            {
+                newOffset = Math.Max(0, itemBottom - (Height > 0 ? Height : ClientSize.Height));
+            }
+            else
+            {
+                return; // already visible
+            }
+            newOffset = Math.Max(_vScroll.Minimum, Math.Min(_vScroll.Maximum, newOffset));
+            if (newOffset == _vScroll.Value) return;
+            _vScroll.Value = newOffset;
+            // MarkLayoutDirty + Invalidate are wired by the VScrollBar.Scroll event handler.
+        }
+
+        /// <summary>
+        /// Alias for <see cref="EnsureItemVisible(int)"/>. Use either name based on the
+        /// idiom preferred in your code base.
+        /// </summary>
+        public void ScrollIntoView(int index) => EnsureItemVisible(index);
+
+        /// <summary>
+        /// True when <see cref="Items"/>.Count exceeds <see cref="VirtualizationThreshold"/>.
+        /// Full virtual-scroll mode (visible window only) is supported in this state.
+        /// </summary>
+        [Browsable(false)]
+        public bool IsVirtualized => _items != null && _items.Count > _virtualizationThreshold;
+
+        /// <summary>Number of items before virtualization kicks in. Default is 50.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Item count threshold that triggers virtualization. Set to int.MaxValue to disable.")]
+        [DefaultValue(50)]
+        public int VirtualizationThreshold
+        {
+            get => _virtualizationThreshold;
+            set
+            {
+                if (_virtualizationThreshold == value) return;
+                _virtualizationThreshold = Math.Max(1, value);
+                MarkLayoutDirty();
+                Invalidate();
+            }
+        }
+
+        private bool _showSearchBox;
+        private int _searchThreshold = 10;
+        private string _searchText = string.Empty;
+        private BeepTextBox? _searchBox;
+
+        // Tracks the last double-click time so we can suppress the trailing single-click
+        // that Windows always raises after a double-click event. Default to MinValue so
+        // the first click is not suppressed.
+        private DateTime _lastDoubleClickUtc = DateTime.MinValue;
+        private const int DoubleClickSuppressionMs = 100;
+
+        /// <summary>
+        /// Shows an inline search box at the top of the radio group. Items whose text
+        /// does not contain <see cref="SearchText"/> are dimmed and excluded from hit-testing.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show inline search box for filtering items by text.")]
+        [DefaultValue(false)]
+        public bool ShowSearchBox
+        {
+            get => _showSearchBox;
+            set
+            {
+                if (_showSearchBox == value) return;
+                _showSearchBox = value;
+                EnsureSearchBox();
+                MarkLayoutDirty();
+                Invalidate();
+            }
+        }
+
+        /// <summary>Placeholder text shown in the search box when it is empty. Default is "Search...".</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Placeholder text shown in the search box when it is empty.")]
+        [DefaultValue("Search...")]
+        public string SearchPlaceholderText { get; set; } = "Search...";
+
+        /// <summary>
+        /// Read-only accessor for the underlying <see cref="BeepTextBox"/> search control.
+        /// Returns null when the search box is hidden.  Use this for advanced
+        /// customization (custom context menu, custom validator, etc.) when the
+        /// built-in <see cref="SearchText"/> property is not enough.
+        /// </summary>
+        [Browsable(false)]
+        public BeepTextBox? SearchBox => _searchBox;
+
+        /// <summary>Minimum item count before the search box is shown. Default 10.</summary>
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Minimum item count before the inline search box is shown.")]
+        [DefaultValue(10)]
+        public int SearchThreshold
+        {
+            get => _searchThreshold;
+            set => _searchThreshold = Math.Max(0, value);
+        }
+
+        /// <summary>Current search text. Items not containing this text are dimmed.</summary>
+        [Browsable(false)]
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value ?? string.Empty;
+                MarkLayoutDirty();
+                Invalidate();
+            }
+        }
+
+        /// <summary>Returns true when <see cref="SimpleItem"/>.Text contains <see cref="SearchText"/> (case-insensitive). Headers are always visible.</summary>
+        public bool MatchesSearch(SimpleItem item)
+        {
+            if (string.IsNullOrEmpty(_searchText)) return true;
+            if (item == null) return false;
+            if (item.IsHeader()) return true;
+            return item.Text != null && item.Text.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void EnsureSearchBox()
+        {
+            if (_showSearchBox && _searchBox == null)
+            {
+                _searchBox = new BeepTextBox { Dock = System.Windows.Forms.DockStyle.Top };
+                _searchBox.TextChanged += (s, e) => SearchText = _searchBox.Text;
+                // Polish: leading search icon, placeholder, rounded border + theme
+                // (parity with BeepContextMenu's search box).  All try/catch'd so a
+                // missing icon resource or theme in design mode does not break the
+                // control's primary functionality.
+                try
+                {
+                    _searchBox.PlaceholderText = SearchPlaceholderText;
+                    _searchBox.LeadingIconPath = TheTechIdea.Beep.Icons.Svgs.Search;
+                    _searchBox.IsRounded = true;
+                    _searchBox.ApplyTheme();
+                }
+                catch
+                {
+                    // Polish is best-effort; the search box still works without it.
+                }
+                Controls.Add(_searchBox);
+                _searchBox.BringToFront();
+                // PreferredSize may be 0 if the control has not been laid out yet,
+                // so fall back to a sane 32px minimum search-box height.
+                int searchBoxHeight = Math.Max(32, _searchBox.PreferredSize.Height);
+                TopoffsetForDrawingRect = searchBoxHeight;
+                MarkLayoutDirty();
+                Invalidate();
+            }
+            else if (!_showSearchBox && _searchBox != null)
+            {
+                Controls.Remove(_searchBox);
+                _searchBox.TextChanged -= (s, e) => SearchText = _searchBox.Text;
+                _searchBox.Dispose();
+                _searchBox = null;
+                TopoffsetForDrawingRect = 0;
+                MarkLayoutDirty();
+                Invalidate();
+            }
         }
 
         private void SetupEventHandlers()
@@ -128,6 +390,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
             // Hit test events
             _hitTestHelper.ItemClicked += OnItemClicked;
+            _hitTestHelper.ItemDoubleClicked += OnItemDoubleClicked;
             _hitTestHelper.ItemHoverEnter += OnItemHoverEnter;
             _hitTestHelper.ItemHoverLeave += OnItemHoverLeave;
             _hitTestHelper.HoveredIndexChanged += OnHoveredIndexChanged;
@@ -148,6 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
 
             _hitTestHelper.ItemClicked -= OnItemClicked;
+            _hitTestHelper.ItemDoubleClicked -= OnItemDoubleClicked;
             _hitTestHelper.ItemHoverEnter -= OnItemHoverEnter;
             _hitTestHelper.ItemHoverLeave -= OnItemHoverLeave;
             _hitTestHelper.HoveredIndexChanged -= OnHoveredIndexChanged;
@@ -188,6 +452,26 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         }
 
         /// <summary>
+        /// Adds a batch of items in a single layout pass.  Equivalent to calling
+        /// <see cref="AddItem(SimpleItem)"/> in a loop but avoids running the layout
+        /// pipeline per item.
+        /// </summary>
+        public void AddItems(IEnumerable<SimpleItem> items)
+        {
+            if (items == null) return;
+            bool any = false;
+            foreach (var item in items)
+            {
+                if (item != null)
+                {
+                    _items.Add(item);
+                    any = true;
+                }
+            }
+            if (any) UpdateItemsAndLayout();
+        }
+
+        /// <summary>
         /// Removes an item from the radio group
         /// </summary>
         public bool RemoveItem(SimpleItem item)
@@ -207,6 +491,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         public void ClearItems()
         {
             _items.Clear();
+            // Drop any in-flight animations — there are no items to animate any more
+            // and the timer should not keep ticking.
+            _animationProgress.Clear();
             UpdateItemsAndLayout();
         }
 
@@ -437,7 +724,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnEnabledChanged(EventArgs e)
         {
             base.OnEnabledChanged(e);
+            // Item states carry IsEnabled (driven off the control's Enabled flag and
+            // per-item disable), so we need to recompute states whenever the control's
+            // own Enabled changes — otherwise the disabled overlay sticks around after
+            // re-enabling the control.
+            UpdateItemStates(notifyAccessibility: false);
             UpdateAccessibilityMetadata();
+            RequestVisualRefresh();
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -448,6 +741,46 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
 
             base.OnHandleDestroyed(e);
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            // UpdateItemsAndLayout returns early when !IsHandleCreated, so if items
+            // were added before the handle existed (e.g. code-only construction), we
+            // need to run the layout pipeline once the handle is finally created.
+            UpdateItemsAndLayout();
+        }
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            // When the control is dropped into a host form (e.g. via the designer or
+            // a Dock/Anchor layout), the new parent may give us a different scaling
+            // factor or theme.  Re-apply so item rects match the host's DPI.
+            if (IsDisposed || !IsHandleCreated) return;
+            foreach (var renderer in _renderers.Values)
+            {
+                renderer.UpdateTheme(_currentTheme);
+            }
+            MarkLayoutDirty();
+            UpdateLayout();
+            _hitTestHelper.UpdateItems(_items, _itemRectangles);
+            RequestVisualRefresh();
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            // Going from invisible → visible: re-run the layout in case the parent
+            // resized us while we were hidden.
+            if (Visible && IsHandleCreated)
+            {
+                MarkLayoutDirty();
+                UpdateLayout();
+                _hitTestHelper.UpdateItems(_items, _itemRectangles);
+                RequestVisualRefresh();
+            }
         }
 
         protected override void OnFontChanged(EventArgs e)
@@ -749,10 +1082,53 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 _hitTestHelper.Dispose();
                 _stateHelper.ResetCallbacks();
 
-                // Release renderer-owned GDI+ resources
-                foreach (var renderer in _renderers.Values)
+                // Stop + dispose the animation timer to release the GCHandle.
+                if (_animationTimer != null)
                 {
-                    renderer.Cleanup();
+                    _animationTimer.Stop();
+                    _animationTimer.Tick -= OnAnimationTick;
+                    _animationTimer.Dispose();
+                    _animationTimer = null;
+                }
+
+                // Drop the VScrollBar (it's a child control).  Detach the Scroll
+                // handler first so the lambda that closes over `this` doesn't keep
+                // the control alive past disposal.
+                if (_vScroll != null)
+                {
+                    if (_vScrollHandler != null)
+                    {
+                        _vScroll.Scroll -= _vScrollHandler;
+                        _vScrollHandler = null;
+                    }
+                    Controls.Remove(_vScroll);
+                    _vScroll.Dispose();
+                    _vScroll = null;
+                }
+
+                // Drop the search box (it's a child control) and detach the TextChanged handler.
+                if (_searchBox != null)
+                {
+                    Controls.Remove(_searchBox);
+                    _searchBox.TextChanged -= (s, e) => SearchText = _searchBox.Text;
+                    _searchBox.Dispose();
+                    _searchBox = null;
+                }
+
+                // Release cached GDI+ resources
+                if (_dimmedImageAttributes != null)
+                {
+                    _dimmedImageAttributes.Dispose();
+                    _dimmedImageAttributes = null;
+                }
+
+                // Release renderer-owned GDI+ resources
+                if (_renderers != null)
+                {
+                    foreach (var renderer in _renderers.Values)
+                    {
+                        renderer.Cleanup();
+                    }
                 }
             }
 

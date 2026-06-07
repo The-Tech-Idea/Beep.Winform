@@ -1,72 +1,40 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Toggle switch Style renderer with StyleColors support.
+    /// Toggle-switch renderer. Distinct visual identity: track + thumb on the right edge,
+    /// 40×20dp track with rounded ends, thumb slide animation.
     /// </summary>
-    public class ToggleRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
+    public sealed class ToggleRadioRenderer : BaseRadioRenderer
     {
-        private BaseControl _owner;
-        private IBeepTheme _theme;
-        private Font _textFont;
-        private Size _maxImageSize = new Size(24, 24);
-        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
-        private BeepControlStyle _controlStyle = BeepControlStyle.iOS15;
-        private bool _useThemeColors = true;
         private const int HorizontalPadding = 12;
         private const int VerticalPadding = 6;
         private const int ComponentSpacing = 8;
         private const int TrackWidth = 40;
         private const int TrackHeight = 20;
+        private int IconSize => Math.Min(MaxImageSize.Width, MaxImageSize.Height);
 
-        public string StyleName => "Toggle";
-        public string DisplayName => "Toggle Switch Style";
-        public bool SupportsMultipleSelection => true;
-        public bool AllowMultipleSelection { get; set; }
-        
-        public BeepControlStyle ControlStyle
-        {
-            get => _controlStyle;
-            set => _controlStyle = value;
-        }
-        
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set => _useThemeColors = value;
-        }
+        public override string StyleName => "Toggle";
+        public override string DisplayName => "Toggle Switch";
+        public override bool SupportsMultipleSelection => true;
+        public override BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.iOS15;
 
-        public Size MaxImageSize { get => _maxImageSize; set => _maxImageSize = value; }
-
-        public void Initialize(BaseControl owner, IBeepTheme theme)
+        public override void RenderItem(Graphics g, SimpleItem item, Rectangle rect, RadioItemState state)
         {
-            _owner = owner;
-            _theme = theme;
-            _textFont = RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
-        }
-
-        public void UpdateTheme(IBeepTheme theme)
-        {
-            _theme = theme;
-            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
-        }
-
-        public void RenderItem(Graphics g, SimpleItem item, Rectangle rect, RadioItemState state)
-        {
+            ResolveTokens();
+            var t = _tokens;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var colors = GetColors();
 
-            // Layout: [Label .....] [Toggle]
             var content = GetContentArea(rect);
             var toggle = GetSelectorArea(rect);
 
@@ -82,52 +50,86 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 {
                     var iconRect = new Rectangle(currentX, content.Y + (content.Height - sz) / 2, sz, sz);
                     var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
-                    var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
-                    RadioGroupIconHelpers.PaintIcon(g, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
+                    var iconColor = state.IsEnabled ? (state.IsSelected ? t.Primary : t.OnSurfaceVariant) : t.Disabled;
+                    RadioGroupIconHelpers.PaintIcon(g, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
                     currentX += sz + ComponentSpacing;
                 }
             }
 
-            // Text
             if (!string.IsNullOrEmpty(item.Text) && currentX < availableRight)
             {
-                using var br = new SolidBrush(state.IsEnabled ? colors.Text : colors.DisabledText);
-                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                using var br = new SolidBrush(state.IsEnabled ? t.OnSurface : t.Disabled);
+                var fmt = new System.Drawing.StringFormat
+                {
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
                 g.DrawString(item.Text, _textFont, br, new Rectangle(currentX, content.Y, availableRight - currentX, content.Height), fmt);
             }
 
-            // Toggle track
+            if (!string.IsNullOrEmpty(item.SubText) && currentX < availableRight)
+            {
+                using var subFont = GetSubtextFont();
+                using var subBr = new SolidBrush(t.OnSurfaceVariant);
+                var fmt = new System.Drawing.StringFormat
+                {
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Far,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
+                g.DrawString(item.SubText, subFont, subBr, new Rectangle(currentX, content.Y, availableRight - currentX, content.Height), fmt);
+            }
+
             int actualTrackWidth = Math.Max(8, Math.Min(TrackWidth, Math.Max(0, toggle.Width)));
             int actualTrackHeight = Math.Max(8, Math.Min(TrackHeight, Math.Max(0, toggle.Height)));
             var trackRect = new Rectangle(toggle.Right - actualTrackWidth, toggle.Y + (toggle.Height - actualTrackHeight) / 2, actualTrackWidth, actualTrackHeight);
             int radius = actualTrackHeight / 2;
-            var trackColor = !state.IsEnabled
-                ? colors.DisabledTrack
-                : (state.IsSelected ? colors.PrimaryLite : (state.IsHovered ? colors.HoverTrack : colors.Track));
 
-            using (var path = RoundedRect(trackRect, radius))
+            Color trackColor = !state.IsEnabled
+                ? t.DisabledContainer
+                : (state.IsSelected ? t.Primary : t.SurfaceVariant);
+
+            // Lerp the track color from SurfaceVariant → Primary over AnimationProgress
+            // so the track fills in alongside the thumb slide.
+            if (state.IsEnabled && state.AnimationProgress > 0f && state.AnimationProgress < 1f)
+            {
+                float lerpT = state.IsSelected ? state.AnimationProgress : 1f - state.AnimationProgress;
+                trackColor = LerpColor(t.SurfaceVariant, t.Primary, lerpT);
+            }
+
+            using (var path = CreateRoundedRectanglePath(trackRect, radius))
             using (var trackBr = new SolidBrush(trackColor))
             {
                 g.FillPath(trackBr, path);
             }
 
-            // Thumb
             int thumb = Math.Max(4, actualTrackHeight - 4);
-            int cx = state.IsSelected ? trackRect.Right - (thumb / 2) - 2 : trackRect.Left + (thumb / 2) + 2;
+            int leftCx = trackRect.Left + (thumb / 2) + 2;
+            int rightCx = trackRect.Right - (thumb / 2) - 2;
+            int cx;
+            // Animate the thumb in BOTH directions.  When AnimationProgress is mid-way
+            // the thumb slides between left (unselected) and right (selected) regardless
+            // of which target state is current, so deselect transitions are just as
+            // smooth as select transitions.
+            if (state.AnimationProgress > 0f && state.AnimationProgress < 1f)
+            {
+                float animT = state.AnimationProgress;
+                float slideT = state.IsSelected ? animT : 1f - animT;
+                cx = leftCx + (int)((rightCx - leftCx) * slideT);
+            }
+            else
+            {
+                cx = state.IsSelected ? rightCx : leftCx;
+            }
             var thumbRect = new Rectangle(cx - thumb / 2, trackRect.Y + 2, thumb, thumb);
-            using var thumbBr = new SolidBrush(state.IsEnabled ? colors.Thumb : colors.DisabledThumb);
+            using var thumbBr = new SolidBrush(state.IsEnabled ? t.OnPrimary : t.Disabled);
             g.FillEllipse(thumbBr, thumbRect);
 
-            if (state.IsFocused)
-            {
-                using var focusPen = new Pen(colors.FocusBorder, 2f);
-                var focusRect = Rectangle.Inflate(trackRect, 2, 2);
-                using var focusPath = RoundedRect(focusRect, radius + 2);
-                g.DrawPath(focusPen, focusPath);
-            }
+            if (state.IsError) DrawErrorOverlay(g, rect, radius + 2);
         }
 
-        public Size MeasureItem(SimpleItem item, Graphics g)
+        public override Size MeasureItem(SimpleItem item, Graphics g)
         {
             int h = Math.Max(36, TrackHeight + VerticalPadding * 2);
             int w = HorizontalPadding * 2 + TrackWidth;
@@ -140,14 +142,22 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var s = TextUtils.MeasureText(g,item.Text, _textFont);
+                var s = TextUtils.MeasureText(g, item.Text, _textFont);
                 w += (int)Math.Ceiling(s.Width) + ComponentSpacing;
                 h = Math.Max(h, (int)Math.Ceiling(s.Height) + VerticalPadding * 2);
             }
+
+            if (!string.IsNullOrEmpty(item.SubText))
+            {
+                using var subFont = GetSubtextFont();
+                var s = TextUtils.MeasureText(g, item.SubText, subFont);
+                h = Math.Max(h, (int)Math.Ceiling(s.Height) + VerticalPadding * 4);
+            }
+
             return new Size(w, h);
         }
 
-        public Rectangle GetContentArea(Rectangle itemRectangle)
+        public override Rectangle GetContentArea(Rectangle itemRectangle)
         {
             return new Rectangle(
                 itemRectangle.X + HorizontalPadding,
@@ -156,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 Math.Max(0, itemRectangle.Height - (VerticalPadding * 2)));
         }
 
-        public Rectangle GetSelectorArea(Rectangle itemRectangle)
+        public override Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
             var content = GetContentArea(itemRectangle);
             int selectorWidth = TrackWidth + HorizontalPadding;
@@ -165,64 +175,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 content.Y,
                 Math.Min(selectorWidth, content.Width),
                 content.Height);
-        }
-
-        public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
-        {
-        }
-
-        public void Cleanup()
-        {
-            // No cached GDI+ resources — fonts are owned by the control
-        }
-
-        private GraphicsPath RoundedRect(Rectangle r, int radius)
-        {
-            var path = new GraphicsPath();
-            int d = radius * 2;
-            path.AddArc(r.X, r.Y, d, d, 180, 90);
-            path.AddArc(r.Right - d, r.Y, d, d, 270, 90);
-            path.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-            path.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
-        private (Color Primary, Color PrimaryLite, Color Text, Color DisabledText, Color Track, Color HoverTrack, Color DisabledTrack, Color Thumb, Color DisabledThumb, Color FocusBorder) GetColors()
-        {
-            if (!_useThemeColors || _theme == null)
-            {
-                var primary = StyleColors.GetPrimary(_controlStyle);
-                var foreground = StyleColors.GetForeground(_controlStyle);
-                var border = StyleColors.GetBorder(_controlStyle);
-                var hover = StyleColors.GetHover(_controlStyle);
-                var selection = StyleColors.GetSelection(_controlStyle);
-                var background = StyleColors.GetBackground(_controlStyle);
-
-                return (
-                    primary,
-                    selection,
-                    foreground,
-                    Color.FromArgb(150, foreground),
-                    border,
-                    hover,
-                    Color.FromArgb(120, background),
-                    Color.White,
-                    Color.FromArgb(150, border),
-                    primary);
-            }
-
-            return (
-                _theme.PrimaryColor,
-                Color.FromArgb(200, _theme.PrimaryColor),
-                _theme.ForeColor,
-                _theme.DisabledForeColor,
-                _theme.BorderColor,
-                _theme.ButtonHoverBackColor,
-                _theme.DisabledBackColor,
-                _theme.ButtonForeColor,
-                _theme.DisabledBorderColor,
-                _theme.PrimaryColor);
         }
     }
 }

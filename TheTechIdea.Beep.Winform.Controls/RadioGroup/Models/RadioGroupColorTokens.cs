@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Models
     /// Aligns with Figma token names used in component handoff specs.
     /// Renderers should call <see cref="FromTheme"/> once per paint cycle and reuse the result.
     /// </summary>
+    [TypeConverter(typeof(RadioGroupColorTokensConverter))]
     public sealed class RadioGroupColorTokens
     {
         // ── Surface roles ────────────────────────────────────────────────────

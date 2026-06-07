@@ -1,138 +1,75 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Card-Style renderer with elevation and modern aesthetics with StyleColors support
+    /// Card-style renderer with elevation. Distinct visual identity: large rounded card
+    /// (8px corner), 1–2px border, soft elevation shadow on hover/select, gradient
+    /// background when selected.
     /// </summary>
-    public class CardRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
+    public class CardRadioRenderer : BaseRadioRenderer
     {
-        private BaseControl _owner;
-        private IBeepTheme _theme;
-        private Font _textFont;
-        private Size _maxImageSize = new Size(24, 24);
-        private BeepControlStyle _controlStyle = BeepControlStyle.TailwindCard;
-        private bool _useThemeColors = true;
-
-        #region Properties
-        public string StyleName => "Card";
-        public string DisplayName => "Material Card Style";
-        public bool SupportsMultipleSelection => true;
-        public bool AllowMultipleSelection { get; set; }
-        
-        public BeepControlStyle ControlStyle
-        {
-            get => _controlStyle;
-            set => _controlStyle = value;
-        }
-        
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set => _useThemeColors = value;
-        }
-
-        public Size MaxImageSize 
-        { 
-            get => _maxImageSize; 
-            set => _maxImageSize = value; 
-        }
-
-        // Card design specifications
         private const int SelectorSize = 18;
-        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
         private const int MinItemHeight = 48;
         private const int ItemPadding = 16;
         private const int ComponentSpacing = 12;
         private const int CornerRadius = 8;
-        private const int CardElevation = 2;
-        private int S(int value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
-        private float SF(float value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
-        #endregion
+        private int IconSize => Math.Min(MaxImageSize.Width, MaxImageSize.Height);
 
-        #region Initialization
-        public void Initialize(BaseControl owner, IBeepTheme theme)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
-            UpdateTheme(theme);
-        }
+        public override string StyleName => "Card";
+        public override string DisplayName => "Material Card";
+        public override bool SupportsMultipleSelection => true;
+        public override BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.TailwindCard;
 
-        public void UpdateTheme(IBeepTheme theme)
-        {
-            _theme = theme;
-            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
-        }
-        #endregion
-
-        #region Rendering
-        public void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
+        public override void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
         {
             if (graphics == null || item == null) return;
+            ResolveTokens();
+            var t = _tokens;
 
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Get card area (with margin)
-            var cardRect = GetCardRectangle(rectangle);
-            
-            // Get colors based on state
-            var colors = GetStateColors(state);
-
-            // Draw shadow
             if (state.IsEnabled && (state.IsHovered || state.IsSelected))
             {
-                DrawCardShadow(graphics, cardRect, state);
+                DrawCardShadow(graphics, rectangle, state);
             }
 
-            // Draw card background
-            DrawCardBackground(graphics, cardRect, state, colors);
+            DrawCardBackground(graphics, rectangle, state, t);
+            DrawCardBorder(graphics, rectangle, state, t);
+            DrawContent(graphics, item, rectangle, GetSelectorArea(rectangle), state, t);
+            DrawCardSelector(graphics, rectangle, state, t);
 
-            // Draw card border
-            DrawCardBorder(graphics, cardRect, state, colors);
-
-            // Draw content
-            DrawContent(graphics, item, cardRect, GetSelectorArea(rectangle), state, colors);
-
-            // Draw selector indicator
-            DrawCardSelector(graphics, cardRect, state, colors);
-        }
-
-        private Rectangle GetCardRectangle(Rectangle itemRectangle)
-        {
-            return new Rectangle(
-                itemRectangle.X,
-                itemRectangle.Y,
-                itemRectangle.Width,
-                itemRectangle.Height
-            );
+            if (state.IsError) DrawErrorOverlay(graphics, rectangle, CornerRadius);
+            if (state.IsPressed) DrawPressedOverlay(graphics, rectangle, CornerRadius);
         }
 
         private void DrawCardShadow(Graphics graphics, Rectangle cardRect, RadioItemState state)
         {
-            int shadowIntensity = state.IsSelected ? S(8) : (state.IsHovered ? S(4) : S(2));
-            Color shadowColor = Color.FromArgb(20, Color.Black);
+            // Selection elevates the card (3 shadow layers, max intensity).
+            // AnimationProgress interpolates between the resting shadow and the elevated
+            // shadow as the user hovers/selects.
+            float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+            int restingLayers = 1;
+            int restingIntensity = 2;
+            int elevatedLayers = 3;
+            int elevatedIntensity = 8;
+            int shadowLayers = (int)Math.Round(restingLayers + (elevatedLayers - restingLayers) * anim);
+            int intensity = (int)Math.Round(restingIntensity + (elevatedIntensity - restingIntensity) * anim);
 
-            for (int i = 0; i < shadowIntensity; i++)
+            for (int i = 0; i < shadowLayers; i++)
             {
-                var shadowRect = new Rectangle(
-                    cardRect.X + i,
-                    cardRect.Y + i,
-                    cardRect.Width,
-                    cardRect.Height
-                );
-
-                using (var brush = new SolidBrush(Color.FromArgb(shadowIntensity - i, shadowColor)))
+                var shadowRect = new Rectangle(cardRect.X + i, cardRect.Y + i, cardRect.Width, cardRect.Height);
+                using (var brush = new SolidBrush(Color.FromArgb(Math.Max(0, intensity - i * 2), Color.Black)))
                 using (var path = CreateRoundedRectanglePath(shadowRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
@@ -140,34 +77,31 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
         }
 
-        private void DrawCardBackground(Graphics graphics, Rectangle cardRect, RadioItemState state, CardColors colors)
+        private void DrawCardBackground(Graphics graphics, Rectangle cardRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color backgroundColor;
-            if (!state.IsEnabled)
+            if (!state.IsEnabled) backgroundColor = t.DisabledContainer;
+            else if (state.IsSelected) backgroundColor = t.SurfaceContainer;
+            else if (state.IsPressed) backgroundColor = t.PressStateLayer;
+            else if (state.IsHovered) backgroundColor = t.HoverStateLayer;
+            else backgroundColor = t.Surface;
+
+            // Hover/press state layer alpha fades in over AnimationProgress so the
+            // hover-in feels smooth rather than popping in.
+            if (state.IsEnabled && (state.IsHovered || state.IsPressed) && !state.IsSelected)
             {
-                backgroundColor = colors.DisabledBackground;
-            }
-            else if (state.IsSelected)
-            {
-                backgroundColor = colors.SelectedBackground;
-            }
-            else if (state.IsHovered)
-            {
-                backgroundColor = colors.HoverBackground;
-            }
-            else
-            {
-                backgroundColor = colors.Background;
+                float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+                byte alpha = (byte)Math.Min(255, backgroundColor.A * anim);
+                backgroundColor = Color.FromArgb(alpha, backgroundColor);
             }
 
-            // Add gradient for card Style to make it more distinct
             if (state.IsSelected)
             {
-                using (var brush = new LinearGradientBrush(cardRect, backgroundColor, 
-                    Color.FromArgb(Math.Max(0, backgroundColor.R - 20), 
-                                   Math.Max(0, backgroundColor.G - 20), 
-                                   Math.Max(0, backgroundColor.B - 20)), 
-                    LinearGradientMode.Vertical))
+                var darkStop = Color.FromArgb(backgroundColor.A,
+                    Math.Max(0, backgroundColor.R - 20),
+                    Math.Max(0, backgroundColor.G - 20),
+                    Math.Max(0, backgroundColor.B - 20));
+                using (var brush = new LinearGradientBrush(cardRect, backgroundColor, darkStop, LinearGradientMode.Vertical))
                 using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
                 {
                     graphics.FillPath(brush, path);
@@ -183,35 +117,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
         }
 
-        private void DrawCardBorder(Graphics graphics, Rectangle cardRect, RadioItemState state, CardColors colors)
+        private void DrawCardBorder(Graphics graphics, Rectangle cardRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color borderColor;
             float borderWidth;
-            if (!state.IsEnabled)
-            {
-                borderColor = colors.DisabledBorder;
-                borderWidth = SF(1f);
-            }
-            else if (state.IsSelected)
-            {
-                borderColor = colors.SelectedBorder;
-                borderWidth = SF(2f);
-            }
-            else if (state.IsFocused)
-            {
-                borderColor = colors.FocusBorder;
-                borderWidth = SF(2f);
-            }
-            else if (state.IsHovered)
-            {
-                borderColor = colors.HoverBorder;
-                borderWidth = SF(1.5f);
-            }
-            else
-            {
-                borderColor = colors.Border;
-                borderWidth = SF(1f);
-            }
+            if (!state.IsEnabled) { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
+            else if (state.IsSelected) { borderColor = t.Primary; borderWidth = SF(2f); }
+            else if (state.IsFocused) { borderColor = t.Primary; borderWidth = SF(2f); }
+            else if (state.IsHovered) { borderColor = t.Outline; borderWidth = SF(1.5f); }
+            else { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
 
             using (var pen = new Pen(borderColor, borderWidth))
             using (var path = CreateRoundedRectanglePath(cardRect, S(CornerRadius)))
@@ -220,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
         }
 
-        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle selectorArea, RadioItemState state, CardColors colors)
+        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle selectorArea, RadioItemState state, RadioGroupColorTokens t)
         {
             int left = contentArea.X + S(ItemPadding);
             int rightCap = Math.Max(left, selectorArea.X - S(ComponentSpacing));
@@ -231,112 +145,100 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
                 var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
-                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
-                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
+                var iconColor = state.IsEnabled ? (state.IsSelected ? t.Primary : t.OnSurfaceVariant) : t.Disabled;
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
                 currentX += sz + S(ComponentSpacing);
             }
 
+            bool hasSubtitle = !string.IsNullOrEmpty(item.SubText);
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, rightCap - currentX), contentArea.Height);
-                using var brush = new SolidBrush(state.IsEnabled ? colors.Text : colors.DisabledText);
-                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                int titleHeight = contentArea.Height;
+                if (hasSubtitle)
+                {
+                    var titleSize = TextUtils.MeasureText(graphics, item.Text, _textFont);
+                    titleHeight = Math.Max(1, Math.Min(contentArea.Height - 1, (int)Math.Ceiling(titleSize.Height)));
+                }
+                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, rightCap - currentX), titleHeight);
+                using var brush = new SolidBrush(state.IsEnabled ? t.OnSurface : t.Disabled);
+                var fmt = new System.Drawing.StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
                 graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
+            }
+
+            if (hasSubtitle)
+            {
+                using var subtitleFont = GetSubtextFont();
+                var titleSize = TextUtils.MeasureText(graphics, item.Text ?? string.Empty, _textFont);
+                int titleHeight = Math.Max(1, Math.Min(contentArea.Height - 1, (int)Math.Ceiling(titleSize.Height)));
+                int subtitleHeight = Math.Max(0, contentArea.Height - titleHeight);
+                var subRect = new Rectangle(currentX, contentArea.Y + titleHeight, Math.Max(0, rightCap - currentX), subtitleHeight);
+                using var subBrush = new SolidBrush(t.OnSurfaceVariant);
+                var fmt = new System.Drawing.StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                graphics.DrawString(item.SubText, subtitleFont, subBrush, subRect, fmt);
             }
         }
 
-        private void DrawCardSelector(Graphics graphics, Rectangle cardRect, RadioItemState state, CardColors colors)
+        private void DrawCardSelector(Graphics graphics, Rectangle cardRect, RadioItemState state, RadioGroupColorTokens t)
         {
             int selectorSize = Math.Min(S(SelectorSize), Math.Max(0, cardRect.Height - (S(ItemPadding) * 2)));
+            if (selectorSize <= 0) return;
+
             var selectorRect = new Rectangle(
                 Math.Max(cardRect.X + S(ItemPadding), cardRect.Right - S(ItemPadding) - selectorSize),
                 cardRect.Y + (cardRect.Height - selectorSize) / 2,
-                selectorSize,
-                selectorSize
-            );
-            if (selectorRect.Width <= 0 || selectorRect.Height <= 0) return;
+                selectorSize, selectorSize);
 
-            var center = new Point(
-                selectorRect.X + selectorRect.Width / 2,
-                selectorRect.Y + selectorRect.Height / 2
-            );
+            var center = new Point(selectorRect.X + selectorRect.Width / 2, selectorRect.Y + selectorRect.Height / 2);
 
-            if (AllowMultipleSelection)
-            {
-                // Draw checkbox
-                DrawCardCheckbox(graphics, selectorRect, state, colors);
-            }
-            else
-            {
-                // Draw radio button
-                DrawCardRadio(graphics, center, state, colors);
-            }
+            if (AllowMultipleSelection) DrawCheckbox(graphics, selectorRect, state, t);
+            else DrawRadio(graphics, center, state, t);
         }
 
-        private void DrawCardRadio(Graphics graphics, Point center, RadioItemState state, CardColors colors)
+        private void DrawRadio(Graphics graphics, Point center, RadioItemState state, RadioGroupColorTokens t)
         {
             int radius = Math.Max(2, S(SelectorSize) / 2 - S(1));
-
-            // Outer circle
-            Color borderColor = !state.IsEnabled
-                ? colors.DisabledBorder
-                : (state.IsSelected ? colors.SelectedBorder : colors.Border);
+            var borderColor = !state.IsEnabled ? t.Disabled : (state.IsSelected ? t.Primary : t.Outline);
             using (var pen = new Pen(borderColor, SF(2f)))
             {
-                var outerRect = new Rectangle(
-                    center.X - radius,
-                    center.Y - radius,
-                    radius * 2,
-                    radius * 2
-                );
+                var outerRect = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                 graphics.DrawEllipse(pen, outerRect);
             }
-
-            // Inner filled circle (when selected)
             if (state.IsSelected)
             {
-                int fillRadius = Math.Max(2, radius - S(4));
-                var fillColor = state.IsEnabled ? colors.SelectedBorder : colors.DisabledBorder;
-                using (var brush = new SolidBrush(fillColor))
+                // Inner dot scales 0 → full radius via AnimationProgress.
+                float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+                int fillRadius = Math.Max(1, (int)Math.Round((radius - S(4)) * anim));
+                if (fillRadius > 0)
                 {
-                    var innerRect = new Rectangle(
-                        center.X - fillRadius,
-                        center.Y - fillRadius,
-                        fillRadius * 2,
-                        fillRadius * 2
-                    );
-                    graphics.FillEllipse(brush, innerRect);
+                    var innerRect = new Rectangle(center.X - fillRadius, center.Y - fillRadius, fillRadius * 2, fillRadius * 2);
+                    using (var brush = new SolidBrush(state.IsEnabled ? t.Primary : t.Disabled))
+                    {
+                        graphics.FillEllipse(brush, innerRect);
+                    }
                 }
             }
         }
 
-        private void DrawCardCheckbox(Graphics graphics, Rectangle selectorRect, RadioItemState state, CardColors colors)
+        private void DrawCheckbox(Graphics graphics, Rectangle selectorRect, RadioItemState state, RadioGroupColorTokens t)
         {
-            var checkboxRect = new Rectangle(
-                selectorRect.X + S(2),
-                selectorRect.Y + S(2),
-                selectorRect.Width - S(4),
-                selectorRect.Height - S(4)
-            );
-
+            var checkboxRect = new Rectangle(selectorRect.X + S(2), selectorRect.Y + S(2), selectorRect.Width - S(4), selectorRect.Height - S(4));
             if (state.IsSelected)
             {
-                // Filled checkbox
-                var fillColor = state.IsEnabled ? colors.SelectedBorder : colors.DisabledBorder;
-                using (var brush = new SolidBrush(fillColor))
+                using (var brush = new SolidBrush(state.IsEnabled ? t.Primary : t.Disabled))
                 using (var path = CreateRoundedRectanglePath(checkboxRect, S(3)))
                 {
                     graphics.FillPath(brush, path);
                 }
-
-                // Checkmark
-                DrawCheckmark(graphics, checkboxRect, colors.Background);
+                // Checkmark stroke grows segment by segment over AnimationProgress.
+                float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+                if (anim > 0.05f)
+                {
+                    DrawCheckmark(graphics, checkboxRect, t.OnPrimary, anim);
+                }
             }
             else
             {
-                // Outlined checkbox
-                var borderColor = state.IsEnabled ? colors.Border : colors.DisabledBorder;
-                using (var pen = new Pen(borderColor, SF(2f)))
+                using (var pen = new Pen(state.IsEnabled ? t.Outline : t.Disabled, SF(1.5f)))
                 using (var path = CreateRoundedRectanglePath(checkboxRect, S(3)))
                 {
                     graphics.DrawPath(pen, path);
@@ -344,188 +246,77 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             }
         }
 
-        private void DrawCheckmark(Graphics graphics, Rectangle rect, Color color)
+        private static void DrawCheckmark(Graphics graphics, Rectangle rect, Color color, float anim = 1f)
         {
-            using (var pen = new Pen(color, SF(2f)))
+            anim = Math.Clamp(anim, 0f, 1f);
+            using (var pen = new Pen(color, 2f))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
-
-                var points = new PointF[]
+                var p0 = new PointF(rect.X + rect.Width * 0.2f, rect.Y + rect.Height * 0.5f);
+                var p1 = new PointF(rect.X + rect.Width * 0.45f, rect.Y + rect.Height * 0.7f);
+                var p2 = new PointF(rect.X + rect.Width * 0.8f, rect.Y + rect.Height * 0.3f);
+                if (anim <= 0.5f)
                 {
-                    new PointF(rect.X + 3, rect.Y + rect.Height / 2),
-                    new PointF(rect.X + rect.Width / 2 - 1, rect.Y + rect.Height - 5),
-                    new PointF(rect.X + rect.Width - 3, rect.Y + 3)
-                };
-
-                graphics.DrawLines(pen, points);
+                    var end = new PointF(
+                        p0.X + (p1.X - p0.X) * (anim / 0.5f),
+                        p0.Y + (p1.Y - p0.Y) * (anim / 0.5f));
+                    graphics.DrawLine(pen, p0, end);
+                }
+                else
+                {
+                    graphics.DrawLine(pen, p0, p1);
+                    var t = (anim - 0.5f) / 0.5f;
+                    var end = new PointF(
+                        p1.X + (p2.X - p1.X) * t,
+                        p1.Y + (p2.Y - p1.Y) * t);
+                    graphics.DrawLine(pen, p1, end);
+                }
             }
         }
-        #endregion
 
-        #region Measurement
-        public Size MeasureItem(SimpleItem item, Graphics graphics)
+        public override Size MeasureItem(SimpleItem item, Graphics graphics)
         {
-            if (item == null) return new Size(150, MinItemHeight);
-
-            int width = S(ItemPadding); // Left padding
+            if (item == null) return new Size(200, MinItemHeight);
+            int width = S(ItemPadding) * 2 + S(SelectorSize) + S(ComponentSpacing);
             int height = S(MinItemHeight);
 
-            // Selector width
-            width += S(SelectorSize) + S(ComponentSpacing);
-
-            // Icon width - account for image if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                width += IconSize + ComponentSpacing;
-                // Ensure minimum height accommodates the image
-                height = Math.Max(height, IconSize + S(ItemPadding));
+                width += IconSize + S(ComponentSpacing);
+                height = Math.Max(height, IconSize + S(ItemPadding) * 2);
             }
-
-            // Text width
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textSize = TextUtils.MeasureText(graphics,item.Text, _textFont);
+                var textSize = TextUtils.MeasureText(graphics, item.Text, _textFont);
                 width += (int)Math.Ceiling(textSize.Width);
-                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(ItemPadding));
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(ItemPadding) * 2);
             }
-
-            width += S(ItemPadding); // Right padding
-
+            if (!string.IsNullOrEmpty(item.SubText))
+            {
+                using var subFont = GetSubtextFont();
+                var subSize = TextUtils.MeasureText(graphics, item.SubText, subFont);
+                height = Math.Max(height, (int)Math.Ceiling(subSize.Height) + S(ItemPadding) * 3);
+            }
             return new Size(width, height);
         }
 
-        public Rectangle GetContentArea(Rectangle itemRectangle)
+        public override Rectangle GetContentArea(Rectangle itemRectangle)
         {
-            var cardRect = GetCardRectangle(itemRectangle);
             return new Rectangle(
-                cardRect.X + S(ItemPadding),
-                cardRect.Y + S(ItemPadding),
-                Math.Max(0, cardRect.Width - (S(ItemPadding) * 2)),
-                Math.Max(0, cardRect.Height - (S(ItemPadding) * 2))
-            );
+                itemRectangle.X + S(ItemPadding) / 2,
+                itemRectangle.Y + S(ItemPadding) / 2,
+                Math.Max(0, itemRectangle.Width - S(ItemPadding)),
+                Math.Max(0, itemRectangle.Height - S(ItemPadding)));
         }
 
-        public Rectangle GetSelectorArea(Rectangle itemRectangle)
+        public override Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
-            var cardRect = GetCardRectangle(itemRectangle);
-            int selectorSize = Math.Min(S(SelectorSize), Math.Max(0, cardRect.Height - (S(ItemPadding) * 2)));
-            int selectorY = cardRect.Y + (cardRect.Height - selectorSize) / 2;
+            int selectorSize = S(SelectorSize);
             return new Rectangle(
-                Math.Max(cardRect.X + S(ItemPadding), cardRect.Right - S(ItemPadding) - selectorSize),
-                selectorY,
-                selectorSize,
-                selectorSize
-            );
+                itemRectangle.Right - S(ItemPadding) - selectorSize,
+                itemRectangle.Y + (itemRectangle.Height - selectorSize) / 2,
+                selectorSize, selectorSize);
         }
-        #endregion
-
-        #region Group Decorations
-        public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
-        {
-            // Cards typically don't need group decorations
-        }
-
-        public void Cleanup()
-        {
-            // No cached GDI+ resources to release - fonts are owned by the control
-        }
-        #endregion
-
-        #region Helper Methods
-        private CardColors GetStateColors(RadioItemState state)
-        {
-            if (!_useThemeColors || _theme == null)
-            {
-                var primary = StyleColors.GetPrimary(_controlStyle);
-                var background = StyleColors.GetBackground(_controlStyle);
-                var foreground = StyleColors.GetForeground(_controlStyle);
-                var border = StyleColors.GetBorder(_controlStyle);
-                var hover = StyleColors.GetHover(_controlStyle);
-                var selection = StyleColors.GetSelection(_controlStyle);
-                var secondary = StyleColors.GetSecondary(_controlStyle);
-
-                return new CardColors
-                {
-                    Background = background,
-                    HoverBackground = hover,
-                    SelectedBackground = selection,
-                    Border = border,
-                    HoverBorder = Color.FromArgb(180, primary),
-                    SelectedBorder = primary,
-                    Text = foreground,
-                    SubText = Color.FromArgb(170, foreground),
-                    FocusBorder = primary,
-                    DisabledBorder = Color.FromArgb(150, border),
-                    DisabledBackground = Color.FromArgb(200, secondary),
-                    DisabledText = Color.FromArgb(128, foreground)
-                };
-            }
-
-            return new CardColors
-            {
-                Background = _theme.BackgroundColor,
-                HoverBackground = Color.FromArgb(248, _theme.BackgroundColor),
-                SelectedBackground = Color.FromArgb(240, _theme.PrimaryColor),
-                Border = _theme.BorderColor,
-                HoverBorder = _theme.ButtonHoverBorderColor,
-                SelectedBorder = _theme.PrimaryColor,
-                Text = _theme.ForeColor,
-                SubText = _theme.SecondaryTextColor,
-                FocusBorder = _theme.PrimaryColor,
-                DisabledBorder = _theme.DisabledBorderColor,
-                DisabledBackground = _theme.DisabledBackColor,
-                DisabledText = _theme.DisabledForeColor
-            };
-        }
-
-        private GraphicsPath CreateRoundedRectanglePath(Rectangle rectangle, int cornerRadius)
-        {
-            var path = new GraphicsPath();
-            
-            if (cornerRadius <= 0)
-            {
-                path.AddRectangle(rectangle);
-                return path;
-            }
-
-            int diameter = cornerRadius * 2;
-            var arc = new Rectangle(rectangle.Location, new Size(diameter, diameter));
-
-            // Top left arc
-            path.AddArc(arc, 180, 90);
-
-            // Top right arc
-            arc.X = rectangle.Right - diameter;
-            path.AddArc(arc, 270, 90);
-
-            // Bottom right arc
-            arc.Y = rectangle.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-
-            // Bottom left arc
-            arc.X = rectangle.Left;
-            path.AddArc(arc, 90, 90);
-
-            path.CloseFigure();
-            return path;
-        }
-
-        private class CardColors
-        {
-            public Color Background { get; set; }
-            public Color HoverBackground { get; set; }
-            public Color SelectedBackground { get; set; }
-            public Color Border { get; set; }
-            public Color HoverBorder { get; set; }
-            public Color SelectedBorder { get; set; }
-            public Color Text { get; set; }
-            public Color SubText { get; set; }
-            public Color FocusBorder { get; set; }
-            public Color DisabledBorder { get; set; }
-            public Color DisabledBackground { get; set; }
-            public Color DisabledText { get; set; }
-        }
-        #endregion
     }
 }

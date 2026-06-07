@@ -1,397 +1,202 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Chip/pill-Style renderer for modern tag-like selection with StyleColors support
+    /// Chip / pill renderer. Distinct visual identity: fully rounded pill
+    /// (16px radius), outline or fill, small close icon when in single-select.
     /// </summary>
-    public class ChipRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
+    public class ChipRadioRenderer : BaseRadioRenderer
     {
-        private BaseControl _owner;
-        private IBeepTheme _theme;
-        private Font _textFont;
-        private Size _maxImageSize = new Size(24, 24);
-        private BeepControlStyle _controlStyle = BeepControlStyle.PillRail;
-        private bool _useThemeColors = true;
-
-        #region Properties
-        public string StyleName => "Chip";
-        public string DisplayName => "Chip/Pill Style";
-        public bool SupportsMultipleSelection => true;
-        public bool AllowMultipleSelection { get; set; }
-        
-        public BeepControlStyle ControlStyle
-        {
-            get => _controlStyle;
-            set => _controlStyle = value;
-        }
-        
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set => _useThemeColors = value;
-        }
-
-        public Size MaxImageSize 
-        { 
-            get => _maxImageSize; 
-            set => _maxImageSize = value; 
-        }
-
-        // Chip design specifications
-        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
         private const int MinItemHeight = 36;
         private const int ItemPadding = 12;
         private const int ComponentSpacing = 8;
         private const int ChipRadius = 16;
-        private const int CloseButtonSize = 12;
-        private int S(int value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
-        private float SF(float value) => _owner == null ? value : DpiScalingHelper.ScaleValue(value, _owner);
-        #endregion
+        private int IconSize => Math.Min(MaxImageSize.Width, MaxImageSize.Height);
 
-        #region Initialization
-        public void Initialize(BaseControl owner, IBeepTheme theme)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
-            UpdateTheme(theme);
-        }
+        public override string StyleName => "Chip";
+        public override string DisplayName => "Chip";
+        public override bool SupportsMultipleSelection => true;
+        public override BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.PillRail;
 
-        public void UpdateTheme(IBeepTheme theme)
-        {
-            _theme = theme;
-            _textFont = _owner?.Font ?? RadioGroupFontHelpers.GetItemFont(_controlStyle, isSelected: false, theme);
-        }
-        #endregion
-
-        #region Rendering
-        public void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
+        public override void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
         {
             if (graphics == null || item == null) return;
+            ResolveTokens();
+            var t = _tokens;
 
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Get chip area (centered vertically)
             var chipRect = GetChipRectangle(rectangle);
-            
-            // Get colors based on state
-            var colors = GetStateColors(state);
 
-            // Draw chip background
-            DrawChipBackground(graphics, chipRect, state, colors);
+            DrawChipBackground(graphics, chipRect, state, t);
+            DrawChipBorder(graphics, chipRect, state, t);
+            DrawChipContent(graphics, item, chipRect, state, t);
 
-            // Draw chip border
-            DrawChipBorder(graphics, chipRect, state, colors);
+            if (state.IsError) DrawErrorOverlay(graphics, chipRect, ChipRadius);
+            if (state.IsPressed) DrawPressedOverlay(graphics, chipRect, ChipRadius);
 
-            // Draw chip content
-            DrawChipContent(graphics, item, chipRect, state, colors);
+            // Pressed scale animation: shrink to 95% and back to 100% over the animation.
+            if (state.IsPressed && state.AnimationProgress < 1f)
+            {
+                float dip = state.AnimationProgress * 2f; // 0→1→0 over the lifetime
+                float scale = 1f - (0.05f * (1f - Math.Abs(dip - 0.5f) * 2f));
+                int dx = (int)(chipRect.Width * (1f - scale) / 2f);
+                int dy = (int)(chipRect.Height * (1f - scale) / 2f);
+                var scaled = new Rectangle(chipRect.X + dx, chipRect.Y + dy,
+                    chipRect.Width - dx * 2, chipRect.Height - dy * 2);
+                using (var brush = new SolidBrush(Color.FromArgb(40, t.OnSurface)))
+                using (var path = CreateRoundedRectanglePath(scaled, S(ChipRadius)))
+                {
+                    graphics.FillPath(brush, path);
+                }
+            }
         }
 
         private Rectangle GetChipRectangle(Rectangle itemRectangle)
         {
-            var chipWidth = CalculateChipWidth(itemRectangle.Width);
-            int chipHeight = Math.Max(0, itemRectangle.Height);
-            return new Rectangle(itemRectangle.X, itemRectangle.Y, chipWidth, chipHeight);
+            int vPad = Math.Max(0, (itemRectangle.Height - S(MinItemHeight)) / 2);
+            return new Rectangle(itemRectangle.X, itemRectangle.Y + vPad, itemRectangle.Width, itemRectangle.Height - vPad * 2);
         }
 
-        private int CalculateChipWidth(int maxWidth)
-        {
-            return Math.Max(0, maxWidth);
-        }
-
-        private void DrawChipBackground(Graphics graphics, Rectangle chipRect, RadioItemState state, ChipColors colors)
+        private void DrawChipBackground(Graphics graphics, Rectangle chipRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color backgroundColor;
-            if (!state.IsEnabled)
-            {
-                backgroundColor = colors.DisabledBackground;
-            }
-            else if (state.IsSelected)
-            {
-                backgroundColor = colors.SelectedBackground;
-            }
-            else if (state.IsHovered)
-            {
-                backgroundColor = colors.HoverBackground;
-            }
-            else
-            {
-                backgroundColor = colors.Background;
-            }
+            if (!state.IsEnabled) backgroundColor = t.DisabledContainer;
+            else if (state.IsSelected) backgroundColor = t.PrimaryContainer;
+            else if (state.IsPressed) backgroundColor = t.PressStateLayer;
+            else if (state.IsHovered) backgroundColor = t.HoverStateLayer;
+            else backgroundColor = t.Surface;
 
             using (var brush = new SolidBrush(backgroundColor))
-            using (var path = CreateChipPath(chipRect))
+            using (var path = CreateRoundedRectanglePath(chipRect, S(ChipRadius)))
             {
                 graphics.FillPath(brush, path);
             }
         }
 
-        private void DrawChipBorder(Graphics graphics, Rectangle chipRect, RadioItemState state, ChipColors colors)
+        private void DrawChipBorder(Graphics graphics, Rectangle chipRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color borderColor;
             float borderWidth;
-            if (!state.IsEnabled)
-            {
-                borderColor = colors.DisabledBorder;
-                borderWidth = 1f;
-            }
-            else if (state.IsSelected)
-            {
-                borderColor = colors.SelectedBorder;
-                borderWidth = 2f;
-            }
-            else if (state.IsFocused)
-            {
-                borderColor = colors.FocusBorder;
-                borderWidth = 2f;
-            }
-            else if (state.IsHovered)
-            {
-                borderColor = colors.HoverBorder;
-                borderWidth = 1.5f;
-            }
-            else
-            {
-                borderColor = colors.Border;
-                borderWidth = 1f;
-            }
+            if (!state.IsEnabled) { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
+            else if (state.IsSelected) { borderColor = t.Primary; borderWidth = SF(1.5f); }
+            else if (state.IsFocused) { borderColor = t.Primary; borderWidth = SF(1.5f); }
+            else if (state.IsHovered) { borderColor = t.Outline; borderWidth = SF(1f); }
+            else { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
 
-            using (var pen = new Pen(borderColor, borderWidth))
-            using (var path = CreateChipPath(chipRect))
+            // Animate border width: 1px resting → 1.5px selected (interpolated by AnimationProgress).
+            float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+            float animatedWidth = (state.IsSelected || state.IsFocused)
+                ? SF(1f) + (SF(1.5f) - SF(1f)) * anim
+                : SF(1f);
+
+            using (var pen = new Pen(borderColor, animatedWidth))
+            using (var path = CreateRoundedRectanglePath(chipRect, S(ChipRadius)))
             {
                 graphics.DrawPath(pen, path);
             }
         }
 
-        private void DrawChipContent(Graphics graphics, SimpleItem item, Rectangle chipRect, RadioItemState state, ChipColors colors)
+        private void DrawChipContent(Graphics graphics, SimpleItem item, Rectangle chipRect, RadioItemState state, RadioGroupColorTokens t)
         {
-            var contentRect = new Rectangle(
-                chipRect.X + ItemPadding,
-                chipRect.Y,
-                Math.Max(0, chipRect.Width - (ItemPadding * 2)),
-                chipRect.Height
-            );
+            int currentX = chipRect.X + S(ItemPadding);
+            int rightCap = chipRect.Right - S(ItemPadding);
 
-            int reserveRight = (state.IsSelected && AllowsDeselection()) ? (S(CloseButtonSize) + S(6)) : 0;
-            var contentClip = new Rectangle(contentRect.X, contentRect.Y, Math.Max(0, contentRect.Width - reserveRight), contentRect.Height);
-            DrawContent(graphics, item, contentClip, state, colors);
-
-            if (state.IsSelected && AllowsDeselection())
-            {
-                var closeRect = new Rectangle(
-                    contentRect.Right - S(CloseButtonSize),
-                    contentRect.Y + (contentRect.Height - S(CloseButtonSize)) / 2,
-                    S(CloseButtonSize),
-                    S(CloseButtonSize)
-                );
-                DrawCloseButton(graphics, closeRect, colors.SelectedText);
-            }
-        }
-
-        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, RadioItemState state, ChipColors colors)
-        {
-            int currentX = contentArea.X;
-            int maxRight = contentArea.Right;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
-                sz = Math.Min(sz, Math.Max(0, maxRight - currentX));
-                var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
+                int sz = Math.Min(IconSize, Math.Max(10, chipRect.Height - 8));
+                var iconRect = new Rectangle(currentX, chipRect.Y + (chipRect.Height - sz) / 2, sz, sz);
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
-                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
-                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
+                var iconColor = state.IsEnabled ? (state.IsSelected ? t.OnPrimaryContainer : t.OnSurfaceVariant) : t.Disabled;
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
                 currentX += sz + S(ComponentSpacing);
             }
 
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, contentArea.Right - currentX), contentArea.Height);
-                var color = state.IsEnabled ? (state.IsSelected ? colors.SelectedText : colors.Text) : colors.DisabledText;
-                using var brush = new SolidBrush(color);
-                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-                graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
+                var textRect = new Rectangle(currentX, chipRect.Y, Math.Max(0, rightCap - currentX), chipRect.Height);
+                using (var brush = new SolidBrush(state.IsEnabled
+                    ? (state.IsSelected ? t.OnPrimaryContainer : t.OnSurface)
+                    : t.Disabled))
+                {
+                    var fmt = new System.Drawing.StringFormat
+                    {
+                        Alignment = StringAlignment.Near,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+                    graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
+                }
             }
-        }
 
-        private void DrawCloseButton(Graphics graphics, Rectangle rect, Color color)
-        {
-            using (var pen = new Pen(color, SF(1.5f)))
+            if (!string.IsNullOrEmpty(item.SubText))
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-
-                // Draw X
-                graphics.DrawLine(pen, 
-                    rect.X + S(4), rect.Y + S(4), 
-                    rect.Right - S(4), rect.Bottom - S(4));
-                graphics.DrawLine(pen, 
-                    rect.Right - S(4), rect.Y + S(4), 
-                    rect.X + S(4), rect.Bottom - S(4));
+                using var subtitleFont = GetSubtextFont();
+                int textWidth = Math.Max(0, rightCap - currentX);
+                var titleSize = TextUtils.MeasureText(graphics, item.Text ?? string.Empty, _textFont);
+                int titleHeight = Math.Max(1, Math.Min(chipRect.Height - 1, (int)Math.Ceiling(titleSize.Height)));
+                int subtitleHeight = Math.Max(0, chipRect.Height - titleHeight);
+                var subRect = new Rectangle(currentX, chipRect.Y + titleHeight, textWidth, subtitleHeight);
+                using var subBrush = new SolidBrush(t.OnSurfaceVariant);
+                var fmt = new System.Drawing.StringFormat
+                {
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
+                graphics.DrawString(item.SubText, subtitleFont, subBrush, subRect, fmt);
             }
         }
 
-        private GraphicsPath CreateChipPath(Rectangle rect)
+        public override Size MeasureItem(SimpleItem item, Graphics graphics)
         {
-            var path = new GraphicsPath();
-            if (rect.Width <= 1 || rect.Height <= 1)
-            {
-                path.AddRectangle(rect);
-                return path;
-            }
-            int radius = rect.Height / 2; // Perfect circle ends
-
-            // Left arc
-            path.AddArc(rect.X, rect.Y, rect.Height, rect.Height, 90, 180);
-            
-            // Top line
-            path.AddLine(rect.X + radius, rect.Y, rect.Right - radius, rect.Y);
-            
-            // Right arc
-            path.AddArc(rect.Right - rect.Height, rect.Y, rect.Height, rect.Height, 270, 180);
-            
-            // Bottom line
-            path.AddLine(rect.Right - radius, rect.Bottom, rect.X + radius, rect.Bottom);
-            
-            path.CloseFigure();
-            return path;
-        }
-
-        private bool AllowsDeselection()
-        {
-            return AllowMultipleSelection;
-        }
-        #endregion
-
-        #region Measurement
-        public Size MeasureItem(SimpleItem item, Graphics graphics)
-        {
-            if (item == null) return new Size(80, MinItemHeight);
-
-            int width = S(ItemPadding) * 2; // Left and right padding
+            if (item == null) return new Size(120, MinItemHeight);
+            int width = S(ItemPadding) * 2;
             int height = S(MinItemHeight);
 
-            // Icon width - account for image if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 width += IconSize + S(ComponentSpacing);
-                // Ensure minimum height accommodates the image
-                height = Math.Max(height, IconSize + S(8)); // 8px padding around icon
+                height = Math.Max(height, IconSize + 8);
             }
-
-            // Text width
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textSize = TextUtils.MeasureText(graphics,item.Text, _textFont);
-                width += (int)Math.Ceiling(textSize.Width);
-                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + S(8));
+                var textSize = TextUtils.MeasureText(graphics, item.Text, _textFont);
+                width += (int)Math.Ceiling(textSize.Width) + S(ComponentSpacing);
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + 8);
             }
-
+            if (!string.IsNullOrEmpty(item.SubText))
+            {
+                using var subFont = GetSubtextFont();
+                var subSize = TextUtils.MeasureText(graphics, item.SubText, subFont);
+                height = Math.Max(height, (int)Math.Ceiling(subSize.Height) + 12);
+            }
             return new Size(width, height);
         }
 
-        public Rectangle GetContentArea(Rectangle itemRectangle)
+        public override Rectangle GetContentArea(Rectangle itemRectangle)
         {
-            var chipRect = GetChipRectangle(itemRectangle);
             return new Rectangle(
-                chipRect.X + S(ItemPadding),
-                chipRect.Y,
-                Math.Max(0, chipRect.Width - (S(ItemPadding) * 2)),
-                chipRect.Height
-            );
+                itemRectangle.X + S(ItemPadding),
+                itemRectangle.Y,
+                Math.Max(0, itemRectangle.Width - S(ItemPadding) * 2),
+                itemRectangle.Height);
         }
 
-        public Rectangle GetSelectorArea(Rectangle itemRectangle)
+        public override Rectangle GetSelectorArea(Rectangle itemRectangle)
         {
-            // For chips, the entire chip is the selector
-            return GetChipRectangle(itemRectangle);
+            return itemRectangle;
         }
-        #endregion
-
-        #region Group Decorations
-        public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
-        {
-            // Chips typically don't need group decorations
-        }
-
-        public void Cleanup()
-        {
-            // No cached GDI+ resources — fonts are owned by the control
-        }
-        #endregion
-
-        #region Helper Methods
-        private ChipColors GetStateColors(RadioItemState state)
-        {
-            // Use StyleColors if not using theme colors or no theme available
-            if (!_useThemeColors || _theme == null)
-            {
-                var primary = StyleColors.GetPrimary(_controlStyle);
-                var background = StyleColors.GetBackground(_controlStyle);
-                var foreground = StyleColors.GetForeground(_controlStyle);
-                var border = StyleColors.GetBorder(_controlStyle);
-                var hover = StyleColors.GetHover(_controlStyle);
-                var selection = StyleColors.GetSelection(_controlStyle);
-                
-                return new ChipColors
-                {
-                    Background = StyleColors.GetSecondary(_controlStyle),
-                    HoverBackground = hover,
-                    SelectedBackground = primary,
-                    DisabledBackground = Color.FromArgb(200, background),
-                    Border = border,
-                    HoverBorder = Color.FromArgb(180, primary),
-                    SelectedBorder = primary,
-                    FocusBorder = primary,
-                    DisabledBorder = Color.FromArgb(150, border),
-                    Text = foreground,
-                    SelectedText = Color.White,
-                    DisabledText = Color.FromArgb(128, foreground)
-                };
-            }
-
-            return new ChipColors
-            {
-                Background = _theme.PanelBackColor,
-                HoverBackground = _theme.ButtonHoverBackColor,
-                SelectedBackground = _theme.PrimaryColor,
-                DisabledBackground = _theme.DisabledBackColor,
-                Border = _theme.BorderColor,
-                HoverBorder = _theme.ButtonHoverBorderColor,
-                SelectedBorder = _theme.PrimaryColor,
-                FocusBorder = _theme.PrimaryColor,
-                DisabledBorder = _theme.DisabledBorderColor,
-                Text = _theme.ForeColor,
-                SelectedText = _theme.ButtonForeColor,
-                DisabledText = _theme.DisabledForeColor
-            };
-        }
-
-        private class ChipColors
-        {
-            public Color Background { get; set; }
-            public Color HoverBackground { get; set; }
-            public Color SelectedBackground { get; set; }
-            public Color DisabledBackground { get; set; }
-            public Color Border { get; set; }
-            public Color HoverBorder { get; set; }
-            public Color SelectedBorder { get; set; }
-            public Color FocusBorder { get; set; }
-            public Color DisabledBorder { get; set; }
-            public Color Text { get; set; }
-            public Color SelectedText { get; set; }
-            public Color DisabledText { get; set; }
-        }
-        #endregion
     }
 }

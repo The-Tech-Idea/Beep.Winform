@@ -1,485 +1,225 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 {
     /// <summary>
-    /// Large touch-friendly tile renderer - Windows 8/10 style tiles with icon and text
+    /// Large touch-friendly tile renderer. Distinct visual identity: 48dp icon
+    /// above a title + subtitle, 4px corner, 24dp selection check in top-right.
     /// </summary>
-    public class TileRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
+    public class TileRadioRenderer : BaseRadioRenderer
     {
-        private BaseControl _owner;
-        private IBeepTheme _theme;
-        private Font _titleFont;
-        private Font _subtitleFont;
-        private Size _maxImageSize = new Size(48, 48);
-        private BeepControlStyle _controlStyle = BeepControlStyle.Metro;
-        private bool _useThemeColors = true;
-
-        #region Properties
-        public string StyleName => "Tile";
-        public string DisplayName => "Large Tiles";
-        public bool SupportsMultipleSelection => true;
-        public bool AllowMultipleSelection { get; set; }
-        
-        public BeepControlStyle ControlStyle
-        {
-            get => _controlStyle;
-            set => _controlStyle = value;
-        }
-        
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set => _useThemeColors = value;
-        }
-
-        public Size MaxImageSize 
-        { 
-            get => _maxImageSize; 
-            set => _maxImageSize = value; 
-        }
-
-        // Tile design specifications
-        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
         private const int MinTileWidth = 120;
         private const int MinTileHeight = 100;
         private const int TilePadding = 16;
         private const int ComponentSpacing = 8;
         private const int CornerRadius = 4;
         private const int SelectionIndicatorSize = 24;
-        #endregion
+        private int IconSize => Math.Min(MaxImageSize.Width, MaxImageSize.Height);
 
-        #region Initialization
-        public void Initialize(BaseControl owner, IBeepTheme theme)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            _theme = theme;
-            UpdateTheme(theme);
-        }
+        public override string StyleName => "Tile";
+        public override string DisplayName => "Large Tiles";
+        public override bool SupportsMultipleSelection => true;
+        public override BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Metro;
 
-        public void UpdateTheme(IBeepTheme theme)
-        {
-            _theme = theme;
-            _titleFont = _owner?.Font ?? RadioGroupFontHelpers.GetLabelFont(_controlStyle, theme);
-            _subtitleFont = RadioGroupFontHelpers.GetSubtextFont(_controlStyle, theme);
-        }
-        #endregion
-
-        #region Rendering
-        public void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
+        public override void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
         {
             if (graphics == null || item == null) return;
+            ResolveTokens();
+            var t = _tokens;
 
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var colors = GetStateColors(state);
             var tileRect = GetTileRectangle(rectangle);
 
-            // Draw tile background
-            DrawTileBackground(graphics, tileRect, state, colors);
+            DrawTileBackground(graphics, tileRect, state, t);
+            DrawTileBorder(graphics, tileRect, state, t);
 
-            // Draw tile border
-            DrawTileBorder(graphics, tileRect, state, colors);
+            if (state.IsSelected) DrawSelectionIndicator(graphics, tileRect, t, state);
+            DrawContent(graphics, item, tileRect, state, t);
 
-            // Draw selection indicator (checkmark in corner)
-            if (state.IsSelected)
-            {
-                DrawSelectionIndicator(graphics, tileRect, colors);
-            }
-
-            // Draw content (icon + text)
-            DrawContent(graphics, item, tileRect, state, colors);
+            if (state.IsError) DrawErrorOverlay(graphics, tileRect, CornerRadius);
         }
 
-        private Rectangle GetTileRectangle(Rectangle itemRectangle)
-        {
-            // Keep drawing inside allocated bounds; minimum size is handled by measurement/layout.
-            return new Rectangle(
-                itemRectangle.X,
-                itemRectangle.Y,
-                Math.Max(0, itemRectangle.Width),
-                Math.Max(0, itemRectangle.Height)
-            );
-        }
+        private Rectangle GetTileRectangle(Rectangle itemRectangle) => itemRectangle;
 
-        private void DrawTileBackground(Graphics graphics, Rectangle tileRect, RadioItemState state, TileColors colors)
+        private void DrawTileBackground(Graphics graphics, Rectangle tileRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color backgroundColor;
-            
-            if (!state.IsEnabled)
+            float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+            if (!state.IsEnabled) backgroundColor = t.DisabledContainer;
+            else if (state.IsSelected) backgroundColor = t.SurfaceContainer;
+            else if (state.IsPressed) backgroundColor = t.PressStateLayer;
+            else if (state.IsHovered) backgroundColor = t.HoverStateLayer;
+            else backgroundColor = t.Surface;
+
+            // Hover/press state layers fade in over AnimationProgress so the hover-in
+            // is smooth rather than popping in.
+            if (state.IsEnabled && (state.IsHovered || state.IsPressed) && !state.IsSelected)
             {
-                backgroundColor = colors.DisabledBackground;
-            }
-            else if (state.IsSelected)
-            {
-                backgroundColor = colors.SelectedBackground;
-            }
-            else if (state.IsHovered)
-            {
-                backgroundColor = colors.HoverBackground;
-            }
-            else
-            {
-                backgroundColor = colors.Background;
+                byte alpha = (byte)Math.Min(255, backgroundColor.A * anim);
+                backgroundColor = Color.FromArgb(alpha, backgroundColor);
             }
 
-            using (var path = CreateRoundedRectanglePath(tileRect, CornerRadius))
             using (var brush = new SolidBrush(backgroundColor))
+            using (var path = CreateRoundedRectanglePath(tileRect, S(CornerRadius)))
             {
                 graphics.FillPath(brush, path);
             }
         }
 
-        private void DrawTileBorder(Graphics graphics, Rectangle tileRect, RadioItemState state, TileColors colors)
+        private void DrawTileBorder(Graphics graphics, Rectangle tileRect, RadioItemState state, RadioGroupColorTokens t)
         {
             Color borderColor;
             float borderWidth;
-            
-            if (!state.IsEnabled)
-            {
-                borderColor = colors.DisabledBorder;
-                borderWidth = 1f;
-            }
-            else if (state.IsSelected)
-            {
-                borderColor = colors.SelectedBorder;
-                borderWidth = 2f;
-            }
-            else if (state.IsHovered)
-            {
-                borderColor = colors.HoverBorder;
-                borderWidth = 1.5f;
-            }
-            else if (state.IsFocused)
-            {
-                borderColor = colors.FocusBorder;
-                borderWidth = 2f;
-            }
-            else
-            {
-                borderColor = colors.Border;
-                borderWidth = 1f;
-            }
+            if (!state.IsEnabled) { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
+            else if (state.IsSelected) { borderColor = t.Primary; borderWidth = SF(2f); }
+            else if (state.IsHovered) { borderColor = t.Outline; borderWidth = SF(1.5f); }
+            else { borderColor = t.OutlineVariant; borderWidth = SF(1f); }
 
-            using (var path = CreateRoundedRectanglePath(tileRect, CornerRadius))
             using (var pen = new Pen(borderColor, borderWidth))
+            using (var path = CreateRoundedRectanglePath(tileRect, S(CornerRadius)))
             {
                 graphics.DrawPath(pen, path);
             }
         }
 
-        private void DrawSelectionIndicator(Graphics graphics, Rectangle tileRect, TileColors colors)
+        private void DrawSelectionIndicator(Graphics graphics, Rectangle tileRect, RadioGroupColorTokens t, RadioItemState state)
         {
-            if (tileRect.Width <= 16 || tileRect.Height <= 16) return;
-
-            int indicatorSize = Math.Min(SelectionIndicatorSize, Math.Min(tileRect.Width - 16, tileRect.Height - 16));
-            if (indicatorSize < 8) return;
-
-            // Draw checkmark circle in top-right corner
+            // Circle scales 0 → 1 over AnimationProgress so the selection appears
+            // as a deliberate "pop" rather than a flash.  The checkmark then draws
+            // segment by segment on top of the fully-grown circle.
+            float anim = Math.Clamp(state.AnimationProgress, 0f, 1f);
+            int size = S(SelectionIndicatorSize);
             var indicatorRect = new Rectangle(
-                tileRect.Right - indicatorSize - 8,
-                tileRect.Y + 8,
-                indicatorSize,
-                indicatorSize
-            );
-
-            // Draw circle background
-            using (var brush = new SolidBrush(colors.SelectionIndicator))
+                tileRect.Right - S(TilePadding) - size,
+                tileRect.Y + S(TilePadding),
+                size, size);
+            int radius = (int)Math.Round(size * 0.5f * anim);
+            if (radius <= 0) return;
+            int cx = indicatorRect.X + indicatorRect.Width / 2;
+            int cy = indicatorRect.Y + indicatorRect.Height / 2;
+            var scaledRect = new Rectangle(cx - radius, cy - radius, radius * 2, radius * 2);
+            using (var brush = new SolidBrush(t.Primary))
             {
-                graphics.FillEllipse(brush, indicatorRect);
+                graphics.FillEllipse(brush, scaledRect);
             }
-
-            // Draw checkmark
-            using (var pen = new Pen(colors.SelectionGlyph, 2f))
+            if (anim < 0.5f) return; // hold off the checkmark until the circle is at least half-grown
+            float checkAnim = (anim - 0.5f) / 0.5f; // re-normalize 0..1 for the stroke
+            using (var pen = new Pen(t.OnPrimary, SF(2.5f)))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
-
-                var points = new PointF[]
+                var p1 = new PointF(indicatorRect.X + indicatorRect.Width * 0.25f, indicatorRect.Y + indicatorRect.Height * 0.5f);
+                var p2 = new PointF(indicatorRect.X + indicatorRect.Width * 0.45f, indicatorRect.Y + indicatorRect.Height * 0.7f);
+                var p3 = new PointF(indicatorRect.X + indicatorRect.Width * 0.78f, indicatorRect.Y + indicatorRect.Height * 0.3f);
+                if (checkAnim <= 0.5f)
                 {
-                    new PointF(indicatorRect.X + indicatorRect.Width * 0.25f, indicatorRect.Y + indicatorRect.Height * 0.5f),
-                    new PointF(indicatorRect.X + indicatorRect.Width * 0.42f, indicatorRect.Y + indicatorRect.Height * 0.68f),
-                    new PointF(indicatorRect.X + indicatorRect.Width * 0.75f, indicatorRect.Y + indicatorRect.Height * 0.32f)
-                };
-
-                graphics.DrawLines(pen, points);
+                    var end = new PointF(p1.X + (p2.X - p1.X) * (checkAnim / 0.5f), p1.Y + (p2.Y - p1.Y) * (checkAnim / 0.5f));
+                    graphics.DrawLine(pen, p1, end);
+                }
+                else
+                {
+                    graphics.DrawLine(pen, p1, p2);
+                    var t2 = (checkAnim - 0.5f) / 0.5f;
+                    var end = new PointF(p2.X + (p3.X - p2.X) * t2, p2.Y + (p3.Y - p2.Y) * t2);
+                    graphics.DrawLine(pen, p2, end);
+                }
             }
         }
 
-        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle tileRect, RadioItemState state, TileColors colors)
+        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle tileRect, RadioItemState state, RadioGroupColorTokens t)
         {
-            var contentRect = new Rectangle(
-                tileRect.X + TilePadding,
-                tileRect.Y + TilePadding,
-                Math.Max(0, tileRect.Width - (TilePadding * 2)),
-                Math.Max(0, tileRect.Height - (TilePadding * 2))
-            );
+            int currentX = tileRect.X + S(TilePadding);
+            int topY = tileRect.Y + S(TilePadding);
+            int rightCap = tileRect.Right - S(TilePadding) - S(SelectionIndicatorSize) - S(ComponentSpacing);
 
-            int currentY = contentRect.Y;
-            int titleHeight = 0;
-            int subtitleHeight = 0;
-            if (!string.IsNullOrEmpty(item.Text))
-            {
-                titleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.Text, _titleFont).Height);
-            }
-            if (!string.IsNullOrEmpty(item.SubText))
-            {
-                subtitleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.SubText, _subtitleFont).Height);
-            }
-            int textBlockHeight = titleHeight + subtitleHeight;
-            if (titleHeight > 0 && subtitleHeight > 0) textBlockHeight += 2;
-
-            // Draw icon centered at top
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int availableForIcon = Math.Max(0, contentRect.Height - textBlockHeight - (titleHeight > 0 ? ComponentSpacing : 0));
-                int maxIcon = Math.Max(8, Math.Min(contentRect.Width, availableForIcon));
-                int sz = Math.Min(IconSize, maxIcon);
-                var iconRect = new Rectangle(
-                    contentRect.X + (contentRect.Width - sz) / 2,
-                    currentY,
-                    sz,
-                    sz
-                );
+                int sz = Math.Min(IconSize, Math.Max(16, tileRect.Height / 3));
+                var iconRect = new Rectangle(currentX, topY + (sz - sz) / 2, sz, sz);
+                if (state.IsSelected)
+                {
+                    iconRect = new Rectangle(currentX, topY, sz, sz);
+                }
                 var iconPath = RadioGroupIconHelpers.GetItemIconPath(item.ImagePath);
-                var iconColor = RadioGroupIconHelpers.GetIconColor(_theme, _useThemeColors, state.IsSelected, !state.IsEnabled);
-                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, _useThemeColors, _controlStyle);
-                currentY = iconRect.Bottom + ComponentSpacing;
+                var iconColor = state.IsEnabled ? (state.IsSelected ? t.Primary : t.OnSurfaceVariant) : t.Disabled;
+                RadioGroupIconHelpers.PaintIcon(graphics, iconRect, iconPath, iconColor, _theme, UseThemeColors, ControlStyle);
             }
 
-            // Draw title text centered
             if (!string.IsNullOrEmpty(item.Text))
             {
-                Color textColor = state.IsEnabled 
-                    ? (state.IsSelected ? colors.SelectedText : colors.Text) 
-                    : colors.DisabledText;
-                
-                using (var brush = new SolidBrush(textColor))
+                using var titleFont = GetLabelFont();
+                int titleY = topY + IconSize + S(ComponentSpacing);
+                int titleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.Text, titleFont).Height);
+                var textRect = new Rectangle(currentX, titleY, Math.Max(0, rightCap - currentX), titleHeight);
+                using (var brush = new SolidBrush(state.IsEnabled ? t.OnSurface : t.Disabled))
                 {
-                    var stringFormat = new StringFormat
+                    var fmt = new System.Drawing.StringFormat
                     {
-                        Alignment = StringAlignment.Center,
+                        Alignment = StringAlignment.Near,
                         LineAlignment = StringAlignment.Near,
                         Trimming = StringTrimming.EllipsisCharacter
                     };
-                    
-                    int remaining = Math.Max(0, contentRect.Bottom - currentY);
-                    int drawHeight = Math.Min(Math.Max(1, titleHeight), remaining);
-                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, drawHeight);
-                    graphics.DrawString(item.Text, _titleFont, brush, textRect, stringFormat);
-                    currentY += drawHeight;
+                    graphics.DrawString(item.Text, titleFont, brush, textRect, fmt);
                 }
             }
 
-            // Draw subtitle text centered (if available)
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                Color subtitleColor = state.IsEnabled 
-                    ? colors.SubtitleText 
-                    : colors.DisabledText;
-                
-                using (var brush = new SolidBrush(subtitleColor))
+                using var subFont = GetSubtextFont();
+                using var titleFont = GetLabelFont();
+                int titleY = topY + IconSize + S(ComponentSpacing);
+                int titleHeight = (int)Math.Ceiling(TextUtils.MeasureText(graphics, item.Text ?? string.Empty, titleFont).Height);
+                int subY = titleY + titleHeight;
+                int subHeight = Math.Max(0, tileRect.Bottom - S(TilePadding) - subY);
+                var subRect = new Rectangle(currentX, subY, Math.Max(0, rightCap - currentX), subHeight);
+                using var subBrush = new SolidBrush(t.OnSurfaceVariant);
+                var fmt = new System.Drawing.StringFormat
                 {
-                    var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Near,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-                    
-                    int remaining = Math.Max(0, contentRect.Bottom - currentY);
-                    int drawHeight = Math.Min(Math.Max(1, subtitleHeight), remaining);
-                    var textRect = new Rectangle(contentRect.X, currentY, contentRect.Width, drawHeight);
-                    graphics.DrawString(item.SubText, _subtitleFont, brush, textRect, stringFormat);
-                }
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Near,
+                    Trimming = StringTrimming.EllipsisCharacter
+                };
+                graphics.DrawString(item.SubText, subFont, subBrush, subRect, fmt);
             }
         }
-        #endregion
 
-        #region Measurement
-        public Size MeasureItem(SimpleItem item, Graphics graphics)
+        public override Size MeasureItem(SimpleItem item, Graphics graphics)
         {
             if (item == null) return new Size(MinTileWidth, MinTileHeight);
+            int width = S(MinTileWidth);
+            int height = S(MinTileHeight);
 
-            int width = TilePadding * 2;
-            int height = TilePadding * 2;
-
-            // Icon height
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                height += IconSize;
+                width = Math.Max(width, IconSize + S(TilePadding) * 2 + S(SelectionIndicatorSize));
             }
-
-            // Title text
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textSize = TextUtils.MeasureText(graphics, item.Text, _titleFont);
-                width = Math.Max(width, (int)Math.Ceiling(textSize.Width) + TilePadding * 2);
-                height += (int)Math.Ceiling(textSize.Height);
+                using var titleFont = GetLabelFont();
+                var textSize = TextUtils.MeasureText(graphics, item.Text, titleFont);
+                width = Math.Max(width, (int)Math.Ceiling(textSize.Width) + S(TilePadding) * 2 + S(SelectionIndicatorSize));
             }
-
-            // Subtitle text
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var textSize = TextUtils.MeasureText(graphics, item.SubText, _subtitleFont);
-                width = Math.Max(width, (int)Math.Ceiling(textSize.Width) + TilePadding * 2);
-                height += (int)Math.Ceiling(textSize.Height);
+                using var subFont = GetSubtextFont();
+                var subSize = TextUtils.MeasureText(graphics, item.SubText, subFont);
+                width = Math.Max(width, (int)Math.Ceiling(subSize.Width) + S(TilePadding) * 2 + S(SelectionIndicatorSize));
             }
-
-            if (!string.IsNullOrEmpty(item.ImagePath) && (!string.IsNullOrEmpty(item.Text) || !string.IsNullOrEmpty(item.SubText)))
-            {
-                height += ComponentSpacing;
-            }
-
-            return new Size(Math.Max(width, MinTileWidth), Math.Max(height, MinTileHeight));
+            return new Size(width, height);
         }
 
-        public Rectangle GetContentArea(Rectangle itemRectangle)
-        {
-            var tileRect = GetTileRectangle(itemRectangle);
-            return new Rectangle(
-                tileRect.X + TilePadding,
-                tileRect.Y + TilePadding,
-                Math.Max(0, tileRect.Width - (TilePadding * 2)),
-                Math.Max(0, tileRect.Height - (TilePadding * 2))
-            );
-        }
-
-        public Rectangle GetSelectorArea(Rectangle itemRectangle)
-        {
-            // For tiles, the entire tile is the selector
-            return GetTileRectangle(itemRectangle);
-        }
-        #endregion
-
-        #region Group Decorations
-        public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
-        {
-            // Tiles typically don't need group decorations
-        }
-
-        public void Cleanup()
-        {
-            // Release cached subtitle font (created in UpdateTheme)
-            _subtitleFont?.Dispose();
-            _subtitleFont = null;
-        }
-        #endregion
-
-        #region Helper Methods
-        private TileColors GetStateColors(RadioItemState state)
-        {
-            if (!_useThemeColors || _theme == null)
-            {
-                var primary = StyleColors.GetPrimary(_controlStyle);
-                var background = StyleColors.GetBackground(_controlStyle);
-                var foreground = StyleColors.GetForeground(_controlStyle);
-                var border = StyleColors.GetBorder(_controlStyle);
-                var secondary = StyleColors.GetSecondary(_controlStyle);
-                var hover = StyleColors.GetHover(_controlStyle);
-                var selection = StyleColors.GetSelection(_controlStyle);
-                
-                return new TileColors
-                {
-                    Background = background,
-                    HoverBackground = hover,
-                    SelectedBackground = selection,
-                    DisabledBackground = Color.FromArgb(200, secondary),
-                    Border = border,
-                    DisabledBorder = Color.FromArgb(150, border),
-                    HoverBorder = Color.FromArgb(180, primary),
-                    SelectedBorder = primary,
-                    FocusBorder = primary,
-                    Text = foreground,
-                    SelectedText = foreground,
-                    SubtitleText = Color.FromArgb(160, foreground),
-                    DisabledText = Color.FromArgb(128, foreground),
-                    SelectionIndicator = primary,
-                    SelectionGlyph = Color.White
-                };
-            }
-
-            return new TileColors
-            {
-                Background = _theme.BackgroundColor,
-                HoverBackground = _theme.ButtonHoverBackColor,
-                SelectedBackground = _theme.SelectedRowBackColor,
-                DisabledBackground = _theme.DisabledBackColor,
-                Border = _theme.BorderColor,
-                DisabledBorder = _theme.DisabledBorderColor,
-                HoverBorder = _theme.ButtonHoverBorderColor,
-                SelectedBorder = _theme.PrimaryColor,
-                FocusBorder = _theme.PrimaryColor,
-                Text = _theme.ForeColor,
-                SelectedText = _theme.ForeColor,
-                SubtitleText = _theme.SecondaryTextColor,
-                DisabledText = _theme.DisabledForeColor,
-                SelectionIndicator = _theme.PrimaryColor,
-                SelectionGlyph = _theme.ButtonForeColor
-            };
-        }
-
-        private GraphicsPath CreateRoundedRectanglePath(Rectangle rectangle, int cornerRadius)
-        {
-            var path = new GraphicsPath();
-            
-            if (cornerRadius <= 0)
-            {
-                path.AddRectangle(rectangle);
-                return path;
-            }
-
-            int diameter = cornerRadius * 2;
-            var arc = new Rectangle(rectangle.Location, new Size(diameter, diameter));
-
-            // Top left arc
-            path.AddArc(arc, 180, 90);
-
-            // Top right arc
-            arc.X = rectangle.Right - diameter;
-            path.AddArc(arc, 270, 90);
-
-            // Bottom right arc
-            arc.Y = rectangle.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-
-            // Bottom left arc
-            arc.X = rectangle.Left;
-            path.AddArc(arc, 90, 90);
-
-            path.CloseFigure();
-            return path;
-        }
-
-        private class TileColors
-        {
-            public Color Background { get; set; }
-            public Color HoverBackground { get; set; }
-            public Color SelectedBackground { get; set; }
-            public Color DisabledBackground { get; set; }
-            public Color Border { get; set; }
-            public Color DisabledBorder { get; set; }
-            public Color HoverBorder { get; set; }
-            public Color SelectedBorder { get; set; }
-            public Color FocusBorder { get; set; }
-            public Color Text { get; set; }
-            public Color SelectedText { get; set; }
-            public Color SubtitleText { get; set; }
-            public Color DisabledText { get; set; }
-            public Color SelectionIndicator { get; set; }
-            public Color SelectionGlyph { get; set; }
-        }
-        #endregion
+        public override Rectangle GetContentArea(Rectangle itemRectangle) => itemRectangle;
+        public override Rectangle GetSelectorArea(Rectangle itemRectangle) => itemRectangle;
     }
 }
-

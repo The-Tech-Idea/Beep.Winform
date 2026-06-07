@@ -92,8 +92,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         /// <param name="items">All items in the group</param>
         /// <param name="itemRectangles">Rectangles for all items</param>
         /// <param name="states">States for all items</param>
-        void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, 
+        void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle,
             List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states);
+
+        /// <summary>
+        /// Renders a non-interactive section header label. Default implementation
+        /// lives on <see cref="BaseRadioRenderer"/>. Header items (those carrying
+        /// an <see cref="IRadioGroupHeader"/> on Tag) are routed here.
+        /// </summary>
+        void DrawHeader(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state);
 
         /// <summary>
         /// Releases any cached GDI+ resources (Fonts, Pens, Brushes).

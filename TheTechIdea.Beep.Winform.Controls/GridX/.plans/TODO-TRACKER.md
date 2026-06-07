@@ -1,62 +1,86 @@
-# BeepGridPro Enhancement & Fix - Todo Tracker
+# GridPro TODO Tracker
 
-## Issue 1: Grid Hover Effect (HIGH PRIORITY)
-- [ ] Add `CanBeHovered = false` to BeepGridPro constructor
-- [ ] Verify row hover effects still work correctly
-- [ ] Verify toolbar hover effects still work correctly
-- [ ] Test no regression in other BaseControl features
-
-**Status:** Pending
+Date: 2026-06-06 | Revised: 2026-06-06 | Status: Active
+Legend: P0=Critical P1=High P2=Medium P3=Low
 
 ---
 
-## Issue 2: Navigation Controls Overlapping Toolbar (HIGH PRIORITY)
-- [ ] Add `ShowNavigator` check in `DrawNavigatorArea()`
-- [ ] Add `UsePainterNavigation` check in `EnsureNavigatorButtons()`
-- [ ] Add `DisposeNavigatorButtons()` method
-- [ ] Call `DisposeNavigatorButtons()` when switching to painter mode
-- [ ] Ensure `ShowNavigator = false` sets `Layout.NavigatorHeight = 0`
-- [ ] Test memory doesn't grow when toggling modes
+## Quick Wins (existing grid fixes)
 
-**Status:** Pending
-
----
-
-## Issue 3: Toolbar Icon Theme Colors (HIGH PRIORITY)
-- [ ] Add `PaintToolbarIcon()` method that uses `ImagePainter` with `ImageEmbededin.DataGridView`
-- [ ] Replace `PaintWithTint` calls with `PaintToolbarIcon` in toolbar painter
-- [ ] Set `ApplyThemeOnImage = true` and `CurrentTheme` on painter
-- [ ] Test icons show correct theme color on initial load (GridHeaderForeColor)
-- [ ] Test after changing theme, toolbar icons update to new theme color
-- [ ] Test icons are visible in both light and dark themes
-- [ ] Test icons don't appear as solid color blocks
-- [ ] Test no performance regression
-
-**Status:** Pending
+| ID | Task | Pri | Status | Est |
+|----|------|-----|--------|-----|
+| Q1 | Fix grid hover effect: `CanBeHovered = false` (already in constructor) | P1 | DONE | - |
+| Q2 | Fix navigation control overlap with toolbar | P1 | TODO | 0.25d |
+| Q3 | Fix toolbar icon theme colors via ImagePainter | P1 | TODO | 0.25d |
+| Q4 | Add RowHoverOpacity, NavigatorVisibilityMode, IconColorOverride props | P2 | TODO | 0.25d |
+| Q5 | BeepDateDropDown direct dropdown for filter date editor | P2 | TODO | 0.5d |
 
 ---
 
-## Additional Enhancements
-- [ ] Add `RowHoverOpacity` property
-- [ ] Add `NavigatorVisibilityMode` enum and property
-- [ ] Add `IconColorOverride` property
+## Phase 0: Centralized Data Controller (IN PROGRESS)
 
-**Status:** Pending
+| ID | Task | Pri | Status | Est | Notes |
+|----|------|-----|--------|-----|-------|
+| 0.1 | Create `GridDataController` class (row ownership, key→index map, Bind, RowAdded, RowRemoved, RowUpdated, CellChanged, CommitToSource) | P0 | **DONE** | 1.5d | `Controllers/GridDataController.cs` (648 lines) |
+| 0.2 | Wire DataController into BeepGridPro constructor + GridDataHelper delegate | P0 | **DONE** | 0.25d | BeepGridPro.cs, GridDataHelper.cs |
+| 0.3 | Wire INotifyCollectionChanged → controller delta methods (add/remove/replace) | P0 | **DONE** | 0.25d | OnCollectionChanged handles Add/Remove/Replace |
+| 0.4 | Wire BindingSource.ListChanged → controller methods | P0 | TODO | 0.5d | GridNavigatorHelper.cs |
+| 0.5 | Wire UoW events → controller (replace RefreshBinding) | P0 | TODO | 0.5d | GridUnitOfWorkBinder.cs |
+| 0.6 | Wire Navigator.InsertNew/DeleteCurrent → controller | P1 | TODO | 0.25d | GridNavigatorHelper.cs |
+| 0.7 | Wire EditHelper.EndEdit → controller.CellChanged / CommitToSource | P1 | TODO | 0.25d | GridEditHelper.cs |
+| 0.8 | Remove full-rebind calls from helpers (replace with controller calls) | P1 | TODO | 0.25d | Multiple files |
+| 0.9 | Maintain selection/scroll through delta operations | P1 | TODO | 0.5d | Selection + Scroll helpers |
+| 0.10 | Build and verify all paths | P0 | TODO | 0.5d | Build |
 
 ---
 
-## Implementation Order
-1. Issue 1 (Grid Hover) - One-line fix, high impact
-2. Issue 3 (Icon Theme Colors) - Use theme-aware painting with ImagePainter
-3. Issue 2 (Navigation Controls) - Cleanup and optimization
-4. Additional Enhancements - Nice to have
+## Phase 1: Renderer Interface & Registry
+
+| ID | Task | Pri | Status | Est |
+|----|------|-----|--------|-----|
+| 1.1 | Define `ICellContentRenderer` interface | P1 | TODO | 0.25d |
+| 1.2 | Create `CellRendererRegistry` static class | P1 | TODO | 0.25d |
+| 1.3-1.7 | Extract all 5 existing renderers from CellContent switch | P1 | TODO | 1.25d |
+| 1.8 | Replace CellContent.cs switch with registry call | P1 | TODO | 0.25d |
+| 1.9 | Wire OnCellClick into GridInputHelper | P1 | TODO | 0.25d |
+| 1.10 | Unit test: existing cells render same | P1 | TODO | 0.5d |
 
 ---
 
-## Files to Modify
+## Phase 2-7: New Renderers, SmartCellAdapter, Auto-Discovery, Missing Controls, Tests
 
-| File | Issues | Changes |
-|------|--------|---------|
-| `GridX/BeepGridPro.cs` | #1 | Add `CanBeHovered = false` in constructor |
-| `GridX/Toolbar/BeepGridToolbarPainter.cs` | #3 | Add `PaintToolbarIcon()` with theme-aware coloring |
-| `GridX/Helpers/GridNavigationPainterHelper.cs` | #2 | Button lifecycle, lazy creation |
+(Unchanged from previous plan — see original for full list)
+
+---
+
+## Dependency Graph
+
+```
+Phase 0 (Data Controller) ── MUST COMPLETE FIRST
+        │
+        ├── Phase 4 (Data Management) ── now mostly covered by Phase 0
+        ├── Phase 1 (Renderer Interface)
+        ├── Phase 2 (New Renderers)
+        ├── Phase 3 (SmartCellAdapter)
+        ├── Phase 5 (Auto-Discovery)
+        └── Phase 7 (Tests)
+```
+
+---
+
+## Progress Summary
+
+| Phase | Tasks | Done | In Progress | Blocked |
+|-------|-------|------|-------------|---------|
+| Quick Wins | 5 | 1 | 0 | 0 |
+| Phase 0: Data Controller | 10 | 3 | 7 | 0 |
+| Phase 1: Renderer Interface | 10 | 0 | 0 | 0 |
+| Phase 2: New Renderers | 9 | 0 | 0 | 0 |
+| Phase 3: SmartCellAdapter | 5 | 0 | 0 | 0 |
+| Phase 4: Data Management | 8 | 0 | 0 | 0 |
+| Phase 5: Auto-Discovery | 6 | 0 | 0 | 0 |
+| Phase 6: Missing Controls | 4 | 0 | 0 | 0 |
+| Phase 7: Testing & Docs | 6 | 0 | 0 | 0 |
+| **Total** | **63** | **4** | **7** | **0** |
+
+Last Updated: 2026-06-06

@@ -22,8 +22,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     {
         // Data management fields
         internal Type _entityType = null;
-        internal List<object> _fullData = new List<object>(); // Full data set for paging/filter operations
-        internal int _dataOffset = 0; // Paging offset
+        internal List<object> _fullData
+        {
+            get => DataController.FullData;
+            set => DataController.FullData = value ?? new();
+        }
+        internal int _dataOffset
+        {
+            get => DataController.DataOffset;
+            set => DataController.DataOffset = value;
+        }
         private object? _uow;
         private IUnitofWork? _typedUow;
         private IUnitOfWorkWrapper? _uowWrapper;
@@ -61,10 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     // When UOW mode is disabled, return to regular DataSource mode.
                     if (_typedUow == null && _uowWrapper == null)
                     {
-                        Data.Bind(_regularDataSource);
-                        Navigator.BindTo(_regularDataSource);
-                        Data.InitializeData();
-                        Layout.Recalculate();
+                        DataController.BindComplete(_regularDataSource);
                         if (!DesignMode) SafeInvalidate();
                     }
                 }
@@ -104,9 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     }
                     else
                     {
-                        Data.Bind(value);
-                        Navigator.BindTo(value);
-                        Data.InitializeData();
+                        DataController.BindComplete(value);
                         if (EnableVirtualization)
                         {
                             Data.Rows.Clear();
@@ -115,7 +118,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                             int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
                             RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
                         }
-                        Layout.Recalculate();
                     }
                     SafeInvalidate();
                 }
@@ -138,14 +140,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 Data.Columns.Add(col);
             }
 
-            // Clear the data source reference
-            Data.ClearDataSource();
-
-            // Reset navigator
-            Navigator.BindTo(null);
-
-            // Recalculate layout
-            Layout.Recalculate();
+            // Clear data and navigator
+            DataController.BindToNull();
 
             // Clear selection
             Selection?.Clear();
@@ -162,17 +158,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 if (EnableVirtualization)
                 {
-                    Data.Bind(_regularDataSource);
-                    Data.Rows.Clear();
-                    var columnNames = Data.Columns.Select(c => c.ColumnName).ToList();
-                    VirtualDataSource = CreateVirtualDataSource(_regularDataSource, columnNames);
-                    int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
-                    RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                    DataController.SyncFullData();
+                    RowVirtualizer.Refresh();
                 }
                 else
                 {
-                    Data.Bind(_regularDataSource);
-                    Data.InitializeData();
+                    DataController.BindDataOnly(_regularDataSource);
                 }
                 Layout.Recalculate();
                 SafeInvalidate();
@@ -194,9 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _dataMember = value ?? string.Empty;
                     if (Data.DataSource != null)
                     {
-                        Navigator.BindTo(Data.DataSource);
-                        Data.Bind(Data.DataSource);
-                        Data.InitializeData();
+                        DataController.BindComplete(Data.DataSource);
                         SafeInvalidate();
                     }
                 }

@@ -59,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             // Reset typing timer
-            _typingTimer.Stop();
-            _typingTimer.Start();
+            _typingTimer?.Stop();
+            _typingTimer?.Start();
             
             // Handle keyboard shortcuts
             if (e.Control)
@@ -288,7 +288,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_helper?.Caret?.HasSelection == true)
             {
+                string oldText = _text;
+                int oldCaret = _helper.Caret.CaretPosition;
                 _helper.Caret.RemoveSelectedText();
+                _helper?.UndoRedo?.AddUndoAction("Delete", oldText, _text, oldCaret, _helper.Caret.CaretPosition);
             }
             else if (_helper?.Caret?.CaretPosition > 0)
             {
@@ -304,7 +307,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_helper?.Caret?.HasSelection == true)
             {
+                string oldText = _text;
+                int oldCaret = _helper.Caret.CaretPosition;
                 _helper.Caret.RemoveSelectedText();
+                _helper?.UndoRedo?.AddUndoAction("Delete", oldText, _text, oldCaret, _helper.Caret.CaretPosition);
             }
             else if (_helper?.Caret?.CaretPosition < _text.Length)
             {
@@ -339,8 +345,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!string.IsNullOrEmpty(SelectedText) && !_readOnly)
             {
+                string oldText = _text;
+                int oldCaret = _helper?.Caret?.CaretPosition ?? 0;
                 Copy();
                 _helper?.Caret?.RemoveSelectedText();
+                _helper?.UndoRedo?.AddUndoAction("Cut", oldText, _text, oldCaret, _helper?.Caret?.CaretPosition ?? 0);
                 UpdateLines();
                 ValidateCaretPosition();
                 Invalidate();

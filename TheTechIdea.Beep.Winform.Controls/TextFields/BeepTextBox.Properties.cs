@@ -2,7 +2,9 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Badges;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -33,6 +35,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     string oldText = _text;
                     _text = newValue;
                     
+                    // Clear validation when text changes (re-validated later)
+                    if (HasError)
+                    {
+                        ClearValidation();
+                    }
+                    
                     // Update lines and helper immediately for better responsiveness
                     UpdateLines();
                     _helper?.InvalidateAllCaches();
@@ -43,6 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Trigger incremental search if enabled
                     TriggerIncrementalSearch();
                     
+                    // Re-trigger autocomplete on any text change (undo/redo/paste)
+                    _helper?.AutoComplete?.TriggerSmartAutoComplete(_text);
+                    
                     // Use immediate invalidation instead of delayed timer during normal operation
                     if (!_isInitializing)
                     {
@@ -50,15 +61,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        // Use delayed update only during initialization
                         _needsTextUpdate = true;
-                        // Only start timer if control has a valid handle and is not being disposed
                         if (IsHandleCreated && !IsDisposed && !Disposing)
                         {
                             _delayedUpdateTimer?.Stop();
                             _delayedUpdateTimer?.Start();
                         }
                     }
+
+                    UpdateRequiredIndicator();
+                    UpdateTrailingIcon();
                 }
             }
         }
@@ -221,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     smallerSize,
                     _textFont.Style);
             }
-            return _characterCountFont ?? _textFont;
+            return _characterCountFont ?? _textFont ?? Font ?? SystemFonts.MessageBoxFont;
         }
         
         /// <summary>
@@ -320,6 +332,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _readOnly = value;
                 TabStop = !value;
+                UpdateTrailingIcon();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Mark field as required. Shows star trailing icon when empty.")]
+        public new bool IsRequired
+        {
+            get => base.IsRequired;
+            set
+            {
+                base.IsRequired = value;
+                UpdateRequiredIndicator();
                 Invalidate();
             }
         }
@@ -390,6 +417,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _useSystemPasswordChar = value;
+                UpdatePasswordRevealIcon();
                 Invalidate();
             }
         }
@@ -404,9 +432,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _passwordChar = value;
+                UpdatePasswordRevealIcon();
                 Invalidate();
             }
         }
+
+        private bool _showPasswordReveal = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Show password reveal toggle when using password masking.")]
+        public bool ShowPasswordReveal
+        {
+            get => _showPasswordReveal;
+            set
+            {
+                _showPasswordReveal = value;
+                UpdatePasswordRevealIcon();
+                Invalidate();
+            }
+        }
+
+        [Browsable(false)]
+        public bool PasswordRevealed { get; private set; }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(2000)]
+        [Description("Auto re-mask delay in ms after focus lost (0 = never).")]
+        public int AutoReMaskDelayMs
+        {
+            get => _autoReMaskDelayMs;
+            set
+            {
+                _autoReMaskDelayMs = value;
+                if (_revealTimer != null && value > 0)
+                    _revealTimer.Interval = value;
+            }
+        }
+        private int _autoReMaskDelayMs = 2000;
         
         #endregion
         
@@ -965,6 +1028,60 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool DisableMaterialConstraints { get; set; } = false;
         
         #endregion
+
+        private void UpdateRequiredIndicator()
+        {
+            if (_isInitializing) return;
+            if (!IsRequired) return;
+
+            bool isEmpty = string.IsNullOrEmpty(_text);
+            if (isEmpty && !HasError)
+            {
+                ShowValidation(ValidationState.Warning, "Required");
+            }
+            else if (!isEmpty && _validationIcon == ValidationState.Warning)
+            {
+                ClearValidation();
+            }
+        }
+
+        private void UpdatePasswordRevealIcon()
+        {
+            if (!IsHandleCreated || _isInitializing) return;
+
+            bool isPassword = _useSystemPasswordChar || _passwordChar != '\0';
+            if (_showPasswordReveal && isPassword && !_readOnly)
+            {
+                TrailingIconPath = PasswordRevealed
+                    ? SvgsUIcons.Common.Hidden
+                    : SvgsUIcons.Common.Visible;
+            }
+            else
+            {
+                UpdateTrailingIcon();
+            }
+        }
+
+        private void UpdateTrailingIcon()
+        {
+            if (!IsHandleCreated || _isInitializing) return;
+
+            bool isPassword = _useSystemPasswordChar || _passwordChar != '\0';
+            if (_showPasswordReveal && isPassword && !_readOnly)
+            {
+                TrailingIconPath = PasswordRevealed
+                    ? SvgsUIcons.Common.Hidden
+                    : SvgsUIcons.Common.Visible;
+            }
+            else if (ShowClearButton && !string.IsNullOrEmpty(_text) && !_readOnly)
+            {
+                TrailingIconPath = SvgsUIcons.Common.Close;
+            }
+            else
+            {
+                TrailingIconPath = string.Empty;
+            }
+        }
     }
 
     internal static class TextBoxThemeHelpers

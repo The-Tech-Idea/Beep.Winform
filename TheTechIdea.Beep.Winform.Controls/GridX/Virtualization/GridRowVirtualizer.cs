@@ -190,6 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Virtualization
                 row.IsVisible = true;
 
                 _grid.Data.Rows.Add(row);
+                _grid.Data.SubscribeRowToInpc(row);
             }
             _grid.Data.UpdatePageInfo();
         }

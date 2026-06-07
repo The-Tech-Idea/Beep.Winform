@@ -96,6 +96,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             UpdatePageInfo();
         }
 
+        internal void SubscribeRowToInpc(Models.BeepRowConfig rowConfig)
+        {
+            if (rowConfig?.RowData is not INotifyPropertyChanged inpc) return;
+
+            if (_rowChangeHandlers.TryGetValue(inpc, out var existingHandler))
+                inpc.PropertyChanged -= existingHandler;
+
+            PropertyChangedEventHandler handler = (sender, e) => OnDataObjectPropertyChanged(sender, e, rowConfig);
+            _rowChangeHandlers[inpc] = handler;
+            inpc.PropertyChanged += handler;
+        }
+
         private void UnsubscribeRowChangeHandlers()
         {
             if (_rowChangeHandlers.Count == 0) return;

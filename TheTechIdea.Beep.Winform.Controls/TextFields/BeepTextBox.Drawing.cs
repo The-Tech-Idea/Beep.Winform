@@ -71,8 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-           
-            if (graphics == null || rectangle.Width <= 0 || rectangle.Height <= 0)
+            if (IsDisposed || graphics == null || rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
 
             graphics.SmoothingMode = SmoothingMode.AntiAlias;

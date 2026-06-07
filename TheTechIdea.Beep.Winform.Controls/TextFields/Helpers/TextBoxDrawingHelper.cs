@@ -664,37 +664,24 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private string GetActualText()
         {
             string text = _textBox.Text;
-            
-            // FIX: Only filter out truly empty text or obvious designer defaults
-            // Don't filter out user text just because it starts with "beep"!
+
             if (string.IsNullOrEmpty(text))
             {
                 return string.Empty;
             }
-            
-            // REMOVED: Do not filter out text if it matches control name.
-            // This causes issues at runtime if the user intentionally sets text equal to the name (e.g. "Search").
-            /*
-            if (text.Equals((_textBox as Control)?.Name, StringComparison.OrdinalIgnoreCase))
-            {
-                return string.Empty;
-            }
-            */
-            
-            // Handle password characters
+
+            if (_textBox is BeepTextBox beepBox && beepBox.PasswordRevealed)
+                return text;
+
             if (_textBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))
             {
-                return new string('�', text.Length);
+                return new string('\u2022', text.Length);
             }
             else if (_textBox.PasswordChar != '\0' && !string.IsNullOrEmpty(text))
             {
                 return new string(_textBox.PasswordChar, text.Length);
             }
-            
-            // For debugging: add a check to see what text we're getting
-         //   System.Diagnostics.Debug.WriteLine($"GetActualText returning: '{text}' (Length: {text?.Length ?? 0})");
-         //   System.Diagnostics.Debug.WriteLine($"Text contains newlines: {text?.Contains('\n') ?? false}");
-            
+
             return text;
         }
         
@@ -732,6 +719,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private TextFormatFlags GetTextFormatFlags()
         {
             TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.NoPadding;
+            
+            // RTL support
+            if (_textBox is Control ctrl && ctrl.RightToLeft == RightToLeft.Yes)
+            {
+                flags |= TextFormatFlags.RightToLeft;
+            }
             
             // Alignment
             switch (_textBox.TextAlignment)

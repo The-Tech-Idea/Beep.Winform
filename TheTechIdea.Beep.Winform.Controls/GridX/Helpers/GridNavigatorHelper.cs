@@ -114,12 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _navigator.DeleteCalled += Navigator_DeleteCalled;
             _navigator.SaveCalled += Navigator_SaveCalled;
 
-            if (effectiveData != null)
-            {
-                _grid.Data.Bind(effectiveData);
-                _grid.Data.InitializeData();
-                _grid.Layout.Recalculate();
-            }
+            _grid.Layout.Recalculate();
             _grid.SafeInvalidate();
         }
 
@@ -205,8 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 // The bound data has been replaced entirely — schema may have changed.
                 // Regenerate columns from the new source to avoid showing stale column structure.
-                _grid.Data.AutoGenerateColumns();
-                _grid.Data.InitializeData();
+                _grid.DataController.RebindSchema();
                 _grid.Layout.Recalculate();
                 _grid.SafeInvalidate();
             }
@@ -251,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void BindingSource_ListChanged(object? sender, ListChangedEventArgs e)
         {
             // UOW mode is synchronized via UOW binder + explicit UOW refresh methods.
-            if (IsUowMode)
+            if (IsUowMode || _grid.DataController.IsInBindComplete)
                 return;
 
             try
@@ -291,15 +285,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     }
 
                     // Fallback: full rebind
-                    _grid.Data.Bind(_bindingSource);
-                    _grid.Data.InitializeData();
+                    _grid.DataController.BindDataOnly(_bindingSource);
                     _grid.Layout.Recalculate();
                     _grid.SafeInvalidate();
                     return;
                 }
 
-                _grid.Data.Bind(_bindingSource);
-                _grid.Data.InitializeData();
+                _grid.DataController.BindDataOnly(_bindingSource);
                 _grid.Layout.Recalculate();
 
                 if (_grid.Rows.Count == 0)
@@ -462,9 +454,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     var item = _bindingSource.AddNew();
                     _bindingSource.EndEdit();
                     
-                    // Rebind and recalculate layout
-                    _grid.Data.Bind(_bindingSource);
-                    _grid.Data.InitializeData();
                     _grid.Layout.Recalculate();
                     
                     // Move cursor to the newly created record (last row)
@@ -565,9 +554,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     // Remove the current item
                     _bindingSource.RemoveCurrent();
                     
-                    // Rebind and recalculate
-                    _grid.Data.Bind(_bindingSource);
-                    _grid.Data.InitializeData();
                     _grid.Layout.Recalculate();
                     
                     // Apply cursor movement rules (best practices):
@@ -789,10 +775,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            BindTo(units);
-            _grid.Data.Bind(units);
-            _grid.Data.InitializeData();
-            _grid.Layout.Recalculate();
+            _grid.DataController.BindComplete(units);
 
             if (moveToLast && _grid.Rows.Count > 0)
             {

@@ -558,11 +558,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (!ReferenceEquals(_grid.Data.DataSource, bs))
             {
                 _grid.Data.Bind(bs, triggerAutoSize: false);
-                _grid.Data.InitializeData();
+                _grid.DataController.SyncFullData();
             }
             else
             {
                 _grid.Data.RefreshRows();
+                _grid.DataController.SyncFullData();
             }
 
             SetAllRowsVisible();
@@ -576,6 +577,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             else
             {
                 _grid.Selection.Clear();
+            }
+
+            if (_grid.EnableVirtualization)
+            {
+                _grid.RowVirtualizer.Refresh();
             }
 
             RecalculateAndInvalidate();

@@ -61,10 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _units = GetUnits();
                 if (_units == null) return;
 
-                // Feed grid data and navigator
-                _grid.Data.Bind(_units);
-                _grid.Navigator.BindTo(_units);
-                _grid.Data.InitializeData();
+                _grid.DataController.BindComplete(_units as System.Collections.IEnumerable);
 
                 // Hook change notifications to keep the view live
                 _asBindingList = _units as IBindingList;
@@ -75,10 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _asNotifyCollectionChanged = _units as INotifyCollectionChanged;
                 if (_asNotifyCollectionChanged != null)
                 {
-                    _asNotifyCollectionChanged.CollectionChanged += OnCollectionChanged;
+                _asNotifyCollectionChanged.CollectionChanged += OnCollectionChanged;
                 }
-
-                _grid.Layout.Recalculate();
 
                 if (_grid.Rows.Count > 0 && selectedRow >= 0)
                 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Badges;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -46,20 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             if (_showCharacterCount && _maxLength > 0)
             {
-                try
-                {
-                    using (var g = CreateGraphics())
-                    {
-                        // Use cached DPI-aware font instead of creating new Font
-                        Font font = GetCharacterCountFont();
-                        var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(g, "0/0", font).Height);
-                        _textRect.Height = Math.Max(1, _textRect.Height - charCountHeight);
-                    }
-                }
-                catch
-                {
-                    // Ignore
-                }
+                var font = GetCharacterCountFont();
+                var charCountHeight = TextRenderer.MeasureText("0/0", font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                _textRect.Height = Math.Max(1, _textRect.Height - charCountHeight);
             }
         }
         
@@ -95,16 +85,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 return string.Empty;
             }
-            
-            if (_useSystemPasswordChar && !string.IsNullOrEmpty(_text))
+
+            if (!PasswordRevealed)
             {
-                return new string('•', _text.Length);
+                if (_useSystemPasswordChar && !string.IsNullOrEmpty(_text))
+                {
+                    return new string('\u2022', _text.Length);
+                }
+                else if (_passwordChar != '\0' && !string.IsNullOrEmpty(_text))
+                {
+                    return new string(_passwordChar, _text.Length);
+                }
             }
-            else if (_passwordChar != '\0' && !string.IsNullOrEmpty(_text))
-            {
-                return new string(_passwordChar, _text.Length);
-            }
-            
+
             return _text;
         }
         
@@ -391,13 +384,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (DisableMaterialConstraints)
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var textSize = TextUtils.MeasureText(g,string.IsNullOrEmpty(Text) ? PlaceholderText : Text, TextFont);
-                    int width = (int)Math.Ceiling(textSize.Width) + Padding.Horizontal + (BorderWidth * 2);
-                    int height = (int)Math.Ceiling(textSize.Height) + Padding.Vertical + (BorderWidth * 2);
-                    return new Size(width, height);
-                }
+                var textSize = TextRenderer.MeasureText(
+                    string.IsNullOrEmpty(Text) ? PlaceholderText : Text,
+                    TextFont ?? Font,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.NoPadding);
+                int width = textSize.Width + Padding.Horizontal + (BorderWidth * 2);
+                int height = textSize.Height + Padding.Vertical + (BorderWidth * 2);
+                return new Size(width, height);
             }
 
             return base.GetPreferredSize(proposedSize);
@@ -409,7 +403,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         public bool ValidateData(out string message)
         {
-            return _helper?.ValidateAllData(out message) ?? EntityHelper.ValidateData(MaskFormat, Text, CustomMask, out message);
+            bool valid = _helper?.ValidateAllData(out message) ?? EntityHelper.ValidateData(MaskFormat, Text, CustomMask, out message);
+            if (!valid)
+            {
+                ShowValidation(ValidationState.Error, message);
+            }
+            else
+            {
+                ClearValidation();
+            }
+            return valid;
         }
         
         public override void SetValue(object value)

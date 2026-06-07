@@ -332,10 +332,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void TriggerIncrementalSearch()
         {
             if (!_incrementalSearchEnabled || !IsSearchActive) return;
-            
+            if (IsDisposed) return;
+
             _incrementalSearchTimer?.Stop();
             _pendingSearchText = Text;
-            
+
             if (!string.IsNullOrEmpty(_pendingSearchText))
             {
                 _incrementalSearchTimer?.Start();
@@ -344,6 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void IncrementalSearchTimer_Tick(object sender, EventArgs e)
         {
+            if (IsDisposed) return;
             _incrementalSearchTimer?.Stop();
             if (!string.IsNullOrEmpty(_pendingSearchText))
             {
@@ -365,20 +367,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 switch (e.KeyCode)
                 {
                     case Keys.F:
+                        _helper?.AutoComplete?.CloseAutoComplete();
                         ShowFindDialog();
                         e.Handled = true;
                         return true;
 
                     case Keys.H:
+                        _helper?.AutoComplete?.CloseAutoComplete();
                         ShowFindReplaceDialog();
                         e.Handled = true;
                         return true;
 
                     case Keys.G:
-                        // Go to line (for multiline)
                         if (_multiline)
                         {
-                            // Could implement GoToLine dialog
                         }
                         e.Handled = true;
                         return true;
@@ -396,6 +398,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return true;
 
                 case Keys.Escape:
+                    if (_helper?.AutoComplete?.CloseAutoComplete() == true)
+                    {
+                        e.Handled = true;
+                        return true;
+                    }
                     if (IsSearchActive)
                     {
                         ClearSearch();

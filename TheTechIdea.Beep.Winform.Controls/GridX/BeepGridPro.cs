@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Vis.Modules;
 using Math = System.Math;
 using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
+using TheTechIdea.Beep.Winform.Controls.GridX.Controllers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -48,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         #region Helper Instances
         internal Helpers.GridLayoutHelper Layout { get; }
         internal Helpers.GridDataHelper Data { get; }
+        internal Controllers.GridDataController DataController { get; }
         internal Helpers.GridRenderHelper Render { get; }
         internal Helpers.GridSelectionHelper Selection { get; }
         internal Helpers.GridInputHelper Input { get; }
@@ -98,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // Create a dedicated host layer for editors (kept only over active cell)
             Layout = new Helpers.GridLayoutHelper(this);
             Data = new Helpers.GridDataHelper(this);
+            DataController = new Controllers.GridDataController(this);
             Render = new Helpers.GridRenderHelper(this);
             Selection = new Helpers.GridSelectionHelper(this);
             Input = new Helpers.GridInputHelper(this);
@@ -895,8 +898,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         VirtualDataSource = null;
                         if (_regularDataSource != null)
                         {
-                            Data.Bind(_regularDataSource);
-                            Navigator.BindTo(_regularDataSource);
+                            DataController.BindComplete(_regularDataSource);
                         }
                     }
                     Layout.Recalculate();

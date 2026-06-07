@@ -1,453 +1,335 @@
 # BeepTextBox Enhancement Plan
 
-Priority: High
-Status: Planning Approved
-Date: 2026-06-06
-Revised: 2026-06-06 (icon paths, autocomplete integration)
+Priority: High | Status: Planning Approved | Date: 2026-06-06 | Revised: 2026-06-06
+
+## Executive Summary
+
+BeepTextBox already has great feature breadth (search, terminal effects, masking, autocomplete).
+However, it does **not** leverage the extensive infrastructure that `BaseControl` provides:
+
+| BaseControl System | Already Exists? | BeepTextBox Uses It? |
+|---|---|---|
+| `ShowValidation(state, message)` + `ErrorText` + `ErrorColor` + `ValidationIcon` + indicator line | Yes | **No** |
+| `HelperText` / `HelperTextOn` + external drawing pipeline | Yes | **No** |
+| `LabelText` / `LabelTextOn` / `FloatingLabelOn` + MD3 label animation | Yes | **No** |
+| `IsHovered` (auto-set by `OnMouseEnter/Leave`) + `HoverBackColor`/`HoverForeColor`/`HoverBorderColor` | Yes | **No (no rendering)** |
+| `TrailingIconPath` / `LeadingIconPath` + `IconSize`/`IconPadding` + click events | Yes | **No** |
+| `ShowClearButton` built-in property | Yes | **No** |
+| `DisabledBackColor` / `DisabledBorderColor` / `DisabledForeColor` for read-only state | Yes | **No** |
+| `ShowBeepContextMenu()` / `CreateMenuItem()` / `CreateMenuItemWithShortcut()` / `CreateMenuSeparator()` | Yes | **No** |
+| `ShowExternalIcon(svg)` / `ClearExternalIcon()` | Yes | **No** |
+| `IsRequired` property (from `IBeepUIComponent`) | Yes | **No (no rendering)** |
+| `FocusBackColor` / `FocusBorderColor` / `FocusForeColor` | Yes | **Partial** (only FocusBorderColor used in animation) |
+
+**This plan is NOT about building new infrastructure. It is about WIRING BeepTextBox to the infrastructure that BaseControl already provides.**
 
 ## Icon Sources
 
-All trailing/leading icons reference `TheTechIdea.Beep.Icons.SvgsUIcons` from
-`IconsManagement\SvgsUIcons.cs`. The `BeepImage` infrastructure supports embedded
-SVG rendering with theme tinting via `ApplyThemeOnImage`.
+All icons from `TheTechIdea.Beep.Icons.SvgsUIcons` (`IconsManagement\SvgsUIcons.cs`):
 
-Key icon paths used throughout this plan:
-
-| Feature | Icon class | Resource |
-|---------|-----------|----------|
+| Purpose | Class | Resource |
+|---------|-------|----------|
 | Search | `Common.Search` | `fi-tr-search-alt.svg` |
 | Clear (X) | `Common.Close` | `fi-tr-x.svg` |
 | Password show | `Common.Visible` | `fi-tr-eye-recognition.svg` |
 | Password hide | `Common.Hidden` | `fi-tr-low-vision.svg` |
-| Error indicator | `Common.Error` | `fi-tr-circle-xmark.svg` |
-| Warning indicator | `Common.Warning` | `fi-tr-triangle-warning.svg` |
-| Success check | `Common.Check` | `fi-tr-check-circle.svg` |
-| Required (*) | `Common.Star` | `fi-tr-star.svg` |
+| Error icon | `Common.Error` | `fi-tr-circle-xmark.svg` |
+| Warning | `Common.Warning` | `fi-tr-triangle-warning.svg` |
+| Success | `Common.Success` | `fi-tr-check-circle.svg` |
+| Info | `Common.Info` | `fi-tr-info.svg` |
+| Required star | `Common.Star` | `fi-tr-star.svg` |
 | Read-only lock | `Common.Lock` | `fi-tr-lock-alt.svg` |
 | Loading spinner | `Activity.Loading` | `fi-tr-loading.svg` |
 | Dropdown caret | `Carets.Down` | `fi-tr-caret-down.svg` |
-| Autocomplete list | `View.List` | `fi-tr-rectangle-list.svg` |
-| Context copy | `Common.Copy` | `fi-tr-copy.svg` |
-| Context paste | `Common.Paste` | `fi-tr-paste.svg` |
-| Context undo | `Common.Undo` | `fi-tr-undo.svg` |
-| Context redo | `Common.Redo` | `fi-tr-redo-alt.svg` |
-| Spell check error | `Common.Warning` | `fi-tr-triangle-warning.svg` |
+| Dropdown caret up | `Carets.Up` | `fi-tr-caret-up.svg` |
+| Copy | `Common.Copy` | `fi-tr-copy.svg` |
+| Paste | `Common.Paste` | `fi-tr-paste.svg` |
+| Undo | `Common.Undo` | `fi-tr-undo.svg` |
+| Redo | `Common.Redo` | `fi-tr-redo-alt.svg` |
+| Delete | `Common.Delete` | `fi-tr-trash-empty.svg` |
+| Edit | `Common.Edit` | `fi-tr-pen.svg` |
+| Download | `Common.Download` | `fi-tr-file-download.svg` |
+| Upload | `Common.Upload` | `fi-tr-file-upload.svg` |
 
 ---
 
-## Overview
+## Phase 1: Wire to BaseControl (P0-P1)
+Goal: Adopt BaseControl's existing infrastructure. Status: PLANNING
 
-Enhance BeepTextBox to achieve commercial parity with DevExpress/Telerik text
-controls and modern web standards (Material Design 3, Fluent UI). Current
-control has strong feature breadth but lacks accessibility, validation UI, and
-modern adornment patterns.
+### 1.1 Error/Validation State Integration (1 day)
+**What exists in BaseControl:**
+- `ShowValidation(ValidationState, string message)` — sets icon, indicator line, error text, raises event
+- `ClearValidation()` — clears all indicators
+- `ErrorText` property — auto-sets `HasError`
+- `ErrorColor` property — from theme
+- `ValidationIcon` property — picks SvgsUIcons icon automatically
+- `ShowIndicatorLine` — colored bar below control
+- `ValidationStateChanged` event
+- External drawing pipeline renders label + helper/error text + icon + indicator line
 
-## AutoComplete Integration Architecture
+**What BeepTextBox needs to do:**
+1. After `ValidateData(out message)` returns false: call `ShowValidation(ValidationState.Error, message)`
+2. When text changes and clears error: call `ClearValidation()`
+3. In `DrawContent()`: when `HasError`, draw error-colored border using `ErrorColor`
+4. In `DrawContent()`: when `ShowIndicatorLine` is true, skip drawing indicator line (BaseControl's external painter handles it)
+5. Remove `_beepImage`-based image validation approach in favor of BaseControl's system
 
-The current autocomplete system (`SmartAutoCompleteHelper` + `BeepPopupListForm`)
-needs tighter integration. Key integration touchpoints:
+**Files:** `BeepTextBox.Methods.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
 
-```
-User types char
-  -> InsertText() [BeepSimpleTextBoxHelper]
-     -> ShouldTriggerAutoComplete()
-        -> SmartAutoCompleteHelper.TriggerSmartAutoComplete()
-           -> 300ms debounce timer
-           -> ShowAutoCompletePopup()
-              -> BeepPopupListForm.ShowPopup() (borderless, fade-animated)
+### 1.2 Helper Text & Label Integration (0.5 day)
+**What exists in BaseControl:**
+- `HelperText` property — supporting text below control
+- `HelperTextOn` property — toggle
+- `LabelText` / `LabelTextOn` — label above/beside control
+- `FloatingLabelOn` — MD3-style floating label
+- External drawing pipeline (does all rendering to parent)
 
-User context-clicks
-  -> OnMouseUp() [new: ContextMenu integration]
-     -> IF autocomplete popup is open: HideAutoCompletePopup()
-     -> THEN show ContextMenuStrip
+**What BeepTextBox needs to do:**
+1. When `HelperText` is set: enable `HelperTextOn = true` (set defaults)
+2. Wire `ErrorText` priority: `IsError` shows `ErrorText` instead of `HelperText` (BaseControl already does this)
+3. Use `LabelText` for the field label (if set by user)
+4. Call `UpdateExternalDrawing()` after property changes
+5. Consolidate: BeepTextBox's `PlaceholderText` serves as the "inside" hint; BaseControl's `HelperText` serves as "below" supporting text
 
-User presses Ctrl+F
-  -> HandleSearchKeyDown() [BeepTextBox.Search.cs]
-     -> IF autocomplete popup is open: HideAutoCompletePopup()
-     -> THEN ShowFindDialog()
+**Files:** `BeepTextBox.Properties.cs`, `BeepTextBox.Core.cs`
 
-User presses Ctrl+V (paste)
-  -> Paste() [BeepTextBox.Input.cs]
-     -> IF paste adds new characters: TriggerSmartAutoComplete()
-        -> Re-evaluate suggestions based on new content
-```
+### 1.3 Hover State Rendering (0.5 day)
+**What exists in BaseControl:**
+- `IsHovered` is auto-set by `OnMouseEnter`/`OnMouseLeave` (already called)
+- `HoverBackColor`, `HoverForeColor`, `HoverBorderColor` are already set by `ApplyTheme()`
+- `UseBaseMouseInputRouting` (default false for BeepTextBox—needs to check this!)
 
-### AutoComplete Integration Rules
+**What BeepTextBox needs to do:**
+1. Check if `UseBaseMouseInputRouting` is true (if not, the hover state isn't being tracked)
+2. In `DrawContent()`: if `IsHovered && !Focused && !HasError`, fill background with `HoverBackColor` and draw border with `HoverBorderColor`
+3. Optionally add smooth hover transition via existing `_animationTimer`
 
-1. **Context Menu**: Hide autocomplete popup before showing context menu.
-2. **Search/F3**: Hide autocomplete popup when search is activated (Ctrl+F).
-3. **Escape**: Priority: close autocomplete popup first, then clear search, then
-   lose focus.
-4. **Paste/Undo/Redo**: Re-trigger autocomplete after text mutations.
-5. **Focus Lost**: Hide autocomplete popup immediately (already done via
-   `OnGotFocus`/`OnLostFocus` tie-in).
-6. **Incremental Search vs Autocomplete**: They share the `_incrementalSearchTimer`
-   (300ms). When both are enabled, autocomplete wins and incremental search
-   defers. When only search is enabled, incremental search fires.
-7. **Dropdown Caret**: When `AutoCompleteMode != None`, render `Carets.Down` as
-   trailing icon to indicate dropdown capability (like ComboBox).
+**Files:** `BeepTextBox.Drawing.cs`, `BeepTextBox.Core.cs`
 
----
+### 1.4 Read-Only / Disabled Visual Distinction (0.5 day)
+**What exists in BaseControl:**
+- `DisabledBackColor`, `DisabledBorderColor`, `DisabledForeColor` from theme
+- `IsEditable` property from `IBeepUIComponent`
 
-## Phase Structure
+**What BeepTextBox needs to do:**
+1. In `DrawContent()`: when `ReadOnly`, fill background with `DisabledBackColor`
+2. Use `DisabledBorderColor` for border (dashed or lighter)
+3. Disable focus animation when ReadOnly
+4. Disable typing indicator when ReadOnly
+5. Optionally set `LeadingIconPath = SvgsUIcons.Common.Lock` when ReadOnly (via `ShowReadOnlyIcon` property)
 
-### Phase 1: Foundation Hardening (P0)
-Goal: Fix critical gaps that block production readiness. Status: PLANNING
+**Files:** `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
 
-#### P1-W1: Validation Error UI (3 days)
-- Add `IsError` property (bool, default false)
-- Add `ErrorBorderColor` property (Color, default `Color.FromArgb(239, 68, 68)`)
-- Add `ErrorText` property (string, shown in helper-text area)
-- Add `ErrorIconVisible` property (bool, default true)
-- Render error icon via `Common.Error` (`fi-tr-circle-xmark.svg`) as trailing icon
-- Modify `Draw()` to render solid error-state border (no animation, distinct from focus)
-- Wire `ValidateData()` result -> `IsError` + `ErrorText`
-- Add `ErrorStateChanged` event
-- Error icon takes rightmost trailing slot (before clear button if both shown)
+### 1.5 Required Indicator (0.5 day)
+**What exists in BaseControl:**
+- `IsRequired` property from `IBeepUIComponent`
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Methods.cs`, `BeepTextBox.Events.cs`
+**What BeepTextBox needs to do:**
+1. When `IsRequired`: set `TrailingIconPath = SvgsUIcons.Common.Star` (or render "*" in label)
+2. When text is empty and required: show error via `ShowValidation(Warning, "Required")`
+3. When text is filled and was showing required warning: clear it
+4. `LabelText` auto-appends "*" when `IsRequired` (BaseControl behavior, check if implemented)
 
-#### P1-W2: Context Menu with Icon Integration (1.5 days)
-- Override `OnMouseUp` to show `ContextMenuStrip` on right-click
-- Menu items (with SvgsUIcons paths):
-  - **Undo** (`Common.Undo`, `fi-tr-undo.svg`)
-  - **Redo** (`Common.Redo`, `fi-tr-redo-alt.svg`)
-  - Separator
-  - **Cut** (`Common.Copy`, reuse -- or scissor icon if available)
-  - **Copy** (`Common.Copy`, `fi-tr-copy.svg`)
-  - **Paste** (`Common.Paste`, `fi-tr-paste.svg`)
-  - **Delete**
-  - Separator
-  - **Select All**
-- Disable items per `ReadOnly` state and selection state:
-  - Undo: disabled when stack empty
-  - Redo: disabled when stack empty
-  - Cut: disabled when `ReadOnly` or no selection
-  - Paste: disabled when `ReadOnly` or no clipboard text
-  - Delete: disabled when `ReadOnly` or no selection
-  - Select All: always enabled
-- **AutoComplete integration**: Hide autocomplete popup before showing context menu
-- On Escape while context menu open: close menu (not textbox focus)
-- Load icons via `BeepImage` using `ApplyThemeOnImage = true` to ensure theme tinting
+**Files:** `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`
 
-**Files**: `BeepTextBox.Events.cs`, `BeepTextBox.Input.cs`
+### 1.6 Context Menu Wiring (1 day)
+**What exists in BaseControl:**
+- `ShowBeepContextMenu()` / `ShowContextMenu(List<SimpleItem>)`
+- `ShowContextMenuOnRightClick(items, e)`
+- `CreateMenuItem(text, imagePath, tag)` — `public static`
+- `CreateMenuItemWithShortcut(text, shortcut, imagePath, tag)` — `public static`
+- `CreateMenuSeparator()` — `public static`
 
-#### P1-W3: Undo/Redo Hardening (2 days)
-- Review `BeepTextBoxUndoRedoHelper` for multi-step support
-- Implement unbounded undo/redo stack with 100-entry cap
-- Memoize snapshots: (text, caret position, selection start, selection length) tuple
-- Add `UndoAvailable` / `RedoAvailable` events (wire to context menu enabled states)
-- Preserve caret position and selection on undo/redo
-- Unit tests for undo/redo chain integrity
-- **AutoComplete integration**: Re-trigger autocomplete after undo/redo
+**What BeepTextBox needs to do:**
+1. Override `OnMouseUp` (right-click): hide autocomplete popup, build menu items, call `ShowContextMenu()`
+2. Menu structure:
+   ```
+   Undo (Ctrl+Z)  [fi-tr-undo]          — disabled if no undo stack
+   Redo (Ctrl+Y)  [fi-tr-redo-alt]      — disabled if no redo stack
+   ─────────────
+   Cut (Ctrl+X)   [fi-tr-copy]           — disabled if no selection or ReadOnly
+   Copy (Ctrl+C)  [fi-tr-copy]           — disabled if no selection
+   Paste (Ctrl+V) [fi-tr-paste]          — disabled if ReadOnly or no clipboard
+   Delete         [fi-tr-trash-empty]    — disabled if no selection or ReadOnly
+   ─────────────
+   Select All (Ctrl+A)                   — always enabled
+   ```
+3. Wire `ContextMenuItemSelected` event to dispatch actions:
+   - "Undo" tag → `_helper.UndoRedo.Undo()`
+   - "Redo" tag → `_helper.UndoRedo.Redo()`
+   - "Cut" tag → `Cut()`
+   - etc.
+4. Autocomplete integration: hide popup before showing context menu
 
-**Files**: `TextFields/Helpers/BeepTextBoxUndoRedoHelper.cs`, Tests
-
-#### P1-W4: Font/DPI Robustness (1 day)
-- Remove all `CreateGraphics()` calls from layout methods
-- Cache text metrics at `HandleCreated` time or first paint
-- Use `TextRenderer.MeasureText` everywhere for consistency
-- Fix `UpdateDrawingRect()` to use cached metrics
-- Ensure DPI changes invalidate all caches
-
-**Files**: `BeepTextBox.Methods.cs`, `BeepTextBox.Core.cs`
-
-**Exit Criteria:** Error state renders visually with icon. Context menu works with
-icons. Undo/redo handles 50+ steps. No `CreateGraphics()` in layout path.
+**Files:** `BeepTextBox.Events.cs`
 
 ---
 
-### Phase 2: UX Polish (P1)
-Goal: Match modern web/material UX patterns. Status: PLANNING
+## Phase 2: Trailing Icon Integration (P1-P2)
+Goal: Use BaseControl's icon slots rather than building custom zones. Status: PLANNING
 
-#### P2-W1: Trailing Icon Zone Architecture (0.5 day)
-Before adding specific icons, create a unified trailing icon zone that handles:
-- Icon slot ordering: `error → password reveal → clear button → autocomplete caret → loading spinner`
-- Hit-testing per icon slot
-- Right-to-left awareness (swap to leading zone for RTL)
-- Theme-aware rendering via `BeepImage` with `ApplyThemeOnImage`
-- Each icon creates its own `BeepImage` instance (not SVGs loaded per paint)
+### 2.1 Clear Button Wiring (0.5 day)
+**What exists in BaseControl:**
+- `ShowClearButton` property (bool, default false)
+- When enabled, BaseControl renders X icon and handles click internally
 
-**Files**: `BeepTextBox.Drawing.cs`, new helper `TrailingIconManager` (optional)
+**What BeepTextBox needs to do:**
+1. The BaseControl painter renders the clear button in the trailing slot automatically
+2. Subscribe to `TrailingIconClicked` event to clear text
+3. Wire `ClearButtonClicked` event (custom event for consumers)
+4. When text is empty, the clear button auto-hides (BaseControl behavior—verify)
+5. If BaseControl's auto-hide doesn't work for textboxes, override with manual check in DrawContent
 
-#### P2-W2: Clear Button (X) (1 day)
-- Add `ShowClearButton` property (bool, default false)
-- Render `Common.Close` (`fi-tr-x.svg`) in trailing zone when text is non-empty
-- Clicking clears text, resets error state, raises `ClearButtonClicked` event
-- Auto-hide when `ReadOnly` or text is empty
-- Support theme tinting via `ApplyThemeOnImage`
-- **AutoComplete integration**: Closing via clear button hides autocomplete popup
-- **Compatibility**: `ShowClearButton` + `ImageVisible` + password reveal are
-  mutually stackable in trailing zone
+**Files:** `BeepTextBox.Events.cs`
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
+### 2.2 Password Reveal Toggle (1 day)
+**What exists in BaseControl:**
+- `TrailingIconPath` — can be toggled between eye-open/eye-closed
+- `TrailingIconClicked` event
 
-#### P2-W3: Password Reveal Toggle (1 day)
-- Add `ShowPasswordReveal` property (bool, default false)
-- Add `PasswordRevealed` state (bool, default false)
-- Render `Common.Hidden` (`fi-tr-low-vision.svg`) when masked, `Common.Visible`
-  (`fi-tr-eye-recognition.svg`) when revealed
-- Toggle `PasswordRevealed` on click; fires `PasswordRevealChanged` event
-- When revealed: show actual text (bypass `GetActualText()` masking)
-- When re-masked or focus lost: auto-re-mask after `AutoReMaskDelayMs` (default 2000ms)
-- **Accessibility**: Narrator reads "Show password" / "Hide password" based on state
+**What BeepTextBox needs to do:**
+1. Add `ShowPasswordReveal` property (bool, default false): toggles visibility of reveal icon
+2. Add `PasswordRevealed` field (bool, default false): current reveal state
+3. When `ShowPasswordReveal && (UseSystemPasswordChar || PasswordChar != '\0')`:
+   - Set `TrailingIconPath = PasswordRevealed ? SvgsUIcons.Common.Visible : SvgsUIcons.Common.Hidden`
+   - When `PasswordRevealed`: bypass `GetActualText()` masking to show real text
+4. Subscribe to `TrailingIconClicked`: toggle `PasswordRevealed`, flip icon
+5. Auto-re-mask on focus lost after `AutoReMaskDelayMs` (default 2s)
+6. Add `PasswordRevealChanged` event
+7. **Accessibility**: Set accessible name on trailing icon
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Methods.cs`
+**Files:** `BeepTextBox.Properties.cs`, `BeepTextBox.Methods.cs`, `BeepTextBox.Events.cs`
 
-#### P2-W4: Hover State Rendering (1 day)
-- Activate existing `HoverBackColor`/`HoverForeColor` properties (already set by theme)
-- Override `OnMouseEnter` to set `_isHovered = true` + `Invalidate()`
-- Override `OnMouseLeave` to set `_isHovered = false` + `Invalidate()`
-- Modify `DrawContent()` to apply hover colors when `_isHovered && !Focused`
-- Add smooth hover transition (0.15s ease) reusing animation timer
-- Hover border color is lighter than focus border color
+### 2.3 Autocomplete Dropdown Caret (0.5 day)
+**What exists in BaseControl:**
+- `TrailingIconPath` — can toggle dropdown arrow
 
-**Files**: `BeepTextBox.Events.cs`, `BeepTextBox.Drawing.cs`
+**What BeepTextBox needs to do:**
+1. When `AutoCompleteMode != None` and text is empty: set `TrailingIconPath = SvgsUIcons.Carets.Down`
+2. When autocomplete popup is open: set `TrailingIconPath = SvgsUIcons.Carets.Up`
+3. Subscribe to `TrailingIconClicked`: trigger autocomplete with all suggestions (like ComboBox dropdown)
+4. Icon auto-hides when `ShowClearButton` or `ShowPasswordReveal` is active and they occupy trailing slot
 
-#### P2-W5: Required Indicator (0.5 day)
-- Add `IsRequired` property (bool, default false)
-- Render `Common.Star` (`fi-tr-star.svg`) as trailing icon in the required slot
-- Required indicator color: `_currentTheme.ErrorColor` or red
-- Show as trailing icon (right side) -- follows MD3 and Fluent UI patterns
-- Tooltip on hover: "Required field"
-- Render before clear button, after error icon in trailing zone order
-- **Accessibility**: `aria-required=true` via UIA provider
+**Files:** `BeepTextBox.Events.cs`, `SmartAutoCompleteHelper.cs`
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`
+### 2.4 Leading Image Port (0.5 day)
+**What exists in BeepTextBox:**
+- `_beepImage` private instance with `ImagePath`, `ImageVisible`, etc.
 
-#### P2-W6: Helper Text / Supporting Text (1 day)
-- Add `HelperText` property (string, shown below control)
-- Add `ShowHelperText` property (bool, default false)
-- Render helper text in DPI-aware small font below the control bottom border
-- Switch font color to `ErrorBorderColor` when `IsError && !string.IsNullOrEmpty(ErrorText)`
-- Match Material Design 3 supporting text pattern (40px below border, 12px font)
-- Adjust `DisplayRectangle` to leave space for helper text (affects parent layout)
+**What exists in BaseControl:**
+- `LeadingIconPath` / `LeadingImagePath` for left-side icon
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Methods.cs`
+**What BeepTextBox needs to do:**
+1. When `ImagePath` is set and `ImageVisible`: set `LeadingIconPath = ImagePath`
+2. Deprecate `_beepImage` for leading display; keep it for backward compatibility
+3. Map `ImageAlign`, `TextImageRelation` to BaseControl's icon layout params
 
-#### P2-W7: Read-Only Visual Distinction (0.5 day)
-- Add `ReadOnlyBackColor` property (default: subtle gray from theme)
-- Draw control background in neutral tone when `ReadOnly`
-- Show `Common.Lock` (`fi-tr-lock-alt.svg`) as leading icon when `ReadOnly` (optional, `ShowReadOnlyIcon` property)
-- Reduce border visibility in read-only mode (dashed or lighter)
-- Disable hover and focus animations in read-only mode
-- **Context Menu**: Show only Copy when ReadOnly
-
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
-
-**Exit Criteria:** Clear button, password reveal, required star, hover, helper text,
-and read-only distinction all render correctly with theme-aware icons.
+**Files:** `BeepTextBox.Properties.cs`, `BeepTextBox.Core.cs`
 
 ---
 
-### Phase 3: Adornments & Modern Features (P2)
-Goal: Add prefix/suffix slots and async states. Status: PLANNING
+## Phase 3: AutoComplete System Integration (P1-P2)
+Goal: Integrate autocomplete popup with BaseControl context/system. Status: PLANNING
 
-#### P3-W1: Prefix/Suffix Text Slots (2 days)
-- Add `PrefixText` property (string, shown before editable text, left side)
-- Add `SuffixText` property (string, shown after editable text, right side)
-- Add `PrefixForeColor`, `SuffixForeColor` properties (default: subdued theme color)
-- Render as non-editable, non-selectable text within the text boundary
-- Adjust input text rect (`_textRect`) to accommodate prefix/suffix width
-- Prefix example: `$` for currency, `@` for username, `https://` for URL
-- Suffix example: `.00` for decimals, `kg` for weight, `@domain.com` for email
-- Support in theme `ApplyTheme()`
-- **Affects**: `_textRect` calculation, caret position offset, selection offsets
+### 3.1 Context Menu Coexistence (0.25 day)
+- Hide autocomplete popup via `SmartAutoCompleteHelper.HideAutoCompletePopup()` before showing context menu
+- Re-trigger autocomplete after context menu actions (undo/redo/paste change text)
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Methods.cs`
+### 3.2 Search Coexistence (0.25 day)
+- When Ctrl+F triggers search dialog: hide autocomplete popup first
+- When Escape is pressed: priority order = close autocomplete → clear search → lose focus
+- Incremental search and autocomplete share 300ms timer: autocomplete wins when both enabled
 
-#### P3-W2: Loading/Spinner State (1 day)
-- Add `IsLoading` property (bool, default false)
-- When `IsLoading = true`:
-  - Render `Activity.Loading` (`fi-tr-loading.svg`) as trailing icon with rotation animation
-  - Disable input (`ReadOnly` temporarily but visually distinct — gray + spinner)
-  - Show placeholder "Loading..."
-  - Disable clear button, password reveal while loading
-- When `IsLoading = false`: restore previous state
-- Loading spinner color: theme accent color
-- **AutoComplete integration**: Hide popup while loading
+### 3.3 Autocomplete Popup Accessibility (0.5 day)
+- When popup opens: Narrator announces "suggestions available"
+- UIA notification on popup show/hide
+- Arrow keys in popup: navigate items with announcement
+- Enter on popup item: select and announce
 
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Input.cs`
+### 3.4 Popup Theme Consistency (0.25 day)
+- Ensure `BeepPopupListForm` reads theme from parent textbox
+- Pass `Theme` string to `ContextMenuManager.Show()` or `BeepPopupListForm`
 
-#### P3-W3: AutoComplete Dropdown Caret (0.5 day)
-- When `AutoCompleteMode != None`, render `Carets.Down` (`fi-tr-caret-down.svg`)
-  as trailing icon (in the dropdown caret slot)
-- Clicking the caret opens autocomplete popup with all suggestions (like ComboBox dropdown)
-- Caret rotates 180° when popup is open (animate rotation)
-- **Integration**: This is the explicit open-trigger; typing still triggers implicitly
-
-**Files**: `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`, `SmartAutoCompleteHelper.cs`
-
-#### P3-W4: Auto-Size Multiline Support (1 day)
-- Add `AutoSize` property for multiline mode (bool, default false)
-- Calculate required height from content lines * line height + padding + helper text
-- Update control height on text change when `AutoSize = true`
-- Respect `MaxHeight`/`MinHeight` constraints
-- Only grow downward; never shrink below initial height
-
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Methods.cs`
-
-#### P3-W5: Drag-Drop Text Support (0.5 day)
-- Set `AllowDrop = true`
-- Override `OnDragEnter`, `OnDragOver`, `OnDragDrop`
-- Accept `Text`, `UnicodeText`, `StringFormat` data formats
-- Insert at drop position (use caret positioning via hit-test)
-- Respect `ReadOnly` state
-- Highlight drop target with subtle underline indicator
-
-**Files**: `BeepTextBox.Events.cs`
-
-**Exit Criteria:** Prefix/suffix render. Loading spinner works. Autocomplete caret
-opens suggestions. Multiline auto-grows. Text drag-droppable.
+**Files:** `BeepTextBox.Events.cs`, `SmartAutoCompleteHelper.cs`, `BeepPopupListForm.cs`
 
 ---
 
-### Phase 4: Internationalization & Stubs (P2-P3)
-Goal: Enable global usage and complete stub implementations. Status: PLANNING
+## Phase 4: IME & Spell Check (P2-P3)
+Goal: International input and spell check. Status: PLANNING
 
-#### P4-W1: IME Composition Support (2-3 days)
-- Implement IME integration via `WndProc` override
-- Handle messages: `WM_IME_STARTCOMPOSITION`, `WM_IME_COMPOSITION`,
-  `WM_IME_ENDCOMPOSITION`, `WM_IME_CHAR`
-- Render composition string with underline during IME input
-- Handle IME candidate list positioning near caret
-- Support full-width/half-width mode toggle
-- **Risks**: IMM32 interop complexity. Spike first.
+### 4.1 IME Composition Support (3 days)
+- Override `WndProc` for `WM_IME_STARTCOMPOSITION`, `WM_IME_COMPOSITION`, `WM_IME_ENDCOMPOSITION`, `WM_IME_CHAR`
+- Render composition string with underline
+- Handle IME candidate window positioning near caret
 
-**Files**: `BeepTextBox.Core.cs` (WndProc), `BeepTextBox.Drawing.cs`
+**Files:** `BeepTextBox.Core.cs`, `BeepTextBox.Drawing.cs`
 
-#### P4-W2: Spell Check Implementation (2 days)
-- Integrate with NHunspell (NuGet: `NHunspell`)
-- Add `DictionaryPath` property (string, path to .dic/.aff files)
-- Add `CustomDictionaryWords` (string array, user-added words)
-- Render red squiggly underline (`DrawCurve` zigzag) on misspelled words
-- Word highlighting via `WrapLine`-style word boundary detection
-- Add right-click suggestions to context menu:
-  - For each suggestion: render as menu item, click replaces word
-  - "Add to dictionary" item
-  - "Ignore all" item
-- **Performance**: Only check visible lines + lines scrolled into view
-- **AutoComplete integration**: Spell check does NOT trigger autocomplete
-- **Icon**: `Common.Warning` (`fi-tr-triangle-warning.svg`) for spell suggestions header
+### 4.2 Spell Check (2 days)
+- Integrate NHunspell NuGet package
+- Add `DictionaryPath`, `CustomDictionaryWords` properties
+- Render squiggly underline on misspelled words (viewport-culled)
+- Add right-click suggestions to context menu (append items)
+- "Add to dictionary", "Ignore all" context items
+- Spell check does NOT trigger autocomplete
 
-**Files**: New `SpellCheckHelper.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
-
-#### P4-W3: Right-to-Left Support (1 day)
-- Add `RightToLeft` property (RightToLeft enum: No/Yes/Inherit)
-- Mirror text rendering alignment (Left -> Right, Right -> Left)
-- Mirror caret position and movement
-- Swap leading/trailing icon zones:
-  - Trailing zone becomes leading zone (on left side)
-  - Leading image moves to right side
-- Flip scrollbar to left side
-- Handle RTL text measurement via `TextRenderer` with `TextFormatFlags.RightToLeft`
-- **Impact**: All drawing code, all icon zone calculations
-
-**Files**: `BeepTextBox.Properties.cs`, `BeepTextBox.Drawing.cs`,
-`BeepTextBox.Methods.cs`, `BeepTextBox.Core.cs`
-
-**Exit Criteria:** CJK input works via IME. Spell check underlines errors with
-context menu suggestions. RTL text renders correctly.
+**Files:** New `SpellCheckHelper.cs`, `BeepTextBox.Drawing.cs`, `BeepTextBox.Events.cs`
 
 ---
 
-### Phase 5: Accessibility (P0 but long-running)
-Goal: WCAG 2.1 AA compliance for text input. Status: PLANNING
+## Phase 5: Accessibility (P0, parallel)
+Goal: WCAG 2.1 AA. Status: PLANNING
 
-#### P5-W1: UIA Provider Implementation (3-4 days)
-- Override `CreateAccessibilityInstance()` to return custom `AccessibleObject`
-- Implement `IRawElementProviderSimple` pattern
+### 5.1 UIA Provider (4 days)
+- Override `CreateAccessibilityInstance()` → custom `BeepTextBoxAccessibleObject`
+- Implement `IValueProvider` (Value, IsReadOnly, SetValue)
+- Implement `ITextProvider` for multiline (text ranges)
 - Expose `ControlType.Edit`
-- Implement `IValueProvider`:
-  - `Value` = text content (or masked for password)
-  - `IsReadOnly` = ReadOnly state
-  - `SetValue(string)` for programmatic input
-- Implement `ITextProvider` for multiline mode (expose text ranges)
-- Raise `AutomationNotificationKind.TextChanged` via `provider.RaiseAutomationEvent()`
-- **Accessible name**: Use associated `Label` control text or `AccessibleName` property
-- **Accessible description**: Include placeholder, helper text, error text
-- `aria-required=true` when `IsRequired`
+- Raise UIA TextChanged notifications
 
-**Files**: New `BeepTextBoxAccessibleObject.cs`, `BeepTextBox.Core.cs`
+### 5.2 Keyboard & Screen Reader (1 day)
+- All trailing icons keyboard-accessible (Tab to icon, Enter/Space to activate)
+- Accessible names for icons: "Clear text", "Show/Hide password", "Required field"
+- Test with Narrator + Accessibility Insights
 
-#### P5-W2: Keyboard Accessibility (1 day)
-- All trailing icons reachable via keyboard:
-  - Tab to clear button, press Enter/Space to activate
-  - Alt+P for password reveal toggle
-  - Alt+C for autocomplete dropdown (when caret shown)
-  - Escape closes any open popup/autocomplete
-- Focus indicator meets 3:1 contrast ratio
-- Visually hidden accessible name for icon-only buttons
-
-**Files**: `BeepTextBox.Input.cs`, `BeepTextBox.Events.cs`
-
-#### P5-W3: High Contrast & Narrator Testing (1 day)
-- Support Windows High Contrast themes:
-  - Detect `SystemInformation.HighContrast`
-  - Override colors with system high-contrast palette
-  - Ensure borders are visible (minimum 1px)
-- Verify Narrator reads:
-  - Text content (or "password, hidden" when masked)
-  - Placeholder, helper text, error text
-  - Character count / remaining characters
-  - Required indicator as "required"
-  - Read-only as "read-only"
-  - Autocomplete suggestions as they appear
-- Test with Accessibility Insights for Windows tool
-- Document WCAG conformance level
-
-**Files**: `BeepTextBox.Core.cs`, documentation
-
-**Exit Criteria:** UIA tree shows BeepTextBox as Edit control. Narrator reads
-values and states. Accessibility Insights passes core checks.
+**Files:** New `BeepTextBoxAccessibleObject.cs`, `BeepTextBox.Core.cs`, `BeepTextBox.Input.cs`
 
 ---
 
-### Phase 6: Performance & Testing
-Goal: Ship production-hardened control. Status: PLANNING
+## Phase 6: Performance & Testing (P2)
+Goal: Production-hardened. Status: PLANNING
 
-#### P6-W1: Performance Optimization (2 days)
-- Profile text measurement in multi-line mode (1000+ lines)
-- Lazy-measure: only measure visible lines (viewport culling via scroll offset)
+### 6.1 Performance (1 day)
+- Remove `CreateGraphics()` from `UpdateDrawingRect()` — use cached metrics
+- Viewport-culling for multiline text (only paint visible lines)
 - Cache line heights (same font = same height for all lines)
-- Batch `Invalidate()` calls: use `SuspendLayout()`/`ResumeLayout()` pattern
-- Reduce timer count: merge `_delayedUpdateTimer` and `_incrementalSearchTimer`
-- Reuse `BeepImage` instances for trailing icons (don't create per-paint)
-- **Benchmark target**: <5ms per keystroke paint, <16ms for 1000-line multiline
+- Merge timer instances where possible
 
-**Files**: `BeepTextBox.Methods.cs`, `BeepTextBox.Core.cs`, `BeepTextBox.Drawing.cs`
+### 6.2 Testing (2 days)
+- Unit: text input/delete/selection/caret, keyboard shortcuts, masks, multiline, undo/redo, search, password, clear/reveal, error state flow, trailing icon state machine, AutoComplete lifecycle, DPI scaling
+- Integration: all themes, designer serialization, data binding + error state, form lifecycle, AutoComplete+context menu+search co-existence, IME+autocomplete co-existence
 
-#### P6-W2: Unit Test Coverage (2 days)
-- Text input, deletion, selection, caret navigation
-- All keyboard shortcuts (Ctrl+A/C/V/X/Z/Y, Home, End, arrows)
-- Mask format validation (all 10+ formats)
-- Multiline text operations + word wrap + scroll
-- Undo/redo stack integrity (50+ steps)
-- Search/find/replace functional tests
-- Password masking/unmasking + reveal toggle
-- Clear button click and keyboard activation
-- Required indicator visibility and accessibility
-- Error state: set/clear/reset flow
-- Trailing icon zone: ordering, hit-testing, visibility
-- AutoComplete: popup open/close/select, caret open-trigger
-- DPI scaling tests (96, 144, 192 DPI)
+**Files:** Tests project
 
-**Files**: Tests project
+---
 
-#### P6-W3: Integration / Regression Testing (1 day)
-- Theme switching while text present (all themes)
-- Designer serialization round-trip (all new properties)
-- Data binding (`BoundProperty = "Text"`) with error state
-- Form load/unload lifecycle (timers stop, no leaks)
-- Control disposal without hanging timers
-- AutoComplete + context menu co-existence
-- AutoComplete + search co-existence
-- IME + auto-complete co-existence (shouldn't deadlock)
+## What Was REMOVED From Previous Plan
 
-**Files**: Tests project
-
-**Exit Criteria:** No performance regression >5ms per keystroke. Unit test
-coverage >80%. All integration tests pass.
+| Removed Item | Why |
+|---|---|
+| New `IsError` / `ErrorBorderColor` / `ErrorText` properties | Already exist in BaseControl |
+| Custom error icon rendering | BaseControl creates `ValidationIcon` automatically |
+| `HelperText` / `ShowHelperText` properties | Already exist in BaseControl |
+| `LabelText` / `LabelTextOn` properties | Already exist in BaseControl |
+| `IsHovered` wiring | Already handled by BaseControl's `OnMouseEnter/Leave` |
+| `HoverBackColor` property | Already exists in BaseControl |
+| `ReadOnlyBackColor` property | Use existing `DisabledBackColor` |
+| Custom trailing icon zone architecture | BaseControl has `TrailingIconPath` + painter |
+| `IconSize` / `IconPadding` properties | Already exist in BaseControl |
+| Custom context menu infrastructure | `ShowContextMenu()` + `CreateMenuItem()` exist |
+| `ShowClearButton` property | Already exists in BaseControl |
+| `TrailingIconPath` / `LeadingIconPath` | Already exist in BaseControl |
+| `IsRequired` property | Already exists in BaseControl (IBeepUIComponent) |
+| `ShowExternalIcon()` / `ClearExternalIcon()` | Already exist in BaseControl |
 
 ---
 
@@ -455,43 +337,23 @@ coverage >80%. All integration tests pass.
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| IME integration complexity | High | High | 2-day spike first; fallback to basic WM_IME_CHAR |
-| UIA provider Win32 interop complexity | Medium | Medium | Use managed `AccessibleObject` base; incremental approach |
-| Undo/redo memory for 10MB+ text | Medium | Medium | Cap at 100 snapshots; snapshot only on 500ms idle |
-| Trailing icon zone hit-testing edge cases | Medium | Medium | Full unit test matrix for all icon slot permutations |
-| Icon SVG rendering performance per-paint | Low | Medium | Cache BeepImage instances; measure before commit |
-| Theme breakage with new properties | Low | High | Backward-compatible defaults; theme integration tests |
-| Spell check perf on large documents | Medium | Low | Only check visible viewport; async dictionary load |
-| AutoComplete popup flicker with fast typing | Medium | Medium | 300ms debounce already in place; verify adequacy |
-| RTL + trailing zone mirroring bugs | Medium | High | Dedicated RTL test suite; visual diff testing |
-
-## Icon Slot Ordering (Trailing Zone)
-
-```
-Input text area  |  required-star  error-icon  password-reveal  clear-X  autocomplete-caret  loading-spinner  |  border
-```
-
-Priority and visibility rules:
-1. `loading-spinner`: visible only when `IsLoading`
-2. `autocomplete-caret`: visible when `AutoCompleteMode != None` and not loading
-3. `clear-X`: visible when `ShowClearButton && text.Length > 0 && !ReadOnly && !IsLoading`
-4. `password-reveal`: visible when `ShowPasswordReveal && UseSystemPasswordChar` or `PasswordChar != '\0'`
-5. `error-icon`: visible when `IsError && ErrorIconVisible && !IsLoading`
-6. `required-star`: visible when `IsRequired && !IsError && !IsLoading`
-
-Leading icon: `ImageVisible` uses `ImagePath` on left side (existing `BeepImage`).
+| BeepTextBox `DrawContent` override conflicts with BaseControl painter | Medium | High | Careful composition: call base.DrawContent first, then overlay BeepTextBox-specific |
+| `UseBaseMouseInputRouting` false means hover isn't tracked | Low | Medium | Verify; if false, manually override OnMouseEnter/Leave |
+| `ShowClearButton` behavior differs for textboxes vs buttons | Medium | Medium | May need to tweak BaseControl painter for text-field use case |
+| `TrailingIconPath` slot already used by `ShowClearButton` | Medium | Medium | Priority ordering needed (clear > reveal > caret) |
+| IME complexity | High | High | 2-day spike first; fallback to basic WM_IME_CHAR |
+| BaseControl external drawing may not render inside BeepTextBox's control area | Low | Medium | Verify parent supports IExternalDrawingProvider |
 
 ## Timeline Estimate
 
 | Phase | Weeks | Dependency |
 |-------|-------|------------|
-| Phase 1: Foundation | 1.5 | None |
-| Phase 2: UX Polish | 1.5 | Phase 1 (W4 only) |
-| Phase 3: Adornments | 1.0 | Phase 2 (W1 trailing zone) |
-| Phase 4: I18n | 1.5 | Phase 1 |
-| Phase 5: Accessibility | 1.5 | Phase 1 |
-| Phase 6: Perf/Testing | 1.0 | Phase 2-5 |
-| **Total** | **8.0 weeks** | |
+| Phase 1: Wire to BaseControl | 1.0 | None |
+| Phase 2: Trailing Icon Integration | 0.5 | Phase 1 |
+| Phase 3: AutoComplete Integration | 0.5 | Phase 1 |
+| Phase 4: IME + Spell Check | 1.0 | Phase 1 |
+| Phase 5: Accessibility | 1.0 | Phase 1 (parallel) |
+| Phase 6: Perf/Testing | 0.5 | Phase 2-5 |
+| **Total** | **4.5 weeks** | |
 
-Phase 2 can largely overlap with Phase 1 after P1-W4 (Font robustness).
-Phase 5 (Accessibility) runs in parallel with Phases 2-4.
+Reduced from 7.5 weeks (building from scratch) to 4.5 weeks (wiring + small new features).

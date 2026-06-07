@@ -264,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             if (AutoCompleteMode == AutoCompleteMode.None) return;
 
-            _autoCompleteTimer.Stop();
+            _autoCompleteTimer?.Stop();
 
             if (string.IsNullOrEmpty(currentText))
             {
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             {
                 if (currentText.Length >= AutoCompleteMinimumLength)
                 {
-                    _autoCompleteTimer.Start();
+                    _autoCompleteTimer?.Start();
                 }
                 else
                 {
@@ -291,7 +291,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private void AutoCompleteTimer_Tick(object sender, EventArgs e)
         {
-            _autoCompleteTimer.Stop();
+            _autoCompleteTimer?.Stop();
 
             if (AutoCompleteMode != AutoCompleteMode.None)
             {
@@ -361,8 +361,14 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             _isAutoCompleteVisible = false;
             _lastAutoCompleteSearch = "";
 
-            // Raise event
             AutoCompleteHidden?.Invoke(this, EventArgs.Empty);
+        }
+
+        public bool CloseAutoComplete()
+        {
+            if (!_isAutoCompleteVisible) return false;
+            HideAutoCompletePopup();
+            return true;
         }
         
         private Point CalculateAutoCompletePopupLocation()
@@ -619,6 +625,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void Dispose()
         {
+            _autoCompleteTimer?.Stop();
             _autoCompleteTimer?.Dispose();
             
             if (_autoCompletePopup != null)

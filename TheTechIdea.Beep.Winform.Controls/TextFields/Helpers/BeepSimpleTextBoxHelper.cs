@@ -122,6 +122,16 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 
     public class TextBoxUndoRedoHelper
     {
+        private const int MaxStackSize = 100;
+        private readonly Stack<TextEditAction> _undoStack = new Stack<TextEditAction>();
+        private readonly Stack<TextEditAction> _redoStack = new Stack<TextEditAction>();
+        private readonly IBeepTextBox _textBox;
+
+        public TextBoxUndoRedoHelper(IBeepTextBox textBox)
+        {
+            _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
+        }
+
         public class TextEditAction
         {
             public string OldText { get; set; }
@@ -138,10 +148,73 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         public event EventHandler<TextEditAction> UndoPerformed;
         public event EventHandler<TextEditAction> RedoPerformed;
         public bool IsUndoRedoOperation { get; set; }
+        public bool HasUndo => _undoStack.Count > 0;
+        public bool HasRedo => _redoStack.Count > 0;
 
-        public void AddUndoAction(string actionType, string oldText, string newText, int oldCaret, int newCaret) { }
-        public void Undo() { }
-        public void Redo() { }
+        public void AddUndoAction(string actionType, string oldText, string newText, int oldCaret, int newCaret)
+        {
+            var action = new TextEditAction
+            {
+                ActionType = actionType,
+                OldText = oldText,
+                NewText = newText,
+                OldCaretPosition = oldCaret,
+                NewCaretPosition = newCaret
+            };
+            _undoStack.Push(action);
+            _redoStack.Clear();
+            if (_undoStack.Count > MaxStackSize)
+            {
+                var kept = _undoStack.Take(MaxStackSize).Reverse();
+                _undoStack.Clear();
+                foreach (var item in kept)
+                    _undoStack.Push(item);
+            }
+        }
+
+        public void Undo()
+        {
+            if (_undoStack.Count == 0) return;
+            IsUndoRedoOperation = true;
+            try
+            {
+                var action = _undoStack.Pop();
+                _textBox.Text = action.OldText;
+                _textBox.SelectionStart = action.OldCaretPosition;
+                _textBox.SelectionLength = 0;
+                _redoStack.Push(action);
+                UndoPerformed?.Invoke(this, action);
+            }
+            finally
+            {
+                IsUndoRedoOperation = false;
+            }
+        }
+
+        public void Redo()
+        {
+            if (_redoStack.Count == 0) return;
+            IsUndoRedoOperation = true;
+            try
+            {
+                var action = _redoStack.Pop();
+                _textBox.Text = action.NewText;
+                _textBox.SelectionStart = action.NewCaretPosition;
+                _textBox.SelectionLength = 0;
+                _undoStack.Push(action);
+                RedoPerformed?.Invoke(this, action);
+            }
+            finally
+            {
+                IsUndoRedoOperation = false;
+            }
+        }
+
+        public void ClearHistory()
+        {
+            _undoStack.Clear();
+            _redoStack.Clear();
+        }
     }
 
     public class TextBoxCaretHelper : IDisposable
@@ -158,7 +231,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             _textBox = textBox;
             _caretTimer = new System.Windows.Forms.Timer();
             _caretTimer.Interval = 500;
-            _caretTimer.Tick += (s, e) => { _caretVisible = !_caretVisible; _textBox.Invalidate(); };
+            _caretTimer.Tick += (s, e) =>
+            {
+                if (_textBox is Control ctrl && ctrl.IsDisposed) return;
+                _caretVisible = !_caretVisible;
+                _textBox.Invalidate();
+            };
         }
 
         public int CaretPosition
@@ -186,15 +264,14 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             : string.Empty;
 
         public void StartCaretTimer() 
-        {
+        { 
             _caretVisible = true;
-            _caretTimer.Start();
-            _textBox.Invalidate();
+            _caretTimer?.Start();
         }
-        
+
         public void StopCaretTimer() 
         {
-            _caretTimer.Stop();
+            _caretTimer?.Stop();
             _caretVisible = false;
             _textBox.Invalidate();
         }
@@ -355,10 +432,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void EnsureCaretVisible() 
         {
-            // Reset timer to make caret visible immediately
             _caretVisible = true;
-            _caretTimer.Stop();
-            _caretTimer.Start();
+            _caretTimer?.Stop();
+            _caretTimer?.Start();
         }
         
         public int GetCaretPositionFromPoint(Point point, Graphics g, Rectangle textRect) 
@@ -487,6 +563,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void Dispose()
         {
+            _caretTimer?.Stop();
             _caretTimer?.Dispose();
         }
     }
@@ -559,7 +636,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             Performance = new TextBoxPerformanceHelper();
             Validation = new TextBoxValidationHelper(_textBox);
             AutoComplete = new SmartAutoCompleteHelper(_textBox as Control);
-            UndoRedo = new TextBoxUndoRedoHelper();
+            UndoRedo = new TextBoxUndoRedoHelper(_textBox);
             Caret = new TextBoxCaretHelper(_textBox, Performance);
             Scrolling = new TextBoxScrollingHelper(_textBox, Performance);
             Drawing = new TextBoxDrawingHelper(_textBox);

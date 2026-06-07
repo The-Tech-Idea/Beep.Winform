@@ -53,6 +53,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isTyping = false;
         private Timer _typingTimer;
 
+        // Password reveal auto-re-mask timer
+        private Timer _revealTimer;
+
         // Cached metrics to avoid CreateGraphics during resize/measure
         private int _cachedTextHeightPx = -1; // height of "Aj" in current font
         private int _cachedMinHeightPx = -1;  // text height + padding + borders
@@ -65,6 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler SearchTriggered;
         public event EventHandler<EventArgs> TypingStarted;
         public event EventHandler<EventArgs> TypingStopped;
+        public event EventHandler ClearButtonClicked;
+        public event EventHandler PasswordRevealChanged;
         
         #endregion
         
@@ -81,6 +86,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             _helper = new BeepSimpleTextBoxHelper(this);
             
+            TrailingIconClicked += (s, e) =>
+            {
+                if (_showPasswordReveal && (_useSystemPasswordChar || _passwordChar != '\0'))
+                {
+                    PasswordRevealed = !PasswordRevealed;
+                    UpdatePasswordRevealIcon();
+                    PasswordRevealChanged?.Invoke(this, EventArgs.Empty);
+                    Invalidate();
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(_text) && !_readOnly)
+                {
+                    Text = string.Empty;
+                    ClearButtonClicked?.Invoke(this, EventArgs.Empty);
+                }
+            };
+
+            ValidationStateChanged += (s, e) =>
+            {
+                (AccessibilityObject as BeepTextBoxAccessibleObject)?.NotifyErrorStateChanged();
+            };
+            
             // compute cached sizes early using TextRenderer which is safe without Graphics
             RecomputeMinHeight();
 
@@ -89,11 +117,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             _isInitializing = false;
         }
-        
+
         #endregion
-        
+
+        #region "WndProc"
+
+        protected override void WndProc(ref Message m)
+        {
+            if (ProcessImeMessage(ref m))
+                return;
+            base.WndProc(ref m);
+        }
+
+        #endregion
+
         #region "Initialization"
-        
+
         private void InitializeComponents()
         {
             _beepImage = new BeepImage()
@@ -111,14 +150,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Padding = new Padding(0),
                 Margin = new Padding(0)
             };
-            
+
             if (_currentTheme != null)
             {
                 _beepImage.Theme = _currentTheme.ToString();
                 _beepImage.BackColor = _currentTheme.TextBoxBackColor;
             }
         }
-        
+
         private void SetControlStyles()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
@@ -131,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.ContainerControl, false);
         }
-        
+
         private void InitializeProperties()
         {
             _text = string.Empty;
@@ -139,42 +178,55 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowAllBorders = true;
             TabStop = true;
         }
-        
+
         private void InitializeTimers()
         {
-            // Delayed update timer for performance
             _delayedUpdateTimer = new Timer()
             {
-                Interval = 50 // 50ms delay for batching updates
+                Interval = 50
             };
             _delayedUpdateTimer.Tick += DelayedUpdateTimer_Tick;
-            
-            // Animation timer
+
             _animationTimer = new Timer()
             {
-                Interval = 16 // ~60 FPS
+                Interval = 16
             };
             _animationTimer.Tick += AnimationTimer_Tick;
-            
-            // Typing timer
+
             _typingTimer = new Timer()
             {
-                Interval = 1000 // 1 second
+                Interval = 1000
             };
             _typingTimer.Tick += TypingTimer_Tick;
-            
-            // Incremental search timer
+
             _incrementalSearchTimer = new Timer()
             {
-                Interval = 300 // 300ms delay for incremental search
+                Interval = 300
             };
             _incrementalSearchTimer.Tick += IncrementalSearchTimer_Tick;
+
+            _revealTimer = new Timer()
+            {
+                Interval = AutoReMaskDelayMs
+            };
+            _revealTimer.Tick += (s, e) =>
+            {
+                _revealTimer?.Stop();
+                if (IsDisposed) return;
+                if (PasswordRevealed)
+                {
+                    PasswordRevealed = false;
+                    UpdatePasswordRevealIcon();
+                    PasswordRevealChanged?.Invoke(this, EventArgs.Empty);
+                    Invalidate();
+                }
+            };
         }
-        
+
         protected override Size DefaultSize => new Size(200, 34);
-        
+
         #endregion
-        
+
         #region "Cached metrics helpers"
         private void RecomputeMinHeight()
         {
@@ -271,6 +323,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _typingTimer?.Dispose();
                 _incrementalSearchTimer?.Stop();
                 _incrementalSearchTimer?.Dispose();
+                _revealTimer?.Stop();
+                _revealTimer?.Dispose();
                 
                 _helper?.Dispose();
                 _helper = null;

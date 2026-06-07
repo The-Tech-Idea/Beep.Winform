@@ -129,32 +129,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _grid.SafeInvalidate();
         }
 
-        public void Bind(object dataSource, bool triggerAutoSize = true)
+        public void Bind(object dataSource, bool triggerAutoSize = true, bool skipRows = false)
         {
             DataSource = dataSource;
-            DataMember = _grid.DataMember; // Update DataMember from grid
+            DataMember = _grid.DataMember;
 
-            // Subscribe to INotifyCollectionChanged for ObservableCollection<T> and similar
-            // (only when the source is NOT already an IBindingList, which has its own event chain)
             SubscribeCollectionChangedIfNeeded();
-
-            // Always ensure system columns are present FIRST
             EnsureSystemColumns();
             
-            // Only auto-generate columns if none exist beyond system columns, so user-configured columns are preserved
+            // Only auto-generate columns if none exist beyond system columns
             if (Columns.Count <= GetSystemColumnCount())
             {
-                AutoGenerateColumns();
-                return; // AutoGenerateColumns calls RefreshRows and auto-sizing
+                if (skipRows)
+                {
+                    AutoGenerateColumns(skipRows: true);
+                }
+                else
+                {
+                    AutoGenerateColumns();
+                }
+                return;
             }
 
-            // Refresh rows for existing columns (but limit in design mode)
-            RefreshRows();
+            if (!skipRows)
+            {
+                RefreshRows();
+                UpdatePageInfo();
+            }
 
-            // Update page info for paging controls
-            UpdatePageInfo();
-
-            // Skip auto-sizing in design mode to prevent excessive operations
             if (triggerAutoSize &&
                 !System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime))
             {
@@ -291,7 +293,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        public void AutoGenerateColumns()
+        public void AutoGenerateColumns() => AutoGenerateColumns(skipRows: false);
+
+        private void AutoGenerateColumns(bool skipRows)
         {
             Columns.Clear();
 
@@ -301,11 +305,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (schemaTable != null)
             {
-                // Try DataTable schema if available
                 foreach (System.Data.DataColumn dCol in schemaTable.Columns)
                 {
                     if (IsSystemColumn(dCol.ColumnName)) continue;
-
                     var bCol = new BeepColumnConfig
                     {
                         ColumnName = dCol.ColumnName,
@@ -325,18 +327,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                // Determine the item type: use entity type if set and meaningful,
-                // otherwise try the generic type argument, otherwise reflect on first item
                 Type itemType = _grid.EntityType;
 
-                // typeof(object) is the same as "not set" — has no useful properties
                 if (itemType == null || itemType == typeof(object))
-                {
-                    // Try to detect from generic collection type
                     itemType = GetEnumerableItemType(enumerable);
-                }
 
-                // If still not useful, try reflection on the first item
                 if (itemType == null || itemType == typeof(object))
                 {
                     var first = enumerable.Cast<object?>().FirstOrDefault();
@@ -349,10 +344,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                 if (itemType != null && itemType != typeof(object))
                 {
-                    // Update the grid's entity type for future use
                     _grid.SetEntityType(itemType);
 
-                    // Generate columns from the item type's properties
                     foreach (var prop in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
                         if (prop.GetIndexParameters().Length > 0) continue;
@@ -377,10 +370,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Refresh rows to populate them with data
-            RefreshRows();
-
-            _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
+            if (!skipRows)
+            {
+                RefreshRows();
+                _grid.RequestAutoSize(AutoSizeTriggerSource.DataBind);
+            }
         }
 
         private void AddColumnsFromType(Type itemType)
@@ -588,49 +582,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // Data synchronization methods (moved from BeepGridPro for better encapsulation)
         internal void SyncFullDataFromBindingSource()
         {
-            _grid._fullData = new List<object>();
-            var bindingSource = _grid.Navigator.GetBindingSource();
-            if (bindingSource == null) return;
-
-            var enumerator = bindingSource.GetEnumerator();
-            int i = 0;
-            bool isFirstItem = true;
-
-            while (enumerator.MoveNext())
-            {
-                var item = enumerator.Current;
-                if (item == null) continue;
-
-                // Set _entityType based on the first valid item
-                if (isFirstItem && (_grid._entityType == null || _grid._entityType == typeof(object)))
-                {
-                    _grid._entityType = item.GetType();
-                    isFirstItem = false;
-                }
-
-                _grid._fullData.Add(item);
-                i++;
-            }
-
-            if (_grid._entityType == null)
-            {
-                // No valid items found to set _entityType
-            }
+            _grid.DataController.SyncFullData();
         }
 
         internal void InitializeData()
         {
-            var bindingSource = _grid.Navigator.GetBindingSource();
-            if (bindingSource != null)
-            {
-                SyncFullDataFromBindingSource(); // Initial sync from BindingSource
-            }
-            else
-            {
-                // Fallback
-                _grid._fullData = new List<object>();
-            }
-            _grid._dataOffset = 0;
+            _grid.DataController.SyncFullData();
         }
 
         internal void UpdatePageInfo()

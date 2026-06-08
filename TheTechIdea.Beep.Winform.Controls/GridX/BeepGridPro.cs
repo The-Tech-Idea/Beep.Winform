@@ -139,7 +139,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
             _toolbarPainter = new Toolbar.BeepGridToolbarPainter(this);
             _filterEditor = new Filtering.FilterEditorHelper(this);
-            
+            _toolbarTooltip = new System.Windows.Forms.ToolTip
+            {
+                AutoPopDelay = 5000,
+                InitialDelay = 500,
+                ReshowDelay = 100,
+                IsBalloon = false,
+                ShowAlways = true,
+            };
+
             // Only setup complex initialization if not in design mode
             if (!DesignMode)
             {
@@ -235,9 +243,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             SafeRecalculate();
             EnsureInlineQuickSearchVisible();
             PositionInlineQuickSearchControl();
+            ResizeActiveSearchEditor();
 
             // Do not stretch the editor host; it will be sized to the active cell only
-            
+
             // Only update scrollbars if not in design mode
             if (!DesignMode)
             {
@@ -245,6 +254,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 // Don't call Invalidate() here - ResizeRedraw Style already triggers repaint
                 // Calling Invalidate() here causes flicker because it forces an extra paint cycle
             }
+        }
+
+        /// <summary>
+        /// If the on-demand search editor is active, re-fit its bounds to
+        /// the freshly-laid-out search box.  Without this the editor stays
+        /// at its old size while the painted search box resizes, leaving
+        /// the search icon / placeholder misaligned.
+        /// </summary>
+        private void ResizeActiveSearchEditor()
+        {
+            if (_filterEditor == null) return;
+            if (Layout == null || Layout.ToolbarRect.IsEmpty) return;
+            _filterEditor.ResizeIfActive(Layout.ToolbarRect, ToolbarState.SearchBoxRect);
         }
 
         /// <summary>
@@ -1033,6 +1055,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 Navigator?.Dispose();
                 DataController?.BindToNull();
 
+                // Dispose the painter's cache (brushes/pens/fonts) so the
+                // GDI handles the toolbar allocated are released before
+                // the grid handle is destroyed.
+                _toolbarPainter?.Dispose();
+
                 if (VirtualDataSource != null)
                     VirtualDataSource = null;
 
@@ -1041,6 +1068,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     _autoSizeDebounceTimer.Stop();
                     _autoSizeDebounceTimer.Dispose();
                     _autoSizeDebounceTimer = null;
+                }
+
+                // The toolbar ToolTip is a singleton allocated in the
+                // constructor; dispose it here so its window handle is
+                // released.  SetToolTip hooks will silently no-op once
+                // _toolbarTooltip is null.
+                if (_toolbarTooltip != null)
+                {
+                    _toolbarTooltip.Dispose();
+                    _toolbarTooltip = null;
                 }
             }
             base.Dispose(disposing);

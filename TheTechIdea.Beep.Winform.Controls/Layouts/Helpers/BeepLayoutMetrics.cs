@@ -20,6 +20,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         public const int ButtonGap  = 8;
         public const int SmallGap   = 4;
 
+        // ── Oracle Forms visual cues ──────────────────────────────────────
+        /// <summary>
+        /// Background color used by a data block when it is in Enter-Query /
+        /// Query mode. Mirrors the yellow tint Oracle Forms applies to
+        /// signal "you are typing criteria, not data".
+        /// </summary>
+        public static readonly Color QueryModeBackground = Color.FromArgb(255, 250, 205);
+
         // ── Layout Grid ────────────────────────────────────────────────────
         public const int LabelColumnWidth = 130;
         public const int TextRowHeight    = 35;

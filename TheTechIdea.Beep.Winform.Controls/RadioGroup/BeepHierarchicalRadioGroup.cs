@@ -341,7 +341,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 if (_stateHelper.SelectedValue != value)
                 {
-                    _stateHelper.SelectedValue = value;
+                    // SelectValue is the event-firing path; the property setter on
+                    // the state helper silently mutates _selectedValues without
+                    // raising SelectionChanged / ItemSelectionChanged.  In
+                    // multi-selection mode, SelectValue ADDs the value (no toggle,
+                    // no replace) — that matches the "set this value" intent of
+                    // a SelectedValue property setter.
+                    _stateHelper.SelectValue(value);
                     UpdateItemStates();
                     UpdateAccessibilityMetadata();
                     RequestVisualRefresh();
@@ -1642,13 +1648,40 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
         public override void SetValue(object value)
         {
+            if (value == null)
+            {
+                // Null is a documented "clear selection" sentinel (parity with
+                // BeepRadioGroup.Pass 17).
+                ClearSelection();
+                return;
+            }
             if (value is string stringValue)
             {
                 SelectedValue = stringValue;
             }
             else if (value is List<string> stringList)
             {
-                _stateHelper.SetMultipleSelection(stringList);
+                // Per-value SelectValue/ToggleValue so SelectionChanged fires
+                // (parity with BeepRadioGroup.Pass 15 fix).
+                if (AllowMultipleSelection)
+                {
+                    var currentSelected = new HashSet<string>(_stateHelper.SelectedValues);
+                    var newSelected = new HashSet<string>(
+                        stringList.Where(v => !string.IsNullOrEmpty(v)));
+                    foreach (var drop in currentSelected.Except(newSelected))
+                    {
+                        _stateHelper.DeselectValue(drop);
+                    }
+                    foreach (var add in newSelected.Except(currentSelected))
+                    {
+                        _stateHelper.ToggleValue(add);
+                    }
+                }
+                else
+                {
+                    var first = stringList.FirstOrDefault(v => !string.IsNullOrEmpty(v));
+                    if (first != null) _stateHelper.SelectValue(first);
+                }
                 UpdateItemStates();
                 RequestVisualRefresh();
             }

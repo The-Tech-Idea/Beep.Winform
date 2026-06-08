@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Category("Filtering")]
         [DefaultValue(true)]
         [RefreshProperties(RefreshProperties.Repaint)]
-        [Description("Shows a modern filter panel above column headers for per-column filtering.")]
+        [Description("Shows a modern filter panel above column headers for per-column filtering. Mutually exclusive with ShowToolbar.")]
         public bool ShowTopFilterPanel
         {
             get => Layout.ShowTopFilterPanel;
@@ -267,6 +267,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (Layout.ShowTopFilterPanel != value)
                 {
                     Layout.ShowTopFilterPanel = value;
+                    // Mutual exclusion with the unified toolbar (Pass 18).
+                    if (value && _showToolbar) _showToolbar = false;
                     Layout.Recalculate();
                     if (!value)
                     {
@@ -391,6 +393,69 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         _toolbarState.GridTitle = next;
                     if (!DesignMode) SafeInvalidate();
                 }
+            }
+        }
+
+        private bool _showGridTitle = true;
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(true)]
+        [Description("Shows or hides the grid title in the unified toolbar.")]
+        public bool ShowGridTitle
+        {
+            get => _showGridTitle;
+            set
+            {
+                if (_showGridTitle == value) return;
+                _showGridTitle = value;
+                if (_toolbarState != null) _toolbarState.ShowGridTitle = value;
+                if (!DesignMode)
+                {
+                    if (Layout != null && !Layout.ToolbarRect.IsEmpty) SafeInvalidate(Layout.ToolbarRect);
+                    else SafeInvalidate();
+                }
+            }
+        }
+
+        private string _searchPlaceholder = "Search...";
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue("Search...")]
+        [Description("Placeholder text shown in the toolbar search box when empty.")]
+        public string SearchPlaceholder
+        {
+            get => _searchPlaceholder;
+            set
+            {
+                var next = value ?? string.Empty;
+                if (!string.Equals(_searchPlaceholder, next, System.StringComparison.Ordinal)) { _searchPlaceholder = next; if (!DesignMode) SafeInvalidate(); }
+            }
+        }
+
+        private bool _showFilterButton = false;
+        /// <summary>
+        /// Show the standalone quick Filter button in the toolbar
+        /// (in addition to the Advanced multi-criteria button).  Off
+        /// by default; the Advanced button covers all multi-criteria
+        /// cases, and the per-column filter icons in the column
+        /// headers cover the single-column case.  Set true if you
+        /// want the funnel icon that opens the quick column=value
+        /// dialog.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(false)]
+        [Description("Show the standalone quick Filter button in the toolbar (the Advanced multi-criteria button is always shown).")]
+        public bool ShowFilterButton
+        {
+            get => _showFilterButton;
+            set
+            {
+                if (_showFilterButton == value) return;
+                _showFilterButton = value;
+                if (_toolbarState != null) _toolbarState.ShowFilterButton = value;
+                if (Layout != null) Layout.Recalculate();
+                if (!DesignMode) SafeInvalidate();
             }
         }
 
@@ -915,6 +980,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         private readonly Toolbar.BeepGridToolbarState _toolbarState = new();
         private Toolbar.BeepGridToolbarPainter _toolbarPainter;
         private Filtering.FilterEditorHelper _filterEditor;
+        private System.Windows.Forms.ToolTip? _toolbarTooltip;
+        private string _lastTooltipText = string.Empty;
+        private string _lastTooltipKey = string.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -941,6 +1009,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                         Layout.ShowTopFilterPanel = true;
                         EnsureInlineQuickSearchVisible();
                     }
+                    // Tear down the search editor when the toolbar disappears
+                    // so the editor (a child control) doesn't stay visible
+                    // after its painted host is gone.
+                    if (!value) _filterEditor?.HideSearchEditor();
                     Layout.Recalculate();
                     SafeInvalidate();
                 }
@@ -1002,6 +1074,62 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Category("Appearance")]
         [Description("Color of separator lines between toolbar sections.")]
         public Color ToolbarSeparatorColor { get; set; } = Color.FromArgb(220, 220, 220);
+
+        private bool _showToolbarTooltips = true;
+        [Browsable(true)]
+        [Category("Filtering")]
+        [DefaultValue(true)]
+        [Description("Show a tooltip when hovering a toolbar button.")]
+        public bool ShowToolbarTooltips
+        {
+            get => _showToolbarTooltips;
+            set
+            {
+                if (_showToolbarTooltips == value) return;
+                _showToolbarTooltips = value;
+                if (_toolbarTooltip != null)
+                {
+                    if (!value) _toolbarTooltip.SetToolTip(this, string.Empty);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The WinForms <see cref="ToolTip"/> used to surface toolbar
+        /// button tooltips.  Exposed so hosts can customize the
+        /// appearance (balloon, colour, etc.) at runtime.
+        /// </summary>
+        [Browsable(false)]
+        public System.Windows.Forms.ToolTip ToolbarTooltip => _toolbarTooltip
+            ?? throw new System.InvalidOperationException("ToolbarTooltip is not yet initialized (called before the BeepGridPro constructor).");
+
+        /// <summary>
+        /// Show or hide a single toolbar button by key (e.g. "add", "edit",
+        /// "delete", "import", "export", "print", "clearfilter", "overflow").
+        /// Hidden buttons are still part of overflow detection so they
+        /// participate in the layout calculation.  No-op if the key is unknown.
+        /// </summary>
+        public void SetToolbarButtonVisible(string key, bool visible)
+        {
+            if (string.IsNullOrEmpty(key) || _toolbarState == null) return;
+            var btn = _toolbarState.FindButton(key);
+            if (btn == null) return;
+            if (btn.IsVisible == visible) return;
+            btn.IsVisible = visible;
+            Layout?.Recalculate();
+            SafeInvalidate();
+        }
+
+        /// <summary>
+        /// Returns whether the given toolbar button key is currently visible.
+        /// Useful for parent forms that need to keep toolbar buttons in sync
+        /// with selection state (e.g. disable Delete when nothing is selected).
+        /// </summary>
+        public bool IsToolbarButtonVisible(string key)
+        {
+            if (string.IsNullOrEmpty(key) || _toolbarState == null) return false;
+            return _toolbarState.FindButton(key)?.IsVisible ?? false;
+        }
 
         #endregion
     }

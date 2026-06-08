@@ -408,6 +408,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void InsertNew()
         {
+            // Clear stale row-validation flag from any previous call.
+            // The flag is set by OnRowValidating and read by the helper
+            // immediately after, so a stale "true" from a previous
+            // vetoed insert would incorrectly block this one.
+            BeepGridPro.s_lastRowValidatingCancel = false;
+
+            // Fire RowValidating BEFORE adding the new row.  Hosts can
+            // set e.Cancel = true to veto the insert.  The thread-static
+            // s_lastRowValidatingCancel carries the host's decision back
+            // here.  This matches DGV's UserAddingRow semantics.
+            int beforeRowCount = _grid.Data.Rows.Count;
+            _grid.OnRowValidating(beforeRowCount, "insert", null);
+            if (BeepGridPro.s_lastRowValidatingCancel)
+            {
+                System.Diagnostics.Debug.WriteLine("InsertNew: RowValidating vetoed by host");
+                return;
+            }
+
             if (IsUowMode)
             {
                 try
@@ -439,6 +457,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                     RefreshAfterUowMutation(moveToLast: true);
                     ForwardWrapperEvent(EventAction.PostCreate);
+                    // Fire RowValidated after the mutation succeeded; the
+                    // new row is at the end of Data.Rows.
+                    int newIdx = _grid.Data.Rows.Count - 1;
+                    if (newIdx >= 0)
+                        _grid.OnRowValidated(newIdx, _grid.Data.Rows[newIdx]);
                 }
                 catch
                 {
@@ -472,6 +495,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (newRowIndex >= 0)
                     {
                         _grid.InvalidateRow(newRowIndex);
+                        _grid.OnRowValidated(newRowIndex, _grid.Data.Rows[newRowIndex]);
                     }
                 }
                 catch 
@@ -484,6 +508,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void DeleteCurrent()
         {
+            // Clear stale row-validation flag from any previous call.
+            BeepGridPro.s_lastRowValidatingCancel = false;
+
+            // Fire RowValidating BEFORE the deletion.  Hosts can set
+            // e.Cancel = true to veto the delete.  The thread-static
+            // s_lastRowValidatingCancel carries the host's decision back.
+            // The new-index argument is the row that will be removed
+            // (=-1 when no row is selected).  Matches DGV's
+            // UserDeletingRow semantics.
+            int targetRowIdx = (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0)
+                ? _grid.Selection.RowIndex : -1;
+            _grid.OnRowValidating(targetRowIdx, "delete",
+                targetRowIdx >= 0 && targetRowIdx < _grid.Data.Rows.Count
+                    ? _grid.Data.Rows[targetRowIdx] : null);
+            if (BeepGridPro.s_lastRowValidatingCancel)
+            {
+                System.Diagnostics.Debug.WriteLine("DeleteCurrent: RowValidating vetoed by host");
+                return;
+            }
+
             if (IsUowMode)
             {
                 try
@@ -596,6 +640,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         {
                             // Invalidate from the deleted position to the end (rows shifted up)
                             _grid.InvalidateRows(newRow, newRowCount - 1);
+                            // Fire RowValidated with the row that now occupies
+                            // the position the deleted row used to be at.  We
+                            // pass the new row's data and the new index so
+                            // subscribers see both the move and the index
+                            // shift in a single callback.
+                            _grid.OnRowValidated(newRow,
+                                newRow < _grid.Data.Rows.Count ? _grid.Data.Rows[newRow] : null);
                         }
                     }
                 }

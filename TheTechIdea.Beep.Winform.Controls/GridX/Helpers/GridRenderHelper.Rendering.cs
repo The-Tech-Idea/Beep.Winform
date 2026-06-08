@@ -40,11 +40,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 try
                 {
                     var state = _grid.ToolbarState;
+                    // Sync host-driven properties into the paint-time state.
+                    // These are READ at paint time; the grid properties are
+                    // the source of truth, the state is the snapshot.
+                    // SearchText is already up-to-date: the on-demand search
+                    // editor pushes its in-progress value to ToolbarState on
+                    // every keystroke (see FilterEditorHelper.OnSearchEditorTextChanged).
                     state.GridTitle = _grid.GridTitle;
-                    state.ShowGridTitle = true;
+                    state.ShowGridTitle = _grid.ShowGridTitle;
                     state.IsFilterActive = _grid.IsFiltered;
                     state.ActiveFilterCount = _grid.ActiveFilter?.Criteria.Count ?? 0;
                     state.DpiScale = _grid.DeviceDpi / 96f;
+                    state.ShowFilterButton = _grid.ShowFilterButton;
+                    // Have the painter build / refresh its brush/pen/font
+                    // cache and copy the resolved fonts onto the state
+                    // BEFORE CalculateLayout.  This makes the layout's
+                    // text-width measurement use the same font instance
+                    // the painter will draw with, avoiding a per-paint
+                    // allocation of "new Font(...)" for the title.
+                    _grid.ToolbarPainter.PrepareLayout(state);
                     state.CalculateLayout(_grid.Layout.ToolbarRect);
                     _grid.ToolbarPainter.Paint(g, _grid.Layout.ToolbarRect, state);
                 }

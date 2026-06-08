@@ -23,10 +23,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         /// <summary>
         /// Safe invalidate for a specific rectangle that checks for disposal before invalidating.
+        /// An empty rectangle is treated as a no-op so callers can pass
+        /// <c>Layout.ToolbarRect</c> unconditionally when the toolbar may
+        /// be hidden (calling <see cref="Control.Invalidate"/> with an
+        /// empty rect repaints the whole control, which we want to avoid).
         /// </summary>
         /// <param name="rect">The rectangle to invalidate.</param>
         internal void SafeInvalidate(Rectangle rect)
         {
+            if (rect.IsEmpty) return;
             if (!IsDisposed && !Disposing)
             {
                 Invalidate(rect);

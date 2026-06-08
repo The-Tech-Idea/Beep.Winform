@@ -160,6 +160,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             _items = new List<SimpleItem>();
             foreach (var sourceItem in source)
             {
+                if (sourceItem == null)
+                {
+                    // Skip null source entries — the text/value/subtext/image
+                    // selectors would NPE on a null argument, and the user
+                    // would have no way to recover short of a try/catch.
+                    continue;
+                }
                 _items.Add(new SimpleItem
                 {
                     Text = textSelector(sourceItem) ?? string.Empty,
@@ -174,6 +181,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // that no longer exist in the new bound list, and the state helper will
             // prune invalid values but the user expects a clean slate after DataBind.
             _stateHelper?.ClearSelection();
+
+            // Drop any in-flight animations — the old indices may not exist in the
+            // new bound list and the timer should not keep ticking.
+            _animationProgress.Clear();
 
             UpdateItemsAndLayout();
         }
@@ -239,7 +250,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 if (_stateHelper.SelectedValue != value)
                 {
-                    _stateHelper.SelectedValue = value;
+                    // SelectValue is the event-firing path; the property setter on
+                    // the state helper silently mutates _selectedValues without
+                    // raising SelectionChanged / ItemSelectionChanged, which would
+                    // break the data-binding contract for programmatic updates.
+                    // In multi-selection mode, SelectValue ADDs the value to the
+                    // selection (no toggle, no replace) — that matches the
+                    // "set this value" intent of a SelectedValue property setter.
+                    _stateHelper.SelectValue(value);
                     UpdateItemStates();
                     RequestVisualRefresh();
                 }

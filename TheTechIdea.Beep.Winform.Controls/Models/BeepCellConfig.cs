@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -157,6 +158,95 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public ToolbarActionEventArgs(string action)
         {
             Action = action;
+        }
+    }
+
+    /// <summary>
+    /// Event args raised when a cell editor is about to open.  Hosts
+    /// can set <see cref="CancelEventArgs.Cancel"/> to veto the edit
+    /// before the editor is created (matches DGV's CellBeginEdit).
+    /// </summary>
+    public class BeepCellBeginEditEventArgs : CancelEventArgs
+    {
+        public int RowIndex { get; }
+        public int ColumnIndex { get; }
+        public BeepCellConfig Cell { get; }
+
+        public BeepCellBeginEditEventArgs(int rowIndex, int columnIndex, BeepCellConfig cell)
+        {
+            RowIndex = rowIndex;
+            ColumnIndex = columnIndex;
+            Cell = cell;
+        }
+    }
+
+    /// <summary>
+    /// Event args raised when a cell editor is about to commit a new
+    /// value.  Hosts can set <see cref="CancelEventArgs.Cancel"/> to
+    /// veto the commit (treat as Escape), or rewrite
+    /// <see cref="NewValue"/> to coerce the value before it lands in
+    /// the data row (matches DGV's CellValidating).  When Cancel is
+    /// set the editor stays open and the cell value is unchanged.
+    /// </summary>
+    public class BeepCellValidatingEventArgs : CancelEventArgs
+    {
+        public int RowIndex { get; }
+        public int ColumnIndex { get; }
+        public BeepCellConfig Cell { get; }
+        public object? OldValue { get; }
+        public object? NewValue { get; set; }
+
+        public BeepCellValidatingEventArgs(int rowIndex, int columnIndex, BeepCellConfig cell,
+            object? oldValue, object? newValue)
+        {
+            RowIndex = rowIndex;
+            ColumnIndex = columnIndex;
+            Cell = cell;
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
+    }
+
+    /// <summary>
+    /// Event args raised after a cell has been committed (or
+    /// abandoned).  <see cref="Committed"/> is true when the new
+    /// value was applied; false when the edit was cancelled
+    /// (Escape or focus loss with no value change).  Matches DGV's
+    /// CellEndEdit.
+    /// </summary>
+    public class BeepCellEndEditEventArgs : EventArgs
+    {
+        public int RowIndex { get; }
+        public int ColumnIndex { get; }
+        public BeepCellConfig Cell { get; }
+        public bool Committed { get; }
+
+        public BeepCellEndEditEventArgs(int rowIndex, int columnIndex, BeepCellConfig cell, bool committed)
+        {
+            RowIndex = rowIndex;
+            ColumnIndex = columnIndex;
+            Cell = cell;
+            Committed = committed;
+        }
+    }
+
+    /// <summary>
+    /// Event args raised when a row is about to be added or deleted.
+    /// <see cref="Action"/> is "insert" or "delete"; hosts set
+    /// <see cref="CancelEventArgs.Cancel"/> to veto the mutation
+    /// (matches DGV's UserAddingRow / UserDeletingRow).
+    /// </summary>
+    public class BeepRowValidatingEventArgs : CancelEventArgs
+    {
+        public int RowIndex { get; }
+        public string Action { get; }   // "insert" or "delete"
+        public BeepRowConfig? Row { get; }
+
+        public BeepRowValidatingEventArgs(int rowIndex, string action, BeepRowConfig? row)
+        {
+            RowIndex = rowIndex;
+            Action = action;
+            Row = row;
         }
     }
 }

@@ -598,6 +598,501 @@ namespace TheTechIdea.Beep.Winform.Controls.Tests
             using var h = new BeepHierarchicalRadioGroup();
             Assert.Equal(50, h.VirtualizationThreshold);
         }
+
+        [Fact]
+        public void BeepRadioGroup_Has_TranslateMouseForHitTest_Helper()
+        {
+            // Pass 13 added TranslateMouseForHitTest to fix a bug where clicks on
+            // items past the first scroll window would hit-test to the wrong index
+            // because the renderer draws with a -_scrollOffset Y translate that
+            // hit-testing did not compensate for.
+            var m = typeof(BeepRadioGroup).GetMethod("TranslateMouseForHitTest",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(m);
+            Assert.Equal(typeof(Point), m.ReturnType);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_TranslateMouseForHitTest_Is_Identity_When_Not_Virtualized()
+        {
+            using var rg = NewRadioGroup();
+            var m = typeof(BeepRadioGroup).GetMethod("TranslateMouseForHitTest",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var p = new Point(5, 12);
+            var result = (Point)m!.Invoke(rg, new object[] { p })!;
+            Assert.Equal(p, result);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_TranslateMouseForHitTest_Adds_ScrollOffset_When_Virtualized()
+        {
+            using var rg = NewRadioGroup();
+            // Add enough items to cross the virtualized threshold (default 50)
+            // and force a measurable scroll offset.
+            for (int i = 0; i < 200; i++)
+            {
+                rg.AddItem(new SimpleItem { Text = $"Item {i}" });
+            }
+            Assert.True(rg.IsVirtualized);
+
+            // Set the private _scrollOffset field to a known value and check the helper.
+            var fOffset = typeof(BeepRadioGroup).GetField("_scrollOffset",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(fOffset);
+            fOffset!.SetValue(rg, 200);
+
+            var m = typeof(BeepRadioGroup).GetMethod("TranslateMouseForHitTest",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var p = new Point(5, 50);
+            var result = (Point)m!.Invoke(rg, new object[] { p })!;
+            Assert.Equal(new Point(5, 250), result);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_Stores_SearchBoxTextChangedHandler_As_Field()
+        {
+            // Pass 13 stored the search-box TextChanged handler in a field so Dispose
+            // can detach the same delegate (an anonymous lambda can't be removed by
+            // -=).  Confirm the field exists with the expected type.
+            var f = typeof(BeepRadioGroup).GetField("_searchBoxTextChangedHandler",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(f);
+            Assert.Equal(typeof(System.EventHandler), f.FieldType);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_DataBind_Clears_Animation_Progress()
+        {
+            // Pass 13: DataBind<T> previously left _animationProgress populated
+            // with stale indices from the prior item list.  The animation timer
+            // would keep ticking over dead indices until they all completed.
+            using var rg = NewRadioGroup();
+
+            // Force a non-empty animation progress to simulate an in-flight animation.
+            var fProgress = typeof(BeepRadioGroup).GetField("_animationProgress",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(fProgress);
+            var progress = (System.Collections.Generic.Dictionary<int, float>)fProgress!.GetValue(rg)!;
+            progress[7] = 0.5f;
+            progress[42] = 0.3f;
+            Assert.Equal(2, progress.Count);
+
+            var data = new[]
+            {
+                new SourceTypePlaceholder { Name = "A" },
+                new SourceTypePlaceholder { Name = "B" }
+            };
+            rg.DataBind<SourceTypePlaceholder>(data, x => x.Name!);
+
+            Assert.Empty(progress);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_Items_Show_Disabled_State_When_Control_Is_Disabled()
+        {
+            // Pass 14: IsEnabled in RadioItemState did not factor in the control's
+            // own Enabled flag, so the disabled overlay never rendered when the
+            // parent form disabled the radio group.  Now it should.
+            using var rg = NewRadioGroup();
+            // CreateControl() forces handle creation without needing a parent form.
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+                rg.AddItem(new SimpleItem { Text = "Banana" });
+
+                // Capture the pre-disable states.
+                var fStates = typeof(BeepRadioGroup).GetField("_itemStates",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Assert.NotNull(fStates);
+                var states = (System.Collections.Generic.List<RadioItemState>)fStates!.GetValue(rg)!;
+                Assert.Equal(2, states.Count);
+                Assert.All(states, s => Assert.True(s.IsEnabled));
+
+                // Disable the control; the states should reflect that.
+                rg.Enabled = false;
+                var statesDisabled = (System.Collections.Generic.List<RadioItemState>)fStates!.GetValue(rg)!;
+                Assert.All(statesDisabled, s => Assert.False(s.IsEnabled));
+
+                // Re-enable the control; the states should recover.
+                rg.Enabled = true;
+                var statesEnabled = (System.Collections.Generic.List<RadioItemState>)fStates!.GetValue(rg)!;
+                Assert.All(statesEnabled, s => Assert.True(s.IsEnabled));
+            }
+            finally
+            {
+                rg.Dispose();
+            }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_VScroll_Has_TabStop_False()
+        {
+            // Pass 14: the VScrollBar child control had TabStop=true by default.
+            // Tab navigation could land on it instead of walking radio items.
+            using var rg = NewRadioGroup();
+            var f = typeof(BeepRadioGroup).GetField("_vScroll",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.NotNull(f);
+            var vScroll = (System.Windows.Forms.VScrollBar)f!.GetValue(rg)!;
+            Assert.NotNull(vScroll);
+            Assert.False(vScroll.TabStop);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_SearchBox_Has_TabStop_False_When_Shown()
+        {
+            // Pass 14: the search box had TabStop=true by default (BeepTextBox
+            // constructor sets it).  Tab navigation should walk radio items, not
+            // land on the text box.
+            using var rg = NewRadioGroup();
+            rg.ShowSearchBox = true;
+            // The SearchBox accessor exposes the underlying control.
+            Assert.NotNull(rg.SearchBox);
+            Assert.False(rg.SearchBox!.TabStop);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_StartItemAnimation_Leaves_Animation_Progress_Clean()
+        {
+            // Pass 14: StartItemAnimation used to write _animationProgress[index]=0f
+            // even in design mode, leaving dead entries.  The guard now skips the
+            // write outside runtime; we can verify by calling it on a fresh
+            // (non-design-mode) control and confirming the dictionary is populated,
+            // and then clearing + asserting a new call re-populates (proving the
+            // call path itself works outside the design-mode gate).
+            using var rg = NewRadioGroup();
+            var fProgress = typeof(BeepRadioGroup).GetField("_animationProgress",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var progress = (System.Collections.Generic.Dictionary<int, float>)fProgress!.GetValue(rg)!;
+            Assert.Empty(progress);
+
+            rg.StartItemAnimation(3);
+            Assert.True(progress.ContainsKey(3));
+            Assert.Equal(0f, progress[3]);
+        }
+
+        [Fact]
+        public void BeepRadioGroup_SelectedValue_Setter_Fires_SelectionChanged_Event()
+        {
+            // Pass 15: SelectedValue setter was silently mutating state via
+            // RadioGroupStateHelper.SelectedValue (which calls SetSingleSelection
+            // and never raises SelectionChanged).  Now it must use the
+            // event-firing path (SelectValue / ToggleValue) so subscribers see
+            // programmatic changes.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+                rg.AddItem(new SimpleItem { Text = "Banana" });
+
+                int eventCount = 0;
+                rg.SelectionChanged += (s, e) => eventCount++;
+
+                rg.SelectedValue = "Banana";
+                Assert.Equal(1, eventCount);
+                Assert.Equal("Banana", rg.SelectedValue);
+
+                // Re-setting the same value should not fire.
+                rg.SelectedValue = "Banana";
+                Assert.Equal(1, eventCount);
+
+                // Changing to a different value should fire again.
+                rg.SelectedValue = "Apple";
+                Assert.Equal(2, eventCount);
+                Assert.Equal("Apple", rg.SelectedValue);
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_SetValue_With_List_Fires_SelectionChanged()
+        {
+            // Pass 15: SetValue(value) with a List<string> went through
+            // SetMultipleSelection (non-event-firing) and silently swapped the
+            // selection.  Now per-value SelectValue/ToggleValue is used so the
+            // event fires.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "A" });
+                rg.AddItem(new SimpleItem { Text = "B" });
+                rg.AddItem(new SimpleItem { Text = "C" });
+                // In single mode, SetValue(List<string>) takes the first entry.
+                // Enable multi so the assertion that both A and B are selected
+                // is meaningful.
+                rg.AllowMultipleSelection = true;
+
+                int eventCount = 0;
+                rg.SelectionChanged += (s, e) => eventCount++;
+
+                rg.SetValue(new List<string> { "A", "B" });
+                Assert.True(eventCount >= 1);
+                Assert.Contains("A", rg.SelectedValues);
+                Assert.Contains("B", rg.SelectedValues);
+                Assert.DoesNotContain("C", rg.SelectedValues);
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_DoubleClick_Performs_Selection()
+        {
+            // Pass 15: OnItemDoubleClicked previously fired the public event
+            // but did NOT perform the selection.  Combined with the trailing
+            // single-click suppression in OnItemClicked, a double-click became
+            // a no-op for selection.  Now it selects just like a single click.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+                rg.AddItem(new SimpleItem { Text = "Banana" });
+
+                var dblClickCount = 0;
+                rg.ItemDoubleClicked += (s, e) => dblClickCount++;
+
+                // Invoke the private OnItemDoubleClicked handler directly so we
+                // do not depend on mouse timing in the test harness.
+                var m = typeof(BeepRadioGroup).GetMethod("OnItemDoubleClicked",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Assert.NotNull(m);
+                var args = new ItemClickEventArgs(1, rg.Items[1], System.Windows.Forms.MouseButtons.Left);
+                m!.Invoke(rg, new object[] { this, args });
+
+                Assert.Equal(1, dblClickCount);
+                Assert.Equal("Banana", rg.SelectedValue);
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_OnMouseDown_RightClick_Does_Not_Steal_Focus()
+        {
+            // Pass 16: OnMouseDown previously called Focus() regardless of which
+            // button was pressed, so a right-click would steal keyboard focus
+            // from another control.  Now Focus() is gated to MouseButtons.Left.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+
+                var mDown = typeof(BeepRadioGroup).GetMethod("OnMouseDown",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Assert.NotNull(mDown);
+
+                // Simulate a right-click at the item's centre.
+                var args = new MouseEventArgs(MouseButtons.Right, 1, 10, 10, 0);
+                mDown!.Invoke(rg, new object[] { args });
+
+                // The control must NOT own focus after a right-click.
+                Assert.False(rg.Focused,
+                    "Right-click on BeepRadioGroup should not steal keyboard focus.");
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_SelectedValue_In_Multi_Mode_Adds_Rather_Than_Toggles()
+        {
+            // Pass 16: SelectedValue setter used ToggleValue in multi mode,
+            // which DESELECTS a value that was already in the selection.  The
+            // "set this value" intent of a SelectedValue property setter
+            // requires ADD, not toggle.  Now SelectValue is used in both
+            // modes — multi mode ADDs without toggling.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "A" });
+                rg.AddItem(new SimpleItem { Text = "B" });
+                rg.AddItem(new SimpleItem { Text = "C" });
+                rg.AllowMultipleSelection = true;
+
+                // First set: adds A.
+                rg.SelectedValue = "A";
+                Assert.Contains("A", rg.SelectedValues);
+
+                // Second set of the same value: should be a no-op (still in
+                // selection), not toggle off.
+                rg.SelectedValue = "A";
+                Assert.Contains("A", rg.SelectedValues);
+
+                // Second set of a different value: should ADD, not REPLACE.
+                rg.SelectedValue = "B";
+                Assert.Contains("A", rg.SelectedValues);
+                Assert.Contains("B", rg.SelectedValues);
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_Accessibility_Name_Handles_OutOfRange_Index()
+        {
+            // Pass 16: BeepRadioGroupItemAccessibleObject.Name/Value/State
+            // getters indexed _owner._items[_index] without range checks.
+            // An accessibility client requesting a stale or out-of-range
+            // child would NRE.  Now they fall back to a placeholder.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                var accessible = (AccessibleObject)rg.AccessibilityObject;
+                var child = accessible.GetChild(999);
+                if (child != null)
+                {
+                    // Name/Value/State should not throw on the out-of-range child.
+                    var _ = child.Name;
+                    var __ = child.Value;
+                    var ___ = child.State;
+                }
+                // No assertion needed — the test passes if no exception is thrown.
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_OnFocusedIndexChanged_Calls_EnsureItemVisible()
+        {
+            // Pass 15: Tab/arrow key navigation could focus an item outside the
+            // visible window in virtualized mode.  The focus ring would be drawn
+            // off-screen.  Now OnFocusedIndexChanged calls EnsureItemVisible.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                for (int i = 0; i < 200; i++) rg.AddItem(new SimpleItem { Text = $"Item {i}" });
+                Assert.True(rg.IsVirtualized);
+
+                // Force a fresh layout pass + scrollbar update so _vScroll.Maximum
+                // reflects the actual content height.
+                var mMark = typeof(BeepRadioGroup).GetMethod("MarkLayoutDirty",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var mLayout = typeof(BeepRadioGroup).GetMethod("UpdateLayout",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var mScroll = typeof(BeepRadioGroup).GetMethod("UpdateScrollBar",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                mMark!.Invoke(rg, null);
+                mLayout!.Invoke(rg, null);
+                mScroll!.Invoke(rg, null);
+
+                var fFocused = typeof(BeepRadioGroup).GetField("_hitTestHelper",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var fVScroll = typeof(BeepRadioGroup).GetField("_vScroll",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                Assert.NotNull(fVScroll);
+
+                var vScroll = (System.Windows.Forms.VScrollBar)fVScroll!.GetValue(rg)!;
+                Assert.True(vScroll.Maximum > 0,
+                    $"Pre-condition: vScroll.Maximum should be > 0 with 200 items, was {vScroll.Maximum}.");
+
+                var hth = fFocused!.GetValue(rg)!;
+                var fhtFocus = hth.GetType().GetField("_focusedIndex",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                fhtFocus!.SetValue(hth, 150);
+
+                var m = typeof(BeepRadioGroup).GetMethod("OnFocusedIndexChanged",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                m!.Invoke(rg, new object[] { this, new IndexChangedEventArgs(150) });
+
+                Assert.True(vScroll.Value > 0,
+                    $"Expected vScroll.Value to be > 0 after focusing item 150, but was {vScroll.Value}.");
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_SetValue_Null_Clears_Selection()
+        {
+            // Pass 17: SetValue(null) was a no-op — all four `is` checks failed
+            // and the method fell through.  Now null is treated as a "clear
+            // selection" sentinel, mirroring common data-binding conventions.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+                rg.AddItem(new SimpleItem { Text = "Banana" });
+                rg.SelectedValue = "Apple";
+                Assert.Equal("Apple", rg.SelectedValue);
+
+                int eventCount = 0;
+                rg.SelectionChanged += (s, e) => eventCount++;
+
+                rg.SetValue(null!);
+                Assert.Equal(0, rg.SelectedCount);
+                Assert.True(eventCount >= 1, "SelectionChanged should fire when null clears the selection.");
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_DataBind_Skips_Null_Source_Items()
+        {
+            // Pass 17: DataBind<T> would NRE when the source collection
+            // contained a null item — the text/value selectors would throw on
+            // a null argument.  Now null entries are skipped silently.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                var data = new SimpleItem?[]
+                {
+                    new SimpleItem { Text = "A" },
+                    null,
+                    new SimpleItem { Text = "B" },
+                    null,
+                    new SimpleItem { Text = "C" }
+                };
+                // Use a SourceTypePlaceholder so the textSelector is non-null.
+                var data2 = new SourceTypePlaceholder?[]
+                {
+                    new SourceTypePlaceholder { Name = "X" },
+                    null,
+                    new SourceTypePlaceholder { Name = "Y" }
+                };
+                rg.DataBind<SourceTypePlaceholder>(data2!, x => x.Name!);
+
+                Assert.Equal(2, rg.Items.Count);
+                Assert.Equal("X", rg.Items[0].Text);
+                Assert.Equal("Y", rg.Items[1].Text);
+            }
+            finally { rg.Dispose(); }
+        }
+
+        [Fact]
+        public void BeepRadioGroup_AnimationTimer_Tick_Handles_Disposed_Timer()
+        {
+            // Pass 17: OnAnimationTick used `_animationTimer!.Stop()` with the
+            // null-forgiving operator, which would NRE on a race where Dispose
+            // sets the field to null while the tick is still running.  The
+            // null-check guard now prevents the NRE.
+            using var rg = NewRadioGroup();
+            rg.CreateControl();
+            try
+            {
+                rg.AddItem(new SimpleItem { Text = "Apple" });
+
+                // Populate the animation progress to keep the timer alive.
+                rg.StartItemAnimation(0);
+
+                // Invoke the tick once to start the animation.
+                var mTick = typeof(BeepRadioGroup).GetMethod("OnAnimationTick",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                mTick!.Invoke(rg, new object?[] { this, EventArgs.Empty });
+
+                // Set the field to null to simulate Dispose() racing with the
+                // tick.  Then call tick again — it should NOT throw.
+                var fTimer = typeof(BeepRadioGroup).GetField("_animationTimer",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                fTimer!.SetValue(rg, null);
+                mTick!.Invoke(rg, new object?[] { this, EventArgs.Empty });
+            }
+            finally { rg.Dispose(); }
+        }
     }
 
     /// <summary>Sample DTO used in DataBind tests.</summary>

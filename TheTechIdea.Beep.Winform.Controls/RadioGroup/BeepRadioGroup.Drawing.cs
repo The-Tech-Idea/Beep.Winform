@@ -123,7 +123,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 return;
             }
             _vScroll.Visible = true;
-            int totalContentHeight = _layoutHelper.CalculateTotalSize(_items, new Size(Width - _vScroll.Width, 0)).Height;
+            // CalculateTotalSize caps the result at maxSize.Height.  Pass
+            // int.MaxValue so the helper returns the full content height needed
+            // for the scrollbar's Maximum range.  Previously the call passed
+            // 0 for the height, which made CalculateTotalSize return 0 and
+            // left the scrollbar stuck at Maximum=0 (effectively un-scrollable
+            // for virtualized lists).
+            int totalContentHeight = _layoutHelper.CalculateTotalSize(_items,
+                new Size(Width - _vScroll.Width, int.MaxValue)).Height;
             int visibleHeight = Height;
             int max = Math.Max(0, totalContentHeight - visibleHeight);
             int oldMax = _vScroll.Maximum;
@@ -137,6 +144,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             _itemStates.Clear();
 
+            // The control's own Enabled flag must factor into per-item IsEnabled
+            // so the disabled overlay renders when the parent form disables the
+            // radio group (e.g. while editing a different control).  Without this
+            // AND, items still appear interactive even though input handlers all
+            // early-return on !Enabled.
+            bool controlEnabled = Enabled;
+
             for (int i = 0; i < _items.Count; i++)
             {
                 var item = _items[i];
@@ -147,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     IsHovered = !isHeader && (_hitTestHelper.HoveredIndex == i || _hitTestHelper.PressedIndex == i),
                     IsFocused = !isHeader && _hitTestHelper.FocusedIndex == i,
                     IsPressed = !isHeader && _hitTestHelper.PressedIndex == i,
-                    IsEnabled = !isHeader && !IsItemDisabled(item.Text),
+                    IsEnabled = !isHeader && controlEnabled && !IsItemDisabled(item.Text),
                     IsError = _hasValidationError,
                     AnimationProgress = GetAnimationProgress(i, state: _stateHelper.IsSelected(item)),
                     Index = i

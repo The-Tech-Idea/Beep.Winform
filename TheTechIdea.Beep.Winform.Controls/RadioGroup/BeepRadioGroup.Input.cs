@@ -21,12 +21,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseMove(e);
             if (DesignMode || !Enabled) return;
 
-            var adjustedLocation = new Point(
+            // Convert mouse location to be relative to DrawingRect, then add _scrollOffset
+            // when virtualized (the renderer shifts the visible window up by that many
+            // pixels, so hit-testing must look at the un-translated rectangles).
+            var drawingRelative = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
+            var hitTestPoint = TranslateMouseForHitTest(drawingRelative);
 
-            _hitTestHelper.HandleMouseMove(adjustedLocation);
+            _hitTestHelper.HandleMouseMove(hitTestPoint);
             Cursor = _hitTestHelper.HoveredIndex >= 0 ? Cursors.Hand : Cursors.Default;
         }
 
@@ -44,13 +48,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseClick(e);
             if (DesignMode || !Enabled) return;
             
-            // Convert mouse location to be relative to DrawingRect
-            var adjustedLocation = new Point(
+            // Convert mouse location to be relative to DrawingRect, then shift for scroll.
+            var drawingRelative = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
+            var hitTestPoint = TranslateMouseForHitTest(drawingRelative);
             
-            _hitTestHelper.HandleMouseClick(adjustedLocation, e.Button);
+            _hitTestHelper.HandleMouseClick(hitTestPoint, e.Button);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -58,18 +63,19 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseDown(e);
             if (DesignMode || !Enabled) return;
 
-            // Take focus so the keyboard navigation handlers (OnKeyDown / ProcessTabKey)
-            // can drive the focused item.  Without this, clicking an item moves the
-            // selection but Tab / arrow keys have no effect because the control never
-            // owns focus.
-            if (!Focused && CanFocus) Focus();
+            // Take focus on left-click only (matches standard Windows behaviour).
+            // Right-clicks should not steal keyboard focus from another control.
+            // The hit-test helper already filters non-Left buttons, but Focus()
+            // runs before that filter so it needs its own gate.
+            if (e.Button == MouseButtons.Left && !Focused && CanFocus) Focus();
 
-            var adjustedLocation = new Point(
+            var drawingRelative = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
+            var hitTestPoint = TranslateMouseForHitTest(drawingRelative);
 
-            _hitTestHelper.HandleMouseDown(adjustedLocation, e.Button);
+            _hitTestHelper.HandleMouseDown(hitTestPoint, e.Button);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -77,12 +83,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseUp(e);
             if (DesignMode || !Enabled) return;
 
-            var adjustedLocation = new Point(
+            var drawingRelative = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
+            var hitTestPoint = TranslateMouseForHitTest(drawingRelative);
 
-            _hitTestHelper.HandleMouseUp(adjustedLocation, e.Button);
+            _hitTestHelper.HandleMouseUp(hitTestPoint, e.Button);
         }
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
@@ -90,13 +97,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnMouseDoubleClick(e);
             if (DesignMode || !Enabled) return;
 
-            // Convert mouse location to be relative to DrawingRect
-            var adjustedLocation = new Point(
+            var drawingRelative = new Point(
                 e.Location.X - DrawingRect.X,
                 e.Location.Y - DrawingRect.Y
             );
+            var hitTestPoint = TranslateMouseForHitTest(drawingRelative);
 
-            _hitTestHelper.HandleMouseDoubleClick(adjustedLocation, e.Button);
+            _hitTestHelper.HandleMouseDoubleClick(hitTestPoint, e.Button);
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)

@@ -145,7 +145,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 Minimum = 0,
                 Maximum = 0,
                 LargeChange = 1,
-                SmallChange = 1
+                SmallChange = 1,
+                // The scroll bar is a passive scroll surface — Tab navigation should
+                // walk radio items, not child controls.  Without this, Tab could
+                // land on the scroll bar instead of the next/previous item.
+                TabStop = false
             };
             _vScrollHandler = (s, e) => { _scrollOffset = _vScroll!.Value; MarkLayoutDirty(); Invalidate(); };
             _vScroll.Scroll += _vScrollHandler;
@@ -176,9 +180,13 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             UpdateItemStates(notifyAccessibility: false);
             Invalidate();
 
-            if (!anyAlive)
+            if (!anyAlive && _animationTimer != null)
             {
-                _animationTimer!.Stop();
+                // Null-check guards against a race: Dispose() sets
+                // _animationTimer to null after unsubscribing Tick, but the
+                // currently-running tick continues to completion.  Without this
+                // guard, Stop() would NRE on a null reference.
+                _animationTimer.Stop();
             }
         }
 
@@ -186,8 +194,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         public void StartItemAnimation(int index)
         {
             if (index < 0) return;
+            // In design mode, the timer is never started, but the dictionary write
+            // would still leave dead entries.  When the control finally goes live,
+            // the timer would animate these stale indices from 0 to 1 even though
+            // no user interaction triggered them.  Skip the write entirely in
+            // design mode to keep the dictionary clean for the first runtime use.
+            if (DesignMode) return;
             _animationProgress[index] = 0f;
-            if (!DesignMode && !(_animationTimer!.Enabled))
+            if (!(_animationTimer!.Enabled))
             {
                 _animationTimer!.Start();
             }
@@ -262,6 +276,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private int _searchThreshold = 10;
         private string _searchText = string.Empty;
         private BeepTextBox? _searchBox;
+        // Stored TextChanged handler so Dispose can detach the lambda that closes
+        // over `this`.  Without this, the anonymous lambda keeps a managed
+        // reference to the control even after _searchBox.Dispose() runs.
+        private System.EventHandler? _searchBoxTextChangedHandler;
 
         // Tracks the last double-click time so we can suppress the trailing single-click
         // that Windows always raises after a double-click event. Default to MinValue so
@@ -344,7 +362,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             if (_showSearchBox && _searchBox == null)
             {
                 _searchBox = new BeepTextBox { Dock = System.Windows.Forms.DockStyle.Top };
-                _searchBox.TextChanged += (s, e) => SearchText = _searchBox.Text;
+                // The search box is a passive filter surface — Tab navigation should
+                // walk radio items, not the text box.  Users can still click into
+                // the search box with the mouse; Tab skips it.
+                _searchBox.TabStop = false;
+                // Cache the TextChanged handler in a field so Dispose can unsubscribe
+                // the same delegate.  An anonymous lambda cannot be removed by -=.
+                _searchBoxTextChangedHandler = (s, e) => SearchText = _searchBox!.Text;
+                _searchBox.TextChanged += _searchBoxTextChangedHandler;
                 // Polish: leading search icon, placeholder, rounded border + theme
                 // (parity with BeepContextMenu's search box).  All try/catch'd so a
                 // missing icon resource or theme in design mode does not break the
@@ -372,7 +397,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             else if (!_showSearchBox && _searchBox != null)
             {
                 Controls.Remove(_searchBox);
-                _searchBox.TextChanged -= (s, e) => SearchText = _searchBox.Text;
+                if (_searchBoxTextChangedHandler != null)
+                {
+                    _searchBox.TextChanged -= _searchBoxTextChangedHandler;
+                    _searchBoxTextChangedHandler = null;
+                }
                 _searchBox.Dispose();
                 _searchBox = null;
                 TopoffsetForDrawingRect = 0;
@@ -588,13 +617,43 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             var oldValue = GetValue();
 
-            if (value is string stringValue)
+            if (value == null)
             {
+                // Null is a documented "clear selection" sentinel — mirrors the
+                // way a data-binding source might pass null when the bound
+                // property is unset.
+                ClearSelection();
+            }
+            else if (value is string stringValue)
+            {
+                // Go through SelectedValue so the event-firing path is used.
                 SelectedValue = stringValue;
             }
             else if (value is List<string> stringList)
             {
-                _stateHelper.SetMultipleSelection(stringList);
+                // Per-value SelectValue/ToggleValue so SelectionChanged fires.
+                if (AllowMultipleSelection)
+                {
+                    // Drop anything that is no longer in the new list, then add
+                    // anything that is.  This mirrors SetMultipleSelection's
+                    // semantics but emits the event.
+                    var currentSelected = new HashSet<string>(_stateHelper.SelectedValues);
+                    var newSelected = new HashSet<string>(
+                        stringList.Where(v => !string.IsNullOrEmpty(v)));
+                    foreach (var drop in currentSelected.Except(newSelected))
+                    {
+                        _stateHelper.DeselectValue(drop);
+                    }
+                    foreach (var add in newSelected.Except(currentSelected))
+                    {
+                        _stateHelper.ToggleValue(add);
+                    }
+                }
+                else
+                {
+                    var first = stringList.FirstOrDefault(v => !string.IsNullOrEmpty(v));
+                    if (first != null) _stateHelper.SelectValue(first);
+                }
                 UpdateItemStates();
                 RequestVisualRefresh();
             }
@@ -605,7 +664,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             else if (value is List<SimpleItem> itemList)
             {
                 var values = itemList.Where(i => !string.IsNullOrEmpty(i.Text)).Select(i => i.Text);
-                _stateHelper.SetMultipleSelection(values);
+                if (AllowMultipleSelection)
+                {
+                    var currentSelected = new HashSet<string>(_stateHelper.SelectedValues);
+                    var newSelected = new HashSet<string>(values);
+                    foreach (var drop in currentSelected.Except(newSelected))
+                    {
+                        _stateHelper.DeselectValue(drop);
+                    }
+                    foreach (var add in newSelected.Except(currentSelected))
+                    {
+                        _stateHelper.ToggleValue(add);
+                    }
+                }
+                else
+                {
+                    var first = values.FirstOrDefault();
+                    if (first != null) _stateHelper.SelectValue(first);
+                }
                 UpdateItemStates();
                 RequestVisualRefresh();
             }
@@ -633,6 +709,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         {
             var oldValue = GetValue();
             ClearSelection();
+            // Also reset interaction state so the focus ring / hover / pressed
+            // indices do not appear stuck on a now-deselected item.
+            _hitTestHelper.ResetInteractionState();
             var newValue = GetValue();
             if (!Equals(oldValue, newValue))
             {
@@ -730,6 +809,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             // re-enabling the control.
             UpdateItemStates(notifyAccessibility: false);
             UpdateAccessibilityMetadata();
+            // If the cursor is over the control when it becomes disabled, the
+            // cursor stays at whatever value OnMouseEnter set (Hand).  Reset it
+            // so the user does not see an interactive cursor on a disabled control.
+            if (!Enabled)
+            {
+                Cursor = Cursors.Default;
+                _hitTestHelper.HandleMouseLeave();
+            }
             RequestVisualRefresh();
         }
 
@@ -884,6 +971,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         private int GetItemIndexAt(Point clientPoint)
         {
             var adjusted = new Point(clientPoint.X - DrawingRect.X, clientPoint.Y - DrawingRect.Y);
+            // When virtualized, the renderer draws the visible window by translating
+            // the entire graphics context by -_scrollOffset, so a click at adjusted.Y
+            // visually lands on the item whose stored Y is adjusted.Y + _scrollOffset.
+            // Without this shift, a user clicking an item past the first scroll window
+            // would hit-test to the wrong rectangle (or to none at all).
+            if (IsVirtualized)
+            {
+                adjusted.Y += _scrollOffset;
+            }
             for (int i = 0; i < _itemRectangles.Count; i++)
             {
                 if (_itemRectangles[i].Contains(adjusted))
@@ -893,6 +989,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             }
 
             return -1;
+        }
+
+        /// <summary>
+        /// Translates a control-relative mouse <see cref="Point"/> into the coordinate
+        /// system that <see cref="_itemRectangles"/> uses.  When the control is
+        /// virtualized, the renderer draws with a <c>g.TranslateTransform(0,
+        /// -_scrollOffset)</c> applied, so the rectangle at index <c>k</c> is visually
+        /// rendered at <c>_itemRectangles[k].Y - _scrollOffset</c>.  Hit-testing must
+        /// therefore look at the un-translated rectangles by adding <c>_scrollOffset</c>
+        /// to the mouse Y.  When not virtualized, this is a no-op.
+        /// </summary>
+        internal Point TranslateMouseForHitTest(Point controlRelativePoint)
+        {
+            if (!IsVirtualized) return controlRelativePoint;
+            return new Point(controlRelativePoint.X, controlRelativePoint.Y + _scrollOffset);
         }
 
         private sealed class BeepRadioGroupAccessibleObject : ControlAccessibleObject
@@ -978,7 +1089,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     ? AccessibleRole.CheckButton
                     : AccessibleRole.RadioButton;
 
-            public override string Name => _owner._items[_index]?.Text ?? $"Item {_index + 1}";
+            public override string Name => _index >= 0 && _index < _owner._items.Count
+                ? (_owner._items[_index]?.Text ?? $"Item {_index + 1}")
+                : $"Item {Math.Max(0, _index) + 1}";
 
             public override string Description
             {
@@ -994,7 +1107,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 }
             }
 
-            public override string Value => _owner._stateHelper.IsSelected(_owner._items[_index]) ? "Selected" : "Not selected";
+            public override string Value
+            {
+                get
+                {
+                    var item = _index >= 0 && _index < _owner._items.Count ? _owner._items[_index] : null;
+                    return _owner._stateHelper.IsSelected(item) ? "Selected" : "Not selected";
+                }
+            }
 
             public override Rectangle Bounds
             {
@@ -1006,6 +1126,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     }
 
                     var logicalRect = _owner._itemRectangles[_index];
+                    // When virtualized, the renderer shifts the visible window up by
+                    // _scrollOffset, so the screen rect for an item Y must also be
+                    // shifted by the same amount.
+                    if (_owner.IsVirtualized)
+                    {
+                        logicalRect = new Rectangle(
+                            logicalRect.X, logicalRect.Y - _owner._scrollOffset,
+                            logicalRect.Width, logicalRect.Height);
+                    }
                     var absolute = new Rectangle(
                         logicalRect.X + _owner.DrawingRect.X,
                         logicalRect.Y + _owner.DrawingRect.Y,
@@ -1020,7 +1149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 get
                 {
                     var states = AccessibleStates.Selectable | AccessibleStates.Focusable;
-                    var item = _owner._items[_index];
+                    var item = _index >= 0 && _index < _owner._items.Count ? _owner._items[_index] : null;
 
                     if (_owner.IsItemDisabled(item?.Text) || !_owner.Enabled)
                     {
@@ -1050,6 +1179,15 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 {
                     return;
                 }
+
+                // Scroll the item into view before changing selection.  When the
+                // control is virtualized, a screen reader can activate an item
+                // outside the visible window; the user would otherwise not see
+                // the selection happen.
+                _owner.EnsureItemVisible(_index);
+                // Mirror the click animation a mouse user would see, so the
+                // accessibility activation has the same visual feedback.
+                _owner.StartItemAnimation(_index);
 
                 if (_owner.AllowMultipleSelection)
                 {
@@ -1110,7 +1248,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 if (_searchBox != null)
                 {
                     Controls.Remove(_searchBox);
-                    _searchBox.TextChanged -= (s, e) => SearchText = _searchBox.Text;
+                    if (_searchBoxTextChangedHandler != null)
+                    {
+                        _searchBox.TextChanged -= _searchBoxTextChangedHandler;
+                        _searchBoxTextChangedHandler = null;
+                    }
                     _searchBox.Dispose();
                     _searchBox = null;
                 }

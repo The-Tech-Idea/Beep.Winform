@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.GridX.Toolbar;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -986,69 +987,94 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void HandleToolbarMouseDown(Point location)
         {
             var state = _grid.ToolbarState;
-            if (state.HitTestSearchBox(location))
+            // Single hit-test pass.  HitTest() already recognises the
+            // search box, filter button, advanced button, clear-filter
+            // chip, overflow button, and the action/export button lists;
+            // we then dispatch on the result to the correct activation.
+            var key = state.HitTest(location);
+            if (key == null)
             {
-                state.SearchHasFocus = true;
-                _grid.FilterEditor.ActivateSearchEditor(state.SearchBoxRect);
+                // Click landed in the toolbar background — just drop
+                // search focus so the painted placeholder reappears.
+                state.SearchHasFocus = false;
+                _grid.FilterEditor.HideSearchEditor();
                 _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
                 return;
             }
 
-            if (state.HitTestFilterButton(location))
+            switch (key)
             {
-                state.SearchHasFocus = false;
-                _grid.ShowAdvancedFilterDialog();
-                return;
+                case BeepGridToolbarState.KeySearchBox:
+                    state.SearchHasFocus = true;
+                    _grid.FilterEditor.ActivateSearchEditor(state.SearchBoxRect);
+                    _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
+                    return;
+
+                case BeepGridToolbarState.KeyFilter:
+                    // Filter button → Excel-style header filter dialog
+                    // (the "Filter" funnel opens the same popup that the
+                    // column-header filter icon opens).
+                    state.SearchHasFocus = false;
+                    _grid.ShowFilterDialog();
+                    return;
+
+                case BeepGridToolbarState.KeyAdvanced:
+                    // Advanced button → full multi-criteria filter dialog.
+                    state.SearchHasFocus = false;
+                    _grid.ShowAdvancedFilterDialog();
+                    return;
             }
 
-            if (state.HitTestAdvancedButton(location))
-            {
-                state.SearchHasFocus = false;
-                _grid.ShowAdvancedFilterDialog();
-                return;
-            }
-
-            var buttonKey = state.HitTest(location);
-            if (buttonKey != null)
-            {
-                state.SearchHasFocus = false;
-                state.PressedButtonKey = buttonKey;
-                HandleToolbarButtonClick(buttonKey);
-                _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
-                return;
-            }
-
+            // Standard toolbar button (Add, Edit, Delete, Import, Export,
+            // Print, ClearFilter, Overflow, plus any custom key the host
+            // registered).
             state.SearchHasFocus = false;
-            _grid.FilterEditor.HideSearchEditor();
+            state.PressedButtonKey = key;
+            HandleToolbarButtonClick(key);
             _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
         }
 
-        private void HandleToolbarButtonClick(string buttonKey)
+        internal void HandleToolbarButtonClick(string buttonKey)
         {
             switch (buttonKey)
             {
-                case "add":
+                case BeepGridToolbarState.KeyAdd:
+                    // Add → insert a new row.  In UOW mode Navigator.InsertNew
+                    // routes through IUnitofWork.Add; in standard mode it routes
+                    // through BindingSource.AddNew.
                     _grid.Navigator.InsertNew();
                     break;
-                case "edit":
-                    _grid.OnToolbarAction("edit");
+                case BeepGridToolbarState.KeyEdit:
+                    // Edit → begin editing the active cell.  If no cell is
+                    // active, raise the public ToolbarAction event so the host
+                    // can implement a custom edit flow.
+                    if (_grid.Selection.RowIndex >= 0
+                        && _grid.Selection.ColumnIndex >= 0
+                        && !_grid.Edit.IsEditing)
+                    {
+                        _grid.Edit.BeginEdit();
+                    }
+                    else
+                    {
+                        _grid.OnToolbarAction(BeepGridToolbarState.KeyEdit);
+                    }
                     break;
-                case "delete":
+                case BeepGridToolbarState.KeyDelete:
                     _grid.Navigator.DeleteCurrent();
                     break;
-                case "import":
-                    _grid.OnToolbarAction("import");
+                case BeepGridToolbarState.KeyImport:
+                    _grid.OnToolbarAction(BeepGridToolbarState.KeyImport);
                     break;
-                case "export":
-                    _grid.OnToolbarAction("export");
+                case BeepGridToolbarState.KeyExport:
+                    _grid.OnToolbarAction(BeepGridToolbarState.KeyExport);
                     break;
-                case "print":
-                    _grid.OnToolbarAction("print");
+                case BeepGridToolbarState.KeyPrint:
+                    _grid.OnToolbarAction(BeepGridToolbarState.KeyPrint);
                     break;
-                case "clearfilter":
+                case BeepGridToolbarState.KeyClearFilter:
                     _grid.ClearFilter();
                     break;
-                case "overflow":
+                case BeepGridToolbarState.KeyOverflow:
                     ShowOverflowMenu();
                     break;
             }
@@ -1063,10 +1089,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var menuItems = new System.Collections.Generic.List<SimpleItem>();
             foreach (var btn in overflowItems)
             {
+                // Resolve the icon-key ("plus", "edit", etc.) to the real
+                // SVG path so the context menu actually shows the icon
+                // instead of leaving it blank.  The previous code passed
+                // the icon key as ImagePath, which the context menu cannot
+                // resolve and so no icon was shown.
                 menuItems.Add(new SimpleItem
                 {
                     Text = btn.Label,
-                    ImagePath = btn.IconPath,
+                    ImagePath = BeepGridToolbarPainter.ResolveIconPathPublic(btn.IconPath),
                     MethodName = btn.Key,
                 });
             }
@@ -1087,6 +1118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (!_grid.Layout.ToolbarRect.Contains(location))
             {
                 _grid.ToolbarState.HoveredButtonKey = null;
+                _grid.UpdateToolbarTooltip(location);
                 return;
             }
 
@@ -1096,6 +1128,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.ToolbarState.HoveredButtonKey = key;
                 _grid.SafeInvalidate(_grid.Layout.ToolbarRect);
             }
+            // Always update the tooltip so the user gets feedback as soon
+            // as they hover.  The implementation dedupes on the hovered key.
+            _grid.UpdateToolbarTooltip(location);
         }
 
         internal void HandleToolbarMouseUp()

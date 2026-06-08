@@ -28,9 +28,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _editorEvents = new EditorEvents(this);
         }
 
+        /// <summary>
+        /// True when an in-place editor is currently active for a cell.  Used
+        /// by the toolbar (Edit button) and keyboard navigation to avoid
+        /// re-entering edit mode on top of an already-active editor.
+        /// </summary>
+        public bool IsEditing => _editorControl != null && !_editorControl.IsDisposed;
+
         public void BeginEdit()
         {
             System.Diagnostics.Debug.WriteLine($"BeginEdit called. ReadOnly={_grid.ReadOnly}, HasSelection={_grid.Selection.HasSelection}");
+
+            // Clear stale-cancel flags from any previous edit cycle so a
+            // host that vetoed the last edit can't accidentally veto
+            // this one (the thread-statics are set by OnCellBeginEdit
+            // / OnCellValidating and read immediately after the raise).
+            BeepGridPro.s_lastCellBeginEditCancel = false;
+            BeepGridPro.s_lastCellValidatingCancel = false;
+            BeepGridPro.s_lastCellValidatingNewValue = null;
 
             if (_grid.ReadOnly)
             {
@@ -84,6 +99,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             System.Diagnostics.Debug.WriteLine("BeginEdit: Creating editor control...");
             cell = _grid.Data.Rows[r].Cells[c];
+
+            // Fire CellBeginEdit BEFORE creating the editor.  Hosts can
+            // set e.Cancel = true to veto the edit (e.g. dynamic RBAC
+            // checks that depend on the cell's current value).  The
+            // static readonly check (cell.IsReadOnly / IsEditable) has
+            // already passed at this point; this is the dynamic
+            // counterpart.
+            _grid.OnCellBeginEdit(r, c, cell);
+            if (BeepGridPro.s_lastCellBeginEditCancel)
+            {
+                System.Diagnostics.Debug.WriteLine("BeginEdit: CellBeginEdit vetoed by host");
+                return;
+            }
 
             // Remove previous editor from host - ALWAYS clear completely
             CleanupPreviousEditor();
@@ -241,13 +269,58 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             _isEndingEdit = true;
 
+            // Capture the row/col now: the Selection.RowIndex may shift
+            // while the editor's LostFocus handler is in flight (e.g.
+            // the user tabbed into another row), but the event args
+            // need to refer to the cell that was actually being edited.
+            int editedRow = _grid.Selection.RowIndex;
+            int editedCol = _grid.Selection.ColumnIndex;
+            var editedCell = _editingCell;
+            bool committed = false;
+
             try
             {
                 if (commit && _currentEditor != null && !_editorControl.IsDisposed)
                 {
                     var rawValue = _currentEditor.GetValue(_editorControl);
-                    var valueToAssign = NormalizeEditorValue(rawValue, _grid.Data.Columns[_grid.Selection.ColumnIndex]);
-                    CommitValueToData(valueToAssign);
+                    var valueToAssign = NormalizeEditorValue(rawValue, _grid.Data.Columns[editedCol]);
+
+                    // Fire CellValidating BEFORE the commit.  Hosts can
+                    // veto with e.Cancel = true, in which case the
+                    // editor is closed without writing the value
+                    // (semantically equivalent to Escape).  Hosts can
+                    // also rewrite e.NewValue to coerce the value
+                    // before it lands in the data row.  The
+                    // thread-statics carry the result back to this
+                    // helper (see BeepGridPro.OnCellValidating).
+                    _grid.OnCellValidating(editedRow, editedCol, editedCell,
+                        _originalValue, valueToAssign);
+                    if (BeepGridPro.s_lastCellValidatingCancel)
+                    {
+                        System.Diagnostics.Debug.WriteLine("EndEdit: CellValidating vetoed by host, treating as Escape");
+                        commit = false; // treat as Escape
+                    }
+                    else if (BeepGridPro.s_lastCellValidatingNewValue != null)
+                    {
+                        // Host coerced the value.
+                        valueToAssign = NormalizeEditorValue(
+                            BeepGridPro.s_lastCellValidatingNewValue,
+                            _grid.Data.Columns[editedCol]);
+                    }
+
+                    if (commit)
+                    {
+                        CommitValueToData(valueToAssign);
+                        committed = true;
+                        // Fire CellValidated + the legacy CellValueChanged
+                        // from the same raise site.  Both events carry
+                        // the cell reference; CellValidated is the DGV
+                        // name, CellValueChanged is the legacy BeepGridPro
+                        // name.  Keeping both means existing hosts keep
+                        // working and new DGV-style ports use CellValidated.
+                        _grid.OnCellValueChanged(editedCell);
+                        _grid.OnCellValidated(editedRow, editedCol, editedCell);
+                    }
                 }
 
                 // Detach all event handlers
@@ -281,6 +354,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _editingCell = null;
                 _isEndingEdit = false;
                 _grid.SafeInvalidate();
+                // Fire CellEndEdit in finally so it ALWAYS runs (matches
+                // DGV's CellEndEdit which fires even when the edit was
+                // cancelled).  The cell reference is captured so the
+                // event still points to the right cell after _editingCell
+                // is nulled out.
+                _grid.OnCellEndEdit(editedRow, editedCol, editedCell, committed);
             }
         }
 

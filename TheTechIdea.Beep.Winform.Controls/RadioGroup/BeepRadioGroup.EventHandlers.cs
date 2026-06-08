@@ -56,6 +56,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 StartItemAnimation(e.Index);
             }
+
+            // Double-click is a stronger form of single-click.  Without this, the
+            // trailing single click is suppressed (see OnItemClicked) and the
+            // double-click becomes a no-op for selection.  Apply the same
+            // selection logic the single click would have triggered so the
+            // user's double-click intent is honoured.
+            if (e.Item != null && !IsItemDisabled(e.Item.Text))
+            {
+                if (AllowMultipleSelection)
+                {
+                    _stateHelper.ToggleItem(e.Item);
+                }
+                else
+                {
+                    _stateHelper.SelectItem(e.Item);
+                }
+                ValidateSelection();
+            }
+
             ItemDoubleClicked?.Invoke(this, e);
         }
 
@@ -78,7 +97,14 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
         private void OnFocusedIndexChanged(object sender, IndexChangedEventArgs e)
         {
-            if (e.Index >= 0) StartItemAnimation(e.Index);
+            if (e.Index >= 0)
+            {
+                StartItemAnimation(e.Index);
+                // When virtualized, Tab/arrow keys could focus an item outside
+                // the visible window.  Scroll it into view so the focus ring is
+                // actually visible to the user.
+                EnsureItemVisible(e.Index);
+            }
             UpdateItemStates();
             RequestVisualRefresh();
         }

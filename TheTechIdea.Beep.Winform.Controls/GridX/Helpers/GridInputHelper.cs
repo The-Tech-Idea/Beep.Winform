@@ -565,7 +565,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (checkCol >= 0)
             {
                 var cell = row.Cells[checkCol];
-                current = (bool)(cell.CellValue ?? false);
+                try { current = Convert.ToBoolean(cell.CellValue); } catch { current = false; }
             }
             else
             {

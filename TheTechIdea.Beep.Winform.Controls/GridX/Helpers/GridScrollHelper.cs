@@ -73,9 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void SetVerticalOffset(int offsetPx)
         {
+            int maxOffset = Math.Max(0, (_grid.Data.Rows.Count * _grid.RowHeight) - (_grid.Layout?.RowsRect.Height ?? 0));
+            offsetPx = Math.Max(0, Math.Min(offsetPx, maxOffset));
             if (VerticalOffset == offsetPx) return;
 
-            VerticalOffset = Math.Max(0, offsetPx);
+            VerticalOffset = offsetPx;
 
             if (_grid.EnableVirtualization && _grid.VirtualDataSource != null)
             {

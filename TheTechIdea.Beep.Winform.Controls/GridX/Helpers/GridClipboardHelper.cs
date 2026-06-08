@@ -56,7 +56,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         public void CopyToClipboard(bool includeHeaders = true, bool visibleColumnsOnly = true)
         {
-            if (_grid.Data?.Rows == null || _grid.Data.Rows.Count == 0)
+            if (_grid.Data?.Rows == null || _grid.Data.Rows.Count == 0 || _grid.Data.Columns == null)
                 return;
 
             try
@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// <summary>
         /// Clear cells that were cut
         /// </summary>
-        private void ClearCutCells()
+        internal void ClearCutCells()
         {
             if (_cutData.Count == 0)
                 return;

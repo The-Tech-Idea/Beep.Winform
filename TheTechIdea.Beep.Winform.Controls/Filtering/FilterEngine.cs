@@ -183,12 +183,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
         }
 
         /// <summary>
-        /// Gets property value from an item using reflection
+        /// Gets property value from an item using reflection.
+        /// Also supports <see cref="IDictionary{TKey,TValue}"/> (e.g. <see cref="System.Dynamic.ExpandoObject"/>)
+        /// where the data is stored in a dictionary rather than a CLR property.
         /// </summary>
         private object? GetPropertyValue(T item, string propertyName)
         {
             if (item == null || string.IsNullOrEmpty(propertyName))
                 return null;
+
+            // Dictionary-backed items (ExpandoObject, etc.) store values in a dictionary,
+            // not as CLR properties, so PropertyInfo.GetValue would return null.
+            if (item is IDictionary<string, object?> dict)
+            {
+                if (dict.TryGetValue(propertyName, out var dictValue))
+                    return dictValue;
+                return null;
+            }
 
             if (_propertyCache.TryGetValue(propertyName, out PropertyInfo? prop))
             {

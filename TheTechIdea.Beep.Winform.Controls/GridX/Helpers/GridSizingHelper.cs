@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (!autoColumns.Any() || fillWidth <= 0) return;
 
             float totalWeight = autoColumns.Sum(c => c.FillWeight <= 0f ? 1f : c.FillWeight);
-            if (totalWeight <= 0f) totalWeight = autoColumns.Count;
+            if (float.IsNaN(totalWeight) || totalWeight <= 0f) totalWeight = autoColumns.Count;
 
             int used = 0;
             for (int i = 0; i < autoColumns.Count; i++)

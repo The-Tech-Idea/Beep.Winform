@@ -79,6 +79,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Controllers
         {
             _grid.Data.AutoGenerateColumns();
             SyncFullData();
+            if (_grid.EnableVirtualization)
+            {
+                _grid.RowVirtualizer.Refresh();
+            }
         }
 
         internal void SyncFullData()

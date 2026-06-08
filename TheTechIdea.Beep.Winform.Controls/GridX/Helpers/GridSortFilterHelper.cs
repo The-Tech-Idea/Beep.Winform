@@ -557,7 +557,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Keep binding intact when unchanged (important for ObservableBindingList/UOW mode).
             if (!ReferenceEquals(_grid.Data.DataSource, bs))
             {
-                _grid.Data.Bind(bs, triggerAutoSize: false);
+                _grid.Data.Bind(bs, triggerAutoSize: false, skipRows: _grid.EnableVirtualization);
                 _grid.DataController.SyncFullData();
             }
             else

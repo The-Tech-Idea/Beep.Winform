@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     }
                     else
                     {
-                        DataController.BindComplete(value);
+                        DataController.BindVirtualized(value);
                         if (EnableVirtualization)
                         {
                             Data.Rows.Clear();
@@ -117,6 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                             VirtualDataSource = CreateVirtualDataSource(value, columnNames);
                             int viewportHeight = Math.Max(1, Layout.RowsRect.Height > 0 ? Layout.RowsRect.Height : Height);
                             RowVirtualizer.UpdateWindow(Scroll.VerticalOffset, viewportHeight, RowHeight);
+                            Layout.Recalculate();
                         }
                     }
                     SafeInvalidate();
@@ -129,10 +130,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// </summary>
         public void ClearGrid()
         {
-            // Clear rows
             Data.Rows.Clear();
 
-            // Clear non-system columns
+            if (EnableVirtualization)
+            {
+                VirtualDataSource = null;
+            }
+
             var systemColumns = Data.Columns.Where(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID).ToList();
             Data.Columns.Clear();
             foreach (var col in systemColumns)

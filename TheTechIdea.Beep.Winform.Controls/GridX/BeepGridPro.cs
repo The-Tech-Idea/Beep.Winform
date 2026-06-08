@@ -734,12 +734,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// <summary>
         /// Gets or sets whether grid lines are visible between cells.
         /// </summary>
-        public bool ShowGridLines { get; internal set; }
+        public bool ShowGridLines
+        {
+            get => Render.ShowGridLines;
+            set
+            {
+                if (Render.ShowGridLines != value)
+                {
+                    Render.ShowGridLines = value;
+                    SafeInvalidate();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets whether alternate row colors are used for striping effect.
         /// </summary>
-        public bool AlternateRowColor { get; internal set; }
+        public bool AlternateRowColor
+        {
+            get => Render.ShowRowStripes;
+            set
+            {
+                if (Render.ShowRowStripes != value)
+                {
+                    Render.ShowRowStripes = value;
+                    SafeInvalidate();
+                }
+            }
+        }
         #endregion
 
         #region Export
@@ -946,6 +968,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 return Virtualization.GridVirtualDataSource.FromList(bList, columnNames);
             if (dataSource is System.Collections.IList list)
                 return Virtualization.GridVirtualDataSource.FromList(list, columnNames);
+            if (dataSource is System.Collections.IEnumerable enumerable && dataSource is not string)
+                return Virtualization.GridVirtualDataSource.FromList(enumerable.Cast<object>().ToList(), columnNames);
             // Try to extract IList via reflection for common collection types
             var listProp = dataSource.GetType().GetProperty("List");
             if (listProp != null && listProp.PropertyType.IsAssignableTo(typeof(System.Collections.IList)))
@@ -1004,6 +1028,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 _filterEditor?.Dispose();
                 _uowBinder?.Detach();
                 Dialog?.Dispose();
+                FocusManager?.Dispose();
+                Clipboard?.ClearCutCells();
+                Navigator?.Dispose();
+                DataController?.BindToNull();
+
+                if (VirtualDataSource != null)
+                    VirtualDataSource = null;
+
                 if (_autoSizeDebounceTimer != null)
                 {
                     _autoSizeDebounceTimer.Stop();

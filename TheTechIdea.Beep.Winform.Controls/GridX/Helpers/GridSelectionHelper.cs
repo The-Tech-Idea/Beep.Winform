@@ -27,7 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             get
             {
                 if (!HasSelection) return Rectangle.Empty;
-                return _grid.Data.Rows[RowIndex].Cells[ColumnIndex].Rect;
+                if (RowIndex >= _grid.Data.Rows.Count) return Rectangle.Empty;
+                var row = _grid.Data.Rows[RowIndex];
+                if (ColumnIndex >= row.Cells.Count) return Rectangle.Empty;
+                return row.Cells[ColumnIndex].Rect;
             }
         }
 
@@ -91,6 +94,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Clear()
         {
+            if (HasSelection && RowIndex < _grid.Data.Rows.Count)
+            {
+                var row = _grid.Data.Rows[RowIndex];
+                if (ColumnIndex < row.Cells.Count)
+                    row.Cells[ColumnIndex].IsSelected = false;
+                row.IsSelected = false;
+            }
             RowIndex = ColumnIndex = -1;
         }
 

@@ -802,5 +802,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 EntityName = _uowWrapper.EntityName
             });
         }
+
+        internal void Dispose()
+        {
+            UnhookBindingSource();
+            if (_navigator != null)
+            {
+                _navigator.PositionChanged -= Navigator_PositionChanged;
+                _navigator.NewRecordCreated -= Navigator_NewRecordCreated;
+                _navigator.DeleteCalled -= Navigator_DeleteCalled;
+                _navigator.SaveCalled -= Navigator_SaveCalled;
+                _navigator = null;
+            }
+        }
     }
 }

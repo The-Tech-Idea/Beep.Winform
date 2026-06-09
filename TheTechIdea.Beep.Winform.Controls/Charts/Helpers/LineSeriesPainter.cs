@@ -20,34 +20,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             SeriesRenderOptions options)
         {
             if (data == null || data.Count == 0) return;
-            bool stacked = (options?.Mode ?? StackedMode.None) != StackedMode.None;
+            var pre = StackedPrecompute.Calculate(data, options?.Mode ?? StackedMode.None, toY);
+            bool stacked = pre != null;
             bool stack100 = (options?.Mode ?? StackedMode.None) == StackedMode.Stack100;
-            int n = data.Max(s => s.Points?.Count ?? 0);
-
-            float[] totals = null;
-            if (stack100)
-            {
-                totals = new float[n];
-                for (int i = 0; i < n; i++)
-                {
-                    float sum = 0f;
-                    foreach (var s in data)
-                    {
-                        if (!s.Visible || s.Points == null || i >= s.Points.Count) continue;
-                        sum += toY(s.Points[i]) is float yf ? yf : 0f;
-                    }
-                    totals[i] = sum == 0 ? 1f : sum;
-                }
-            }
-
-            float[] cumul = stacked ? new float[n] : null;
             float anim = Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
 
             for (int sIndex = 0; sIndex < data.Count; sIndex++)
             {
                 var series = data[sIndex];
                 if (!series.Visible || series.Points == null || series.Points.Count == 0) continue;
-                Color color = series.Color != Color.Empty ? series.Color : palette[sIndex % palette.Count];
+                Color color = CartesianPlotHelper.GetSeriesColor(series, sIndex, palette);
 
                 var pts = new List<PointF>();
                 for (int i = 0; i < series.Points.Count; i++)
@@ -55,27 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                     var p = series.Points[i];
                     float x = toX(p) is float xf ? xf : i;
                     float yVal = toY(p) is float yf ? yf : 0f;
-                    if (stack100) yVal = totals[i] > 0 ? yVal / totals[i] : 0f;
+                    if (stack100) yVal = pre!.Totals[i] > 0 ? yVal / pre.Totals[i] : 0f;
                     if (stacked)
                     {
-                        float prev = cumul[i];
+                        float prev = pre!.Cumulative[i];
                         yVal += prev;
-                        cumul[i] = yVal;
+                        pre.Cumulative[i] = yVal;
                     }
-                    yVal = yMin + (yVal - yMin) * anim;
-                    float xRange = xMax - xMin;
-                    float yRange = yMax - yMin;
-                    float sx = xRange > 0
-                        ? plotRect.Left + (x - xMin) / xRange * plotRect.Width
-                        : plotRect.Left + plotRect.Width * 0.5f;
-                    float sy = yRange > 0
-                        ? plotRect.Bottom - (yVal - yMin) / yRange * plotRect.Height
-                        : plotRect.Top + plotRect.Height * 0.5f;
-
-                    // Clamp to prevent GDI+ overflow on extreme values
-                    sx = Math.Clamp(sx, -1e6f, 1e6f);
-                    sy = Math.Clamp(sy, -1e6f, 1e6f);
-                    pts.Add(new PointF(sx, sy));
+                    var pt = CartesianPlotHelper.ToScreenAnimated(
+                        x, yVal, xMin, xMax, yMin, yMax, plotRect, anim);
+                    pts.Add(pt);
                 }
 
                 if (series.ShowLine && pts.Count > 1)

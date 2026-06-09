@@ -64,15 +64,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 g.FillPath(shadowBrush, shadowPath);
             }
 
-            // Focus/Open: outer glow ring using FocusBorderColor — matches popup selected pill border
+            // Focus/Open: glow ring drawn at the drawingRect edge
+            // (not inflated outward, not inset inward) so it
+            // straddles the base border line as a soft accent.
             if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
             {
                 Color primaryGlow = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
                 int pillRadius = ScaleX(CornerRadius);
-                var outerRect = Rectangle.Inflate(drawingRect, ScaleX(2), ScaleY(2));
-                using var outerPath = GetRoundedRectPath(outerRect, pillRadius + ScaleX(2));
-                using var glowPen = new Pen(Color.FromArgb(50, primaryGlow), ScaleX(2));
-                g.DrawPath(glowPen, outerPath);
+                using var path = GetRoundedRectPath(drawingRect, pillRadius);
+                using var glowPen = new Pen(Color.FromArgb(50, primaryGlow), ScaleX(3))
+                {
+                    Alignment = PenAlignment.Center
+                };
+                g.DrawPath(glowPen, path);
             }
         }
 

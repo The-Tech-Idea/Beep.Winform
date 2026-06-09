@@ -61,7 +61,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DestroyOnClose = true,  // Auto-dispose when closed (same as Menu)
                 MultiSelect = AllowMultipleSelection,
                 ShowCheckBox = AllowMultipleSelection,
-                ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(ComboBoxType) || ShowSearchInDropdown,
+                // Always show the search box in the dropdown, regardless
+                // of ComboBoxType.  The user expects to be able to type
+                // and filter any list — limiting it to only certain
+                // types was a UX regression.  ShowSearchInDropdown is
+                // kept as a "force display" override but the default
+                // for all types is now true.
+                ShowSearchBox = true,
                 ShowImage = true,
                 ShowSeparators = false,
                 StartPosition = FormStartPosition.Manual,
@@ -100,6 +106,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnDropdownMenuClosed(object sender, BeepContextMenuClosedEventArgs e)
         {
             _isDropdownOpen = false;
+            // Clear the type-ahead buffer so a fresh search starts on
+            // the next keypress after the dropdown closes.
+            _typeAheadBuffer = string.Empty;
             TriggerChevronAnimation(false);
             PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
@@ -794,31 +803,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             return template.Replace("{count}", selectedCount.ToString());
         }
 
+        /// <summary>
+        /// Type-to-search for non-editable combos (DropDownList style).
+        /// Opens the dropdown and selects the best match so the user
+        /// sees matching items immediately.  Once the dropdown is open,
+        /// the BeepContextMenu's own search box handles subsequent
+        /// keystrokes.  This replaces the old silent-selection
+        /// behaviour with the standard Windows ComboBox pattern of
+        /// "open dropdown, scroll to match".
+        /// </summary>
         private void HandleSelectOnlyTypeAhead(char typedChar)
         {
             if (char.IsControl(typedChar) || _listItems == null || _listItems.Count == 0)
-            {
                 return;
-            }
 
-            if (_typeAheadTimer == null)
-            {
-                return;
-            }
-
-            _typeAheadTimer.Stop();
+            // Build the type-ahead buffer (cleared after 1.5s idle
+            // or when the dropdown closes).
             _typeAheadBuffer = (_typeAheadBuffer ?? string.Empty) + typedChar;
-            _typeAheadTimer.Start();
+            _typeAheadTimer?.Stop();
+            _typeAheadTimer?.Start();
 
+            // Open the dropdown if not already open — the
+            // BeepContextMenu's search box receives focus and handles
+            // all subsequent keystrokes directly.
+            if (!_isDropdownOpen)
+            {
+                ShowDropdown();
+            }
+
+            // Also select the best match directly so the dropdown
+            // scroll position lands on the matched item.
             SimpleItem best = null;
             int bestScore = 0;
             foreach (var item in _listItems)
             {
                 if (item == null || string.IsNullOrWhiteSpace(item.Text))
-                {
                     continue;
-                }
-
                 int score = FuzzySearchScore(item.Text, _typeAheadBuffer);
                 if (score > bestScore)
                 {
@@ -829,7 +849,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (best != null)
             {
-                SelectedItem = best;
+                _selectedItem = best;
+                _selectedItemIndex = _listItems.IndexOf(best);
+                Text = best.Text;
             }
         }
 

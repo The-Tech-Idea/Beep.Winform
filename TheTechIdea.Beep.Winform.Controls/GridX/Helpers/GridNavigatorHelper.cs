@@ -664,6 +664,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _bindingSource?.EndEdit();
                 _grid.Edit.EndEdit(true);
+                // Notify hosts BEFORE the database commit so they can
+                // perform last-moment validation.  The event is
+                // informational — cancellable validation should go
+                // through the CellValidating / RowValidating hooks.
+                _grid.OnSaveCalled();
 
                 if (IsUowMode)
                 {

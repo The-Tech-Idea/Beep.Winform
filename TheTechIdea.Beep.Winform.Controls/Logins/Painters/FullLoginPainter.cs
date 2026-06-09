@@ -1,95 +1,76 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Logins.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Logins.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Logins.Painters
 {
     /// <summary>
-    /// Painter for Full login view type
-    /// Logo; Row with Avatar & Title; Subtitle; Username; Password; Row with Login, Forgot, Register
+    /// Full login layout: logo + avatar (centred), title + subtitle,
+    /// full-width inputs, full-width login button, and links
+    /// below (forgot / register centred).
     /// </summary>
     public class FullLoginPainter : BaseLoginPainter
     {
-        public override void Paint(
-            Graphics g,
-            GraphicsPath path,
-            LoginViewType viewType,
-            BeepControlStyle controlStyle,
-            IBeepTheme theme,
-            bool useThemeColors,
-            LoginLayoutMetrics metrics,
-            LoginStyleConfig styleConfig)
-        {
-            if (g == null || path == null) return;
-            BeepStyling.PaintControl(g, path, controlStyle, theme, useThemeColors, ControlState.Normal);
-        }
-
         public override LoginLayoutMetrics CalculateMetrics(
-            Rectangle bounds,
-            LoginViewType viewType,
-            LoginStyleConfig styleConfig)
+            Rectangle bounds, LoginViewType viewType, LoginStyleConfig styleConfig)
         {
-            var padding = new Padding(10);
-            var metrics = InitializeMetrics(bounds, padding);
-            metrics.Margin = LoginLayoutHelpers.GetMargin(viewType);
-            metrics.Spacing = LoginLayoutHelpers.GetSpacing(viewType);
+            var pad = LoginLayoutHelpers.CardPadding;
+            var metrics = InitializeMetrics(bounds, pad);
+            int sp = LoginLayoutHelpers.ElementSpacing;
+            int containerW = metrics.ContainerWidth;
+            int inputW = Math.Max(200, containerW - pad.Horizontal);
+            int y = pad.Top + sp;
 
-            int margin = metrics.Margin;
-            int currentY = metrics.ContainerPadding.Top + margin;
-            int containerWidth = metrics.ContainerWidth;
-
-            // 1) Logo - centered, 60x60
+            // Logo — centred
             var logoSize = LoginIconHelpers.GetIconSize("logo");
-            var logoPos = LoginLayoutHelpers.CenterHorizontally(containerWidth, logoSize.Width, currentY, metrics.ContainerPadding);
-            metrics.SetControlBounds("Logo", new Rectangle(logoPos.X, logoPos.Y, logoSize.Width, logoSize.Height));
-            currentY += logoSize.Height + margin;
+            var logoPt = LoginLayoutHelpers.CenterH(containerW, logoSize.Width, y, pad);
+            metrics.SetControlBounds("Logo", new Rectangle(logoPt.X, logoPt.Y, logoSize.Width, logoSize.Height));
+            y += logoSize.Height + sp;
 
-            // 2) Avatar - centered, 60x60
-            var avatarSize = LoginIconHelpers.GetIconSize("avatar");
-            var avatarPos = LoginLayoutHelpers.CenterHorizontally(containerWidth, avatarSize.Width, currentY, metrics.ContainerPadding);
-            metrics.SetControlBounds("Avatar", new Rectangle(avatarPos.X, avatarPos.Y, avatarSize.Width, avatarSize.Height));
-            currentY += avatarSize.Height + margin;
+            // Avatar — centred
+            var avSize = LoginIconHelpers.GetIconSize("avatar");
+            var avPt = LoginLayoutHelpers.CenterH(containerW, avSize.Width, y, pad);
+            metrics.SetControlBounds("Avatar", new Rectangle(avPt.X, avPt.Y, avSize.Width, avSize.Height));
+            y += avSize.Height + sp + 4;
 
-            // 3) Title - centered, full width
-            var titleSize = new Size(containerWidth - (metrics.ContainerPadding.Left * 2), 40);
-            metrics.SetControlBounds("Title", new Rectangle(metrics.ContainerPadding.Left + margin, currentY, titleSize.Width, titleSize.Height));
-            currentY += titleSize.Height + margin;
+            // Title
+            var titleSz = new Size(inputW, 28);
+            metrics.SetControlBounds("Title", new Rectangle(pad.Left, y, titleSz.Width, titleSz.Height));
+            y += titleSz.Height + sp;
 
-            // 4) Subtitle - centered, full width
-            var subtitleSize = new Size(containerWidth - (metrics.ContainerPadding.Left * 2), 40);
-            metrics.SetControlBounds("Subtitle", new Rectangle(metrics.ContainerPadding.Left + margin, currentY, subtitleSize.Width, subtitleSize.Height));
-            currentY += subtitleSize.Height + margin;
+            // Subtitle
+            var subSz = new Size(inputW, 32);
+            metrics.SetControlBounds("Subtitle", new Rectangle(pad.Left, y, subSz.Width, subSz.Height));
+            y += subSz.Height + sp + 4;
 
-            // 5) Username - centered, 300x30
-            var usernameSize = new Size(300, 30);
-            var usernamePos = LoginLayoutHelpers.CenterHorizontally(containerWidth, usernameSize.Width, currentY, metrics.ContainerPadding);
-            metrics.SetControlBounds("Username", new Rectangle(usernamePos.X, usernamePos.Y, usernameSize.Width, usernameSize.Height));
-            currentY += usernameSize.Height + margin;
+            // Username — full width
+            var unameSz = LoginLayoutHelpers.GetControlSize("username", containerW, pad.Horizontal / 2);
+            var unamePt = LoginLayoutHelpers.CenterH(containerW, unameSz.Width, y, pad);
+            metrics.SetControlBounds("Username", new Rectangle(unamePt.X, unamePt.Y, unameSz.Width, unameSz.Height));
+            y += unameSz.Height + sp;
 
-            // 6) Password - centered, 300x30
-            var passwordSize = new Size(300, 30);
-            var passwordPos = LoginLayoutHelpers.CenterHorizontally(containerWidth, passwordSize.Width, currentY, metrics.ContainerPadding);
-            metrics.SetControlBounds("Password", new Rectangle(passwordPos.X, passwordPos.Y, passwordSize.Width, passwordSize.Height));
-            currentY += passwordSize.Height + margin;
+            // Password — full width
+            var pwSz = LoginLayoutHelpers.GetControlSize("password", containerW, pad.Horizontal / 2);
+            var pwPt = LoginLayoutHelpers.CenterH(containerW, pwSz.Width, y, pad);
+            metrics.SetControlBounds("Password", new Rectangle(pwPt.X, pwPt.Y, pwSz.Width, pwSz.Height));
+            y += pwSz.Height + LoginLayoutHelpers.ButtonTopMargin;
 
-            // 7) Login, Forgot, Register - side by side, centered
-            var loginSize = new Size(100, 30);
-            var linkSize = new Size(100, 20);
-            int totalRowWidth = loginSize.Width + linkSize.Width + linkSize.Width + 20;
-            int startX = metrics.ContainerPadding.Left + (containerWidth - totalRowWidth) / 2;
-            
-            metrics.SetControlBounds("LoginButton", new Rectangle(startX, currentY, loginSize.Width, loginSize.Height));
-            metrics.SetControlBounds("ForgotPassword", new Rectangle(startX + loginSize.Width + 10, currentY + (loginSize.Height - linkSize.Height) / 2, linkSize.Width, linkSize.Height));
-            metrics.SetControlBounds("RegisterLink", new Rectangle(startX + loginSize.Width + linkSize.Width + 20, currentY + (loginSize.Height - linkSize.Height) / 2, linkSize.Width, linkSize.Height));
+            // Login button — full width
+            var loginSz = LoginLayoutHelpers.GetControlSize("loginbutton", containerW, pad.Horizontal / 2);
+            var loginPt = LoginLayoutHelpers.CenterH(containerW, loginSz.Width, y, pad);
+            metrics.SetControlBounds("LoginButton", new Rectangle(loginPt.X, loginPt.Y, loginSz.Width, loginSz.Height));
+            y += loginSz.Height + sp;
+
+            // Forgot password + Register links side-by-side, centred
+            var linkW = inputW / 2;
+            var linkH = 20;
+            int linkY = y;
+            metrics.SetControlBounds("ForgotPassword", new Rectangle(pad.Left, linkY, linkW, linkH));
+            metrics.SetControlBounds("RegisterLink", new Rectangle(pad.Left + linkW, linkY, linkW, linkH));
 
             return metrics;
         }
     }
 }
-

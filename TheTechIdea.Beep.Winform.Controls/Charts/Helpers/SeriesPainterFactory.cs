@@ -8,11 +8,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         {
             return type switch
             {
-                ChartType.Bar => new BarSeriesPainter(),
-                ChartType.Pie => new PieSeriesPainter(),
-                ChartType.Bubble => new BubbleSeriesPainter(),
-                ChartType.Area => new AreaSeriesPainter(),
-                _ => new LineSeriesPainter()
+                ChartType.Bar      => new BarSeriesPainter(),
+                ChartType.Pie      => new PieSeriesPainter(),
+                ChartType.Doughnut => new PieSeriesPainter(),  // same painter, hole via options
+                ChartType.Bubble   => new BubbleSeriesPainter(),
+                ChartType.Area     => new AreaSeriesPainter(),
+                ChartType.Scatter  => new ScatterSeriesPainter(),
+                _                  => new LineSeriesPainter()
             };
         }
 

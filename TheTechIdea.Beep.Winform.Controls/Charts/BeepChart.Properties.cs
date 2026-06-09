@@ -105,7 +105,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<ChartDataSeries> DataSeries
         {
-            get => _dataSeries;
+            // Return a defensive copy so callers cannot mutate the
+            // backing list and bypass the RefreshDataState setter.
+            get => new List<ChartDataSeries>(_dataSeries);
             set
             {
                 _dataSeries = value ?? new List<ChartDataSeries>();
@@ -389,6 +391,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         {
             get => _seriesOptions.Mode;
             set { _seriesOptions.Mode = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Show value labels on data points (bars, lines, pies).")]
+        [DefaultValue(false)]
+        public bool ShowDataLabels
+        {
+            get => _seriesOptions.ShowDataLabels;
+            set { _seriesOptions.ShowDataLabels = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Show a linear-regression trend line on line/area charts.")]
+        [DefaultValue(false)]
+        public bool ShowTrendLine
+        {
+            get => _seriesOptions.ShowTrendLine;
+            set { _seriesOptions.ShowTrendLine = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Center-hole radius ratio for Doughnut charts (0 = Pie, 0.4 = classic doughnut).")]
+        [DefaultValue(0.4f)]
+        public float DoughnutHoleRatio
+        {
+            get => _seriesOptions.DoughnutHoleRatio;
+            set { _seriesOptions.DoughnutHoleRatio = Math.Clamp(value, 0f, 0.8f); Invalidate(); }
         }
         #endregion
 

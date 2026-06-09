@@ -191,15 +191,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _comboBoxType = value;
                 _comboBoxPainter = null; // Force painter recreation
 
+                // Multi-chip types imply multi-select.  Go through the
+                // property setter so BeepContextMenu.MultiSelect and
+                // ShowCheckBox are correctly synchronised.  Previously
+                // this wrote the backing field directly, leaving the
+                // context menu out of sync (B2).
                 if (_comboBoxType == ComboBoxType.MultiChipCompact || _comboBoxType == ComboBoxType.MultiChipSearch)
                 {
-                    _allowMultipleSelection = true;
+                    AllowMultipleSelection = true;
                 }
-                if (ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType))
-                {
-                    _showSearchInDropdown = true;
-                }
-                
+                // Search is now shown by default for all types; the
+                // ShowSearchInDropdown property already defaults to true
+                // and the ShowDropdown method always sets ShowSearchBox
+                // to true.  The old auto-set via _showSearchInDropdown
+                // was redundant and bypassed the property setter. 
                 // Force re-application of painter defaults for new type
                 _layoutDefaultsInitialized = false;
                 ApplyLayoutDefaultsFromPainter(force: true);
@@ -208,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Update dropdown properties
                 if (BeepContextMenu != null)
                 {
-                    BeepContextMenu.ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType) || ShowSearchInDropdown;
+                    BeepContextMenu.ShowSearchBox = ShowSearchInDropdown;
                 }
             }
         }
@@ -327,10 +332,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsEditable { get; set; } = false;
 
         [Browsable(true)]
+        /// <summary>
+        /// Show a search box in the dropdown.  The search box is shown
+        /// by default for all list types because it is the primary
+        /// keyboard-accessibility path: the user types to filter the
+        /// list, mimicking standard Windows ComboBox type-ahead
+        /// behaviour.  Set <c>false</c> only for very short lists
+        /// (≤ 5 items) where filtering is unnecessary.
+        /// </summary>
         [Category("Behavior")]
-        [Description("Show a search box in the dropdown (useful for long lists).")]
-        [DefaultValue(false)]
-        private bool _showSearchInDropdown = false;
+        [Description("Show a search box in the dropdown (default true for all types).")]
+        [DefaultValue(true)]
+        private bool _showSearchInDropdown = true;
         public bool ShowSearchInDropdown
         {
             get => _showSearchInDropdown;
@@ -339,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _showSearchInDropdown = value;
                 if (BeepContextMenu != null)
                 {
-                    BeepContextMenu.ShowSearchBox = ComboBoxVisualTokenCatalog.SupportsSearch(_comboBoxType) || _showSearchInDropdown;
+                    BeepContextMenu.ShowSearchBox = value;
                 }
                 Invalidate();
             }
@@ -473,7 +486,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(false)]
         public System.Collections.Generic.List<SimpleItem> SelectedItems
         {
-            get => _selectedItems;
+            // Return a defensive copy so callers cannot mutate the
+            // backing list and bypass the setter's animation/sync
+            // logic (B3).  The setter still accepts a List<SimpleItem>
+            // via the property.
+            get => new System.Collections.Generic.List<SimpleItem>(_selectedItems);
             set
             {
                 var newList = value ?? new System.Collections.Generic.List<SimpleItem>();

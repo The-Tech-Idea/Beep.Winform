@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -8,6 +9,12 @@ using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
+    /// <summary>
+    /// Draws Pie and Doughnut charts.  The <see cref="ChartType.Doughnut"/>
+    /// variant uses the same painter with an inner ellipse cutout
+    /// (hole ratio controlled by
+    /// <see cref="SeriesRenderOptions.DoughnutHoleRatio"/>).
+    /// </summary>
     internal sealed class PieSeriesPainter : IChartSeriesPainter
     {
         private BaseControl _owner;
@@ -32,6 +39,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 pieDiameter,
                 pieDiameter);
 
+            // Doughnut hole: carve out the centre using a clip region.
+            // FillPie draws full slices; the clip omits the inner disc.
+            float holeRatio = options?.DoughnutHoleRatio ?? 0f;
+            var isDoughnut = holeRatio > 0f;
+            Region originalClip = null;
+            if (isDoughnut)
+            {
+                originalClip = g.Clip;
+                float cx = pieRect.Left + pieRect.Width / 2f;
+                float cy = pieRect.Top + pieRect.Height / 2f;
+                float holeRadius = pieRect.Width / 2f * holeRatio;
+                var outerPath = new GraphicsPath();
+                outerPath.AddEllipse(pieRect);
+                var region = new Region(outerPath);
+                var innerPath = new GraphicsPath();
+                innerPath.AddEllipse(cx - holeRadius, cy - holeRadius, holeRadius * 2, holeRadius * 2);
+                region.Exclude(innerPath);
+                g.SetClip(region, CombineMode.Intersect);
+                outerPath.Dispose();
+                innerPath.Dispose();
+            }
+
             float startAngle = 0f;
             int colorIndex = 0;
             foreach (var p in series.Points)
@@ -46,6 +75,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 g.DrawPie(pen, pieRect, startAngle, sweepAngle);
                 startAngle += sweepAngle;
                 colorIndex++;
+            }
+
+            // Restore the clip so legend/other elements render outside the doughnut
+            if (isDoughnut) { g.Clip = originalClip; }
+
+            // Data labels in the centre of each slice
+            if (options?.ShowDataLabels == true && series.ShowLabel)
+            {
+                DrawSliceLabels(g, series, pieRect, totalValue, textColor);
+            }
+        }
+
+        private static void DrawSliceLabels(Graphics g, ChartDataSeries series,
+            Rectangle pieRect, float totalValue, Color textColor)
+        {
+            using var labelFont = new Font(SystemFonts.DefaultFont.FontFamily, 8f);
+            using var labelBrush = new SolidBrush(textColor);
+
+            float cx = pieRect.Left + pieRect.Width / 2f;
+            float cy = pieRect.Top + pieRect.Height / 2f;
+            float labelRadius = Math.Min(pieRect.Width, pieRect.Height) * 0.35f;
+            float startAngle = 0f;
+
+            foreach (var p in series.Points)
+            {
+                if (p.Value <= 0) { startAngle += 0; continue; }
+                float sweepAngle = p.Value / totalValue * 360f;
+                float midAngle = startAngle + sweepAngle / 2f;
+                float rad = (float)(midAngle * Math.PI / 180d);
+                float lx = cx + (float)Math.Cos(rad) * labelRadius;
+                float ly = cy + (float)Math.Sin(rad) * labelRadius;
+
+                string label = !string.IsNullOrEmpty(p.Label)
+                    ? p.Label
+                    : $"{p.Value / totalValue * 100f:F0}%";
+                var sz = TextRenderer.MeasureText(g, label, labelFont);
+                TextRenderer.DrawText(g, label, labelFont,
+                    new Point((int)(lx - sz.Width / 2f), (int)(ly - sz.Height / 2f)), textColor);
+
+                startAngle += sweepAngle;
             }
         }
 
@@ -93,3 +162,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         }
     }
 }
+

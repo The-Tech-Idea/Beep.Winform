@@ -19,40 +19,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             List<Color> palette, Color axisColor, Color textColor,
             SeriesRenderOptions options)
         {
-            float maxBubbleSize = 50f;
-            float minBubbleSize = 5f;
-            float maxValue = data.SelectMany(s => s.Points).DefaultIfEmpty(new ChartDataPoint { Value = 1 }).Max(p => p.Value);
+            const float maxBubbleSize = 50f;
+            const float minBubbleSize = 5f;
+            float maxValue = data.SelectMany(s => s.Points)
+                .DefaultIfEmpty(new ChartDataPoint { Value = 1 })
+                .Max(p => p.Value);
             float anim = Math.Clamp(options?.AnimationProgress ?? 1f, 0f, 1f);
 
             int sIndex = 0;
             foreach (var series in data)
             {
-                if (!series.Visible) continue;
-                Color color = series.Color != Color.Empty ? series.Color : palette[sIndex % palette.Count];
+                if (!series.Visible) { sIndex++; continue; }
+                Color color = CartesianPlotHelper.GetSeriesColor(series, sIndex, palette);
 
                 foreach (var p in series.Points)
                 {
                     float xv = toX(p) is float xf ? xf : 0f;
                     float yv = toY(p) is float yf ? yf : 0f;
-                    yv = yMin + (yv - yMin) * anim;
-                    float xRange = xMax - xMin;
-                    float yRange = yMax - yMin;
-                    float sx = xRange > 0
-                        ? plotRect.Left + (xv - xMin) / xRange * plotRect.Width
-                        : plotRect.Left + plotRect.Width * 0.5f;
-                    float sy = yRange > 0
-                        ? plotRect.Bottom - (yv - yMin) / yRange * plotRect.Height
-                        : plotRect.Top + plotRect.Height * 0.5f;
-                    sx = Math.Clamp(sx, -1e6f, 1e6f);
-                    sy = Math.Clamp(sy, -1e6f, 1e6f);
+                    var pt = CartesianPlotHelper.ToScreenAnimated(
+                        xv, yv, xMin, xMax, yMin, yMax, plotRect, anim);
 
                     float bubbleSize = maxValue > 0 ? p.Value / maxValue * maxBubbleSize : minBubbleSize;
                     bubbleSize = Math.Max(bubbleSize * anim, minBubbleSize);
 
                     var brush = PaintersFactory.GetSolidBrush(Color.FromArgb(150, color));
                     var pen = PaintersFactory.GetPen(axisColor, 1);
-                    g.FillEllipse(brush, sx - bubbleSize / 2, sy - bubbleSize / 2, bubbleSize, bubbleSize);
-                    g.DrawEllipse(pen, sx - bubbleSize / 2, sy - bubbleSize / 2, bubbleSize, bubbleSize);
+                    g.FillEllipse(brush, pt.X - bubbleSize / 2, pt.Y - bubbleSize / 2, bubbleSize, bubbleSize);
+                    g.DrawEllipse(pen, pt.X - bubbleSize / 2, pt.Y - bubbleSize / 2, bubbleSize, bubbleSize);
                 }
                 sIndex++;
             }

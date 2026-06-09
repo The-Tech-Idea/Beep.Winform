@@ -1,21 +1,119 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
 {
     internal sealed class CartesianAxisPainter : IChartAxisPainter
     {
+        private const int MinAxisMarginLogical = 36;
+
         public AxisLayout AdjustPlotRect(Graphics g, AxisLayout ctx)
         {
-            int left = ctx.Bounds.Left +48;
-            int right = ctx.Bounds.Right -48;
-            int top = ctx.Bounds.Top +48;
-            int bottom = ctx.Bounds.Bottom -48;
+            var font = ctx.LabelFont ?? SystemFonts.DefaultFont;
+            float dpi = ctx.DpiScale > 0f ? ctx.DpiScale : 1f;
+            int S(int px) => DpiScalingHelper.ScaleValue(px, dpi);
+
+            // Measure actual Y-axis label widths
+            int leftPad = S(MinAxisMarginLogical);
+            if (ctx.LeftAxisType == AxisType.Numeric && ctx.YMax != ctx.YMin)
+            {
+                int maxW = 0;
+                foreach (var v in new[] { ctx.YMin, ctx.YMax, (ctx.YMin + ctx.YMax) / 2f,
+                                          ctx.YMin + (ctx.YMax - ctx.YMin) * 0.25f,
+                                          ctx.YMin + (ctx.YMax - ctx.YMin) * 0.75f })
+                {
+                    var sz = TextRenderer.MeasureText(g, FormatAxisValue(v), font,
+                        System.Drawing.Size.Empty, TextFormatFlags.NoPadding);
+                    if (sz.Width > maxW) maxW = sz.Width;
+                }
+                leftPad = Math.Max(S(MinAxisMarginLogical), maxW + S(16));
+            }
+            else if (ctx.LeftAxisType == AxisType.Text && ctx.YCategories?.Count > 0)
+            {
+                int maxW = ctx.YCategories.Keys.Max(k =>
+                    TextRenderer.MeasureText(g, k, font, System.Drawing.Size.Empty,
+                        TextFormatFlags.NoPadding).Width);
+                leftPad = Math.Max(S(MinAxisMarginLogical), maxW + S(16));
+            }
+
+            if (!string.IsNullOrEmpty(ctx.YTitle))
+                leftPad += S(18);
+
+            // Measure X-axis label height, accounting for rotation
+            int bottomPad = S(MinAxisMarginLogical);
+            float angle = ctx.XLabelAngle;
+            float angleRad = angle * MathF.PI / 180f;
+            int labelFontHeight = font.Height;
+            int maxLabelW = 0;
+            if (ctx.BottomAxisType == AxisType.Numeric && ctx.XMax != ctx.XMin)
+            {
+                foreach (var v in new[] { ctx.XMin, ctx.XMax, (ctx.XMin + ctx.XMax) / 2f })
+                {
+                    var sz = TextRenderer.MeasureText(g, FormatAxisValue(v), font,
+                        System.Drawing.Size.Empty, TextFormatFlags.NoPadding);
+                    if (sz.Width > maxLabelW) maxLabelW = sz.Width;
+                }
+            }
+            else if (ctx.BottomAxisType == AxisType.Text && ctx.XCategories?.Count > 0)
+            {
+                maxLabelW = ctx.XCategories.Keys.Max(k =>
+                    TextRenderer.MeasureText(g, k, font, System.Drawing.Size.Empty,
+                        TextFormatFlags.NoPadding).Width);
+            }
+
+            float absSin = Math.Abs(MathF.Sin(angleRad));
+            float absCos = Math.Abs(MathF.Cos(angleRad));
+            int labelH = (int)(maxLabelW * absSin + labelFontHeight * absCos);
+            if (labelH < labelFontHeight) labelH = labelFontHeight;
+            bottomPad = Math.Max(S(MinAxisMarginLogical), labelH + S(14));
+
+            if (!string.IsNullOrEmpty(ctx.XTitle))
+                bottomPad += S(20);
+
+            // Right-side legend space — measured from actual names
+            int rightPad = S(16);
+            if (ctx.ShowLegend && ctx.LegendPlacement == LegendPlacement.Right && ctx.LegendItemCount > 0)
+            {
+                int maxTextW = S(40);
+                if (ctx.XCategories != null && ctx.XCategories.Count > 0)
+                {
+                    foreach (var k in ctx.XCategories.Keys)
+                    {
+                        var sz = TextRenderer.MeasureText(g, k, font,
+                            System.Drawing.Size.Empty, TextFormatFlags.NoPadding);
+                        if (sz.Width > maxTextW) maxTextW = sz.Width;
+                    }
+                }
+                rightPad = maxTextW + S(15 + 6 + 16); // swatch + gap + padding
+            }
+
+            int left   = ctx.Bounds.Left   + leftPad;
+            int right  = ctx.Bounds.Right  - rightPad;
+            int top    = ctx.Bounds.Top    + S(12);
+            int bottom = ctx.Bounds.Bottom - bottomPad;
             ctx.PlotRect = Rectangle.FromLTRB(left, top, right, bottom);
             return ctx;
+        }
+
+        /// <summary>
+        /// Formats a float value for display on an axis, keeping
+        /// the string short (max 8 chars) so labels don't
+        /// dominate the margin measurement.
+        /// </summary>
+        private static string FormatAxisValue(float v)
+        {
+            if (Math.Abs(v) >= 1e6f || (Math.Abs(v) > 0 && Math.Abs(v) < 1e-4f))
+                return v.ToString("0.##e0");
+            if (Math.Abs(v) >= 1000f)
+                return v.ToString("#,##0");
+            if (v == MathF.Floor(v))
+                return v.ToString("F0");
+            return v.ToString("F2");
         }
 
         public void DrawAxes(Graphics g, AxisLayout ctx)

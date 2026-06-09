@@ -32,8 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// True when an in-place editor is currently active for a cell.  Used
         /// by the toolbar (Edit button) and keyboard navigation to avoid
         /// re-entering edit mode on top of an already-active editor.
+        /// Safe to call from any thread; checks the control's disposal state
+        /// before reading its properties.
         /// </summary>
-        public bool IsEditing => _editorControl != null && !_editorControl.IsDisposed;
+        public bool IsEditing => _editorControl != null
+            && !_editorControl.IsDisposed
+            && !_grid.IsDisposed;
 
         public void BeginEdit()
         {

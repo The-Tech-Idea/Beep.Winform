@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
@@ -6,11 +7,51 @@ using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using ControlsHelpers = TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
     public partial class BeepChart
     {
+        // Standard 8-colour palette used as a fallback when
+        // ChartDefaultSeriesColors is null or empty — prevents
+        // DivideByZeroException in series painters that do
+        // palette[i % palette.Count].
+        internal static readonly List<Color> s_defaultSeriesPalette = new()
+        {
+            Color.FromArgb(0, 120, 215),  // Blue
+            Color.FromArgb(220, 80, 80),  // Red
+            Color.FromArgb(80, 180, 80),  // Green
+            Color.FromArgb(255, 185, 0),  // Amber
+            Color.FromArgb(140, 80, 200), // Purple
+            Color.FromArgb(0, 180, 200),  // Cyan
+            Color.FromArgb(240, 140, 60), // Orange
+            Color.FromArgb(100, 120, 160),// Slate
+        };
+
+        // Per-paint cache for string→float conversion steps.
+        // Avoids parsing the same X/Y strings every time a point
+        // is visited (labels + position = 2 parses per point minimum).
+        // Cleared at the start of each Paint() call.
+        private readonly Dictionary<ChartDataPoint, (float x, float y)> _convertCache = new();
+
+        private float ConvertXCached(ChartDataPoint p)
+        {
+            if (_convertCache.TryGetValue(p, out var v)) return v.x;
+            float x = BeepChartDataHelper.ConvertXValue(this, p) is float xf ? xf : 0f;
+            _convertCache[p] = (x, 0);
+            return x;
+        }
+
+        private float ConvertYCached(ChartDataPoint p)
+        {
+            if (_convertCache.TryGetValue(p, out var v)) { _convertCache[p] = (v.x, v.y); return v.y; }
+            float y = BeepChartDataHelper.ConvertYValue(this, p) is float yf ? yf : 0f;
+            float x = BeepChartDataHelper.ConvertXValue(this, p) is float xf ? xf : 0f;
+            _convertCache[p] = (x, y);
+            return y;
+        }
+
         /// <summary>
         /// DrawContent override - called by BaseControl
         /// </summary>
@@ -35,6 +76,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         private void Paint(Graphics g, Rectangle bounds)
         {
             UpdateDrawingRect();
+            // Clear the per-paint conversion cache so stale parses
+            // from a previous paint cycle don't survive.  Each
+            // point is parsed at most once per paint even when
+            // visited by multiple draw passes (series + labels).
+            _convertCache.Clear();
             
             // Use passed-in bounds when DrawingRect is not yet calculated
             var effectiveRect = (DrawingRect.Width > 0 && DrawingRect.Height > 0)
@@ -44,8 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (effectiveRect.Width <= 0 || effectiveRect.Height <= 0)
                 return;
 
-            // Rebuild chart-owned hit areas from the current layout each frame.
-            ClearHitList();
+            // Build chart-owned hit areas later in RegisterInteractiveAreas.
+            // Do NOT call ClearHitList() here — the hit-area skip optimisation
+            // (RegisterInteractiveAreas) may decide to keep the previous
+            // frame's hit areas.  Clearing now would wipe them before the
+            // skip check runs, breaking tooltips/clicks on static charts.
 
             // Create layout context
             var ctx = new ChartLayout
@@ -99,11 +148,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
             _chartDrawingRect = axisCtx.PlotRect;
 
+            // Enforce a minimum size derived from the actual margins
+            // so the legend, axis labels, and plot never clip.
+            float dpi = DeviceDpi / 96f;
+            int minW = (axisCtx.PlotRect.Left - axisCtx.Bounds.Left)
+                     + (axisCtx.Bounds.Right - axisCtx.PlotRect.Right)
+                     + ControlsHelpers.DpiScalingHelper.ScaleValue(80, dpi);
+            int minH = (axisCtx.PlotRect.Top - axisCtx.Bounds.Top)
+                     + (axisCtx.Bounds.Bottom - axisCtx.PlotRect.Bottom)
+                     + ControlsHelpers.DpiScalingHelper.ScaleValue(40, dpi);
+            if (MinimumSize.Width < minW || MinimumSize.Height < minH)
+                MinimumSize = new System.Drawing.Size(minW, minH);
+
             // Draw series based on chart type
             DrawSeriesByType(g, axisCtx);
 
             // Draw foreground elements
             RegisterInteractiveAreas(axisCtx);
+
+            // Draw legend AFTER the hit-list clear so legend hit
+            // areas survive.  Previously the legend was drawn inside
+            // DrawSeriesByType (before ClearHitList), and every
+            // paint wiped its hit rects.
+            if (ShowLegend)
+            {
+                var legendPalette = ChartDefaultSeriesColors;
+                if (legendPalette == null || legendPalette.Count == 0)
+                    legendPalette = s_defaultSeriesPalette;
+                _legendPainter.DrawLegend(g, axisCtx.PlotRect, _dataSeries, legendPalette,
+                    PaintersFactory.GetFont(ChartValueFont), ChartLegendTextColor, ChartLegendBackColor,
+                    ChartLegendShapeColor, this, ToggleSeriesByIndex, OnInteractiveAreaHit, LegendPlacement);
+            }
+
             _chartpainter?.DrawForeground(g, ctx);
 
             // Draw trackball crosshair and tooltip if enabled
@@ -185,7 +261,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 XTimeGranularity = XTimeGranularity,
                 YTimeGranularity = YTimeGranularity,
                 XLabelInterval = labelIntervals.XLabelInterval,
-                YLabelInterval = labelIntervals.YLabelInterval
+                YLabelInterval = labelIntervals.YLabelInterval,
+                LegendPlacement = LegendPlacement,
+                LegendItemCount = _dataSeries?.Count ?? 0,
+                DpiScale = DeviceDpi / 96f,
             };
         }
 
@@ -195,12 +274,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             _seriesPainter = SeriesPainterFactory.GetPainter(ChartType);
             _seriesPainter.Initialize(this);
 
+            // Guard against empty palette — each painter does
+            // palette[i % palette.Count] which throws
+            // DivideByZeroException when Count == 0.
+            // Fall back to a standard 8-colour palette.
+            var palette = ChartDefaultSeriesColors;
+            if (palette == null || palette.Count == 0)
+                palette = s_defaultSeriesPalette;
+
+            // Performance: when vertex simplification is active and the
+            // dataset is large, swap in the RDP-simplified points so the
+            // painter draws ~50 points instead of 100k.  This single
+            // replacement eliminates the per-paint string-parse loop
+            // for 99% of the invisible points.
+            List<ChartDataSeries> renderData = _dataSeries;
+            if (EnableVertexSimplification && IsLargeDataset())
+            {
+                renderData = new List<ChartDataSeries>(_dataSeries.Count);
+                foreach (var s in _dataSeries)
+                {
+                    var copy = new ChartDataSeries
+                    {
+                        Name = s.Name, Color = s.Color, Visible = s.Visible,
+                        ShowLabel = s.ShowLabel, ShowLine = s.ShowLine,
+                        ShowPoint = s.ShowPoint,
+                        Points = GetOptimizedPointsForSeries(_dataSeries.IndexOf(s))
+                    };
+                    renderData.Add(copy);
+                }
+            }
+
             // Draw the series
-            _seriesPainter.DrawSeries(g, axisCtx.PlotRect, _dataSeries, 
-                p => BeepChartDataHelper.ConvertXValue(this, p), 
-                p => BeepChartDataHelper.ConvertYValue(this, p), 
-                ViewportXMin, ViewportXMax, ViewportYMin, ViewportYMax, 
-                ChartDefaultSeriesColors, ChartAxisColor, ChartTextColor, _seriesOptions);
+            // Clip to the plot rect so series lines/bars cannot bleed
+            // into the axis labels or title area when zoomed/panned.
+            var oldClip = g.Clip;
+            g.SetClip(axisCtx.PlotRect, CombineMode.Intersect);
+            try
+            {
+                _seriesPainter.DrawSeries(g, axisCtx.PlotRect, renderData, 
+                    p => ConvertXCached(p), 
+                    p => ConvertYCached(p), 
+                    ViewportXMin, ViewportXMax, ViewportYMin, ViewportYMax, 
+                    palette, ChartAxisColor, ChartTextColor, _seriesOptions);
+            }
+            finally
+            {
+                g.Clip = oldClip;
+            }
 
             // Draw selection highlights
             if (EnablePointSelection && HasSelection)
@@ -220,22 +340,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 DrawSeriesFillPatterns(g, axisCtx.PlotRect);
             }
 
+            // Draw trend line (linear regression) for Line/Area/Scatter charts
+            if (_seriesOptions.ShowTrendLine && _dataSeries.Count > 0)
+            {
+                DrawTrendLine(g, axisCtx.PlotRect);
+            }
+
             if (CustomDraw)
             {
                 CustomDrawSeries?.Invoke(this, new CustomDrawSeriesEventArgs(g, axisCtx.PlotRect, _dataSeries));
             }
-
-            // Draw legend if enabled
-            if (ShowLegend)
-            {
-                _legendPainter.DrawLegend(g, axisCtx.PlotRect, _dataSeries, ChartDefaultSeriesColors, 
-                    PaintersFactory.GetFont(ChartValueFont), ChartLegendTextColor, ChartLegendBackColor, 
-                    ChartLegendShapeColor, this, ToggleSeriesByIndex, OnInteractiveAreaHit, LegendPlacement);
-            }
+            // Legend is drawn AFTER DrawSeriesByType returns, in Paint().
         }
+
+        // Hit-area rebuild skip: re-adding thousands of hit rects
+        // per paint is O(n) per frame.  When the data count and
+        // viewport haven't changed, the hit areas are still correct,
+        // so we skip the rebuild.
+        private int _lastHitDataCount;
+        private (float xMin, float xMax, float yMin, float yMax) _lastHitViewport;
+        // Set to true when DataSeries or viewport changes — forces a
+        // full hit-area rebuild even when point count and viewport
+        // ranges haven't changed (e.g. values changed in-place).
+        internal bool _isDataDirty = true;
 
         private void RegisterInteractiveAreas(AxisLayout axisCtx)
         {
+            // Quick skip: if the data size and viewport are unchanged,
+            // the hit areas from the previous frame are still valid.
+            int totalPoints = 0;
+            foreach (var s in _dataSeries)
+                totalPoints += s.Points?.Count ?? 0;
+            var vp = (ViewportXMin, ViewportXMax, ViewportYMin, ViewportYMax);
+            if (!_isDataDirty && totalPoints == _lastHitDataCount && vp == _lastHitViewport)
+                return;
+            _isDataDirty = false;
+            _lastHitDataCount = totalPoints;
+            _lastHitDataCount = totalPoints;
+            _lastHitViewport = vp;
+            // Only clear when we're about to rebuild — never before
+            // the skip check (the old frame's hit areas must survive
+            // when data/viewport haven't changed).
+            ClearHitList();
             _axisPainter?.UpdateHitAreas(this, axisCtx, OnInteractiveAreaHit);
             _seriesPainter?.UpdateHitAreas(this, axisCtx.PlotRect, _dataSeries, GetScreenPoint, OnInteractiveAreaHit);
         }
@@ -322,25 +468,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             {
                 var parts = areaName.Split('_');
                 if (parts.Length > 0)
-                {
                     areaType = parts[0];
-                }
 
-                if (parts.Length >= 2 && int.TryParse(parts[1], out int parsedFirstIndex))
+                // Area naming: "Type_seriesIdx_pointIdx" for 3-part
+                // names (e.g. "Point_0_5"), "Type_index" for 2-part
+                // names (e.g. "Legend_2").  The old code parsed
+                // parts[1] as pointIndex first, then overrode both
+                // from parts[1..2] — the override made triples work
+                // by accident but left pairs incorrectly interpreted.
+                if (parts.Length >= 3
+                    && int.TryParse(parts[1], out int si)
+                    && int.TryParse(parts[2], out int pi))
                 {
-                    pointIndex = parsedFirstIndex;
+                    seriesIndex = si;
+                    pointIndex = pi;
                 }
-
-                if (parts.Length >= 3 && int.TryParse(parts[1], out int parsedSeriesIndex) && int.TryParse(parts[2], out int parsedPointIndex))
+                else if (parts.Length >= 2
+                         && int.TryParse(parts[1], out int idx))
                 {
-                    seriesIndex = parsedSeriesIndex;
-                    pointIndex = parsedPointIndex;
-                }
-
-                if (string.Equals(areaType, "LegendItem", StringComparison.OrdinalIgnoreCase) &&
-                    parts.Length >= 2 && int.TryParse(parts[1], out int parsedLegendIndex))
-                {
-                    legendItemIndex = parsedLegendIndex;
+                    if (areaType == "Point")            pointIndex = idx;
+                    else if (areaType == "Series")       seriesIndex = idx;
+                    else if (areaType == "LegendItem")   legendItemIndex = idx;
+                    else                                 seriesIndex = idx;
                 }
             }
 
@@ -377,12 +526,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         private PointF GetScreenPoint(ChartDataPoint point)
         {
             if (point == null || ChartDrawingRect.Width <= 0 || ChartDrawingRect.Height <= 0)
-            {
                 return PointF.Empty;
-            }
 
-            float x = BeepChartDataHelper.ConvertXValue(this, point) is float xValue ? xValue : 0f;
-            float y = BeepChartDataHelper.ConvertYValue(this, point) is float yValue ? yValue : 0f;
+            float x = ConvertXCached(point);
+            float y = ConvertYCached(point);
 
             float xRange = ViewportXMax - ViewportXMin;
             float yRange = ViewportYMax - ViewportYMin;
@@ -570,10 +717,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (_trackballCrosshairX < plotRect.Left || _trackballCrosshairX > plotRect.Right)
                 return;
 
-            var crosshairPen = new Pen(TrackballCrosshairColor, TrackballCrosshairWidth);
-            // Vertical line across plot area
+            var crosshairPen = PaintersFactory.GetPen(TrackballCrosshairColor, TrackballCrosshairWidth);
             g.DrawLine(crosshairPen, _trackballCrosshairX, plotRect.Top, _trackballCrosshairX, plotRect.Bottom);
-            crosshairPen.Dispose();
         }
 
         private void DrawTrackballTooltip(Graphics g, Rectangle plotRect)
@@ -608,9 +753,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             tooltipX = Math.Max(tooltipX, plotRect.Left + 5);
             int tooltipY = plotRect.Top + 10;
 
-            // Draw background
-            var backBrush = new SolidBrush(TrackballTooltipBackColor);
-            var borderPen = new Pen(TrackballTooltipBorderColor, 1f);
+            // Use factory-cached brushes/pens (no per-paint GDI allocation)
+            var backBrush = PaintersFactory.GetSolidBrush(TrackballTooltipBackColor);
+            var borderPen = PaintersFactory.GetPen(TrackballTooltipBorderColor, 1f);
             g.FillRectangle(backBrush, tooltipX, tooltipY, tooltipWidth, tooltipHeight);
             g.DrawRectangle(borderPen, tooltipX, tooltipY, tooltipWidth - 1, tooltipHeight - 1);
 
@@ -624,9 +769,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 var lineHeight = g.MeasureString(line, font).Height;
                 currentY += lineHeight + 2;
             }
-
-            backBrush.Dispose();
-            borderPen.Dispose();
         }
 
         private void DrawSelectionHighlights(Graphics g, Rectangle plotRect)
@@ -640,8 +782,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             if (xRange <= 0 || yRange <= 0 || plotRect.Width <= 0 || plotRect.Height <= 0)
                 return;
 
-            var selectionBrush = new SolidBrush(SelectionColor);
-            var selectionPen = new Pen(SelectionBorderColor, 1.5f);
+            var selectionBrush = PaintersFactory.GetSolidBrush(SelectionColor);
+            var selectionPen = PaintersFactory.GetPen(SelectionBorderColor, 1.5f);
             float markerSize = SelectionMarkerSize * 2; // diameter
 
             // Draw selected points
@@ -665,9 +807,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
                 g.FillEllipse(selectionBrush, screenX - markerSize / 2, screenY - markerSize / 2, markerSize, markerSize);
                 g.DrawEllipse(selectionPen, screenX - markerSize / 2, screenY - markerSize / 2, markerSize, markerSize);
             }
+        }
 
-            selectionBrush.Dispose();
-            selectionPen.Dispose();
+        /// <summary>
+        /// Draws a linear-regression trend line across the plot.
+        /// Uses the first visible series' data points to compute
+        /// the line, and draws it as a dashed stroke.
+        /// </summary>
+        private void DrawTrendLine(Graphics g, Rectangle plotRect)
+        {
+            // Pick the first visible series with at least 2 points
+            var series = _dataSeries.FirstOrDefault(
+                s => s.Visible && s.Points != null && s.Points.Count >= 2);
+            if (series == null) return;
+
+            var xs = new List<float>();
+            var ys = new List<float>();
+            foreach (var p in series.Points)
+            {
+                float x = BeepChartDataHelper.ConvertXValue(this, p) is float xf ? xf : 0f;
+                float y = BeepChartDataHelper.ConvertYValue(this, p) is float yf ? yf : 0f;
+                xs.Add(x); ys.Add(y);
+            }
+            if (xs.Count < 2) return;
+
+            var (slope, intercept, _) = TrendLineHelper.Compute(xs, ys);
+
+            // Colour: use the series colour at reduced alpha so it
+            // reads as an overlay, not a data line.
+            Color lineColor = series.Color != Color.Empty
+                ? Color.FromArgb(160, series.Color)
+                : Color.FromArgb(160, ChartLineColor);
+
+            TrendLineHelper.DrawTrendLine(g, plotRect,
+                slope, intercept,
+                ViewportXMin, ViewportXMax,
+                ViewportYMin, ViewportYMax,
+                lineColor);
         }
 
         private void DrawKeyboardFocusIndicator(Graphics g, Rectangle plotRect)
@@ -694,9 +870,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
             // Draw focus indicator as a dashed rectangle around the point
             float focusSize = SelectionMarkerSize * 3;
-            var focusPen = new Pen(Color.FromArgb(200, Color.Orange), 2f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
+            using var focusPen = new Pen(Color.FromArgb(200, Color.Orange), 2f)
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
+            };
             g.DrawRectangle(focusPen, screenX - focusSize / 2, screenY - focusSize / 2, focusSize, focusSize);
-            focusPen.Dispose();
         }
 
         private void DrawSeriesFillPatterns(Graphics g, Rectangle plotRect)

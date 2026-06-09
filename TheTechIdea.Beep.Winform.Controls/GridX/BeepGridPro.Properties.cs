@@ -1022,6 +1022,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Browsable(false)]
         public Toolbar.BeepGridToolbarState ToolbarState => _toolbarState;
 
+        /// <summary>
+        /// True when an in-place cell editor is currently active.
+        /// Hosts can use this to disable toolbar buttons (e.g.
+        /// don't let the user add/delete while an edit is in
+        /// progress) or to update a status bar with "Editing..."
+        /// text.  Mirrors <see cref="DataGridView.IsCurrentCellInEditMode"/>.
+        /// </summary>
+        [Browsable(false)]
+        public bool IsEditing => Edit?.IsEditing ?? false;
+
         [Browsable(false)]
         [EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         internal Toolbar.BeepGridToolbarPainter ToolbarPainter => _toolbarPainter;

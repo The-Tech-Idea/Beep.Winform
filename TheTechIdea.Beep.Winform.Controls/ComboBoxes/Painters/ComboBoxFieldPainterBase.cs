@@ -97,11 +97,21 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             // ENH-04: Read-only overlay (before text so it sits under the text)
             if (owner.IsReadOnly)
             {
+                // V2: clip to rounded corners for design-system types so
+                // the read-only fill doesn't bleed into square corners.
+                var isDesignSystem = this is DesignSystemComboBoxFieldPainterBase;
+                var clipPath = isDesignSystem
+                    ? GetRoundedRectPath(textAreaRect, ScaleX(6)) : null;
+                if (clipPath != null) g.SetClip(clipPath, CombineMode.Intersect);
+
                 using var roBrush = new SolidBrush(_theme?.DisabledBackColor ?? ComboBoxPainterThemeHelpers.Sc(_owner.BackColor, SystemColors.Control));
                 g.FillRectangle(roBrush, textAreaRect);
+
                 using var hatch = new HatchBrush(HatchStyle.LightUpwardDiagonal,
                     Color.FromArgb(18, _theme?.DisabledForeColor ?? Color.Gray), Color.Transparent);
                 g.FillRectangle(hatch, textAreaRect);
+
+                if (clipPath != null) { g.ResetClip(); clipPath.Dispose(); }
             }
 
             // ENH-03: Validation-state background tint
@@ -300,6 +310,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
         {
             if (textAreaRect.IsEmpty) return;
 
+            // V2: design-system types have rounded corners; clip the
+            // focus/hover overlay so it doesn't bleed past the rounded
+            // border drawn by DrawDecorations.  Use Save/Restore so
+            // derived painters that call base.DrawTextArea() are not
+            // affected by the clip.
+            var isDesignSystem = this is DesignSystemComboBoxFieldPainterBase;
+            var clipState = isDesignSystem ? g.Save() : null;
+            if (clipState != null)
+            {
+                using var path = GetRoundedRectPath(textAreaRect, ScaleX(6));
+                g.SetClip(path, CombineMode.Intersect);
+            }
+
             // State-aware overlays on top of the background drawn by ClassicBaseControlPainter.
             if (_owner.Focused && _owner.Enabled)
             {
@@ -325,6 +348,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
                 var brush = PaintersFactory.GetSolidBrush(fillColor);
                 g.FillRectangle(brush, textAreaRect);
             }
+
+            if (clipState != null) g.Restore(clipState);
         }
         
         protected virtual void DrawText(Graphics g, Rectangle textAreaRect)

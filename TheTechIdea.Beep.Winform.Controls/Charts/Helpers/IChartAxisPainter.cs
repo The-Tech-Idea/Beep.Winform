@@ -43,6 +43,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public TimeTickGranularity YTimeGranularity = TimeTickGranularity.Auto;
         public int XLabelInterval = 1;
         public int YLabelInterval = 1;
+        /// <summary>Where the legend is placed, so the axis painter
+        /// can reserve space on that edge.</summary>
+        public LegendPlacement LegendPlacement;
+        /// <summary>Number of visible legend items, used to estimate
+        /// the space needed for Right-side legends.</summary>
+        public int LegendItemCount;
+        /// <summary>Current DPI scale factor (DeviceDpi / 96).
+        /// Painters multiply fixed pixel values by this so
+        /// margins and gaps scale with the display.</summary>
+        public float DpiScale = 1f;
     }
 
     internal interface IChartAxisPainter

@@ -3,18 +3,18 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Logins.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Logins.Painters
 {
     /// <summary>
-    /// Base class for login painters providing common functionality
+    /// Base class for login painters providing common functionality.
+    /// All 9 variants share the same Paint() path (background + border
+    /// via BeepStyling) — only CalculateMetrics differs per layout.
     /// </summary>
     public abstract class BaseLoginPainter : ILoginPainter
     {
-        /// <summary>
-        /// Paints the login control for a specific view type
-        /// </summary>
-        public abstract void Paint(
+        public virtual void Paint(
             Graphics g,
             GraphicsPath path,
             LoginViewType viewType,
@@ -22,19 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Painters
             IBeepTheme theme,
             bool useThemeColors,
             LoginLayoutMetrics metrics,
-            LoginStyleConfig styleConfig);
+            LoginStyleConfig styleConfig)
+        {
+            BeepStyling.PaintControl(g, path, controlStyle,
+                theme, useThemeColors, ControlState.Normal);
+        }
 
-        /// <summary>
-        /// Calculates layout metrics for the view type
-        /// </summary>
         public abstract LoginLayoutMetrics CalculateMetrics(
             Rectangle bounds,
             LoginViewType viewType,
             LoginStyleConfig styleConfig);
 
-        /// <summary>
-        /// Helper method to initialize metrics from bounds
-        /// </summary>
         protected LoginLayoutMetrics InitializeMetrics(Rectangle bounds, Padding padding)
         {
             return new LoginLayoutMetrics

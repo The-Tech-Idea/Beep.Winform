@@ -258,11 +258,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (any || _chipProgress.Count > 0) Invalidate();
             };
 
-            _typeAheadTimer = new Timer { Interval = 700 };
+            _typeAheadTimer = new Timer { Interval = 1500 }; // 1.5s — longer for dropdown-open scanning
             _typeAheadTimer.Tick += (s, e) =>
             {
                 _typeAheadTimer.Stop();
-                _typeAheadBuffer = string.Empty;
+                // Keep the buffer alive while the dropdown is open so
+                // the search box continues to show the typed text even
+                // after a pause between keystrokes.  Clear on idle only
+                // when the dropdown is closed (the user moved on).
+                if (!_isDropdownOpen)
+                    _typeAheadBuffer = string.Empty;
             };
         }
         
@@ -609,6 +614,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _autoCompleteDelayTimer?.Stop();
                 _autoCompleteDelayTimer?.Dispose();
                 _autoCompleteDelayTimer = null;
+
+                // B1: _typeAheadTimer was missing from Dispose — leaked
+                // the Win32 timer handle on every control teardown.
+                _typeAheadTimer?.Stop();
+                _typeAheadTimer?.Dispose();
+                _typeAheadTimer = null;
 
                 // Inline editor is a child control — Dispose releases it
                 if (_inlineEditor != null)

@@ -23,6 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public StackedMode Mode { get; set; } = StackedMode.None;
         public bool SmoothLines { get; set; }
         public bool ShowMarkers { get; set; } = true;
+        public bool ShowDataLabels { get; set; }
+        public bool ShowTrendLine { get; set; }
         public float AnimationProgress { get; set; } = 1f; // 0..1
+        /// <summary>
+        /// Center-hole ratio for Doughnut charts (0.0 = Pie, 0.5 = half-hole).
+        /// Default 0.4 (classic doughnut look).
+        /// </summary>
+        public float DoughnutHoleRatio { get; set; } = 0.4f;
     }
 }

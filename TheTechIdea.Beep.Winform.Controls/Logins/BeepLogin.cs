@@ -49,6 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton btnFacebookLogin;
         private BeepButton btnTwitterLogin;
         private BeepCheckBoxBool chkRememberMe;
+        private BeepButton btnTogglePassword;   // eye icon to show/hide password
+        private BeepLabel lblError;              // inline error message
+        private BeepLabel lblCapsLock;           // Caps Lock warning
+        private bool _isLoading;                 // login-in-progress flag
 
         private LoginViewType _viewType = LoginViewType.Simple;
         private bool _isApplyingTheme = false;
@@ -129,6 +133,66 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ModernGradientType = ModernGradientType.Subtle,
                 UseGradientBackground = true,
                 Anchor = AnchorStyles.None
+            };
+
+            // Password visibility toggle (eye icon) — standard modern UX
+            btnTogglePassword = new BeepButton
+            {
+                Text = "👁",
+                Font = new Font("Segoe UI", 12, FontStyle.Regular),
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                Width = 30, Height = 30,
+                Visible = false,
+                Anchor = AnchorStyles.None,
+                TabStop = false,
+                AccessibleName = "Show password"
+            };
+            btnTogglePassword.Click += (s, e) =>
+            {
+                if (txtPassword.UseSystemPasswordChar)
+                {
+                    txtPassword.UseSystemPasswordChar = false;
+                    txtPassword.PasswordChar = '\0';
+                    btnTogglePassword.Text = "🙈";
+                    btnTogglePassword.AccessibleName = "Hide password";
+                }
+                else
+                {
+                    txtPassword.UseSystemPasswordChar = true;
+                    txtPassword.PasswordChar = '*';
+                    btnTogglePassword.Text = "👁";
+                    btnTogglePassword.AccessibleName = "Show password";
+                }
+            };
+
+            // Inline error label — hidden until login fails
+            lblError = new BeepLabel
+            {
+                Text = "",
+                Font = new Font("Segoe UI", 9, FontStyle.Regular),
+                ForeColor = Color.FromArgb(183, 28, 28),
+                IsChild = true,
+                Visible = false,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Anchor = AnchorStyles.None,
+                AccessibleName = "Login error"
+            };
+
+            // Caps Lock warning — shown when Caps Lock is on while password field focused
+            lblCapsLock = new BeepLabel
+            {
+                Text = "⚠ Caps Lock is on",
+                Font = new Font("Segoe UI", 9, FontStyle.Regular),
+                ForeColor = Color.FromArgb(230, 81, 0),
+                IsChild = true,
+                Visible = false,
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Anchor = AnchorStyles.None,
+                AccessibleName = "Caps Lock warning"
             };
 
             btnLogin = new BeepButton
@@ -239,6 +303,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnGoogleLogin.Click += (s, e) => OnGoogleLoginClick();
             btnFacebookLogin.Click += (s, e) => OnFacebookLoginClick();
             btnTwitterLogin.Click += (s, e) => OnTwitterLoginClick();
+            lnkForgotPassword.Click += (s, e) => OnForgotPasswordClick();
+            lnkRegister.Click += (s, e) => OnRegisterClick();
+            btnAvatar.Click += (s, e) => OnAvatarClick();
+            btnLogo.Click += (s, e) => OnLogoClick();
+
+            // Enter key on username → jump to password
+            txtUsername.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; txtPassword.Focus(); }
+            };
+            // Enter key on password → trigger login
+            txtPassword.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter && btnLogin.Enabled)
+                { e.SuppressKeyPress = true; OnLoginClick(); }
+            };
+            // Caps Lock detection
+            txtPassword.KeyPress += (s, e) =>
+                { lblCapsLock.Visible = Control.IsKeyLocked(Keys.CapsLock); };
+            txtPassword.GotFocus += (s, e) =>
+                { lblCapsLock.Visible = Control.IsKeyLocked(Keys.CapsLock); };
+            txtPassword.LostFocus += (s, e) =>
+                { lblCapsLock.Visible = false; };
+
+            // Accessibility: tab order
+            txtUsername.TabIndex = 0;
+            txtPassword.TabIndex = 1;
+            btnTogglePassword.TabIndex = 2;
+            btnLogin.TabIndex = 3;
+            chkRememberMe.TabIndex = 4;
+            lnkForgotPassword.TabIndex = 5;
+            lnkRegister.TabIndex = 6;
 
             this.Controls.Add(loginPanel);
             ApplyViewType();
@@ -322,6 +418,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnFacebookLogin.Visible = false;
             btnTwitterLogin.Visible = false;
             chkRememberMe.Visible = false;
+            btnTogglePassword.Visible = false;
+            lblError.Visible = false;
+            lblCapsLock.Visible = false;
         }
 
         /// <summary>
@@ -363,6 +462,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 txtPassword.Visible = true;
                 txtPassword.Location = new Point(bounds.X, bounds.Y);
                 txtPassword.Size = new Size(bounds.Width, bounds.Height);
+                // Position the eye toggle inside the right edge of the password field
+                btnTogglePassword.Visible = true;
+                btnTogglePassword.Location = new Point(
+                    bounds.Right - btnTogglePassword.Width - 2,
+                    bounds.Y + (bounds.Height - btnTogglePassword.Height) / 2);
             }
 
             // Login Button
@@ -613,6 +717,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             loginPanel.Controls.Add(btnFacebookLogin);
             loginPanel.Controls.Add(btnTwitterLogin);
             loginPanel.Controls.Add(chkRememberMe);
+            loginPanel.Controls.Add(btnTogglePassword);
+            loginPanel.Controls.Add(lblError);
+            loginPanel.Controls.Add(lblCapsLock);
         }
 
         /// <summary>
@@ -1798,6 +1905,64 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void FocusPassword()
         {
             txtPassword.Focus();
+        }
+
+        /// <summary>
+        /// Switches the login button to a loading state (disabled,
+        /// text changed to "Signing in…") so the user cannot
+        /// double-submit.  Call <see cref="ClearLoading"/> when
+        /// the authentication completes (success or failure).
+        /// </summary>
+        public void SetLoading()
+        {
+            _isLoading = true;
+            btnLogin.Enabled = false;
+            btnLogin.Text = "Signing in…";
+        }
+
+        /// <summary>
+        /// Restores the login button to its normal state after
+        /// an authentication attempt completes.
+        /// </summary>
+        public void ClearLoading()
+        {
+            _isLoading = false;
+            btnLogin.Enabled = true;
+            btnLogin.Text = "Login";
+        }
+
+        /// <summary>
+        /// Displays an inline error message and highlights the
+        /// username/password fields.  Call <see cref="ClearError"/>
+        /// when the user corrects the input.
+        /// </summary>
+        public void SetError(string message)
+        {
+            lblError.Text = message;
+            lblError.Visible = true;
+
+            // Position the error label below the password field
+            var pwBounds = txtPassword.Bounds;
+            lblError.Location = new Point(
+                loginPanel.Padding.Left,
+                pwBounds.Bottom + 4);
+            lblError.Size = new Size(loginPanel.Width - loginPanel.Padding.Horizontal, 20);
+            lblError.BringToFront();
+
+            // Red border on both input fields (visual error feedback)
+            txtUsername.BorderColor = Color.FromArgb(183, 28, 28);
+            txtPassword.BorderColor = Color.FromArgb(183, 28, 28);
+        }
+
+        /// <summary>
+        /// Clears the inline error and restores field borders.
+        /// </summary>
+        public void ClearError()
+        {
+            lblError.Text = "";
+            lblError.Visible = false;
+            txtUsername.BorderColor = Color.Empty;
+            txtPassword.BorderColor = Color.Empty;
         }
     }
 }

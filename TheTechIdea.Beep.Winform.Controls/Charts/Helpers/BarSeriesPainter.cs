@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             {
                 var series = data[sIndex];
                 if (!series.Visible) continue;
-                Color color = series.Color != Color.Empty ? series.Color : palette[visibleIndex % palette.Count];
+                Color color = CartesianPlotHelper.GetSeriesColor(series, visibleIndex, palette);
 
                 for (int i = 0; i < categories; i++)
                 {

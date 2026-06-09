@@ -89,8 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // regardless of which helper currently owns focus.
             if (ShowToolbar && !e.Handled && Layout != null && !Layout.ToolbarRect.IsEmpty)
             {
-                // Ctrl+F → focus toolbar search (also handled here for the
-                //     familiar Windows shortcut).
+                // Ctrl+F → focus toolbar search.
                 if (e.Control && e.KeyCode == Keys.F)
                 {
                     FocusToolbarSearch();
@@ -98,23 +97,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     e.SuppressKeyPress = true;
                     return;
                 }
-                // / (slash) → focus toolbar search (Excel / Google Sheets convention)
-                if (e.KeyCode == Keys.Divide || e.KeyCode == Keys.OemQuestion)
+                // / and F3 → focus toolbar search (Excel / Sheets convention).
+                // Skip when the editor already has focus so the user can type
+                // a slash or press F3 without having their partial text
+                // cleared by a second FocusToolbarSearch().
+                if (!FilterEditor.IsSearchEditorFocused())
                 {
-                    FocusToolbarSearch();
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    return;
-                }
-                // F3 → focus toolbar search.  Shift+F3 is reserved for a
-                // future "find previous" pass; today it's a no-op so we
-                // don't surprise the user.
-                if (e.KeyCode == Keys.F3 && !e.Shift)
-                {
-                    FocusToolbarSearch();
-                    e.Handled = true;
-                    e.SuppressKeyPress = true;
-                    return;
+                    if (e.KeyCode == Keys.Divide || e.KeyCode == Keys.OemQuestion)
+                    {
+                        FocusToolbarSearch();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                    }
+                    // F3 → focus toolbar search.  Shift+F3 is reserved.
+                    if (e.KeyCode == Keys.F3 && !e.Shift)
+                    {
+                        FocusToolbarSearch();
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                        return;
+                    }
                 }
                 // Per-button shortcuts (Insert → Add, F2 → Edit, Delete → Delete,
                 // etc.) — only fire when no child editor has focus.
@@ -174,11 +177,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         /// <summary>
         /// Activates the toolbar search box and focuses it, so the user can
         /// start typing immediately.  Wired to Ctrl+F, "/" and F3 in
-        /// <see cref="OnKeyDown"/>.
+        /// <see cref="OnKeyDown"/>.  When the editor already has focus, the
+        /// call is a no-op (so hotkey re-activation does not select-all and
+        /// overwrite the user's partial text).
         /// </summary>
         public void FocusToolbarSearch()
         {
             if (!ShowToolbar || Layout == null || Layout.ToolbarRect.IsEmpty) return;
+            // When the search editor already has focus we must not call
+            // ActivateSearchEditor again; it calls SelectAll() which
+            // would overwrite the user's in-progress text.  Ctrl+F
+            // arrives from the control level even when the editor has
+            // focus, so the guard must live here as well as in
+            // OnKeyDown (the OnKeyDown guard catches direct "/" and F3;
+            // this guard catches Ctrl+F and any programmatic callers).
+            if (FilterEditor.IsSearchEditorFocused()) return;
             ToolbarState.SearchHasFocus = true;
             FilterEditor.ActivateSearchEditor(ToolbarState.SearchBoxRect);
             SafeInvalidate(Layout.ToolbarRect);

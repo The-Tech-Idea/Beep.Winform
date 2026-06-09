@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
@@ -12,10 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         public void DrawLegend(Graphics g, Rectangle chartRect, List<ChartDataSeries> data, List<Color> palette, Font font, Color textColor, Color backColor, Color shapeColor, BaseControl owner, Action<int> onToggleSeries, Action<string, Rectangle> notifyAreaHit = null, LegendPlacement placement = LegendPlacement.Right)
         {
             if (data == null || data.Count == 0) return;
-            int itemHeight = 20;
-            int swatch = 15;
-            int padding = 6;
-            int width = 160;
+            int S(int px) => DpiScalingHelper.ScaleValue(px, owner);
+
+            int itemHeight = S(20);
+            int swatch = S(15);
+            int padding = S(6);
+            int width = S(160);
 
             Rectangle legendRect = placement switch
             {
@@ -37,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             for (int i = 0; i < data.Count; i++)
             {
                 var series = data[i];
-                Color seriesColor = series.Color != Color.Empty ? series.Color : palette[i % palette.Count];
+                Color seriesColor = CartesianPlotHelper.GetSeriesColor(series, i, palette);
 
                 var itemRect = new Rectangle(legendRect.Left + padding, currentY, legendRect.Width - (padding * 2), itemHeight - 2);
                 var swatchRect = new Rectangle(itemRect.Left, itemRect.Top + 2, swatch, swatch);
@@ -47,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 g.DrawRectangle(pen, swatchRect);
 
                 string name = string.IsNullOrEmpty(series.Name) ? $"Series {i + 1}" : series.Name;
-                g.DrawString(name, useFont, textBrush, swatchRect.Right + 6, itemRect.Top + 2);
+                g.DrawString(name, useFont, textBrush, swatchRect.Right + S(6), itemRect.Top + 2);
 
                 owner.AddHitArea($"LegendItem_{i}", itemRect, null, () =>
                 {

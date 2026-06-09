@@ -1,4 +1,6 @@
+using System.Collections;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
@@ -11,6 +13,138 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
     public partial class BeepChart
     {
+        private int _batchUpdateCount;
+        private bool _batchNeedsRefresh;
+
+        /// <summary>
+        /// Suppresses repaints during batch data operations.
+        /// Must be paired with <see cref="EndUpdate"/>.
+        /// Nestable — only the outermost EndUpdate triggers a refresh.
+        /// </summary>
+        public void BeginUpdate()
+        {
+            _batchUpdateCount++;
+        }
+
+        /// <summary>
+        /// Resumes repaints after <see cref="BeginUpdate"/> and
+        /// refreshes the chart if data changed.
+        /// </summary>
+        public void EndUpdate()
+        {
+            if (_batchUpdateCount > 0) _batchUpdateCount--;
+            if (_batchUpdateCount == 0 && _batchNeedsRefresh)
+            {
+                _batchNeedsRefresh = false;
+                RefreshDataState();
+                Invalidate();
+            }
+        }
+
+        private void InvalidateOrDefer()
+        {
+            if (_batchUpdateCount > 0)
+                _batchNeedsRefresh = true;
+            else
+                Invalidate();
+        }
+
+        /// <summary>
+        /// Binds a DataTable, DataView, or IList to the chart.
+        /// Numeric columns become Y series; the first non-numeric
+        /// column becomes the X axis (category axis).  Each numeric
+        /// column gets its own <see cref="ChartDataSeries"/> with
+        /// points derived from each row.
+        /// </summary>
+        public void BindDataSource(object source, string? xColumn = null)
+        {
+            var seriesList = new List<ChartDataSeries>();
+            if (source is DataTable dt)
+                BindDataTable(dt, xColumn, seriesList);
+            else if (source is System.Data.DataView dv)
+                BindDataTable(dv.Table!, xColumn, seriesList);
+            else if (source is IList list)
+                BindIList(list, xColumn, seriesList);
+            else
+                return;
+
+            DataSeries = seriesList;
+        }
+
+        private void BindDataTable(DataTable dt, string? xCol, List<ChartDataSeries> outList)
+        {
+            if (dt.Rows.Count == 0) return;
+            // Find the X-axis column: explicit name, or first string column
+            string xColName = xCol;
+            if (xColName == null)
+            {
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    if (dc.DataType == typeof(string) || dc.DataType == typeof(DateTime))
+                    { xColName = dc.ColumnName; break; }
+                }
+            }
+
+            foreach (DataColumn dc in dt.Columns)
+            {
+                if (dc.DataType == typeof(string) && dc.ColumnName != xColName) continue;
+                if (!IsNumericType(dc.DataType) && dc.DataType != typeof(DateTime)) continue;
+                if (dc.ColumnName == xColName) continue;
+
+                var series = new ChartDataSeries { Name = dc.ColumnName };
+                foreach (DataRow row in dt.Rows)
+                {
+                    string x = xColName != null ? row[xColName]?.ToString() ?? "" : "";
+                    float y = 0f;
+                    try { y = Convert.ToSingle(row[dc]); } catch { }
+                    series.Points.Add(new ChartDataPoint(x, y.ToString(), y));
+                }
+                outList.Add(series);
+            }
+        }
+
+        private void BindIList(IList list, string? xProp, List<ChartDataSeries> outList)
+        {
+            if (list.Count == 0) return;
+            var itemType = list[0]!.GetType();
+            var props = itemType.GetProperties();
+
+            // Find X property
+            string xPropName = xProp;
+            if (xPropName == null)
+            {
+                foreach (var p in props)
+                {
+                    if (p.PropertyType == typeof(string) || p.PropertyType == typeof(DateTime))
+                    { xPropName = p.Name; break; }
+                }
+            }
+
+            foreach (var prop in props)
+            {
+                if (!IsNumericType(prop.PropertyType)) continue;
+                if (prop.Name == xPropName) continue;
+
+                var series = new ChartDataSeries { Name = prop.Name };
+                foreach (var item in list)
+                {
+                    if (item == null) continue;
+                    string x = xPropName != null
+                        ? itemType.GetProperty(xPropName)?.GetValue(item)?.ToString() ?? ""
+                        : "";
+                    float y = 0f;
+                    try { y = Convert.ToSingle(prop.GetValue(item)); } catch { }
+                    series.Points.Add(new ChartDataPoint(x, y.ToString(), y));
+                }
+                outList.Add(series);
+            }
+        }
+
+        private static bool IsNumericType(Type t)
+            => t == typeof(int) || t == typeof(long) || t == typeof(float)
+            || t == typeof(double) || t == typeof(decimal)
+            || t == typeof(short) || t == typeof(byte);
+
         public List<ChartDataPoint> GetOptimizedPointsForSeries(int seriesIndex)
         {
             if (seriesIndex < 0 || seriesIndex >= _dataSeries.Count)
@@ -1189,13 +1323,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             _xAxisDateMin = DateTime.MinValue;
             _yAxisDateMin = DateTime.MinValue;
             ClearSimplificationCache();
+            _isDataDirty = true; // force hit-area rebuild
 
             BeepChartDataHelper.DetectAxisTypes(this);
             BeepChartViewportHelper.AutoScaleViewport(this);
 
             if (invalidate)
             {
-                Invalidate();
+                InvalidateOrDefer();
             }
         }
 

@@ -275,6 +275,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DrawCompositionUnderline(g);
             }
+
+            _helper?.DrawAll(g, DrawingRect, _textRect);
         }
 
         private void DrawCompositionUnderline(Graphics g)

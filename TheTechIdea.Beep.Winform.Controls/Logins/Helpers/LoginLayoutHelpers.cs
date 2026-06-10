@@ -55,6 +55,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         public static Size GetControlSize(string t, LoginViewType _)
             => GetControlSize(t, 400, 24);
 
+        public static (Point leftPos, Point rightPos) PlaceSideBySide(int containerWidth, Size left, Size right, int y, Padding pad, int spacing)
+        {
+            int totalW = left.Width + spacing + right.Width;
+            int startX = pad.Left + (containerWidth - totalW) / 2;
+            return (new Point(startX, y), new Point(startX + left.Width + spacing, y));
+        }
+
         /// <summary>Preferred card size per view type.</summary>
         public static Size GetPreferredSize(LoginViewType vt)
         {
@@ -77,7 +84,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Logins.Helpers
         public static int GetMargin(LoginViewType _) => ElementSpacing;
         public static int GetSpacing(LoginViewType _) => ElementSpacing;
         public static Padding GetRecommendedPadding(LoginViewType _) => CardPadding;
-        public static Size GetControlSize(string t, LoginViewType _)
-            => GetControlSize(t, 400, 24);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
@@ -9,16 +10,31 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Models
 
 {
-    public class SimpleItem : IEquatable<SimpleItem>
+    public class SimpleItem : IEquatable<SimpleItem>, INotifyPropertyChanged
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public event EventHandler<PropertyChangedEventArgs> PropertyChanged;
+
+        private PropertyChangedEventHandler _inpcHandler;
+
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add { _inpcHandler += value; }
+            remove { _inpcHandler -= value; }
+        }
+
+        private void RaisePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            _inpcHandler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public SimpleItem()
         {
             Guid = Guid.NewGuid();
             GuidId = Guid.ToString();
         }
+
         public bool Equals(SimpleItem other)
         {
             if (other == null)
@@ -51,7 +67,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string MenuName { get; set; }
         
         public bool IsCheckable { get; set; } = false;
-        public string Text { get; set; } = string.Empty;
+        private string _text = string.Empty;
+        public string Text
+        {
+            get => _text;
+            set { if (_text != value) { _text = value; RaisePropertyChanged(); } }
+        }
 
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -131,7 +152,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public bool IsSelected { get; set; } = false;
         public bool IsChecked { get; set; } = false;
         public bool IsIndeterminate { get; set; } = false;
-        public bool IsExpanded { get; set; } = false;
+        private bool _isExpanded = false;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set { if (_isExpanded != value) { _isExpanded = value; RaisePropertyChanged(); } }
+        }
         public bool IsVisible { get; set; } = true;
         public bool IsEnabled { get; set; } = true;
 

@@ -258,8 +258,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionHeaderItem("Wizard"));
             items.Add(new DesignerActionMethodItem(this, nameof(OpenSetupWizard), "New Form Wizard...", "Wizard", true));
             items.Add(new DesignerActionMethodItem(this, nameof(CreateStarterDefinition), "Create Starter Definition", "Wizard", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(AutoGenerateShelves), "Auto-Generate Shelves", "Wizard", true));
 
             return items;
+        }
+
+        public void AutoGenerateShelves()
+        {
+            if (_designer.Component is not BeepForms forms)
+                return;
+
+            var site = _designer.Component.Site;
+            if (site == null || forms.Parent == null)
+                return;
+
+            var host = (IDesignerHost?)site.GetService(typeof(IDesignerHost));
+            if (host == null) return;
+
+            void CreateAndAdd<T>(string name) where T : Control, new()
+            {
+                try
+                {
+                    var shelf = (T)host.CreateComponent(typeof(T), name);
+                    shelf.Dock = DockStyle.Top;
+                    forms.Parent.Controls.Add(shelf);
+                    forms.Parent.Controls.SetChildIndex(shelf, 0);
+                }
+                catch { /* best effort */ }
+            }
+
+            CreateAndAdd<BeepFormsStatusStrip>("beepFormsStatusStrip1");
+            CreateAndAdd<BeepFormsToolbar>("beepFormsToolbar1");
+            CreateAndAdd<BeepFormsQueryShelf>("beepFormsQueryShelf1");
+            CreateAndAdd<BeepFormsPersistenceShelf>("beepFormsPersistenceShelf1");
+            CreateAndAdd<BeepFormsCommandBar>("beepFormsCommandBar1");
+            CreateAndAdd<BeepFormsHeader>("beepFormsHeader1");
+            CreateAndAdd<BeepFormsRecordNavigationShelf>("beepFormsRecordNavShelf1");
         }
 
         // Forwarders used by Data smart-tag verbs (delegate to the active BeepDataConnection on the form).

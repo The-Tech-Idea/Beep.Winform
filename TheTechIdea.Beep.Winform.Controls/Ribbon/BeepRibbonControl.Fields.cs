@@ -18,29 +18,25 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepRibbonControl : Control
+    public partial class BeepRibbonControl
     {
-        // Core UI controls
-        private readonly TabControl _tabs = new() { Dock = DockStyle.Fill };
+        private readonly BeepRibbonTabStrip _tabStrip = new() { Dock = DockStyle.Top };
+        private readonly Panel _ribbonContentHost = new() { Dock = DockStyle.Fill, BackColor = Color.White };
         private readonly ToolStrip _quickAccess = new() { Dock = DockStyle.Top, GripStyle = ToolStripGripStyle.Hidden, RenderMode = ToolStripRenderMode.System };
         private readonly Panel _contextHeader = new() { Dock = DockStyle.Top, Height = 18 };
 
-        // Command mapping and organization
         private readonly BindingList<SimpleItem> _commandItems = new();
         private readonly Dictionary<ToolStripItem, SimpleItem> _commandMap = new();
         private readonly Dictionary<BeepRibbonGroup, List<SimpleItem>> _groupCommandNodes = new();
         private readonly Dictionary<string, SimpleItem> _commandLookup = new(StringComparer.OrdinalIgnoreCase);
 
-        // Gallery state
         private readonly Dictionary<string, string> _galleryLastSelection = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, List<string>> _galleryPinnedKeys = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, List<string>> _galleryRecentKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        // Quick Access Toolbar
         private readonly List<string> _quickAccessCommandKeys = [];
         private readonly List<Image> _generatedImages = new();
 
-        // Search UI and state
         private readonly ToolStripTextBox _searchBox = new() { AutoSize = false, Width = 180, Visible = false };
         private readonly ToolStripDropDownButton _searchResultsButton = new() { Text = "Find", Visible = false, AutoToolTip = true };
         private readonly List<SimpleItem> _searchResults = [];
@@ -62,24 +58,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         private IRibbonSearchTelemetry? _searchTelemetry;
         private Func<SimpleItem, RibbonSuperTooltipModel>? _superTooltipModelProvider;
 
-        // Keyboard and key tips
         private readonly ToolTip _keyTipToolTip = new() { ShowAlways = true, AutomaticDelay = 0, InitialDelay = 0, ReshowDelay = 0 };
         private readonly Dictionary<ToolStripItem, string> _keyTips = [];
         private readonly Dictionary<string, ToolStripItem> _keyTipLookup = new(StringComparer.OrdinalIgnoreCase);
         private readonly RibbonKeyboardMap _keyboardMap = new();
 
-        // Theme and layout configuration
         private RibbonVariantMatrix _variantMatrix = RibbonVariantMatrix.CreateDefault();
         private readonly List<string> _lastTokenImportDiagnostics = [];
-
-        // Merge and snapshot management
         private readonly List<SimpleItem> _mergeBaseSnapshot = [];
 
-        // Minimized state
         private readonly ContextMenuStrip _minimizedTabPopup = new();
         private readonly List<Image> _minimizedGeneratedImages = [];
 
-        // Theme and appearance settings
         private RibbonTheme _theme = new();
         private bool _darkMode;
         private RibbonLayoutMode _layoutMode = RibbonLayoutMode.Classic;
@@ -94,32 +84,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _allowMinimize = true;
         private bool _isMinimized;
         private bool _showMinimizedPopupOnTabClick = true;
-        private int _expandedRibbonHeight = 120;
+        private int _expandedRibbonHeight = 130;
         private bool _isMerged;
         private bool _suspendCommandRebuild;
 
-        // Customization state
         private RibbonCustomizationState? _pendingCustomizationState;
         private List<SimpleItem>? _defaultCustomizationSnapshot;
         private List<string>? _defaultQuickAccessSnapshot;
 
-        // Layout application state
         private bool _isApplyingResponsiveLayout;
 
-        // Search provider and style settings
         private IRibbonSearchProvider? _searchProvider;
         private bool _followGlobalFormStyle = true;
         private FormStyle _ribbonFormStyle = FormStyle.Modern;
         private RibbonStylePreset _resolvedStylePreset = RibbonStylePreset.OfficeLight;
         private bool _subscribedToThemeManager;
 
-        // Backstage UI controls
         private readonly ToolStripDropDownButton _backstageButton;
         private readonly ToolStripDropDown _backstageDropDown;
         private readonly ToolStripControlHost _backstageHost;
         private readonly Panel _backstagePanelContent = new() { BackColor = TheTechIdea.Beep.Winform.Controls.Helpers.ColorUtils.MapSystemColor(SystemColors.ControlLightLight), Size = new Size(600, 400) };
 
-        // Backstage items and collections
         private readonly BindingList<SimpleItem> _backstageItems = new();
         private readonly BindingList<SimpleItem> _backstageRecentItems = new();
         private readonly BindingList<SimpleItem> _backstagePinnedItems = new();
@@ -128,7 +113,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _backstageUseRelativeTimestamps = true;
         private Func<SimpleItem, DateTime, string>? _backstageTimestampFormatter;
 
-        // Backstage layout containers
         private readonly SplitContainer _backstageSplit = new() { Dock = DockStyle.Fill, IsSplitterFixed = false, SplitterWidth = 5 };
         private readonly ListBox _backstageNavList = new() { Dock = DockStyle.Fill, BorderStyle = BorderStyle.None, IntegralHeight = false };
         private readonly Panel _backstageContentHost = new() { Dock = DockStyle.Fill };
@@ -141,7 +125,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly List<Image> _backstageGeneratedImages = [];
         private int _activeBackstageIndex = -1;
 
-        // Backstage transitions
         private readonly Timer _backstageTransitionTimer = new() { Interval = 16 };
         private bool _enableBackstageTransitions = true;
         private int _backstageTransitionDurationMs = 180;
@@ -150,7 +133,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Size _backstageTransitionStartSize = new(600, 400);
         private Size _backstageTransitionTargetSize = new(600, 400);
 
-        // Contextual groups and transitions
         private readonly Dictionary<string, int> _contextualRuleMap = new(StringComparer.OrdinalIgnoreCase);
         private string _activeContextKey = string.Empty;
         private readonly Timer _contextTransitionTimer = new() { Interval = 16 };
@@ -159,22 +141,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _contextTransitionEffectiveDurationMs = 180;
         private float _contextTransitionProgress = 1f;
 
-        // Right-to-left and accessibility settings
         private bool _ribbonRightToLeft;
         private bool _adaptiveTransitionTiming = true;
         private bool _respectSystemReducedMotion = true;
         private bool _reducedMotion;
 
-        // Contextual groups
-        private sealed class ContextualGroup
-        {
-            public string Name { get; init; } = string.Empty;
-            public Color Color { get; init; } = Color.LightBlue;
-            public bool Visible { get; set; }
-            public List<TabPage> Pages { get; } = [];
-        }
-
         private readonly List<ContextualGroup> _contextGroups = [];
-        private readonly Dictionary<TabPage, ContextualGroup> _pageToGroup = [];
+        private readonly Dictionary<RibbonTab, ContextualGroup> _pageToGroup = [];
     }
 }

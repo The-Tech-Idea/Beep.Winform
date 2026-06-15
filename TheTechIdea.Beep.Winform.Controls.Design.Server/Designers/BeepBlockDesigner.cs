@@ -611,7 +611,114 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             items.Add(new DesignerActionMethodItem(this, nameof(DisconnectFromHost), "Disconnect From Host", "Host", false));
             items.Add(new DesignerActionMethodItem(this, nameof(CreateNewHostAndBind), "Create New Host + Bind...", "Host", true));
 
+            items.Add(new DesignerActionHeaderItem("Relationships"));
+            items.Add(new DesignerActionMethodItem(this, nameof(SetAsMasterBlock), "Set As Master Block", "Relationships", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(LinkToMasterBlock), "Link To Master Block...", "Relationships", true));
+
+            items.Add(new DesignerActionHeaderItem("Field Tools"));
+            items.Add(new DesignerActionMethodItem(this, nameof(EditFieldProperties), "Edit Field Properties...", "Field Tools", true));
+            items.Add(new DesignerActionMethodItem(this, nameof(ShowBlockInfo), "Show Block Info", "Field Tools", true));
+
             return items;
+        }
+
+        public void SetAsMasterBlock()
+        {
+            BeepBlockDefinition definition = CreateWorkingDefinition();
+            definition.Entity ??= new BeepBlockEntityDefinition();
+            definition.Entity.IsMasterBlock = true;
+            Definition = definition;
+            MessageBox.Show(
+                $"Block '{definition.BlockName}' set as Master Block. Detail blocks can reference it via entity metadata.",
+                "Master Block",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        public void LinkToMasterBlock()
+        {
+            BeepBlockDefinition definition = CreateWorkingDefinition();
+            definition.Entity ??= new BeepBlockEntityDefinition();
+
+            if (Component is not BeepBlock block || block.Site?.Container == null)
+            {
+                MessageBox.Show("Component or site not available.", "Link To Master", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var masterBlocks = new System.Collections.Generic.List<string>();
+            foreach (var component in block.Site.Container.Components)
+            {
+                if (component is BeepBlock otherBlock && otherBlock != block
+                    && !string.IsNullOrWhiteSpace(otherBlock.BlockName))
+                {
+                    masterBlocks.Add(otherBlock.BlockName);
+                }
+            }
+
+            if (masterBlocks.Count == 0)
+            {
+                MessageBox.Show("No other blocks on this form to link as master.", "Link To Master",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var picker = new Form
+            {
+                Text = "Select Master Block",
+                Size = new Size(300, 200),
+                StartPosition = FormStartPosition.CenterParent,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MinimizeBox = false,
+                MaximizeBox = false
+            };
+            var listBox = new ListBox { Dock = DockStyle.Fill };
+            foreach (var name in masterBlocks) listBox.Items.Add(name);
+            var btnPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom, Height = 40,
+                FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8)
+            };
+            var cancelBtn = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel };
+            var okBtn = new Button { Text = "Link" };
+            okBtn.Click += (_, _) =>
+            {
+                if (listBox.SelectedItem is string masterName)
+                {
+                    definition.Entity.IsMasterBlock = false;
+                    definition.Entity.MasterBlockName = masterName;
+                    Definition = definition;
+                    MessageBox.Show($"Block '{definition.BlockName}' linked to master '{masterName}'.",
+                        "Detail Block", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    picker.DialogResult = DialogResult.OK;
+                }
+            };
+            btnPanel.Controls.Add(cancelBtn);
+            btnPanel.Controls.Add(okBtn);
+            picker.Controls.Add(listBox);
+            picker.Controls.Add(btnPanel);
+            picker.ShowDialog();
+        }
+
+        public void ShowBlockInfo()
+        {
+            BeepBlockDefinition definition = CreateWorkingDefinition();
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Block: {definition.BlockName}");
+            sb.AppendLine($"Caption: {definition.Caption}");
+            sb.AppendLine($"Mode: {definition.PresentationMode}");
+            sb.AppendLine($"Fields: {definition.Fields.Count}");
+            sb.AppendLine($"Entity: {definition.Entity?.EntityName ?? "(none)"}");
+            sb.AppendLine($"Is Master: {definition.Entity?.IsMasterBlock ?? false}");
+            sb.AppendLine($"Master Block: {definition.Entity?.MasterBlockName ?? "(none)"}");
+
+            if (Component is BeepBlock blk && blk.FormsHost != null)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"Host Form: {blk.FormsHost.FormName}");
+                sb.AppendLine($"Host Blocks: {blk.FormsHost.Blocks.Count}");
+            }
+            MessageBox.Show(sb.ToString(), $"Block Info — {definition.BlockName}",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

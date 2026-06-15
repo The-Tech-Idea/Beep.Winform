@@ -12,22 +12,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void ShowMinimizedPopupForTabIndex(int tabIndex)
         {
-            if (!_isMinimized || tabIndex < 0 || tabIndex >= _tabs.TabCount)
-            {
-                return;
-            }
-
+            if (!_isMinimized || tabIndex < 0 || tabIndex >= _tabStrip.Tabs.Count) return;
             HideMinimizedPopup();
 
-            if (_tabs.SelectedIndex != tabIndex)
-            {
-                _tabs.SelectedIndex = tabIndex;
-            }
-
-            if (_tabs.TabPages[tabIndex].Tag is not SimpleItem tabNode)
-            {
-                return;
-            }
+            var tabNode = _tabStrip.Tabs[tabIndex].Tag as SimpleItem;
+            if (tabNode == null) return;
 
             foreach (var groupNode in tabNode.Children.Where(IsVisibleNode))
             {
@@ -57,8 +46,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             _minimizedTabPopup.Closed -= MinimizedTabPopup_Closed;
             _minimizedTabPopup.Closed += MinimizedTabPopup_Closed;
 
-            var rect = _tabs.GetTabRect(tabIndex);
-            _minimizedTabPopup.Show(_tabs, new Point(rect.Left, rect.Bottom));
+            var rect = _tabStrip.GetTabRect(tabIndex);
+            _minimizedTabPopup.Show(_tabStrip, new Point(rect.Left, _tabStrip.Height));
         }
 
         /// <summary>
@@ -185,9 +174,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private int CalculateMinimizedHeight()
         {
-            int quickAccessHeight = Math.Max(_quickAccess.Height, _quickAccess.PreferredSize.Height);
-            int tabsHeaderHeight = Math.Max(26, _tabs.ItemSize.Height > 0 ? _tabs.ItemSize.Height : Font.Height + 12);
-            return quickAccessHeight + _contextHeader.Height + tabsHeaderHeight + 4;
+            int qatHeight = Math.Max(_quickAccess.Height, _quickAccess.PreferredSize.Height);
+            return qatHeight + _contextHeader.Height + _tabStrip.Height + 4;
         }
 
         /// <summary>
@@ -212,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = _expandedRibbonHeight;
             }
 
-            _tabs.Invalidate();
+            _tabStrip.Invalidate();
             _contextHeader.Invalidate();
         }
 

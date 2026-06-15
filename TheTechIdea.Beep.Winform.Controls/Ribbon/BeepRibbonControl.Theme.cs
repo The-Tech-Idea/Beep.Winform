@@ -8,15 +8,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepRibbonControl
     {
-        private void ApplyTheme()
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+            ApplyRibbonTheme();
+        }
+
+        private void ApplyRibbonTheme()
         {
             BackColor = _theme.Background;
             ForeColor = _theme.Text;
             Font = BeepThemesManager.ToFont(_theme.CommandTypography);
 
-            _tabs.BackColor = _theme.Background;
-            _tabs.ForeColor = _theme.Text;
-            _tabs.Font = BeepThemesManager.ToFont(_theme.TabTypography);
+            _ribbonContentHost.BackColor = _theme.Background;
+            _tabStrip.ApplyTheme(_theme);
 
             _quickAccess.BackColor = _theme.QuickAccessBack;
             _quickAccess.ForeColor = _theme.Text;
@@ -71,24 +76,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 control.FlatAppearance.MouseOverBackColor = ColorUtils.ShiftLuminance(_theme.GroupBack, .1f);
             }
 
-            foreach (TabPage page in _tabs.TabPages)
+            foreach (var tab in _tabStrip.Tabs)
             {
-                page.BackColor = _theme.TabActiveBack;
-                page.ForeColor = _theme.Text;
+                var panel = tab.ContentPanel;
+                if (panel == null) continue;
+                panel.BackColor = _theme.TabActiveBack;
 
-                foreach (var group in page.Controls.OfType<BeepRibbonGroup>())
+                foreach (var group in panel.Controls.OfType<BeepRibbonGroup>())
                 {
                     group.Renderer = new BeepRibbonToolStripRenderer(this);
                     group.Density = _density;
                     group.ApplyTheme(_theme);
 
                     foreach (var host in group.Items.OfType<ToolStripControlHost>())
-                    {
                         if (host.Control is BeepRibbonGallery gallery)
-                        {
                             gallery.ApplyTheme(_theme, _density);
-                        }
-                    }
                 }
             }
 
@@ -100,7 +102,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var rtl = _ribbonRightToLeft ? RightToLeft.Yes : RightToLeft.No;
             RightToLeft = rtl;
-            _tabs.RightToLeft = rtl;
+            _tabStrip.RightToLeft = rtl;
+            _ribbonContentHost.RightToLeft = rtl;
             _quickAccess.RightToLeft = rtl;
             _contextHeader.RightToLeft = rtl;
             _backstagePanelContent.RightToLeft = rtl;
@@ -120,20 +123,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ApplyRightToLeftToRibbonPages(RightToLeft rtl)
         {
-            foreach (TabPage page in _tabs.TabPages)
+            foreach (var tab in _tabStrip.Tabs)
             {
-                page.RightToLeft = rtl;
-                ApplyRightToLeftRecursive(page, rtl);
-                foreach (var group in page.Controls.OfType<BeepRibbonGroup>())
+                var panel = tab.ContentPanel;
+                if (panel == null) continue;
+                panel.RightToLeft = rtl;
+                ApplyRightToLeftRecursive(panel, rtl);
+                foreach (var group in panel.Controls.OfType<BeepRibbonGroup>())
                 {
                     group.RightToLeft = rtl;
                     foreach (var host in group.Items.OfType<ToolStripControlHost>())
-                    {
-                        if (host.Control != null)
-                        {
-                            host.Control.RightToLeft = rtl;
-                        }
-                    }
+                        if (host.Control != null) host.Control.RightToLeft = rtl;
                 }
             }
         }
@@ -162,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _ribbonFormStyle = formStyle;
             _resolvedStylePreset = RibbonThemeMapper.GetPreset(_ribbonFormStyle, _darkMode);
-            Theme = RibbonThemeMapper.Map(theme, _darkMode, _ribbonFormStyle);
+            RibbonThemeProvider = RibbonThemeMapper.Map(theme, _darkMode, _ribbonFormStyle);
         }
 
         public void SyncWithGlobalThemeAndStyle()
@@ -184,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var result = RibbonTokenImporter.ImportWithDiagnosticsFromFile(filePath, mode, _theme);
                 _lastTokenImportDiagnostics.Clear();
                 _lastTokenImportDiagnostics.AddRange(result.Diagnostics);
-                Theme = result.Theme;
+                RibbonThemeProvider = result.Theme;
                 return true;
             }
             catch

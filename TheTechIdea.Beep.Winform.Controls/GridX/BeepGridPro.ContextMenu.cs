@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 case "insert":
                     if (!ReadOnly) Navigator.InsertNew(); break;
                 case "delete":
-                    if (!ReadOnly) Navigator.DeleteCurrent(); break;
+                    if (!ReadOnly) DeleteSelectedRows(); break;
                 case "autosize":
                     AutoSizeColumns(); break;
                 case "reset_order":
@@ -164,6 +164,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 {
                     MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void DeleteSelectedRows()
+        {
+            int selectedCount = Data.Rows.Count(r => r.IsSelected);
+
+            if (selectedCount > 1 && MultiSelect)
+            {
+                for (int pass = 0; pass < selectedCount; pass++)
+                {
+                    int target = -1;
+                    for (int i = Data.Rows.Count - 1; i >= 0; i--)
+                    {
+                        if (Data.Rows[i].IsSelected)
+                        {
+                            target = i;
+                            break;
+                        }
+                    }
+
+                    if (target < 0) break;
+
+                    try
+                    {
+                        Selection.SelectCell(target, 0);
+                        Navigator.DeleteCurrent();
+                    }
+                    catch { break; }
+                }
+
+                ClearSelection();
+                Invalidate();
+            }
+            else
+            {
+                Navigator.DeleteCurrent();
             }
         }
     }

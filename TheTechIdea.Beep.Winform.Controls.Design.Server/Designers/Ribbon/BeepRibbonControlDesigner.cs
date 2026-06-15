@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Windows.Forms.Design;
 using Microsoft.DotNet.DesignTools.Designers.Actions;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.Ribbon
 {
@@ -59,8 +60,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.Ribbon
         public void AddSampleTab()
         {
             if (Ribbon == null) return;
-            var tabPage = new TabPage("Sample Tab");
-            Ribbon.Tabs.TabPages.Add(tabPage);
+            if (Ribbon.CommandItems.Count > 0) return;
+
+            Ribbon.CommandItems.Add(new Models.SimpleItem
+            {
+                Text = "Home", Value = "home", IsVisible = true, IsEnabled = true,
+                Children = {
+                    new Models.SimpleItem { Text = "Clipboard", Value = "clipboard", IsVisible = true, IsEnabled = true,
+                        Children = {
+                            new Models.SimpleItem { Text = "Paste", Value = "paste", IsVisible = true, IsEnabled = true, ImagePath = "paste" },
+                            new Models.SimpleItem { Text = "Cut", Value = "cut", IsVisible = true, IsEnabled = true, ImagePath = "cut" },
+                            new Models.SimpleItem { Text = "Copy", Value = "copy", IsVisible = true, IsEnabled = true, ImagePath = "copy" },
+                        }
+                    },
+                    new Models.SimpleItem { Text = "Font", Value = "font", IsVisible = true, IsEnabled = true,
+                        Children = {
+                            new Models.SimpleItem { Text = "Bold", Value = "bold", IsVisible = true, IsEnabled = true, IsCheckable = true },
+                            new Models.SimpleItem { Text = "Italic", Value = "italic", IsVisible = true, IsEnabled = true, IsCheckable = true },
+                            new Models.SimpleItem { Text = "Underline", Value = "underline", IsVisible = true, IsEnabled = true, IsCheckable = true },
+                        }
+                    }
+                }
+            });
+            Ribbon.CommandItems.Add(new Models.SimpleItem
+            {
+                Text = "View", Value = "view", IsVisible = true, IsEnabled = true,
+                Children = {
+                    new Models.SimpleItem { Text = "Window", Value = "window", IsVisible = true, IsEnabled = true,
+                        Children = {
+                            new Models.SimpleItem { Text = "Full Screen", Value = "fullscreen", IsVisible = true, IsEnabled = true },
+                            new Models.SimpleItem { Text = "Split", Value = "split", IsVisible = true, IsEnabled = true },
+                        }
+                    }
+                }
+            });
         }
 
         public void CustomizeRibbon()

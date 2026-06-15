@@ -13,16 +13,18 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepRibbonControl
     {
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public TabControl Tabs => _tabs;
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public ToolStrip QuickAccess => _quickAccess;
+        public BeepRibbonTabStrip Tabs => _tabStrip;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> CommandItems => _commandItems;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Category("Ribbon")]
+        [Description("Collection of ribbon tabs, groups, and items defined as components. Added at design time via toolbox.")]
+        public List<RibbonTabItem> RibbonTabs { get; } = new();
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public RibbonTheme Theme
+        public RibbonTheme RibbonThemeProvider
         {
             get => _theme;
             set
@@ -41,14 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _darkMode = value;
                 _resolvedStylePreset = RibbonThemeMapper.GetPreset(_ribbonFormStyle, _darkMode);
-                if (_followGlobalFormStyle)
-                {
-                    ApplyThemeFromBeep(BeepThemesManager.CurrentTheme, _ribbonFormStyle);
-                }
-                else
-                {
-                    ApplyTheme();
-                }
+                ApplyTheme();
             }
         }
 
@@ -77,9 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_ribbonFormStyle == value) return;
                 _ribbonFormStyle = value;
                 if (!_followGlobalFormStyle)
-                {
                     ApplyThemeFromBeep(BeepThemesManager.CurrentTheme, _ribbonFormStyle);
-                }
             }
         }
 

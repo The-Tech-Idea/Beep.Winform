@@ -80,11 +80,34 @@ namespace TheTechIdea.Beep.Winform.Controls
         // List changed handlers
         private void CommandItems_ListChanged(object? sender, ListChangedEventArgs e)
         {
-            if (_suspendCommandRebuild)
+            if (_suspendCommandRebuild) return;
+            if (DesignMode)
             {
+                try
+                {
+                    if (_commandItems.Count > 0)
+                        BuildFromSimpleItems();
+                    else
+                        ShowPlaceholder();
+                }
+                catch { ShowPlaceholder(); }
                 return;
             }
             BuildFromSimpleItems();
+        }
+
+        private void ShowPlaceholder()
+        {
+            _tabStrip.Clear();
+            _ribbonContentHost.Controls.Clear();
+            var lbl = new Label
+            {
+                Text = "Beep Ribbon Control\n\nAdd tabs, groups, and buttons via the CommandItems collection\nor use the smart-tag \"Add Sample Tabs\" action.",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                ForeColor = SystemColors.GrayText
+            };
+            _ribbonContentHost.Controls.Add(lbl);
         }
 
         private void BackstageItems_ListChanged(object? sender, ListChangedEventArgs e)
@@ -140,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             menu.Closed += (_, __) => menu.Dispose();
-            menu.Show(_tabs, location);
+            menu.Show(_tabStrip, location);
         }
 
         private void RequestRibbonCustomization()
@@ -184,35 +207,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Tabs_MouseDoubleClick(object? sender, MouseEventArgs e)
         {
             if (!_allowMinimize) return;
-
-            for (int i = 0; i < _tabs.TabCount; i++)
+            for (int i = 0; i < Tabs.Tabs.Count; i++)
             {
-                var rect = _tabs.GetTabRect(i);
+                var rect = _tabStrip.GetTabRect(i);
                 if (rect.Contains(e.Location))
                 {
-                    IsMinimized = !IsMinimized;
+                    ToggleMinimized();
                     break;
                 }
             }
         }
 
-        private void Tabs_SelectedIndexChanged(object? sender, EventArgs e)
+        private int GetTabIndexAt(Point location)
         {
-            if (!_isMinimized || !_showMinimizedPopupOnTabClick)
+            for (int i = 0; i < Tabs.Tabs.Count; i++)
             {
-                return;
+                if (_tabStrip.GetTabRect(i).Contains(location))
+                    return i;
             }
-
-            // Mouse click path is handled in Tabs_MouseUp to avoid duplicate popups.
-            if (Control.MouseButtons == MouseButtons.Left)
-            {
-                return;
-            }
-
-            if (_tabs.SelectedIndex >= 0)
-            {
-                ShowMinimizedPopupForTabIndex(_tabs.SelectedIndex);
-            }
+            return -1;
         }
 
         private void Tabs_MouseUp(object? sender, MouseEventArgs e)
@@ -223,26 +236,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowTabHeaderContextMenu(e.Location);
                 return;
             }
-
             if (e.Button != MouseButtons.Left || !_isMinimized || !_showMinimizedPopupOnTabClick || tabIndex < 0)
-            {
                 return;
-            }
-
             ShowMinimizedPopupForTabIndex(tabIndex);
-        }
-
-        private int GetTabIndexAt(Point location)
-        {
-            for (int i = 0; i < _tabs.TabCount; i++)
-            {
-                if (_tabs.GetTabRect(i).Contains(location))
-                {
-                    return i;
-                }
-            }
-
-            return -1;
         }
     }
 }

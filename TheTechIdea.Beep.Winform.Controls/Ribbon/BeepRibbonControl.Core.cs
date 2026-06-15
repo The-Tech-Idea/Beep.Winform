@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Accessibility;
 using TheTechIdea.Beep.Winform.Controls.Backstage;
 using TheTechIdea.Beep.Winform.Controls.Rendering;
@@ -7,17 +8,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepRibbonControl
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BeepRibbonControl"/> class.
-        /// Sets up all controls, event handlers, accessibility helpers, and applies initial theme.
-        /// </summary>
         public BeepRibbonControl()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
-            Controls.Add(_tabs);
+            Controls.Add(_ribbonContentHost);
+            Controls.Add(_tabStrip);
             Controls.Add(_contextHeader);
             Controls.Add(_quickAccess);
-            Height = 120;
+            Height = 130;
 
             _commandItems.ListChanged += CommandItems_ListChanged;
             _backstageItems.ListChanged += BackstageItems_ListChanged;
@@ -25,7 +23,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             _backstagePinnedItems.ListChanged += BackstageItems_ListChanged;
             _backstageFooterItems.ListChanged += BackstageFooterItems_ListChanged;
 
-            // Backstage setup
             _backstageButton = new ToolStripDropDownButton("File") { ShowDropDownArrow = true, AutoToolTip = false };
             _backstageDropDown = new ToolStripDropDown { Padding = Padding.Empty, AutoClose = true, AutoSize = false };
             InitializeBackstageLayout();
@@ -39,46 +36,37 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _quickAccess.Renderer = new BeepRibbonToolStripRenderer(this);
             _contextHeader.Paint += ContextHeader_Paint;
-            _tabs.ControlAdded += (_, __) => _contextHeader.Invalidate();
-            _tabs.ControlRemoved += (_, __) => _contextHeader.Invalidate();
-            _tabs.SelectedIndexChanged += (_, __) =>
-            {
-                _contextHeader.Invalidate();
-                RefreshKeyTipsVisibility();
-            };
-            _tabs.SelectedIndexChanged += Tabs_SelectedIndexChanged;
-            _tabs.MouseUp += Tabs_MouseUp;
-            _tabs.MouseDoubleClick += Tabs_MouseDoubleClick;
+
+            _tabStrip.SelectedIndexChanged += (_, __) => ShowActiveContentPanel();
+            _tabStrip.MouseDoubleClick += Tabs_MouseDoubleClick;
+            _tabStrip.MouseUp += Tabs_MouseUp;
 
             _keyboardMap.Register(Keys.F6, () => FocusRibbonPane(1));
             _keyboardMap.Register(Keys.Shift | Keys.F6, () => FocusRibbonPane(-1));
             _contextTransitionTimer.Tick += ContextTransitionTimer_Tick;
             _backstageTransitionTimer.Tick += BackstageTransitionTimer_Tick;
 
-            RibbonAccessibilityHelper.ApplyControlAccessibility(_quickAccess, "Quick Access Toolbar", "Primary ribbon quick access commands.", AccessibleRole.ToolBar);
-            RibbonAccessibilityHelper.ApplyControlAccessibility(_tabs, "Ribbon Tabs", "Ribbon tabs and command groups.", AccessibleRole.PageTabList);
-            RibbonAccessibilityHelper.ApplyControlAccessibility(_backstageNavList, "Backstage Navigation", "Backstage section list.", AccessibleRole.Outline);
-            RibbonAccessibilityHelper.ApplyControlAccessibility(_backstageActions, "Backstage Actions", "Actions available for the selected backstage section.", AccessibleRole.Pane);
-            RibbonAccessibilityHelper.ApplyControlAccessibility(_backstageFooter, "Backstage Footer Actions", "Footer commands such as options and account actions.", AccessibleRole.ToolBar);
-
+            _tabStrip.ApplyTheme(_theme);
             ApplyRightToLeftLayout();
             ApplyQuickAccessPlacement();
             ApplySearchAccessibility();
             ApplyPaneTabOrder();
             TrySubscribeThemeManager();
-            if (_followGlobalFormStyle)
+            if (_followGlobalFormStyle) SyncWithGlobalThemeAndStyle();
+            else ApplyTheme();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (!DesignMode && RibbonTabs.Count > 0 && _commandItems.Count == 0)
             {
-                SyncWithGlobalThemeAndStyle();
-            }
-            else
-            {
-                ApplyTheme();
+                foreach (var tab in RibbonTabs)
+                    if (tab.Visible) _commandItems.Add(tab.ToSimpleItem());
+                BuildFromSimpleItems();
             }
         }
 
-        /// <summary>
-        /// Handles disposal of the control and unsubscribes from theme manager events.
-        /// </summary>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -92,50 +80,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _backstageActions.SizeChanged -= BackstageActions_SizeChanged;
                 _backstageButton.DropDownOpening -= BackstageButton_DropDownOpening;
                 _backstageDropDown.Closed -= BackstageDropDown_Closed;
-                _tabs.MouseDoubleClick -= Tabs_MouseDoubleClick;
-                _tabs.MouseUp -= Tabs_MouseUp;
-                _tabs.SelectedIndexChanged -= Tabs_SelectedIndexChanged;
+                _tabStrip.MouseDoubleClick -= Tabs_MouseDoubleClick;
+                _tabStrip.MouseUp -= Tabs_MouseUp;
                 UnsubscribeThemeManager();
-                _contextTransitionTimer.Stop();
-                _contextTransitionTimer.Tick -= ContextTransitionTimer_Tick;
-                _contextTransitionTimer.Dispose();
-                _backstageTransitionTimer.Stop();
-                _backstageTransitionTimer.Tick -= BackstageTransitionTimer_Tick;
-                _backstageTransitionTimer.Dispose();
+                _contextTransitionTimer.Stop(); _contextTransitionTimer.Tick -= ContextTransitionTimer_Tick; _contextTransitionTimer.Dispose();
+                _backstageTransitionTimer.Stop(); _backstageTransitionTimer.Tick -= BackstageTransitionTimer_Tick; _backstageTransitionTimer.Dispose();
                 _keyboardMap.Clear();
-                HideKeyTips();
-                HideMinimizedPopup();
-                _minimizedTabPopup.Closed -= MinimizedTabPopup_Closed;
-                _minimizedTabPopup.Dispose();
+                HideKeyTips(); HideMinimizedPopup();
+                _minimizedTabPopup.Closed -= MinimizedTabPopup_Closed; _minimizedTabPopup.Dispose();
                 _superTooltip.Dispose();
-                ClearBackstageActions();
-                ClearBackstageFooterActions();
-                DisposeMinimizedImages();
-                DisposeGeneratedImages();
+                ClearBackstageActions(); ClearBackstageFooterActions();
+                DisposeMinimizedImages(); DisposeGeneratedImages();
             }
             base.Dispose(disposing);
         }
 
-        /// <summary>
-        /// Refreshes the command view and controls after configuration changes.
-        /// Rebuilds UI elements affected by density, layout mode, or appearance changes.
-        /// </summary>
-        private void RefreshCommandView()
+        private void ShowActiveContentPanel()
         {
-            if (_suspendCommandRebuild)
-            {
-                return;
-            }
-            BuildFromSimpleItems();
-            if (_isMinimized)
-            {
-                ApplyMinimizedState();
-            }
+            foreach (var t in _tabStrip.Tabs)
+                if (t.ContentPanel != null) t.ContentPanel.Visible = false;
+            var sel = _tabStrip.SelectedTab;
+            if (sel?.ContentPanel != null)
+                sel.ContentPanel.Visible = true;
         }
 
-        /// <summary>
-        /// Ensures search controls are visible and properly configured based on search mode.
-        /// </summary>
+        private void RefreshCommandView()
+        {
+            if (_suspendCommandRebuild) return;
+            BuildFromSimpleItems();
+            if (_isMinimized) ApplyMinimizedState();
+        }
+
         private void EnsureSearchControls()
         {
             _searchBox.Visible = _searchMode != RibbonSearchMode.Off;
@@ -143,30 +118,89 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplySearchAccessibility();
         }
 
-        /// <summary>
-        /// Gets or sets the pane focus based on the direction index.
-        /// Handles F6/Shift+F6 keyboard navigation between panes.
-        /// </summary>
         private void FocusRibbonPane(int direction)
         {
-            // Focus cycling between ribbon panes
-            if (_tabs.TabCount > 0)
+            int count = _tabStrip.Tabs.Count;
+            if (count > 0)
             {
-                int nextIndex = (_tabs.SelectedIndex + direction) % _tabs.TabCount;
-                if (nextIndex < 0) nextIndex += _tabs.TabCount;
-                _tabs.SelectedIndex = nextIndex;
-                _tabs.Focus();
+                int next = (_tabStrip.SelectedIndex + direction) % count;
+                if (next < 0) next += count;
+                _tabStrip.SelectedIndex = next;
+                _tabStrip.Focus();
             }
         }
 
-        /// <summary>
-        /// Applies pane tab order for keyboard navigation.
-        /// </summary>
         private void ApplyPaneTabOrder()
         {
             _quickAccess.TabIndex = 0;
-            _tabs.TabIndex = 1;
+            _tabStrip.TabIndex = 1;
             _contextHeader.TabIndex = 2;
+        }
+
+        private void ContextHeader_Paint(object? sender, PaintEventArgs e)
+        {
+            if (_theme == null || _contextGroups.Count == 0) return;
+            var g = e.Graphics;
+            g.Clear(_theme.Background);
+
+            for (int gi = 0; gi < _contextGroups.Count; gi++)
+            {
+                var grp = _contextGroups[gi];
+                if (!grp.Visible || grp.Pages.Count == 0) continue;
+
+                Rectangle? left = null, right = null;
+                for (int i = 0; i < _tabStrip.Tabs.Count; i++)
+                {
+                    var tab = _tabStrip.Tabs[i];
+                    if (!_pageToGroup.TryGetValue(tab, out var gref) || gref != grp) continue;
+                    var r = _tabStrip.GetTabRect(i);
+                    if (!left.HasValue || r.Left < left.Value.Left) left = r;
+                    if (!right.HasValue || r.Right > right.Value.Right) right = r;
+                }
+
+                if (!left.HasValue || !right.HasValue) continue;
+                var band = new Rectangle(left.Value.Left, 0, right.Value.Right - left.Value.Left, _contextHeader.Height - 1);
+                int alpha = Math.Clamp((int)(120 * _contextTransitionProgress), 30, 180);
+                using var b = new SolidBrush(Color.FromArgb(alpha, grp.Color));
+                g.FillRectangle(b, band);
+                using var p = new Pen(grp.Color);
+                g.DrawLine(p, band.Left, band.Bottom, band.Right, band.Bottom);
+            }
+        }
+
+        private void ContextTransitionTimer_Tick(object? sender, EventArgs e)
+        {
+            _contextTransitionProgress += _contextTransitionTimer.Interval / (float)Math.Max(1, _contextTransitionEffectiveDurationMs);
+            if (_contextTransitionProgress >= 1f)
+            {
+                _contextTransitionProgress = 1f;
+                _contextTransitionTimer.Stop();
+            }
+            _contextHeader.Invalidate();
+        }
+
+        private void StartContextTransition()
+        {
+            if (!ShouldAnimateTransitions() || !_enableContextTransitions)
+            {
+                _contextTransitionProgress = 1f;
+                _contextHeader.Invalidate();
+                return;
+            }
+            _contextTransitionEffectiveDurationMs = GetEffectiveTransitionDurationMs(_contextTransitionDurationMs, forBackstage: false);
+            _contextTransitionTimer.Interval = Math.Clamp(_contextTransitionEffectiveDurationMs / 12, 10, 24);
+            _contextTransitionProgress = 0f;
+            _contextTransitionTimer.Stop();
+            _contextTransitionTimer.Start();
+        }
+
+        private bool ShouldAnimateTransitions() => _enableContextTransitions && !_reducedMotion;
+        private int GetEffectiveTransitionDurationMs(int configuredDurationMs, bool forBackstage)
+        {
+            int baseDuration = Math.Max(50, configuredDurationMs);
+            if (!_adaptiveTransitionTiming) return baseDuration;
+            float df = _density switch { RibbonDensity.Compact => 0.86f, RibbonDensity.Touch => 1.16f, _ => 1f };
+            return Math.Max(50, (int)(baseDuration * df));
         }
     }
 }

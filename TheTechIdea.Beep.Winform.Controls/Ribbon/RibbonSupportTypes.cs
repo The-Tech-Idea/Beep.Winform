@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string Name { get; set; } = string.Empty;
         public Color Color { get; set; } = Color.CornflowerBlue;
         public bool Visible { get; set; }
-        public List<TabPage> Pages { get; } = [];
+        public List<RibbonTab> Pages { get; } = [];
     }
 
     public sealed class RibbonCustomizationState

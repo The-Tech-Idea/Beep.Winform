@@ -28,11 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 qIndex++;
             }
 
-            var page = _tabs.SelectedTab;
-            if (page == null) return;
+            var tab = _tabStrip.SelectedTab;
+            if (tab?.ContentPanel == null) return;
+            var panel = tab.ContentPanel;
 
             int alphaIndex = 0;
-            foreach (var group in page.Controls.OfType<BeepRibbonGroup>())
+            foreach (var group in panel.Controls.OfType<BeepRibbonGroup>())
             {
                 foreach (ToolStripItem item in group.Items)
                 {

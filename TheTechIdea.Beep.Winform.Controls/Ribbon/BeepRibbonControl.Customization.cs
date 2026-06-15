@@ -440,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var json = File.ReadAllText(file);
                 var tokens = System.Text.Json.JsonSerializer.Deserialize<RibbonThemeTokens>(json);
                 if (tokens == null) return;
-                Theme = tokens.ToTheme(_theme);
+                RibbonThemeProvider = tokens.ToTheme(_theme);
             }
             catch
             {

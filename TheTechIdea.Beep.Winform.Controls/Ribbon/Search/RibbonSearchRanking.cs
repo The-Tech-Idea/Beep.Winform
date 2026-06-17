@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Search
 
         private static string BuildMetadata(SimpleItem item)
         {
-            return string.Join(' ',
+            string[] values =
             [
                 item.Name ?? string.Empty,
                 item.Category.ToString(),
@@ -124,7 +124,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Search
                 item.SubText ?? string.Empty,
                 item.SubText2 ?? string.Empty,
                 item.SubText3 ?? string.Empty
-            ]);
+            ];
+            return string.Join(' ', values);
         }
 
         private static bool EqualsIgnoreCase(string value, string query)

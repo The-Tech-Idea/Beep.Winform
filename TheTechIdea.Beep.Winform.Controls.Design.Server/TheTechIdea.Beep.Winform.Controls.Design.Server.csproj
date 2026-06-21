@@ -65,7 +65,6 @@
   <ItemGroup>
     <!-- Use latest available preview (restore previously showed 1.13.0-preview.2.24575.3) -->
     <PackageReference Include="Microsoft.WinForms.Designer.SDK" Version="1.13.0-preview.2.24575.3" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" ExcludeAssets="compile" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ActionLists\DocumentHostActionList.cs" />
@@ -87,7 +86,7 @@
     <Compile Remove="MDI\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Beep.Winform.Data.Integrated\Beep.Winform.Data.Integrated.Controls\TheTechIdea.Beep.Winform.Controls.Integrated.csproj" />
+    <ProjectReference Include="..\..\Beep.Winform.Data.Integrated\Beep.Winform.Data.Integrated.Controls\TheTechIdea.Beep.Winform.Data.Integrated.csproj" />
     <ProjectReference Include="..\..\Beep.Winform\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
   </ItemGroup>
   <ItemGroup>

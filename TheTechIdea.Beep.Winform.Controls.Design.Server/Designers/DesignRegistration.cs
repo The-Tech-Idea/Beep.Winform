@@ -139,7 +139,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             RegisterControl(typeof(BeepMediaWidget), typeof(BeepMediaWidgetDesigner));
             RegisterControl(typeof(BeepMapWidget), typeof(BeepMapWidgetDesigner));
             RegisterControl(typeof(BeepFinanceWidget), typeof(BeepFinanceWidgetDesigner));
-            RegisterControl(typeof(BeepFormWidget), typeof(BeepFormWidgetDesigner));
             RegisterControl(typeof(BeepCalendarWidget), typeof(BeepCalendarWidgetDesigner));
             RegisterControl(typeof(BeepSocialWidget), typeof(BeepSocialWidgetDesigner));
 

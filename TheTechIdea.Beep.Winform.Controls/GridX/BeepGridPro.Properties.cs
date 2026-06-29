@@ -1141,6 +1141,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             return _toolbarState.FindButton(key)?.IsVisible ?? false;
         }
 
+        /// <summary>Show or hide the toolbar "New" (Add) button. Default: false.</summary>
+        [Browsable(true)]
+        [Category("Toolbar")]
+        [Description("Shows or hides the 'New' (Add) toolbar button.")]
+        [DefaultValue(false)]
+        public bool ShowAddButton
+        {
+            get => IsToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyAdd);
+            set => SetToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyAdd, value);
+        }
+
+        /// <summary>Show or hide the toolbar "Edit" button. Default: false.</summary>
+        [Browsable(true)]
+        [Category("Toolbar")]
+        [Description("Shows or hides the 'Edit' toolbar button.")]
+        [DefaultValue(false)]
+        public bool ShowEditButton
+        {
+            get => IsToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyEdit);
+            set => SetToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyEdit, value);
+        }
+
+        /// <summary>Show or hide the toolbar "Delete" button. Default: false.</summary>
+        [Browsable(true)]
+        [Category("Toolbar")]
+        [Description("Shows or hides the 'Delete' toolbar button.")]
+        [DefaultValue(false)]
+        public bool ShowDeleteButton
+        {
+            get => IsToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyDelete);
+            set => SetToolbarButtonVisible(Toolbar.BeepGridToolbarState.KeyDelete, value);
+        }
+
         #endregion
     }
 }

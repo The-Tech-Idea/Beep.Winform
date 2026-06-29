@@ -352,6 +352,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
         private void BuildButtonLists()
         {
             ActionButtons.Clear();
+            // CRUD buttons (Add/Edit/Delete) are hidden by default.
+            // Enable them via ShowAddButton / ShowEditButton / ShowDeleteButton
+            // or by calling SetToolbarButtonVisible("add"/"edit"/"delete", true).
             ActionButtons.Add(new ToolbarButtonItem
             {
                 Key = KeyAdd,
@@ -359,6 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 Label = "New",
                 Tooltip = "Add a new row",
                 Shortcut = Keys.Insert,
+                IsVisible = false,
             });
             ActionButtons.Add(new ToolbarButtonItem
             {
@@ -367,6 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 Label = "Edit",
                 Tooltip = "Edit the active cell",
                 Shortcut = Keys.F2,
+                IsVisible = false,
             });
             ActionButtons.Add(new ToolbarButtonItem
             {
@@ -375,6 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 Label = "Delete",
                 Tooltip = "Delete the active row",
                 Shortcut = Keys.Delete,
+                IsVisible = false,
             });
 
             ExportButtons.Clear();

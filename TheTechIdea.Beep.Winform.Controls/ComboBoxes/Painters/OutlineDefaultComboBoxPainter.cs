@@ -46,39 +46,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                // Focus ring — drawn at the DrawingRect edge (NOT inset)
-                // with a softly coloured wider pen that bleeds 1.5 px
-                // outward over the BaseControl border and 1.5 px inward,
-                // producing a glow-like accent rather than a hard
-                // double-border ring that "looks bad".  The old
-                // Inflate(-1,-1) put the ring entirely inside the
-                // content area, leaving a visible gap between the
-                // BaseControl border and the focus indicator.
-                Color focusColor = _theme?.ButtonHoverForeColor ?? _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                int radius = ScaleX(CornerRadius);
-                // Draw at the drawingRect edge (no Inflate) so the
-                // glow straddles the border line.
-                using var path = GetRoundedRectPath(drawingRect, radius);
-                using var pen = new Pen(Color.FromArgb(55, focusColor), ScaleX(3))
-                {
-                    Alignment = PenAlignment.Center
-                };
-                g.DrawPath(pen, path);
-            }
-            else if (istate == ComboBoxInteractionState.Hover)
-            {
-                // Hover: subtle border accent — matches popup HoverBorderColor on hover rows
-                Color hoverBorder = _theme?.ButtonHoverBorderColor ?? Color.FromArgb(180, 180, 195);
-                int radius = ScaleX(CornerRadius);
-                using var path = GetRoundedRectPath(drawingRect, radius);
-                using var pen = new Pen(Color.FromArgb(50, hoverBorder), ScaleX(2));
-                g.DrawPath(pen, path);
-            }
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
     }
 }

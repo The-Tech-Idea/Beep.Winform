@@ -87,32 +87,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            // Focus: accent-tinted ring matching popup section header accent treatment
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                Color focusColor = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                int radius = ScaleX(CornerRadius);
-                using var path = GetRoundedRectPath(Rectangle.Inflate(drawingRect, -1, -1), radius);
-                using var pen = new Pen(Color.FromArgb(80, focusColor), ScaleX(2));
-                g.DrawPath(pen, path);
-            }
-
-            // Left accent bar on focus — mirrors popup SectionHeader accent bar (3px wide)
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                Color accent = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                int barWidth = ScaleX(3);
-                int barTop = drawingRect.Top + ScaleY(6);
-                int barBot = drawingRect.Bottom - ScaleY(6);
-                if (barBot > barTop)
-                {
-                    using var barBrush = new SolidBrush(Color.FromArgb(160, accent));
-                    g.FillRectangle(barBrush, drawingRect.Left + 1, barTop, barWidth, barBot - barTop);
-                }
-            }
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
     }
 }

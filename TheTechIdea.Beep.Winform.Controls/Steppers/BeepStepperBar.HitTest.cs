@@ -78,8 +78,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_hitTest.HitTest(e.Location, out var hit) && TryGetStepIndexFromHitArea(hit, out int stepIndex))
             {
                 NavigateToStep(stepIndex);
-                StartStepRipple(stepIndex, e.Location);
-                ShowStepNotification(stepIndex);
+                if (_enableClickRipple)
+                {
+                    StartStepRipple(stepIndex, e.Location);
+                }
+                if (_enableClickNotifications)
+                {
+                    ShowStepNotification(stepIndex);
+                }
             }
         }
 

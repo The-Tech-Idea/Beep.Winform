@@ -29,6 +29,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         public bool Cancel { get; set; } = true;
 
         /// <summary>
+        /// Phase 17 — whether the verification checkbox was checked
+        /// when the dialog closed. Maps to
+        /// <see cref="DialogConfig.VerificationText"/>.
+        /// </summary>
+        public bool WasVerificationChecked { get; set; }
+
+        /// <summary>
         /// Whether the operation was successful
         /// </summary>
         public bool Success => !Cancel && (Result == BeepDialogResult.OK || Result == BeepDialogResult.Yes);

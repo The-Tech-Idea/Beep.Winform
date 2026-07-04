@@ -51,33 +51,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            // Hover: card-shadow lift matching popup pill hover elevation
-            if (istate == ComboBoxInteractionState.Hover)
-            {
-                int pillRadius = ScaleX(CornerRadius);
-                var shadowRect = new Rectangle(drawingRect.X + 2, drawingRect.Y + 2, drawingRect.Width, drawingRect.Height);
-                using var shadowPath = GetRoundedRectPath(shadowRect, pillRadius);
-                using var shadowBrush = new SolidBrush(Color.FromArgb(18, Color.Black));
-                g.FillPath(shadowBrush, shadowPath);
-            }
-
-            // Focus/Open: glow ring drawn at the drawingRect edge
-            // (not inflated outward, not inset inward) so it
-            // straddles the base border line as a soft accent.
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                Color primaryGlow = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                int pillRadius = ScaleX(CornerRadius);
-                using var path = GetRoundedRectPath(drawingRect, pillRadius);
-                using var glowPen = new Pen(Color.FromArgb(50, primaryGlow), ScaleX(3))
-                {
-                    Alignment = PenAlignment.Center
-                };
-                g.DrawPath(glowPen, path);
-            }
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
 
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)

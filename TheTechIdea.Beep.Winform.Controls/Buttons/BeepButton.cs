@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
@@ -949,55 +950,58 @@ namespace TheTechIdea.Beep.Winform.Controls
             textRect = Rectangle.Empty;
 
             bool hasImage = imageSize != Size.Empty;
-            bool hasText = !string.IsNullOrEmpty(Text) && !HideText; // Check if text is available and not hidden
+            bool hasText = !string.IsNullOrEmpty(Text) && !HideText;
 
-            // Adjust contentRect for padding
-            contentRect.Inflate(- 2, - 2);
+            // Per-style padding (Material3 = 16, Fluent2 = 8, StripeDashboard = 20, etc.).
+            // Falls back to the property Padding when explicitly set so user overrides win.
+            int stylePad = BeepStyling.GetPadding(ControlStyle);
+            int padH = Padding.Horizontal > 0 ? Padding.Horizontal : stylePad;
+            int padV = Padding.Vertical   > 0 ? Padding.Vertical   : stylePad;
+
+            // Single Inflate on a copy. The previous code did a hard-coded (-2,-2) here
+            // AND used Padding.Horizontal later in ImageBeforeText / TextBeforeImage,
+            // producing a double-subtract that pushed text out of bounds for some styles.
+            var work = Rectangle.Inflate(contentRect, -padH, -padV);
 
             if (hasImage && !hasText)
             {
-                // Center image in the button if there is no text
-                imageRect = AlignRectangle(contentRect, imageSize, ContentAlignment.MiddleCenter);
+                imageRect = AlignRectangle(work, imageSize, ContentAlignment.MiddleCenter);
             }
             else if (hasText && !hasImage)
             {
-                // Only text is present, align text within the button
-                textRect = AlignRectangle(contentRect, textSize, TextAlign);
+                textRect = AlignRectangle(work, textSize, TextAlign);
             }
             else if (hasImage && hasText)
             {
-                // Layout logic based on TextImageRelation when both text and image are present
                 switch (TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
-                        // ImagePath and text overlap
-                        imageRect = AlignRectangle(contentRect, imageSize, ImageAlign);
-                        textRect = AlignRectangle(contentRect, textSize, TextAlign);
+                        imageRect = AlignRectangle(work, imageSize, ImageAlign);
+                        textRect = AlignRectangle(work, textSize, TextAlign);
                         break;
 
                     case TextImageRelation.ImageBeforeText:
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - imageSize.Width - Padding.Horizontal, contentRect.Height), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(work.Left, work.Top, imageSize.Width, work.Height), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(work.Left + imageSize.Width + padH, work.Top, work.Width - imageSize.Width - padH, work.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextBeforeImage:
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + Padding.Horizontal, contentRect.Top, contentRect.Width - textSize.Width - Padding.Horizontal, contentRect.Height), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(work.Left, work.Top, textSize.Width, work.Height), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(work.Left + textSize.Width + padH, work.Top, work.Width - textSize.Width - padH, work.Height), imageSize, ImageAlign);
                         break;
 
                     case TextImageRelation.ImageAboveText:
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - imageSize.Height - Padding.Vertical), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(work.Left, work.Top, work.Width, imageSize.Height), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(work.Left, work.Top + imageSize.Height + padV, work.Width, work.Height - imageSize.Height - padV), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextAboveImage:
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + Padding.Vertical, contentRect.Width, contentRect.Height - textSize.Height - Padding.Vertical), imageSize, ImageAlign);
+                        textRect = AlignRectangle(new Rectangle(work.Left, work.Top, work.Width, textSize.Height), textSize, TextAlign);
+                        imageRect = AlignRectangle(new Rectangle(work.Left, work.Top + textSize.Height + padV, work.Width, work.Height - textSize.Height - padV), imageSize, ImageAlign);
                         break;
                 }
             }
-        }
-        private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
+        }        private Rectangle AlignRectangle(Rectangle container, Size size, ContentAlignment alignment)
         {
             int x = 0;
             int y = 0;
@@ -1619,22 +1623,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw text if available and not hidden - measure to prevent clipping
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
-              //  Console.WriteLine("9");
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                
-                // Measure text to ensure it fits in the rectangle (using cached TextUtils)
+
+                // Only elide when the text actually overflows the available rect.
+                // The previous code always set EndEllipsis + NoPadding unconditionally,
+                // which forced an ellipsis even on text that fit and packed it flush
+                // against the rect edge, producing the "text !!!" symptom in some styles.
                 var measuredSizeF = TextUtils.MeasureText(g, Text, scaledFont, int.MaxValue);
-                var measuredSize = new Size((int)measuredSizeF.Width, (int)measuredSizeF.Height);
-                textRect.Width = Math.Min(measuredSize.Width, textRect.Width);
-                textRect.Height = Math.Min(measuredSize.Height, textRect.Height);
-                
-                // Add EndEllipsis flag to prevent text from being cut
-                flags |= TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding;
-              //  Console.WriteLine("Text rectangle should be calculated even if text is empty, to allow for proper layout of image-only buttons.");
-                // For better text rendering on modern buttons
+                bool overflows = measuredSizeF.Width  > textRect.Width  + 0.5f
+                               || measuredSizeF.Height > textRect.Height + 0.5f;
+                if (overflows)
+                {
+                    flags |= TextFormatFlags.EndEllipsis | TextFormatFlags.WordEllipsis;
+                }
+
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                 TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
-              //  Console.WriteLine( "Text rectangle should be calculated even if text is empty, to allow for proper layout of image-only buttons.");
             }
         }
         #endregion // End Draw Button From Html source

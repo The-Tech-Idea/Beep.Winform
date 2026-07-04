@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
@@ -18,20 +17,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
     public partial class BeepDialogManager
     {
         #region Text Input
-
-        public Task<string?> InputTextAsync(string title, string prompt, string? defaultValue = null)
-        {
-            var config = new DialogConfig
-            {
-                Title = title,
-                Message = prompt,
-                Preset = DialogPreset.None,
-                IconType = BeepDialogIcon.Question,
-                Buttons = new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok }
-            };
-
-            return ShowInputDialogAsync(config, defaultValue, multiline: false, password: false);
-        }
 
         public string? InputText(string title, string prompt, string? defaultValue = null)
         {
@@ -80,62 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #endregion
 
-        public Task<string?> InputTextValidatedAsync(
-            string title,
-            string prompt,
-            Func<string, (bool Valid, string Error)> validator,
-            string? defaultValue = null)
-        {
-            var config = new DialogConfig
-            {
-                Title = title,
-                Message = prompt,
-                Buttons = new[] { BeepDialogButtons.Cancel, BeepDialogButtons.Ok },
-                DialogKey = $"{title}:{prompt}",
-                EnableRecentInputMemory = true
-            };
-            config.FieldValidators["value"] = validator;
-            Func<string, string?> wrappedValidator = v =>
-            {
-                var result = validator(v);
-                return result.Valid ? null : result.Error;
-            };
-            return ShowInputDialogAsync(config, defaultValue, multiline: false, password: false, validator: wrappedValidator);
-        }
-
         #region Numeric Input
-
-        /// <summary>
-        /// Shows a number input dialog (async)
-        /// </summary>
-        public async Task<double?> InputNumberAsync(string title, string prompt, double? min = null, double? max = null, double? defaultValue = null)
-        {
-            while (true)
-            {
-                var result = await InputTextAsync(title, prompt, defaultValue?.ToString());
-
-                if (result == null)
-                    return null;
-
-                if (!double.TryParse(result, out double value))
-                {
-                    ShowError("Invalid Input", "Please enter a valid number.");
-                    continue;
-                }
-
-                if (min.HasValue && value < min.Value)
-                {
-                    ShowError("Invalid Input", $"Value must be at least {min.Value}");
-                    continue;
-                }
-                if (max.HasValue && value > max.Value)
-                {
-                    ShowError("Invalid Input", $"Value must be at most {max.Value}");
-                    continue;
-                }
-                return value;
-            }
-        }
 
         /// <summary>
         /// Shows a number input dialog (sync)
@@ -175,123 +105,36 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region Input Dialog Helpers
 
-        private BeepDialogForm CreateInputDialog(string title, string prompt, string? defaultValue, bool multiline, bool password)
+        private BeepInputDialog CreateInputDialog(string title, string prompt, string? defaultValue, bool multiline, bool password)
         {
-            var dialog = new BeepDialogForm
-            {
-                Title = title,
-                Message = prompt,
-                DialogType = DialogType.GetInputString
-            };
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
-
-            if (multiline)
-                dialog.InputBoxMultiline = true;
-
-            if (password)
-                dialog.InputBoxUsePasswordChar = true;
-
-            if (!string.IsNullOrEmpty(defaultValue))
-                dialog.InputDefaultValue = defaultValue;
-
+            var dialog = new BeepInputDialog();
+            dialog.Title = title;
+            dialog.Message = prompt;
+            if (multiline) dialog.InputBoxMultiline = true;
+            if (password) dialog.InputBoxUsePasswordChar = true;
+            if (!string.IsNullOrEmpty(defaultValue)) dialog.InputDefaultValue = defaultValue;
             return dialog;
-        }
-
-        private async Task<string?> ShowInputDialogAsync(DialogConfig config, string? defaultValue, bool multiline, bool password, Func<string, string?>? validator = null)
-        {
-            using var dialog = CreateInputDialog(config.Title, config.Message, defaultValue, multiline, password);
-
-            if (validator != null)
-                dialog.InputValidator = validator;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? await ShowDialogAsync(dialog, owner) : await ShowDialogAsync(dialog);
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                var value = dialog.ReturnValue;
-                StoreRecentInput(config, value ?? string.Empty);
-                return value;
-            }
-
-            return null;
-        }
-
-        private Task<System.Windows.Forms.DialogResult> ShowDialogAsync(BeepDialogForm dialog, Form? owner = null)
-        {
-            var tcs = new TaskCompletionSource<System.Windows.Forms.DialogResult>();
-            dialog.FormClosed += (s, e) => tcs.TrySetResult(dialog.DialogResult);
-            if (owner != null)
-                dialog.Show(owner);
-            else
-                dialog.Show();
-            return tcs.Task;
         }
 
         #endregion
 
         #region Selection Input
 
-        /// <summary>
-        /// Shows a selection dialog from a list of items (async)
-        /// </summary>
-        public Task<SimpleItem?> InputSelectAsync(string title, string prompt, List<SimpleItem> items)
-        {
-            if (items == null || items.Count == 0)
-                return Task.FromResult<SimpleItem?>(null);
-
-            using var dialog = new BeepDialogForm();
-            dialog.Title = title;
-            dialog.Message = prompt;
-            dialog.DialogType = DialogType.GetInputFromList;
-            dialog.Items = items;
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                return Task.FromResult<SimpleItem?>(dialog.ReturnItem);
-            }
-
-            return Task.FromResult<SimpleItem?>(null);
-        }
-
-        /// <summary>
-        /// Shows a selection dialog from a list of items (sync)
-        /// </summary>
         public SimpleItem? InputSelect(string title, string prompt, List<SimpleItem> items)
         {
             if (items == null || items.Count == 0)
                 return null;
 
-            using var dialog = new BeepDialogForm();
+            using var dialog = new BeepListDialog();
             dialog.Title = title;
             dialog.Message = prompt;
-            dialog.DialogType = DialogType.GetInputFromList;
             dialog.Items = items;
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            dialog.StartPosition = FormStartPosition.CenterParent;
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
 
             if (result == System.Windows.Forms.DialogResult.OK)
-            {
                 return dialog.ReturnItem;
-            }
 
             return null;
         }
@@ -307,28 +150,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows a multi-select dialog with checkboxes (async)
-        /// </summary>
-        public Task<List<SimpleItem>> InputMultiSelectAsync(string title, string prompt, List<SimpleItem> items, IEnumerable<string>? preSelected = null)
-        {
-            if (items == null || items.Count == 0)
-                return Task.FromResult(new List<SimpleItem>());
-
-            using var dialog = new BeepMultiSelectDialog();
-            dialog.SetItems(title, prompt, items, preSelected);
-
-            if (_defaultTheme != null)
-                dialog.CurrentTheme = _defaultTheme;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-
-            return result == System.Windows.Forms.DialogResult.OK
-                ? Task.FromResult(dialog.SelectedItems)
-                : Task.FromResult(new List<SimpleItem>());
-        }
-
-        /// <summary>
         /// Shows a multi-select dialog with checkboxes (sync)
         /// </summary>
         public List<SimpleItem> InputMultiSelect(string title, string prompt, List<SimpleItem> items, IEnumerable<string>? preSelected = null)
@@ -341,6 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             if (_defaultTheme != null)
                 dialog.CurrentTheme = _defaultTheme;
+                dialog.ApplyTheme();       // propagate theme to all child controls
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
@@ -353,17 +175,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #endregion
 
         #region Date/Time Input
-
-        /// <summary>
-        /// Shows a date input dialog (async)
-        /// </summary>
-        public async Task<DateTime?> InputDateAsync(string title, string prompt, DateTime? min = null, DateTime? max = null, DateTime? defaultValue = null)
-        {
-            using var dialog = CreateDatePickerDialog(title, prompt, min, max, defaultValue);
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
-            return result == System.Windows.Forms.DialogResult.OK && dialog.Tag is DateTime dt ? dt : null;
-        }
 
         public DateTime? InputDate(string title, string prompt, DateTime? min = null, DateTime? max = null, DateTime? defaultValue = null)
         {
@@ -401,16 +212,10 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private Form CreateDatePickerDialog(string title, string prompt, DateTime? min, DateTime? max, DateTime? defaultValue)
         {
-            var form = new BeepDialogForm
-            {
-                Title = title,
-                Message = prompt,
-                DialogType = DialogType.None,
-                StartPosition = FormStartPosition.CenterParent
-            };
-
-            if (_defaultTheme != null)
-                form.CurrentTheme = _defaultTheme;
+            var form = new BeepMessageDialog();
+            form.Title = title;
+            form.Message = prompt;
+            form.StartPosition = FormStartPosition.CenterParent;
 
             var dtp = new DateTimePicker
             {
@@ -443,29 +248,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Color Input
 
         /// <summary>
-        /// Shows a color picker dialog (async)
-        /// </summary>
-        public Task<Color?> InputColorAsync(string? title = null, Color? initialColor = null)
-        {
-            using var cd = new ColorDialog();
-
-            if (initialColor.HasValue)
-            {
-                cd.Color = initialColor.Value;
-            }
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? cd.ShowDialog(owner) : cd.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                return Task.FromResult<Color?>(cd.Color);
-            }
-
-            return Task.FromResult<Color?>(null);
-        }
-
-        /// <summary>
         /// Shows a color picker dialog (sync)
         /// </summary>
         public Color? InputColor(string? title = null, Color? initialColor = null)
@@ -491,24 +273,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #endregion
 
         #region Font Input
-
-        /// <summary>
-        /// Shows a font picker dialog (async)
-        /// </summary>
-        public Task<Font?> InputFontAsync(string? title = null, Font? initialFont = null)
-        {
-            using var fd = new FontDialog();
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? fd.ShowDialog(owner) : fd.ShowDialog();
-
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                return Task.FromResult<Font?>(fd.Font);
-            }
-
-            return Task.FromResult<Font?>(null);
-        }
 
         /// <summary>
         /// Shows a font picker dialog (sync)
@@ -558,63 +322,55 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.InputBoxAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputBox(string title, string promptText)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var value = await InputTextAsync(title, promptText);
+            var value = InputText(title, promptText);
             return CreateValueReturn(value);
         }
 
-        async Task<DialogReturn> IDialogManager.InputBoxYesNoAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputBoxYesNo(string title, string promptText)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            return await ShowAsync(DialogConfig.CreateQuestion(title, promptText), cancellationToken);
+            return Show(DialogConfig.CreateQuestion(title, promptText));
         }
 
-        Task<DialogReturn> IDialogManager.InputLargeBoxAsync(string title, string promptText, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputLarge(string title, string promptText)
         {
-            return ((IDialogManager)this).InputBoxAsync(title, promptText, cancellationToken);
+            return ((IDialogManager)this).InputBox(title, promptText);
         }
 
-        async Task<DialogReturn> IDialogManager.InputPasswordAsync(string title, string promptText, bool masked, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputPassword(string title, string promptText, bool masked)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var value = InputPassword(title, promptText);
-            return await Task.FromResult(CreateValueReturn(value));
+            return CreateValueReturn(value);
         }
 
-        async Task<DialogReturn> IDialogManager.InputIntAsync(string title, string promptText, int? min, int? max, int? @default, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputInt(string title, string promptText, int? min, int? max, int? @default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var value = InputInteger(title, promptText, min, max, @default);
-            return await Task.FromResult(CreateTagReturn(value));
-        }
-
-        async Task<DialogReturn> IDialogManager.InputDoubleAsync(string title, string promptText, double? min, double? max, double? @default, int? decimals, System.Threading.CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var value = await InputNumberAsync(title, promptText, min, max, @default);
             return CreateTagReturn(value);
         }
 
-        async Task<DialogReturn> IDialogManager.InputDateTimeAsync(string title, string promptText, DateTime? min, DateTime? max, DateTime? @default, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputDouble(string title, string promptText, double? min, double? max, double? @default, int? decimals)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var value = await InputDateAsync(title, promptText, min, max, @default);
+            var value = InputNumber(title, promptText, min, max, @default);
             return CreateTagReturn(value);
         }
 
-        async Task<DialogReturn> IDialogManager.InputTimeSpanAsync(string title, string promptText, TimeSpan? min, TimeSpan? max, TimeSpan? @default, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputDateTime(string title, string promptText, DateTime? min, DateTime? max, DateTime? @default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var value = InputDate(title, promptText, min, max, @default);
+            return CreateTagReturn(value);
+        }
+
+        DialogReturn IDialogManager.InputTimeSpan(string title, string promptText, TimeSpan? min, TimeSpan? max, TimeSpan? @default)
+        {
             var value = InputTimeSpan(title, promptText, min, max, @default);
-            return await Task.FromResult(CreateTagReturn(value));
+            return CreateTagReturn(value);
         }
 
-        async Task<DialogReturn> IDialogManager.InputComboBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputCombo(string title, string promptText, List<SimpleItem> itvalues)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var value = await InputSelectAsync(title, promptText, itvalues);
+            var value = InputSelect(title, promptText, itvalues);
             return new DialogReturn
             {
                 Result = value != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -626,26 +382,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.InputComboBoxAsync(string title, string promptText, List<string> values, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputCombo(string title, string promptText, List<string> values)
         {
             var items = values?.Select(v => new SimpleItem { Text = v, Value = v }).ToList() ?? new List<SimpleItem>();
-            return await ((IDialogManager)this).InputComboBoxAsync(title, promptText, items, cancellationToken);
+            return ((IDialogManager)this).InputCombo(title, promptText, items);
         }
 
-        Task<DialogReturn> IDialogManager.InputListBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputList(string title, string promptText, List<SimpleItem> itvalues)
         {
-            return ((IDialogManager)this).InputComboBoxAsync(title, promptText, itvalues, cancellationToken);
+            return ((IDialogManager)this).InputCombo(title, promptText, itvalues);
         }
 
-        Task<DialogReturn> IDialogManager.InputRadioGroupBoxAsync(string title, string promptText, List<SimpleItem> itvalues, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputRadioGroup(string title, string promptText, List<SimpleItem> itvalues)
         {
-            return ((IDialogManager)this).InputComboBoxAsync(title, promptText, itvalues, cancellationToken);
+            return ((IDialogManager)this).InputCombo(title, promptText, itvalues);
         }
 
-        async Task<DialogReturn> IDialogManager.InputCheckListAsync(string title, string promptText, List<SimpleItem> items, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.InputCheckList(string title, string promptText, List<SimpleItem> items)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var values = await InputMultiSelectAsync(title, promptText, items);
+            var values = InputMultiSelect(title, promptText, items);
             return new DialogReturn
             {
                 Result = values.Count > 0 ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -656,26 +411,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        Task<DialogReturn> IDialogManager.MultiSelectAsync(string title, string promptText, List<SimpleItem> items, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.MultiSelect(string title, string promptText, List<SimpleItem> items)
         {
-            return ((IDialogManager)this).InputCheckListAsync(title, promptText, items, cancellationToken);
+            return ((IDialogManager)this).InputCheckList(title, promptText, items);
         }
 
-        Task<DialogReturn> IDialogManager.DialogComboAsync(string text, List<SimpleItem> comboSource, string displayMember, string valueMember, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.DialogCombo(string text, List<SimpleItem> comboSource, string displayMember, string valueMember)
         {
-            return ((IDialogManager)this).InputComboBoxAsync("Select", text, comboSource, cancellationToken);
+            return ((IDialogManager)this).InputCombo("Select", text, comboSource);
         }
 
-        async Task<DialogReturn> IDialogManager.SelectColorAsync(string? title, string? initialColor, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectColor(string? title, string? initialColor)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Color? initial = null;
             if (!string.IsNullOrEmpty(initialColor))
             {
                 try { initial = ColorTranslator.FromHtml(initialColor); } catch { }
             }
 
-            var color = await InputColorAsync(title, initial);
+            var color = InputColor(title, initial);
             return new DialogReturn
             {
                 Result = color.HasValue ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -687,10 +441,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.SelectFontAsync(string? title, string? initialFont, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectFont(string? title, string? initialFont)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var font = await InputFontAsync(title);
+            var font = InputFont(title);
             return new DialogReturn
             {
                 Result = font != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -705,4 +458,3 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #endregion
     }
 }
-

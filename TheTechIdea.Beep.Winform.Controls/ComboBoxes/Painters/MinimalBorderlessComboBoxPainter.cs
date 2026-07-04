@@ -92,45 +92,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            // Bottom underline: hover=muted, focus=FocusBorderColor (matches popup selected text color)
-            Color underlineColor;
-            float thickness;
-            bool drawLine = false;
-
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                underlineColor = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                thickness = ScaleY(2);
-                drawLine = true;
-            }
-            else if (istate == ComboBoxInteractionState.Hover)
-            {
-                // Muted underline matches popup separator treatment (alpha 40 of 180,180,195)
-                underlineColor = Color.FromArgb(100, 180, 180, 195);
-                thickness = ScaleY(1);
-                drawLine = true;
-            }
-            else if (istate == ComboBoxInteractionState.Error)
-            {
-                underlineColor = _theme?.ErrorColor ?? Color.FromArgb(183, 28, 28);
-                thickness = ScaleY(2);
-                drawLine = true;
-            }
-            else
-            {
-                underlineColor = Color.Transparent;
-                thickness = 0;
-            }
-
-            if (drawLine)
-            {
-                int y = drawingRect.Bottom - (int)Math.Ceiling(thickness);
-                using var pen = new Pen(underlineColor, thickness);
-                g.DrawLine(pen, drawingRect.Left, y, drawingRect.Right, y);
-            }
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
 
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)

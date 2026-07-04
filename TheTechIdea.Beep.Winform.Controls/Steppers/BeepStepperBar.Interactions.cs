@@ -100,7 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         int target = _focusedStepIndex >= 0 ? _focusedStepIndex : currentStep;
                         NavigateToStep(target);
-                        StartStepRipple(target, buttonBounds.Count > target ? buttonBounds[target].Location : Point.Empty);
+                        if (_enableClickRipple)
+                        {
+                            StartStepRipple(target, buttonBounds.Count > target ? buttonBounds[target].Location : Point.Empty);
+                        }
                     }
                     return true;
                 default:

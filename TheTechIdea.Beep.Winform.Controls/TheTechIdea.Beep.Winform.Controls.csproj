@@ -4676,7 +4676,6 @@
     <Folder Include="ComboBoxes\.plans\" />
     <Folder Include="ContextMenus\Helpers\" />
     <Folder Include="Dates\Internal\DaysPainters\" />
-    <Folder Include="DialogsManagers\Forms\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Docking\Examples\" />

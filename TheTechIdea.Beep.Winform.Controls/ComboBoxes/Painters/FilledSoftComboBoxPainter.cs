@@ -48,43 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            // Card-like shadow lift on hover — matches CardRow hover shadow (2px offset, alpha 20)
-            if (istate == ComboBoxInteractionState.Hover)
-            {
-                int r = ScaleX(CornerRadius);
-                var shadowRect = new Rectangle(drawingRect.X + 1, drawingRect.Y + ScaleY(2),
-                    drawingRect.Width - 2, drawingRect.Height);
-                using var shadowPath = GetRoundedRectPath(shadowRect, r);
-                using var shadowBrush = new SolidBrush(Color.FromArgb(16, 0, 0, 0));
-                g.FillPath(shadowBrush, shadowPath);
-            }
-
-            // Bottom underline — material accent matches CardRow selected-card border (FocusBorderColor)
-            Color underlineColor;
-            float thickness;
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                underlineColor = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                thickness = ScaleY(3);
-            }
-            else if (istate == ComboBoxInteractionState.Error)
-            {
-                underlineColor = _theme?.ErrorColor ?? Color.FromArgb(183, 28, 28);
-                thickness = ScaleY(2);
-            }
-            else
-            {
-                // Matches CardRow normal card border alpha (80 of PopupSeparatorColor ≈ muted gray)
-                underlineColor = Color.FromArgb(100, _theme?.BorderColor ?? Color.Gray);
-                thickness = ScaleY(1);
-            }
-
-            int y = drawingRect.Bottom - (int)Math.Ceiling(thickness);
-            using var pen = new Pen(underlineColor, thickness);
-            g.DrawLine(pen, drawingRect.Left + ScaleX(2), y, drawingRect.Right - ScaleX(2), y);
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
 
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)

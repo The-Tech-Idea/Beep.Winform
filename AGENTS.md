@@ -1,5 +1,52 @@
 # WinForms Designer Guidelines for Agents
 
+## Rule: WinForms Dialogs Must Be Synchronous — Never Wrapped in Task/async
+
+WinForms dialog creation and display (`new Form()`, `InitializeComponent()`, `ShowDialog()`) must happen **entirely on the UI thread** without crossing any `Task.Run`, `await`, or `SynchronizationContext` continuations. Wrapping dialogs in `Task.FromResult(...)`, `Task.Run(...)`, `async/await`, or `BeginInvoke` continuations breaks the control lifecycle and causes **blank forms** (controls exist but don't render).
+
+### Correct pattern (`BeepDialogManager.Show`)
+
+```csharp
+public DialogReturn Show(DialogConfig config)
+{
+    Control? uiTarget = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
+    if (uiTarget != null && uiTarget.InvokeRequired)
+    {
+        DialogReturn result = default!;
+        uiTarget.Invoke(new Action(() => result = ShowDialogInternal(config)));
+        return result;
+    }
+    return ShowDialogInternal(config);
+}
+```
+
+- `new Form()` + `InitializeComponent()` + `ShowDialog()` all run on the **same STA thread callback** — never split across thread boundaries.
+- For off-thread callers, marshal the **entire block** with a single blocking `Control.Invoke` — do NOT use `Task.Run` + `Invoke` or `BeginInvoke` + `TaskCompletionSource`.
+- Do NOT return `Task<DialogReturn>`, `Task`, or any `async Task` from dialog methods. Return the concrete result type (`DialogReturn`, `void`, `bool`, `string`, `List<T>`).
+- Do NOT accept `CancellationToken` on dialog entry points — WinForms modal dialogs are not cancellable without destroying the form.
+
+### Anti-patterns (these cause blank forms)
+
+```csharp
+// ❌ Wrapping ShowDialog in Task.FromResult
+return Task.FromResult(ShowDialogInternal(config));
+
+// ❌ Task.Run + Invoke
+return Task.Run(() => { uiTarget.Invoke(() => ShowDialogInternal(config)); });
+
+// ❌ BeginInvoke + TaskCompletionSource
+var tcs = new TaskCompletionSource<DialogReturn>();
+uiTarget.BeginInvoke(() => tcs.SetResult(ShowDialogInternal(config)));
+return tcs.Task;
+
+// ❌ async/await anywhere in the dialog creation chain
+async Task<DialogReturn> ShowAsync(...) { ... await ... }
+```
+
+### Interface design rule
+
+The `IDialogManager` interface (in `TheTechIdea.Beep.Vis.Modules`) is **entirely synchronous**. Every method returns a plain type — never `Task<T>`, never `CancellationToken` parameters. Implementations on WinForms use the `Control.Invoke` pattern above; WPF uses `Dispatcher.Invoke`; Blazor uses `.GetAwaiter().GetResult()` on MudBlazor's SignalR context. All three patterns are valid because the dialog blocks the calling thread until closed — they are not cancellable, and they do not benefit from async infrastructure.
+
 ## Custom Control Designer Pattern for Auto-Creating Child Controls
 
 To make a custom control automatically add another child control and have Visual Studio write that child into the host form's designer.cs file at design time, you **must** use a Custom Control Designer.

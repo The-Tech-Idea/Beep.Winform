@@ -5,7 +5,7 @@ using TheTechIdea.Beep.Icons;  // SvgsUI, Svgs
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
     // ─────────────────────────────────────────────────────────────────────────
-    // Enums
+    // Enums (active)
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>Type of notification.</summary>
@@ -34,70 +34,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         None, Slide, Fade, SlideAndFade, Bounce, Scale
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Enums (obsolete — kept for source compatibility; painters deleted 2026-07)
+    // ─────────────────────────────────────────────────────────────────────────
+
     /// <summary>
-    /// Layout variant – controls the geometric template used by the painter.
+    /// Legacy layout enum — retained for source-compat only. The painter system
+    /// that consumed these values was deleted; rendering is now driven by
+    /// child controls via standard docking. NotificationData.Layout is a
+    /// no-op setter/getter kept so existing callers compile.
     /// </summary>
+    [Obsolete("Painter system removed 2026-07. Notifications now use child controls; this enum is no-op.")]
     public enum NotificationLayout
     {
-        // ── Existing ──────────────────────────────────────────────────────────
-        /// <summary>Icon left, title + message right, actions below.</summary>
-        Standard,
-        /// <summary>Icon and text on a single compact line.</summary>
-        Compact,
-        /// <summary>Large centred icon, prominent title.</summary>
-        Prominent,
-        /// <summary>Full-width banner strip.</summary>
-        Banner,
-        /// <summary>Minimal auto-dismiss toast.</summary>
-        Toast,
-
-        // ── New ───────────────────────────────────────────────────────────────
-        /// <summary>Elevated card with drop-shadow, circle badge icon (56 dp).</summary>
-        Elevated,
-        /// <summary>Material Snackbar – single line, bottom-anchored, optional action link.</summary>
-        Snackbar,
-        /// <summary>Inline alert embedded inside a form body (non-floating).</summary>
-        InlineAlert,
-        /// <summary>Speech-bubble callout anchored to a specific control.</summary>
-        Callout,
-        /// <summary>Dismissible chip / pill (browser permission style).</summary>
-        Chip,
-        /// <summary>Timeline entry – icon left strip, multiline body, timestamp right.</summary>
-        Timeline,
-        /// <summary>Rich media – thumbnail left, text right, action below.</summary>
-        MediaRich,
-        /// <summary>Full-width slide-up action sheet (mobile-inspired).</summary>
-        ActionSheet,
-        /// <summary>Thin status-bar strip anchored to top/bottom of host form.</summary>
-        StatusBar,
-        /// <summary>Semi-transparent overlay covering the host form.</summary>
-        Overlay,
-        /// <summary>100 % host-form-width inline banner.</summary>
-        FullWidth,
+        Standard, Compact, Prominent, Banner, Toast,
+        Elevated, Snackbar, InlineAlert, Callout, Chip,
+        Timeline, MediaRich, ActionSheet, StatusBar, Overlay, FullWidth,
     }
 
     /// <summary>
-    /// Visual painter style – one of 16 design-system tokens.
-    /// Maps to a concrete <c>INotificationPainter</c> implementation.
+    /// Legacy visual-style enum — retained for source-compat only. Selection
+    /// used to choose a <c>NotificationPainter</c>; painters were removed. All
+    /// styling now comes from the host theme via UseThemeColors on the
+    /// notification's child Beep controls.
     /// </summary>
+    [Obsolete("Painter system removed 2026-07. NotificationVisualStyle is no-op; use host theme tokens instead.")]
     public enum NotificationVisualStyle
     {
-        Material3,
-        iOS15,
-        AntDesign,
-        Fluent2,
-        MaterialYou,
-        Windows11Mica,
-        MacOSBigSur,
-        ChakraUI,
-        TailwindCard,
-        NotionMinimal,
-        Minimal,
-        VercelClean,
-        StripeDashboard,
-        DarkGlow,
-        DiscordStyle,
-        GradientModern,
+        Material3, iOS15, AntDesign, Fluent2, MaterialYou,
+        Windows11Mica, MacOSBigSur, ChakraUI, TailwindCard,
+        NotionMinimal, Minimal, VercelClean, StripeDashboard,
+        DarkGlow, DiscordStyle, GradientModern,
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -112,9 +79,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public string Message { get; set; }
         public NotificationType Type { get; set; } = NotificationType.Info;
         public NotificationPriority Priority { get; set; } = NotificationPriority.Normal;
+
+        /// <summary>
+        /// Legacy layout selector — painters were removed 2026-07. Settable
+        /// for source compat but no rendering effect.
+        /// </summary>
+        [Obsolete("Painter system removed; this property is no-op.")]
         public NotificationLayout Layout { get; set; } = NotificationLayout.Standard;
 
-        /// <summary>Visual painter style (maps to 16-painter factory).</summary>
+        /// <summary>
+        /// Legacy visual style — painters were removed 2026-07. Settable for
+        /// source compat but no rendering effect; theme is sourced from
+        /// <c>BeepThemesManager.CurrentTheme</c> via UseThemeColors on the
+        /// child controls.
+        /// </summary>
+        [Obsolete("Painter system removed; this property is no-op. Use host theme tokens.")]
         public NotificationVisualStyle VisualStyle { get; set; } = NotificationVisualStyle.Material3;
 
         /// <summary>Group key for stacking similar notifications.</summary>
@@ -124,8 +103,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public string Source { get; set; }
 
         /// <summary>
-        /// Icon image path (string). If null, uses the default SVG for the type.
-        /// Rendered via <see cref="Styling.ImagePainters.StyledImagePainter"/>.
+        /// Icon image path. If null, uses the default SVG for the type
+        /// (see <see cref="GetDefaultIconForType"/>). Rendered via
+        /// <see cref="Styling.ImagePainters.StyledImagePainter"/>.
         /// </summary>
         public string IconPath { get; set; }
 
@@ -133,37 +113,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public Color? IconTint { get; set; }
 
         /// <summary>
-        /// Body image path (string). Always a path – never a raw Image object.
-        /// Rendered via <see cref="Styling.ImagePainters.StyledImagePainter"/>.
-        /// </summary>
-        public string EmbeddedImagePath { get; set; }
-
-        /// <summary>Show a thin left-bar accent stripe (ChakraUI / Stripe style).</summary>
-        public bool ShowAccentStripe { get; set; } = false;
-
-        /// <summary>Accent stripe colour (null = auto from type colour).</summary>
-        public Color? AccentStripeColor { get; set; }
-
-        /// <summary>Corner radius override; 0 = use per-style default.</summary>
-        public int CornerRadiusOverride { get; set; } = 0;
-
-        /// <summary>
-        /// Optional anchor control for <see cref="NotificationLayout.Callout"/> –
-        /// the notification positions relative to this control's screen bounds.
+        /// Optional anchor Control for showing the notification near a UI
+        /// element. Manager uses this for placement; not consumed by the
+        /// notification form itself.
         /// </summary>
         [System.ComponentModel.Browsable(false)]
         public System.Windows.Forms.Control AnchorControl { get; set; }
 
-        /// <summary>Enable simple HTML-like formatting in Message.</summary>
-        public bool EnableRichText { get; set; } = false;
-
-        /// <summary>Progress value 0–100 for an embedded progress indicator.</summary>
+        /// <summary>Progress value 0–100 shown on the embedded BeepProgressBar.</summary>
         public int? ProgressValue { get; set; }
 
         /// <summary>Label for the progress indicator.</summary>
         public string ProgressText { get; set; }
 
-        /// <summary>Custom background colour (overrides type colour).</summary>
+        /// <summary>Custom background colour (overrides theme-derived type color).</summary>
         public Color? CustomBackColor { get; set; }
 
         /// <summary>Custom foreground colour.</summary>
@@ -202,6 +165,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// <summary>Number of times this notification has been shown (for grouped/repeated notifications).</summary>
         public int ShowCount { get; set; } = 1;
 
+        /// <summary>Path to an embedded image resource shown in the notification.</summary>
+        public string EmbeddedImagePath { get; set; }
+
+        /// <summary>Whether to show an accent stripe on the notification edge.</summary>
+        public bool ShowAccentStripe { get; set; }
+
+        /// <summary>Color of the accent stripe when <see cref="ShowAccentStripe"/> is true.</summary>
+        public Color? AccentStripeColor { get; set; }
+
+        /// <summary>Corner radius override in pixels; 0 = use theme default.</summary>
+        public int CornerRadiusOverride { get; set; }
+
+        /// <summary>Whether Rich Text formatting is enabled in the message body.</summary>
+        public bool EnableRichText { get; set; }
+
         // ── Helpers ───────────────────────────────────────────────────────────
 
         public static int GetDefaultDuration(NotificationPriority priority) => priority switch
@@ -219,12 +197,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public static string GetDefaultIconForType(NotificationType type) => type switch
         {
-            NotificationType.Success => SvgsUI.CircleCheck,      // check-circle.svg
-            NotificationType.Warning => SvgsUI.AlertTriangle,    // alert-triangle.svg
-            NotificationType.Error   => SvgsUI.CircleX,          // x-circle.svg
-            NotificationType.Info    => SvgsUI.InfoCircle,              // info.svg
-            NotificationType.System  => SvgsUI.Settings,         // settings.svg
-            _                        => SvgsUI.Bell,              // bell.svg
+            NotificationType.Success => SvgsUI.CircleCheck,
+            NotificationType.Warning => SvgsUI.AlertTriangle,
+            NotificationType.Error   => SvgsUI.CircleX,
+            NotificationType.Info    => SvgsUI.InfoCircle,
+            NotificationType.System  => SvgsUI.Settings,
+            _                        => SvgsUI.Bell,
         };
     }
 
@@ -250,4 +228,3 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         public bool Cancel { get; set; }
     }
 }
-

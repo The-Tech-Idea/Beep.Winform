@@ -21,21 +21,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 return false;
             }
 
-            using var dialog = new BeepDialogForm
-            {
-                Text = request.Mode == CalendarEventEditorMode.DialogEdit ? "Edit Calendar Event" : "Quick Edit Calendar Event",
-                Message = request.Mode == CalendarEventEditorMode.DialogEdit
-                    ? "Adjust the event details and confirm to save the changes."
-                    : "Edit the main event details."
-            };
-
-            dialog.DialogButtons = BeepDialogButtons.OkCancel;
-            dialog.CustomContentFillsDialog = true;
+            using var dialog = new BeepCustomDialog();
+            dialog.Title = request.Mode == CalendarEventEditorMode.DialogEdit ? "Edit Calendar Event" : "Quick Edit Calendar Event";
             dialog.ClientSize = request.Mode == CalendarEventEditorMode.DialogEdit ? new Size(720, 620) : new Size(560, 420);
 
             var content = new CalendarEventEditorContent();
             content.LoadFromRequest(request);
-            dialog.CustomContent = content;
+            dialog.SetCustomControl(content);
 
             var owner = Application.OpenForms.Cast<Form>().FirstOrDefault(form => form.Visible && !form.IsDisposed);
             var result = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();

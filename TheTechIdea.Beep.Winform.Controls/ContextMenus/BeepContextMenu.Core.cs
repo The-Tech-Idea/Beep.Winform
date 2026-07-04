@@ -99,6 +99,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         // Layout caching
         private int _menuItemHeight = DefaultMenuItemHeightLogical;
         private int _imageSize = DefaultImageSizeLogical;
+        // Maximum drawn size for menu item images. Width/height of 0 means "no cap
+        // on that axis" so the natural size is honored. Default 16x16 matches the
+        // BeepButton / BeepLabel / BeepTextBox MaxImageSize pattern.
+        private Size _maxImageSize = new Size(16, 16);
         private Rectangle _contentAreaRect;
         private int _menuWidth = DefaultMenuWidthLogical;
         private int _minWidth = DefaultMinWidthLogical;

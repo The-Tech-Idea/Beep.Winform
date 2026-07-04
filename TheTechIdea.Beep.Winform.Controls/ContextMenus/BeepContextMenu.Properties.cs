@@ -446,7 +446,30 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Maximum size (in pixels) for menu item images. The drawn size is the
+        /// smaller of this cap and the available item row height. Width or height of
+        /// 0 means "no cap on that axis". Default 16x16 matches the rest of the Beep
+        /// control set (BeepButton, BeepLabel, BeepTextBox, etc.).
+        /// </summary>
+        [Category("Beep")]
+        [Description("Maximum size for menu item images.")]
+        [Browsable(true)]
+        public Size MaxImageSize
+        {
+            get => _maxImageSize;
+            set
+            {
+                if (_maxImageSize == value) return;
+                _maxImageSize = value;
+                InvalidateLayoutCache();
+                InvalidateSizeCache();
+                RecalculateSize();
+                Invalidate();
+            }
+        }
+
         /// <summary>
         /// Gets or sets the menu width
         /// </summary>

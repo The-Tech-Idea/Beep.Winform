@@ -123,18 +123,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
 
         protected override void DrawDecorations(Graphics g, Rectangle drawingRect)
         {
-            if (drawingRect.IsEmpty) return;
-            var istate = GetInteractionState();
-
-            // Focus: thin crisp border (1.5px) — matches popup compact row density
-            if (istate == ComboBoxInteractionState.Focused || istate == ComboBoxInteractionState.Open)
-            {
-                Color focusColor = _theme?.PrimaryColor ?? Color.FromArgb(25, 118, 210);
-                int radius = ScaleX(CornerRadius);
-                using var path = GetRoundedRectPath(drawingRect, radius);
-                using var pen = new Pen(focusColor, 1.5f);
-                g.DrawPath(pen, path);
-            }
+            // Decorations removed: the previous 1px focus/hover border was
+            // drawn on the control edge and produced an 'inside border' visual.
+            // The textArea tint in DrawTextArea still provides the hover/focus
+            // feedback without compressing the textarea.
         }
 
         protected override void DrawDropdownButton(Graphics g, Rectangle buttonRect)

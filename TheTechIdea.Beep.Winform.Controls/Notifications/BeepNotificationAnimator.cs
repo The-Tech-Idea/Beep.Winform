@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -12,6 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     {
         private const int ANIMATION_DURATION = 300; // milliseconds
         private const int ANIMATION_FPS = 60;
+
+        // Default slide/bounce distance in 96-DPI pixels; all setup methods scale by OwnerControl.DeviceDpi.
+        private const int DEFAULT_SLIDE_PX = 300;
+        private const int DEFAULT_BOUNCE_PX = 50;
+
         private Timer _animationTimer;
         private DateTime _animationStart;
         private NotificationAnimation _animationType;
@@ -28,6 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _animationTimer = new Timer { Interval = 1000 / ANIMATION_FPS };
             _animationTimer.Tick += AnimationTimer_Tick;
         }
+
+        /// <summary>
+        /// Scaled slide distance: 300px @ 96 DPI → ~450px @ 144 DPI. Falls back
+        /// to the raw constant when no control is attached (very early animation).
+        /// </summary>
+        private int ScaledSlide => _notification != null
+            ? DpiScalingHelper.ScaleValue(DEFAULT_SLIDE_PX, _notification)
+            : DEFAULT_SLIDE_PX;
+
+        /// <summary>Same scale curve for the smaller bounce hop.</summary>
+        private int ScaledBounce => _notification != null
+            ? DpiScalingHelper.ScaleValue(DEFAULT_BOUNCE_PX, _notification)
+            : DEFAULT_BOUNCE_PX;
 
         /// <summary>
         /// Animate notification appearing
@@ -138,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private void SetupSlideIn()
         {
             // Slide from right (off-screen to target)
-            _startLocation = new Point(_targetLocation.X + 300, _targetLocation.Y);
+            _startLocation = new Point(_targetLocation.X + ScaledSlide, _targetLocation.Y);
             _notification.Location = _startLocation;
             _notification.Opacity = 1.0;
             _startOpacity = 1.0f;
@@ -155,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void SetupSlideAndFadeIn()
         {
-            _startLocation = new Point(_targetLocation.X + 300, _targetLocation.Y);
+            _startLocation = new Point(_targetLocation.X + ScaledSlide, _targetLocation.Y);
             _notification.Location = _startLocation;
             _notification.Opacity = 0.0;
             _startOpacity = 0.0f;
@@ -164,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void SetupBounceIn()
         {
-            _startLocation = new Point(_targetLocation.X + 50, _targetLocation.Y);
+            _startLocation = new Point(_targetLocation.X + ScaledBounce, _targetLocation.Y);
             _notification.Location = _startLocation;
             _notification.Opacity = 0.0;
             _startOpacity = 0.0f;
@@ -186,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void SetupSlideOut()
         {
-            _targetLocation = new Point(_startLocation.X + 300, _startLocation.Y);
+            _targetLocation = new Point(_startLocation.X + ScaledSlide, _startLocation.Y);
             _startOpacity = 1.0f;
             _targetOpacity = 1.0f;
         }
@@ -200,14 +219,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         private void SetupSlideAndFadeOut()
         {
-            _targetLocation = new Point(_startLocation.X + 300, _startLocation.Y);
+            _targetLocation = new Point(_startLocation.X + ScaledSlide, _startLocation.Y);
             _startOpacity = 1.0f;
             _targetOpacity = 0.0f;
         }
 
         private void SetupBounceOut()
         {
-            _targetLocation = new Point(_startLocation.X + 50, _startLocation.Y);
+            _targetLocation = new Point(_startLocation.X + ScaledBounce, _startLocation.Y);
             _startOpacity = 1.0f;
             _targetOpacity = 0.0f;
         }

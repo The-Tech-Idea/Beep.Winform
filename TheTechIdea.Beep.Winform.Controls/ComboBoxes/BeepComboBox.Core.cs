@@ -83,6 +83,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isDropdownOpen = false;
         private List<SimpleItem> _popupSelectionSnapshot;
         private string _popupSearchText = string.Empty;
+        // Live handle for the non-blocking manager-driven popup (single-select path).
+        // Disposed on CloseDropdown / MenuDismissed so the menu does not leak.
+        private IDisposable _managerPopupHandle = null;
         
         // Text and editing
         private string _inputText = string.Empty;
@@ -123,6 +126,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _chevronAnimTarget = 0f;
         private const float ChevronAnimStep = 180f / (150f / 16f); // ~19.2 deg per 16 ms tick
         private string _dropdownIconPath = "";
+
+        // Maximum size for the leading image and the popup item icons. Width/height
+        // are the upper bound — the actual drawn size is the smaller of the cap and
+        // the available space (control height for the leading image, item row height
+        // for popup items). Default 16x16 matches the rest of the Beep control set.
+        private Size _maxImageSize = new Size(16, 16);
         
         // Font — resolved from theme in ApplyTheme(); never use this.Font / Control.Font (SKILL Rule 2)
         private Font _textFont = SystemFonts.DefaultFont;
@@ -212,6 +221,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Initialize context menu (using inherited BeepContextMenu from BaseControl)
             InitializeContextMenu();
+
+            // Subscribe to the central ContextMenuManager.MenuDismissed event so the
+            // single-select path (which goes through ContextMenuManager.ShowNonBlocking)
+            // can drive our existing OnDropdownMenuClosed() without subscribing per-popup.
+            // We filter by Owner == this to avoid catching other controls' dismissals.
+            ContextMenuManager.MenuDismissed += OnManagerMenuDismissed;
             
             // Set dropdown icon
             SetDropdownIcon();

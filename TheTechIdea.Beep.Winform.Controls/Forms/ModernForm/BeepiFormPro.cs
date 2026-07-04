@@ -102,8 +102,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             InitializeBuiltInRegions();
             InitializeComponent();
 
-            // Do not hook Resize for region/layout updates — see OnResizeEnd (and WM_EXITSIZEMOVE) so border
-            // path, managed Region, and painter layout stay in sync with the final size, not every live tick.
+            // Refresh the rounded window region on scroll and after the native handle
+            // is created. Live resize is handled by base Form behavior (PerformLayout
+            // runs from OnResize); no custom resize handler is installed.
             this.Scroll += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
             this.HandleCreated += (s, e) => { UpdateWindowRegion(); DebouncedInvalidate(); };
 
@@ -404,14 +405,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Called when resize operation completes. All heavy operations are deferred here
-        /// to avoid performance issues during resize dragging.
+        /// Custom resize logic intentionally removed. The form relies entirely on
+        /// WinForms' base <see cref="Form.OnResize"/>/<see cref="Control.PerformLayout"/>
+        /// to re-dock children during and after a drag. Rounded chrome is refreshed
+        /// from <see cref="OnShown"/> and from the <see cref="Scroll"/>/<see cref="HandleCreated"/>
+        /// wiring in the constructor.
         /// </summary>
-        protected override void OnResizeEnd(EventArgs e)
-        {
-            base.OnResizeEnd(e);
-            RefreshChromeGeometryAfterBoundsSettled();
-        }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -490,26 +489,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
         /// <summary>
-        /// Override DisplayRectangle to exclude the caption bar area and borders.
-        /// This ensures controls added to the form don't overlap the caption or borders.
+        /// Override DisplayRectangle to exclude the caption bar area so docked
+        /// content sits below the painted chrome. The border inset is intentionally
+        /// NOT subtracted here because <c>WM_NCCALCSIZE</c> already shrinks
+        /// <c>ClientRectangle</c> by <c>BorderWidth</c> on every edge; subtracting again
+        /// would push docked children twice the inset inward (e.g. "controls behind
+        /// the BeepStepper, not aligned on its right").
         /// </summary>
         public override Rectangle DisplayRectangle
         {
             get
             {
                 var rect = base.DisplayRectangle;
-
-                int borderWidth = 0;
-                if (ActivePainter != null)
-                {
-                    var metrics = FormPainterMetrics.DefaultForCached(FormStyle, UseThemeColors ? CurrentTheme : null);
-                    borderWidth = metrics?.BorderWidth ?? 1;
-                }
-
-                rect.X += borderWidth;
-                rect.Y += borderWidth;
-                rect.Width = Math.Max(0, rect.Width - borderWidth * 2);
-                rect.Height = Math.Max(0, rect.Height - borderWidth * 2);
 
                 if (ShowCaptionBar)
                 {

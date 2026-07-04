@@ -364,8 +364,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         base.WndProc(ref m);
                         if (_drawCustomWindowBorder && IsHandleCreated)
                         {
+                            // Re-flow docked children to the final ClientRectangle
+                            // after the user releases the resize drag. WinForms base
+                            // OnResizeEnd is a no-op for Dock layouts, so this is the
+                            // explicit layout pass needed to settle bounds after a drag.
+                            PerformLayout();
                             RefreshChromeGeometryAfterBoundsSettled();
-                            RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                            // Schedule a normal paint (OnPaintBackground -> OnPaint) instead
+                            // of pushing a synchronous frame update through RedrawWindow,
+                            // so the painter-aware draw path (with its themes and DisabledAnimations
+                            // ticks) runs on the message pump rather than inline.
+                            Invalidate(true);
                         }
                         return;
                         

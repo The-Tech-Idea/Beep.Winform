@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
-using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Notifications.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
@@ -25,19 +26,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     [Description("Grouped notification control with expand/collapse")]
     public class BeepNotificationGroup : BaseControl
     {
+        // Phase 3 — child controls replace all manual paint. The header strip
+        // is a BeepPanel holding three BeepLabels; per-item rows are BeepPanels
+        // inside _itemsHost (see RebuildItems). No DrawHeader / DrawBadge /
+        // DrawExpandedContent / DrawContent remain.
+        private BeepPanel _headerPanel;
+        private BeepLabel _titleLabel;
+        private BeepLabel _countBadgeLabel;
+        private BeepLabel _expandHintLabel;
+
+        // Item host — Dock=Fill below the header. Each item is its own
+        // BeepPanel (Dock=Top) holding BeepLabel children (title / message /
+        // timestamp + type-tinted background).
+        private BeepPanel _itemsHost;
+        private readonly List<BeepPanel> _itemPanels = new();
         #region Private Fields
         private readonly List<NotificationData> _notifications;
         private bool _isExpanded = false;
         private string _groupKey = string.Empty;
         private string _groupTitle = "Notifications";
         private NotificationType _groupType;
-        private Rectangle _headerRect;
-        private Rectangle _badgeRect;
-        private Rectangle _expandButtonRect;
-        private Rectangle _contentRect;
-        private Font _textFont;
+        // Phase 3: header chrome is composed of child controls; these rect
+        // fields are now dead and only kept for reference. No active code
+        // writes to or reads from them anymore.
+        // private Rectangle _headerRect;
+        // private Rectangle _badgeRect;
+        // private Rectangle _expandButtonRect;
+        // private Rectangle _contentRect;
         private int _minTouchTargetWidth = 44;
-        private bool _popupOpen = false;
+        private bool _popupOpen => _isExpanded;
 
         private int HeaderHeight => DpiScalingHelper.ScaleValue(60, this);
         private int ItemHeight => DpiScalingHelper.ScaleValue(40, this);
@@ -70,18 +87,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             // Mouse events
             MouseClick += BeepNotificationGroup_MouseClick;
-            KeyDown += BeepNotificationGroup_KeyDown;
+
+            // Phase 3 / header chrome → child controls. The header is a
+            // BeepPanel host (Dock=Top) carrying a BeepLabel title + count
+            // badge + chevron hint. Items stack as their own BeepPanel rows
+            // inside _itemsHost (see RebuildItems).
+            // ── Header panel (Dock=Top) with title + count + chevron
+            _headerPanel = new BeepPanel
+            {
+                Dock = DockStyle.Top, Height = HeaderHeight, UseThemeColors = true,
+                Padding = new Padding(DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this), DpiScalingHelper.ScaleValue(12,this), DpiScalingHelper.ScaleValue(8,this))
+            };
+            _titleLabel        = new BeepLabel { Dock = DockStyle.Fill,  AutoEllipsis = true, UseThemeColors = true, Text = "Notifications" };
+            _expandHintLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(16,this), TextAlign = ContentAlignment.MiddleCenter, Text = "\u25BE", UseThemeColors = true };
+            _countBadgeLabel   = new BeepLabel { Dock = DockStyle.Right, Width = DpiScalingHelper.ScaleValue(28,this), TextAlign = ContentAlignment.MiddleCenter, UseThemeColors = true };
+            _headerPanel.Controls.Add(_titleLabel);
+            _headerPanel.Controls.Add(_countBadgeLabel);
+            _headerPanel.Controls.Add(_expandHintLabel);
+            this.Controls.Add(_headerPanel);
+
+            // ── Items host (Dock=Fill below header)
+            _itemsHost = new BeepPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent, UseThemeColors = true, Visible = false };
+            this.Controls.Add(_itemsHost);
         }
 
-        private void BeepNotificationGroup_KeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space)
-            {
-                _isExpanded = !_isExpanded;
-                Invalidate();
-                e.Handled = true;
-            }
-        }
         #endregion
 
         #region Public Properties
@@ -142,10 +171,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 if (_isExpanded != value)
                 {
                     _isExpanded = value;
-                    _popupOpen = value;
                     if (value) OnPopupOpened(EventArgs.Empty);
                     else OnPopupClosed(EventArgs.Empty);
                     UpdateSize();
+                    UpdateHeaderText();    // Phase 3: flip the chevron hint glyph
+                    UpdateAccessibility();
+                    UpdateToolTip();
+                    RebuildItems();        // Phase 3: itemsHost visible/height toggles
                     Invalidate();
                 }
             }
@@ -201,6 +233,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
 
             UpdateSize();
+            UpdateHeaderText();    // Phase 3: refresh count badge + title
+            UpdateAccessibility();
+            UpdateToolTip();
+            RebuildItems();        // Phase 3: rebuild item rows (add new one)
             Invalidate();
         }
 
@@ -214,6 +250,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 _notifications.Remove(notification);
                 UpdateSize();
+                UpdateHeaderText();
+                UpdateAccessibility();
+                UpdateToolTip();
+                RebuildItems();        // Phase 3: rebuild item rows (drop last)
                 Invalidate();
             }
         }
@@ -226,6 +266,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _notifications.Clear();
             _isExpanded = false;
             UpdateSize();
+            UpdateHeaderText();
+            UpdateAccessibility();
+            UpdateToolTip();
+            RebuildItems();        // Phase 3: empty the items host
             Invalidate();
         }
 
@@ -245,7 +289,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (_popupOpen)
             {
                 IsExpanded = false;
-                _popupOpen = false;
                 OnPopupClosed(EventArgs.Empty);
             }
         }
@@ -296,318 +339,205 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             this.Height = Math.Min(newHeight, MaximumSize.Height);
         }
 
-        private void RecalculateLayout()
+        /// <summary>
+        /// Pushes the current <see cref="_groupType"/>, <see cref="_groupTitle"/>,
+        /// count, and expand state into the header child labels.
+        /// </summary>
+        private void UpdateHeaderText()
         {
-            var contentArea = DrawingRect;
-            int expandBtnW = DpiScalingHelper.ScaleValue(30, this);
-            int expandBtnH = DpiScalingHelper.ScaleValue(24, this);
+            if (_titleLabel == null || _countBadgeLabel == null || _expandHintLabel == null) return;
 
-            // Header area (always visible)
-            _headerRect = new Rectangle(
-                contentArea.X,
-                contentArea.Y,
-                contentArea.Width,
-                HeaderHeight
-            );
+            // Phase 3 / G26: if notifications have different types, show
+            // "Mixed" instead of the dominant type's name.
+            var titles = _notifications
+                .Where(n => n != null)
+                .Select(n => string.IsNullOrEmpty(n.Title) ? null : n.Title)
+                .ToList();
+            var distinctTitles = titles.Where(t => t != null).Distinct().ToList();
+            string resolvedTitle;
+            if (distinctTitles.Count == 1) resolvedTitle = distinctTitles[0];
+            else if (distinctTitles.Count == 0) resolvedTitle = _groupTitle ?? "Notifications";
+            else resolvedTitle = distinctTitles.Count + " notification types";     // mixed
 
-            // Badge (count indicator)
-            _badgeRect = new Rectangle(
-                _headerRect.Right - BadgeSize - PaddingValue,
-                _headerRect.Y + (_headerRect.Height - BadgeSize) / 2,
-                BadgeSize,
-                BadgeSize
-            );
+            _titleLabel.Text = resolvedTitle;
 
-            // Expand button
-            _expandButtonRect = new Rectangle(
-                _badgeRect.Left - expandBtnW,
-                _headerRect.Y + (_headerRect.Height - expandBtnH) / 2,
-                expandBtnH,
-                expandBtnH
-            );
+            // Count badge text — cap at "99+" so the badge stays small.
+            var n = _notifications.Count;
+            _countBadgeLabel.Text = n > 99 ? "99+" : n.ToString();
 
-            // Content area (visible when expanded)
-            if (_isExpanded)
-            {
-                _contentRect = new Rectangle(
-                    contentArea.X,
-                    _headerRect.Bottom,
-                    contentArea.Width,
-                    contentArea.Height - HeaderHeight
-                );
-            }
-            else
-            {
-                _contentRect = Rectangle.Empty;
-            }
+            _expandHintLabel.Text = _isExpanded ? "\u25C0" : "\u25B6";      // ◀ / ▶
         }
         #endregion
 
-        #region Drawing
         /// <summary>
-        /// Draw the grouped notification content
+        /// (Re)populate <c>_itemsHost</c> with one BeepPanel per notification.
+        /// Each row is Dock=Top, Height=ItemHeight, type-tinted background
+        /// + three BeepLabel children (title, message, right-aligned timestamp).
+        /// Called from <see cref="IsExpanded"/> setter, <see cref="AddNotification"/>,
+        /// <see cref="RemoveNotification"/>, and <see cref="Clear"/>.
         /// </summary>
-        protected override void DrawContent(Graphics g)
+        private void RebuildItems()
         {
-            RecalculateLayout();
+            if (_itemsHost == null) return;
 
-            // Draw header
-            DrawHeader(g);
+            bool wantExpanded = _isExpanded && _notifications.Count > 0;
 
-            // Draw expanded content if needed
-            if (_isExpanded && _notifications.Count > 0)
-            {
-                DrawExpandedContent(g);
-            }
-        }
-
-        private void DrawHeader(Graphics g)
-        {
-            // Background color based on type
-            var (bgColor, borderColor, textColor) = GetColorsForType(_groupType);
-
-            // Header background
-            using (var brush = new SolidBrush(Color.FromArgb(30, bgColor)))
-            {
-                g.FillRectangle(brush, _headerRect);
-            }
-
-            // Group icon
-            var iconPath = NotificationData.GetDefaultIconForType(_groupType);
-            int iconY = DpiScalingHelper.ScaleValue(18, this);
-            int iconSize = DpiScalingHelper.ScaleValue(24, this);
-            var iconRect = new Rectangle(_headerRect.X + PaddingValue, _headerRect.Y + iconY, iconSize, iconSize);
-            
-            // Icon rendering - simple colored circle as fallback
-            using (var iconBrush = new SolidBrush(bgColor))
-            {
-                g.FillEllipse(iconBrush, iconRect);
-            }
-
-            // Group title
-            Font titleFont = _textFont != null ? new Font(_textFont, FontStyle.Bold) : new Font("Segoe UI", 10, FontStyle.Bold);
+            _itemsHost.SuspendLayout();
             try
             {
-                using (var titleBrush = new SolidBrush(this.ForeColor))
+                // Trim rows that no longer match the live notification list.
+                while (_itemPanels.Count > _notifications.Count)
                 {
-                    int textOffset = DpiScalingHelper.ScaleValue(8, this);
-                    int titleTop = DpiScalingHelper.ScaleValue(12, this);
-                    int titleHeight = DpiScalingHelper.ScaleValue(20, this);
-                    var titleRect = new Rectangle(
-                        iconRect.Right + textOffset,
-                        _headerRect.Y + titleTop,
-                        _expandButtonRect.Left - iconRect.Right - textOffset * 2,
-                        titleHeight
-                    );
-                    g.DrawString(_groupTitle ?? "Notifications", titleFont, titleBrush, titleRect);
+                    int last = _itemPanels.Count - 1;
+                    if (last >= 0 && last < _itemsHost.Controls.Count)
+                    {
+                        var stale = _itemPanels[last];
+                        _itemsHost.Controls.RemoveAt(last);
+                        stale.Dispose();
+                    }
+                    _itemPanels.RemoveAt(last);
                 }
-            }
-            finally
-            {
-                if (titleFont != _textFont) titleFont?.Dispose();
-            }
 
-            // Subtitle (most recent message preview)
-            if (_notifications.Count > 0)
-            {
-                var latestMessage = _notifications[_notifications.Count - 1].Message;
-                Font subFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(7f, _textFont.Size - 2f)) : new Font("Segoe UI", 8);
-                try
+                // Update existing rows; create new ones as needed.
+                for (int i = 0; i < _notifications.Count; i++)
                 {
-                    using (var subtitleBrush = new SolidBrush(Color.FromArgb(160, this.ForeColor)))
+                    var notification = _notifications[i];
+                    if (i < _itemPanels.Count)
                     {
-                        int textOff = DpiScalingHelper.ScaleValue(8, this);
-                        int subTop = DpiScalingHelper.ScaleValue(34, this);
-                        int subH = DpiScalingHelper.ScaleValue(16, this);
-                        var subtitleRect = new Rectangle(
-                            iconRect.Right + textOff,
-                            _headerRect.Y + subTop,
-                            _expandButtonRect.Left - iconRect.Right - textOff * 2,
-                            subH
-                        );
-                    
-                    var format = new StringFormat
+                        UpdateItemRow(_itemPanels[i], notification);
+                    }
+                    else
                     {
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    };
-                    
-                        g.DrawString(latestMessage ?? "", subFont, subtitleBrush, subtitleRect, format);
+                        var panel = CreateItemRow(notification);
+                        _itemsHost.Controls.Add(panel);
+                        _itemPanels.Add(panel);
                     }
                 }
-                finally
-                {
-                    if (subFont != _textFont) subFont?.Dispose();
-                }
-            }
-
-            // Expand/collapse button
-            DrawExpandButton(g);
-
-            // Count badge
-            DrawBadge(g, bgColor);
-        }
-
-        private void DrawExpandButton(Graphics g)
-        {
-            var isHovering = _expandButtonRect.Contains(PointToClient(Cursor.Position));
-            var buttonColor = isHovering ? Color.FromArgb(200, this.ForeColor) : Color.FromArgb(120, this.ForeColor);
-
-            using (var pen = new Pen(buttonColor, 2))
-            {
-                // Draw chevron (down when collapsed, up when expanded)
-                var centerX = _expandButtonRect.X + _expandButtonRect.Width / 2;
-                var centerY = _expandButtonRect.Y + _expandButtonRect.Height / 2;
-
-                int chevronW = DpiScalingHelper.ScaleValue(6, this);
-                int chevronH = DpiScalingHelper.ScaleValue(3, this);
-                if (_isExpanded)
-                {
-                    // Up chevron
-                    g.DrawLine(pen, centerX - chevronW, centerY + chevronH, centerX, centerY - chevronH);
-                    g.DrawLine(pen, centerX, centerY - chevronH, centerX + chevronW, centerY + chevronH);
-                }
-                else
-                {
-                    // Down chevron
-                    g.DrawLine(pen, centerX - chevronW, centerY - chevronH, centerX, centerY + chevronH);
-                    g.DrawLine(pen, centerX, centerY + chevronH, centerX + chevronW, centerY - chevronH);
-                }
-            }
-        }
-
-        private void DrawBadge(Graphics g, Color bgColor)
-        {
-            // Badge background
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillEllipse(brush, _badgeRect);
-            }
-
-            var badgeTextColor = NotificationThemeHelpers.GetContrastColor(bgColor, _currentTheme);
-            var badgeBorderColor = NotificationThemeHelpers.ShiftLuminance(bgColor, -0.2f);
-
-            // Badge border
-            using (var pen = new Pen(badgeBorderColor, 2))
-            {
-                g.DrawEllipse(pen, _badgeRect);
-            }
-
-            // Count text
-            var countText = _notifications.Count > 99 ? "99+" : _notifications.Count.ToString();
-            Font countFont = _textFont != null ? new Font(_textFont, FontStyle.Bold) : new Font("Segoe UI", 9, FontStyle.Bold);
-            try
-            {
-            using (var brush = new SolidBrush(badgeTextColor))
-            {
-                var size = g.MeasureString(countText, countFont);
-                var x = _badgeRect.X + (_badgeRect.Width - size.Width) / 2;
-                var y = _badgeRect.Y + (_badgeRect.Height - size.Height) / 2;
-                g.DrawString(countText, countFont, brush, x, y);
-            }
             }
             finally
             {
-                if (countFont != _textFont) countFont?.Dispose();
+                _itemsHost.ResumeLayout();
             }
+
+            _itemsHost.Visible = wantExpanded;
+            int totalRows = _itemPanels.Count * ItemHeight + PaddingValue;
+            _itemsHost.Height = wantExpanded ? totalRows : 0;
         }
 
-        private void DrawExpandedContent(Graphics g)
+        /// <summary>
+        /// Build a single item row: outer BeepPanel (type-tinted) with three
+        /// inner BeepLabel children (timestamp top-right, title, message).
+        /// </summary>
+        private BeepPanel CreateItemRow(NotificationData notification)
         {
-            if (_contentRect.IsEmpty)
-                return;
-
-            int y = _contentRect.Y + PaddingValue / 2;
-
-            for (int i = 0; i < _notifications.Count && y < _contentRect.Bottom; i++)
+            var row = new BeepPanel
             {
-                var notification = _notifications[i];
-                var itemRect = new Rectangle(_contentRect.X + PaddingValue, y, _contentRect.Width - PaddingValue * 2, ItemHeight);
+                Dock = DockStyle.Top,
+                Height = ItemHeight,
+                UseThemeColors = false,        // explicit BackColor below
+                Padding = new Padding(
+                    DpiScalingHelper.ScaleValue(8, this),
+                    DpiScalingHelper.ScaleValue(4, this),
+                    DpiScalingHelper.ScaleValue(8, this),
+                    DpiScalingHelper.ScaleValue(4, this)),
+                Cursor = Cursors.Hand
+            };
+            row.BackColor = ResolveTypeTint(notification.Type, BeepThemesManager.CurrentTheme);
 
-                DrawNotificationItem(g, notification, itemRect, i);
-                y += ItemHeight;
-            }
+            // Row click → NotificationClicked for this notification. Captured
+            // via a local copy so the closure binds the right instance.
+            var capture = notification;
+            row.Click += (s, e) => NotificationClicked?.Invoke(this,
+                new NotificationEventArgs { Notification = capture });
+
+            var inner = new BeepPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent
+            };
+            row.Controls.Add(inner);
+
+            // Timestamp: top, single line, right-aligned
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Top,
+                Height = DpiScalingHelper.ScaleValue(14, this),
+                TextAlign = ContentAlignment.TopRight,
+                AutoSize = false,
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                ForeColor = Color.FromArgb(100, this.ForeColor),
+                TabStop = false,
+                Tag = "_time"
+            });
+            // Title: top, single line, bold
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Top,
+                Height = DpiScalingHelper.ScaleValue(18, this),
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                TabStop = false,
+                Tag = "_title"
+            });
+            // Message: fill remaining — multi-line truncated
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Fill,
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                ForeColor = Color.FromArgb(160, this.ForeColor),
+                TabStop = false,
+                Tag = "_msg"
+            });
+
+            UpdateItemRow(row, notification);
+            return row;
         }
 
-        private void DrawNotificationItem(Graphics g, NotificationData notification, Rectangle bounds, int index)
+        /// <summary>
+        /// Re-apply text + colors to an existing row without rebuilding it.
+        /// </summary>
+        private void UpdateItemRow(BeepPanel row, NotificationData notification)
         {
-            // Hover effect
-            var mousePos = PointToClient(Cursor.Position);
-            var isHovering = bounds.Contains(mousePos);
+            row.BackColor = ResolveTypeTint(notification.Type, BeepThemesManager.CurrentTheme);
 
-            if (isHovering)
+            BeepLabel title = null, msg = null, ts = null;
+            foreach (Control c in row.Controls)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(20, this.ForeColor)))
+                if (c is BeepPanel inner)
                 {
-                    g.FillRectangle(brush, bounds);
-                }
-            }
-
-            // Title
-            Font itemTitleFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(7f, _textFont.Size - 2f), FontStyle.Bold) : new Font("Segoe UI", 8, FontStyle.Bold);
-            try
-            {
-                using (var brush = new SolidBrush(this.ForeColor))
-                {
-                    int off = DpiScalingHelper.ScaleValue(4, this);
-                    int itemH = DpiScalingHelper.ScaleValue(16, this);
-                    var textRect = new Rectangle(bounds.X + off, bounds.Y + off, bounds.Width - DpiScalingHelper.ScaleValue(60, this), itemH);
-                    g.DrawString(notification.Title ?? "", itemTitleFont, brush, textRect, new StringFormat
-                {
-                    Trimming = StringTrimming.EllipsisCharacter,
-                    FormatFlags = StringFormatFlags.NoWrap
-                });
-                }
-            }
-            finally
-            {
-                if (itemTitleFont != _textFont) itemTitleFont?.Dispose();
-            }
-
-            // Message
-            Font msgFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size - 3f)) : new Font("Segoe UI", 7);
-            try
-            {
-                using (var brush = new SolidBrush(Color.FromArgb(160, this.ForeColor)))
-                {
-                    int off = DpiScalingHelper.ScaleValue(4, this);
-                    int msgTop = DpiScalingHelper.ScaleValue(22, this);
-                    int msgH = DpiScalingHelper.ScaleValue(14, this);
-                    var textRect = new Rectangle(bounds.X + off, bounds.Y + msgTop, bounds.Width - DpiScalingHelper.ScaleValue(60, this), msgH);
-                    g.DrawString(notification.Message ?? "", msgFont, brush, textRect, new StringFormat
+                    foreach (Control ic in inner.Controls)
                     {
-                        Trimming = StringTrimming.EllipsisCharacter,
-                        FormatFlags = StringFormatFlags.NoWrap
-                    });
+                        if (ic.Tag is string tag)
+                        {
+                            if (tag == "_title") title = (BeepLabel)ic;
+                            else if (tag == "_msg") msg = (BeepLabel)ic;
+                            else if (tag == "_time") ts = (BeepLabel)ic;
+                        }
+                    }
                 }
             }
-            finally
-            {
-                if (msgFont != _textFont) msgFont?.Dispose();
-            }
 
-            // Timestamp
-            var timeAgo = GetTimeAgo(notification.Timestamp);
-            Font timeFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size - 3f)) : new Font("Segoe UI", 7);
-            try
-            {
-            using (var brush = new SolidBrush(Color.FromArgb(100, this.ForeColor)))
-            {
-                var size = g.MeasureString(timeAgo, timeFont);
-                int off = DpiScalingHelper.ScaleValue(4, this);
-                g.DrawString(timeAgo, timeFont, brush, bounds.Right - size.Width - off, bounds.Y + off);
-            }
-            }
-            finally
-            {
-                if (timeFont != _textFont) timeFont?.Dispose();
-            }
+            if (title != null) title.Text = notification.Title ?? string.Empty;
+            if (msg   != null) msg.Text   = notification.Message ?? string.Empty;
+            if (ts    != null) ts.Text    = GetTimeAgo(notification.Timestamp);
+        }
 
-            // Separator line
-            using (var pen = new Pen(Color.FromArgb(30, this.ForeColor)))
-            {
-                g.DrawLine(pen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
-            }
+        /// <summary>
+        /// Returns the tinted background colour for a notification type, sourced
+        /// from <see cref="NotificationThemeHelpers"/>. 12% alpha of the type's
+        /// accent colour — soft highlight without overwhelming the chrome.
+        /// </summary>
+        private Color ResolveTypeTint(NotificationType type, IBeepTheme theme)
+        {
+            var colors = NotificationThemeHelpers.GetColorsForType(
+                type, theme, null, null, null, null);
+
+            int a = (int)(colors.IconColor.A * 0.12f);
+            return Color.FromArgb(
+                Math.Max(8, Math.Min(64, a)),
+                colors.IconColor);
         }
 
         private string GetTimeAgo(DateTime time)
@@ -624,48 +554,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             return $"{(int)span.TotalDays}d";
         }
 
-        private (Color bgColor, Color borderColor, Color textColor) GetColorsForType(NotificationType type)
-        {
-            var colors = NotificationThemeHelpers.GetColorsForType(type, _currentTheme);
-            return (colors.IconColor, colors.BorderColor, GetContrastColor(colors.IconColor));
-        }
-
-        private static Color GetContrastColor(Color background)
-        {
-            return NotificationThemeHelpers.GetContrastColor(background);
-        }
-        #endregion
-
         #region Event Handlers
         private void BeepNotificationGroup_MouseClick(object? sender, MouseEventArgs e)
         {
-            // Check if expand button clicked
-            if (_expandButtonRect.Contains(e.Location))
-            {
-                ToggleExpand();
-                return;
-            }
-
-            // Check if a notification item clicked (when expanded)
-            if (_isExpanded && _contentRect.Contains(e.Location))
-            {
-                int itemIndex = (e.Y - _contentRect.Y - PaddingValue / 2) / ItemHeight;
-                if (itemIndex >= 0 && itemIndex < _notifications.Count)
-                {
-                    var notification = _notifications[itemIndex];
-                    NotificationClicked?.Invoke(this, new NotificationEventArgs
-                    {
-                        Notification = notification
-                    });
-                }
-                return;
-            }
-
-            // Header clicked - toggle expand
-            if (_headerRect.Contains(e.Location))
-            {
-                ToggleExpand();
-            }
+            // Phase 3 final: item rows own their own Click handlers (per
+            // CreateItemRow above), so this form-level handler only fires for
+            // clicks on the header strip / chevron / empty space — those all
+            // mean the same thing: toggle expand / collapse.
+            ToggleExpand();
         }
 
         /// <summary>
@@ -674,14 +570,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            RecalculateLayout();
         }
 
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (_currentTheme != null)
-                _textFont = BeepFontManager.ToFont(_currentTheme.BodyMedium);
+            UpdateHeaderText();    // Phase 3: theme-coloured text on the labels
+            UpdateAccessibility();
+            UpdateToolTip();
+            RebuildItems();        // Phase 3: re-tint item rows with new theme
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Phase 3 / accessibility — refresh <see cref="AccessibleName"/> and
+        /// <see cref="AccessibleDescription"/> from the current group state so
+        /// screen readers announce the group's title + count + expand state.
+        /// Called from <c>ApplyTheme</c> and any state mutation that changes the
+        /// count or expand flag.
+        /// </summary>
+        private void UpdateAccessibility()
+        {
+            // AccessibleName: prefer the typed title text resolved by
+            // UpdateHeaderText; fall back to a generic label.
+            var name = _titleLabel?.Text;
+            if (string.IsNullOrEmpty(name))
+                name = _notifications.Count == 0 ? "Notification group" : $"Notifications ({_notifications.Count})";
+
+            AccessibleName = name;
+            AccessibleDescription = _isExpanded
+                ? "Expanded; press Enter to collapse."
+                : $"Collapsed; press Enter to expand. {_notifications.Count} notification(s).";
+        }
+
+        /// <summary>
+        /// Phase 3 / tooltip — every Beep control surfaces <see cref="BaseControl.ToolTipText"/>
+        /// through the central ToolTipManager. We just set the property on
+        /// <c>this</c>; the centralized manager picks it up. Tooltip text
+        /// describes how to interact (toggle / collapse) and current count.
+        /// </summary>
+        private void UpdateToolTip()
+        {
+            // BaseControl.ToolTipText on `this` (a BaseControl) is the right hook.
+            ToolTipText = _isExpanded
+                ? $"Notification group (expanded, {_notifications.Count} items). Press Enter to collapse."
+                : $"Notification group ({_notifications.Count} items). Press Enter to expand.";
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -691,7 +624,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             ShadowOffset = DpiScalingHelper.ScaleValue(4, this);
             MinimumSize = DpiScalingHelper.ScaleSize(new Size(280, 60), this);
             MaximumSize = DpiScalingHelper.ScaleSize(new Size(420, 600), this);
-            RecalculateLayout();
             Invalidate();
         }
 
@@ -702,7 +634,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             if (disposing)
             {
-                _textFont?.Dispose();
                 _notifications.Clear();
             }
             base.Dispose(disposing);

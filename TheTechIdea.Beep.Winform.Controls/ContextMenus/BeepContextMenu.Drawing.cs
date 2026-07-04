@@ -234,8 +234,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 shortcutWidth = shortcutSize.Width + ScaleLogical(16);
             }
 
-            // Calculate layout areas for image and text
-            int imageAreaWidth = (_showImage && !string.IsNullOrEmpty(item.ImagePath)) ? _imageSize + ScaleLogical(8) : 0;
+            // Calculate layout areas for image and text. The drawn image is the
+            // smaller of ImageSize (the explicit scalar set per menu type) and
+            // MaxImageSize (the user-controllable cap), then clamped by the
+            // available item row height so very tall rows don't blow up the icon.
+            int maxByW = _maxImageSize.Width  > 0 ? _maxImageSize.Width  : _imageSize;
+            int maxByH = _maxImageSize.Height > 0 ? _maxImageSize.Height : _imageSize;
+            int natural = Math.Min(_imageSize, Math.Min(maxByW, maxByH));
+            int drawnSize = Math.Max(1, Math.Min(natural, itemRect.Height));
+
+            int imageAreaWidth = (_showImage && !string.IsNullOrEmpty(item.ImagePath)) ? drawnSize + ScaleLogical(8) : 0;
             int textStartX = itemRect.X + iconPadding + imageAreaWidth;
             int textWidth = itemRect.Width - iconPadding - imageAreaWidth - textPadding - arrowWidth - shortcutWidth;
 
@@ -246,17 +254,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 {
                     var imageRect = new Rectangle(
                         imageX,
-                        itemRect.Y + (itemRect.Height - _imageSize) / 2,
-                        _imageSize,
-                        _imageSize
+                        itemRect.Y + (itemRect.Height - drawnSize) / 2,
+                        drawnSize,
+                        drawnSize
                     );
 
                     // Create path for image area (rounded rectangle matching style)
                     var imagePath = BeepStyling.CreateControlStylePath(imageRect, effectiveStyle);
-                    
+
                     // Paint image using StyledImagePainter (same as BeepMenuBar)
                     BeepStyling.PaintStyleImage(g, imagePath, item.ImagePath, effectiveStyle);
-                    
+
                     imagePath.Dispose();
                 }
                 catch { }

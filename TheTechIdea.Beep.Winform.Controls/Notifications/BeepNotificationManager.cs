@@ -49,6 +49,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private NotificationPriority _doNotDisturbMinPriority = NotificationPriority.Critical;
         private bool _smartPositioning = true;
         private Form? _anchorForm; // Form to position relative to
+
+        // Phase 4.4 / G23 — protects _activeNotifications, _notificationQueue,
+        // _animators, _notificationGroups, _scheduledNotifications, _templates.
+        // Callers from any thread may invoke Show(); manager-internal events run
+        // on the UI thread but the lock is required to keep list/dict mutations
+        // race-free. NEVER call user code or invoke events while holding this lock;
+        // snapshot first, release, then act.
+        private readonly object _lock = new object();
         #endregion
 
         #region Public Properties
@@ -190,7 +198,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Get the notification history panel (creates if needed)
+        /// Get the notification history panel (creates if needed).
+        /// Phase 4.7 / G24: when <see cref="HistoryPanelShowOnFirstDisplay"/>
+        /// is true, this property surfaces the panel as a top-level form so the
+        /// user can actually see it; off by default to keep with classic
+        /// toast semantics (history visible only when explicitly opened).
         /// </summary>
         public BeepNotificationHistory HistoryPanel
         {
@@ -203,6 +215,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 return _historyPanel;
             }
         }
+
+        /// <summary>
+        /// Phase 4.7 / G24. When true, calling <see cref="HistoryPanel"/> shows
+        /// the panel the first time it is accessed in the session (so users
+        /// actually know it exists). Default false.
+        /// </summary>
+        public bool HistoryPanelShowOnFirstDisplay
+        {
+            get => _historyPanelShownOnFirstDisplay;
+            set
+            {
+                if (_historyPanelShownOnFirstDisplay == value) return;
+                _historyPanelShownOnFirstDisplay = value;
+                if (value && _historyPanel != null && !_historyPanel.IsDisposed && !_historyPanel.Visible)
+                {
+                    _historyPanel.Show();
+                }
+            }
+        }
+        private bool _historyPanelShownOnFirstDisplay;
 
         /// <summary>
         /// Number of active (visible) notifications
@@ -251,26 +283,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Show a notification with full data model
+        /// Show a notification with full data model. Thread-safe: protected by
+        /// <see cref="_lock"/> because callers may invoke from a worker thread
+        /// (Phase 4.4 / G23).
         /// </summary>
         public void Show(NotificationData data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            // Check Do Not Disturb mode
-            if (_doNotDisturbMode && data.Priority < _doNotDisturbMinPriority)
+            // Phase 4.4 / G23 — single lock guards all three bucket decisions
+            // (DND, Focus Session, capacity) plus the resulting Enqueue. Critical
+            // bypass is honored across all three.
+            lock (_lock)
             {
-                // Queue notification for later (when DND is disabled)
-                _notificationQueue.Enqueue(data);
-                return;
-            }
+                // Check Do Not Disturb mode
+                if (_doNotDisturbMode && data.Priority < _doNotDisturbMinPriority)
+                {
+                    _notificationQueue.Enqueue(data);
+                    return;
+                }
 
-            // If at max capacity, queue it
-            if (_activeNotifications.Count >= _maxVisibleNotifications)
-            {
-                _notificationQueue.Enqueue(data);
-                return;
+                // Phase 5.6 / G27 — Win 11 Focus Session detection.
+                if (data.Priority != NotificationPriority.Critical && FocusSessionDetector.IsInFocusSession())
+                {
+                    _notificationQueue.Enqueue(data);
+                    return;
+                }
+
+                // If at max capacity, queue it — Critical bypasses the cap.
+                if (_activeNotifications.Count >= _maxVisibleNotifications
+                    && data.Priority != NotificationPriority.Critical)
+                {
+                    _notificationQueue.Enqueue(data);
+                    return;
+                }
             }
 
             ShowNotificationInternal(data);
@@ -368,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAll()
         {
-            var notifications = _activeNotifications.ToList();
+            var notifications = SnapshotLive();
             foreach (var notification in notifications)
             {
                 DismissNotificationInternal(notification);
@@ -380,9 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAllByType(NotificationType type)
         {
-            var notifications = _activeNotifications
-                .Where(n => n.NotificationData?.Type == type)
-                .ToList();
+            var notifications = SnapshotLive(n => n.NotificationData?.Type == type);
 
             foreach (var notification in notifications)
             {
@@ -395,9 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAllByPriority(NotificationPriority priority)
         {
-            var notifications = _activeNotifications
-                .Where(n => n.NotificationData?.Priority == priority)
-                .ToList();
+            var notifications = SnapshotLive(n => n.NotificationData?.Priority == priority);
 
             foreach (var notification in notifications)
             {
@@ -410,9 +453,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAllExceptPriority(NotificationPriority priority)
         {
-            var notifications = _activeNotifications
-                .Where(n => n.NotificationData?.Priority != priority)
-                .ToList();
+            var notifications = SnapshotLive(n => n.NotificationData?.Priority != priority);
 
             foreach (var notification in notifications)
             {
@@ -421,11 +462,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Clear the notification queue without showing
+        /// Clear the notification queue without showing. Thread-safe.
         /// </summary>
         public void ClearQueue()
         {
-            _notificationQueue.Clear();
+            lock (_lock) _notificationQueue.Clear();
         }
 
         /// <summary>
@@ -442,7 +483,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void MarkAllRead()
         {
-            foreach (var notification in _activeNotifications)
+            var notifications = SnapshotLive();
+            foreach (var notification in notifications)
             {
                 if (notification.NotificationData != null && !notification.NotificationData.IsRead)
                 {
@@ -458,7 +500,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void MarkAllUnread()
         {
-            foreach (var notification in _activeNotifications)
+            var notifications = SnapshotLive();
+            foreach (var notification in notifications)
             {
                 if (notification.NotificationData != null && notification.NotificationData.IsRead)
                 {
@@ -474,7 +517,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void PinAll()
         {
-            foreach (var notification in _activeNotifications)
+            var notifications = SnapshotLive();
+            foreach (var notification in notifications)
             {
                 if (notification.NotificationData != null)
                 {
@@ -489,7 +533,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void UnpinAll()
         {
-            foreach (var notification in _activeNotifications)
+            var notifications = SnapshotLive();
+            foreach (var notification in notifications)
             {
                 if (notification.NotificationData != null)
                 {
@@ -504,9 +549,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAllRead()
         {
-            var notifications = _activeNotifications
-                .Where(n => n.NotificationData?.IsRead == true)
-                .ToList();
+            var notifications = SnapshotLive(n => n.NotificationData?.IsRead == true);
 
             foreach (var notification in notifications)
             {
@@ -519,15 +562,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void DismissAllUnread()
         {
-            var notifications = _activeNotifications
-                .Where(n => n.NotificationData?.IsRead != true)
-                .ToList();
+            var notifications = SnapshotLive(n => n.NotificationData?.IsRead != true);
 
             foreach (var notification in notifications)
             {
                 DismissNotificationInternal(notification);
             }
         }
+
+        /// <summary>
+        /// Phase 7.6 (G28) — mark the underlying data of the notification
+        /// identified by <paramref name="notificationId"/> as consumed
+        /// (no longer relevant to the user). The notification is removed
+        /// from the active stack so it won't re-appear, the history entry is
+        /// updated to <c>IsRead = true</c>, and (when a Win11 toast bridge
+        /// is wired in Phase 8) the corresponding OS toast is dismissed from
+        /// the Action Center.
+        /// <para>
+        /// Safe to call with an unknown id (no-op). Thread-safe — guarded by
+        /// <see cref="_lock"/>.
+        /// </para>
+        /// </summary>
+        public void MarkConsumed(string? notificationId)
+        {
+            if (string.IsNullOrEmpty(notificationId)) return;
+
+            BeepNotification? toRemove = null;
+            lock (_lock)
+            {
+                for (int i = _activeNotifications.Count - 1; i >= 0; i--)
+                {
+                    var n = _activeNotifications[i];
+                    if (n?.NotificationData == null) continue;
+                    if (string.Equals(n.NotificationData.Id, notificationId, StringComparison.Ordinal))
+                    {
+                        // Mark read in history then drop the active toast.
+                        n.NotificationData.IsRead = true;
+                        n.NotificationData.ReadTimestamp = DateTime.Now;
+                        toRemove = n;
+                        break;
+                    }
+                }
+            }
+
+            if (toRemove == null) return;
+
+            // Dismiss the captured notification outside the lock — the animator
+            // path needs to call back into the manager and re-entering the
+            // same lock would deadlock the scheduler/animation loop.
+            DismissNotificationInternal(toRemove);
+
+            NotificationConsumed?.Invoke(this, new NotificationEventArgs
+            {
+                Notification = toRemove.NotificationData
+            });
+        }
+
+        /// <summary>
+        /// Raised when <see cref="MarkConsumed"/> removes a notification from
+        /// the active stack. Subscribers (e.g. a future Win11 toast bridge)
+        /// can match this event to the corresponding OS-side toast to remove
+        /// it from Action Center.
+        /// </summary>
+        public event EventHandler<NotificationEventArgs>? NotificationConsumed;
 
         /// <summary>
         /// Get count of unread notifications
@@ -546,23 +643,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private readonly Dictionary<string, NotificationData> _templates = new Dictionary<string, NotificationData>();
 
         /// <summary>
-        /// Register a notification template for reuse
+        /// Register a notification template for reuse. Thread-safe.
         /// </summary>
         public void RegisterTemplate(string name, NotificationData template)
         {
             if (string.IsNullOrEmpty(name) || template == null)
                 throw new ArgumentNullException(string.IsNullOrEmpty(name) ? nameof(name) : nameof(template));
 
-            _templates[name] = template;
+            lock (_lock) _templates[name] = template;
         }
 
         /// <summary>
-        /// Show a notification using a registered template
+        /// Show a notification using a registered template. Thread-safe.
         /// </summary>
         public void ShowFromTemplate(string name, Action<NotificationData> customize = null)
         {
-            if (!_templates.TryGetValue(name, out var template))
-                throw new KeyNotFoundException($"Notification template '{name}' not found.");
+            NotificationData template;
+            lock (_lock)
+            {
+                if (!_templates.TryGetValue(name, out template))
+                    throw new KeyNotFoundException($"Notification template '{name}' not found.");
+            }
 
             var data = CloneNotificationData(template);
             customize?.Invoke(data);
@@ -570,17 +671,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Remove a registered template
+        /// Remove a registered template. Thread-safe.
         /// </summary>
         public void RemoveTemplate(string name)
         {
-            _templates.Remove(name);
+            lock (_lock) _templates.Remove(name);
         }
 
         /// <summary>
-        /// Get all registered template names
+        /// Get all registered template names (snapshot, thread-safe).
         /// </summary>
-        public IEnumerable<string> GetTemplateNames() => _templates.Keys.ToList();
+        public IEnumerable<string> GetTemplateNames()
+        {
+            lock (_lock) return _templates.Keys.ToList();
+        }
 
         private static NotificationData CloneNotificationData(NotificationData source)
         {
@@ -633,12 +737,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            _scheduledNotifications.Add(new ScheduledNotification
-            {
-                Data = data,
-                ShowTime = showTime,
-                IsRecurring = false
-            });
+            lock (_lock)
+                _scheduledNotifications.Add(new ScheduledNotification
+                {
+                    Data = data,
+                    ShowTime = showTime,
+                    IsRecurring = false
+                });
 
             EnsureSchedulerTimerRunning();
         }
@@ -651,13 +756,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            _scheduledNotifications.Add(new ScheduledNotification
-            {
-                Data = data,
-                ShowTime = DateTime.Now.Add(interval),
-                Interval = interval,
-                IsRecurring = true
-            });
+            lock (_lock)
+                _scheduledNotifications.Add(new ScheduledNotification
+                {
+                    Data = data,
+                    ShowTime = DateTime.Now.Add(interval),
+                    Interval = interval,
+                    IsRecurring = true
+                });
 
             EnsureSchedulerTimerRunning();
         }
@@ -667,7 +773,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void CancelScheduledNotification(NotificationData data)
         {
-            _scheduledNotifications.RemoveAll(s => s.Data == data);
+            // Match by Id, not reference equality — otherwise multiple identical
+            // NotificationData instances get removed in a single call (G7).
+            lock (_lock)
+                _scheduledNotifications.RemoveAll(s => s.Data != null && data != null && s.Data.Id == data.Id);
         }
 
         /// <summary>
@@ -675,13 +784,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// </summary>
         public void CancelAllScheduledNotifications()
         {
-            _scheduledNotifications.Clear();
+            lock (_lock) _scheduledNotifications.Clear();
         }
 
         /// <summary>
-        /// Get count of pending scheduled notifications
+        /// Get count of pending scheduled notifications. Thread-safe (Phase 4.4).
         /// </summary>
-        public int ScheduledCount => _scheduledNotifications.Count;
+        public int ScheduledCount
+        {
+            get { lock (_lock) return _scheduledNotifications.Count; }
+        }
 
         private void EnsureSchedulerTimerRunning()
         {
@@ -700,23 +812,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private void SchedulerTimer_Tick(object sender, EventArgs e)
         {
             var now = DateTime.Now;
-            var dueNotifications = _scheduledNotifications.Where(s => s.ShowTime <= now).ToList();
+
+            // Snapshot due notifications first; mutations live outside the lock.
+            List<ScheduledNotification> dueNotifications;
+            bool listEmpty;
+            lock (_lock)
+            {
+                dueNotifications = _scheduledNotifications.Where(s => s.ShowTime <= now).ToList();
+                listEmpty = _scheduledNotifications.Count == 0;
+            }
 
             foreach (var scheduled in dueNotifications)
             {
-                Show(scheduled.Data);
-
+                // Catch-up loop for recurring notifications: if the OS slept or the
+                // timer fell behind, fire as many times as we should have until we're
+                // back on schedule. Cap the catch-up at one Interval to avoid pile-up
+                // after a long sleep (G8).
                 if (scheduled.IsRecurring)
                 {
-                    scheduled.ShowTime = scheduled.ShowTime.Add(scheduled.Interval);
+                    int catchUps = 0;
+                    while (scheduled.ShowTime <= now && catchUps < 1)
+                    {
+                        Show(scheduled.Data);
+                        scheduled.ShowTime = scheduled.ShowTime.Add(scheduled.Interval);
+                        catchUps++;
+                    }
+                    // If we're still behind by more than one interval, skip ahead
+                    // instead of piling catches (e.g. laptop woke from sleep).
+                    if (scheduled.ShowTime < now - scheduled.Interval)
+                    {
+                        scheduled.ShowTime = now;
+                    }
                 }
                 else
                 {
-                    _scheduledNotifications.Remove(scheduled);
+                    Show(scheduled.Data);
+                    lock (_lock) _scheduledNotifications.Remove(scheduled);
                 }
             }
 
-            if (_scheduledNotifications.Count == 0 && _schedulerTimer != null)
+            if (listEmpty && _schedulerTimer != null)
             {
                 _schedulerTimer.Stop();
             }
@@ -769,8 +904,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             notification.ActionClicked += Notification_ActionClicked;
             notification.NotificationClicked += Notification_Clicked;
 
-            // Add to active list
-            _activeNotifications.Add(notification);
+            // Add to active list (Phase 4.4 / G23 — locked).
+            lock (_lock)
+            {
+                _activeNotifications.Add(notification);
+            }
 
             // Play sound if requested
             if (data.PlaySound)
@@ -781,9 +919,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // Get target position
             var targetLocation = CalculateNotificationPosition(notification);
 
-            // Create animator
+            // Create animator (Phase 4.4 / G23 — registration under lock).
             var animator = new BeepNotificationAnimator();
-            _animators[notification] = animator;
+            lock (_lock) _animators[notification] = animator;
 
             // Animate in
             var animation = _defaultAnimation;
@@ -800,10 +938,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (string.IsNullOrEmpty(groupKey))
                 return false;
 
-            if (_notificationGroups.TryGetValue(groupKey, out var group))
+            // Phase 4.4 / G23 — read group under lock; group mutations on the
+            // returned BeepNotificationGroup instance are not under our lock
+            // because the group owns its own list and is internally serialized.
+            BeepNotificationGroup group;
+            lock (_lock)
+            {
+                _notificationGroups.TryGetValue(groupKey, out group);
+            }
+
+            if (group != null)
             {
                 group.AddNotification(data);
-                
+
                 // Play sound for grouped notification
                 if (data.PlaySound)
                 {
@@ -850,8 +997,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             group.NotificationClicked += Group_NotificationClicked;
             group.GroupDismissed += Group_Dismissed;
 
-            // Add to dictionary
-            _notificationGroups[groupKey] = group;
+            // Add to dictionary (Phase 4.4 / G23 — locked).
+            lock (_lock) _notificationGroups[groupKey] = group;
 
             // Position the group
             var targetLocation = CalculateGroupPosition(group);
@@ -909,10 +1056,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (notification == null)
                 return;
 
-            // Get animator
-            if (_animators.TryGetValue(notification, out var animator))
+            // Phase 4.4 / G23 — _animators dictionary read under lock; the
+            // returned animator is safe to use outside the lock because it is
+            // owned only by this notification and disposed under the same lock
+            // in CleanupNotification.
+            BeepNotificationAnimator? animator;
+            lock (_lock)
             {
-                // Animate out
+                if (!_animators.TryGetValue(notification, out animator))
+                    animator = null;
+            }
+
+            if (animator != null)
+            {
                 var animation = _defaultAnimation;
                 animator.AnimateHide(notification, animation, () =>
                 {
@@ -925,47 +1081,85 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             }
         }
 
+        /// <summary>
+        /// Returns a defensive snapshot of currently-live <see cref="BeepNotification"/>
+        /// instances (skipping already-disposed ones). Optional predicate filters in-place.
+        /// Used by every batch method so iteration is safe even if a member ticks/lifecycle.
+        /// </summary>
+        private List<BeepNotification> SnapshotLive(Func<BeepNotification, bool> predicate = null)
+        {
+            List<BeepNotification> snapshot;
+            if (predicate == null)
+            {
+                snapshot = new List<BeepNotification>(_activeNotifications.Count);
+                foreach (var n in _activeNotifications)
+                {
+                    if (n != null && !n.IsDisposed) snapshot.Add(n);
+                }
+            }
+            else
+            {
+                snapshot = new List<BeepNotification>();
+                foreach (var n in _activeNotifications)
+                {
+                    if (n != null && !n.IsDisposed && predicate(n)) snapshot.Add(n);
+                }
+            }
+            return snapshot;
+        }
+
         private void CleanupNotification(BeepNotification notification)
         {
-            if (notification == null)
+            if (notification == null || notification.IsDisposed)
                 return;
 
-            // Add to history before cleanup
+            // Unsubscribe FIRST so the dispose call cannot re-fire events into a half-cleaned manager
+            notification.NotificationDismissed -= Notification_Dismissed;
+            notification.ActionClicked -= Notification_ActionClicked;
+            notification.NotificationClicked -= Notification_Clicked;
+
+            // Add to history before cleanup. HistoryPanel is a control inside a
+            // UI thread; we keep the call here (assumes UI-thread callers — no
+            // exception thrown under worker-thread usage, since BeepNotificationHistory
+            // handles Invoking internally).
             if (_trackHistory && notification.NotificationData != null)
             {
                 HistoryPanel.AddNotification(notification.NotificationData);
             }
 
-            // Unsubscribe from events
-            notification.NotificationDismissed -= Notification_Dismissed;
-            notification.ActionClicked -= Notification_ActionClicked;
-            notification.NotificationClicked -= Notification_Clicked;
-
-            // Remove from active list FIRST
-            _activeNotifications.Remove(notification);
-
-            // Dispose animator
-            if (_animators.TryGetValue(notification, out var animator))
+            // Phase 4.4 / G23 — three collection mutations under one lock:
+            // _activeNotifications.Remove + _animators.Remove + dequeue.
+            bool repopulate = false;
+            lock (_lock)
             {
-                animator.Dispose();
-                _animators.Remove(notification);
+                _activeNotifications.Remove(notification);
+
+                if (_animators.TryGetValue(notification, out var animator))
+                {
+                    animator.Dispose();
+                    _animators.Remove(notification);
+                }
+
+                repopulate = _activeNotifications.Count > 0;
+                if (_notificationQueue.Count > 0)
+                {
+                    var nextData = _notificationQueue.Dequeue();
+                    // Mark for re-show AFTER we release the lock so we don't hold
+                    // it across a UI-thread internal call.
+                    RepositionNotificationsAnimated();
+                    ShowNotificationInternal(nextData);
+                    return;
+                }
             }
 
             // Reposition remaining notifications BEFORE disposing to prevent flicker
-            if (_activeNotifications.Count > 0)
+            if (repopulate)
             {
                 RepositionNotificationsAnimated();
             }
 
             // Dispose notification AFTER repositioning
             notification.Dispose();
-
-            // Show next queued notification if any
-            if (_notificationQueue.Count > 0)
-            {
-                var nextData = _notificationQueue.Dequeue();
-                ShowNotificationInternal(nextData);
-            }
         }
 
         private Point CalculateNotificationPosition(BeepNotification notification)
@@ -1194,11 +1388,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             if (sender is BeepNotificationGroup group)
             {
-                // Remove from groups dictionary
-                var groupKey = _notificationGroups.FirstOrDefault(kvp => kvp.Value == group).Key;
-                if (!string.IsNullOrEmpty(groupKey))
+                // Phase 4.4 / G23 — remove from dictionary under lock.
+                string? groupKey;
+                lock (_lock)
                 {
-                    _notificationGroups.Remove(groupKey);
+                    groupKey = _notificationGroups.FirstOrDefault(kvp => kvp.Value == group).Key;
+                    if (!string.IsNullOrEmpty(groupKey))
+                    {
+                        _notificationGroups.Remove(groupKey);
+                    }
                 }
 
                 // Dispose group
@@ -1208,6 +1406,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 RepositionNotificationsAnimated();
             }
         }
+
+        #endregion
+
+        #region Keyboard Navigation (Phase 5.4 / G13)
+
+        private int _focusedIndex = -1;
+
+        /// <summary>
+        /// Cycle focus to the next notification in <see cref="_activeNotifications"/>.
+        /// Order matches the manager's visual stack order. Wrap-around on reach end.
+        /// Idempotent if no active notifications.
+        /// </summary>
+        public bool FocusNext()
+        {
+            var snapshot = SnapshotLive();
+            if (snapshot.Count == 0) return false;
+
+            _focusedIndex = (_focusedIndex + 1) % snapshot.Count;
+            snapshot[_focusedIndex].Focus();
+            return true;
+        }
+
+        /// <summary>
+        /// Cycle focus to the previous notification in <see cref="_activeNotifications"/>.
+        /// Wrap-around on reach start.
+        /// </summary>
+        public bool FocusPrevious()
+        {
+            var snapshot = SnapshotLive();
+            if (snapshot.Count == 0) return false;
+
+            _focusedIndex = _focusedIndex <= 0
+                ? snapshot.Count - 1
+                : _focusedIndex - 1;
+            snapshot[_focusedIndex].Focus();
+            return true;
+        }
+
+        /// <summary>
+        /// Index of the currently focused notification, or -1. Useful for menu
+        /// items or accessibility tools that want to highlight a row.
+        /// </summary>
+        public int FocusedIndex => _focusedIndex;
+
         #endregion
 
         #region Cleanup
@@ -1236,12 +1478,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _historyPanel = null;
             }
 
-            // Dispose all animators
-            foreach (var animator in _animators.Values)
+            // Dispose all animators (Phase 4.4 / G23 — locked snapshot).
+            List<BeepNotificationAnimator> animatorSnapshot;
+            lock (_lock) animatorSnapshot = new List<BeepNotificationAnimator>(_animators.Values);
+            foreach (var animator in animatorSnapshot)
             {
                 animator.Dispose();
             }
-            _animators.Clear();
+            lock (_lock) _animators.Clear();
         }
         #endregion
     }

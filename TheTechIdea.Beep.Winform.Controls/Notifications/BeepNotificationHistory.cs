@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Notifications
 {
@@ -23,22 +30,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     {
         #region Private Fields
         private readonly List<NotificationHistoryItem> _history;
-        private readonly Panel _headerPanel;
-        private readonly Label _titleLabel;
-        private readonly TextBox _searchBox;
+
+        // Phase 2: chrome now composed of Beep child controls (G3).
+        // _filterCombo / _statusFilterCombo stay as standard ComboBox because
+        // BeepComboBox uses a SimpleItem data model and overlay popup, which
+        // would change the wiring contract for callers of SelectedIndex.
+        private readonly BeepPanel _headerPanel;
+        private readonly BeepLabel _titleLabel;
+        private readonly BeepTextBox _searchBox;
         private readonly ComboBox _filterCombo;
         private readonly ComboBox _statusFilterCombo;
-        private readonly Button _clearButton;
-        private readonly Button _markAllReadButton;
-        private readonly Panel _listPanel;
-        private readonly VScrollBar _scrollBar;
-        private int _scrollOffset = 0;
+        private readonly BeepButton _clearButton;
+        private readonly BeepButton _markAllReadButton;
+
+        // Phase 2 completion: items are now BeepPanel child rows inside
+        // _itemsHost (Dock=Fill, AutoScroll=true). No manual GDI paint remains.
+        private Panel _itemsHost;
+        private readonly List<BeepPanel> _itemPanels = new();
+
         private int _itemHeight = 60;
         private int _maxHistorySize = 100;
         private NotificationType? _filterType = null;
         private bool? _filterReadStatus = null;
         private readonly System.Windows.Forms.Timer _searchDebounceTimer;
-        private Font _textFont;
         #endregion
 
         #region Constructor
@@ -60,31 +74,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             MinimumSize = new Size(DpiScalingHelper.ScaleValue(300, this), DpiScalingHelper.ScaleValue(400, this));
             Size = new Size(DpiScalingHelper.ScaleValue(350, this), DpiScalingHelper.ScaleValue(500, this));
 
-            // Header panel
-            _headerPanel = new Panel
+            // Header panel — BeepPanel hosts the chrome so it inherits theme.
+            // (Manual GDI paint replaced by RebuildItems child controls)
+            _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
                 Height = DpiScalingHelper.ScaleValue(100, this),
-                BackColor = Color.Transparent
+                UseThemeColors = true
             };
 
-            _titleLabel = new Label
+            // Title — BeepLabel + theme typography via BeepFontManager
+            _titleLabel = new BeepLabel
             {
                 Text = "Notification History",
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(12, this)),
-                AutoSize = true
+                AutoSize = true,
+                UseThemeColors = true
             };
 
-            _searchBox = new TextBox
+            // Search — BeepTextBox supplies placeholder text + theming
+            _searchBox = new BeepTextBox
             {
                 PlaceholderText = "Search notifications...",
                 Location = new Point(DpiScalingHelper.ScaleValue(12, this), DpiScalingHelper.ScaleValue(40, this)),
                 Width = DpiScalingHelper.ScaleValue(200, this),
-                Height = DpiScalingHelper.ScaleValue(24, this)
+                Height = DpiScalingHelper.ScaleValue(24, this),
+                UseThemeColors = true
             };
             _searchBox.TextChanged += SearchBox_TextChanged;
 
+            // Filter combos — WinForms ComboBox stays because BeepComboBox
+            // requires SimpleItem data model + custom overlay popup.
             _filterCombo = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
@@ -114,21 +134,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _statusFilterCombo.SelectedIndex = 0;
             _statusFilterCombo.SelectedIndexChanged += StatusFilterCombo_SelectedIndexChanged;
 
-            _clearButton = new Button
+            // Action buttons — BeepButton for theme integration
+            _clearButton = new BeepButton
             {
                 Text = "Clear",
                 Location = new Point(DpiScalingHelper.ScaleValue(120, this), DpiScalingHelper.ScaleValue(70, this)),
                 Width = DpiScalingHelper.ScaleValue(80, this),
-                Height = DpiScalingHelper.ScaleValue(24, this)
+                Height = DpiScalingHelper.ScaleValue(24, this),
+                UseThemeColors = true
             };
             _clearButton.Click += ClearButton_Click;
 
-            _markAllReadButton = new Button
+            _markAllReadButton = new BeepButton
             {
                 Text = "Mark All Read",
                 Location = new Point(DpiScalingHelper.ScaleValue(210, this), DpiScalingHelper.ScaleValue(70, this)),
                 Width = DpiScalingHelper.ScaleValue(100, this),
-                Height = DpiScalingHelper.ScaleValue(24, this)
+                Height = DpiScalingHelper.ScaleValue(24, this),
+                UseThemeColors = true
             };
             _markAllReadButton.Click += MarkAllReadButton_Click;
 
@@ -139,28 +162,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _headerPanel.Controls.Add(_clearButton);
             _headerPanel.Controls.Add(_markAllReadButton);
 
-            // List panel
-            _listPanel = new Panel
+            // Items host — Dock=Fill with AutoScroll so rows overflow into a
+            // scrollable region. Each row is a BeepPanel with Dock=Top matching
+            // ItemHeight.
+            _itemsHost = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.Transparent,
-                AutoScroll = false
+                AutoScroll = true
             };
-            _listPanel.Paint += ListPanel_Paint;
-            _listPanel.MouseWheel += ListPanel_MouseWheel;
-            _listPanel.Click += ListPanel_Click;
+            _itemsHost.Scroll += (s, e) => { /* AutoScroll handles scroll events internally */ };
 
-            // Scroll bar
-            _scrollBar = new VScrollBar
-            {
-                Dock = DockStyle.Right,
-                Visible = false
-            };
-            _scrollBar.Scroll += ScrollBar_Scroll;
-
-            // Add controls
-            this.Controls.Add(_listPanel);
-            this.Controls.Add(_scrollBar);
+            // Add controls — order affects Z-order / docking priority.
+            this.Controls.Add(_itemsHost);
             this.Controls.Add(_headerPanel);
 
             _searchDebounceTimer = new System.Windows.Forms.Timer { Interval = 250 };
@@ -193,8 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             set
             {
                 _itemHeight = Math.Max(40, value);
-                UpdateScrollBar();
-                _listPanel.Invalidate();
+                RebuildItems();
             }
         }
 
@@ -214,6 +227,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             if (data == null)
                 return;
 
+            // First-time lazy load: only read the file once per instance.
+            if (!_loaded) Load();
+
             var item = new NotificationHistoryItem
             {
                 Data = data,
@@ -228,19 +244,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _history.RemoveAt(_history.Count - 1);
             }
 
-            UpdateScrollBar();
-            _listPanel.Invalidate();
+            RebuildItems();
+            ScheduleAutoSave();
         }
 
         /// <summary>
-        /// Clear all history
+        /// Clear all history. If persistence is enabled the on-disk file is
+        /// removed as well so the cleared state survives process restarts.
         /// </summary>
         public void ClearHistory()
         {
             _history.Clear();
-            _scrollOffset = 0;
-            UpdateScrollBar();
-            _listPanel.Invalidate();
+            RebuildItems();
+
+            // Persisted clear: remove the file outright so subsequent
+            // loads find an empty history rather than the stale state.
+            try
+            {
+                if (!string.IsNullOrEmpty(_persistenceFilePath) && File.Exists(_persistenceFilePath))
+                    File.Delete(_persistenceFilePath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BeepNotificationHistory] ClearHistory file delete failed: {ex.Message}");
+            }
+
+            // Cancel any pending debounced save (history is empty now).
+            _autoSaveTimer?.Stop();
         }
 
         /// <summary>
@@ -274,6 +304,192 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
         #endregion
 
+        #region Items rebuild (Phase 2 completion — child controls)
+        private void RebuildItems()
+        {
+            if (_itemsHost == null) return;
+
+            // Get the live filtered list (respects type/status/search filters)
+            var items = GetFilteredItems();
+
+            _itemsHost.SuspendLayout();
+            try
+            {
+                // Trim rows that exceed the filtered list
+                while (_itemPanels.Count > items.Count)
+                {
+                    var lastIndex = _itemPanels.Count - 1;
+                    var stale = _itemPanels[lastIndex];
+                    _itemsHost.Controls.Remove(stale);
+                    stale.Dispose();
+                    _itemPanels.RemoveAt(lastIndex);
+                }
+
+                // Add/update rows
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    if (i < _itemPanels.Count)
+                    {
+                        UpdateHistoryRow(_itemPanels[i], item);
+                    }
+                    else
+                    {
+                        var row = CreateHistoryRow();
+                        UpdateHistoryRow(row, item);
+                        row.Click += (s, e) => HistoryItemClicked?.Invoke(this, item);
+                        _itemsHost.Controls.Add(row);
+                        _itemPanels.Add(row);
+                    }
+                }
+            }
+            finally
+            {
+                _itemsHost.ResumeLayout();
+            }
+
+            // Show empty-state label if no rows
+            if (items.Count == 0)
+            {
+                HideEmptyState();    // Remove stale placeholder
+                ShowEmptyState();    // Add new placeholder
+            }
+            else
+            {
+                HideEmptyState();    // Remove placeholder when items exist
+            }
+        }
+
+        private BeepPanel CreateHistoryRow()
+        {
+            var row = new BeepPanel
+            {
+                Dock = DockStyle.Top,
+                Height = _itemHeight,
+                UseThemeColors = false,
+                Padding = new Padding(
+                    DpiScalingHelper.ScaleValue(12, this),
+                    DpiScalingHelper.ScaleValue(4, this),
+                    DpiScalingHelper.ScaleValue(12, this),
+                    DpiScalingHelper.ScaleValue(4, this)),
+                Cursor = Cursors.Hand
+            };
+
+            var inner = new BeepPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.Transparent
+            };
+            row.Controls.Add(inner);
+
+            // Timestamp — top-right
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Top,
+                Height = DpiScalingHelper.ScaleValue(14, this),
+                TextAlign = ContentAlignment.TopRight,
+                AutoSize = false,
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                ForeColor = Color.FromArgb(120, this.ForeColor),
+                TabStop = false,
+                Tag = "_time"
+            });
+            // Title — single line, bold
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Top,
+                Height = DpiScalingHelper.ScaleValue(18, this),
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                TabStop = false,
+                Tag = "_title"
+            });
+            // Message — fill remaining
+            inner.Controls.Add(new BeepLabel
+            {
+                Dock = DockStyle.Fill,
+                AutoEllipsis = true,
+                UseThemeColors = true,
+                ForeColor = Color.FromArgb(180, this.ForeColor),
+                TabStop = false,
+                Tag = "_msg"
+            });
+
+            return row;
+        }
+
+        private void UpdateHistoryRow(BeepPanel row, NotificationHistoryItem item)
+        {
+            // Type-tinted background
+            row.BackColor = ResolveTypeTint(item.Data.Type);
+
+            BeepLabel title = null, msg = null, ts = null;
+            foreach (Control c in row.Controls)
+            {
+                if (c is BeepPanel inner)
+                {
+                    foreach (Control ic in inner.Controls)
+                    {
+                        if (ic.Tag is string tag)
+                        {
+                            if (tag == "_title") title = (BeepLabel)ic;
+                            else if (tag == "_msg") msg = (BeepLabel)ic;
+                            else if (tag == "_time") ts = (BeepLabel)ic;
+                        }
+                    }
+                }
+            }
+
+            if (title != null) title.Text = item.Data.Title ?? "Notification";
+            if (msg   != null) msg.Text   = item.Data.Message ?? string.Empty;
+            if (ts    != null) ts.Text    = GetTimeAgo(item.DismissedAt);
+        }
+
+        private Color ResolveTypeTint(NotificationType type)
+        {
+            return type switch
+            {
+                NotificationType.Success => Color.FromArgb(20, 76, 175, 80),
+                NotificationType.Warning => Color.FromArgb(20, 255, 152, 0),
+                NotificationType.Error   => Color.FromArgb(20, 244, 67, 54),
+                NotificationType.Info    => Color.FromArgb(20, 33, 150, 243),
+                NotificationType.System  => Color.FromArgb(20, 158, 158, 158),
+                _                        => Color.FromArgb(20, 128, 128, 128)
+            };
+        }
+
+        private void ShowEmptyState()
+        {
+            // Add a centered empty-state label. HideEmptyState is called first
+            // by the caller to remove any previous placeholder.
+            var label = new BeepLabel
+            {
+                Text = "No notifications in history",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                UseThemeColors = true,
+                ForeColor = Color.FromArgb(120, this.ForeColor)
+            };
+
+            _itemsHost.Controls.Add(label);
+            label.Tag = "_empty";
+        }
+
+        private void HideEmptyState()
+        {
+            for (int i = _itemsHost.Controls.Count - 1; i >= 0; i--)
+            {
+                if (_itemsHost.Controls[i] is BeepLabel lbl && lbl.Tag as string == "_empty")
+                {
+                    _itemsHost.Controls.RemoveAt(i);
+                    lbl.Dispose();
+                    break;
+                }
+            }
+        }
+        #endregion
+
         #region Event Handlers
         private void SearchBox_TextChanged(object? sender, EventArgs e)
         {
@@ -284,9 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private void SearchDebounceTimer_Tick(object? sender, EventArgs e)
         {
             _searchDebounceTimer?.Stop();
-            _scrollOffset = 0;
-            UpdateScrollBar();
-            _listPanel.Invalidate();
+            RebuildItems();
         }
 
         private void FilterCombo_SelectedIndexChanged(object? sender, EventArgs e)
@@ -301,9 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _ => null
             };
 
-            _scrollOffset = 0;
-            UpdateScrollBar();
-            _listPanel.Invalidate();
+            RebuildItems();
         }
 
         private void StatusFilterCombo_SelectedIndexChanged(object? sender, EventArgs e)
@@ -315,10 +527,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _ => null
             };
 
-            _scrollOffset = 0;
-            UpdateScrollBar();
-            _listPanel.Invalidate();
+            RebuildItems();
         }
+
+        public event EventHandler<NotificationHistoryItem>? HistoryItemClicked;
 
         private void MarkAllReadButton_Click(object? sender, EventArgs e)
         {
@@ -330,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                     item.Data.ReadTimestamp = DateTime.Now;
                 }
             }
-            _listPanel.Invalidate();
+            RebuildItems();
         }
 
         private void ClearButton_Click(object? sender, EventArgs e)
@@ -338,173 +550,165 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             ClearHistory();
         }
 
-        private void ScrollBar_Scroll(object? sender, ScrollEventArgs e)
+        #region Persistence (Phase 7 / G14)
+        private string _persistenceFilePath;
+        private System.Windows.Forms.Timer _autoSaveTimer;
+        private bool _loaded;
+        private static readonly JsonSerializerOptions s_jsonOpts = new JsonSerializerOptions
         {
-            _scrollOffset = e.NewValue;
-            _listPanel.Invalidate();
-        }
+            WriteIndented = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            IncludeFields = true
+        };
 
-        private void ListPanel_MouseWheel(object? sender, MouseEventArgs e)
+        /// <summary>
+        /// File path used by <see cref="Save"/> / <see cref="Load"/> for
+        /// history persistence. Default: <c>%AppData%\TheTechIdea\Beep\notifications.json</c>.
+        /// Set to <c>null</c> or empty to disable persistence entirely.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string PersistenceFilePath
         {
-            if (!_scrollBar.Visible)
-                return;
-
-            int scrollDelta = DpiScalingHelper.ScaleValue(20, this);
-            int delta = e.Delta / 120 * scrollDelta;
-            _scrollOffset = Math.Max(0, Math.Min(_scrollBar.Maximum - _scrollBar.LargeChange + 1, _scrollOffset - delta));
-            _scrollBar.Value = _scrollOffset;
-            _listPanel.Invalidate();
-        }
-
-        public event EventHandler<NotificationHistoryItem>? HistoryItemClicked;
-
-        private void ListPanel_Click(object? sender, EventArgs e)
-        {
-            var mousePos = _listPanel.PointToClient(Cursor.Position);
-            var items = GetFilteredItems();
-            int startIndex = _scrollOffset / ItemHeight;
-            int itemY = startIndex * ItemHeight - _scrollOffset;
-
-            for (int i = startIndex; i < items.Count; i++)
+            get
             {
-                var itemRect = new Rectangle(0, itemY, _listPanel.Width, ItemHeight);
-                if (itemRect.Contains(mousePos) && items[i] is NotificationHistoryItem item)
+                if (string.IsNullOrEmpty(_persistenceFilePath))
                 {
-                    HistoryItemClicked?.Invoke(this, item);
-                    return;
+                    var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    _persistenceFilePath = Path.Combine(appData, "TheTechIdea", "Beep", "notifications.json");
                 }
-                itemY += ItemHeight;
+                return _persistenceFilePath;
+            }
+            set => _persistenceFilePath = value;
+        }
+
+        /// <summary>
+        /// Persist the current history to <see cref="PersistenceFilePath"/>.
+        /// Trims to the last <c>MaxHistorySize</c> items. If the path is
+        /// empty or null, this is a no-op. Errors are swallowed (logged only
+        /// so a read-only AppData directory does not crash the app).
+        /// </summary>
+        public void Save()
+        {
+            var path = _persistenceFilePath;     // honor caller-set null/empty without auto-defaulting
+            if (string.IsNullOrEmpty(path)) return;
+
+            try
+            {
+                // Cap to MaxHistorySize so the file does not grow unboundedly.
+                var items = _history.Take(MaxHistorySize).ToList();
+                var dto = new PersistedHistoryDto
+                {
+                    Version = 2,
+                    SavedAt = DateTime.UtcNow,
+                    Items = items.Select(item => new PersistedItemDto
+                    {
+                        Data = item.Data,
+                        DismissedAt = item.DismissedAt,
+                        WasActioned = item.WasActioned
+                    }).ToList()
+                };
+
+                var dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                var json = JsonSerializer.Serialize(dto, s_jsonOpts);
+                File.WriteAllText(path, json);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BeepNotificationHistory] Save failed: {ex.Message}");
             }
         }
 
-        private void ListPanel_Paint(object? sender, PaintEventArgs e)
+        /// <summary>
+        /// Load history from <see cref="PersistenceFilePath"/>. Replaces current
+        /// in-memory history with the on-disk version. No-op on missing file
+        /// or empty path. Multi-call-safe: a second Load replaces the first.
+        /// </summary>
+        public void Load()
         {
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            var path = _persistenceFilePath;     // same convention as Save
+            if (string.IsNullOrEmpty(path)) return;
+            if (!File.Exists(path)) return;
 
-            var items = GetFilteredItems();
-            if (items.Count == 0)
+            try
             {
-                DrawEmptyMessage(g);
-                return;
-            }
+                var json = File.ReadAllText(path);
+                if (string.IsNullOrWhiteSpace(json)) return;
 
-            int y = -_scrollOffset;
-            foreach (var item in items)
-            {
-                if (y + _itemHeight < 0)
+                var dto = JsonSerializer.Deserialize<PersistedHistoryDto>(json, s_jsonOpts);
+                if (dto?.Items == null) return;
+
+                _history.Clear();
+                foreach (var item in dto.Items)
                 {
-                    y += _itemHeight;
-                    continue;
+                    if (item?.Data == null) continue;
+                    _history.Add(new NotificationHistoryItem
+                    {
+                        Data = item.Data,
+                        DismissedAt = item.DismissedAt,
+                        WasActioned = item.WasActioned
+                    });
                 }
 
-                if (y > _listPanel.Height)
-                    break;
-
-                DrawHistoryItem(g, item, new Rectangle(0, y, _listPanel.Width - (_scrollBar.Visible ? _scrollBar.Width : 0), _itemHeight));
-                y += _itemHeight;
+                RebuildItems();
+                _loaded = true;
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BeepNotificationHistory] Load failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Schedule a debounced save (10 seconds from now). Restarting the
+        /// timer cancels a previously-pending save — bursts of history items
+        /// coalesce into a single write. Also blocks saves while the file
+        /// path is empty.
+        /// </summary>
+        private void ScheduleAutoSave()
+        {
+            if (string.IsNullOrEmpty(_persistenceFilePath)) return;
+
+            if (_autoSaveTimer == null)
+            {
+                _autoSaveTimer = new System.Windows.Forms.Timer { Interval = 10000 };
+                _autoSaveTimer.Tick += (s, e) =>
+                {
+                    _autoSaveTimer.Stop();
+                    Save();
+                };
+            }
+
+            _autoSaveTimer.Stop();
+            _autoSaveTimer.Start();
+        }
+
+        /// <summary>
+        /// Serialization DTO. Versioned so future migration code can branch
+        /// on <see cref="Version"/>. Uses own DTO type so we can evolve
+        /// the persistence shape without touching <see cref="NotificationData"/>
+        /// or <see cref="NotificationHistoryItem"/> directly.
+        /// </summary>
+        private sealed class PersistedHistoryDto
+        {
+            public int Version { get; set; }
+            public DateTime SavedAt { get; set; }
+            public List<PersistedItemDto> Items { get; set; } = new();
+        }
+
+        private sealed class PersistedItemDto
+        {
+            public NotificationData Data { get; set; }
+            public DateTime DismissedAt { get; set; }
+            public bool WasActioned { get; set; }
         }
         #endregion
 
-        #region Drawing Methods
-        private void DrawHistoryItem(Graphics g, NotificationHistoryItem item, Rectangle bounds)
-        {
-            // Background
-            var bgColor = item.Data.Type switch
-            {
-                NotificationType.Success => Color.FromArgb(20, 76, 175, 80),
-                NotificationType.Warning => Color.FromArgb(20, 255, 152, 0),
-                NotificationType.Error => Color.FromArgb(20, 244, 67, 54),
-                NotificationType.Info => Color.FromArgb(20, 33, 150, 243),
-                NotificationType.System => Color.FromArgb(20, 158, 158, 158),
-                _ => Color.FromArgb(20, 128, 128, 128)
-            };
-
-            using (var brush = new SolidBrush(bgColor))
-            {
-                g.FillRectangle(brush, bounds);
-            }
-
-            // Border bottom
-            using (var pen = new Pen(Color.FromArgb(30, 0, 0, 0)))
-            {
-                g.DrawLine(pen, bounds.Left, bounds.Bottom - 1, bounds.Right, bounds.Bottom - 1);
-            }
-
-            int labelLeft = DpiScalingHelper.ScaleValue(12, this);
-            int titleTop = DpiScalingHelper.ScaleValue(8, this);
-            int titleW = bounds.Width - DpiScalingHelper.ScaleValue(100, this);
-            int titleH = DpiScalingHelper.ScaleValue(16, this);
-            int msgTop = DpiScalingHelper.ScaleValue(26, this);
-            int msgH = DpiScalingHelper.ScaleValue(20, this);
-
-            // Title
-            Font titleFont = _textFont != null ? new Font(_textFont, FontStyle.Bold) : new Font("Segoe UI", 9, FontStyle.Bold);
-            try
-            {
-                using (var titleBrush = new SolidBrush(this.ForeColor))
-                {
-                    var titleRect = new Rectangle(bounds.X + labelLeft, bounds.Y + titleTop, titleW, titleH);
-                    g.DrawString(item.Data.Title ?? "Notification", titleFont, titleBrush, titleRect);
-                }
-            }
-            finally
-            {
-                if (titleFont != _textFont) titleFont?.Dispose();
-            }
-
-            // Message
-            Font messageFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(7f, _textFont.Size - 2f)) : new Font("Segoe UI", 8);
-            try
-            {
-                using (var messageBrush = new SolidBrush(Color.FromArgb(180, this.ForeColor)))
-                {
-                    var messageRect = new Rectangle(bounds.X + labelLeft, bounds.Y + msgTop, titleW, msgH);
-                    g.DrawString(item.Data.Message ?? "", messageFont, messageBrush, messageRect);
-                }
-            }
-            finally
-            {
-                if (messageFont != _textFont) messageFont?.Dispose();
-            }
-
-            // Timestamp
-            var timeAgo = GetTimeAgo(item.DismissedAt);
-            Font timeFont = _textFont != null ? new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size - 3f)) : new Font("Segoe UI", 7);
-            try
-            {
-                using (var timeBrush = new SolidBrush(Color.FromArgb(120, this.ForeColor)))
-                {
-                    var timeSize = g.MeasureString(timeAgo, timeFont);
-                    g.DrawString(timeAgo, timeFont, timeBrush, bounds.Right - timeSize.Width - labelLeft, bounds.Y + titleTop);
-                }
-            }
-            finally
-            {
-                if (timeFont != _textFont) timeFont?.Dispose();
-            }
-        }
-
-        private void DrawEmptyMessage(Graphics g)
-        {
-            var message = "No notifications in history";
-            Font emptyFont = _textFont != null ? new Font(_textFont, FontStyle.Italic) : new Font("Segoe UI", 10, FontStyle.Italic);
-            try
-            {
-            using (var brush = new SolidBrush(Color.FromArgb(120, this.ForeColor)))
-            {
-                var size = g.MeasureString(message, emptyFont);
-                var x = (_listPanel.Width - size.Width) / 2;
-                var y = (_listPanel.Height - size.Height) / 2;
-                g.DrawString(message, emptyFont, brush, x, y);
-            }
-            }
-            finally
-            {
-                if (emptyFont != _textFont) emptyFont?.Dispose();
-            }
-        }
+        #region Helper Methods
+        #endregion
 
         private string GetTimeAgo(DateTime time)
         {
@@ -521,34 +725,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             return time.ToString("MMM d");
         }
-        #endregion
-
-        #region Helper Methods
-        private void UpdateScrollBar()
-        {
-            var items = GetFilteredItems();
-            int totalHeight = items.Count * _itemHeight;
-            int visibleHeight = _listPanel.Height;
-
-            if (totalHeight > visibleHeight)
-            {
-                _scrollBar.Visible = true;
-                _scrollBar.Maximum = totalHeight;
-                _scrollBar.LargeChange = visibleHeight;
-                _scrollBar.SmallChange = _itemHeight;
-            }
-            else
-            {
-                _scrollBar.Visible = false;
-                _scrollOffset = 0;
-            }
-        }
 
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            if (_currentTheme != null)
-                _textFont = BeepFontManager.ToFont(_currentTheme.BodyMedium);
+            RebuildItems();
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -559,7 +740,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             ShadowOffset = DpiScalingHelper.ScaleValue(2, this);
             MinimumSize = DpiScalingHelper.ScaleSize(new Size(300, 400), this);
             Size = DpiScalingHelper.ScaleSize(new Size(350, 500), this);
-            UpdateScrollBar();
+            RebuildItems();
             Invalidate();
         }
 
@@ -572,8 +753,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             {
                 _textFont?.Dispose();
                 _headerPanel?.Dispose();
-                _listPanel?.Dispose();
-                _scrollBar?.Dispose();
+                _itemsHost?.Dispose();
                 _titleLabel?.Dispose();
                 _searchBox?.Dispose();
                 _filterCombo?.Dispose();
@@ -581,6 +761,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 _statusFilterCombo?.Dispose();
                 _markAllReadButton?.Dispose();
                 _searchDebounceTimer?.Dispose();
+
+                // Persistence (Phase 7): flush any pending debounced save
+                // synchronously so the latest state reaches disk before the
+                // process disposes the panel. Cancel after to avoid the timer
+                // firing after this control is gone.
+                if (_autoSaveTimer != null)
+                {
+                    _autoSaveTimer.Stop();
+                    Save();
+                    _autoSaveTimer.Dispose();
+                    _autoSaveTimer = null;
+                }
             }
             base.Dispose(disposing);
         }

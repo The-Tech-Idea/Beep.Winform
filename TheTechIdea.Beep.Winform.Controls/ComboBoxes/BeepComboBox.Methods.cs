@@ -29,11 +29,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         
         /// <summary>
-        /// Shows the dropdown menu using BeepContextMenu (same as MenuBar - creates NEW instance each time)
+        /// Shows the dropdown menu. Single-select path routes through
+        /// <see cref="ContextMenuManager.ShowNonBlocking"/> so the chrome matches
+        /// <see cref="TheTechIdea.Beep.Winform.Controls.Menus.BeepMenuBar"/>. The
+        /// manager's non-blocking variant does not yet support multi-select, so
+        /// the multi-select path keeps the direct <see cref="BeepContextMenu"/>
+        /// instantiation. An empty list is a no-op in either path.
         /// </summary>
         public void ShowDropdown()
         {
             if (_isDropdownOpen || _isLoading)
+                return;
+            // Don't popup an empty list -- nothing for the user to pick.
+            if (_listItems == null || _listItems.Count == 0)
                 return;
 
             _isDropdownOpen = true;
@@ -46,6 +54,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                     SelectedItems ?? new System.Collections.Generic.List<SimpleItem>());
             }
 
+            Point screenLocation = this.PointToScreen(new Point(0, Height));
+
+            if (!AllowMultipleSelection)
+            {
+                // Single-select: route through the central menu manager so the chrome
+                // is identical to BeepMenuBar. ShowNonBlocking already guards on
+                // empty items and handles DestroyOnClose. The ComboBox-specific
+                // overrides (ShowSearchBox, EnableAnimations, etc.) do not apply
+                // because the manager's CreateMenu is in control of those flags.
+                var snapshot = _listItems.ToList();
+                var previous = _managerPopupHandle;
+                if (previous != null) { try { previous.Dispose(); } catch { } }
+                _managerPopupHandle = ContextMenuManager.ShowNonBlocking(
+                    items: snapshot,
+                    screenLocation: screenLocation,
+                    owner: this,
+                    style: FormStyle.Modern,
+                    theme: this.Theme,
+                    onItemSelected: OnManagerItemSelected,
+                    maxImageSize: MaxImageSize);
+
+                // Access + life-cycle events
+                AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.StateChange, -1);
+                AccessibilityNotifyClients(System.Windows.Forms.AccessibleEvents.SystemMenuPopupStart, -1);
+                PopupOpened?.Invoke(this, EventArgs.Empty);
+                Invalidate();
+                return;
+            }
+
+            // Multi-select path: keep the manual BeepContextMenu path because
+            // ContextMenuManager.ShowNonBlocking does not support multi-select.
             // Dispose old menu if exists (like Menu does - always fresh instance)
             if (BeepContextMenu != null && !BeepContextMenu.IsDisposed)
             {
@@ -73,7 +112,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartPosition = FormStartPosition.Manual,
                 CloseOnFocusLost = true,
                 EnableAnimations = false,  // No fade animation for dropdown (instant show)
-                Theme = this.Theme
+                Theme = this.Theme,
+                // Match the leading-image cap so the popup icons resize with
+                // the host control exactly the way the leading icon does.
+                MaxImageSize = this.MaxImageSize
             };
 
             // Wire events fresh
@@ -91,7 +133,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Position below the combo box
-            Point screenLocation = this.PointToScreen(new Point(0, Height));
             BeepContextMenu.Width = Width;
             BeepContextMenu.RecalculateSize();
             BeepContextMenu.Show(screenLocation, this);
@@ -101,6 +142,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             PopupOpened?.Invoke(this, EventArgs.Empty);
             Invalidate();
+        }
+
+        /// <summary>
+        /// Bridge between the manager-driven single-select popup and the existing
+        /// <see cref="OnContextMenuItemClicked"/> handler. The manager invokes
+        /// this on every item click; we translate the <see cref="SimpleItem"/>
+        /// payload into the <see cref="MenuItemEventArgs"/> the existing handler
+        /// already understands, so all selection logic stays in one place.
+        /// </summary>
+        private void OnManagerItemSelected(SimpleItem item)
+        {
+            if (item == null) return;
+            OnContextMenuItemClicked(this, new TheTechIdea.Beep.Winform.Controls.ContextMenus.MenuItemEventArgs(item));
         }
 
         private void OnDropdownMenuClosed(object sender, BeepContextMenuClosedEventArgs e)
@@ -113,6 +167,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
+
+        /// <summary>
+        /// Called when <see cref="ContextMenuManager"/> raises <see cref="ContextMenuManager.MenuDismissed"/>
+        /// for a menu whose owner is this combo. The single-select path goes through
+        /// <see cref="ContextMenuManager.ShowNonBlocking"/> which does not give us a direct
+        /// <see cref="BeepContextMenu.MenuClosed"/> event; the central dismissal event fills
+        /// that gap and lets us share <see cref="OnDropdownMenuClosed"/>'s cleanup.
+        /// </summary>
+        private void OnManagerMenuDismissed(object sender, TheTechIdea.Beep.Winform.Controls.ContextMenus.MenuDismissedEventArgs e)
+        {
+            if (e == null || e.Owner != this) return;
+            // Dispose the handle so the manager can free its tracking dict entry.
+            var h = _managerPopupHandle;
+            _managerPopupHandle = null;
+            try { h?.Dispose(); } catch { /* non-fatal */ }
+            // Reuse the manual path's close cleanup so behavior matches.
+            OnDropdownMenuClosed(this, null);
+        }
         
         /// <summary>
         /// Closes the dropdown menu
@@ -121,11 +193,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!_isDropdownOpen)
                 return;
-            
+
             if (BeepContextMenu != null && !BeepContextMenu.IsDisposed)
             {
                 BeepContextMenu.Close();
             }
+            // Dispose the manager-driven handle for the single-select path so the
+            // manager frees its tracking entry. Dispose() is safe on an already-closed
+            // menu; ShowNonBlocking also raises MenuDismissed which will null this
+            // out, but we null it here too in case CloseDropdown is called from
+            // outside the manager path (e.g. user pressed Escape on the form).
+            var h = _managerPopupHandle;
+            _managerPopupHandle = null;
+            try { h?.Dispose(); } catch { /* non-fatal */ }
+
             _isDropdownOpen = false;
             TriggerChevronAnimation(false);
 

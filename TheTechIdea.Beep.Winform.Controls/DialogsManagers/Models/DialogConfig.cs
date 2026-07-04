@@ -31,6 +31,13 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// </summary>
         public string Details { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Phase 7.3 — initial expand state for the details section.
+        /// When <see cref="Details"/> is non-empty, this controls whether
+        /// the detail text is visible on dialog open. Default false (collapsed).
+        /// </summary>
+        public bool DetailsExpanded { get; set; }
+
         #endregion
 
         #region Icon
@@ -73,6 +80,46 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models
         /// Common combinations: [OK], [OK, Cancel], [Yes, No], [Yes, No, Cancel]
         /// </summary>
         public Vis.Modules.BeepDialogButtons[] Buttons { get; set; } = new[] { Vis.Modules.BeepDialogButtons.Ok };
+
+        /// <summary>
+        /// Phase 14 — typed button model. When set, takes precedence over
+        /// <see cref="Buttons"/> (the legacy enum array). The manager converts
+        /// the legacy form to typed buttons automatically if this property is
+        /// null; setting it explicitly bypasses conversion.
+        /// </summary>
+        public DialogButton[]? TypedButtons { get; set; }
+
+        /// <summary>
+        /// Phase 17 — when non-null, renders a checkbox below the message
+        /// with the supplied label text (e.g. "Don't show this again").
+        /// The checked state after dialog close is accessible via
+        /// <see cref="DialogReturn.WasVerificationChecked"/>.
+        /// </summary>
+        public string? VerificationText { get; set; }
+
+        /// <summary>
+        /// Phase 17 — initial checked state for <see cref="VerificationText"/>.
+        /// Default is unchecked.
+        /// </summary>
+        public bool VerificationChecked { get; set; }
+
+        /// <summary>
+        /// Phase 13 — multi-page navigation. When set, the dialog becomes a
+        /// wizard with Next/Back buttons. Each page carries its own title,
+        /// message, icon, and buttons. First page hides Back; last page shows
+        /// Finish instead of Next.
+        /// <para>
+        /// When both <see cref="Pages"/> and <see cref="Title"/>/<see cref="Message"/>
+        /// are set, the first page's title/message wins for the initial render.
+        /// </para>
+        /// </summary>
+        public IReadOnlyList<DialogPage>? Pages { get; set; }
+
+        /// <summary>Phase 16 — footer attribution/hint text shown below buttons.</summary>
+        public string? FooterText { get; set; }
+
+        /// <summary>Phase 16 — optional icon path for the footer.</summary>
+        public string? FooterIconPath { get; set; }
 
         /// <summary>
         /// Default button (receives focus)

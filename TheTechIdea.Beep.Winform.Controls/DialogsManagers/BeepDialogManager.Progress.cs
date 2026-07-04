@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -179,25 +178,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region IDialogManager Implementation (Progress)
 
-        Task<TheTechIdea.Beep.Vis.Modules.IProgressHandle> IDialogManager.ShowProgressAsync(string title, string? message, CancellationToken cancellationToken)
+        TheTechIdea.Beep.Vis.Modules.IProgressHandle IDialogManager.ShowProgress(string title, string? message)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var handle = new ProgressHandle(this, title, message, false, false);
             handle.Show();
-            return Task.FromResult<TheTechIdea.Beep.Vis.Modules.IProgressHandle>(handle);
+            return handle;
         }
 
         #endregion
 
         #region Progress Handle Implementation
 
-        private class ProgressHandle : IProgressDialogHandle, TheTechIdea.Beep.Vis.Modules.IProgressHandle, IAsyncDisposable
+        private class ProgressHandle : IProgressDialogHandle, TheTechIdea.Beep.Vis.Modules.IProgressHandle
         {
             private readonly BeepDialogManager _manager;
             private readonly string _title;
             private readonly string? _initialMessage;
             private readonly bool _cancellable;
-            private readonly bool _indeterminate;
+            private bool _indeterminate;   // Phase 15: mutable for SetDeterminate/SetIndeterminate
             private readonly CancellationTokenSource _cts;
 
             private BeepProgressDialog? _dialog;
@@ -317,6 +315,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 if (_dialog.PercentLabel != null)
                     _dialog.PercentLabel.Visible = false;
 
+                _indeterminate = true;
+                _dialog.Refresh();
+            }
+
+            /// <summary>
+            /// Phase 15 — switch back from indeterminate (marquee) to
+            /// determinate mode. Re-shows the percent label and sets the
+            /// progress bar to continuous style so <see cref="UpdateProgress"/>
+            /// can push a concrete value.
+            /// </summary>
+            public void SetDeterminate()
+            {
+                if (_disposed || _dialog == null || _dialog.IsDisposed)
+                    return;
+
+                if (_dialog.InvokeRequired)
+                {
+                    _dialog.BeginInvoke(new Action(SetDeterminate));
+                    return;
+                }
+
+                _dialog.ProgressBarControl.ProgressBarStyle = ProgressBars.ProgressBarStyle.Flat;
+                if (_dialog.PercentLabel != null)
+                    _dialog.PercentLabel.Visible = true;
+
+                _indeterminate = false;
                 _dialog.Refresh();
             }
 
@@ -443,12 +467,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             void TheTechIdea.Beep.Vis.Modules.IProgressHandle.Complete(string? finalMessage)
             {
                 Complete(finalMessage);
-            }
-
-            public ValueTask DisposeAsync()
-            {
-                Dispose();
-                return ValueTask.CompletedTask;
             }
         }
 

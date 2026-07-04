@@ -578,7 +578,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             Control owner = null,
             FormStyle style = FormStyle.Modern,
             string theme = null,
-            Action<SimpleItem> onItemSelected = null)
+            Action<SimpleItem> onItemSelected = null,
+            Size maxImageSize = default)
         {
             if (items == null || items.Count == 0)
                 return ContextMenuHandle.Empty;
@@ -599,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             context.Owner = owner; // For MenuDismissed routing + owner-targeted click swallow.
 
             string menuId = context.Id;
-            var menu = CreateMenu(style, false, theme);
+            var menu = CreateMenu(style, false, theme, maxImageSize);
             PopulateMenu(menu, items);
             menu.RecalculateSize();
 
@@ -827,7 +828,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
         }
         
-        private static BeepContextMenu CreateMenu(FormStyle style, bool multiSelect, string theme)
+        private static BeepContextMenu CreateMenu(FormStyle style, bool multiSelect, string theme, Size maxImageSize = default)
         {
             var menu = new BeepContextMenu
             {
@@ -842,6 +843,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             if (!string.IsNullOrEmpty(theme))
             {
                 menu.Theme = theme;
+            }
+
+            // Pass the user-controllable image cap through so item icons size with
+            // the host control. 0 in either field means "no cap on that axis".
+            if (maxImageSize != default)
+            {
+                menu.MaxImageSize = maxImageSize;
             }
             
             return menu;

@@ -102,7 +102,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers
             if (state.HasLeadingImage)
             {
                 int inset    = Math.Max(4, Math.Min(8, usableH / 6));
-                int iconSize = Math.Max(8, usableH - inset * 2);
+                int available = Math.Max(0, usableH - inset * 2);
+                // Respect the user-controllable cap on either dimension; the
+                // smaller of the cap and the available space wins. Default cap 16x16
+                // matches the rest of the Beep control set; 0 in either field
+                // means "no cap on that axis" so we fall back to the available size.
+                int maxW = owner.MaxImageSize.Width  > 0 ? owner.MaxImageSize.Width  : available;
+                int maxH = owner.MaxImageSize.Height > 0 ? owner.MaxImageSize.Height : available;
+                int iconSize = Math.Min(available, Math.Min(maxW, maxH));
+                iconSize = Math.Max(8, iconSize);
                 int iconGap  = Math.Max(4, iconSize / 4);
                 imageRect = new Rectangle(
                     drawingRect.X + inset,

@@ -136,13 +136,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Steppers.Painters
             }
             else if (!string.IsNullOrWhiteSpace(step.ImagePath))
             {
-                string glyph = "\u25CF";
-                var glyphFont = _numberFont ?? context.NumberFont ?? SystemFonts.DefaultFont;
-                var glyphSize = g.MeasureString(glyph, glyphFont);
-                float gx = stepRect.Left + ((stepRect.Width - glyphSize.Width) / 2f);
-                float gy = stepRect.Top + ((stepRect.Height - glyphSize.Height) / 2f);
-                using var glyphBrush = new SolidBrush(StepperThemeHelpers.GetStepTextColor(context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White));
-                g.DrawString(glyph, glyphFont, glyphBrush, gx, gy);
+                // Per-step SVG icon (from SimpleItem.ImagePath -> StepModel.ImagePath).
+                // Painted via StepperIconHelpers.PaintIcon so SVG resources / files render.
+                var iconColor = StepperThemeHelpers.GetStepTextColor(
+                    context.Theme ?? _theme, context.UseThemeColors, step.State, Color.White);
+                Size iconSize = StepperIconHelpers.GetIconSize(stepRect.Size, step.State);
+                Rectangle iconBounds = StepperIconHelpers.CalculateIconBounds(stepRect, iconSize);
+                StepperIconHelpers.PaintIcon(g, iconBounds, step.ImagePath, iconColor, 1f, step.State);
             }
             else
             {

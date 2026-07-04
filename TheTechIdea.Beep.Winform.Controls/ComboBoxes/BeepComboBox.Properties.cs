@@ -318,7 +318,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        
+
+        /// <summary>
+        /// Maximum size (in pixels) for the leading image on the combo field and for
+        /// the dropdown item icons. The actual drawn size is the smaller of this cap
+        /// and the available space (control height for the leading image, item row
+        /// height for popup items). Default 16x16 matches the other Beep controls.
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Maximum size for the leading image and the dropdown item icons.")]
+        public Size MaxImageSize
+        {
+            get => _maxImageSize;
+            set
+            {
+                if (_maxImageSize == value) return;
+                _maxImageSize = value;
+                // Dropdown uses this value; we trigger a re-show only on next open.
+                Invalidate();
+            }
+        }
+
 
         
         #endregion

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
@@ -18,27 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Open File
 
         /// <summary>
-        /// Shows an open file dialog (async)
-        /// </summary>
-        public Task<string?> OpenFileAsync(string? filter = null, string? initialDir = null, string? title = null)
-        {
-            using var ofd = new OpenFileDialog();
-
-            if (!string.IsNullOrEmpty(filter))
-                ofd.Filter = filter;
-            if (!string.IsNullOrEmpty(initialDir))
-                ofd.InitialDirectory = initialDir;
-            if (!string.IsNullOrEmpty(title))
-                ofd.Title = title;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
-
-            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : (string?)null);
-        }
-
-        /// <summary>
-        /// Shows an open file dialog (sync)
+        /// Shows an open file dialog
         /// </summary>
         public string? OpenFile(string? filter = null, string? initialDir = null, string? title = null)
         {
@@ -58,28 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         }
 
         /// <summary>
-        /// Shows an open file dialog for multiple files (async)
-        /// </summary>
-        public Task<List<string>> OpenFilesAsync(string? filter = null, string? initialDir = null, string? title = null)
-        {
-            using var ofd = new OpenFileDialog();
-
-            ofd.Multiselect = true;
-            if (!string.IsNullOrEmpty(filter))
-                ofd.Filter = filter;
-            if (!string.IsNullOrEmpty(initialDir))
-                ofd.InitialDirectory = initialDir;
-            if (!string.IsNullOrEmpty(title))
-                ofd.Title = title;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
-
-            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? ofd.FileNames.ToList() : new List<string>());
-        }
-
-        /// <summary>
-        /// Shows an open file dialog for multiple files (sync)
+        /// Shows an open file dialog for multiple files
         /// </summary>
         public List<string> OpenFiles(string? filter = null, string? initialDir = null, string? title = null)
         {
@@ -104,29 +62,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Save File
 
         /// <summary>
-        /// Shows a save file dialog (async)
-        /// </summary>
-        public Task<string?> SaveFileAsync(string? filter = null, string? initialDir = null, string? defaultFileName = null, string? title = null)
-        {
-            using var sfd = new SaveFileDialog();
-
-            if (!string.IsNullOrEmpty(filter))
-                sfd.Filter = filter;
-            if (!string.IsNullOrEmpty(initialDir))
-                sfd.InitialDirectory = initialDir;
-            if (!string.IsNullOrEmpty(defaultFileName))
-                sfd.FileName = defaultFileName;
-            if (!string.IsNullOrEmpty(title))
-                sfd.Title = title;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? sfd.ShowDialog(owner) : sfd.ShowDialog();
-
-            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? sfd.FileName : (string?)null);
-        }
-
-        /// <summary>
-        /// Shows a save file dialog (sync)
+        /// Shows a save file dialog
         /// </summary>
         public string? SaveFile(string? filter = null, string? initialDir = null, string? defaultFileName = null, string? title = null)
         {
@@ -176,26 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
         #region Select Folder
 
         /// <summary>
-        /// Shows a folder browser dialog (async)
-        /// </summary>
-        public Task<string?> SelectFolderAsync(string? title = null, string? initialDir = null, bool allowCreate = true)
-        {
-            using var fbd = new FolderBrowserDialog();
-
-            if (!string.IsNullOrEmpty(title))
-                fbd.Description = title;
-            if (!string.IsNullOrEmpty(initialDir))
-                fbd.SelectedPath = initialDir;
-            fbd.ShowNewFolderButton = allowCreate;
-
-            var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
-            var result = owner != null ? fbd.ShowDialog(owner) : fbd.ShowDialog();
-
-            return Task.FromResult(result == System.Windows.Forms.DialogResult.OK ? fbd.SelectedPath : (string?)null);
-        }
-
-        /// <summary>
-        /// Shows a folder browser dialog (sync)
+        /// Shows a folder browser dialog
         /// </summary>
         public string? SelectFolder(string? title = null, string? initialDir = null, bool allowCreate = true)
         {
@@ -263,16 +180,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.LoadFileDialogAsync(string exts, string dir, string filter, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.LoadFileDialog(string exts, string dir, string filter)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = await OpenFileAsync(filter, dir);
+            var path = OpenFile(filter, dir);
             return CreatePathReturn(path);
         }
 
-        Task<DialogReturn> IDialogManager.LoadFileDialogAsync(string exts, string dir, string filter, string initialFileName, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.LoadFileDialog(string exts, string dir, string filter, string initialFileName)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             using var ofd = new OpenFileDialog();
             ofd.Filter = filter;
             ofd.InitialDirectory = dir;
@@ -281,47 +196,41 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             var owner = _hostForm ?? (Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null);
             var result = owner != null ? ofd.ShowDialog(owner) : ofd.ShowDialog();
-            return Task.FromResult(CreatePathReturn(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null));
+            return CreatePathReturn(result == System.Windows.Forms.DialogResult.OK ? ofd.FileName : null);
         }
 
-        Task<List<string>> IDialogManager.LoadFilesDialogAsync(string exts, string dir, string filter, System.Threading.CancellationToken cancellationToken)
+        List<string> IDialogManager.LoadFilesDialog(string exts, string dir, string filter)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            return OpenFilesAsync(filter, dir);
+            return OpenFiles(filter, dir);
         }
 
-        async Task<DialogReturn> IDialogManager.SaveFileDialogAsync(string exts, string dir, string filter, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SaveFileDialog(string exts, string dir, string filter)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = await SaveFileAsync(filter, dir);
+            var path = SaveFile(filter, dir);
             return CreatePathReturn(path);
         }
 
-        async Task<DialogReturn> IDialogManager.SaveFileDialogAsync(string exts, string dir, string filter, string defaultFileName, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SaveFileDialog(string exts, string dir, string filter, string defaultFileName)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = await SaveFileAsync(filter, dir, defaultFileName);
+            var path = SaveFile(filter, dir, defaultFileName);
             return CreatePathReturn(path);
         }
 
-        async Task<DialogReturn> IDialogManager.SelectFolderDialogAsync(System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectFolderDialog()
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = await SelectFolderAsync();
+            var path = SelectFolder();
             return CreatePathReturn(path);
         }
 
-        async Task<DialogReturn> IDialogManager.SelectFolderDialogAsync(string title, string initialDir, bool allowCreate, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectFolderDialog(string title, string initialDir, bool allowCreate)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = await SelectFolderAsync(title, initialDir, allowCreate);
+            var path = SelectFolder(title, initialDir, allowCreate);
             return CreatePathReturn(path);
         }
 
-        async Task<DialogReturn> IDialogManager.SelectFileAsync(List<SimpleItem> files, string filter, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectFile(List<SimpleItem> files, string filter)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var result = await InputSelectAsync("Select File", "Choose a file:", files);
+            var result = InputSelect("Select File", "Choose a file:", files);
             return new DialogReturn
             {
                 Result = result != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -333,11 +242,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.ConfirmOverwriteAsync(string filePath, System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.ConfirmOverwrite(string filePath)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var result = await ShowAsync(CreateOverwriteDialogConfig(filePath), cancellationToken);
-            return result;
+            return Show(CreateOverwriteDialogConfig(filePath));
         }
 
         private static DialogConfig CreateOverwriteDialogConfig(string filePath)
@@ -363,10 +270,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        async Task<DialogReturn> IDialogManager.SelectSpecialDirectoriesComboBoxAsync(System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectSpecialDirectoriesComboBox()
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var result = await InputSelectAsync("Select Directory", "Choose a special directory:", GetSpecialDirectories());
+            var result = InputSelect("Select Directory", "Choose a special directory:", GetSpecialDirectories());
             return new DialogReturn
             {
                 Result = result != null ? BeepDialogResult.OK : BeepDialogResult.Cancel,
@@ -378,14 +284,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
             };
         }
 
-        Task<DialogReturn> IDialogManager.SelectSpecialDirectoriesListBoxAsync(System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectSpecialDirectoriesListBox()
         {
-            return ((IDialogManager)this).SelectSpecialDirectoriesComboBoxAsync(cancellationToken);
+            return ((IDialogManager)this).SelectSpecialDirectoriesComboBox();
         }
 
-        Task<DialogReturn> IDialogManager.SelectSpecialDirectoriesRadioGroupBoxAsync(System.Threading.CancellationToken cancellationToken)
+        DialogReturn IDialogManager.SelectSpecialDirectoriesRadioGroupBox()
         {
-            return ((IDialogManager)this).SelectSpecialDirectoriesComboBoxAsync(cancellationToken);
+            return ((IDialogManager)this).SelectSpecialDirectoriesComboBox();
         }
 
         #endregion

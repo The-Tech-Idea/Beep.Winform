@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -471,9 +470,8 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         #region IDialogManager Implementation (Notifications)
 
-        async Task IDialogManager.ShowToastAsync(string message, int durationMs, string? icon, System.Threading.CancellationToken cancellationToken)
+        void IDialogManager.ShowToast(string message, int durationMs, string? icon)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             var type = icon?.ToLower() switch
             {
                 "success" => ToastType.Success,
@@ -482,7 +480,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                 _         => ToastType.Info
             };
             Toast(message, type, durationMs);
-            await Task.CompletedTask;
         }
 
         #endregion

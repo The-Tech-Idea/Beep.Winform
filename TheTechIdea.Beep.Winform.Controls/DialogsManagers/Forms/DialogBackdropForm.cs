@@ -1,10 +1,8 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
-using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
@@ -18,11 +16,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         {
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
-            // Do NOT set TopMost = true.  The backdrop is shown via
-            // Show(owner) which keeps it behind any modal dialog shown
-            // with ShowDialog(owner).  TopMost caused a Z-order race
-            // where the backdrop could hide the dialog, making the app
-            // appear frozen.
             StartPosition = FormStartPosition.Manual;
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
@@ -31,19 +24,30 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            using var dim = new SolidBrush(Color.FromArgb((int)(Math.Max(0f, Math.Min(1f, TargetOpacity)) * 255), 0, 0, 0));
-            e.Graphics.FillRectangle(dim, ClientRectangle);
-
+            // Phase 10 — DimOnly and BlurIfSupported now route through the
+            // central frosted-glass painter. DimWithNoise retains its special-
+            // purpose noise texture (permitted as the rule exception).
             if (BackdropStyle == DialogBackdropStyle.DimWithNoise)
             {
-                PaintNoise(e.Graphics);
+                // Solid dim base
+                int alpha = (int)(Math.Max(0f, Math.Min(1f, TargetOpacity)) * 255);
+                using var dim = new SolidBrush(Color.FromArgb(alpha, 0, 0, 0));
+                g.FillRectangle(dim, ClientRectangle);
+                PaintNoise(g);
             }
-            else if (BackdropStyle == DialogBackdropStyle.BlurIfSupported)
+            else
             {
-                PaintBlurSimulation(e.Graphics);
+                // Frosted overlay via StyledImagePainter. DimOnly uses the
+                // default tint; BlurIfSupported applies a Gaussian blur
+                // radius automatically from the acrylic glass pipeline
+                // (PaintFrostedOverlay already handles multi-pass blur).
+                int blur = BackdropStyle == DialogBackdropStyle.BlurIfSupported ? 16 : 8;
+                int alpha = (int)(Math.Max(0f, Math.Min(1f, TargetOpacity)) * 64);  // 0..64 alpha range
+                var tint = Color.FromArgb(alpha, 0, 0, 0);
+                StyledImagePainter.PaintFrostedOverlay(g, ClientRectangle, blur, tint);
             }
         }
 
@@ -57,22 +61,6 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 int y = _rng.Next(Math.Max(1, ClientSize.Height));
                 g.DrawLine(pen, x, y, x + 1, y);
             }
-        }
-
-        /// <summary>
-        /// Delegates to the <see cref="BeepControlStyle.GlassAcrylic"/> background painter —
-        /// the same frosted-glass effect used by all Beep controls with that style.
-        /// No custom GDI gradient needed here.
-        /// </summary>
-        private void PaintBlurSimulation(Graphics g)
-        {
-            var painter = BackgroundPainterFactory.CreatePainter(BeepControlStyle.GlassAcrylic);
-            if (painter == null) return;
-
-            using var path = new GraphicsPath();
-            path.AddRectangle(ClientRectangle);
-            painter.Paint(g, path, BeepControlStyle.GlassAcrylic,
-                theme: null, useThemeColors: false, state: ControlState.Normal);
         }
     }
 }

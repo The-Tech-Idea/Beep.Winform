@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Ratings;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
     public class BeepTestimonial : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardTestimonial;
         // Keep only BeepStarRating as a child control
         private BeepStarRating starRating;
         
@@ -479,7 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 using (var font = new Font("Segoe UI", 12, FontStyle.Bold))
                 using (var brush = new SolidBrush(closeColor))
                 {
-                    TextRenderer.DrawText(g, "✕", font, closeButtonRect, brush.Color, 
+                    TextRenderer.DrawText(g, "âœ•", font, closeButtonRect, brush.Color, 
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
                 }
                 AddHitArea("Close", closeButtonRect, null, () => OnCloseClick());

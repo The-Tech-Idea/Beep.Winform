@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
@@ -37,24 +38,32 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             ShowCaptionBar = false;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            ClientSize = new Size(480, 380);
-            MinimumSize = new Size(360, 260);
+            // Skill § 1: dialog sizes flow from BeepLayoutMetrics tokens; DPI-aware.
+            ClientSize = BeepLayoutMetrics.DialogMedium.ScaleSize(this);
+            MinimumSize = BeepLayoutMetrics.DialogSmall.ScaleSize(this);
 
             _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
-                Height = 70,
+                // Header height = ~2 label rows + padding (skill § default-size composition).
+                Height = BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this) * 2
+                       + BeepLayoutMetrics.DialogPadding.All.ScaleValue(this)
+                       + BeepLayoutMetrics.SmallGap.ScaleValue(this),
                 IsFrameless = true,
                 ShowTitle = false,
                 ShowTitleLine = false,
                 UseThemeColors = true,
-                Padding = new Padding(16, 12, 16, 8)
+                Padding = BeepLayoutMetrics.DialogPadding.ScalePadding(this)
             };
 
             _titleLabel = new BeepLabel
             {
-                Location = new Point(16, 10),
-                Size = new Size(440, 24),
+                Location = new Point(
+                    BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this),
+                    BeepLayoutMetrics.SmallGap.ScaleValue(this)),
+                Size = new Size(
+                    ClientSize.Width - BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) * 2,
+                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this)),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 UseThemeColors = true,
                 IsFrameless = true,
@@ -63,8 +72,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 
             _messageLabel = new BeepLabel
             {
-                Location = new Point(16, 36),
-                Size = new Size(440, 24),
+                Location = new Point(
+                    BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this),
+                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this) + BeepLayoutMetrics.SmallGap.ScaleValue(this)),
+                Size = new Size(
+                    ClientSize.Width - BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) * 2,
+                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this)),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 UseThemeColors = true,
                 IsFrameless = true
@@ -160,17 +173,19 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
             _scrollContainer.Controls.Clear();
             _checkBoxes.Clear();
 
-            int y = 4;
-            int checkboxHeight = 28;
-            int spacing = 2;
+            int y = BeepLayoutMetrics.SmallGap.ScaleValue(this);
+            // Checkbox row = label-standard height + small padding (skill § default-size).
+            int checkboxHeight = BeepLayoutMetrics.LabelStandard.Height.ScaleValue(this);
+            int spacing = BeepLayoutMetrics.SmallGap.ScaleValue(this);
+            int sideMargin = BeepLayoutMetrics.DialogPadding.Left.ScaleValue(this) / 2;
 
             for (int i = 0; i < _items.Count; i++)
             {
                 var item = _items[i];
                 var cb = new BeepCheckBoxBool
                 {
-                    Size = new Size(_scrollContainer.ClientSize.Width - 16, checkboxHeight),
-                    Location = new Point(8, y),
+                    Size = new Size(_scrollContainer.ClientSize.Width - (sideMargin * 2), checkboxHeight),
+                    Location = new Point(sideMargin, y),
                     Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                     UseThemeColors = true,
                     Text = item.Text,
@@ -183,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
                 y += checkboxHeight + spacing;
             }
 
-            _scrollContainer.AutoScrollMinSize = new Size(0, y + 8);
+            _scrollContainer.AutoScrollMinSize = new Size(0, y + BeepLayoutMetrics.SmallGap.ScaleValue(this));
         }
 
         private void ToggleSelectAll()

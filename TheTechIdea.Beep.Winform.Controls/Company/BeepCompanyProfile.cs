@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Company
 {
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Company
     [DisplayName("Beep Company Profile")]
     public class BeepCompanyProfile : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CompanyProfile;
         #region Private Fields
         private BeepLabel lblCompanyName;
         private BeepLabel lblCompanyType;
@@ -162,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Company
 
             btnDropdown = new BeepButton
             {
-                Text = "•••",
+                Text = "â€¢â€¢â€¢",
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 IsRounded = false,

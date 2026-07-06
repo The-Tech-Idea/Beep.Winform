@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.SideBar
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
     [DisplayName("Beep Side Bar")]
     public partial class BeepSideBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Sidebar;
         #region Fields
         // Internal fields (exposed to partial classes)
         internal BindingList<SimpleItem> _items = new BindingList<SimpleItem>();

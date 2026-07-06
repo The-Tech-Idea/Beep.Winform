@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A modern tree control with advanced styling, painter methodology, and BaseControl features.")]
     public partial class BeepTree : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Tree;
         // All implementation is in partial classes:
         // - BeepTree.Core.cs: Core fields, events, initialization, and constructor
         // - BeepTree.Properties.cs: All properties (TreeStyle, Nodes, Selection, etc.)

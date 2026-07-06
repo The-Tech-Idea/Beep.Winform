@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Models;
 using TheTechIdea.Beep.Winform.Controls.Switchs.Helpers;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -19,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A cylindrical toggle switch control with customizable labels, images, and orientation.")]
     public partial class BeepSwitch : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.SwitchStandard;
         // NOTE: Fields moved to BeepSwitch.Core.cs
         // NOTE: Events and Properties moved to BeepSwitch.Properties.cs
 

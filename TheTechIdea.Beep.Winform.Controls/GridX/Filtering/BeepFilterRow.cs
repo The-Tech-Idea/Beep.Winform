@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     [Obsolete("Use BeepGridPro unified toolbar (ShowToolbar + ShowAdvancedFilterDialog) instead.")]
     public class BeepFilterRow : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FilterRow;
         private BeepComboBox _columnCombo = null!;
         private BeepComboBox _operatorCombo = null!;
         private BeepTextBox _valueTextBox = null!;
@@ -192,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // Remove button
             _removeButton = new BeepButton
             {
-                Text = "✕",
+                Text = "âœ•",
                 Width = 30,
                 Height = 30,
                 IsChild = true,

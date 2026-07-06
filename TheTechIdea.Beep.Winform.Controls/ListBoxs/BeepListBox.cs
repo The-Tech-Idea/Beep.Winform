@@ -1,6 +1,7 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A modern list box control with advanced styling, painter methodology, and integrated features.")]
     public partial class BeepListBox : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ListBox;
         // All implementation is in partial classes:
         // - BeepListBox.Core.cs: Core fields and initialization
         // - BeepListBox.Properties.cs: All properties

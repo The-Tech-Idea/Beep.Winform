@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Splitter;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
 {
@@ -18,22 +19,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
     /// - Dock property sets the correct cursor (VSplit for Left/Right, HSplit for Top/Bottom).
     /// - Thickness: 4 px (same as DockPanelSuite default splitter size).
     /// - Drag model: capture mouse on LButton down, fire <see cref="SplitterMoved"/> on mouse
-    ///   move, release on mouse up.  No ghost line — live resize, same as VS/DockPanelSuite.
+    ///   move, release on mouse up.  No ghost line â€” live resize, same as VS/DockPanelSuite.
     ///
     /// Reference files:
     ///   dockpanelsuite-master\WinFormsUI\Docking\SplitterBase.cs
     ///   dockpanelsuite-master\WinFormsUI\Docking\DockPanel.AutoHideWindow.cs (SplitterControl)
-    ///   Krypton.Docking — uses internal splitter via KryptonWorkspaceCellSeparator concept
+    ///   Krypton.Docking â€” uses internal splitter via KryptonWorkspaceCellSeparator concept
     /// </summary>
     [ToolboxItem(false)]
     [DesignerCategory("code")]
     [DesignTimeVisible(false)]
     public class BeepDockSplitter : Control
     {
-        // ── Constants ───────────────────────────────────────────────────────
+        protected override Size DefaultSize => BeepLayoutMetrics.DockSplitter;
+        // â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         public  const int DefaultThickness = 4;
 
-        // ── Fields ──────────────────────────────────────────────────────────
+        // â”€â”€ Fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool   _dragging;
         private bool   _hovered;
         private Point  _dragStart;         // cursor position at drag start
@@ -75,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
                     ? SplitterOrientation.Vertical
                     : _orientation;
 
-        // ── Events ───────────────────────────────────────────────────────────
+        // â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         /// <summary>
         /// Raised continuously while the splitter is being dragged.
@@ -83,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
         /// </summary>
         public event EventHandler<SplitterMovedEventArgs> SplitterMoved;
 
-        // ── Constructor ──────────────────────────────────────────────────────
+        // â”€â”€ Constructor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         public BeepDockSplitter()
         {
@@ -102,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             Invalidate();
         }
 
-        // ── Dock override — mirrors DockPanelSuite SplitterBase.Dock ─────────
+        // â”€â”€ Dock override â€” mirrors DockPanelSuite SplitterBase.Dock â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         public override DockStyle Dock
         {
@@ -132,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             }
         }
 
-        // ── Mouse drag ───────────────────────────────────────────────────────
+        // â”€â”€ Mouse drag â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -193,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking.Runtime
             Invalidate();
         }
 
-        // ── Painting ─────────────────────────────────────────────────────────
+        // â”€â”€ Painting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         protected override void OnPaint(PaintEventArgs e)
         {

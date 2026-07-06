@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using System.Windows.Forms;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Images;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 
 
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Scolling
     [Description("A carousel-Style scrollable list control using BeepButtons for items, supporting vertical or horizontal orientation without a visible scrollbar.")]
     public class BeepScrollList : BeepPanel
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ScrollList;
         #region Fields
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private BeepButton _button;  // Single button instance for drawing

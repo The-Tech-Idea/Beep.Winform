@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
@@ -28,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
     [Description("A circular button control with an optional image and text.")]
     public class BeepCircularButton : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ButtonStandard;
         private string _imagePath = "";
         private TextLocation _textLocation = TextLocation.Below;
         private ContentAlignment _textAlign = ContentAlignment.MiddleCenter;

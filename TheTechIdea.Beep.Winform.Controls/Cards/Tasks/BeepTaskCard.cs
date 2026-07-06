@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Tasks.Helpers;
@@ -19,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A task or project card displaying avatars, title, subtitle, metric, and progress.")]
     public class BeepTaskCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardTask;
         // Layout rectangles for hit testing
         private Rectangle[] avatarRects;
         private Rectangle moreIconRect;

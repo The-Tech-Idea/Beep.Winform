@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Toggle.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Toggle.Painters;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Toggle
 {
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toggle
     [Description("Modern toggle switch with multiple visual styles")]
     public partial class BeepToggle : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ToggleStandard;
         #region Private Fields
         private bool _isOn = false;
         private ToggleStyle _toggleStyle = ToggleStyle.Classic;

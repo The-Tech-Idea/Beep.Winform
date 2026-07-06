@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.NavBars
     [DisplayName("Beep Nav Bar")]
     public partial class BeepNavBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.NavBar;
         #region Fields
         private BindingList<SimpleItem> _items = new BindingList<SimpleItem>();
         private SimpleItem _selectedItem;

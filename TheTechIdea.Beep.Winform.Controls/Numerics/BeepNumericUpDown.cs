@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
- 
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics
 {
@@ -86,6 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     [Description("A custom numeric up-down control with Beep theming, optimized for business applications.")]
     public partial class BeepNumericUpDown : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FieldNumeric;
         #region Internal Fields (exposed to partial classes)
         internal TextBox? _textBox;
         internal bool _isEditing = false;

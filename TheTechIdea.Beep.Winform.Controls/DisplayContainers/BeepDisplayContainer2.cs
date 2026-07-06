@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     [Description("A modern, self-contained display container for addins with native rendering and advanced features.")]
     public partial class BeepDisplayContainer2 : BaseControl, IDisplayContainer
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DisplayContainer;
         #region Fields
 
         private readonly List<AddinTab> _tabs = new();
@@ -89,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         // Empty-state placeholder shown when no tabs are open.
         private string _emptyStateText = "No tabs open.\nClick + to add a new tab.";
-        private string _emptyStateIcon = "tab_placeholder"; // symbolic name — rendered as a simple drawn icon
+        private string _emptyStateIcon = "tab_placeholder"; // symbolic name â€” rendered as a simple drawn icon
         private bool   _showEmptyState = true;
 
         // ---- Enhancement 4: Keyboard navigation ----
@@ -126,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private BeepControlStyle _lastControlStyle = BeepControlStyle.None;
 
-        // Tab group colour palette — auto-assigned colours for VS Code-style groups.
+        // Tab group colour palette â€” auto-assigned colours for VS Code-style groups.
         private readonly Dictionary<string, Color> _tabGroupColors = new(StringComparer.OrdinalIgnoreCase);
         private static readonly Color[] _defaultGroupPalette = new[]
         {
@@ -155,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 {
                     UpdateTabStyleFromControlStyle();
                     _lastControlStyle = value;
-                    // Update helpers immediately — do NOT rely on PropertyChanged which fires late.
+                    // Update helpers immediately â€” do NOT rely on PropertyChanged which fires late.
                     UpdateTabPainterStyle();
                     ApplyThemeColorsToTabs();
                     
@@ -165,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     // Propagation happens inside ApplyTheme() (called by the base class after the
                     // setter) with a fully-refreshed _currentTheme.  Calling it here would push the
                     // OLD theme to addins because _currentTheme has not been updated yet for the
-                    // new style — that is exactly what caused the double-click-to-update bug.
+                    // new style â€” that is exactly what caused the double-click-to-update bug.
                     // PropagateThemeToAddins() is therefore intentionally NOT called here.
                     Invalidate();
                 }
@@ -291,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 }; // 60 FPS
             _animationTimer.Tick += AnimationTimer_Tick;
 
-            // Do NOT start the timer here — it is started on-demand by StartAnimation()
+            // Do NOT start the timer here â€” it is started on-demand by StartAnimation()
             // and self-stops when no animations are active.  This eliminates constant
             // drawing/CPU usage when the container is idle.
 
@@ -387,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         /// <summary>
         /// Applies the current theme to the container, tabs, and all hosted addin controls.
-        /// Does NOT call base.ApplyTheme() — the base implementation propagates a stale
+        /// Does NOT call base.ApplyTheme() â€” the base implementation propagates a stale
         /// snapshot to child controls before helpers are updated, forcing the double-set
         /// workaround.  We replicate the needed base assignments here then do our own
         /// full propagation to hosted addins.
@@ -433,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 DisabledBorderColor     = _currentTheme.DisabledBorderColor;
                 UpdateTooltipTheme();
             }
-            catch { /* non-fatal — continue with tab-specific updates */ }
+            catch { /* non-fatal â€” continue with tab-specific updates */ }
 
             // --- 3. Update tab helpers with latest theme + style ---
             var controlStyle = ControlStyle;
@@ -560,7 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
             tab.TargetAnimationProgress = Math.Max(0, Math.Min(1, targetProgress));
             _animationHelper.StartAnimation(tab, targetProgress);
 
-            // Restart the timer if it was self-stopped — ensures hover animations run.
+            // Restart the timer if it was self-stopped â€” ensures hover animations run.
             EnsureAnimationTimerRunning();
         }
 
@@ -625,7 +627,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                     Invalidate();
             }
 
-            // Self-stop the timer when no animations are active — eliminates constant drawing.
+            // Self-stop the timer when no animations are active â€” eliminates constant drawing.
             if (!anyAnimationActive && _animationTimer != null && _animationTimer.Enabled)
             {
                 _animationTimer.Stop();

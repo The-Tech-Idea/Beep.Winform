@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Images;
 
@@ -26,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
     [Description("A project card for kanban-Style project management with avatars, status, priority, progress, and actions.")]
     public class BeepProjectTaskCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardTask;
         #region Private Fields
         private BeepButton _actionButton;
         private BeepLabel _label;

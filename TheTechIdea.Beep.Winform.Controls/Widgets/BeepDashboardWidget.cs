@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -29,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("A dashboard widget combining multiple data visualizations.")]
     public class BeepDashboardWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private DashboardWidgetStyle _style = DashboardWidgetStyle.MultiMetric;
         private IWidgetPainter _painter;

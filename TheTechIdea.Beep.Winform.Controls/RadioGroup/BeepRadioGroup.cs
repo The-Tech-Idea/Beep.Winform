@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 {
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     [Description("A modern, flexible radio group control with multiple selection modes, layouts, and render styles.")]
     public partial class BeepRadioGroup : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.RadioGroup;
         private const string AccessibilityDescriptionPrefix = "RadioGroup status:";
         #region Fields
         private readonly RadioGroupLayoutHelper _layoutHelper;
@@ -127,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             ApplyStyleProfile(_styleProfile);
             ApplyColorProfile(_colorProfile);
 
-            // Animation timer for smooth hover/press/select transitions (16ms ≈ 60fps)
+            // Animation timer for smooth hover/press/select transitions (16ms â‰ˆ 60fps)
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
             _animationTimer.Tick += OnAnimationTick;
 
@@ -146,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 Maximum = 0,
                 LargeChange = 1,
                 SmallChange = 1,
-                // The scroll bar is a passive scroll surface — Tab navigation should
+                // The scroll bar is a passive scroll surface â€” Tab navigation should
                 // walk radio items, not child controls.  Without this, Tab could
                 // land on the scroll bar instead of the next/previous item.
                 TabStop = false
@@ -362,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             if (_showSearchBox && _searchBox == null)
             {
                 _searchBox = new BeepTextBox { Dock = System.Windows.Forms.DockStyle.Top };
-                // The search box is a passive filter surface — Tab navigation should
+                // The search box is a passive filter surface â€” Tab navigation should
                 // walk radio items, not the text box.  Users can still click into
                 // the search box with the mouse; Tab skips it.
                 _searchBox.TabStop = false;
@@ -520,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         public void ClearItems()
         {
             _items.Clear();
-            // Drop any in-flight animations — there are no items to animate any more
+            // Drop any in-flight animations â€” there are no items to animate any more
             // and the timer should not keep ticking.
             _animationProgress.Clear();
             UpdateItemsAndLayout();
@@ -619,7 +621,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
             if (value == null)
             {
-                // Null is a documented "clear selection" sentinel — mirrors the
+                // Null is a documented "clear selection" sentinel â€” mirrors the
                 // way a data-binding source might pass null when the bound
                 // property is unset.
                 ClearSelection();
@@ -805,7 +807,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             base.OnEnabledChanged(e);
             // Item states carry IsEnabled (driven off the control's Enabled flag and
             // per-item disable), so we need to recompute states whenever the control's
-            // own Enabled changes — otherwise the disabled overlay sticks around after
+            // own Enabled changes â€” otherwise the disabled overlay sticks around after
             // re-enabling the control.
             UpdateItemStates(notifyAccessibility: false);
             UpdateAccessibilityMetadata();
@@ -859,7 +861,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            // Going from invisible → visible: re-run the layout in case the parent
+            // Going from invisible â†’ visible: re-run the layout in case the parent
             // resized us while we were hidden.
             if (Visible && IsHandleCreated)
             {

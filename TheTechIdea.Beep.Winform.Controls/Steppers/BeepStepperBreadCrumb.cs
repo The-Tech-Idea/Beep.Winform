@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
@@ -22,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A breadcrumb-Style stepper control that draws chevron-shaped steps directly, with clickable steps and optional orientation.")]
     public partial class BeepStepperBreadCrumb : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.StepperBreadcrumb;
         private Orientation orientation = Orientation.Horizontal;
         private int selectedIndex = -1;
         private readonly List<GraphicsPath> chevronPaths = new List<GraphicsPath>(); // For precise click detection

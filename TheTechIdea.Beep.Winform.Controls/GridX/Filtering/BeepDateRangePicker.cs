@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
@@ -14,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     /// </summary>
     public class BeepDateRangePicker : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FieldDateRange;
         private BeepTextBox _startDateTextBox;
         private BeepTextBox _endDateTextBox;
         private BeepButton _startCalendarButton;
@@ -103,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // Start calendar button
             _startCalendarButton = new BeepButton
             {
-                Text = "📅",
+                Text = "ðŸ“…",
                 Width = 30,
                 Height = 30,
                 IsChild = true,
@@ -136,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // End calendar button
             _endCalendarButton = new BeepButton
             {
-                Text = "📅",
+                Text = "ðŸ“…",
                 Width = 30,
                 Height = 30,
                 IsChild = true,

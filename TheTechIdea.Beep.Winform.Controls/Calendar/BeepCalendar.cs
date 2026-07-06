@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Calendar.CellRender;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
     [Description("A comprehensive calendar control with event management, multiple views, and scheduling capabilities.")]
     public partial class BeepCalendar : BaseControl, ICalendarCellHost
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Calendar;
         protected override bool AllowBaseControlClear => false;
         protected override bool IsContainerControl => true;
 

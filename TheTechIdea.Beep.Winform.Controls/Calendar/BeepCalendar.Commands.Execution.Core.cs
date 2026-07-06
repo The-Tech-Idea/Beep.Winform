@@ -1,4 +1,4 @@
-namespace TheTechIdea.Beep.Winform.Controls.Calendar
+﻿namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
     public partial class BeepCalendar
     {
@@ -68,8 +68,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     // (they use ComputeEditorBounds), but custom
                     // ICalendarEventEditor implementations typically
                     // position a popup dialog at the click point. With
-                    // Point.Empty the dialog would pop at (0, 0) — the
-                    // form's top-left corner — which is jarring. Pass
+                    // Point.Empty the dialog would pop at (0, 0) â€” the
+                    // form's top-left corner â€” which is jarring. Pass
                     // the center of the client area so a popup-style
                     // custom editor appears in a sensible default
                     // location.

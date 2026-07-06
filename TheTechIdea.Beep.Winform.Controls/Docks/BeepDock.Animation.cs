@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls

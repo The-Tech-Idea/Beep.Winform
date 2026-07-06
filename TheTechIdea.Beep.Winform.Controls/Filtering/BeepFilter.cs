@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Filtering
 {
@@ -26,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Filtering
     [Description("Modern filter control with multiple interaction patterns and styles")]
     public partial class BeepFilter : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FilterBar;
         #region Private Fields
 
         private FilterStyle _filterStyle = FilterStyle.TagPills;

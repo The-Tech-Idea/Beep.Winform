@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Ratings.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.FontManagement;
 
 
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A modern star rating control with animations, hover effects, and business application features.")]
     public class BeepStarRating : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.RatingStandard;
         #region Fields and Properties
         // Core rating properties
         private int _starCount = 5;
@@ -79,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<string, SizeF> _textMeasurementCache = new Dictionary<string, SizeF>();
         private (int startX, int startY, int starSize)? _cachedStarLayout = null;
 
-        // ── Sprint 4 backing fields ────────────────────────────────────────────
+        // â”€â”€ Sprint 4 backing fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private RatingSizeVariant _sizeVariant   = RatingSizeVariant.MD;
         private RatingLayoutMode  _layoutMode    = RatingLayoutMode.Horizontal;
         private bool  _useColorGrade  = false;
@@ -625,7 +627,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // ── Sprint 4 properties ───────────────────────────────────────────────
+        // â”€â”€ Sprint 4 properties â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         [Category("Appearance")]
         [Description("T-shirt size variant that controls the star pixel size.")]
@@ -655,7 +657,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        [Description("Transition the filled color from red (1★) to green (N★) when enabled.")]
+        [Description("Transition the filled color from red (1â˜…) to green (Nâ˜…) when enabled.")]
         [DefaultValue(false)]
         public bool UseColorGrade
         {
@@ -664,7 +666,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        [Description("Starting color for the low end of the color grade (1★).")]
+        [Description("Starting color for the low end of the color grade (1â˜…).")]
         public Color ColorGradeStart
         {
             get => _colorGradeStart;
@@ -672,7 +674,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        [Description("Ending color for the high end of the color grade (N★).")]
+        [Description("Ending color for the high end of the color grade (Nâ˜…).")]
         public Color ColorGradeEnd
         {
             get => _colorGradeEnd;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Models;
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
     [Description("A hierarchical radio group control with tree-like structure support using SimpleItem.Children property.")]
     public class BeepHierarchicalRadioGroup : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.HierarchicalRadio;
         #region Fields
         private readonly RadioGroupLayoutHelper _layoutHelper;
         private readonly RadioGroupHitTestHelper _hitTestHelper;
@@ -140,7 +142,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             ApplyStyleProfile(_styleProfile);
             ApplyColorProfile(_colorProfile);
 
-            // Animation timer (16ms ≈ 60fps)
+            // Animation timer (16ms â‰ˆ 60fps)
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 };
             _animationTimer.Tick += OnAnimationTick;
 
@@ -345,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     // the state helper silently mutates _selectedValues without
                     // raising SelectionChanged / ItemSelectionChanged.  In
                     // multi-selection mode, SelectValue ADDs the value (no toggle,
-                    // no replace) — that matches the "set this value" intent of
+                    // no replace) â€” that matches the "set this value" intent of
                     // a SelectedValue property setter.
                     _stateHelper.SelectValue(value);
                     UpdateItemStates();
@@ -1712,7 +1714,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             UpdateDrawingRect();
             UpdateLayout();
             _hitTestHelper.UpdateItems(_flattenedItems, _itemRectangles);
-            // The VScrollBar range depends on Height — refresh it on resize so the
+            // The VScrollBar range depends on Height â€” refresh it on resize so the
             // thumb size stays in proportion to the visible window.
             UpdateScrollBar();
             RequestVisualRefresh();

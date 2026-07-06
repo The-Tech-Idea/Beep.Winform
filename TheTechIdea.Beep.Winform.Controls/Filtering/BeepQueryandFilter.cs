@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -12,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Query and Filter")]
     public class BeepQueryandFilter : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.QueryAndFilter;
         private TableLayoutPanel tableLayoutPanel;
         private List<AppFilter> Filters = new List<AppFilter>();
         public event EventHandler SubmitClicked;

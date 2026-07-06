@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -10,12 +10,14 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.AccordionMenus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
 {
     [ToolboxItem(false)]
     public class BeepAccordionMenuItem : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.AccordionItem;
         #region Private Fields
         private Panel buttonRowPanel;
         private BeepButton mainButton;
@@ -188,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             {
                 toggleButton = new BeepButton
                 {
-                    Text = "▶",
+                    Text = "â–¶",
                     Width = 30,
                     Height = itemHeight,
                     Dock = DockStyle.Right,
@@ -252,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AccordionMenus
             int submenuHeight = isExpanded ? 0 : submenuPanel.Controls.Count * (itemHeight + 5);
             submenuPanel.Height = submenuHeight;
             if (toggleButton != null)
-                toggleButton.Text = isExpanded ? "▶" : "▼";
+                toggleButton.Text = isExpanded ? "â–¶" : "â–¼";
 
             Height = itemHeight + submenuHeight;
             HeightChanged?.Invoke(this, EventArgs.Empty);

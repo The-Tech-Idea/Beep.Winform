@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -6,7 +6,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
- 
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
+
 
  
 
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A themed task list item with project, title, time, attachments, and checkbox.")]
     public class BeepTaskListItemControl : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardTask;
         private BeepLabel lblProject;
         private BeepLabel lblTaskTitle;
         private BeepLabel lblStatus;
@@ -52,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Status Label with dot indicator
             lblStatus = new BeepLabel
             {
-                Text = "● New",
+                Text = "â— New",
               
                 ForeColor = Color.Goldenrod,
                 AutoSize = true,
@@ -81,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Time Label with clock icon
             lblTime = new BeepLabel
             {
-                Text = "🕒 2 hrs",
+                Text = "ðŸ•’ 2 hrs",
              
                 ForeColor = _currentTheme.SecondaryTextColor,
                 AutoSize = true,
@@ -143,8 +145,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Task")]
         public string TimeSpent
         {
-            get => lblTime.Text.Replace("🕒 ", "");
-            set => lblTime.Text = $"🕒 {value}";
+            get => lblTime.Text.Replace("ðŸ•’ ", "");
+            set => lblTime.Text = $"ðŸ•’ {value}";
         }
 
         [Category("Task")]
@@ -164,8 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Task")]
         public string StatusText
         {
-            get => lblStatus.Text.Replace("● ", "");
-            set => lblStatus.Text = $"● {value}";
+            get => lblStatus.Text.Replace("â— ", "");
+            set => lblStatus.Text = $"â— {value}";
         }
 
         #endregion

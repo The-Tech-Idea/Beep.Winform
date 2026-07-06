@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -33,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("Financial widget for portfolios, transactions, balances, investments, and financial tracking.")]
     public class BeepFinanceWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private FinanceWidgetStyle _style = FinanceWidgetStyle.PortfolioCard;
         private IWidgetPainter _painter;
@@ -203,7 +205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         }
 
         [Category("Finance")]
-        [Description("Currency symbol ($, �, ?, etc.).")]
+        [Description("Currency symbol ($, ï¿½, ?, etc.).")]
         public string CurrencySymbol
         {
             get => _currencySymbol;
@@ -409,12 +411,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
             _currencySymbol = _currency?.ToUpper() switch
             {
                 "USD" => "$",
-                "EUR" => "�",
-                "GBP" => "�",
-                "JPY" => "�",
+                "EUR" => "ï¿½",
+                "GBP" => "ï¿½",
+                "JPY" => "ï¿½",
                 "BTC" => "?",
                 "ETH" => "?",
-                "CNY" => "�",
+                "CNY" => "ï¿½",
                 "CAD" => "C$",
                 "AUD" => "A$",
                 _ => "$"

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -28,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     [Description("Notification history panel with filtering and search")]
     public class BeepNotificationHistory : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.NotificationHistory;
         #region Private Fields
         private readonly List<NotificationHistoryItem> _history;
 
@@ -74,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             MinimumSize = new Size(DpiScalingHelper.ScaleValue(300, this), DpiScalingHelper.ScaleValue(400, this));
             Size = new Size(DpiScalingHelper.ScaleValue(350, this), DpiScalingHelper.ScaleValue(500, this));
 
-            // Header panel — BeepPanel hosts the chrome so it inherits theme.
+            // Header panel â€” BeepPanel hosts the chrome so it inherits theme.
             // (Manual GDI paint replaced by RebuildItems child controls)
             _headerPanel = new BeepPanel
             {
@@ -83,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 UseThemeColors = true
             };
 
-            // Title — BeepLabel + theme typography via BeepFontManager
+            // Title â€” BeepLabel + theme typography via BeepFontManager
             _titleLabel = new BeepLabel
             {
                 Text = "Notification History",
@@ -92,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 UseThemeColors = true
             };
 
-            // Search — BeepTextBox supplies placeholder text + theming
+            // Search â€” BeepTextBox supplies placeholder text + theming
             _searchBox = new BeepTextBox
             {
                 PlaceholderText = "Search notifications...",
@@ -103,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             };
             _searchBox.TextChanged += SearchBox_TextChanged;
 
-            // Filter combos — WinForms ComboBox stays because BeepComboBox
+            // Filter combos â€” WinForms ComboBox stays because BeepComboBox
             // requires SimpleItem data model + custom overlay popup.
             _filterCombo = new ComboBox
             {
@@ -134,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _statusFilterCombo.SelectedIndex = 0;
             _statusFilterCombo.SelectedIndexChanged += StatusFilterCombo_SelectedIndexChanged;
 
-            // Action buttons — BeepButton for theme integration
+            // Action buttons â€” BeepButton for theme integration
             _clearButton = new BeepButton
             {
                 Text = "Clear",
@@ -162,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _headerPanel.Controls.Add(_clearButton);
             _headerPanel.Controls.Add(_markAllReadButton);
 
-            // Items host — Dock=Fill with AutoScroll so rows overflow into a
+            // Items host â€” Dock=Fill with AutoScroll so rows overflow into a
             // scrollable region. Each row is a BeepPanel with Dock=Top matching
             // ItemHeight.
             _itemsHost = new Panel
@@ -173,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             };
             _itemsHost.Scroll += (s, e) => { /* AutoScroll handles scroll events internally */ };
 
-            // Add controls — order affects Z-order / docking priority.
+            // Add controls â€” order affects Z-order / docking priority.
             this.Controls.Add(_itemsHost);
             this.Controls.Add(_headerPanel);
 
@@ -304,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
         #endregion
 
-        #region Items rebuild (Phase 2 completion — child controls)
+        #region Items rebuild (Phase 2 completion â€” child controls)
         private void RebuildItems()
         {
             if (_itemsHost == null) return;
@@ -382,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             };
             row.Controls.Add(inner);
 
-            // Timestamp — top-right
+            // Timestamp â€” top-right
             inner.Controls.Add(new BeepLabel
             {
                 Dock = DockStyle.Top,
@@ -395,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 TabStop = false,
                 Tag = "_time"
             });
-            // Title — single line, bold
+            // Title â€” single line, bold
             inner.Controls.Add(new BeepLabel
             {
                 Dock = DockStyle.Top,
@@ -405,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 TabStop = false,
                 Tag = "_title"
             });
-            // Message — fill remaining
+            // Message â€” fill remaining
             inner.Controls.Add(new BeepLabel
             {
                 Dock = DockStyle.Fill,
@@ -664,7 +666,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
         /// <summary>
         /// Schedule a debounced save (10 seconds from now). Restarting the
-        /// timer cancels a previously-pending save — bursts of history items
+        /// timer cancels a previously-pending save â€” bursts of history items
         /// coalesce into a single write. Also blocks saves while the file
         /// path is empty.
         /// </summary>

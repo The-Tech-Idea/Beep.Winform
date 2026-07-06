@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
@@ -497,18 +498,24 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                     ShowTitleLine = false,
                 };
 
-                // Spinner via BeepProgressBar DotsLoader — no raw GDI painting
+                // Spinner via BeepProgressBar DotsLoader — no raw GDI painting.
+                // Skill § 1: token-based sizing; BusyOverlay is not a Control, so we pass _hostForm
+                // as the DPI reference for the ScaleValue extensions.
                 var spinner = new ProgressBars.BeepProgressBar
                 {
-                    Size = new Size(120, 24),
+                    Size = new Size(
+                        BeepLayoutMetrics.Card.Width.ScaleValue(_hostForm) / 2,
+                        BeepLayoutMetrics.ProgressBar.Height.ScaleValue(_hostForm) + BeepLayoutMetrics.SmallGap.ScaleValue(_hostForm)),
                     PainterKind = ProgressBars.ProgressPainterKind.DotsLoader,
                     ProgressBarStyle = ProgressBars.ProgressBarStyle.Animated,
                     UseThemeColors = true,
                     VisualMode = ProgressBars.ProgressBarDisplayMode.NoText,
                 };
+                // Vertical offset above center so the message label sits below the spinner.
+                int spinnerLift = BeepLayoutMetrics.LabelStandard.Height.ScaleValue(_hostForm);
                 spinner.Location = new Point(
                     (_hostForm.ClientSize.Width - spinner.Width) / 2,
-                    (_hostForm.ClientSize.Height - spinner.Height) / 2 - 16
+                    (_hostForm.ClientSize.Height - spinner.Height) / 2 - spinnerLift
                 );
                 _overlay.Controls.Add(spinner);
 
@@ -519,13 +526,15 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
                         Text = message,
                         ForeColor = ColorUtils.GetContrastColor(overlayColor),
                         TextAlign = ContentAlignment.MiddleCenter,
-                        Size = new Size(320, 24),
+                        Size = new Size(
+                            BeepLayoutMetrics.Card.Width.ScaleValue(_hostForm) + BeepLayoutMetrics.ButtonStandard.Width.ScaleValue(_hostForm),
+                            BeepLayoutMetrics.LabelStandard.Height.ScaleValue(_hostForm)),
                         BackColor = Color.Transparent,
                         UseThemeColors = false,
                     };
                     messageLabel.Location = new Point(
                         (_hostForm.ClientSize.Width - messageLabel.Width) / 2,
-                        spinner.Bottom + 10
+                        spinner.Bottom + BeepLayoutMetrics.SmallGap.ScaleValue(_hostForm) * 2
                     );
                     _overlay.Controls.Add(messageLabel);
                 }

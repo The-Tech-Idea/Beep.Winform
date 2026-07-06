@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing.Design;
 
 using TheTechIdea.Beep.Vis.Modules;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -24,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Side Menu")]
     public partial class BeepSideMenu : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.SideMenu;
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EndMenuCollapseExpand;
         public event Action<bool> StartOnMenuCollapseExpand;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Logins.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Logins.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -35,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Login")]
     public class BeepLogin : BaseControl    
         {
+        protected override Size DefaultSize => BeepLayoutMetrics.Login;
         private Panel loginPanel;
         private BeepLabel lblTitle;
         private BeepLabel lblSubtitle;
@@ -135,10 +137,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.None
             };
 
-            // Password visibility toggle (eye icon) — standard modern UX
+            // Password visibility toggle (eye icon) â€” standard modern UX
             btnTogglePassword = new BeepButton
             {
-                Text = "👁",
+                Text = "ðŸ‘",
                 Font = new Font("Segoe UI", 12, FontStyle.Regular),
                 IsChild = true,
                 IsFrameless = true,
@@ -155,19 +157,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     txtPassword.UseSystemPasswordChar = false;
                     txtPassword.PasswordChar = '\0';
-                    btnTogglePassword.Text = "🙈";
+                    btnTogglePassword.Text = "ðŸ™ˆ";
                     btnTogglePassword.AccessibleName = "Hide password";
                 }
                 else
                 {
                     txtPassword.UseSystemPasswordChar = true;
                     txtPassword.PasswordChar = '*';
-                    btnTogglePassword.Text = "👁";
+                    btnTogglePassword.Text = "ðŸ‘";
                     btnTogglePassword.AccessibleName = "Show password";
                 }
             };
 
-            // Inline error label — hidden until login fails
+            // Inline error label â€” hidden until login fails
             lblError = new BeepLabel
             {
                 Text = "",
@@ -181,10 +183,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AccessibleName = "Login error"
             };
 
-            // Caps Lock warning — shown when Caps Lock is on while password field focused
+            // Caps Lock warning â€” shown when Caps Lock is on while password field focused
             lblCapsLock = new BeepLabel
             {
-                Text = "⚠ Caps Lock is on",
+                Text = "âš  Caps Lock is on",
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 ForeColor = Color.FromArgb(230, 81, 0),
                 IsChild = true,
@@ -308,12 +310,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnAvatar.Click += (s, e) => OnAvatarClick();
             btnLogo.Click += (s, e) => OnLogoClick();
 
-            // Enter key on username → jump to password
+            // Enter key on username â†’ jump to password
             txtUsername.KeyDown += (s, e) =>
             {
                 if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; txtPassword.Focus(); }
             };
-            // Enter key on password → trigger login
+            // Enter key on password â†’ trigger login
             txtPassword.KeyDown += (s, e) =>
             {
                 if (e.KeyCode == Keys.Enter && btnLogin.Enabled)
@@ -814,7 +816,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return loginPanel.Width - loginPanel.Padding.Left - loginPanel.Padding.Right;
         }
 
-        // SIMPLE VIEW: vertically stacked – Title, Avatar, Username, Password, [Remember, Forgot], Login.
+        // SIMPLE VIEW: vertically stacked â€“ Title, Avatar, Username, Password, [Remember, Forgot], Login.
         private void SetupSimpleView()
         {
             // Clear previous layout and disable auto-scrolling
@@ -1094,8 +1096,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 3) We define a "card" rectangle behind the textboxes
             //    We'll figure out final height after we place them
             //------------------------------------------------
-            int cardWidth = 320; // narrower than container, so it’s centered
-            int cardHeight = 0;  // we’ll calculate it below
+            int cardWidth = 320; // narrower than container, so itâ€™s centered
+            int cardHeight = 0;  // weâ€™ll calculate it below
             int cardX = loginPanel.Padding.Left + (containerWidth - cardWidth) / 2;
             int cardY = currentY;
 
@@ -1164,11 +1166,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             currentY += btnLogin.Height + margin;
 
             //---------------------------------
-            // 5) "— or —" separator
+            // 5) "â€” or â€”" separator
             //---------------------------------
             Label orLabel = new Label
             {
-                Text = "— or —",
+                Text = "â€” or â€”",
                 AutoSize = true,
                 Anchor = AnchorStyles.None
             };
@@ -1517,7 +1519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int currentY = margin;
             int containerWidth = ContainerWidth();
 
-            // --- Row 1: Top Row – Title (left) and Social Icons (right) ---
+            // --- Row 1: Top Row â€“ Title (left) and Social Icons (right) ---
             // Title on left
             lblTitle.Text = "Sign In";
             lblTitle.Visible = true;
@@ -1909,7 +1911,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         /// <summary>
         /// Switches the login button to a loading state (disabled,
-        /// text changed to "Signing in…") so the user cannot
+        /// text changed to "Signing inâ€¦") so the user cannot
         /// double-submit.  Call <see cref="ClearLoading"/> when
         /// the authentication completes (success or failure).
         /// </summary>
@@ -1917,7 +1919,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _isLoading = true;
             btnLogin.Enabled = false;
-            btnLogin.Text = "Signing in…";
+            btnLogin.Text = "Signing inâ€¦";
         }
 
         /// <summary>

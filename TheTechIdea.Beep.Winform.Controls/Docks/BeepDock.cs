@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Docks;
 using TheTechIdea.Beep.Winform.Controls.Docks.Painters;
 using TheTechIdea.Beep.Winform.Controls.Docks.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -23,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("Enhanced docking control with painter-based rendering")]
     public partial class BeepDock : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Dock;
         #region Fields
         private readonly BindingList<SimpleItem> _items;
         private readonly List<Docks.DockItemState> _itemStates;

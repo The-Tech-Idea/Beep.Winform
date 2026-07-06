@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Chips.Painters;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips
 {
@@ -213,6 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
     [Description("A MultiChip.")]
     public partial class BeepMultiChipGroup : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.MultiChipGroup;
         #region Fields
         private BindingList<SimpleItem> _chipItems = new BindingList<SimpleItem>();
         private List<ChipItem> _chips = new List<ChipItem>();
@@ -254,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         // Previous selection for event tracking
         private SimpleItem _previousSelectedItem;
 
-        // ── Drag-and-drop reorder ─────────────────────────────────────
+        // â”€â”€ Drag-and-drop reorder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _allowDragReorder = true;
         private int _dragChipIndex = -1;
         private Point _dragStartPoint = Point.Empty;
@@ -263,35 +265,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         private Point _dragGhostLocation = Point.Empty;
         private const int DragThreshold = 5;
 
-        // ── Inline chip editing ───────────────────────────────────────
+        // â”€â”€ Inline chip editing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private TextBox? _editTextBox;
         private int _editingChipIndex = -1;
         private string _editOriginalText = string.Empty;
 
-        // ── Chip input / creation ─────────────────────────────────────
+        // â”€â”€ Chip input / creation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _allowChipCreation = false;
         private TextBox? _inputTextBox;
         private Rectangle _inputRect = Rectangle.Empty;
         private string _inputPlaceholderText = "Type to add...";
         private char[] _inputDelimiters = new[] { ',', ';', '\t', '\r' };
 
-        // ── Ripple animation ──────────────────────────────────────────
+        // â”€â”€ Ripple animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _enableRipple = true;
         private readonly List<ChipRipple> _activeRipples = new();
         private System.Windows.Forms.Timer? _rippleTimer;
 
-        // ── Tooltip ───────────────────────────────────────────────────
+        // â”€â”€ Tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _showTooltip = true;
         private System.Windows.Forms.Timer? _tooltipTimer;
         private int _tooltipChipIndex = -1;
         private bool _tooltipShowing = false;
 
-        // ── Add/remove animation ──────────────────────────────────────
+        // â”€â”€ Add/remove animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _enableAddRemoveAnimation = true;
         private readonly List<ChipAnimation> _chipAnimations = new();
         private System.Windows.Forms.Timer? _animationTimer;
 
-        // ── Utility row ───────────────────────────────────────────────
+        // â”€â”€ Utility row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _showUtilityRow = true;
         #endregion
 

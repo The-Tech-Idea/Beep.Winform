@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
@@ -46,18 +47,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
         {
             StartPosition = FormStartPosition.CenterParent;
             ShowInTaskbar = false;
-            Width = 560;
-            Height = 480;
+            // Skill § 1: dialog size flows from BeepLayoutMetrics tokens; DPI-aware.
+            Size = BeepLayoutMetrics.DialogMedium.ScaleSize(this);
 
             // ── Header panel (search) ───────────────────────────────────────
             _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
-                Height = 50,
+                // Header row = text-field row height (skill § default-size token)
+                Height = BeepLayoutMetrics.ButtonToolbar.Height.ScaleValue(this),
                 ShowTitle = false,
                 ShowTitleLine = false,
                 UseThemeColors = true,
-                Padding = new Padding(8, 8, 8, 4)
+                // DialogPadding keeps the search box separated from the form edge.
+                Padding = BeepLayoutMetrics.DialogPadding.ScalePadding(this)
             };
             _searchBox = new BeepTextBox
             {
@@ -71,11 +74,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
             _chipPanel = new BeepPanel
             {
                 Dock = DockStyle.Top,
-                Height = 42,
+                // Chip row height = button row + small gap (skill § default-size)
+                Height = BeepLayoutMetrics.ButtonToolbar.Height.ScaleValue(this) - BeepLayoutMetrics.SmallGap.ScaleValue(this),
                 ShowTitle = false,
                 ShowTitleLine = false,
                 UseThemeColors = true,
-                Padding = new Padding(6, 4, 6, 4)
+                Padding = BeepLayoutMetrics.ContainerPadding.ScalePadding(this)
             };
             _categoryChips = new BeepMultiChipGroup
             {
@@ -95,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
                 ShowTitle = false,
                 ShowTitleLine = false,
                 UseThemeColors = true,
-                Padding = new Padding(4)
+                Padding = BeepLayoutMetrics.ContainerPadding.ScalePadding(this)
             };
             _list = new BeepListBox
             {
@@ -120,11 +124,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.CommandPalette
             _footerPanel = new BeepPanel
             {
                 Dock = DockStyle.Bottom,
-                Height = 30,
+                // Hint-bar height = small button row (skill § default-size)
+                Height = BeepLayoutMetrics.ButtonSmall.Height.ScaleValue(this),
                 ShowTitle = false,
                 ShowTitleLine = false,
                 UseThemeColors = true,
-                Padding = new Padding(8, 4, 8, 4)
+                Padding = BeepLayoutMetrics.DialogPadding.ScalePadding(this)
             };
             _hintLabel = new BeepLabel
             {

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -32,6 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons
     [Description("A chevron-shaped button control with text, image, animation, and direction support.")]
     public class BeepChevronButton : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ButtonSmall;
         private const int ChevronPaddingToken = 6;
         private const int ChevronImageInsetToken = 5;
         private const int ChevronDefaultImageSizeToken = 16;

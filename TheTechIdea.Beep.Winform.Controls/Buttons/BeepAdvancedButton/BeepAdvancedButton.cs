@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Painters;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Enums;
 using TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using System.Configuration;
 
@@ -28,6 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Buttons.BeepAdvancedButton
     [DisplayName("Beep Advanced Button")]
     public partial class BeepAdvancedButton : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ButtonToolbar;
         #region "Fields"
 
         private AdvancedButtonStyle _buttonStyle = AdvancedButtonStyle.Solid;

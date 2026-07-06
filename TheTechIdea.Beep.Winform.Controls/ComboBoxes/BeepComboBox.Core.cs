@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -22,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 #pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
     public partial class BeepComboBox : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ComboBox;
         #region Helper and Painter
         
         /// <summary>
@@ -52,12 +54,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         internal float SkeletonOffset       => _skeletonOffset;
         internal bool  IsEditingInline        => _isEditing;
 
-        // maps SimpleItem identity → chip-close button rect (populated by design-system chip painters)
+        // maps SimpleItem identity â†’ chip-close button rect (populated by design-system chip painters)
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipCloseRects
             = new System.Collections.Generic.Dictionary<string, Rectangle>();
 
-        // maps SimpleItem identity → full chip body rect (populated by design-system chip painters)
-        // Used for chip-click → scroll-to-item in popup.
+        // maps SimpleItem identity â†’ full chip body rect (populated by design-system chip painters)
+        // Used for chip-click â†’ scroll-to-item in popup.
         internal readonly System.Collections.Generic.Dictionary<string, Rectangle> ChipBodyRects
             = new System.Collections.Generic.Dictionary<string, Rectangle>();
 
@@ -91,10 +93,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _inputText = string.Empty;
         private bool _isEditing = false;
 
-        // Inline text editor — a BeepTextBox child shown over _textAreaRect on click
+        // Inline text editor â€” a BeepTextBox child shown over _textAreaRect on click
         private BeepTextBox _inlineEditor;
         
-        // Layout rectangles — recomputed fresh every frame (BeepButton pattern)
+        // Layout rectangles â€” recomputed fresh every frame (BeepButton pattern)
         private Rectangle _textAreaRect;
         private Rectangle _dropdownButtonRect;
         private Rectangle _imageRect;
@@ -128,12 +130,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _dropdownIconPath = "";
 
         // Maximum size for the leading image and the popup item icons. Width/height
-        // are the upper bound — the actual drawn size is the smaller of the cap and
+        // are the upper bound â€” the actual drawn size is the smaller of the cap and
         // the available space (control height for the leading image, item row height
         // for popup items). Default 16x16 matches the rest of the Beep control set.
         private Size _maxImageSize = new Size(16, 16);
         
-        // Font — resolved from theme in ApplyTheme(); never use this.Font / Control.Font (SKILL Rule 2)
+        // Font â€” resolved from theme in ApplyTheme(); never use this.Font / Control.Font (SKILL Rule 2)
         private Font _textFont = SystemFonts.DefaultFont;
         
         // Performance optimizations
@@ -273,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (any || _chipProgress.Count > 0) Invalidate();
             };
 
-            _typeAheadTimer = new Timer { Interval = 1500 }; // 1.5s — longer for dropdown-open scanning
+            _typeAheadTimer = new Timer { Interval = 1500 }; // 1.5s â€” longer for dropdown-open scanning
             _typeAheadTimer.Tick += (s, e) =>
             {
                 _typeAheadTimer.Stop();
@@ -506,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Refresh DrawingRect so we work with the latest value
             UpdateDrawingRect();
 
-            // Always compute fresh — identical to DrawContent pipeline
+            // Always compute fresh â€” identical to DrawContent pipeline
             var renderState = ComboBoxStateFactory.Build(this);
             var layout = ComboBoxLayoutEngine.Compute(DrawingRect, renderState, this);
             _textAreaRect      = layout.TextAreaRect;
@@ -630,13 +632,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _autoCompleteDelayTimer?.Dispose();
                 _autoCompleteDelayTimer = null;
 
-                // B1: _typeAheadTimer was missing from Dispose — leaked
+                // B1: _typeAheadTimer was missing from Dispose â€” leaked
                 // the Win32 timer handle on every control teardown.
                 _typeAheadTimer?.Stop();
                 _typeAheadTimer?.Dispose();
                 _typeAheadTimer = null;
 
-                // Inline editor is a child control — Dispose releases it
+                // Inline editor is a child control â€” Dispose releases it
                 if (_inlineEditor != null)
                 {
                     _inlineEditor.LostFocus     -= InlineEditor_LostFocus;
@@ -729,7 +731,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        // ── ENH-23: Skeleton shimmer ────────────────────────────────────────
+        // â”€â”€ ENH-23: Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         internal void StartSkeletonAnimation()
         {
             if (_skeletonTimer == null)

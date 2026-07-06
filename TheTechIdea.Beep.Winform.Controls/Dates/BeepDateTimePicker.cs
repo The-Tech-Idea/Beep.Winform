@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
     public partial class BeepDateTimePicker :BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FieldDateTime;
         // All BeepDateTimePicker is in partial classes:
         // - BeepDateTimePicker.Core.cs: Core fields, events, initialization, and constructor
         // - BeepDateTimePicker.Properties.cs: All properties (TreeStyle, Nodes, Selection, etc.)

@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -31,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("Map widget for location tracking, routing, geographic data, and location-based services.")]
     public class BeepMapWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private MapWidgetStyle _style = MapWidgetStyle.LocationCard;
         private IWidgetPainter _painter;

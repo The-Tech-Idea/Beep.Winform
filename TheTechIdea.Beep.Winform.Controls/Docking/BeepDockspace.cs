@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Docking.Models;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters;
 using TheTechIdea.Beep.Winform.Controls.Docking.Painters.Caption;
 using TheTechIdea.Beep.Winform.Controls.Docking.Runtime;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Docking
 {
@@ -26,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
     [DefaultProperty(nameof(DockPosition))]
     public class BeepDockspace : Panel
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Panel;
         public const int HeaderHeight = 26;
 
         private const int TabMaxWidth = 160;
@@ -444,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (tab == null)
                 return;
 
-            // Suppress the trailing click that fires after a drag commits — otherwise a drag
+            // Suppress the trailing click that fires after a drag commits â€” otherwise a drag
             // would re-activate the tab or pop a stray context menu.
             if (_isDragging)
                 return;
@@ -470,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
             if (IsInHeader(e.Location))
                 RecomputeCaptionLayout();
 
-            // Tab drag to float/dock — start when system drag threshold is crossed.
+            // Tab drag to float/dock â€” start when system drag threshold is crossed.
             if (_dragArmed && (e.Button & MouseButtons.Left) != 0 && !_isDragging)
             {
                 Point screen = PointToScreen(e.Location);
@@ -492,7 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Docking
                 return;
             }
 
-            // Suppress tooltips while a drag is in progress or armed — otherwise they pop
+            // Suppress tooltips while a drag is in progress or armed â€” otherwise they pop
             // under the ghost and flicker as the cursor leaves the tab.
             if (!_showHint || _isDragging || _dragArmed)
             {

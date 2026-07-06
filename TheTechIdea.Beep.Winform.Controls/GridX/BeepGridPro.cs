@@ -1,4 +1,4 @@
-
+﻿
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using Math = System.Math;
 using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
 using TheTechIdea.Beep.Winform.Controls.GridX.Controllers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -24,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
     public partial class BeepGridPro : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Grid;
         #region BaseControl Overrides for Container Behavior
         /// <summary>
         /// Override to tell BaseControl this is a container that hosts child controls (editors)
@@ -161,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
-            // Unified toolbar replaces the legacy filter panel — only one should be visible at a time.
+            // Unified toolbar replaces the legacy filter panel â€” only one should be visible at a time.
             ShowToolbar = true;
             ShowTopFilterPanel = false; // hidden by default; toolbar provides search + filter
 

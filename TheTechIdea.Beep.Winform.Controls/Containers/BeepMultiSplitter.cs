@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DefaultProperty("TableLayoutPanel")]
     public partial class BeepMultiSplitter : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.MultiSplitter;
         // Constants for user interactions
         private const int RESIZE_TOLERANCE = 10;
         private const int ANIMATION_DELAY_MS = 50;

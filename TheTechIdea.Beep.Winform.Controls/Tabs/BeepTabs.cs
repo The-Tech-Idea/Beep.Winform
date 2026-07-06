@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Painters;
 using TheTechIdea.Beep.Winform.Controls.Images;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -24,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A fully custom tab control with themed headers and SVG close buttons.")]
     public partial class BeepTabs : ContainerControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.TabsStrip;
         public new event EventHandler? SelectedIndexChanged;
 
         /// <summary>
@@ -355,7 +357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _styleTransitionTimer?.Dispose();
                 _styleTransitionTimer = null;
                 // Dispose the context menu if it is still open (e.g. control is destroyed
-                // while the menu is showing — avoids a GDI handle leak).
+                // while the menu is showing â€” avoids a GDI handle leak).
                 DisposeHeaderTabContextMenu();
                 closeIcon?.Dispose();
                 closeIcon = null;

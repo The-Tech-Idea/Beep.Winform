@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Themes.ThemeContrastUtilities;
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes
     /// </summary>
     public class BeepDropDownCheckBoxSelect : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DropDownSelect;
         private readonly List<SimpleItem> _items = new List<SimpleItem>();
         private readonly List<SimpleItem> _selected = new List<SimpleItem>();
         private string _popupSearchText = string.Empty;

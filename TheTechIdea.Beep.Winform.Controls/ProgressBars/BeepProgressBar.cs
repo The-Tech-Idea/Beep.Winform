@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -14,7 +14,8 @@ using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Models;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
- 
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 {
@@ -24,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
     [DisplayName("Beep ProgressBar")]
     public partial class BeepProgressBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ProgressBar;
         // core numeric state
         private int _value = 0;
         private int _minimum = 0;
@@ -423,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
                     case ProgressBarDisplayMode.TextAndCurrProgress: return $"{CustomText}: {ProgressText}";
                     case ProgressBarDisplayMode.LoadingText: return string.IsNullOrWhiteSpace(CustomText) ? "Loading..." : CustomText;
                     case ProgressBarDisplayMode.StepLabels:
-                        if (Parameters != null && Parameters.TryGetValue("Labels", out var v) && v is string[] labels && labels.Length > 0) return string.Join("  ·  ", labels);
+                        if (Parameters != null && Parameters.TryGetValue("Labels", out var v) && v is string[] labels && labels.Length > 0) return string.Join("  Â·  ", labels);
                         return CustomText;
                     case ProgressBarDisplayMode.CustomText: return !string.IsNullOrEmpty(_taskText) ? _taskText : CustomText;
                     case ProgressBarDisplayMode.NoText:

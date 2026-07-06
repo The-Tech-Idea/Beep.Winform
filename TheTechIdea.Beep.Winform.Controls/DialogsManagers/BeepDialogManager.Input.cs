@@ -4,9 +4,11 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
@@ -212,6 +214,9 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
         private Form CreateDatePickerDialog(string title, string prompt, DateTime? min, DateTime? max, DateTime? defaultValue)
         {
+            // Skill § 1: token-driven sizing for the date picker.
+            // Note: this method is on BeepDialogManager (not a Control) — we use form as the
+            // DPI reference for scaling; the form is the natural container anyway.
             var form = new BeepMessageDialog();
             form.Title = title;
             form.Message = prompt;
@@ -219,8 +224,12 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 
             var dtp = new DateTimePicker
             {
-                Location = new Point(20, 40),
-                Size = new Size(260, 25),
+                Location = new Point(
+                    BeepLayoutMetrics.DialogPadding.Left.ScaleValue(form),
+                    BeepLayoutMetrics.LabelStandard.Height.ScaleValue(form) + BeepLayoutMetrics.SmallGap.ScaleValue(form)),
+                Size = new Size(
+                    BeepLayoutMetrics.FieldStandard.Width.ScaleValue(form) + BeepLayoutMetrics.ButtonSmall.Width.ScaleValue(form),
+                    BeepLayoutMetrics.FieldStandard.Height.ScaleValue(form)),
                 Format = DateTimePickerFormat.Short
             };
 

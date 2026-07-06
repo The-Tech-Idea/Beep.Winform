@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers.Models;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
 {
@@ -23,7 +24,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers.Forms
         public string Title { get => _titleLabel.Text; set => _titleLabel.Text = value ?? string.Empty; }
         public string Message { get => _messageLabel.Text; set => _messageLabel.Text = value ?? string.Empty; }
         public Func<string, string?>? InputValidator { get; set; }
-        public bool InputBoxMultiline { get => _inputBox.Multiline; set { _inputBox.Multiline = value; if (value) _inputBox.Height = 80; } }
+        // Skill § 1: multiline input height = single-line * 2 + spacing (skill § default-size composition).
+        public bool InputBoxMultiline
+        {
+            get => _inputBox.Multiline;
+            set
+            {
+                _inputBox.Multiline = value;
+                if (value)
+                {
+                    int single = BeepLayoutMetrics.FieldStandard.Height.ScaleValue(this);
+                    _inputBox.Height = single * 2 + BeepLayoutMetrics.SmallGap.ScaleValue(this);
+                }
+            }
+        }
         public bool InputBoxUsePasswordChar { get => _inputBox.UseSystemPasswordChar; set => _inputBox.UseSystemPasswordChar = value; }
         public string InputDefaultValue { set => _inputBox.Text = value; }
 

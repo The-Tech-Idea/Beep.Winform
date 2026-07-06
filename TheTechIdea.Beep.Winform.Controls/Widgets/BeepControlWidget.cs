@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -32,6 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("Interactive control widget with strongly-typed input models.")]
     public class BeepControlWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private ControlWidgetStyle _style = ControlWidgetStyle.ToggleSwitch;
         private IWidgetPainter _painter;

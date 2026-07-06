@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,11 +8,13 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.StatusCards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards
 {
     public partial class BeepStatCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardStat;
         #region Backing fields
         private string headerText = "Total Revenue";
         private string percentageText = "+12.5%";

@@ -1,10 +1,11 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.DataControls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A data navigator control for CRUD operations.")]
     public class BeepDataNavigator : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DataNavigator;
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
         public BeepButton btnQuery, btnFilter,btnPrint,btnEmail;
         public BeepButton txtPosition;

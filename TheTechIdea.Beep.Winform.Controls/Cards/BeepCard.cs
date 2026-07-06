@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Cards.Painters;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
@@ -107,6 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A comprehensive card control supporting multiple modern card styles.")]
     public partial class BeepCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         // NO child controls - paint everything directly like BeepBreadcrumb
         private string headerText = "Card Title";
         private string paragraphText = "Card Description";

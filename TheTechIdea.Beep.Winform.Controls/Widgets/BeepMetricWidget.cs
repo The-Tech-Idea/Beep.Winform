@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("A metric/KPI display widget with multiple Style variations.")]
     public class BeepMetricWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardMetric;
         #region Fields
         private MetricWidgetStyle _style = MetricWidgetStyle.SimpleValue;
         private IWidgetPainter _painter;

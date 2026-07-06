@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -33,6 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("Form widget for data entry, validation, and form management with multiple layout styles.")]
     public class BeepFormWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private FormWidgetStyle _style = FormWidgetStyle.FieldGroup;
         private IWidgetPainter _painter;

@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 
 
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A container control for displaying addins.")]
     public partial class BeepDisplayContainer : BaseControl, IDisplayContainer
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DisplayContainer;
         private TheTechIdea.Beep.Winform.Controls.TabStyle _tabStyle = TheTechIdea.Beep.Winform.Controls.TabStyle.Capsule;
         public ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private Panel ContainerPanel;

@@ -6,6 +6,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 
 
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Binding Navigator")]
     public partial class BeepBindingNavigator : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.BindingNavigator;
         #region Fields
         private object _dataSource;
         private BindingSource _bindingsource = new BindingSource();

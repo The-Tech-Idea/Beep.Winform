@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers;
 using TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
 {
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables
     [Description("A vertical table control with columns (SimpleItem) and rows (SimpleItem.Children).")]
     public partial class BeepVerticalTable : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.VerticalTable;
         #region Fields
         private BindingList<SimpleItem> _columns = new BindingList<SimpleItem>();
         private SimpleItem? _selectedItem;

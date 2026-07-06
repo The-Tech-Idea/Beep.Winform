@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Buttons;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Filtering;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
 {
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
     [Obsolete("Use BeepGridPro unified toolbar (ShowToolbar + ApplyQuickFilter) instead.")]
     public class BeepQuickFilterBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.QuickFilterBar;
         private BeepTextBox _searchTextBox = null!;
         private BeepButton _clearButton = null!;
         private BeepButton _advancedButton = null!;
@@ -113,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // Search icon label
             _searchLabel = new BeepLabel
             {
-                Text = "🔍",
+                Text = "ðŸ”",
                 Width = 30,
                 Height = 30,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -147,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // Clear button
             _clearButton = new BeepButton
             {
-                Text = "✕ Clear",
+                Text = "âœ• Clear",
                 Width = 80,
                 Height = 30,
                 IsChild = true,
@@ -158,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
             // Advanced filter button
             _advancedButton = new BeepButton
             {
-                Text = "⚙ Advanced",
+                Text = "âš™ Advanced",
                 Width = 100,
                 Height = 30,
                 IsChild = true,
@@ -239,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filtering
         {
             if (_activeFilterCount > 0)
             {
-                _filterCountLabel.Text = $"🔖 {_activeFilterCount} filter{(_activeFilterCount != 1 ? "s" : "")}";
+                _filterCountLabel.Text = $"ðŸ”– {_activeFilterCount} filter{(_activeFilterCount != 1 ? "s" : "")}";
                 _filterCountLabel.Visible = true;
             }
             else

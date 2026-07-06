@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
@@ -26,7 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
     [Description("Grouped notification control with expand/collapse")]
     public class BeepNotificationGroup : BaseControl
     {
-        // Phase 3 — child controls replace all manual paint. The header strip
+        protected override Size DefaultSize => BeepLayoutMetrics.NotificationGroup;
+        // Phase 3 â€” child controls replace all manual paint. The header strip
         // is a BeepPanel holding three BeepLabels; per-item rows are BeepPanels
         // inside _itemsHost (see RebuildItems). No DrawHeader / DrawBadge /
         // DrawExpandedContent / DrawContent remain.
@@ -35,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         private BeepLabel _countBadgeLabel;
         private BeepLabel _expandHintLabel;
 
-        // Item host — Dock=Fill below the header. Each item is its own
+        // Item host â€” Dock=Fill below the header. Each item is its own
         // BeepPanel (Dock=Top) holding BeepLabel children (title / message /
         // timestamp + type-tinted background).
         private BeepPanel _itemsHost;
@@ -88,11 +90,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             // Mouse events
             MouseClick += BeepNotificationGroup_MouseClick;
 
-            // Phase 3 / header chrome → child controls. The header is a
+            // Phase 3 / header chrome â†’ child controls. The header is a
             // BeepPanel host (Dock=Top) carrying a BeepLabel title + count
             // badge + chevron hint. Items stack as their own BeepPanel rows
             // inside _itemsHost (see RebuildItems).
-            // ── Header panel (Dock=Top) with title + count + chevron
+            // â”€â”€ Header panel (Dock=Top) with title + count + chevron
             _headerPanel = new BeepPanel
             {
                 Dock = DockStyle.Top, Height = HeaderHeight, UseThemeColors = true,
@@ -106,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             _headerPanel.Controls.Add(_expandHintLabel);
             this.Controls.Add(_headerPanel);
 
-            // ── Items host (Dock=Fill below header)
+            // â”€â”€ Items host (Dock=Fill below header)
             _itemsHost = new BeepPanel { Dock = DockStyle.Fill, BackColor = Color.Transparent, UseThemeColors = true, Visible = false };
             this.Controls.Add(_itemsHost);
         }
@@ -361,11 +363,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
 
             _titleLabel.Text = resolvedTitle;
 
-            // Count badge text — cap at "99+" so the badge stays small.
+            // Count badge text â€” cap at "99+" so the badge stays small.
             var n = _notifications.Count;
             _countBadgeLabel.Text = n > 99 ? "99+" : n.ToString();
 
-            _expandHintLabel.Text = _isExpanded ? "\u25C0" : "\u25B6";      // ◀ / ▶
+            _expandHintLabel.Text = _isExpanded ? "\u25C0" : "\u25B6";      // â—€ / â–¶
         }
         #endregion
 
@@ -444,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
             };
             row.BackColor = ResolveTypeTint(notification.Type, BeepThemesManager.CurrentTheme);
 
-            // Row click → NotificationClicked for this notification. Captured
+            // Row click â†’ NotificationClicked for this notification. Captured
             // via a local copy so the closure binds the right instance.
             var capture = notification;
             row.Click += (s, e) => NotificationClicked?.Invoke(this,
@@ -480,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
                 TabStop = false,
                 Tag = "_title"
             });
-            // Message: fill remaining — multi-line truncated
+            // Message: fill remaining â€” multi-line truncated
             inner.Controls.Add(new BeepLabel
             {
                 Dock = DockStyle.Fill,
@@ -527,7 +529,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         /// <summary>
         /// Returns the tinted background colour for a notification type, sourced
         /// from <see cref="NotificationThemeHelpers"/>. 12% alpha of the type's
-        /// accent colour — soft highlight without overwhelming the chrome.
+        /// accent colour â€” soft highlight without overwhelming the chrome.
         /// </summary>
         private Color ResolveTypeTint(NotificationType type, IBeepTheme theme)
         {
@@ -559,7 +561,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         {
             // Phase 3 final: item rows own their own Click handlers (per
             // CreateItemRow above), so this form-level handler only fires for
-            // clicks on the header strip / chevron / empty space — those all
+            // clicks on the header strip / chevron / empty space â€” those all
             // mean the same thing: toggle expand / collapse.
             ToggleExpand();
         }
@@ -583,7 +585,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Phase 3 / accessibility — refresh <see cref="AccessibleName"/> and
+        /// Phase 3 / accessibility â€” refresh <see cref="AccessibleName"/> and
         /// <see cref="AccessibleDescription"/> from the current group state so
         /// screen readers announce the group's title + count + expand state.
         /// Called from <c>ApplyTheme</c> and any state mutation that changes the
@@ -604,7 +606,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Notifications
         }
 
         /// <summary>
-        /// Phase 3 / tooltip — every Beep control surfaces <see cref="BaseControl.ToolTipText"/>
+        /// Phase 3 / tooltip â€” every Beep control surfaces <see cref="BaseControl.ToolTipText"/>
         /// through the central ToolTipManager. We just set the property on
         /// <c>this</c>; the centralized manager picks it up. Tooltip text
         /// describes how to interact (toggle / collapse) and current count.

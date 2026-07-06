@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Steppers.Models;
@@ -39,6 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("An interactive step-by-step progress indicator optimized for business workflows with animations and multiple display modes.")]
     public partial class BeepStepperBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Stepper;
         #region Private Fields
         private Orientation orientation = Orientation.Horizontal;
         private int selectedIndex = -1;

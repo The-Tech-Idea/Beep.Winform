@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -15,6 +15,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Lovs.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Icons;
 
 
@@ -26,9 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A control that displays a list of values with a popup context menu selection, similar to Oracle Forms LOV.")]
     public class BeepListofValuesBox : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ListOfValues;
         #region Fields
         private BeepTextBox  _keyTextBox;
-        // _valueTextBox removed (Phase 6) — display value is painted directly in DrawContent
+        // _valueTextBox removed (Phase 6) â€” display value is painted directly in DrawContent
         private string _selectedDisplayValue = string.Empty;
         private BeepLovPopup _lovPopup;
         private List<SimpleItem> _items = new List<SimpleItem>();
@@ -40,10 +42,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Font? _fieldFont;
         private Font? _badgeFont;
 
-        // ── Phase 6 options ─────────────────────────────────────────────
+        // â”€â”€ Phase 6 options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         private bool _showKeyBadge = true;
 
-        // ── Phase 13: recent-selection history (persisted across popup opens) ──
+        // â”€â”€ Phase 13: recent-selection history (persisted across popup opens) â”€â”€
         private List<SimpleItem> _recentHistory = new List<SimpleItem>();
         #endregion
 
@@ -138,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Controls.Add(_keyTextBox);
 
-            // Use BaseControl’s built-in trailing icon as the dropdown toggle — no separate BeepButton child needed
+            // Use BaseControlâ€™s built-in trailing icon as the dropdown toggle â€” no separate BeepButton child needed
             TrailingIconPath      = SvgsUI.ChevronDown;
             TrailingIconClickable = true;
             TrailingIconClicked  += (_, __) => OpenPopup();
@@ -175,8 +177,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             GetHeight();
 
-            // Prefer the painter’s content rect (excludes trailing icon area).  
-            // Fall back to DrawingRect when the painter hasn’t measured yet.
+            // Prefer the painterâ€™s content rect (excludes trailing icon area).  
+            // Fall back to DrawingRect when the painter hasnâ€™t measured yet.
             Rectangle contentRect = GetAdjustedContentRect();
             if (contentRect.IsEmpty || contentRect.Width <= 0)
                 contentRect = DrawingRect;
@@ -195,7 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _keyTextBox.Width    = keyWidth - 1;
                 _keyTextBox.Height   = buttonHeight;
             }
-            // Value display area is painted in DrawContent — no child control needed
+            // Value display area is painted in DrawContent â€” no child control needed
         }
 
         protected override void OnResize(EventArgs e)
@@ -258,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             int x = valueArea.X;
 
-            // ── Key badge pill (optional) ──────────────────────────────
+            // â”€â”€ Key badge pill (optional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (_showKeyBadge && hasKey && _badgeFont != null)
             {
                 string  badgeText = SelectedKey;
@@ -287,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 x += badgeW + ScaleLogicalX(5);
             }
 
-            // ── Display value text ────────────────────────────────────
+            // â”€â”€ Display value text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if (hasValue && x < valueArea.Right)
             {
                 Color fgColor = _currentTheme?.ForeColor ?? ForeColor;
@@ -300,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // ── Painting helpers ──────────────────────────────────────────────
+        // â”€â”€ Painting helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         /// <summary>DPI-aware horizontal pixel scaling via <see cref="BeepThemesManager.DpiScaleX"/>.</summary>
         private static int ScaleLogicalX(int px) =>
@@ -334,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Event Handlers
-        // (TrailingIconClicked fires OpenPopup — wired in InitializeComponents)
+        // (TrailingIconClicked fires OpenPopup â€” wired in InitializeComponents)
 
         private void LovPopup_ItemAccepted(object sender, SimpleItem item)
         {
@@ -349,7 +351,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void LovPopup_Cancelled(object sender, EventArgs e)
         {
-            // No action required — popup already hidden
+            // No action required â€” popup already hidden
         }
 
         /// <summary>Opens the LOV popup, optionally pre-seeding the search box.</summary>
@@ -380,7 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (ItemsLoader != null)
             {
-                // Phase 12: Async path — show popup immediately with empty list + spinner,
+                // Phase 12: Async path â€” show popup immediately with empty list + spinner,
                 // then fill the grid once the loader completes.
                 _lovPopup.ShowAt(new List<SimpleItem>(), origin, Width, preloadSearch: "");
                 await _lovPopup.LoadItemsAsync(ItemsLoader, preloadSearch);
@@ -405,10 +407,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        // ── Keyboard Navigation (Phase 8) ─────────────────────────────────
+        // â”€â”€ Keyboard Navigation (Phase 8) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            // F9 — Oracle Forms standard to open LOV
+            // F9 â€” Oracle Forms standard to open LOV
             if (keyData == Keys.F9)
             {
                 string preload = _keyTextBox?.Focused == true ? _keyTextBox.Text : string.Empty;
@@ -416,14 +418,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return true;
             }
 
-            // Alt+Down — Windows combobox standard
+            // Alt+Down â€” Windows combobox standard
             if (keyData == (Keys.Alt | Keys.Down))
             {
                 OpenPopup();
                 return true;
             }
 
-            // Delete / Backspace — clear the current selection
+            // Delete / Backspace â€” clear the current selection
             if ((keyData == Keys.Delete || keyData == Keys.Back)
                 && !string.IsNullOrEmpty(SelectedKey)
                 && !(_keyTextBox?.Focused == true))
@@ -432,7 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return true;
             }
 
-            // Escape when popup is open — close it
+            // Escape when popup is open â€” close it
             if (keyData == Keys.Escape && _lovPopup?.Visible == true)
             {
                 _lovPopup.Hide();
@@ -461,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (!string.IsNullOrEmpty(newKey))
             {
                 // Show error inline (BaseControl ErrorText) + notification tooltip
-                ErrorText = "Invalid key — not in the list.";
+                ErrorText = "Invalid key â€” not in the list.";
                 HasError  = true;
                 ShowNotification("Invalid key. Please enter a valid value from the list.",
                                  ToolTipType.Warning, 2000);
@@ -613,7 +615,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _items.FirstOrDefault(i => i.Value?.ToString() == SelectedKey);
         }
 
-        // ── LOV Popup Configuration ─────────────────────────────────────
+        // â”€â”€ LOV Popup Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         [Browsable(true)]
         [Category("LOV")]
@@ -631,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Description("Optional explicit column definitions for the popup grid. Leave empty for auto Key+Value columns.")]
         public List<BeepColumnConfig> LovColumns { get; set; } = new List<BeepColumnConfig>();
-        // ── Phase 12: Async item loader ──────────────────────────
+        // â”€â”€ Phase 12: Async item loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         /// <summary>
         /// Optional async factory used to populate the LOV popup.
         /// When set to a non-null delegate, opening the popup will show a
@@ -643,9 +645,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(false)]
         public Func<CancellationToken, Task<List<SimpleItem>>>? ItemsLoader { get; set; }
 
-        // ── Phase 13: recent selections ──────────────────────────
+        // â”€â”€ Phase 13: recent selections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         /// <summary>
-        /// The most-recent selections made through this control’s LOV popup.
+        /// The most-recent selections made through this controlâ€™s LOV popup.
         /// Ordered oldest-first; capped at 5 items.
         /// You can persist this list (e.g. to user settings) and re-assign it
         /// to restore the history on the next session.
@@ -661,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_lovPopup != null && !_lovPopup.IsDisposed)
                     _lovPopup.RecentItems = _recentHistory;
             }
-        }        // ── Label / helper text convenience overrides ──────────────────────
+        }        // â”€â”€ Label / helper text convenience overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // Shadow base properties so that setting a non-empty value auto-enables the On flag.
 
         [Browsable(true)]

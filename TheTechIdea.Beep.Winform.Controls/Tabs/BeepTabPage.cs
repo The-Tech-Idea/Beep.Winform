@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Hosts;
 using TheTechIdea.Beep.Winform.Controls.Tabs.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,6 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DefaultProperty(nameof(Text))]
     public class BeepTabPage : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.TabPage;
         internal BeepTabItem TabMetadata { get; private set; }
 
         protected override bool IsContainerControl => true;

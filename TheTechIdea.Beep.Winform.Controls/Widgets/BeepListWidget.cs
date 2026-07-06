@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("A list/table widget with multiple display styles.")]
     public class BeepListWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ListBox;
         #region Fields
         private ListWidgetStyle _style = ListWidgetStyle.ActivityFeed;
         private IWidgetPainter _painter;

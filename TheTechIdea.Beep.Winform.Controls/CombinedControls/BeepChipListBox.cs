@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Chips;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
     [Description("A combined control with ListBox and MultiChipGroup with bidirectional selection sync.")]
     public partial class BeepChipListBox : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.ChipList;
         // Implementation is split across partial class files:
         // - BeepChipListBox.cs: Main class, constructor, core initialization
         // - BeepChipListBox.Properties.cs: All properties

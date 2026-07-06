@@ -1,21 +1,21 @@
-// BeepMenuBar.cs
+﻿// BeepMenuBar.cs
 // Class header + constructor + DefaultSize only.
 //
 // The control was split into nine focused partials during Phase 02 of
 // the Menus revise/enhance program:
-//   • BeepMenuBar.cs              ← this file (shell)
-//   • BeepMenuBar.Properties.cs   ← public properties + shared fields
-//   • BeepMenuBar.Layout.cs       ← hit areas + rect math + GetPreferredSize
-//   • BeepMenuBar.Drawing.cs      ← DrawContent + per-item paint pipeline
-//   • BeepMenuBar.Input.cs        ← OnMouse* + HandleMenuItemClick
-//   • BeepMenuBar.Popup.cs        ← cool-down + toggle + ShowMenuItemPopup
+//   â€¢ BeepMenuBar.cs              â† this file (shell)
+//   â€¢ BeepMenuBar.Properties.cs   â† public properties + shared fields
+//   â€¢ BeepMenuBar.Layout.cs       â† hit areas + rect math + GetPreferredSize
+//   â€¢ BeepMenuBar.Drawing.cs      â† DrawContent + per-item paint pipeline
+//   â€¢ BeepMenuBar.Input.cs        â† OnMouse* + HandleMenuItemClick
+//   â€¢ BeepMenuBar.Popup.cs        â† cool-down + toggle + ShowMenuItemPopup
 //                                   (also subscribes to ContextMenuManager.MenuDismissed)
-//   • BeepMenuBar.Theming.cs      ← ApplyTheme
-//   • BeepMenuBar.Lifecycle.cs    ← resize / parent / SafeInvoke / Dispose
-//   • BeepMenuBar.Utility.cs      ← LoadSampleMenuItems + RunMethodFromGlobalFunctions
+//   â€¢ BeepMenuBar.Theming.cs      â† ApplyTheme
+//   â€¢ BeepMenuBar.Lifecycle.cs    â† resize / parent / SafeInvoke / Dispose
+//   â€¢ BeepMenuBar.Utility.cs      â† LoadSampleMenuItems + RunMethodFromGlobalFunctions
 //
 // See .plans/Menus-Phase-02-PartialClassSplit.md.
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 using System.ComponentModel;
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Base;

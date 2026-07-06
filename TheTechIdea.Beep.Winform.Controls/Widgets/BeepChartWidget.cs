@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("A chart/visualization widget with multiple chart types.")]
     public class BeepChartWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Chart;
         #region Fields
         private ChartWidgetStyle _style = ChartWidgetStyle.BarChart;
         private IWidgetPainter _painter;

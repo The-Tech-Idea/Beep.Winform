@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Cards.Metrices.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A dashboard tile showing a title, icon, large metric, delta text, and a central silhouette.")]
     public class BeepMetricTile : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardMetric;
         // Layout rectangles for hit testing
         private Rectangle titleRect;
         private Rectangle iconRect;

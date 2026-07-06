@@ -1,4 +1,4 @@
-using TheTechIdea.Beep.Vis.Modules;
+﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Containers.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Containers.Models;
 using TheTechIdea.Beep.Winform.Controls.Containers.Painters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     // [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepPanelDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public partial class BeepPanel : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Panel;
         private string _titleText = "Panel Title";
         private bool _showTitle = false;
         private bool _showTitleLine = false;

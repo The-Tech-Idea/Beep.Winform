@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -18,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
     [Description("Container control for ready-made layout templates with Beep styling.")]
     public partial class BeepLayoutControl : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.LayoutControl;
         /// <summary>
         /// Supported layout template types.
         /// </summary>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
 {
@@ -20,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.CombinedControls
     [Description("A combined control with RadioGroup and ListBox with bidirectional selection sync.")]
     public partial class BeepRadioListBox : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.RadioList;
         // Implementation is split across partial class files:
         // - BeepRadioListBox.cs: Main class definition
         // - BeepRadioListBox.Core.cs: Fields, constructor, core initialization

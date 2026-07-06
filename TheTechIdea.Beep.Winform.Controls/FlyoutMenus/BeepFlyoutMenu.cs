@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
 {
@@ -22,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FlyoutMenus
     [Description("A flyout menu control that displays a list of items using the full BeepListBox feature set.")]
     public class BeepFlyoutMenu : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FlyoutPanel;
         private BeepButton _dropDownButton;
         private BeepLabel _dropDownLabel;
         private BeepListBox _menu;

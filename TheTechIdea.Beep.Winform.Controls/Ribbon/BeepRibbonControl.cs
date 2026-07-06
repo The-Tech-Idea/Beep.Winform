@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Text.Json;
@@ -16,6 +16,7 @@ using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 using TheTechIdea.Beep.Winform.Controls.Tokens;
 using TheTechIdea.Beep.Winform.Controls.Tooltips;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -26,5 +27,6 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Designer("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepRibbonControlDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
     public partial class BeepRibbonControl : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.NavBar;
     }
 }

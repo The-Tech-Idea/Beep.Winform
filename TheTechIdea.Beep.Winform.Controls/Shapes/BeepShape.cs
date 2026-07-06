@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Shapes
 {
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Shapes
     [DisplayName("Beep Shape")]
     public class BeepShape : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Shape;
         #region Fields
         private bool isDragging = false;
         private Point dragStart;

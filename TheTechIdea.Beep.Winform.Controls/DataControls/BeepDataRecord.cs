@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using System;
@@ -29,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
     public class BeepDataRecord : BaseControl, IEditableObject
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DataRecord;
         #region Properties
 
         private Type _currentRowType;

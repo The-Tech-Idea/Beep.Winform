@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,11 +7,13 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 {
     public partial class BeepProjectCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardProject;
         private readonly Dictionary<ProjectCardPainterKind, IProjectCardPainter> _painters = new();
         private ProjectCardPainterKind _painterKind = ProjectCardPainterKind.CompactProgress;
         private Dictionary<string, object> _parameters = new();

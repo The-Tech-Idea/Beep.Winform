@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Models;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {
@@ -31,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
     [Description("Calendar widget for scheduling, time management, event display, and date selection.")]
     public class BeepCalendarWidget : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Card;
         #region Fields
         private CalendarWidgetStyle _style = CalendarWidgetStyle.CalendarView;
         private IWidgetPainter _painter;

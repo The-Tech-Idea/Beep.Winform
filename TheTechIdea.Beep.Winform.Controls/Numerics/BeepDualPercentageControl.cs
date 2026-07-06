@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Numerics
 {
@@ -14,6 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
     [Description("A themed control to display two labeled percentages with an icon on the left section.")]
     public class BeepDualPercentageControl : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.DualPercentage;
         private BeepLabel lblLeftIcon;
         private BeepLabel lblLeftLabel;
         private BeepLabel lblLeftPercentage;
@@ -47,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Numerics
             // Left Section Icon
             lblLeftIcon = new BeepLabel
             {
-                Text = "🌙",
+                Text = "ðŸŒ™",
                 Font = fallbackFont,
                 ForeColor = Color.White,
                 AutoSize = true,

@@ -1,9 +1,11 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Badges
 {
     public class BeepFloatingBadge : UserControl, IBeepBadge
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Badge;
         private Control? _target;
         private BadgeLocation _location = new();
         private bool _showDropShadow = true;
@@ -294,11 +296,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Badges
             // Middle anchors (MiddleLeft, MiddleRight, MiddleCenter) center on the side.
             if (currentBounds.Left + halfW == targetBounds.Left + targetBounds.Width / 2)
             {
-                // Centered horizontally — don't shift X.
+                // Centered horizontally â€” don't shift X.
             }
             if (currentBounds.Top + halfH == targetBounds.Top + targetBounds.Height / 2)
             {
-                // Centered vertically — don't shift Y.
+                // Centered vertically â€” don't shift Y.
             }
 
             return new Rectangle(newX, newY, currentBounds.Width, currentBounds.Height);

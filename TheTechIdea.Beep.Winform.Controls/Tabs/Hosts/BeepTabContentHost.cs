@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 {
@@ -12,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
     [Description("Container host for premium tab content presentation.")]
     public class BeepTabContentHost : ContainerControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.TabHost;
         private Control? _hostedContent;
         private bool _applyingPageLayout;
 
@@ -63,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Tabs.Hosts
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            // Intentionally empty – children paint themselves.
+            // Intentionally empty â€“ children paint themselves.
         }
 
         public void AddPage(Control page)

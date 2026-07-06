@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.AppBars.StylePainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
     [Description("Modern website-style header with tabs, search, and action buttons")]
     public class BeepWebHeaderAppBar : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.WebHeaderAppBar;
         #region Events
 
         public event EventHandler<SelectedItemChangedEventArgs> TabSelected;

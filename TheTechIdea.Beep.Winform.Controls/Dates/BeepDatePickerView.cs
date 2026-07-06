@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -17,6 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A modern calendar view control optimized for date selection with clean design.")]
     public class BeepDatePickerView : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.FieldDateView;
         #region Fields
         private DateTime _currentMonth;
         private DateTime? _selectedDateTime;

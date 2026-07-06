@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.ToolTips;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.ListBoxs;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,6 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A card control that displays a list of features with a logo and title using BeepListBox.")]
     public class BeepFeatureCard : BaseControl
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.CardFeature;
         #region "Fields"
         private BeepListBox featuresListBox;
         
@@ -577,7 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 for (int i = 0; i < maxFeatures; i++)
                 {
                     if (!string.IsNullOrEmpty(bulletPoints[i].Text))
-                        tooltipText += $"\n• {bulletPoints[i].Text}";
+                        tooltipText += $"\nâ€¢ {bulletPoints[i].Text}";
                 }
                 if (bulletPoints.Count > maxFeatures)
                     tooltipText += $"\n... and {bulletPoints.Count - maxFeatures} more";

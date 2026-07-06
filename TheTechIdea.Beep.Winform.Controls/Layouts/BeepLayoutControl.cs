@@ -253,17 +253,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    base.OnPaint(e);
 
-            // Background and optional Style using BeepStyling
-            BeepStyling.PaintStyleBackground(e.Graphics, DrawingRect,ControlStyle);
+        //    // Background and optional Style using BeepStyling
+        //    BeepStyling.PaintStyleBackground(e.Graphics, DrawingRect,ControlStyle);
 
-            // Optional: draw a subtle border using current theme
-            var themeBorder = BeepStyling.GetThemeColor("Border");
-            using var pen = new Pen(themeBorder.IsEmpty ? Color.Silver : themeBorder);
-            e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
-        }
+        //    // Optional: draw a subtle border using current theme
+        //    var themeBorder = BeepStyling.GetThemeColor("Border");
+        //    using var pen = new Pen(themeBorder.IsEmpty ? Color.Silver : themeBorder);
+        //    e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
+        //}
     }
 }

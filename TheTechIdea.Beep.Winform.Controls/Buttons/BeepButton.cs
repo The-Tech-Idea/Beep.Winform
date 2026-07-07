@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using ContentAlignment = System.Drawing.ContentAlignment;
@@ -578,7 +579,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowAllBorders = false;
             BorderThickness = 0;
         }
-        protected override Size DefaultSize => new Size(100, 36);
+        protected override Size DefaultSize => BeepLayoutMetrics.ButtonStandard;
         #endregion "Constructor"
         #region "Popup List Methods"
 

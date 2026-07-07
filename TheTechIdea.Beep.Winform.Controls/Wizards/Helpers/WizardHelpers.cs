@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.FontManagement;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
@@ -15,28 +14,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
     /// </summary>
     public static class WizardHelpers
     {
+        /// <summary>
+        /// Resolve a font from theme typography, with theme-consistent fallback.
+        /// Uses BeepThemesManager.ToFont exclusively — no direct BeepFontManager usage.
+        /// </summary>
         public static Font GetFont(IBeepTheme? theme, TypographyStyle? style, float fallbackSize, FontStyle fallbackStyle)
         {
             if (style != null)
-                return BeepThemesManager.ToFont(style)
-                    ?? BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
+            {
+                var font = BeepThemesManager.ToFont(style);
+                if (font != null) return font;
+            }
 
             if (theme?.BodyStyle != null && fallbackStyle == FontStyle.Regular)
-                return BeepThemesManager.ToFont(theme.BodyStyle)
-                    ?? BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
+            {
+                var font = BeepThemesManager.ToFont(theme.BodyStyle);
+                if (font != null) return font;
+            }
 
-            return BeepFontManager.GetFont(BeepFontManager.DefaultFontName, fallbackSize, fallbackStyle);
+            // Theme-consistent fallback using BodyMedium as the base typography
+            var fallbackTypo = theme?.BodyStyle
+                ?? theme?.BodyMedium
+                ?? BeepThemesManager.CurrentTheme?.BodyMedium;
+            return BeepThemesManager.ToFont(fallbackTypo)
+                ?? SystemFonts.DefaultFont;
         }
 
+        /// <summary>
+        /// Gets error color from theme token, with a sensible default fallback.
+        /// </summary>
         public static Color GetErrorColor(IBeepTheme? theme)
         {
-            return theme?.ErrorColor ?? Color.FromArgb(200, 50, 50);
+            if (theme?.ErrorColor != null && theme.ErrorColor != Color.Empty)
+                return theme.ErrorColor;
+            if (BeepThemesManager.CurrentTheme?.ErrorColor != null
+                && BeepThemesManager.CurrentTheme.ErrorColor != Color.Empty)
+                return BeepThemesManager.CurrentTheme.ErrorColor;
+            return Color.FromArgb(200, 50, 50); // Fallback red
         }
 
+        /// <summary>
+        /// Gets warning background color derived from theme error token.
+        /// </summary>
         public static Color GetWarningBackColor(IBeepTheme? theme)
         {
-            if (theme == null) return Color.FromArgb(255, 235, 235);
-            return Color.FromArgb(40, theme.ErrorColor);
+            var errorColor = GetErrorColor(theme);
+            return Color.FromArgb(40, errorColor);
         }
 
         /// <summary>

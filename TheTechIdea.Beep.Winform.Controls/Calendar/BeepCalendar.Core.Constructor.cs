@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Winform.Controls.Calendar.Editor;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Editor.SampleEditors;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
@@ -22,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             catch { /* designer safety */ }
 
             InitializeDefaultCategories();
-            Size = new Size(800, 600);
+            Size = BeepLayoutMetrics.Calendar.ScaleSize(this);
             _eventService = new CalendarEventService(_events);
             ConfigureEventServiceTelemetry();
             _layout = new CalendarLayoutManager(this, _state, _rects);

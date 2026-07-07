@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
 using TheTechIdea.Beep.Winform.Controls.GridX;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -82,9 +83,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int FocusedCellFillOpacity { get; set; } = 36;
         public bool ShowFocusedCellBorder { get; set; } = true;
         public Color FocusedCellBorderColor { get; set; } = Color.Empty;
-        public float FocusedCellBorderWidth { get; set; } = 2f;
+        public float FocusedCellBorderWidth { get; set; } = BeepLayoutMetrics.GridFocusBorderW;
 
         internal IBeepTheme Theme => _grid.Theme != null ? BeepThemesManager.GetTheme(_grid.Theme) : BeepThemesManager.GetDefaultTheme();
+
+        /// <summary>Cached bold version of the header font. Created once per font change;
+        /// reused across all header-cell draws to avoid the per-draw <c>new Font(...)</c>
+        /// allocation that was visible in the toolbar paint profile.</summary>
+        private Font? _cachedBoldHeaderFont;
+        private Font? _cachedBoldBaseFont; // tracks which base font the bold variant was built from
+
+        /// <summary>
+        /// Returns the bold header font, creating it once per base-font change. The previous
+        /// instance is disposed when the base font changes. Do not dispose the returned font
+        /// — it is owned by this helper.
+        /// </summary>
+        internal Font GetBoldHeaderFont(Font baseFont)
+        {
+            if (baseFont == null) return SystemFonts.DefaultFont;
+            if (!ReferenceEquals(baseFont, _cachedBoldBaseFont) || _cachedBoldHeaderFont == null)
+            {
+                _cachedBoldHeaderFont?.Dispose();
+                _cachedBoldHeaderFont = new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold);
+                _cachedBoldBaseFont = baseFont;
+            }
+            return _cachedBoldHeaderFont;
+        }
+
+        internal void DisposeFontCache()
+        {
+            _cachedBoldHeaderFont?.Dispose();
+            _cachedBoldHeaderFont = null;
+            _cachedBoldBaseFont = null;
+        }
     }
 }
 

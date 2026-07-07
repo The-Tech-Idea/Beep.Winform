@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private bool IsDesignModeSafe => LicenseManager.UsageMode == LicenseUsageMode.Designtime || DesignMode || (Site?.DesignMode ?? false);
 
         // Exposed paddings for title & grid
-        [Browsable(true)] [Category("Layout")] public int HeaderLeftPadding { get; set; } = 160; // min
+        [Browsable(true)] [Category("Layout")] public int HeaderLeftPadding { get; set; } = CalendarTokens.HeaderLeftPadding;
         [Browsable(true)] [Category("Layout")] public int HeaderRightPadding { get; set; } = CalendarLayoutMetrics.HeaderRightPadding;
         [Browsable(true)] [Category("Layout")] public int GridLeftGutter { get; set; } = 0;
     }

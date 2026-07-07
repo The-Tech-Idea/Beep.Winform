@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Drawing;
 using System.Linq;
@@ -353,9 +354,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public int ClampColumnWidth(BeepColumnConfig column, int desiredWidth)
         {
-            if (column == null) return Math.Max(20, desiredWidth);
+            if (column == null) return Math.Max(BeepLayoutMetrics.GridColumnMinW, desiredWidth);
 
-            int min = Math.Max(20, column.MinWidth);
+            int min = Math.Max(BeepLayoutMetrics.GridColumnMinW, column.MinWidth);
             int clamped = Math.Max(min, desiredWidth);
             if (column.MaxWidth > 0)
             {

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
@@ -23,9 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private Point _currentMousePos;
         private int _dropTargetIndex = -1;
         
-        // Visual feedback settings
-        private const int DragThreshold = 5; // Pixels before drag starts
-        private const int DropLineWidth = 2;
+        // Visual feedback settings (BeepLayoutMetrics tokens)
+        private int DragThreshold => BeepLayoutMetrics.GridDragThreshold;
+        private int DropLineWidth => BeepLayoutMetrics.GridDropLineW;
         private readonly Color _dropLineColor = Color.DodgerBlue;
         private readonly Color _dragHeaderAlpha = Color.FromArgb(128, 100, 150, 255);
 

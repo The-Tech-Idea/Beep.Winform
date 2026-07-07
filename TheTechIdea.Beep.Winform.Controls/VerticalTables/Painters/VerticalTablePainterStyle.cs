@@ -24,6 +24,14 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Painters
         /// <summary>Rating/Score comparison with star ratings and score displays.</summary>
         Style9 = 8,
         /// <summary>Specification comparison table with category grouping.</summary>
-        Style10 = 9
+        Style10 = 9,
+        /// <summary>Card-based pricing layout with shadow, equal-height columns, gradient "Featured" accent.</summary>
+        Style11 = 10,
+        /// <summary>Horizontal-scroll feature matrix with sticky headers, zebra stripes, and check/cross icons.</summary>
+        Style12 = 11,
+        /// <summary>Minimal comparison with no column fill, thin borders only, optimized for embedded content.</summary>
+        Style13 = 12,
+        /// <summary>Dark terminal theme with neon borders and glow effects on hover/selection.</summary>
+        Style14 = 13
     }
 }

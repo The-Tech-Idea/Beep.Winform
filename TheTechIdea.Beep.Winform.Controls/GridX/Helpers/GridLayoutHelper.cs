@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -9,31 +10,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal class GridLayoutHelper
     {
         private readonly BeepGridPro _grid;
-        
-        // Scrollbar dimensions (must match GridScrollBarsHelper constants)
-        private const int SCROLLBAR_WIDTH = 15;
-        private const int SCROLLBAR_HEIGHT = 15;
-        
-        public int RowHeight { get; set; } = 25;
-        public int ColumnHeaderHeight { get; set; } = 28;
+
+        // Scrollbar dimensions — single source of truth (GridScrollBarsHelper reads these
+        // from the layout helper rather than duplicating the constants).
+        public int ScrollbarWidth  { get; internal set; } = BeepLayoutMetrics.GridScrollbarW;
+        public int ScrollbarHeight { get; internal set; } = BeepLayoutMetrics.GridScrollbarW;
+
+        public int RowHeight { get; set; } = BeepLayoutMetrics.GridRowHeight;
+        public int ColumnHeaderHeight { get; set; } = BeepLayoutMetrics.GridHeaderHeight;
         public bool ShowColumnHeaders { get; set; } = true;
         public Rectangle HeaderRect { get; private set; }
         public Rectangle TopFilterRect { get; private set; } = Rectangle.Empty;
         public Rectangle ToolbarRect { get; private set; } = Rectangle.Empty;
-        public int ToolbarHeight { get; set; } = 36;
+        public int ToolbarHeight { get; set; } = BeepLayoutMetrics.DataNavigator.Height;
         public Rectangle ColumnsHeaderRect { get; private set; }
         public Rectangle FooterRect { get; private set; }
         public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
         public Rectangle RowsRect { get; private set; }
-        public Rectangle RowsRectWithScrollbars { get; private set; } // Full area including scrollbar space
+        public Rectangle RowsRectWithScrollbars { get; private set; }
         public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
         public Rectangle[] HeaderCellRects { get; private set; } = System.Array.Empty<Rectangle>();
-        public int NavigatorHeight { get; set; } = 36;
-        public int TopFilterHeight { get; set; } = 34;
+        public int NavigatorHeight { get; set; } = BeepLayoutMetrics.DataNavigator.Height;
+        public int TopFilterHeight { get; set; } = BeepLayoutMetrics.FieldStandard.Height;
         public bool ShowTopFilterPanel { get; set; } = true;
-        
-        public int CheckBoxColumnWidth { get; set; } = 30; // Add checkbox column width like BeepSimpleGrid
-     
+
+        public int CheckBoxColumnWidth { get; set; } = (int)(BeepLayoutMetrics.MinTouchTarget * 0.68f); // ~30 px at 96 DPI
+
         public bool IsCalculating { get; private set; }
         public int HoveredHeaderColumnIndex { get; internal set; }
 
@@ -112,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 
                 // Check if horizontal scrollbar is needed
-                int totalColumnWidth = _grid.Data?.Columns?.Where(c => c.Visible).Sum(c => Math.Max(20, c.Width)) ?? 0;
+                int totalColumnWidth = _grid.Data?.Columns?.Where(c => c.Visible).Sum(c => Math.Max(BeepLayoutMetrics.GridColumnMinW, c.Width)) ?? 0;
                 
                 int availableHeight = r.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0);
                 if (_grid.ShowNavigator && NavigatorHeight > 0)
@@ -124,8 +126,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 bool needsHorizontalScrollbar = totalColumnWidth > r.Width;
                 
                 // Reserve space for scrollbars
-                int scrollbarWidth = needsVerticalScrollbar ? SCROLLBAR_WIDTH : 0;
-                int scrollbarHeight = needsHorizontalScrollbar ? SCROLLBAR_HEIGHT : 0;
+                int scrollbarWidth = needsVerticalScrollbar ? ScrollbarWidth : 0;
+                int scrollbarHeight = needsHorizontalScrollbar ? ScrollbarHeight : 0;
                 
                 int top = r.Top;
 
@@ -134,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     int tbHeight = Math.Min(ToolbarHeight, Math.Max(0, r.Height));
                     if (tbHeight > 0)
                     {
-                        int tbWidth = Math.Max(0, r.Width - (needsVerticalScrollbar ? SCROLLBAR_WIDTH : 0));
+                        int tbWidth = Math.Max(0, r.Width - (needsVerticalScrollbar ? ScrollbarWidth : 0));
                         ToolbarRect = new Rectangle(r.Left, top, tbWidth, tbHeight);
                         top += tbHeight;
                     }
@@ -264,7 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 .OrderBy(c => c.DisplayOrder)
                 .ToList();
             
-            int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
+            int stickyWidth = stickyColumns.Sum(c => Math.Max(BeepLayoutMetrics.GridColumnMinW, c.Width));
             stickyWidth = Math.Min(stickyWidth, RowsRect.Width); // Prevent overflow
 
             int unpinnedStartX = RowsRect.Left + stickyWidth - _grid.Scroll.HorizontalOffset;
@@ -279,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int i = _grid.Data.Columns.IndexOf(col);
                 if (i < 0) continue;
                 
-                int w = Math.Max(20, col.Width);
+                int w = Math.Max(BeepLayoutMetrics.GridColumnMinW, col.Width);
                 
                 if (w > 0 && HeaderRect.Height > 0 && px >= 0)
                 {
@@ -301,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int i = _grid.Data.Columns.IndexOf(col);
                 if (i < 0) continue;
                 
-                int w = Math.Max(20, col.Width);
+                int w = Math.Max(BeepLayoutMetrics.GridColumnMinW, col.Width);
                 
                 if (w > 0 && HeaderRect.Height > 0 && ux >= 0)
                 {
@@ -472,7 +474,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     var col = _grid.Data.Columns[c];
                     if (!col.Visible) continue;
                     
-                    int w = Math.Max(20, col.Width);
+                    int w = Math.Max(BeepLayoutMetrics.GridColumnMinW, col.Width);
                     cell.Rect = new Rectangle(xmap[c], y, w, h);
                 }
                 y += h; // Use individual row height for positioning
@@ -502,10 +504,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.Font != null)
             {
                 int baseFontHeight = FontManagement.FontListHelper.GetFontHeightSafe(_grid.Font, _grid);
-                int baseCellPadding = 2; // Base padding value
-                int cellPadding = DpiScalingHelper.ScaleValue(baseCellPadding, dpiScale);
-                int spacing = DpiScalingHelper.ScaleValue(4, dpiScale); // DPI-scaled spacing
-                RowHeight = baseFontHeight + (cellPadding * 2) + spacing;
+                int cellPadding = DpiScalingHelper.ScaleValue(BeepLayoutMetrics.GridCellPadding, dpiScale);
+                int spacing = DpiScalingHelper.ScaleValue(BeepLayoutMetrics.GridCellPadding, dpiScale);
+                RowHeight = System.Math.Max(DpiScalingHelper.ScaleValue(BeepLayoutMetrics.MinTouchTarget, dpiScale),
+                    baseFontHeight + (cellPadding * 2) + spacing);
             }
 
             // Calculate navigator height if enabled (font-aware and DPI-aware)

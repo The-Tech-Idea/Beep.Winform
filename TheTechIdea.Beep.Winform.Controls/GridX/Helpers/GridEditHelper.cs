@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Data;
 using System.Drawing;
@@ -163,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 rect = new Rectangle(Math.Max(0, _grid.Layout.RowsRect.Left + 2),
                                      Math.Max(0, _grid.Layout.RowsRect.Top + 2),
-                                     Math.Max(20, col.Width),
+                                     Math.Max(BeepLayoutMetrics.GridColumnMinW, col.Width),
                                      Math.Max(18, _grid.RowHeight));
             }
 

@@ -32,10 +32,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             var todayCircle   = Color.FromArgb(103, 80, 164);
             var todayTextClr  = Color.White;
 
-            // ── layout ─────────────────────────────────────────────────────────
-            const int headerH = 46;
-            const int dayRowH = 26;
-            const int rows    = 6;
+            // ── layout (DPI-scaled for designer process) ────────────────────────
+            int headerH = ScaleMetric(CalendarTokens.HeaderHeight);
+            int dayRowH = ScaleMetric(CalendarTokens.DayHeaderHeight);
+            const int rows = 6;
             int gridTop   = headerH + dayRowH;
             int cellW     = Math.Max(1, bounds.Width / 7);
             int cellH     = Math.Max(1, (bounds.Height - gridTop) / rows);
@@ -111,10 +111,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
                         if (isToday)
                         {
-                            int d  = Math.Min(cellW, cellH) - 10;
-                            d      = Math.Max(d, 16);
+                            int todayPad  = ScaleMetric(10);
+                            int todayMin  = ScaleMetric(16);
+                            int todayOffY = ScaleMetric(4);
+                            int d  = Math.Min(cellW, cellH) - todayPad;
+                            d      = Math.Max(d, todayMin);
                             int cx = cellRect.X + (cellRect.Width  - d) / 2;
-                            int cy = cellRect.Y + 4;
+                            int cy = cellRect.Y + todayOffY;
                             using (var todayBr = new SolidBrush(todayCircle))
                                 g.FillEllipse(todayBr, cx, cy, d, d);
                             using (var todayFr = new SolidBrush(todayTextClr))
@@ -123,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                         }
                         else
                         {
-                            var textRect = new Rectangle(cellRect.X, cellRect.Y + 3, cellRect.Width - 4, 18);
+                            var textRect = new Rectangle(cellRect.X, cellRect.Y + ScaleMetric(3), cellRect.Width - ScaleMetric(4), ScaleMetric(18));
                             g.DrawString(display.ToString(), numFont,
                                 isCurrent ? dayBrush : otherBrush,
                                 textRect, rightSf);
@@ -133,7 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             }
 
             // ── outer border ───────────────────────────────────────────────────
-            using (var outerPen = new Pen(Color.FromArgb(200, 200, 200), 1f))
+            using (var outerPen = new Pen(_currentTheme?.BorderColor ?? Color.FromArgb(200, 200, 200), 1f))
                 g.DrawRectangle(outerPen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
         }
     }

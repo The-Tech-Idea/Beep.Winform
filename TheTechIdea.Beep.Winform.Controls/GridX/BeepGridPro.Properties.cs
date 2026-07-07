@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using Math = System.Math;
 using TheTechIdea.Beep.Winform.Controls.GridX.Selection;
 using navigationStyle = TheTechIdea.Beep.Winform.Controls.GridX.Painters.navigationStyle;
@@ -216,9 +217,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => Layout.RowHeight;
             set
             {
-                if (Layout.RowHeight != System.Math.Max(18, value))
+                int min = BeepLayoutMetrics.MinTouchTarget.ScaleValue(this);
+                if (Layout.RowHeight != System.Math.Max(min, value))
                 {
-                    Layout.RowHeight = System.Math.Max(18, value);
+                    Layout.RowHeight = System.Math.Max(min, value);
                     if (!DesignMode) SafeInvalidate();
                 }
             }
@@ -231,9 +233,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => Layout.ColumnHeaderHeight;
             set
             {
-                if (Layout.ColumnHeaderHeight != System.Math.Max(22, value))
+                int min = BeepLayoutMetrics.MinTouchTarget.ScaleValue(this);
+                if (Layout.ColumnHeaderHeight != System.Math.Max(min, value))
                 {
-                    Layout.ColumnHeaderHeight = System.Math.Max(22, value);
+                    Layout.ColumnHeaderHeight = System.Math.Max(min, value);
                     if (!DesignMode) SafeInvalidate();
                 }
             }
@@ -319,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             get => Layout.TopFilterHeight;
             set
             {
-                int clamped = System.Math.Max(24, value);
+                int clamped = System.Math.Max(BeepLayoutMetrics.MinTouchTarget.ScaleValue(this), value);
                 if (Layout.TopFilterHeight != clamped)
                 {
                     Layout.TopFilterHeight = clamped;
@@ -879,7 +882,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Category("Layout")]
         [DefaultValue(2)]
         [Description("Padding added to auto-sized row heights (in pixels)")]
-        public int RowAutoSizePadding { get; set; } = 2;
+        public int RowAutoSizePadding { get; set; } = BeepLayoutMetrics.GridCellPadding;
 
         [Browsable(true)]
         [Category("Layout")]
@@ -1042,48 +1045,57 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color of the toolbar.")]
-        public Color ToolbarBackColor { get; set; } = Color.FromArgb(248, 249, 250);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Background color of the toolbar. Color.Empty = use theme BackgroundColor.")]
+        public Color ToolbarBackColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Foreground color of toolbar icons and text.")]
-        public Color ToolbarForeColor { get; set; } = Color.FromArgb(33, 37, 41);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Foreground color of toolbar icons and text. Color.Empty = use theme ForeColor.")]
+        public Color ToolbarForeColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Placeholder text color in the search box.")]
-        public Color ToolbarPlaceholderColor { get; set; } = Color.FromArgb(150, 150, 150);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Placeholder text color in the search box. Color.Empty = use theme DisabledForeColor.")]
+        public Color ToolbarPlaceholderColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color of the search box.")]
-        public Color ToolbarSearchBackColor { get; set; } = Color.White;
+        [DefaultValue(typeof(Color), "")]
+        [Description("Background color of the search box. Color.Empty = use theme BackgroundColor.")]
+        public Color ToolbarSearchBackColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color of the search box when focused.")]
-        public Color ToolbarSearchFocusBackColor { get; set; } = Color.FromArgb(240, 245, 255);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Background color of the search box when focused. Color.Empty = use theme SelectedBackgroundColor.")]
+        public Color ToolbarSearchFocusBackColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Border color of the search box.")]
-        public Color ToolbarBorderColor { get; set; } = Color.FromArgb(200, 200, 200);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Border color of the search box. Color.Empty = use theme BorderColor.")]
+        public Color ToolbarBorderColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color of toolbar buttons on hover.")]
-        public Color ToolbarButtonHoverBackColor { get; set; } = Color.FromArgb(230, 235, 240);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Background color of toolbar buttons on hover. Color.Empty = use theme HoverBackgroundColor.")]
+        public Color ToolbarButtonHoverBackColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Background color of toolbar buttons when pressed.")]
-        public Color ToolbarButtonPressedBackColor { get; set; } = Color.FromArgb(210, 220, 230);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Background color of toolbar buttons when pressed. Color.Empty = use theme PressedBackgroundColor.")]
+        public Color ToolbarButtonPressedBackColor { get; set; } = Color.Empty;
 
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Color of separator lines between toolbar sections.")]
-        public Color ToolbarSeparatorColor { get; set; } = Color.FromArgb(220, 220, 220);
+        [DefaultValue(typeof(Color), "")]
+        [Description("Color of separator lines between toolbar sections. Color.Empty = use theme BorderColor.")]
+        public Color ToolbarSeparatorColor { get; set; } = Color.Empty;
 
         private bool _showToolbarTooltips = true;
         [Browsable(true)]

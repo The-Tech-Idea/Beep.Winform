@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Images;
@@ -223,7 +224,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
         }
 
-        protected override Size DefaultSize => new Size(200, 34);
+        protected override Size DefaultSize => BeepLayoutMetrics.FieldStandard;
 
         #endregion
 

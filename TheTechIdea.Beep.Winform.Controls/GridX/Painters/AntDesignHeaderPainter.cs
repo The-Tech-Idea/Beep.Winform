@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -72,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters
 
             // Calculate sticky regions for proper layering
             var stickyColumns = grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
-            int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
+            int stickyWidth = stickyColumns.Sum(c => Math.Max(BeepLayoutMetrics.GridColumnMinW, c.Width));
             stickyWidth = Math.Min(stickyWidth, headerRect.Width);
 
             Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);

@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -122,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Accessibility
             int x = rowsRect.Left;
             foreach (var col in _grid.Data.Columns.Where(c => c.Visible).OrderBy(c => c.DisplayOrder))
             {
-                int w = Math.Max(20, col.Width);
+                int w = Math.Max(BeepLayoutMetrics.GridColumnMinW, col.Width);
                 if (clientX >= x && clientX < x + w) return _grid.Data.Columns.IndexOf(col);
                 x += w;
             }

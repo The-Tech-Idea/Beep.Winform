@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private bool _resizingHeaderRow;
         private bool _resizingDataRow;
         private int _resizingRowIndex = -1;
-        private int _resizeMargin = 3;
+        private int _resizeMargin = BeepLayoutMetrics.GridResizeHandle;
         private bool _mouseDownHandledByTopFilterPanel;
 
         // Cached nav button rects per paint (computed in render). We recompute on the fly here for simplicity
@@ -63,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_resizingHeaderRow)
             {
                 int dy = e.Y - _mouseDown.Y;
-                _grid.ColumnHeaderHeight = Math.Max(22, _grid.ColumnHeaderHeight + dy);
+                _grid.ColumnHeaderHeight = Math.Max(BeepLayoutMetrics.GridHeaderMinH, _grid.ColumnHeaderHeight + dy);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
                 _grid.SafeInvalidate();
@@ -76,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 int dy = e.Y - _mouseDown.Y;
                 var row = _grid.Data.Rows[_resizingRowIndex];
-                int newHeight = Math.Max(18, (row.Height > 0 ? row.Height : _grid.RowHeight) + dy);
+                int newHeight = Math.Max(BeepLayoutMetrics.GridRowMinHeight, (row.Height > 0 ? row.Height : _grid.RowHeight) + dy);
                 row.Height = newHeight;
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();

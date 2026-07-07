@@ -115,15 +115,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             //   - any of the toolbar appearance colors (so a runtime
             //     color change from the property grid is reflected)
             var theme = Theme;
-            var back = _grid.ToolbarBackColor;
-            var fore = _grid.ToolbarForeColor;
-            var placeholder = _grid.ToolbarPlaceholderColor;
-            var searchBack = _grid.ToolbarSearchBackColor;
-            var searchFocus = _grid.ToolbarSearchFocusBackColor;
-            var border = _grid.ToolbarBorderColor;
-            var hover = _grid.ToolbarButtonHoverBackColor;
-            var pressed = _grid.ToolbarButtonPressedBackColor;
-            var separator = _grid.ToolbarSeparatorColor;
+            // Theme-aware resolution: each grid property defaults to Color.Empty
+            // (sentinel = "use theme").  When the property value is Color.Empty,
+            // resolve the color from the active IBeepTheme.  Fall back to
+            // ThemeFallback (the same Bootstrap-light palette the grid shipped
+            // with) so existing hosts see no visual change.
+            var back       = ResolveToolbarColor(_grid.ToolbarBackColor,              theme?.BackgroundColor ?? ThemeFallback.Back);
+            var fore       = ResolveToolbarColor(_grid.ToolbarForeColor,              theme?.ForeColor ?? ThemeFallback.Fore);
+            var placeholder = ResolveToolbarColor(_grid.ToolbarPlaceholderColor,       ThemeFallback.Placeholder);
+            var searchBack  = ResolveToolbarColor(_grid.ToolbarSearchBackColor,        theme?.BackgroundColor ?? ThemeFallback.SearchBack);
+            var searchFocus = ResolveToolbarColor(_grid.ToolbarSearchFocusBackColor,   theme?.SelectedRowBackColor ?? ThemeFallback.SearchFocusBack);
+            var border      = ResolveToolbarColor(_grid.ToolbarBorderColor,            theme?.BorderColor ?? ThemeFallback.Border);
+            var hover       = ResolveToolbarColor(_grid.ToolbarButtonHoverBackColor,   ThemeFallback.Hover);
+            var pressed     = ResolveToolbarColor(_grid.ToolbarButtonPressedBackColor, ThemeFallback.Pressed);
+            var separator   = ResolveToolbarColor(_grid.ToolbarSeparatorColor,         theme?.BorderColor ?? ThemeFallback.Separator);
+
+            _cachedBackBrush           = new SolidBrush(back);
             if (ReferenceEquals(theme, _cachedTheme) && state.DpiScale == _cachedDpiScale
                 && ReferenceEquals(_grid.Font, _cachedLabelFont)
                 && back == _cachedBackColor
@@ -160,11 +167,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
             _cachedButtonPressedColor = pressed;
             _cachedSeparatorColor = separator;
 
-            _cachedBackBrush = new SolidBrush(back);
-            _cachedHoverBrush = new SolidBrush(hover);
-            _cachedPressedBrush = new SolidBrush(pressed);
-            _cachedSearchBackBrush = new SolidBrush(searchBack);
-            _cachedSearchFocusBackBrush = new SolidBrush(searchFocus);
             _cachedSearchForeBrush = new SolidBrush(fore);
             _cachedSearchPlaceholderBrush = new SolidBrush(placeholder);
             _cachedLabelForeBrush = new SolidBrush(fore);
@@ -208,6 +210,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Toolbar
                 _cachedLabelForeBrush = _cachedWhiteBrush = _cachedBadgeBrush = null;
             _cachedBorderPen = _cachedSeparatorPen = _cachedChevronPen = _cachedSearchFocusBorderPen = null;
             _cachedTitleFont = _cachedBadgeFont = null;
+        }
+
+                /// <summary>
+        /// Returns <paramref name="propertyValue"/> when it is not
+        /// <see cref="Color.Empty"/>, otherwise the <paramref name="fallback"/>.
+        /// The grid properties default to <c>Color.Empty</c> (sentinel = "use
+        /// theme"); the fallback is the theme-resolved color from
+        /// <see cref="EnsurePaintCache"/>'s theme resolution step.
+        /// </summary>
+        private static Color ResolveToolbarColor(Color propertyValue, Color fallback)
+            => propertyValue != Color.Empty ? propertyValue : fallback;
+
+        /// <summary>Bootstrap-light fallback palette used when no theme is active.
+        /// These are the same colours the grid shipped with before the theme-aware
+        /// refactor so existing hosts see no visual change.</summary>
+        private static class ThemeFallback
+        {
+            public static readonly Color Back         = Color.FromArgb(248, 249, 250);
+            public static readonly Color Fore         = Color.FromArgb(33, 37, 41);
+            public static readonly Color Placeholder  = Color.FromArgb(150, 150, 150);
+            public static readonly Color SearchBack   = Color.White;
+            public static readonly Color SearchFocusBack = Color.FromArgb(240, 245, 255);
+            public static readonly Color Border       = Color.FromArgb(200, 200, 200);
+            public static readonly Color Hover        = Color.FromArgb(230, 235, 240);
+            public static readonly Color Pressed      = Color.FromArgb(210, 220, 230);
+            public static readonly Color Separator    = Color.FromArgb(220, 220, 220);
         }
 
         private Color ResolveBorderColor()

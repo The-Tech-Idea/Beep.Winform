@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Calendar.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Calendar.Rendering;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Calendar
@@ -69,8 +71,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         {
             if (_toolbarButtons == null) InitializeToolbar();
 
-            int iconSize = ScaleMetric(18);
-            int btnHeight = ScaleMetric(28);
+            int iconSize = ScaleMetric(CalendarTokens.ToolbarIconSize);
+            int btnHeight = Math.Max(ScaleMetric(CalendarTokens.ToolbarButtonHeight), BeepLayoutMetrics.MinTouchTarget);
             int btnPad = ScaleMetric(6);
             int btnGap = ScaleMetric(4);
             int spacerW = ScaleMetric(8);
@@ -128,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             Color accentColor = _currentTheme.PrimaryColor;
             Color hoverBg = Color.FromArgb(25, accentColor);
 
-            int iconSize = ScaleMetric(16);
+            int iconSize = ScaleMetric(CalendarTokens.ToolbarIconSize);
 
             foreach (var btn in _toolbarButtons)
             {
@@ -238,10 +240,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             return _viewPainter.Key == key;
         }
 
-        private static int EstimateTextWidth(string text)
+        private int EstimateTextWidth(string text)
         {
             if (string.IsNullOrEmpty(text)) return 0;
-            return text.Length * 8;
+            return (int)(text.Length * 8 * GetMetricScale());
         }
     }
 }

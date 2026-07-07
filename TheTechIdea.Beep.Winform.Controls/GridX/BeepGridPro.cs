@@ -160,8 +160,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
             //PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
            
-            RowHeight = 25;
-            ColumnHeaderHeight = 28;
+            RowHeight = BeepLayoutMetrics.GridRowHeight;
+            ColumnHeaderHeight = BeepLayoutMetrics.GridHeaderHeight;
             ShowColumnHeaders = true;
             // Unified toolbar replaces the legacy filter panel â€” only one should be visible at a time.
             ShowToolbar = true;

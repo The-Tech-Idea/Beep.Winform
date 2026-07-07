@@ -1,6 +1,8 @@
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

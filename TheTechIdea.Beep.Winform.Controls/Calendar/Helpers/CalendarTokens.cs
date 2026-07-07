@@ -34,5 +34,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Helpers
         public const int SidebarCardHeight = 200;
         public const int SidebarCardGap = 20;
         public const int SidebarWidth = 300;
+
+        // Toolbar
+        public const int ToolbarIconSize = 18;
+        public const int ToolbarButtonHeight = 28;
+        public const int ToolbarButtonPad = 6;
+        public const int ToolbarButtonGap = 4;
+        public const int ToolbarSpacerWidth = 8;
+        public const int ViewSelectorMinWidth = 60;
+        public const int ViewSelectorMinHeight = 24;
+
+        // Event rendering
+        public const int EventBarHeight = 18;
+        public const int EventSpacing = 2;
+
+        // Editor chrome
+        public const int EditorBarHeight = 28;
+        public const int EditorPadding = 8;
+        public const int EditorGap = 6;
+
+        // Layout thresholds
+        public const int HeaderLeftPadding = 160;
+        public const int SidebarMinWidth = 220;
     }
 }

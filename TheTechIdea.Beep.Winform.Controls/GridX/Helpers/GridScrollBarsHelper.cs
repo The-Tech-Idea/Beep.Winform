@@ -30,9 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private bool _isHorizontalThumbDragging = false;
         private Point _lastMousePos;
 
-        // Scrollbar dimensions
-        private const int SCROLLBAR_WIDTH = 15;
-        private const int SCROLLBAR_HEIGHT = 15;
+        // Scrollbar dimensions — single source of truth via GridLayoutHelper
+        private int ScrollbarWidth  => _grid.Layout.ScrollbarWidth;
+        private int ScrollbarHeight => _grid.Layout.ScrollbarHeight;
         private const int MIN_THUMB_SIZE = 20;
 
         // Colors for custom scrollbars
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int borderWidth = 1;
             int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
             int totalColumnWidth = _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width) + totalBorderWidth;
-            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar && maxVerticalOffset > 0 ? SCROLLBAR_WIDTH : 0);
+            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar && maxVerticalOffset > 0 ? ScrollbarWidth : 0);
 
             // Determine if scrollbars are needed
             bool needsVertical = _showVerticalScrollBar && totalRowHeight > visibleHeight;
@@ -147,8 +147,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Position vertical scrollbar at the right edge of the full area
             if (needsVertical)
             {
-                int scrollbarWidth = SCROLLBAR_WIDTH;
-                int scrollbarHeight = fullRect.Height - (needsHorizontal ? SCROLLBAR_HEIGHT : 0);
+                int scrollbarWidth = ScrollbarWidth;
+                int scrollbarHeight = fullRect.Height - (needsHorizontal ? ScrollbarHeight : 0);
 
                 _verticalScrollBarRect = new Rectangle(
                     fullRect.Right - scrollbarWidth,
@@ -176,8 +176,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Position horizontal scrollbar at the bottom edge of the full area
             if (needsHorizontal)
             {
-                int scrollbarHeight = SCROLLBAR_HEIGHT;
-                int scrollbarWidth = fullRect.Width - (needsVertical ? SCROLLBAR_WIDTH : 0);
+                int scrollbarHeight = ScrollbarHeight;
+                int scrollbarWidth = fullRect.Width - (needsVertical ? ScrollbarWidth : 0);
 
                 _horizontalScrollBarRect = new Rectangle(
                     fullRect.Left,
@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void UpdateCachedHorizontalMetrics(int totalColumnWidth, int visibleWidth, bool needsVertical)
         {
-            int scrollbarWidth = needsVertical ? SCROLLBAR_WIDTH : 0;
+            int scrollbarWidth = needsVertical ? ScrollbarWidth : 0;
             _cachedTotalColumnWidth = totalColumnWidth;
             _cachedMaxXOffset = Math.Max(0, totalColumnWidth - (visibleWidth - scrollbarWidth));
         }
@@ -309,8 +309,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 Rectangle cornerBox = new Rectangle(
                     _verticalScrollBarRect.X,
                     _horizontalScrollBarRect.Y,
-                    SCROLLBAR_WIDTH,
-                    SCROLLBAR_HEIGHT
+                    ScrollbarWidth,
+                    ScrollbarHeight
                 );
 
                 using (var brush = new SolidBrush(_scrollbarTrackColor))
@@ -491,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     float ratio = deltaX / scrollbarWidth;
                     int totalColumnWidth = CalculateTotalContentWidth();
-                    int visibleWidth = _grid.Layout.RowsRect.Width - (_verticalScrollBarRect.IsEmpty ? 0 : SCROLLBAR_WIDTH);
+                    int visibleWidth = _grid.Layout.RowsRect.Width - (_verticalScrollBarRect.IsEmpty ? 0 : ScrollbarWidth);
                     int maxOffset = Math.Max(0, totalColumnWidth - visibleWidth);
 
                     int newOffset = _grid.Scroll.HorizontalOffset + (int)(ratio * maxOffset);
@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return; // Already handled by thumb drag
 
             int totalColumnWidth = _cachedTotalColumnWidth;
-            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar ? SCROLLBAR_WIDTH : 0);
+            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar ? ScrollbarWidth : 0);
             int pageSize = visibleWidth;
 
             if (location.X < _horizontalThumbRect.X)

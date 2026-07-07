@@ -10,6 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         public static readonly Size DialogSmall  = new(420, 320);
         public static readonly Size DialogMedium = new(600, 460);
         public static readonly Size DialogLarge  = new(840, 560);
+        public static readonly Size Splash       = new(500, 340);  // Wait / splash screen
 
         // ── Padding ────────────────────────────────────────────────────────
         public static readonly Padding DialogPadding    = new(12);
@@ -149,6 +150,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts.Helpers
         public const float TitleFontSize    = 16f;
         public const float SubtitleFontSize  = 12f;
         public const float BodyFontSize      = 9f;
+
+        // ── Grid-internal metrics (96 DPI design units) ─────────────────────
+        // These drive every BeepGridPro internal dimension.  Each token is
+        // applied with `.ScaleValue(_grid)` / `.ScaleSize(_grid)` by the grid
+        // helpers so the layout tracks the host display scale.
+        public const int GridRowHeight     = 25;   // default data-row height
+        public const int GridHeaderHeight  = 28;   // default column-header height
+        public const int GridRowMinHeight  = 18;   // absolute floor during resize drag
+        public const int GridHeaderMinH    = 22;   // absolute floor for header resize
+        public const int GridColumnMinW    = 20;   // minimum column width — 17 call sites
+        public const int GridCellPadding   = 2;    // cell-text inset (L/T/R/B)
+        public const int GridFocusBorderW  = 2;    // focused-cell border thickness
+        public const int GridScrollbarW    = 15;   // scrollbar track width / height
+        public const int GridResizeHandle  = 3;    // column-resize grab-zone margin
+        public const int GridDragThreshold = 5;    // column-reorder drag threshold
+        public const int GridChevronSize   = 16;   // group-expand chevron icon size
+        public const int GridDropLineW     = 2;    // column-reorder drop-indicator width
+        public static readonly Size ToolbarIconSize = new(18, 18); // toolbar icon bounding box
+        public const int ToolbarIconGap    = 4;    // gap between toolbar icon and label text
 
         // ── DPI-aware helpers ──────────────────────────────────────────────
         public static Size ScaleSize(this Size size, Control control) => DpiScalingHelper.ScaleSize(size, control);

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
  
@@ -228,12 +229,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             EnsureNavigatorButtons();
             SyncButtonThemes();
 
-            // Layout constants
-            const int buttonWidth = 28;
-            const int buttonHeight = 24;
-            const int padding = 8;
-            const int spacing = 6;
-            const int sectionSpacing = 16;
+            // Layout constants (BeepLayoutMetrics tokens)
+            int buttonWidth  = BeepLayoutMetrics.ButtonSmall.Width;
+            int buttonHeight = BeepLayoutMetrics.ButtonSmall.Height;
+            int padding      = BeepLayoutMetrics.ContainerPadding.Left;
+            int spacing      = BeepLayoutMetrics.ButtonGap;
+            int sectionSpacing = BeepLayoutMetrics.ButtonGap * 2;
 
             int y = navRect.Top + (navRect.Height - buttonHeight) / 2;
 

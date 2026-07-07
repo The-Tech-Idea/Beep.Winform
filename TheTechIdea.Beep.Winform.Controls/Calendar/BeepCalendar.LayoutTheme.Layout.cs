@@ -17,7 +17,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             if (contentRect.Width <= 0 || contentRect.Height <= 0)
                 return;
 
-            int toolbarHeight = ScaleMetric(32);
+            int toolbarHeight = ScaleMetric(CalendarTokens.ToolbarButtonHeight + CalendarTokens.ToolbarButtonPad);
+            int sidebarMinWidth = ScaleMetric(CalendarTokens.SidebarMinWidth);
             int sidebarWidth = GetResponsiveSidebarWidth(contentRect.Width);
             _layout.UpdateLayout(contentRect, toolbarHeight, sidebarWidth, ScaleMetric(Math.Max(0, GridLeftGutter)), GetMetricScale(), _viewPainter);
 
@@ -33,8 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 ScaleMetric(CalendarLayoutMetrics.EventInsetX),
                 ScaleMetric(CalendarLayoutMetrics.EventInsetY),
                 ScaleMetric(CalendarLayoutMetrics.MinEventHitHeight),
-                ScaleMetric(16),                     // event bar height
-                ScaleMetric(2),                      // event spacing
+                ScaleMetric(CalendarTokens.EventBarHeight), // event bar height
+                ScaleMetric(CalendarTokens.EventSpacing),   // event spacing
                 ScaleMetric(CalendarLayoutMetrics.SidebarPadding),
                 ScaleMetric(CalendarLayoutMetrics.SidebarCardHeight),
                 ScaleMetric(CalendarLayoutMetrics.SidebarCardGap),
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             if (!_state.ShowSidebar) return 0;
 
             int preferred = ScaleMetric(CalendarLayoutMetrics.SidebarWidth);
-            int minimum = ScaleMetric(220);
+            int minimum = ScaleMetric(CalendarTokens.SidebarMinWidth);
             int width = Math.Min(preferred, Math.Max(0, availableWidth / 3));
             return width >= minimum ? width : 0;
         }

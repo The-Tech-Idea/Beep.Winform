@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.CheckBoxes;
 using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -189,7 +191,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             var stickyColumns = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
-            int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
+            int stickyWidth = stickyColumns.Sum(c => Math.Max(BeepLayoutMetrics.GridColumnMinW, c.Width));
             stickyWidth = Math.Min(stickyWidth, headerRect.Width);
 
             Rectangle stickyRegion = new Rectangle(headerRect.Left, headerRect.Top, stickyWidth, headerRect.Height);
@@ -425,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
 
             var baseFont = GetSafeHeaderFont();
-            var font = UseBoldHeaderText ? new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold) : baseFont;
+            var font = UseBoldHeaderText ? GetBoldHeaderFont(baseFont) : baseFont;
 
             bool isSystemColumn = column.IsSelectionCheckBox || column.IsRowNumColumn || column.IsRowID;
             bool hasSortArea = ShowSortIndicators && SortIconVisibility != HeaderIconVisibility.Hidden && !isSystemColumn && column.AllowSort;
@@ -501,8 +503,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            if (UseBoldHeaderText)
-                font.Dispose();
+            // Skill § perf: bold font is now cached in GridRenderHelper.GetBoldHeaderFont().
+            // No per-draw allocation or dispose needed.
         }
 
         /// <summary>
@@ -532,7 +534,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             using var cardPen = CardStyle ? new Pen(Color.FromArgb(40, gridLineColor), 1) : null;
 
             var stickyColumns = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
-            int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
+            int stickyWidth = stickyColumns.Sum(c => Math.Max(BeepLayoutMetrics.GridColumnMinW, c.Width));
             stickyWidth = Math.Min(stickyWidth, rowsRect.Width);
 
             int currentY = rowsRect.Top;
@@ -611,13 +613,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         lastScrollCol = _grid.ColumnVirtualizer.LastScrollingVisibleIndex;
                         // Advance x past skipped columns so coordinates are correct
                         for (int si = 0; si < firstScrollCol && si < scrollCols.Count; si++)
-                            x += Math.Max(20, scrollCols[si].Col.Width);
+                            x += Math.Max(BeepLayoutMetrics.GridColumnMinW, scrollCols[si].Col.Width);
                     }
 
                     for (int si = firstScrollCol; si <= lastScrollCol && si < scrollCols.Count; si++)
                     {
                         var sc = scrollCols[si];
-                        int colW = Math.Max(20, sc.Col.Width);
+                        int colW = Math.Max(BeepLayoutMetrics.GridColumnMinW, sc.Col.Width);
                         if (x + colW > scrollingRegion.Left && x < scrollingRegion.Right)
                         {
                             if (sc.Index < row.Cells.Count)
@@ -680,7 +682,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int startX = rowsRect.Left;
             foreach (var st in stickyCols)
             {
-                int colW = Math.Max(20, st.Col.Width);
+                int colW = Math.Max(BeepLayoutMetrics.GridColumnMinW, st.Col.Width);
                 drawY = currentY;
                 
                 for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
@@ -823,7 +825,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int x = rowsRect.Left;
             foreach (var st in stickyCols)
             {
-                int colW = Math.Max(20, st.Width);
+                int colW = Math.Max(BeepLayoutMetrics.GridColumnMinW, st.Width);
                 var rect = new Rectangle(x, y, colW, summaryHeight);
                 using (var bg = new SolidBrush(summaryBack)) g.FillRectangle(bg, rect);
 
@@ -850,13 +852,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 firstSumCol = _grid.ColumnVirtualizer.FirstScrollingVisibleIndex;
                 lastSumCol = _grid.ColumnVirtualizer.LastScrollingVisibleIndex;
                 for (int si = 0; si < firstSumCol && si < scrollCols.Count; si++)
-                    x += Math.Max(20, scrollCols[si].Width);
+                    x += Math.Max(BeepLayoutMetrics.GridColumnMinW, scrollCols[si].Width);
             }
 
             for (int si = firstSumCol; si <= lastSumCol && si < scrollCols.Count; si++)
             {
                 var sc = scrollCols[si];
-                int colW = Math.Max(20, sc.Width);
+                int colW = Math.Max(BeepLayoutMetrics.GridColumnMinW, sc.Width);
                 if (x + colW > scrollingRegion.Left && x < scrollingRegion.Right)
                 {
                     var rect = new Rectangle(x, y, colW, summaryHeight);
@@ -936,7 +938,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     Alignment = System.Drawing.Drawing2D.PenAlignment.Inset
                 };
-                var borderRect = Rectangle.Inflate(focusRect, -1, -1);
+                int inset = (int)System.Math.Ceiling(FocusedCellBorderWidth / 2f);
+                var borderRect = Rectangle.Inflate(focusRect, -inset, -inset);
                 if (borderRect.Width > 0 && borderRect.Height > 0)
                     g.DrawRectangle(borderPen, borderRect);
             }

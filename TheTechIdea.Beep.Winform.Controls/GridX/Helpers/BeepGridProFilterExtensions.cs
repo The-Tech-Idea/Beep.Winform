@@ -1,3 +1,4 @@
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -34,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int idx = -1;
             for (int i = 0; i < grid.Columns.Count; i++)
             {
-                int w = Math.Max(20, grid.Columns[i].Width);
+                int w = Math.Max(BeepLayoutMetrics.GridColumnMinW, grid.Columns[i].Width);
                 var rect = new Rectangle(x, layout.HeaderRect.Top, w, layout.HeaderRect.Height);
                 if (rect.Contains(e.Location)) { idx = i; break; }
                 x += w;

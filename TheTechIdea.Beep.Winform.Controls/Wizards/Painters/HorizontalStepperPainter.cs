@@ -83,21 +83,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
         public Rectangle GetContentBounds(Rectangle formBounds)
         {
+            int marginX = DpiScalingHelper.ScaleValue(30, _host);
+            int top = DpiScalingHelper.ScaleValue(110, _host);
+            int bottom = DpiScalingHelper.ScaleValue(180, _host);
             return new Rectangle(
-                formBounds.Left + 30,
-                formBounds.Top + 110,
-                formBounds.Width - 60,
-                formBounds.Height - 180
+                formBounds.Left + marginX,
+                formBounds.Top + top,
+                formBounds.Width - (marginX * 2),
+                formBounds.Height - bottom
             );
         }
 
         public Rectangle GetStepIndicatorBounds(Rectangle formBounds)
         {
+            int height = DpiScalingHelper.ScaleValue(100, _host);
             return new Rectangle(
                 formBounds.Left,
                 formBounds.Top,
                 formBounds.Width,
-                100
+                height
             );
         }
 
@@ -116,13 +120,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
+            // DPI-scale all layout values
             int stepCount = steps.Count;
-            int circleSize = 36;
-            int padding = 50;
+            int circleSize = DpiScalingHelper.ScaleValue(36, _host);
+            int padding = DpiScalingHelper.ScaleValue(50, _host);
+            int labelOffset = DpiScalingHelper.ScaleValue(8, _host);
+            int labelWidth = DpiScalingHelper.ScaleValue(120, _host);
+            int labelHeight = DpiScalingHelper.ScaleValue(24, _host);
+            float lineWidth = DpiScalingHelper.ScaleValue(3f, _host);
+
             int availableWidth = bounds.Width - (padding * 2);
             int stepSpacing = stepCount > 1 ? availableWidth / (stepCount - 1) : 0;
             int startX = bounds.Left + padding;
-            int centerY = bounds.Top + bounds.Height / 2 - 5;
+            int centerY = bounds.Top + bounds.Height / 2 - DpiScalingHelper.ScaleValue(5, _host);
 
             // Draw connecting lines first
             if (stepCount > 1)
@@ -134,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                     int y = centerY;
 
                     var lineColor = i < currentIndex ? _completedColor : _lineColor;
-                    using (var pen = new Pen(lineColor, 3f))
+                    using (var pen = new Pen(lineColor, lineWidth))
                     {
                         g.DrawLine(pen, x1, y, x2, y);
                     }
@@ -211,7 +221,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
                 }
 
                 // Draw step title below
-                var labelRect = new Rectangle(x - 60, centerY + circleSize / 2 + 8, 120, 24);
+                int halfLabelW = labelWidth / 2;
+                var labelRect = new Rectangle(x - halfLabelW, centerY + circleSize / 2 + labelOffset,
+                    labelWidth, labelHeight);
                 var labelColor = i == currentIndex ? _textColor : _subtextColor;
                 var font = i == currentIndex ? _titleFont : _labelFont;
                 TextUtils.DrawText(g, step.Title ?? $"Step {i + 1}", font, labelRect, labelColor,
@@ -225,7 +237,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
         private void DrawCheckmark(Graphics g, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2.5f))
+            float penWidth = DpiScalingHelper.ScaleValue(2.5f, _host);
+            int size = DpiScalingHelper.ScaleValue(8, _host);
+            using (var pen = new Pen(color, penWidth))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
@@ -233,7 +247,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
                 int cx = rect.X + rect.Width / 2;
                 int cy = rect.Y + rect.Height / 2;
-                int size = 8;
 
                 g.DrawLines(pen, new Point[]
                 {
@@ -246,14 +259,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Painters
 
         private void DrawErrorX(Graphics g, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2.5f))
+            float penWidth = DpiScalingHelper.ScaleValue(2.5f, _host);
+            int size = DpiScalingHelper.ScaleValue(6, _host);
+            using (var pen = new Pen(color, penWidth))
             {
                 pen.StartCap = LineCap.Round;
                 pen.EndCap = LineCap.Round;
 
                 int cx = rect.X + rect.Width / 2;
                 int cy = rect.Y + rect.Height / 2;
-                int size = 6;
 
                 g.DrawLine(pen, cx - size, cy - size, cx + size, cy + size);
                 g.DrawLine(pen, cx + size, cy - size, cx - size, cy + size);

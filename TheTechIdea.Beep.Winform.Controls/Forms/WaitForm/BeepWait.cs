@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
+using TheTechIdea.Beep.Winform.Controls.Layouts.Helpers;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Models;
 
 
@@ -15,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
    
     public partial class BeepWait : BeepiFormPro, IWaitForm
     {
+        protected override Size DefaultSize => BeepLayoutMetrics.Splash;
         public Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
         
         private bool _useTerminalEffect = false;  // Disabled by default for reliability
@@ -98,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepWait() : base()
         {
             InitializeComponent();
+            ClientSize = BeepLayoutMetrics.Splash.ScaleSize(this);
 
             // Capture UI thread context so Config()/SafeInvoke() can marshal from any thread without accessing this control
             _uiSyncContext = SynchronizationContext.Current ?? new System.Windows.Forms.WindowsFormsSynchronizationContext();

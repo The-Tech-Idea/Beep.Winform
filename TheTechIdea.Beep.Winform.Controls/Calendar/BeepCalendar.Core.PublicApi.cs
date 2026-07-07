@@ -240,9 +240,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         private Rectangle ComputeEditorBounds(string editorId, CalendarEvent _)
         {
             int w = ClientRectangle.Width;
-            const int barH = 28;
-            const int pad = 8;
-            const int gap = 6;
+            int barH = ScaleMetric(CalendarTokens.EditorBarHeight);
+            int pad  = ScaleMetric(CalendarTokens.EditorPadding);
+            int gap  = ScaleMetric(CalendarTokens.EditorGap);
             int y = pad;
             switch (editorId)
             {
@@ -253,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                     return new Rectangle(pad, y, w - 2 * pad, barH);
                 case InlineAllDayToggleEditor.Id:
                     y += 2 * (barH + gap);
-                    return new Rectangle(pad, y, 200, barH);
+                    return new Rectangle(pad, y, w - 2 * pad, barH);
                 default:
                     return new Rectangle(pad, y, w - 2 * pad, barH);
             }

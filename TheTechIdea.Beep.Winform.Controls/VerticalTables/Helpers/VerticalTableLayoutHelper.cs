@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
 {
@@ -52,6 +53,22 @@ namespace TheTechIdea.Beep.Winform.Controls.VerticalTables.Helpers
         }
 
         public BaseControl Owner => _owner;
+
+        /// <summary>
+        /// Gets the current DPI scale factor for the owner control.
+        /// Returns 1.0 if the owner handle is not yet created.
+        /// </summary>
+        public float DpiScaleFactor => DpiScalingHelper.GetDpiScaleFactor(_owner);
+
+        /// <summary>
+        /// Scales a logical-pixel value to physical pixels using the owner's current DPI.
+        /// </summary>
+        public int Scale(int logicalValue) => DpiScalingHelper.ScaleValue(logicalValue, _owner);
+
+        /// <summary>
+        /// Converts a physical-pixel value back to logical pixels.
+        /// </summary>
+        public int Unscale(int physicalValue) => DpiScalingHelper.PhysicalToLogical(physicalValue, DpiScaleFactor);
 
         public IReadOnlyList<VerticalColumnLayout> Columns => _columns.AsReadOnly();
 
